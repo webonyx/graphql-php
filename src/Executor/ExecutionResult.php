@@ -142,13 +142,14 @@ class ExecutionResult implements JsonSerializable
                 return array_map($formatter, $errors);
             };
 
-            $formattedErrors = $errorsHandler(
+            $handledErrors = $errorsHandler(
                 $this->errors,
                 FormattedError::prepareFormatter($this->errorFormatter, $debug)
             );
 
-            if ($formattedErrors) {
-                $result['errors'] = $formattedErrors;
+            // While we know that there were errors initially, they might have been discarded
+            if ($handledErrors) {
+                $result['errors'] = $handledErrors;
             }
         }
 
