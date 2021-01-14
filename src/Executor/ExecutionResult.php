@@ -148,7 +148,7 @@ class ExecutionResult implements JsonSerializable
             );
 
             // While we know that there were errors initially, they might have been discarded
-            if ($handledErrors) {
+            if ($handledErrors !== []) {
                 $result['errors'] = $handledErrors;
             }
         }
