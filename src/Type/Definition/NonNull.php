@@ -29,6 +29,9 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
         return Schema::resolveType($this->ofType);
     }
 
+    /**
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType every type except NonNull
+     */
     public function getWrappedType(bool $recurse = false) : Type
     {
         $type = $this->getOfType();
