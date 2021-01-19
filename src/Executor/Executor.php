@@ -179,6 +179,10 @@ class Executor
                 $property = $objectValue[$fieldName];
             }
         } elseif ($objectValue instanceof ArrayAccess) {
+            // handles #759: ArrayAccess::offsetExists() can call offsetGet() internally,
+            // which results in calling offsetGet() twice.
+            // This avoids the double call and handles Exceptions to have the same 
+            // behavior as isset() in the pure array case.
             try {
                 $property = $objectValue[$fieldName];
             } catch (Throwable $e) {
