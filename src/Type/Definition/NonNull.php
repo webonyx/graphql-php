@@ -12,7 +12,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     private $ofType;
 
     /**
-     * @param callable():(NullableType &Type)|(NullableType&Type) $type
+     * @param callable():(NullableType&Type)|(NullableType&Type) $type
      */
     public function __construct($type)
     {
@@ -30,7 +30,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     }
 
     /**
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType every type except NonNull
+     * @return (NullableType&Type)
      */
     public function getWrappedType(bool $recurse = false) : Type
     {
