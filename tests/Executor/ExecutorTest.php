@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use ArrayAccess;
+use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\Error;
 use GraphQL\Error\UserError;
@@ -1219,6 +1221,187 @@ class ExecutorTest extends TestCase
                         ['id' => '2'],
                         new stdClass(),
                         new stdClass(),
+                    ],
+                ],
+            ],
+            $result->toArray()
+        );
+    }
+
+    public function testDefaultResolverGrabsValuesOffOfCommonPhpDataStructures() : void
+    {
+        $Array = new ObjectType([
+            'name'       => 'Array',
+            'fields'     => [
+                'set' => Type::int(),
+                'unset' => Type::int(),
+            ],
+        ]);
+
+        $ArrayAccess = new ObjectType([
+            'name'        => 'ArrayAccess',
+            'fields'      => [
+                'set' => Type::int(),
+                'unsetNull' => Type::int(),
+                'unsetThrow' => Type::int(),
+            ],
+        ]);
+
+        $ObjectField = new ObjectType([
+            'name'       => 'ObjectField',
+            'fields'     => [
+                'set' => Type::int(),
+                'unset' => Type::int(),
+                'nonExistent' => Type::int(),
+            ],
+        ]);
+
+        $ObjectVirtual = new ObjectType([
+            'name'       => 'ObjectVirtual',
+            'fields'     => [
+                'set' => Type::int(),
+                'unsetNull' => Type::int(),
+                'unsetThrow' => Type::int(),
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name'   => 'Query',
+                'fields' => [
+                    'array' => [
+                        'type' => $Array,
+                        'resolve' => static function () : array {
+                            return ['set' => 1];
+                        },
+                    ],
+                    'arrayAccess' => [
+                        'type' => $ArrayAccess,
+                        'resolve' => static function () : ArrayAccess {
+                            return new class implements ArrayAccess {
+                                public function offsetExists($offset)
+                                {
+                                    switch ($offset) {
+                                        case 'set':
+                                            return true;
+                                        default:
+                                            return false;
+                                    }
+                                }
+
+                                public function offsetGet($offset)
+                                {
+                                    switch ($offset) {
+                                        case 'set':
+                                            return 1;
+                                        case 'unsetNull':
+                                            return null;
+                                        default:
+                                            throw new Exception('unsetThrow');
+                                    }
+                                }
+
+                                public function offsetSet($offset, $value)
+                                {
+                                }
+
+                                public function offsetUnset($offset)
+                                {
+                                }
+                            };
+                        },
+                    ],
+                    'objectField' => [
+                        'type' => $ObjectField,
+                        'resolve' => static function () : stdClass {
+                            return new class extends stdClass {
+                                /** @var int|null */
+                                public $set = 1;
+
+                                /** @var int|null */
+                                public $unset;
+                            };
+                        },
+                    ],
+                    'objectVirtual' => [
+                        'type' => $ObjectVirtual,
+                        'resolve' => static function () {
+                            return new class {
+                                public function __isset($name) : bool
+                                {
+                                    switch ($name) {
+                                        case 'set':
+                                            return true;
+                                        default:
+                                            return false;
+                                    }
+                                }
+
+                                public function __get($name) : ?int
+                                {
+                                    switch ($name) {
+                                        case 'set':
+                                            return 1;
+                                        case 'unsetNull':
+                                            return null;
+                                        default:
+                                            throw new Exception('unsetThrow');
+                                    }
+                                }
+                            };
+                        },
+                    ],
+                ],
+            ]),
+        ]);
+
+        $query = Parser::parse('
+            {
+                array {
+                    set
+                    unset
+                }
+                arrayAccess {
+                    set
+                    unsetNull
+                    unsetThrow
+                }
+                objectField {
+                    set
+                    unset
+                    nonExistent
+                }
+                objectVirtual {
+                    set
+                    unsetNull
+                    unsetThrow
+                }
+            }
+        ');
+
+        $result = Executor::execute($schema, $query);
+
+        self::assertEquals(
+            [
+                'data' => [
+                    'array' => [
+                        'set' => 1,
+                        'unset' => null,
+                    ],
+                    'arrayAccess' => [
+                        'set' => 1,
+                        'unsetNull' => null,
+                        'unsetThrow' => null,
+                    ],
+                    'objectField' => [
+                        'set' => 1,
+                        'unset' => null,
+                        'nonExistent' => null,
+                    ],
+                    'objectVirtual' => [
+                        'set' => 1,
+                        'unsetNull' => null,
+                        'unsetThrow' => null,
                     ],
                 ],
             ],
