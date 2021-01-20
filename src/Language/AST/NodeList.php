@@ -95,6 +95,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
             $value = AST::fromArray($value);
         }
 
+        // Happens when a Node is pushed via []=
         if ($offset === null) {
             $this->nodes[] = $value;
 
