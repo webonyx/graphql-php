@@ -19,26 +19,26 @@ class NodeListTest extends TestCase
         $nameNode        = new NameNode(['value' => 'foo']);
         $nodeList['foo'] = $nameNode->toArray();
 
-        $this->assertInstanceOf(get_class($nameNode), $nodeList['foo']);
+        self::assertInstanceOf(get_class($nameNode), $nodeList['foo']);
     }
 
     public function testThrowsOnInvalidArrays() : void
     {
         $nodeList = new NodeList([]);
 
-        $this->expectException(InvariantViolation::class);
+        self::expectException(InvariantViolation::class);
         $nodeList[] = ['not a valid array representation of an AST node'];
     }
 
     public function testPushNodes() : void
     {
         $nodeList = new NodeList([]);
-        $this->assertCount(0, $nodeList);
+        self::assertCount(0, $nodeList);
 
         $nodeList[] = new NameNode(['value' => 'foo']);
-        $this->assertCount(1, $nodeList);
+        self::assertCount(1, $nodeList);
 
         $nodeList[] = new NameNode(['value' => 'bar']);
-        $this->assertCount(2, $nodeList);
+        self::assertCount(2, $nodeList);
     }
 }
