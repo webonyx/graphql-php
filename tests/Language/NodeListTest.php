@@ -10,7 +10,7 @@ use GraphQL\Language\AST\NodeList;
 use PHPUnit\Framework\TestCase;
 use function get_class;
 
-class NodeListTest extends TestCase
+final class NodeListTest extends TestCase
 {
     public function testConvertArrayToASTNode() : void
     {
