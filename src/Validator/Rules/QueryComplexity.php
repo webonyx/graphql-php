@@ -20,7 +20,6 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\ValidationContext;
 use function array_map;
-use function call_user_func_array;
 use function count;
 use function implode;
 use function method_exists;
