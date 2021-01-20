@@ -2,6 +2,9 @@
 
 #### Unreleased
 
+Fix:
+- Allow pushing nodes to `NodeList` via `[]=` (#767)
+
 #### 14.4.0
 
 Fix:
