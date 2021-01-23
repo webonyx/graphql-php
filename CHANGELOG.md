@@ -2,9 +2,12 @@
 
 #### Unreleased
 
+#### 14.4.1
+
 Fix:
 - Allow pushing nodes to `NodeList` via `[]=` (#767)
 - Fix signature of `Error\FormattedError::prepareFormatter()` to address PHP8 deprecation (#742)
+- Do not add errors key to result when errors discarded by custom error handler (#766)
 
 #### 14.4.0
 
