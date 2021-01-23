@@ -2,6 +2,10 @@
 
 #### Unreleased
 
+Fix:
+- Allow pushing nodes to `NodeList` via `[]=` (#767)
+- Fix signature of `Error\FormattedError::prepareFormatter()` to address PHP8 deprecation (#742)
+
 #### 14.4.0
 
 Fix:
@@ -9,7 +13,6 @@ Fix:
 - Parse `DirectiveDefinitionNode->locations` as `NodeList<NamedNode>` (fixes AST::fromArray conversion) (#723)
 - Parse `Parser::implementsInterfaces` as `NodeList<NamedTypeNode>` (fixes AST::fromArray conversion)
 - Fix signature of `Parser::unionMemberTypes` to match actual `NodeList<NamedTypeNode>`
-- Fix signature of `Error\FormattedError::prepareFormatter()` to address PHP8 deprecation (#742)
 
 #### v14.3.0
 
