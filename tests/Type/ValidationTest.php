@@ -889,7 +889,10 @@ class ValidationTest extends TestCase
         | TypeB
         ');
 
-        $schema = SchemaExtender::extend($schema, Parser::parse('extend union BadUnion = Int'));
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('extend union BadUnion = Int')
+        );
 
         $this->assertMatchesValidationMessage(
             $schema->validate(),
@@ -1443,7 +1446,7 @@ class ValidationTest extends TestCase
      */
     public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingField()
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             test: AnotherObject
           }
@@ -1455,6 +1458,7 @@ class ValidationTest extends TestCase
           type AnotherObject implements AnotherInterface {
             field: String
           }');
+
         $extendedSchema = SchemaExtender::extend(
             $schema,
             Parser::parse('
@@ -1467,6 +1471,7 @@ class ValidationTest extends TestCase
                 }
             ')
         );
+
         $this->assertMatchesValidationMessage(
             $extendedSchema->validate(),
             [[
@@ -1486,7 +1491,7 @@ class ValidationTest extends TestCase
      */
     public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingFieldArgs()
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             test: AnotherObject
           }
@@ -1498,6 +1503,7 @@ class ValidationTest extends TestCase
           type AnotherObject implements AnotherInterface {
             field: String
           }');
+
         $extendedSchema = SchemaExtender::extend(
             $schema,
             Parser::parse('
@@ -1510,6 +1516,7 @@ class ValidationTest extends TestCase
                 }
             ')
         );
+
         $this->assertMatchesValidationMessage(
             $extendedSchema->validate(),
             [[
@@ -1528,7 +1535,7 @@ class ValidationTest extends TestCase
      */
     public function testRejectsObjectsImplementingTheExtendedInterfaceDueToMismatchingInterfaceType()
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             test: AnotherObject
           }
@@ -1540,6 +1547,7 @@ class ValidationTest extends TestCase
           type AnotherObject implements AnotherInterface {
             field: String
           }');
+
         $extendedSchema = SchemaExtender::extend(
             $schema,
             Parser::parse('
@@ -1565,6 +1573,7 @@ class ValidationTest extends TestCase
                 }
             ')
         );
+
         $this->assertMatchesValidationMessage(
             $extendedSchema->validate(),
             [[

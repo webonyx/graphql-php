@@ -480,7 +480,7 @@ class SchemaExtender
 
         return array_merge(
             $existingDirectives,
-            array_map(static function (DirectiveDefinitionNode $directive) {
+            array_map(static function (DirectiveDefinitionNode $directive) : Directive {
                 return static::$astBuilder->buildDirective($directive);
             }, $directiveDefinitions)
         );
@@ -498,20 +498,21 @@ class SchemaExtender
     }
 
     /**
-     * @param mixed[]|null $options
+     * @param array<string, bool> $options
      */
-    public static function extend(Schema $schema, DocumentNode $documentAST, ?array $options = null) : Schema
+    public static function extend(Schema $schema, DocumentNode $documentAST, array $options = []) : Schema
     {
-        if ($options === null || ! (isset($options['assumeValid']) || isset($options['assumeValidSDL']))) {
+        if (! (isset($options['assumeValid']) || isset($options['assumeValidSDL']))) {
             DocumentValidator::assertValidSDLExtension($documentAST, $schema);
         }
 
+        /** @var array<string, Node&TypeDefinitionNode> $typeDefinitionMap */
         $typeDefinitionMap         = [];
         static::$typeExtensionsMap = [];
         $directiveDefinitions      = [];
         /** @var SchemaDefinitionNode|null $schemaDef */
         $schemaDef = null;
-        /** @var SchemaTypeExtensionNode[] $schemaExtensions */
+        /** @var array<int, SchemaTypeExtensionNode> $schemaExtensions */
         $schemaExtensions = [];
 
         $definitionsCount = count($documentAST->definitions);
@@ -558,11 +559,11 @@ class SchemaExtender
             }
         }
 
-        if (count(static::$typeExtensionsMap) === 0 &&
-            count($typeDefinitionMap) === 0 &&
-            count($directiveDefinitions) === 0 &&
-            count($schemaExtensions) === 0 &&
-            $schemaDef === null
+        if (count(static::$typeExtensionsMap) === 0
+            && count($typeDefinitionMap) === 0
+            && count($directiveDefinitions) === 0
+            && count($schemaExtensions) === 0
+            && $schemaDef === null
         ) {
             return $schema;
         }
@@ -621,13 +622,13 @@ class SchemaExtender
         $types = array_merge(
             // Iterate through all types, getting the type definition for each, ensuring
             // that any type not directly referenced by a field will get created.
-            array_map(static function ($type) {
+            array_map(static function (Type $type) : Type {
                 return static::extendNamedType($type);
-            }, array_values($schema->getTypeMap())),
+            }, $schema->getTypeMap()),
             // Do the same with new types.
-            array_map(static function ($type) : Type {
+            array_map(static function (TypeDefinitionNode $type) : Type {
                 return static::$astBuilder->buildType($type);
-            }, array_values($typeDefinitionMap))
+            }, $typeDefinitionMap)
         );
 
         return new Schema([

@@ -213,13 +213,14 @@ class SchemaExtenderTest extends TestCase
     }
 
     /**
-     * @param mixed[]|null $options
+     * @param array<string, bool> $options
      */
-    protected function extendTestSchema(string $sdl, ?array $options = null) : Schema
+    protected function extendTestSchema(string $sdl, array $options = []) : Schema
     {
         $originalPrint  = SchemaPrinter::doPrint($this->testSchema);
         $ast            = Parser::parse($sdl);
         $extendedSchema = SchemaExtender::extend($this->testSchema, $ast, $options);
+
         self::assertEquals(SchemaPrinter::doPrint($this->testSchema), $originalPrint);
 
         return $extendedSchema;
@@ -1248,6 +1249,7 @@ class SchemaExtenderTest extends TestCase
 
         $originalPrint  = SchemaPrinter::doPrint($mutationSchema);
         $extendedSchema = SchemaExtender::extend($mutationSchema, $ast);
+
         self::assertNotEquals($mutationSchema, $extendedSchema);
         self::assertEquals(SchemaPrinter::doPrint($mutationSchema), $originalPrint);
         self::assertEquals(SchemaPrinter::doPrint($extendedSchema), $this->dedent('

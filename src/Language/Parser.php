@@ -629,8 +629,9 @@ class Parser
         return new VariableDefinitionNode([
             'variable'     => $var,
             'type'         => $type,
-            'defaultValue' =>
-                ($this->skip(Token::EQUALS) ? $this->parseValueLiteral(true) : null),
+            'defaultValue' => $this->skip(Token::EQUALS)
+                ? $this->parseValueLiteral(true)
+                : null,
             'directives'   => $this->parseDirectives(true),
             'loc'          => $this->loc($start),
         ]);
@@ -1553,7 +1554,7 @@ class Parser
                 [$this, 'parseOperationTypeDefinition'],
                 Token::BRACE_R
             )
-            : [];
+            : new NodeList([]);
         if (count($directives) === 0 && count($operationTypes) === 0) {
             $this->unexpected();
         }
