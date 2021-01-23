@@ -1347,12 +1347,14 @@ class Parser
         $description = $this->parseDescription();
         $this->expectKeyword('interface');
         $name       = $this->parseName();
+        $interfaces = $this->parseImplementsInterfaces();
         $directives = $this->parseDirectives(true);
         $fields     = $this->parseFieldsDefinition();
 
         return new InterfaceTypeDefinitionNode([
             'name'        => $name,
             'directives'  => $directives,
+            'interfaces'  => $interfaces,
             'fields'      => $fields,
             'loc'         => $this->loc($start),
             'description' => $description,
@@ -1623,10 +1625,12 @@ class Parser
         $this->expectKeyword('extend');
         $this->expectKeyword('interface');
         $name       = $this->parseName();
+        $interfaces = $this->parseImplementsInterfaces();
         $directives = $this->parseDirectives(true);
         $fields     = $this->parseFieldsDefinition();
-        if (count($directives) === 0 &&
-            count($fields) === 0
+        if (count($interfaces) === 0
+            && count($directives) === 0
+            && count($fields) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1634,6 +1638,7 @@ class Parser
         return new InterfaceTypeExtensionNode([
             'name'       => $name,
             'directives' => $directives,
+            'interfaces' => $interfaces,
             'fields'     => $fields,
             'loc'        => $this->loc($start),
         ]);

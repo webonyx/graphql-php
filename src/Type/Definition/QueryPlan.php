@@ -126,7 +126,7 @@ class QueryPlan
 
             $type = $parentType->getField($fieldNode->name->value)->getType();
             if ($type instanceof WrappingType) {
-                $type = $type->getWrappedType();
+                $type = $type->getWrappedType(true);
             }
 
             $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type, $implementors);
@@ -211,7 +211,7 @@ class QueryPlan
     private function analyzeSubFields(Type $type, SelectionSetNode $selectionSet, array &$implementors = []) : array
     {
         if ($type instanceof WrappingType) {
-            $type = $type->getWrappedType();
+            $type = $type->getWrappedType(true);
         }
 
         $subfields = [];

@@ -1037,8 +1037,56 @@ class BreakingChangesFinderTest extends TestCase
 
         $expected = [
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
                 'description' => 'Type1 no longer implements interface Interface1.',
+            ],
+        ];
+
+        self::assertEquals(
+            $expected,
+            BreakingChangesFinder::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
+        );
+    }
+
+    /**
+     * @see it('should detect interfaces removed from interfaces')
+     */
+    public function testShouldDetectInterfacesRemovedFromInterfaces() : void
+    {
+        $interface1 = new InterfaceType([
+            'name'   => 'Interface1',
+            'fields' => [
+                'field1' => Type::string(),
+            ],
+        ]);
+
+        $oldInterface2 = new InterfaceType([
+            'name'   => 'Interface2',
+            'fields' => [
+                'field1' => Type::string(),
+            ],
+            'interfaces' => [$interface1],
+        ]);
+        $newInterface2 = new InterfaceType([
+            'name'   => 'Interface2',
+            'fields' => [
+                'field1' => Type::string(),
+            ],
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$interface1, $oldInterface2],
+        ]);
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$interface1, $newInterface2],
+        ]);
+
+        $expected = [
+            [
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
+                'description' => 'Interface2 no longer implements interface Interface1.',
             ],
         ];
 
@@ -1291,7 +1339,7 @@ class BreakingChangesFinderTest extends TestCase
                 'description' => 'ArgThatChanges.field1 arg id has changed type from Int to String',
             ],
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
                 'description' => 'TypeThatLosesInterface1 no longer implements interface Interface1.',
             ],
             [
@@ -1659,8 +1707,48 @@ class BreakingChangesFinderTest extends TestCase
 
         $expected = [
             [
-                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
+                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
                 'description' => 'Interface1 added to interfaces implemented by Type1.',
+            ],
+        ];
+
+        self::assertEquals(
+            $expected,
+            BreakingChangesFinder::findInterfacesAddedToObjectTypes($oldSchema, $newSchema)
+        );
+    }
+
+    /**
+     * @see it('should detect interfaces added to interfaces')
+     */
+    public function testShouldDetectInterfacesAddedToInterfaces() : void
+    {
+        $oldInterface = new InterfaceType(['name' => 'OldInterface']);
+        $newInterface = new InterfaceType(['name' => 'NewInterface']);
+
+        $oldInterface1 = new InterfaceType([
+            'name'   => 'Interface1',
+            'interfaces' => [$oldInterface],
+        ]);
+        $newInterface1 = new InterfaceType([
+            'name'   => 'Interface1',
+            'interfaces' => [$oldInterface, $newInterface],
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$oldInterface1],
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$newInterface1],
+        ]);
+
+        $expected = [
+            [
+                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
+                'description' => 'NewInterface added to interfaces implemented by Interface1.',
             ],
         ];
 
@@ -1903,7 +1991,7 @@ class BreakingChangesFinderTest extends TestCase
                 'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
             ],
             [
-                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
+                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
                 'description' => 'Interface1 added to interfaces implemented by TypeThatGainsInterface1.',
             ],
             [

@@ -284,23 +284,36 @@ class BuildClientSchema
     }
 
     /**
+     * @param array<string, mixed> $implementingIntrospection
+     *
+     * @return array<int, InterfaceType>
+     */
+    private function buildImplementationsList(array $implementingIntrospection) : array
+    {
+        // TODO: Temporary workaround until GraphQL ecosystem will fully support 'interfaces' on interface types.
+        if (array_key_exists('interfaces', $implementingIntrospection) &&
+            $implementingIntrospection['interfaces'] === null &&
+            $implementingIntrospection['kind'] === TypeKind::INTERFACE) {
+            return [];
+        }
+
+        if (! array_key_exists('interfaces', $implementingIntrospection)) {
+            throw new InvariantViolation('Introspection result missing interfaces: ' . json_encode($implementingIntrospection) . '.');
+        }
+
+        return array_map([$this, 'getInterfaceType'], $implementingIntrospection['interfaces']);
+    }
+
+    /**
      * @param array<string, mixed> $object
      */
     private function buildObjectDef(array $object) : ObjectType
     {
-        if (! array_key_exists('interfaces', $object)) {
-            throw new InvariantViolation('Introspection result missing interfaces: ' . json_encode($object) . '.');
-        }
-
         return new ObjectType([
             'name' => $object['name'],
             'description' => $object['description'],
             'interfaces' => function () use ($object) : array {
-                return array_map(
-                    [$this, 'getInterfaceType'],
-                    // Legacy support for interfaces with null as interfaces field
-                    $object['interfaces'] ?? []
-                );
+                return $this->buildImplementationsList($object);
             },
             'fields' => function () use ($object) {
                 return $this->buildFieldDefMap($object);
@@ -318,6 +331,9 @@ class BuildClientSchema
             'description' => $interface['description'],
             'fields' => function () use ($interface) {
                 return $this->buildFieldDefMap($interface);
+            },
+            'interfaces' => function () use ($interface) : array {
+                return $this->buildImplementationsList($interface);
             },
         ]);
     }

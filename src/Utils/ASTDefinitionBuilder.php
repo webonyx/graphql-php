@@ -357,6 +357,9 @@ class ASTDefinitionBuilder
             'fields'      => function () use ($def) : array {
                 return $this->makeFieldDefMap($def);
             },
+            'interfaces'  => function () use ($def) : array {
+                return $this->makeImplementedInterfaces($def);
+            },
             'astNode'     => $def,
         ]);
     }

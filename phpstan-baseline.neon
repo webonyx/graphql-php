@@ -136,12 +136,12 @@ parameters:
 			path: src/Type/Schema.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, \\(callable\\)\\|null given\\.$#"
+			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Error\\\\Error\\|GraphQL\\\\Error\\\\InvariantViolation\\> given\\.$#"
 			count: 1
 			path: src/Type/Schema.php
 
 		-
-			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Error\\\\Error\\|GraphQL\\\\Error\\\\InvariantViolation\\> given\\.$#"
+			message: "#^Only booleans are allowed in a negated boolean, \\(callable\\)\\|null given\\.$#"
 			count: 1
 			path: src/Type/Schema.php
 
@@ -441,7 +441,7 @@ parameters:
 			path: src/Validator/Rules/KnownDirectives.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, array|null given\\.$#"
+			message: "#^Only booleans are allowed in a negated boolean, array\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/KnownDirectives.php
 

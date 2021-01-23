@@ -71,7 +71,7 @@ class SchemaPrinterTest extends TestCase
 This is a description
 of the `Foo` type.
 """
-type Foo implements Bar & Baz {
+type Foo implements Bar & Baz & Two {
   one: Type
   """
   This is a description of the `two` field.
@@ -112,11 +112,17 @@ interface AnnotatedInterface @onInterface {
 
 interface UndefinedInterface
 
-extend interface Bar {
+extend interface Bar implements Two {
   two(argument: InputType!): Type
 }
 
 extend interface Bar @onInterface
+
+interface Baz implements Bar & Two {
+  one: Type
+  two(argument: InputType!): Type
+  four(argument: String = "string"): String
+}
 
 union Feed = Story | Article | Advert
 

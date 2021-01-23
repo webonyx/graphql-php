@@ -25,6 +25,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -192,7 +193,7 @@ class TypeInfo
         if ($type instanceof UnionType) {
             $nestedTypes = $type->getTypes();
         }
-        if ($type instanceof ObjectType) {
+        if ($type instanceof ImplementingType) {
             $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
         }
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {

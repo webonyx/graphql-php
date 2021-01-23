@@ -15,6 +15,9 @@ class InterfaceTypeExtensionNode extends Node implements TypeExtensionNode
     /** @var NodeList<DirectiveNode> */
     public $directives;
 
+    /** @var NodeList<InterfaceTypeDefinitionNode> */
+    public $interfaces;
+
     /** @var NodeList<FieldDefinitionNode> */
     public $fields;
 }

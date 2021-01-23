@@ -91,17 +91,15 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     public function offsetSet($offset, $value) : void
     {
         if (is_array($value)) {
-            if (isset($value['kind'])) {
-                /** @phpstan-var T $node */
-                $node                 = AST::fromArray($value);
-                $this->nodes[$offset] = $node;
+            /** @phpstan-var T $value */
+            $value = AST::fromArray($value);
+        }
 
-                return;
-            }
+        // Happens when a Node is pushed via []=
+        if ($offset === null) {
+            $this->nodes[] = $value;
 
-            throw new InvalidArgumentException(
-                'Expected array value to be valid node data structure, missing key "kind"'
-            );
+            return;
         }
 
         $this->nodes[$offset] = $value;

@@ -68,12 +68,12 @@ class PossibleFragmentSpreads extends ValidationRule
 
         // Parent type is interface or union, fragment type is object type
         if ($parentType instanceof AbstractType && $fragType instanceof ObjectType) {
-            return $schema->isPossibleType($parentType, $fragType);
+            return $schema->isSubType($parentType, $fragType);
         }
 
         // Parent type is object type, fragment type is interface (or rather rare - union)
         if ($parentType instanceof ObjectType && $fragType instanceof AbstractType) {
-            return $schema->isPossibleType($fragType, $parentType);
+            return $schema->isSubType($fragType, $parentType);
         }
 
         // Both are object types:
