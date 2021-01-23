@@ -278,7 +278,7 @@ class ASTDefinitionBuilder
             'fields'      => function () use ($def) {
                 return $this->makeFieldDefMap($def);
             },
-            'interfaces'  => function () use ($def) {
+            'interfaces'  => function () use ($def) : ?array {
                 return $this->makeImplementedInterfaces($def);
             },
             'astNode'     => $def,
@@ -318,7 +318,7 @@ class ASTDefinitionBuilder
      * Given a collection of directives, returns the string value for the
      * deprecation reason.
      *
-     * @param EnumValueDefinitionNode | FieldDefinitionNode $node
+     * @param EnumValueDefinitionNode|FieldDefinitionNode $node
      *
      * @return string
      */
@@ -329,7 +329,12 @@ class ASTDefinitionBuilder
         return $deprecated['reason'] ?? null;
     }
 
-    private function makeImplementedInterfaces(ObjectTypeDefinitionNode $def)
+    /**
+     * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode $def
+     *
+     * @return array<int, InterfaceType>|null
+     */
+    private function makeImplementedInterfaces(Node $def) : ?array
     {
         if ($def->interfaces !== null) {
             // Note: While this could make early assertions to get the correctly
@@ -355,6 +360,9 @@ class ASTDefinitionBuilder
             'description' => $this->getDescription($def),
             'fields'      => function () use ($def) {
                 return $this->makeFieldDefMap($def);
+            },
+            'interfaces'  => function () use ($def) : ?array {
+                return $this->makeImplementedInterfaces($def);
             },
             'astNode'     => $def,
         ]);

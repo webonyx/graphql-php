@@ -1583,7 +1583,7 @@ class IntrospectionTest extends TestCase
                         ],
                         [
                             'description' => 'Indicates this type is an interface. ' .
-                                '`fields` and `possibleTypes` are valid fields.',
+                                '`fields`, `interfaces`, and `possibleTypes` are valid fields.',
                             'name'        => 'INTERFACE',
                         ],
                         [

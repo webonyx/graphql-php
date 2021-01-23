@@ -309,6 +309,7 @@ class Printer
                                 [
                                     'interface',
                                     $def->name,
+                                    $this->wrap('implements ', $this->join($def->interfaces, ' & ')),
                                     $this->join($def->directives, ' '),
                                     $this->block($def->fields),
                                 ],
@@ -401,6 +402,7 @@ class Printer
                             [
                                 'extend interface',
                                 $def->name,
+                                $this->wrap('implements ', $this->join($def->interfaces, ' & ')),
                                 $this->join($def->directives, ' '),
                                 $this->block($def->fields),
                             ],

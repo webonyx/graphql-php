@@ -448,7 +448,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return true;
         }
         if ($conditionalType instanceof AbstractType) {
-            return $this->exeContext->schema->isPossibleType($conditionalType, $type);
+            return $this->exeContext->schema->isSubType($conditionalType, $type);
         }
 
         return false;
@@ -1283,7 +1283,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 )
             );
         }
-        if (! $this->exeContext->schema->isPossibleType($returnType, $runtimeType)) {
+        if (! $this->exeContext->schema->isSubType($returnType, $runtimeType)) {
             throw new InvariantViolation(
                 sprintf('Runtime Object type "%s" is not a possible type for "%s".', $runtimeType, $returnType)
             );
