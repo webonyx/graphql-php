@@ -334,9 +334,11 @@ class ASTDefinitionBuilder
     }
 
     /**
+     * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode $def
+     *
      * @return array<int, Type>
      */
-    private function makeImplementedInterfaces(ObjectTypeDefinitionNode $def) : array
+    private function makeImplementedInterfaces($def) : array
     {
         // Note: While this could make early assertions to get the correctly
         // typed values, that would throw immediately while type system
