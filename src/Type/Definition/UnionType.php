@@ -33,7 +33,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
      */
     private $possibleTypeNames;
 
-    /** @var UnionTypeExtensionNode[] */
+    /** @var array<int, UnionTypeExtensionNode> */
     public $extensionASTNodes;
 
     /**
@@ -55,7 +55,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
-        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
         $this->config            = $config;
     }
 

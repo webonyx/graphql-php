@@ -37,7 +37,7 @@ class SchemaConfig
     /** @var ObjectType|null */
     public $subscription;
 
-    /** @var Type[]|callable */
+    /** @var array<Type>|(callable(): array<Type>) */
     public $types = [];
 
     /** @var Directive[]|null */
@@ -52,7 +52,7 @@ class SchemaConfig
     /** @var bool */
     public $assumeValid = false;
 
-    /** @var SchemaTypeExtensionNode[] */
+    /** @var array<int, SchemaTypeExtensionNode> */
     public $extensionASTNodes = [];
 
     /**
@@ -216,13 +216,13 @@ class SchemaConfig
     }
 
     /**
-     * @param Type[]|callable $types
+     * @param array<Type>|(callable(): array<Type>) $types
      *
-     * @return SchemaConfig
+     * @return $this
      *
      * @api
      */
-    public function setTypes($types)
+    public function setTypes($types) : self
     {
         $this->types = $types;
 

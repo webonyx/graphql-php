@@ -26,7 +26,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     private $fields;
 
-    /** @var InputObjectTypeExtensionNode[] */
+    /** @var array<int, InputObjectTypeExtensionNode> */
     public $extensionASTNodes;
 
     /**
@@ -44,7 +44,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         $this->name              = $config['name'];
         $this->astNode           = $config['astNode'] ?? null;
         $this->description       = $config['description'] ?? null;
-        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
     }
 
     /**

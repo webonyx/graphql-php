@@ -60,7 +60,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /** @var ObjectTypeDefinitionNode|null */
     public $astNode;
 
-    /** @var ObjectTypeExtensionNode[] */
+    /** @var array<int, ObjectTypeExtensionNode> */
     public $extensionASTNodes;
 
     /** @var ?callable */

@@ -521,9 +521,9 @@ class SchemaValidationContext
     /**
      * @param Schema|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType|Directive $obj
      *
-     * @return ObjectTypeDefinitionNode[]|ObjectTypeExtensionNode[]|InterfaceTypeDefinitionNode[]|InterfaceTypeExtensionNode[]
+     * @return array<ObjectTypeDefinitionNode>|array<ObjectTypeExtensionNode>|array<InterfaceTypeDefinitionNode>|array<InterfaceTypeExtensionNode>
      */
-    private function getAllNodes($obj)
+    private function getAllNodes($obj) : array
     {
         if ($obj instanceof Schema) {
             $astNode        = $obj->getAstNode();
@@ -534,10 +534,8 @@ class SchemaValidationContext
         }
 
         return $astNode
-            ? ($extensionNodes
-                ? array_merge([$astNode], $extensionNodes)
-                : [$astNode])
-            : ($extensionNodes ?? []);
+            ? array_merge([$astNode], $extensionNodes)
+            : $extensionNodes;
     }
 
     /**

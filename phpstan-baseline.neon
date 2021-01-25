@@ -201,11 +201,6 @@ parameters:
 			path: src/Type/SchemaValidationContext.php
 
 		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\EnumTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\SchemaTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeExtensionNode\\> given\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\InterfaceTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeExtensionNode given\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php

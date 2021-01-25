@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Executor;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Type\Definition\ObjectType;
@@ -75,10 +76,7 @@ class ValuesTest extends TestCase
         return self::$schema;
     }
 
-    /**
-     * @return VariableDefinitionNode[]
-     */
-    private static function getVariableDefinitionNodes() : array
+    private static function getVariableDefinitionNodes() : NodeList
     {
         $idInputDefinition     = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'idInput'])]),
@@ -101,7 +99,7 @@ class ValuesTest extends TestCase
             'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'Float'])]),
         ]);
 
-        return [$idInputDefinition, $boolInputDefinition, $intInputDefinition, $stringInputDefinition, $floatInputDefinition];
+        return new NodeList([$idInputDefinition, $boolInputDefinition, $intInputDefinition, $stringInputDefinition, $floatInputDefinition]);
     }
 
     public function testGetBooleanVariableValues() : void

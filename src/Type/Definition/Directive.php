@@ -31,7 +31,7 @@ class Directive
     /** @var string|null */
     public $description;
 
-    /** @var FieldArgument[] */
+    /** @var array<int, FieldArgument> */
     public $args = [];
 
     /** @var bool */

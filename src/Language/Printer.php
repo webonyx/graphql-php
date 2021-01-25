@@ -324,7 +324,7 @@ class Printer
                                 'union',
                                 $def->name,
                                 $this->join($def->directives, ' '),
-                                count($def->types ?? []) > 0
+                                count($def->types) > 0
                                     ? '= ' . $this->join($def->types, ' | ')
                                     : '',
                             ],
@@ -416,7 +416,7 @@ class Printer
                                 'extend union',
                                 $def->name,
                                 $this->join($def->directives, ' '),
-                                count($def->types ?? []) > 0
+                                count($def->types) > 0
                                     ? '= ' . $this->join($def->types, ' | ')
                                     : '',
                             ],

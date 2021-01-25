@@ -25,7 +25,7 @@ class FieldDefinition
     /** @var string */
     public $name;
 
-    /** @var FieldArgument[] */
+    /** @var array<int, FieldArgument> */
     public $args;
 
     /**
@@ -163,14 +163,9 @@ class FieldDefinition
         return $childrenComplexity + 1;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return FieldArgument|null
-     */
-    public function getArg($name)
+    public function getArg(string $name) : ?FieldArgument
     {
-        foreach ($this->args ?? [] as $arg) {
+        foreach ($this->args as $arg) {
             /** @var FieldArgument $arg */
             if ($arg->name === $name) {
                 return $arg;
