@@ -2,6 +2,9 @@
 
 #### Unreleased
 
+Fix:
+- Keep object input keys order
+
 #### 14.5.0
 
 Feat:

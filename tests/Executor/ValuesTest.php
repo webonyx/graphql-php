@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use function array_keys;
 use function count;
 use function var_export;
 
@@ -138,6 +139,18 @@ class ValuesTest extends TestCase
         $this->expectInputVariablesMatchOutputVariables(['floatInput' => 1]);
         $this->expectInputVariablesMatchOutputVariables(['floatInput' => 0]);
         $this->expectInputVariablesMatchOutputVariables(['floatInput' => 1e3]);
+    }
+
+    public function testVariableFieldsOrder() : void
+    {
+        $variables = [
+            'stringInput' => 'string',
+            'idInput' => '1',
+        ];
+
+        $result = $this->runTestCase($variables)[1];
+
+        self::assertEquals(array_keys($variables), array_keys($result));
     }
 
     public function testBooleanForIDVariableThrowsError() : void

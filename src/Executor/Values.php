@@ -44,6 +44,7 @@ use stdClass;
 use Throwable;
 use function array_key_exists;
 use function array_map;
+use function array_merge;
 use function count;
 use function sprintf;
 
@@ -141,7 +142,7 @@ class Values
             return [$errors, null];
         }
 
-        return [null, $coercedValues];
+        return [null, array_merge($inputs, $coercedValues)];
     }
 
     /**

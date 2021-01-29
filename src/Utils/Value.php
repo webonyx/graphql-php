@@ -213,7 +213,7 @@ class Value
                 );
             }
 
-            return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
+            return $errors ? self::ofErrors($errors) : self::ofValue(array_merge($value, $coercedValue));
         }
 
         throw new Error(sprintf('Unexpected type %s', $type->name));
