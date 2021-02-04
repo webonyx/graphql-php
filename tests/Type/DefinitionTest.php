@@ -1609,6 +1609,23 @@ class DefinitionTest extends TestCase
     }
 
     /**
+     * @see it('accepts an Input Object type with a field type function')
+     */
+    public function testAcceptsAnInputObjectTypeWithAFieldTypeFunction() : void
+    {
+        $inputObjType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                'f' => static function () : Type {
+                    return Type::string();
+                },
+            ],
+        ]);
+        $inputObjType->assertValid();
+        self::assertSame(Type::string(), $inputObjType->getField('f')->getType());
+    }
+
+    /**
      * @see it('rejects an Input Object type with incorrect fields')
      */
     public function testRejectsAnInputObjectTypeWithIncorrectFields() : void
