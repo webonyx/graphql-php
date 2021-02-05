@@ -19,6 +19,9 @@ Deprecates:
 Refactoring:
 - Reify AST node types and remove unneeded nullability (#751)
 
+Fix:
+- Fix Input Object field shortcut definition with callable (#773)
+
 #### 14.4.1
 
 Fix:
