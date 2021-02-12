@@ -95,7 +95,7 @@ abstract class Node
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, mixed>
      */
     public function toArray(bool $recursive = false) : array
     {

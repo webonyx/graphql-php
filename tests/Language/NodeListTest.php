@@ -27,6 +27,7 @@ final class NodeListTest extends TestCase
         $nodeList = new NodeList([]);
 
         self::expectException(InvariantViolation::class);
+        // @phpstan-ignore-next-line Wrong on purpose
         $nodeList[] = ['not a valid array representation of an AST node'];
     }
 
