@@ -1,6 +1,8 @@
 # Changelog
 
 #### Unreleased
+Fix:
+- Allow sending both query and queryId, ignore queryId in that case (#789)
 
 #### 14.5.1
 
