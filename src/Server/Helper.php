@@ -162,10 +162,6 @@ class Helper
             $errors[] = new RequestError('GraphQL Request must include at least one of those two parameters: "query" or "queryId"');
         }
 
-        if ($params->query && $params->queryId) {
-            $errors[] = new RequestError('GraphQL Request parameters "query" and "queryId" are mutually exclusive');
-        }
-
         if ($params->query !== null && ! is_string($params->query)) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "query" must be string, but got ' .
@@ -281,7 +277,7 @@ class Helper
                 );
             }
 
-            $doc = $op->queryId
+            $doc = $op->queryId && ! $op->query
                 ? $this->loadPersistedQuery($config, $op)
                 : $op->query;
 
