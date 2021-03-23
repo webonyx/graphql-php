@@ -52,12 +52,7 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, string given\\.$#"
-			count: 3
-			path: src/Server/Helper.php
-
-		-
-			message: "#^Only booleans are allowed in &&, string given on the left side\\.$#"
-			count: 1
+			count: 2
 			path: src/Server/Helper.php
 
 		-
