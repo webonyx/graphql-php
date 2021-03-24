@@ -47,17 +47,28 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertQueryResultEquals($expected, $query);
     }
 
-    private function assertQueryResultEquals($expected, $query, $variables = null)
+    public function testExecutesQueryWhenQueryAndQueryIdArePassed() : void
     {
-        $result = $this->executeQuery($query, $variables);
+        $query = '{f1}';
+
+        $expected = [
+            'data' => ['f1' => 'f1'],
+        ];
+
+        $this->assertQueryResultEquals($expected, $query, [], 'some-id');
+    }
+
+    private function assertQueryResultEquals($expected, $query, $variables = null, $queryId = null)
+    {
+        $result = $this->executeQuery($query, $variables, false, $queryId);
         self::assertArraySubset($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
 
         return $result;
     }
 
-    private function executeQuery($query, $variables = null, $readonly = false)
+    private function executeQuery($query, $variables = null, $readonly = false, $queryId = null)
     {
-        $op     = OperationParams::create(['query' => $query, 'variables' => $variables], $readonly);
+        $op     = OperationParams::create(['query' => $query, 'variables' => $variables, 'queryId' => $queryId], $readonly);
         $helper = new Helper();
         $result = $helper->executeOperation($this->config, $op);
         self::assertInstanceOf(ExecutionResult::class, $result);
