@@ -172,7 +172,7 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesNullableLists(
-            static function () {
+            static function () : array {
                 return [
                     new Deferred(static function () : int {
                         return 1;
@@ -329,7 +329,7 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesNonNullableLists(
-            static function () {
+            static function () : array {
                 return [
                     new Deferred(static function () : int {
                         return 1;
@@ -488,7 +488,7 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesListOfNonNulls(
-            static function () {
+            static function () : array {
                 return [
                     new Deferred(static function () : int {
                         return 1;
@@ -675,7 +675,7 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesNonNullListOfNonNulls(
-            static function () {
+            static function () : array {
                 return [
                     new Deferred(static function () : int {
                         return 1;

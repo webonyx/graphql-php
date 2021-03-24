@@ -166,7 +166,7 @@ class ExecutorLazySchemaTest extends TestCase
     public function testHintsOnConflictingTypeInstancesInDefinitions() : void
     {
         $calls      = [];
-        $typeLoader = static function ($name) use (&$calls) {
+        $typeLoader = static function ($name) use (&$calls) : ?ObjectType {
             $calls[] = $name;
             switch ($name) {
                 case 'Test':

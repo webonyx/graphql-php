@@ -73,7 +73,7 @@ class DeferredFieldsTest extends TestCase
         $this->paths    = [];
         $this->userType = new ObjectType([
             'name'   => 'User',
-            'fields' => function () {
+            'fields' => function () : array {
                 return [
                     'name'       => [
                         'type'    => Type::string(),
@@ -85,7 +85,7 @@ class DeferredFieldsTest extends TestCase
                     ],
                     'bestFriend' => [
                         'type'    => $this->userType,
-                        'resolve' => function ($user, $args, $context, ResolveInfo $info) {
+                        'resolve' => function ($user, $args, $context, ResolveInfo $info) : Deferred {
                             $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($user) {
@@ -112,7 +112,7 @@ class DeferredFieldsTest extends TestCase
                 ],
                 'author' => [
                     'type'    => $this->userType,
-                    'resolve' => function ($story, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($story, $args, $context, ResolveInfo $info) : Deferred {
                         $this->paths[] = $info->path;
 
                         return new Deferred(function () use ($story) {
@@ -139,7 +139,7 @@ class DeferredFieldsTest extends TestCase
 
                 'stories'  => [
                     'type'    => Type::listOf($this->storyType),
-                    'resolve' => function ($category, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($category, $args, $context, ResolveInfo $info) : array {
                         $this->paths[] = $info->path;
 
                         return Utils::filter(
@@ -152,7 +152,7 @@ class DeferredFieldsTest extends TestCase
                 ],
                 'topStory' => [
                     'type'    => $this->storyType,
-                    'resolve' => function ($category, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($category, $args, $context, ResolveInfo $info) : Deferred {
                         $this->paths[] = $info->path;
 
                         return new Deferred(function () use ($category) {
@@ -164,10 +164,10 @@ class DeferredFieldsTest extends TestCase
                 ],
                 'topStoryAuthor' => [
                     'type' => $this->userType,
-                    'resolve' => function ($category, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($category, $args, $context, ResolveInfo $info) : Deferred {
                         $this->paths[] = $info->path;
 
-                        return new Deferred(function () use ($category) {
+                        return new Deferred(function () use ($category) : Deferred {
                             $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStoryAuthor1';
                             $story         = $this->findStoryById($category['topStoryId']);
 
@@ -187,7 +187,7 @@ class DeferredFieldsTest extends TestCase
             'fields' => [
                 'topStories'       => [
                     'type'    => Type::listOf($this->storyType),
-                    'resolve' => function ($rootValue, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($rootValue, $args, $context, ResolveInfo $info) : array {
                         $this->paths[] = $info->path;
 
                         return Utils::filter(
@@ -399,7 +399,7 @@ class DeferredFieldsTest extends TestCase
     {
         $complexType = new ObjectType([
             'name'   => 'ComplexType',
-            'fields' => function () use (&$complexType) {
+            'fields' => function () use (&$complexType) : array {
                 return [
                     'sync'         => [
                         'type'    => Type::string(),
@@ -411,7 +411,7 @@ class DeferredFieldsTest extends TestCase
                     ],
                     'deferred'     => [
                         'type'    => Type::string(),
-                        'resolve' => function ($complexType, $args, $context, ResolveInfo $info) {
+                        'resolve' => function ($complexType, $args, $context, ResolveInfo $info) : Deferred {
                             $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($info) : string {
@@ -431,7 +431,7 @@ class DeferredFieldsTest extends TestCase
                     ],
                     'deferredNest' => [
                         'type'    => $complexType,
-                        'resolve' => function ($complexType, $args, $context, ResolveInfo $info) {
+                        'resolve' => function ($complexType, $args, $context, ResolveInfo $info) : Deferred {
                             $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($info) : array {
