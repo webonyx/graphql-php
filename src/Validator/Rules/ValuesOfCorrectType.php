@@ -64,7 +64,7 @@ class ValuesOfCorrectType extends ValidationRule
 
                 $context->reportError(
                     new Error(
-                        self::getBadValueMessage((string) $type, Printer::doPrint($node), null, $context, $fieldName),
+                        static::getBadValueMessage((string) $type, Printer::doPrint($node), null, $context, $fieldName),
                         $node
                     )
                 );
@@ -111,7 +111,7 @@ class ValuesOfCorrectType extends ValidationRule
 
                     $context->reportError(
                         new Error(
-                            self::requiredFieldMessage($type->name, $fieldName, (string) $fieldType),
+                            static::requiredFieldMessage($type->name, $fieldName, (string) $fieldType),
                             $node
                         )
                     );
@@ -135,7 +135,7 @@ class ValuesOfCorrectType extends ValidationRule
 
                 $context->reportError(
                     new Error(
-                        self::unknownFieldMessage($parentType->name, $node->name->value, $didYouMean),
+                        static::unknownFieldMessage($parentType->name, $node->name->value, $didYouMean),
                         $node
                     )
                 );
@@ -147,7 +147,7 @@ class ValuesOfCorrectType extends ValidationRule
                 } elseif (! $type->getValue($node->value)) {
                     $context->reportError(
                         new Error(
-                            self::getBadValueMessage(
+                            static::getBadValueMessage(
                                 $type->name,
                                 Printer::doPrint($node),
                                 $this->enumTypeSuggestion($type, $node),
@@ -198,7 +198,7 @@ class ValuesOfCorrectType extends ValidationRule
         if (! $type instanceof ScalarType) {
             $context->reportError(
                 new Error(
-                    self::getBadValueMessage(
+                    static::getBadValueMessage(
                         (string) $locationType,
                         Printer::doPrint($node),
                         $this->enumTypeSuggestion($type, $node),
@@ -220,7 +220,7 @@ class ValuesOfCorrectType extends ValidationRule
             // Ensure a reference to the original error is maintained.
             $context->reportError(
                 new Error(
-                    self::getBadValueMessage(
+                    static::getBadValueMessage(
                         (string) $locationType,
                         Printer::doPrint($node),
                         $error->getMessage(),
@@ -279,10 +279,10 @@ class ValuesOfCorrectType extends ValidationRule
         if ($context) {
             $arg = $context->getArgument();
             if ($arg) {
-                return self::badArgumentValueMessage($typeName, $valueName, $fieldName, $arg->name, $message);
+                return static::badArgumentValueMessage($typeName, $valueName, $fieldName, $arg->name, $message);
             }
         }
 
-        return self::badValueMessage($typeName, $valueName, $message);
+        return static::badValueMessage($typeName, $valueName, $message);
     }
 }

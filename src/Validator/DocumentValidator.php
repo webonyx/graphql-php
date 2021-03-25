@@ -300,7 +300,7 @@ class DocumentValidator
         $emptyDoc    = new DocumentNode(['definitions' => []]);
         $typeInfo    = new TypeInfo($emptySchema, $type);
         $context     = new ValidationContext($emptySchema, $emptyDoc, $typeInfo);
-        $validator   = new ValuesOfCorrectType();
+        $validator   = self::getRule(ValuesOfCorrectType::class);
         $visitor     = $validator->getVisitor($context);
         Visitor::visit($valueNode, Visitor::visitWithTypeInfo($typeInfo, $visitor));
 
