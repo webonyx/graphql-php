@@ -154,7 +154,7 @@ class ExecutorTest extends TestCase
         $deepDataType = null;
         $dataType     = new ObjectType([
             'name'   => 'DataType',
-            'fields' => static function () use (&$dataType, &$deepDataType) {
+            'fields' => static function () use (&$dataType, &$deepDataType) : array {
                 return [
                     'a'       => ['type' => Type::string()],
                     'b'       => ['type' => Type::string()],
@@ -214,7 +214,7 @@ class ExecutorTest extends TestCase
 
         $Type = new ObjectType([
             'name'   => 'Type',
-            'fields' => static function () use (&$Type) {
+            'fields' => static function () use (&$Type) : array {
                 return [
                     'a'    => [
                         'type'    => Type::string(),
@@ -829,7 +829,7 @@ class ExecutorTest extends TestCase
             'a' => static function () : string {
                 return 'a';
             },
-            'b' => static function () {
+            'b' => static function () : Deferred {
                 return new Deferred(static function () : string {
                     return 'b';
                 });

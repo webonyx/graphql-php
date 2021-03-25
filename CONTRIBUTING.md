@@ -45,7 +45,7 @@ Apply automatic code style fixes:
 ## Static analysis
 Based on [PHPStan](https://github.com/phpstan/phpstan).
 ```sh
-./vendor/bin/phpstan analyse --ansi --memory-limit 256M
+./vendor/bin/phpstan
 ```
 
 ## Running benchmarks
