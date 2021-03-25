@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 
 class ValuesOfCorrectTypeTest extends ValidatorTestCase
@@ -1644,6 +1645,44 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         ',
             [
                 $this->badValue('String', '2', 2, 50),
+            ]
+        );
+
+        self::assertTrue($errors[0]->isClientSafe());
+    }
+
+    /**
+     * @see it('error messages can be overwriten')
+     */
+    public function testOverwriting() : void
+    {
+        DocumentValidator::addRule(
+            new class() extends ValuesOfCorrectType
+            {
+                public function getName()
+                {
+                    return (new ValuesOfCorrectType())->getName();
+                }
+
+                public static function badArgumentValueMessage($typeName, $valueName, $fieldName, $argName, $message = null)
+                {
+                    return 'overwritten';
+                }
+            }
+        );
+
+        $errors = $this->expectInvalid(
+            self::getTestSchema(),
+            null,
+            '
+            {
+              complicatedArgs {
+                stringArgField(stringArg: 1)
+              }
+            }
+            ',
+            [
+                $this->badValueWithMessage('overwritten', 4, 43),
             ]
         );
 
