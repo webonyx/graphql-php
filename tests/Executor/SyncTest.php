@@ -45,7 +45,7 @@ class SyncTest extends TestCase
                     ],
                     'asyncField' => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($rootValue) {
+                        'resolve' => static function ($rootValue) : Deferred {
                             return new Deferred(static function () use ($rootValue) {
                                 return $rootValue;
                             });

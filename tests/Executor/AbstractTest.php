@@ -521,7 +521,7 @@ class AbstractTest extends TestCase
 
     public function testHintsOnConflictingTypeInstancesInResolveType() : void
     {
-        $createTest = static function () use (&$iface) {
+        $createTest = static function () use (&$iface) : ObjectType {
             return new ObjectType([
                 'name'       => 'Test',
                 'fields'     => [
@@ -538,7 +538,7 @@ class AbstractTest extends TestCase
             'fields'      => [
                 'a' => Type::string(),
             ],
-            'resolveType' => static function () use (&$createTest) {
+            'resolveType' => static function () use (&$createTest) : ObjectType {
                 return $createTest();
             },
         ]);

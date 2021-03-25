@@ -87,7 +87,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         }
 
         foreach ($fields as $name => $field) {
-            if ($field instanceof Type) {
+            if ($field instanceof Type || is_callable($field)) {
                 $field = ['type' => $field];
             }
             $field                      = new InputObjectField($field + ['name' => $name]);
