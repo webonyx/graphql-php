@@ -1651,9 +1651,6 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /**
-     * @see it('error messages can be overwriten')
-     */
     public function testOverwriting() : void
     {
         DocumentValidator::addRule(
