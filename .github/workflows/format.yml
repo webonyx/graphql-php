@@ -17,7 +17,7 @@ jobs:
       - name: "Run prettier on markdown files"
         uses: "creyD/prettier_action@v2.2"
         with:
-          prettier_options: "--write --tab-width=2 **/*.md"
+          prettier_options: "--write --tab-width=2 *.md **/*.md"
           branch: "${{ github.head_ref }}"
           commit_message: "Prettify markdown"
         env:
