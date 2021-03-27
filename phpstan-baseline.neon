@@ -601,11 +601,6 @@ parameters:
 			path: tests/Executor/DirectivesTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"class@anonymous/tests/Executor/ExecutorTest\\.php\\:1329\"\\.$#"
-			count: 1
-			path: tests/Executor/ExecutorTest.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\InterfaceType given\\.$#"
 			count: 1
 			path: tests/Executor/LazyInterfaceTest.php
