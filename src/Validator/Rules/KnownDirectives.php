@@ -98,7 +98,7 @@ class KnownDirectives extends ValidationRule
                 $name      = $node->name->value;
                 $locations = $locationsMap[$name] ?? null;
 
-                if (! $locations) {
+                if ($locations === null) {
                     $context->reportError(new Error(
                         self::unknownDirectiveMessage($name),
                         [$node]

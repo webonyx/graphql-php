@@ -35,7 +35,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use Throwable;
 
-use function array_map;
 use function array_reverse;
 use function implode;
 use function is_array;
@@ -354,12 +353,13 @@ class ASTDefinitionBuilder
         // Note: While this could make early assertions to get the correctly
         // typed values, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
-        return array_map(
-            function (NamedTypeNode $iface): Type {
-                    return $this->buildType($iface);
-            },
-            $def->interfaces
-        );
+
+        $interfaces = [];
+        foreach ($def->interfaces as $interface) {
+            $interfaces[] = $this->buildType($interface);
+        }
+
+        return $interfaces;
     }
 
     private function makeInterfaceDef(InterfaceTypeDefinitionNode $def): InterfaceType
