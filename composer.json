@@ -50,7 +50,7 @@
   "scripts": {
     "api-docs": "php tools/gendocs.php",
     "baseline": "phpstan --ansi --generate-baseline",
-    "bench": "phpbench run .",
+    "bench": "phpbench run",
     "check": "composer lint && composer stan && composer test",
     "fix": "phpcbf",
     "lint": "phpcs",
