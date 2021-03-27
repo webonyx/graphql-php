@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog;
 
 use GraphQL\Examples\Blog\Data\User;
@@ -8,18 +11,12 @@ use GraphQL\Examples\Blog\Data\User;
  */
 class AppContext
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $rootUrl;
 
-    /**
-     * @var User
-     */
+    /** @var User */
     public $viewer;
 
-    /**
-     * @var \mixed
-     */
+    /** @var mixed */
     public $request;
 }

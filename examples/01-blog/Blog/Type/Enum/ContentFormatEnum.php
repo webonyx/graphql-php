@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type\Enum;
 
 use GraphQL\Type\Definition\EnumType;
@@ -12,7 +15,7 @@ class ContentFormatEnum extends EnumType
     {
         $config = [
             'name' => 'ContentFormatEnum',
-            'values' => [self::FORMAT_TEXT, self::FORMAT_HTML]
+            'values' => [self::FORMAT_TEXT, self::FORMAT_HTML],
         ];
         parent::__construct($config);
     }

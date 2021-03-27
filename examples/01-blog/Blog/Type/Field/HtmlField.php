@@ -1,8 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type\Field;
 
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
 use GraphQL\Examples\Blog\Types;
+
+use function mb_substr;
+use function nl2br;
+use function strip_tags;
 
 class HtmlField
 {
@@ -19,15 +26,15 @@ class HtmlField
             'args' => [
                 'format' => [
                     'type' => Types::contentFormatEnum(),
-                    'defaultValue' => ContentFormatEnum::FORMAT_HTML
+                    'defaultValue' => ContentFormatEnum::FORMAT_HTML,
                 ],
-                'maxLength' => Types::int()
+                'maxLength' => Types::int(),
             ],
-            'resolve' => function($object, $args) use ($objectKey) {
+            'resolve' => static function ($object, $args) use ($objectKey) {
                 $html = $object->{$objectKey};
                 $text = strip_tags($html);
 
-                if (!empty($args['maxLength'])) {
+                if (! empty($args['maxLength'])) {
                     $safeText = mb_substr($text, 0, $args['maxLength']);
                 } else {
                     $safeText = $text;
@@ -41,12 +48,11 @@ class HtmlField
                         } else {
                             return $html;
                         }
-
                     case ContentFormatEnum::FORMAT_TEXT:
                     default:
                         return $safeText;
                 }
-            }
+            },
         ];
     }
 }

@@ -9,8 +9,11 @@
     <!-- Ignore warnings, show progress of the run and show sniff names -->
     <arg value="nps" />
 
+    <file>benchmarks</file>
+    <file>examples</file>
     <file>src</file>
     <file>tests</file>
+    <file>tools</file>
 
     <rule ref="Doctrine">
         <!-- To fix -->

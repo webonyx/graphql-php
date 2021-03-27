@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type\Scalar;
 
 use GraphQL\Error\Error;
@@ -7,12 +10,18 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
 
+use function filter_var;
+use function is_string;
+
+use const FILTER_VALIDATE_URL;
+
 class UrlType extends ScalarType
 {
     /**
      * Serializes an internal value to include in a response.
      *
      * @param mixed $value
+     *
      * @return mixed
      */
     public function serialize($value)
@@ -29,35 +38,41 @@ class UrlType extends ScalarType
      * Parses an externally provided value (query variable) to use as an input
      *
      * @param mixed $value
+     *
      * @return mixed
+     *
      * @throws Error
      */
     public function parseValue($value)
     {
-        if (!is_string($value) || !filter_var($value, FILTER_VALIDATE_URL)) { // quite naive, but after all this is example
-            throw new Error("Cannot represent value as URL: " . Utils::printSafe($value));
+        if (! is_string($value) || ! filter_var($value, FILTER_VALIDATE_URL)) { // quite naive, but after all this is example
+            throw new Error('Cannot represent value as URL: ' . Utils::printSafe($value));
         }
+
         return $value;
     }
 
     /**
      * Parses an externally provided literal value to use as an input (e.g. in Query AST)
      *
-     * @param Node $valueNode
      * @param array|null $variables
-     * @return null|string
+     *
+     * @return string|null
+     *
      * @throws Error
      */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
         // error location in query:
-        if (!($valueNode instanceof StringValueNode)) {
+        if (! ($valueNode instanceof StringValueNode)) {
             throw new Error('Query error: Can only parse strings got: ' . $valueNode->kind, [$valueNode]);
         }
-        if (!is_string($valueNode->value) || !filter_var($valueNode->value, FILTER_VALIDATE_URL)) {
+
+        if (! is_string($valueNode->value) || ! filter_var($valueNode->value, FILTER_VALIDATE_URL)) {
             throw new Error('Query error: Not a valid URL', [$valueNode]);
         }
+
         return $valueNode->value;
     }
 }

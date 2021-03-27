@@ -1,11 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Benchmarks\Utils;
 
+use Exception;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+
+use function array_merge;
+use function array_rand;
+use function explode;
+use function ucfirst;
 
 class SchemaGenerator
 {
@@ -13,7 +22,7 @@ class SchemaGenerator
         'totalTypes' => 100,
         'nestingLevel' => 10,
         'fieldsPerType' => 10,
-        'listFieldsPerType' => 2
+        'listFieldsPerType' => 2,
     ];
 
     private $typeIndex = 0;
@@ -21,7 +30,6 @@ class SchemaGenerator
     private $objectTypes = [];
 
     /**
-     * BenchmarkSchemaBuilder constructor.
      * @param array $config
      */
     public function __construct(array $config)
@@ -32,13 +40,13 @@ class SchemaGenerator
     public function buildSchema()
     {
         return new Schema([
-            'query' => $this->buildQueryType()
+            'query' => $this->buildQueryType(),
         ]);
     }
 
     public function buildQueryType()
     {
-        $this->typeIndex = 0;
+        $this->typeIndex   = 0;
         $this->objectTypes = [];
 
         return $this->createType(0);
@@ -46,7 +54,7 @@ class SchemaGenerator
 
     public function loadType($name)
     {
-        $tokens = explode('_', $name);
+        $tokens       = explode('_', $name);
         $nestingLevel = (int) $tokens[1];
 
         return $this->createType($nestingLevel, $name);
@@ -55,25 +63,26 @@ class SchemaGenerator
     protected function createType($nestingLevel, $typeName = null)
     {
         if ($this->typeIndex > $this->config['totalTypes']) {
-            throw new \Exception(
-                "Cannot create new type: there are already {$this->typeIndex} ".
+            throw new Exception(
+                "Cannot create new type: there are already {$this->typeIndex} " .
                 "which exceeds allowed number of {$this->config['totalTypes']} types total"
             );
         }
 
         $this->typeIndex++;
-        if (!$typeName) {
+        if (! $typeName) {
             $typeName = 'Level_' . $nestingLevel . '_Type' . $this->typeIndex;
         }
 
         $type = new ObjectType([
             'name' => $typeName,
-            'fields' => function() use ($typeName, $nestingLevel) {
+            'fields' => function () use ($typeName, $nestingLevel) {
                 return $this->createTypeFields($typeName, $nestingLevel + 1);
-            }
+            },
         ]);
 
         $this->objectTypes[$typeName] = $type;
+
         return $type;
     }
 
@@ -82,7 +91,7 @@ class SchemaGenerator
         if ($nestingLevel >= $this->config['nestingLevel']) {
             $fieldType = Type::string();
             $fieldName = 'leafField' . $fieldIndex;
-        } else if ($this->typeIndex >= $this->config['totalTypes']) {
+        } elseif ($this->typeIndex >= $this->config['totalTypes']) {
             $fieldType = $this->objectTypes[array_rand($this->objectTypes)];
             $fieldName = 'randomTypeField' . $fieldIndex;
         } else {
@@ -97,22 +106,23 @@ class SchemaGenerator
     {
         $fields = [];
         for ($index = 0; $index < $this->config['fieldsPerType']; $index++) {
-            list($type, $name) = $this->getFieldTypeAndName($nestingLevel, $index);
-            $fields[] = [
+            [$type, $name] = $this->getFieldTypeAndName($nestingLevel, $index);
+            $fields[]      = [
                 'name' => $name,
                 'type' => $type,
-                'resolve' => [$this, 'resolveField']
+                'resolve' => [$this, 'resolveField'],
             ];
         }
+
         for ($index = 0; $index < $this->config['listFieldsPerType']; $index++) {
-            list($type, $name) = $this->getFieldTypeAndName($nestingLevel, $index);
-            $name = 'listOf' . ucfirst($name);
+            [$type, $name] = $this->getFieldTypeAndName($nestingLevel, $index);
+            $name          = 'listOf' . ucfirst($name);
 
             $fields[] = [
                 'name' => $name,
                 'type' => Type::listOf($type),
                 'args' => $this->createFieldArgs($name, $typeName),
-                'resolve' => function() {
+                'resolve' => static function () {
                     return [
                         'string1',
                         'string2',
@@ -120,9 +130,10 @@ class SchemaGenerator
                         'string4',
                         'string5',
                     ];
-                }
+                },
             ];
         }
+
         return $fields;
     }
 
@@ -130,25 +141,27 @@ class SchemaGenerator
     {
         return [
             'argString' => [
-                'type' => Type::string()
+                'type' => Type::string(),
             ],
             'argEnum' => [
                 'type' => new EnumType([
                     'name' => $typeName . $fieldName . 'Enum',
                     'values' => [
-                        "ONE", "TWO", "THREE"
-                    ]
-                ])
+                        'ONE',
+                        'TWO',
+                        'THREE',
+                    ],
+                ]),
             ],
             'argInputObject' => [
                 'type' => new InputObjectType([
                     'name' => $typeName . $fieldName . 'Input',
                     'fields' => [
                         'field1' => Type::string(),
-                        'field2' => Type::int()
-                    ]
-                ])
-            ]
+                        'field2' => Type::int(),
+                    ],
+                ]),
+            ],
         ];
     }
 

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\AppContext;
@@ -9,19 +12,22 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
+use function method_exists;
+use function ucfirst;
+
 class StoryType extends ObjectType
 {
-    const EDIT = 'EDIT';
+    const EDIT   = 'EDIT';
     const DELETE = 'DELETE';
-    const LIKE = 'LIKE';
+    const LIKE   = 'LIKE';
     const UNLIKE = 'UNLIKE';
-    const REPLY = 'REPLY';
+    const REPLY  = 'REPLY';
 
     public function __construct()
     {
         $config = [
             'name' => 'Story',
-            'fields' => function() {
+            'fields' => static function () {
                 return [
                     'id' => Types::id(),
                     'author' => Types::user(),
@@ -32,13 +38,13 @@ class StoryType extends ObjectType
                         'args' => [
                             'after' => [
                                 'type' => Types::id(),
-                                'description' => 'Load all comments listed after given comment ID'
+                                'description' => 'Load all comments listed after given comment ID',
                             ],
                             'limit' => [
                                 'type' => Types::int(),
-                                'defaultValue' => 5
-                            ]
-                        ]
+                                'defaultValue' => 5,
+                            ],
+                        ],
                     ],
                     'likes' => [
                         'type' => Types::listOf(Types::user()),
@@ -46,9 +52,9 @@ class StoryType extends ObjectType
                             'limit' => [
                                 'type' => Types::int(),
                                 'description' => 'Limit the number of recent likes returned',
-                                'defaultValue' => 5
-                            ]
-                        ]
+                                'defaultValue' => 5,
+                            ],
+                        ],
                     ],
                     'likedBy' => [
                         'type' => Types::listOf(Types::user()),
@@ -60,25 +66,23 @@ class StoryType extends ObjectType
                             self::DELETE,
                             self::LIKE,
                             self::UNLIKE,
-                            self::REPLY
-                        ]
+                            self::REPLY,
+                        ],
                     ])),
                     'hasViewerLiked' => Types::boolean(),
 
                     Types::htmlField('body'),
                 ];
             },
-            'interfaces' => [
-                Types::node()
-            ],
-            'resolveField' => function($story, $args, $context, ResolveInfo $info) {
+            'interfaces' => [Types::node()],
+            'resolveField' => function ($story, $args, $context, ResolveInfo $info) {
                 $method = 'resolve' . ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($story, $args, $context, $info);
-                } else {
-                    return $story->{$info->fieldName};
                 }
-            }
+
+                return $story->{$info->fieldName};
+            },
         ];
         parent::__construct($config);
     }
@@ -91,17 +95,19 @@ class StoryType extends ObjectType
     public function resolveAffordances(Story $story, $args, AppContext $context)
     {
         $isViewer = $context->viewer === DataSource::findUser($story->authorId);
-        $isLiked = DataSource::isLikedBy($story->id, $context->viewer->id);
+        $isLiked  = DataSource::isLikedBy($story->id, $context->viewer->id);
 
         if ($isViewer) {
             $affordances[] = self::EDIT;
             $affordances[] = self::DELETE;
         }
+
         if ($isLiked) {
             $affordances[] = self::UNLIKE;
         } else {
             $affordances[] = self::LIKE;
         }
+
         return $affordances;
     }
 
@@ -118,18 +124,22 @@ class StoryType extends ObjectType
     public function resolveComments(Story $story, $args)
     {
         $args += ['after' => null];
+
         return DataSource::findComments($story->id, $args['limit'], $args['after']);
     }
-    
-    public function resolveMentions(Story $story, $args, AppContext $context){
+
+    public function resolveMentions(Story $story, $args, AppContext $context)
+    {
         return DataSource::findStoryMentions($story->id);
     }
 
-    public function resolveLikedBy(Story $story, $args, AppContext $context){
-        return DataSource::findLikes($story->id,10);
+    public function resolveLikedBy(Story $story, $args, AppContext $context)
+    {
+        return DataSource::findLikes($story->id, 10);
     }
 
-    public function resolveLikes(Story $story, $args, AppContext $context){
-        return DataSource::findLikes($story->id,10);
+    public function resolveLikes(Story $story, $args, AppContext $context)
+    {
+        return DataSource::findLikes($story->id, 10);
     }
 }

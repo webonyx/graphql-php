@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type\Enum;
 
 use GraphQL\Examples\Blog\Data\Image;
@@ -14,8 +17,8 @@ class ImageSizeEnumType extends EnumType
                 'ICON' => Image::SIZE_ICON,
                 'SMALL' => Image::SIZE_SMALL,
                 'MEDIUM' => Image::SIZE_MEDIUM,
-                'ORIGINAL' => Image::SIZE_ORIGINAL
-            ]
+                'ORIGINAL' => Image::SIZE_ORIGINAL,
+            ],
         ];
 
         parent::__construct($config);

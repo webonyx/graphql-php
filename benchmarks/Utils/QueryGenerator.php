@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Benchmarks\Utils;
 
 use GraphQL\Language\AST\DocumentNode;
@@ -13,6 +16,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function count;
 use function max;
 use function round;
@@ -49,11 +53,12 @@ class QueryGenerator
         $qtype = $this->schema->getQueryType();
 
         $ast = new DocumentNode([
-            'definitions' => [new OperationDefinitionNode([
-                'name' => new NameNode(['value' => 'TestQuery']),
-                'operation' => 'query',
-                'selectionSet' => $this->buildSelectionSet($qtype->getFields()),
-            ]),
+            'definitions' => [
+                new OperationDefinitionNode([
+                    'name' => new NameNode(['value' => 'TestQuery']),
+                    'operation' => 'query',
+                    'selectionSet' => $this->buildSelectionSet($qtype->getFields()),
+                ]),
             ],
         ]);
 
@@ -96,10 +101,6 @@ class QueryGenerator
             ]);
         }
 
-        $selectionSet = new SelectionSetNode([
-            'selections' => $selections,
-        ]);
-
-        return $selectionSet;
+        return new SelectionSetNode(['selections' => $selections]);
     }
 }
