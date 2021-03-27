@@ -98,7 +98,7 @@ final class Warning
 
     public static function warnOnce(string $errorMessage, int $warningId, ?int $messageLevel = null): void
     {
-        $messageLevel = $messageLevel ?? E_USER_WARNING;
+        $messageLevel ??= E_USER_WARNING;
 
         if (self::$warningHandler !== null) {
             $fn = self::$warningHandler;
@@ -111,7 +111,7 @@ final class Warning
 
     public static function warn(string $errorMessage, int $warningId, ?int $messageLevel = null): void
     {
-        $messageLevel = $messageLevel ?? E_USER_WARNING;
+        $messageLevel ??= E_USER_WARNING;
 
         if (self::$warningHandler !== null) {
             $fn = self::$warningHandler;

@@ -61,7 +61,7 @@ class PairSet
      */
     private function pairSetAdd($a, $b, $areMutuallyExclusive)
     {
-        $this->data[$a]     = $this->data[$a] ?? [];
+        $this->data[$a]   ??= [];
         $this->data[$a][$b] = $areMutuallyExclusive;
     }
 }

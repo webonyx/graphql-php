@@ -13,9 +13,6 @@
     <file>tests</file>
 
     <rule ref="Doctrine">
-        <!-- Remove when PHP 7.4 is minimum version requirement -->
-        <exclude name="SlevomatCodingStandard.ControlStructures.RequireNullCoalesceEqualOperator.RequiredNullCoalesceEqualOperator" />
-
         <!-- To fix -->
         <exclude name="PSR2.Methods.MethodDeclaration.Underscore" />
         <exclude name="SlevomatCodingStandard.Classes.ClassConstantVisibility.MissingConstantVisibility" />

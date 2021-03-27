@@ -604,9 +604,9 @@ class ReferenceExecutor implements ExecutorImplementation
     private function getFieldDef(Schema $schema, ObjectType $parentType, string $fieldName): ?FieldDefinition
     {
         static $schemaMetaFieldDef, $typeMetaFieldDef, $typeNameMetaFieldDef;
-        $schemaMetaFieldDef   = $schemaMetaFieldDef ?? Introspection::schemaMetaFieldDef();
-        $typeMetaFieldDef     = $typeMetaFieldDef ?? Introspection::typeMetaFieldDef();
-        $typeNameMetaFieldDef = $typeNameMetaFieldDef ?? Introspection::typeNameMetaFieldDef();
+        $schemaMetaFieldDef   ??= Introspection::schemaMetaFieldDef();
+        $typeMetaFieldDef     ??= Introspection::typeMetaFieldDef();
+        $typeNameMetaFieldDef ??= Introspection::typeNameMetaFieldDef();
         if ($fieldName === $schemaMetaFieldDef->name && $schema->getQueryType() === $parentType) {
             return $schemaMetaFieldDef;
         }

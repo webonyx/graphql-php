@@ -150,8 +150,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
                 return $error;
             }
 
-            $nodes = $nodes ?? $error->nodes;
-            $path  = $path ?? $error->path;
+            $nodes ??= $error->nodes;
+            $path  ??= $error->path;
         }
 
         $source        = null;

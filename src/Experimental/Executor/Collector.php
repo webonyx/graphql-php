@@ -133,7 +133,7 @@ class Collector
             $argumentValueMap = null;
             if (count($fieldNode->arguments) > 0) {
                 foreach ($fieldNode->arguments as $argumentNode) {
-                    $argumentValueMap                             = $argumentValueMap ?? [];
+                    $argumentValueMap                           ??= [];
                     $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;
                 }
             }

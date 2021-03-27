@@ -112,7 +112,7 @@ class DocumentValidator
             return [];
         }
 
-        $typeInfo = $typeInfo ?? new TypeInfo($schema);
+        $typeInfo ??= new TypeInfo($schema);
 
         return static::visitUsingRules($schema, $typeInfo, $ast, $rules);
     }
