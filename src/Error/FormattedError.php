@@ -11,7 +11,6 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
-use GraphQL\Utils\Utils;
 use Throwable;
 
 use function addcslashes;

@@ -79,6 +79,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
                 foreach ($def->arguments as $arg) {
                     $args[] = $arg->name->value;
                 }
+
                 $directiveArgs[$name] = $args;
             } else {
                 $directiveArgs[$name] = [];

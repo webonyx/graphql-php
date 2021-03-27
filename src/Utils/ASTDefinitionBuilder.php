@@ -85,11 +85,10 @@ class ASTDefinitionBuilder
         return new Directive([
             'name'         => $directiveNode->name->value,
             'description'  => $this->getDescription($directiveNode),
-            'args'         =>  FieldArgument::createMap($this->makeInputValues($directiveNode->arguments))
-                ,
+            'args'         =>  FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)),
             'isRepeatable' => $directiveNode->repeatable,
             'locations'    => array_map(
-                static function (NameNode $node) : string {
+                static function (NameNode $node): string {
                     return $node->value;
                 },
                 $directiveNode->locations
@@ -357,10 +356,10 @@ class ASTDefinitionBuilder
         // typed values, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
         return array_map(
-            function (NamedTypeNode $iface) : Type {
+            function (NamedTypeNode $iface): Type {
                     return $this->buildType($iface);
-                },
-                $def->interfaces
+            },
+            $def->interfaces
         );
     }
 
@@ -409,11 +408,11 @@ class ASTDefinitionBuilder
             // Note: While this could make assertions to get the correctly typed
             // values below, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
-            'types'       =>  function () use ($def) : array {
+            'types'       =>  function () use ($def): array {
                 $types = [];
-                    foreach ($def->types as $type) {
-                        $types[] = $this->buildType($type);
-                    }
+                foreach ($def->types as $type) {
+                    $types[] = $this->buildType($type);
+                }
 
                 return $types;
             },

@@ -147,7 +147,7 @@ class ValidationTest extends TestCase
      *
      * @return array<Type>
      */
-    private function withModifiers(array $types) : array
+    private function withModifiers(array $types): array
     {
         return array_merge(
             $types,
@@ -346,7 +346,7 @@ class ValidationTest extends TestCase
     /**
      * @return array<array<string, int>>>
      */
-    private function formatLocations(Error $error) : array
+    private function formatLocations(Error $error): array
     {
         return array_map(
             static function (SourceLocation $loc): array {
@@ -361,7 +361,7 @@ class ValidationTest extends TestCase
      *
      * @return mixed[]
      */
-    private function formatErrors(array $errors, bool $withLocation = true) : array
+    private function formatErrors(array $errors, bool $withLocation = true): array
     {
         return array_map(
             function (Error $error) use ($withLocation): array {

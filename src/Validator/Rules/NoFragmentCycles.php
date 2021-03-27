@@ -85,7 +85,7 @@ class NoFragmentCycles extends ValidationRule
             } else {
                 $cyclePath     = array_slice($this->spreadPath, $cycleIndex);
                 $fragmentNames = array_map(
-                    static function (FragmentSpreadNode $s) : string {
+                    static function (FragmentSpreadNode $s): string {
                         return $s->name->value;
                     },
                     array_slice($cyclePath, 0, -1)
