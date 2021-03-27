@@ -81,7 +81,7 @@ class ValuesOfCorrectType extends ValidationRule
 
                 return null;
             },
-            NodeKind::OBJECT       => function (ObjectValueNode $node) use ($context, &$fieldName) {
+            NodeKind::OBJECT       => function (ObjectValueNode $node) use ($context, &$fieldName) : ?VisitorOperation {
                 // Note: TypeInfo will traverse into a list's item type, so look to the
                 // parent input type to check if it is a list.
                 $type = Type::getNamedType($context->getInputType());
@@ -116,6 +116,8 @@ class ValuesOfCorrectType extends ValidationRule
                         )
                     );
                 }
+
+                return null;
             },
             NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) use ($context) : void {
                 $parentType = Type::getNamedType($context->getParentInputType());

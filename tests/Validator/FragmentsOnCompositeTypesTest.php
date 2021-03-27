@@ -60,6 +60,23 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     }
 
     /**
+     * @see it('interface is valid inline fragment type')
+     */
+    public function testInterfaceIsValidInlineFragmentType() : void
+    {
+        $this->expectPassesRule(
+            new FragmentsOnCompositeTypes(),
+            '
+      fragment validFragment on Mammal {
+        ... on Canine {
+          name
+        }
+      }
+        '
+        );
+    }
+
+    /**
      * @see it('inline fragment without type is valid')
      */
     public function testInlineFragmentWithoutTypeIsValid() : void

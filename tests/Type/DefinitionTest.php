@@ -1138,6 +1138,70 @@ class DefinitionTest extends TestCase
         );
     }
 
+    /**
+     * @see it('accepts an Interface type with an array of interfaces')
+     */
+    public function testAcceptsAnInterfaceTypeWithAnArrayOfInterfaces() : void
+    {
+        $interfaceType = new InterfaceType([
+            'name'   => 'AnotherInterface',
+            'fields' => [],
+            'interfaces' => [$this->interfaceType],
+        ]);
+        self::assertSame($this->interfaceType, $interfaceType->getInterfaces()[0]);
+    }
+
+    /**
+     * @see it('accepts an Interface type with interfaces as a function returning an array')
+     */
+    public function testAcceptsAnInterfaceTypeWithInterfacesAsAFunctionReturningAnArray() : void
+    {
+        $interfaceType = new InterfaceType([
+            'name'   => 'AnotherInterface',
+            'fields' => [],
+            'interfaces' => function () : array {
+                return [$this->interfaceType];
+            },
+        ]);
+        self::assertSame($this->interfaceType, $interfaceType->getInterfaces()[0]);
+    }
+
+    /**
+     * @see it('rejects an Interface type with incorrectly typed interfaces')
+     */
+    public function testRejectsAnInterfaceTypeWithIncorrectlyTypedInterfaces() : void
+    {
+        $objType = new InterfaceType([
+            'name'       => 'AnotherInterface',
+            'interfaces' => new stdClass(),
+            'fields'     => [],
+        ]);
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'AnotherInterface interfaces must be an Array or a callable which returns an Array.'
+        );
+        $objType->getInterfaces();
+    }
+
+    /**
+     * @see it('rejects an Interface type with interfaces as a function returning an incorrect type')
+     */
+    public function testRejectsAnInterfaceTypeWithInterfacesAsAFunctionReturningAnIncorrectType() : void
+    {
+        $objType = new ObjectType([
+            'name'       => 'AnotherInterface',
+            'interfaces' => static function () : stdClass {
+                return new stdClass();
+            },
+            'fields'     => [],
+        ]);
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'AnotherInterface interfaces must be an Array or a callable which returns an Array.'
+        );
+        $objType->getInterfaces();
+    }
+
     private function schemaWithFieldType($type)
     {
         $schema = new Schema([
@@ -1539,6 +1603,23 @@ class DefinitionTest extends TestCase
                     'f' => ['type' => Type::string()],
                 ];
             },
+        ]);
+        $inputObjType->assertValid();
+        self::assertSame(Type::string(), $inputObjType->getField('f')->getType());
+    }
+
+    /**
+     * @see it('accepts an Input Object type with a field type function')
+     */
+    public function testAcceptsAnInputObjectTypeWithAFieldTypeFunction() : void
+    {
+        $inputObjType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                'f' => static function () : Type {
+                    return Type::string();
+                },
+            ],
         ]);
         $inputObjType->assertValid();
         self::assertSame(Type::string(), $inputObjType->getField('f')->getType());

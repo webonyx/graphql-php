@@ -41,7 +41,7 @@ class ExecutorSchemaTest extends TestCase
 
         $BlogAuthor = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use (&$BlogArticle, &$BlogImage) {
+            'fields' => static function () use (&$BlogArticle, &$BlogImage) : array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],

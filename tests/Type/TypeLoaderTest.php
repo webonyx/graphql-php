@@ -236,9 +236,21 @@ class TypeLoaderTest extends TestCase
         self::assertSame($this->postStoryMutationInput, $input);
         self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
 
-        $result = $schema->isPossibleType($this->node, $this->blogStory);
+        $result = $schema->isSubType($this->node, $this->blogStory);
         self::assertTrue($result);
-        self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
+        self::assertEquals(
+            [
+                'Node',
+                'Content',
+                'PostStoryMutationInput',
+                'Query.fields',
+                'Content.fields',
+                'Node.fields',
+                'Mutation.fields',
+                'BlogStory.fields',
+            ],
+            $this->calls
+        );
     }
 
     public function testOnlyCallsLoaderOnce() : void

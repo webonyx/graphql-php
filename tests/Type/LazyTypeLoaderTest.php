@@ -285,7 +285,19 @@ final class LazyTypeLoaderTest extends TestCase
             Schema::resolveType($this->blogStory)
         );
         self::assertTrue($result);
-        self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
+        self::assertEquals(
+            [
+                'Node',
+                'Content',
+                'PostStoryMutationInput',
+                'Query.fields',
+                'Content.fields',
+                'Node.fields',
+                'Mutation.fields',
+                'BlogStory.fields',
+            ],
+            $this->calls
+        );
     }
 
     public function testOnlyCallsLoaderOnce() : void

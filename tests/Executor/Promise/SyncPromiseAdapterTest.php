@@ -197,7 +197,7 @@ class SyncPromiseAdapterTest extends TestCase
             return $this->promises->convertThenable($dfd);
         });
 
-        $p4 = $p3->then(static function () use (&$called) {
+        $p4 = $p3->then(static function () use (&$called) : Deferred {
             return new Deferred(static function () use (&$called) : int {
                 $called[] = 4;
 

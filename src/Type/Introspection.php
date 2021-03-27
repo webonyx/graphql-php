@@ -293,7 +293,7 @@ EOD;
                     'Object and Interface types provide the fields they describe. Abstract ' .
                     'types, Union and Interface, provide the Object types possible ' .
                     'at runtime. List and NonNull types compose other types.',
-                'fields'          => static function () {
+                'fields'          => static function () : array {
                     return [
                         'kind'          => [
                             'type'    => Type::nonNull(self::_typeKind()),
@@ -337,7 +337,7 @@ EOD;
                             'args'    => [
                                 'includeDeprecated' => ['type' => Type::boolean(), 'defaultValue' => false],
                             ],
-                            'resolve' => static function (Type $type, $args) {
+                            'resolve' => static function (Type $type, $args) : ?array {
                                 if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                                     $fields = $type->getFields();
 
@@ -359,7 +359,7 @@ EOD;
                         'interfaces'    => [
                             'type'    => Type::listOf(Type::nonNull(self::_type())),
                             'resolve' => static function ($type) : ?array {
-                                if ($type instanceof ObjectType) {
+                                if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                                     return $type->getInterfaces();
                                 }
 
@@ -381,7 +381,7 @@ EOD;
                             'args'    => [
                                 'includeDeprecated' => ['type' => Type::boolean(), 'defaultValue' => false],
                             ],
-                            'resolve' => static function ($type, $args) {
+                            'resolve' => static function ($type, $args) : ?array {
                                 if ($type instanceof EnumType) {
                                     $values = array_values($type->getValues());
 
@@ -446,7 +446,7 @@ EOD;
                     ],
                     'INTERFACE'    => [
                         'value'       => TypeKind::INTERFACE,
-                        'description' => 'Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.',
+                        'description' => 'Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.',
                     ],
                     'UNION'        => [
                         'value'       => TypeKind::UNION,
@@ -484,7 +484,7 @@ EOD;
                 'description'     =>
                     'Object and Interface types are described by a list of Fields, each of ' .
                     'which has a name, potentially a list of arguments, and a return type.',
-                'fields'          => static function () {
+                'fields'          => static function () : array {
                     return [
                         'name'              => [
                             'type' => Type::nonNull(Type::string()),
@@ -540,7 +540,7 @@ EOD;
                     'Arguments provided to Fields or Directives and the input fields of an ' .
                     'InputObject are represented as Input Values which describe their type ' .
                     'and optionally a default value.',
-                'fields'          => static function () {
+                'fields'          => static function () : array {
                     return [
                         'name'         => [
                             'type' => Type::nonNull(Type::string()),
@@ -661,7 +661,7 @@ EOD;
                     ],
                     'args'        => [
                         'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                        'resolve' => static function (Directive $directive) {
+                        'resolve' => static function (Directive $directive) : array {
                             return $directive->args ?? [];
                         },
                     ],

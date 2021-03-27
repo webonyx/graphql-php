@@ -18,7 +18,7 @@ class ObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
     /** @var NodeList<DirectiveNode> */
     public $directives;
 
-    /** @var NodeList<FieldDefinitionNode>|null */
+    /** @var NodeList<FieldDefinitionNode> */
     public $fields;
 
     /** @var StringValueNode|null */

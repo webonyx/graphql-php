@@ -533,6 +533,68 @@ type Query {
     }
 
     /**
+     * @see it('Print Hierarchical Interface')
+     */
+    public function testPrintHierarchicalInterface() : void
+    {
+        $FooType = new InterfaceType([
+            'name'   => 'Foo',
+            'fields' => ['str' => ['type' => Type::string()]],
+        ]);
+
+        $BaazType = new InterfaceType([
+            'name'       => 'Baaz',
+            'interfaces' => [$FooType],
+            'fields'     => [
+                'int' => ['type' => Type::int()],
+                'str' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $BarType = new ObjectType([
+            'name'       => 'Bar',
+            'fields'     => [
+                'str' => ['type' => Type::string()],
+                'int' => ['type' => Type::int()],
+            ],
+            'interfaces' => [$FooType, $BaazType],
+        ]);
+
+        $query = new ObjectType([
+            'name'   => 'Query',
+            'fields' => ['bar' => ['type' => $BarType]],
+        ]);
+
+        $schema = new Schema([
+            'query' => $query,
+            'types' => [$BarType],
+        ]);
+        $output = $this->printForTest($schema);
+        self::assertEquals(
+            '
+interface Baaz implements Foo {
+  int: Int
+  str: String
+}
+
+type Bar implements Foo & Baaz {
+  str: String
+  int: Int
+}
+
+interface Foo {
+  str: String
+}
+
+type Query {
+  bar: Bar
+}
+',
+            $output
+        );
+    }
+
+    /**
      * @see it('Print Unions')
      */
     public function testPrintUnions() : void
@@ -1063,7 +1125,7 @@ enum __TypeKind {
   OBJECT
 
   """
-  Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.
+  Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.
   """
   INTERFACE
 
@@ -1283,7 +1345,7 @@ enum __TypeKind {
   # Indicates this type is an object. `fields` and `interfaces` are valid fields.
   OBJECT
 
-  # Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.
+  # Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.
   INTERFACE
 
   # Indicates this type is a union. `possibleTypes` is a valid field.
