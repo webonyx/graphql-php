@@ -29,13 +29,9 @@ use function var_export;
  */
 final class ArraySubset extends Constraint
 {
-    /**
-     * @var iterable|mixed[]
-     */
+    /** @var iterable|mixed[] */
     private $subset;
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $strict;
 
     /**
@@ -46,9 +42,11 @@ final class ArraySubset extends Constraint
         $this->strict = $strict;
         $this->subset = $subset;
 
-        if (method_exists(Constraint::class, '__construct')) {
-            parent::__construct();
+        if (! method_exists(Constraint::class, '__construct')) {
+            return;
         }
+
+        parent::__construct();
     }
 
     /**
@@ -62,7 +60,8 @@ final class ArraySubset extends Constraint
      * failure.
      *
      * @param mixed[]|ArrayAccess $other
-     * @return mixed[]|null|bool
+     *
+     * @return mixed[]|bool|null
      *
      * @throws ExpectationFailedException
      * @throws InvalidArgumentException
@@ -77,6 +76,7 @@ final class ArraySubset extends Constraint
         if ($this->strict) {
             $result = $other === $patched;
         } else {
+            // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedEqualOperator
             $result = $other == $patched;
         }
         if ($returnResult) {
@@ -100,7 +100,7 @@ final class ArraySubset extends Constraint
      *
      * @throws InvalidArgumentException
      */
-    public function toString(): string
+    public function toString() : string
     {
         $exporter = method_exists($this, 'exporter') ? $this->exporter() : $this->exporter;
 
@@ -117,7 +117,7 @@ final class ArraySubset extends Constraint
      *
      * @throws InvalidArgumentException
      */
-    protected function failureDescription($other): string
+    protected function failureDescription($other) : string
     {
         return 'an array ' . $this->toString();
     }
@@ -127,7 +127,7 @@ final class ArraySubset extends Constraint
      *
      * @return mixed[]
      */
-    private function toArray(iterable $other): array
+    private function toArray(iterable $other) : array
     {
         if (is_array($other)) {
             return $other;
@@ -138,6 +138,7 @@ final class ArraySubset extends Constraint
         if ($other instanceof Traversable) {
             return iterator_to_array($other);
         }
+
         // Keep BC even if we know that array would not be the expected one
         return (array) $other;
     }
