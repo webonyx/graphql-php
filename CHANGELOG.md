@@ -1,6 +1,8 @@
 # Changelog
 
 #### Unreleased
+- PHP version required: 7.2+
+
 
 #### 14.5.1
 
