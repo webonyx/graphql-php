@@ -99,7 +99,7 @@ class Token
         $this->value  = $value;
     }
 
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return $this->kind . ($this->value === null ? '' : ' "' . $this->value . '"');
     }
@@ -107,7 +107,7 @@ class Token
     /**
      * @return (string|int|null)[]
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return [
             'kind'   => $this->kind,

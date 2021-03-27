@@ -7,7 +7,6 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
-use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
@@ -17,6 +16,7 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function array_map;
 use function in_array;
 use function sprintf;
@@ -60,7 +60,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
         foreach ($definedDirectives as $directive) {
             $directiveArgs[$directive->name] = array_map(
-                static function (FieldArgument $arg) : string {
+                static function (FieldArgument $arg): string {
                     return $arg->name;
                 },
                 $directive->args
@@ -86,7 +86,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         }
 
         return [
-            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context) : VisitorOperation {
+            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context): VisitorOperation {
                 $directiveName = $directiveNode->name->value;
                 $knownArgs     = $directiveArgs[$directiveName] ?? null;
 

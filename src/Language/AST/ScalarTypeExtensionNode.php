@@ -12,6 +12,6 @@ class ScalarTypeExtensionNode extends Node implements TypeExtensionNode
     /** @var NameNode */
     public $name;
 
-    /** @var DirectiveNode[]|null */
+    /** @var NodeList<DirectiveNode> */
     public $directives;
 }

@@ -21,7 +21,9 @@ use GraphQL\Utils\Utils;
 use JsonSerializable;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+
 use function array_map;
 use function count;
 use function file_get_contents;
@@ -270,7 +272,7 @@ class Helper
 
             if (count($errors) > 0) {
                 $errors = array_map(
-                    static function (RequestError $err) : Error {
+                    static function (RequestError $err): Error {
                         return Error::createLocatedError($err, null, null);
                     },
                     $errors
@@ -320,10 +322,11 @@ class Helper
             );
         }
 
-        $applyErrorHandling = static function (ExecutionResult $result) use ($config) : ExecutionResult {
+        $applyErrorHandling = static function (ExecutionResult $result) use ($config): ExecutionResult {
             if ($config->getErrorsHandler()) {
                 $result->setErrorsHandler($config->getErrorsHandler());
             }
+
             if ($config->getErrorFormatter() || $config->getDebugFlag() !== DebugFlag::NONE) {
                 $result->setErrorFormatter(
                     FormattedError::prepareFormatter(
@@ -439,7 +442,7 @@ class Helper
     public function sendResponse($result, $exitWhenDone = false)
     {
         if ($result instanceof Promise) {
-            $result->then(function ($actualResult) use ($exitWhenDone) : void {
+            $result->then(function ($actualResult) use ($exitWhenDone): void {
                 $this->doSendResponse($actualResult, $exitWhenDone);
             });
         } else {
@@ -487,7 +490,7 @@ class Helper
         if (is_array($result) && isset($result[0])) {
             Utils::each(
                 $result,
-                static function ($executionResult, $index) : void {
+                static function ($executionResult, $index): void {
                     if (! $executionResult instanceof ExecutionResult) {
                         throw new InvariantViolation(sprintf(
                             'Expecting every entry of batched query result to be instance of %s but entry at position %d is %s',
@@ -507,6 +510,7 @@ class Helper
                     Utils::printSafe($result)
                 ));
             }
+
             if ($result->data === null && count($result->errors) > 0) {
                 $httpStatus = 400;
             } else {
@@ -540,11 +544,15 @@ class Helper
             if (stripos($contentType[0], 'application/graphql') !== false) {
                 $bodyParams = ['query' => (string) $request->getBody()];
             } elseif (stripos($contentType[0], 'application/json') !== false) {
-                $bodyParams = json_decode((string) $request->getBody(), true);
+                $bodyParams = $request instanceof ServerRequestInterface
+                    ? $request->getParsedBody()
+                    : json_decode((string) $request->getBody(), true);
 
                 if ($bodyParams === null) {
                     throw new InvariantViolation(
-                        'Did not receive valid JSON array in PSR-7 request body with Content-Type "application/json"'
+                        $request instanceof ServerRequestInterface
+                         ? 'Expected to receive a parsed body for "application/json" PSR-7 request but got null'
+                         : 'Expected to receive a JSON array in body for "application/json" PSR-7 request'
                     );
                 }
 

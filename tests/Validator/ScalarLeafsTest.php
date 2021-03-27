@@ -15,7 +15,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('valid scalar selection')
      */
-    public function testValidScalarSelection() : void
+    public function testValidScalarSelection(): void
     {
         $this->expectPassesRule(
             new ScalarLeafs(),
@@ -30,7 +30,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('object type missing selection')
      */
-    public function testObjectTypeMissingSelection() : void
+    public function testObjectTypeMissingSelection(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -54,7 +54,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('interface type missing selection')
      */
-    public function testInterfaceTypeMissingSelection() : void
+    public function testInterfaceTypeMissingSelection(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -70,7 +70,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('valid scalar selection with args')
      */
-    public function testValidScalarSelectionWithArgs() : void
+    public function testValidScalarSelectionWithArgs(): void
     {
         $this->expectPassesRule(
             new ScalarLeafs(),
@@ -85,7 +85,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('scalar selection not allowed on Boolean')
      */
-    public function testScalarSelectionNotAllowedOnBoolean() : void
+    public function testScalarSelectionNotAllowedOnBoolean(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -109,7 +109,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('scalar selection not allowed on Enum')
      */
-    public function testScalarSelectionNotAllowedOnEnum() : void
+    public function testScalarSelectionNotAllowedOnEnum(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -125,7 +125,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('scalar selection not allowed with args')
      */
-    public function testScalarSelectionNotAllowedWithArgs() : void
+    public function testScalarSelectionNotAllowedWithArgs(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -141,7 +141,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('Scalar selection not allowed with directives')
      */
-    public function testScalarSelectionNotAllowedWithDirectives() : void
+    public function testScalarSelectionNotAllowedWithDirectives(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -157,7 +157,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('Scalar selection not allowed with directives and args')
      */
-    public function testScalarSelectionNotAllowedWithDirectivesAndArgs() : void
+    public function testScalarSelectionNotAllowedWithDirectivesAndArgs(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),

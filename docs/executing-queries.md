@@ -86,7 +86,7 @@ $psrResponse = new SomePsr7ResponseImplementation(json_encode($result));
 
 PSR-7 is useful when you want to integrate the server into existing framework:
 
-- [PSR-7 for Laravel](https://laravel.com/docs/5.1/requests#psr7-requests)
+- [PSR-7 for Laravel](https://laravel.com/docs/requests#psr7-requests)
 - [Symfony PSR-7 Bridge](https://symfony.com/doc/current/components/psr7.html)
 - [Slim](https://www.slimframework.com/docs/v4/concepts/value-objects.html)
 - [Zend Expressive](http://zendframework.github.io/zend-expressive/)
@@ -101,7 +101,7 @@ context  | `mixed` | Any value that holds information shared between all field r
 fieldResolver | `callable` | A resolver function to use when one is not provided by the schema. If not provided, the [default field resolver is used](data-fetching.md#default-field-resolver).
 validationRules | `array` or `callable` | A set of rules for query validation step. The default value is all available rules. The empty array would allow skipping query validation (may be convenient for persisted queries which are validated before persisting and assumed valid during execution).<br><br>Pass `callable` to return different validation rules for different queries (e.g. empty array for persisted query and a full list of rules for regular queries). When passed, it is expected to have the following signature: <br><br> **function ([OperationParams](reference.md#graphqlserveroperationparams) $params, DocumentNode $node, $operationType): array**
 queryBatching | `bool` | Flag indicating whether this server supports query batching ([apollo-style](https://dev-blog.apollodata.com/query-batching-in-apollo-63acfd859862)).<br><br> Defaults to **false**
-debug | `int` | Debug flags. See [docs on error debugging](error-handling.md#debugging-tools) (flag values are the same).
+debugFlag | `int` | Debug flags. See [docs on error debugging](error-handling.md#debugging-tools) (flag values are the same).
 persistentQueryLoader | `callable` | A function which is called to fetch actual query when server encounters **queryId** in request vs **query**.<br><br> The server does not implement persistence part (which you will have to build on your own), but it allows you to execute queries which were persisted previously.<br><br> Expected function signature:<br> **function ($queryId, [OperationParams](reference.md#graphqlserveroperationparams) $params)** <br><br>Function is expected to return query **string** or parsed **DocumentNode** <br><br> [Read more about persisted queries](https://dev-blog.apollodata.com/persisted-graphql-queries-with-apollo-client-119fd7e6bba5).
 errorFormatter | `callable` | Custom error formatter. See [error handling docs](error-handling.md#custom-error-handling-and-formatting).
 errorsHandler | `callable` | Custom errors handler. See [error handling docs](error-handling.md#custom-error-handling-and-formatting).

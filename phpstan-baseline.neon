@@ -21,6 +21,11 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
+			message: "#^Method GraphQL\\\\Language\\\\AST\\\\NodeList\\:\\:splice\\(\\) should return GraphQL\\\\Language\\\\AST\\\\NodeList\\<T of GraphQL\\\\Language\\\\AST\\\\Node\\> but returns GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\.$#"
+			count: 1
+			path: src/Language/AST/NodeList.php
+
+		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<int, array\\|GraphQL\\\\Language\\\\AST\\\\Node\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\> given\\.$#"
 			count: 1
 			path: src/Language/Visitor.php
@@ -86,8 +91,13 @@ parameters:
 			path: src/Type/Definition/EnumType.php
 
 		-
+			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\)\\.$#"
+			count: 3
+			path: src/Type/Definition/FieldDefinition.php
+
+		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\)\\.$#"
-			count: 1
+			count: 4
 			path: src/Type/Definition/InputObjectField.php
 
 		-
@@ -111,11 +121,6 @@ parameters:
 			path: src/Type/Introspection.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: src/Type/Introspection.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\Type\\>\\|\\(callable\\) given\\.$#"
 			count: 1
 			path: src/Type/Schema.php
@@ -131,12 +136,12 @@ parameters:
 			path: src/Type/Schema.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, \\(callable\\)\\|null given\\.$#"
-			count: 2
+			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Error\\\\Error\\|GraphQL\\\\Error\\\\InvariantViolation\\> given\\.$#"
+			count: 1
 			path: src/Type/Schema.php
 
 		-
-			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Error\\\\Error\\|GraphQL\\\\Error\\\\InvariantViolation\\> given\\.$#"
+			message: "#^Only booleans are allowed in a negated boolean, \\(callable\\)\\|null given\\.$#"
 			count: 1
 			path: src/Type/Schema.php
 
@@ -306,21 +311,6 @@ parameters:
 			path: src/Utils/ASTDefinitionBuilder.php
 
 		-
-			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\> given\\.$#"
-			count: 1
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\>\\|null given\\.$#"
-			count: 1
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\>\\|null given\\.$#"
-			count: 1
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
 			message: "#^Only booleans are allowed in &&, array\\<bool\\>\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Utils/PairSet.php
@@ -332,11 +322,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SchemaDefinitionNode\\|null given\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\>\\|null given\\.$#"
 			count: 1
 			path: src/Utils/SchemaExtender.php
 
@@ -456,7 +441,7 @@ parameters:
 			path: src/Validator/Rules/KnownDirectives.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<string\\>\\|null given\\.$#"
+			message: "#^Only booleans are allowed in a negated boolean, array\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/KnownDirectives.php
 
@@ -649,6 +634,16 @@ parameters:
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType\\|null given\\.$#"
 			count: 4
 			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:\\$nonExistentProp\\.$#"
+			count: 2
+			path: tests/Type/DefinitionTest.php
+
+		-
+			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\:\\:\\$nonExistentProp\\.$#"
+			count: 1
+			path: tests/Type/DefinitionTest.php
 
 		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Tests\\\\Type\\\\TypeLoaderTest\\)\\.$#"

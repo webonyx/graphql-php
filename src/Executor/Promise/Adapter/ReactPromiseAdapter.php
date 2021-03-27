@@ -6,9 +6,9 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
-use GraphQL\Utils\Utils;
 use React\Promise\Promise as ReactPromise;
 use React\Promise\PromiseInterface as ReactPromiseInterface;
+
 use function array_map;
 use function React\Promise\all;
 use function React\Promise\reject;
@@ -88,7 +88,7 @@ class ReactPromiseAdapter implements PromiseAdapter
             $promisesOrValues
         );
 
-        $promise = all($promisesOrValues)->then(static function ($values) use ($promisesOrValues) : array {
+        $promise = all($promisesOrValues)->then(static function ($values) use ($promisesOrValues): array {
             $orderedResults = [];
 
             foreach ($promisesOrValues as $key => $value) {

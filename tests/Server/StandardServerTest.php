@@ -11,8 +11,8 @@ use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use Nyholm\Psr7\Request;
-use Nyholm\Psr7\Stream;
 use Psr\Http\Message\RequestInterface;
+
 use function json_encode;
 
 class StandardServerTest extends ServerTestCase
@@ -22,14 +22,14 @@ class StandardServerTest extends ServerTestCase
     /** @var ServerConfig */
     private $config;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $schema       = $this->buildSchema();
         $this->config = ServerConfig::create()
             ->setSchema($schema);
     }
 
-    public function testSimpleRequestExecutionWithOutsideParsing() : void
+    public function testSimpleRequestExecutionWithOutsideParsing(): void
     {
         $body = json_encode(['query' => '{f1}']);
 
@@ -56,7 +56,7 @@ class StandardServerTest extends ServerTestCase
         });
     }
 
-    public function testSimplePsrRequestExecution() : void
+    public function testSimplePsrRequestExecution(): void
     {
         $body = ['query' => '{f1}'];
 
@@ -68,7 +68,7 @@ class StandardServerTest extends ServerTestCase
         $this->assertPsrRequestEquals($expected, $request);
     }
 
-    private function preparePsrRequest($contentType, $body) : RequestInterface
+    private function preparePsrRequest($contentType, $body): RequestInterface
     {
         return new Request(
             'POST',
@@ -95,7 +95,7 @@ class StandardServerTest extends ServerTestCase
         return $result;
     }
 
-    public function testMultipleOperationPsrRequestExecution() : void
+    public function testMultipleOperationPsrRequestExecution(): void
     {
         $body = [
             'query'         => 'query firstOp {fieldWithPhpError} query secondOp {f1}',

@@ -7,25 +7,43 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
+use function array_map;
+use function is_array;
 use function is_callable;
 use function is_string;
 use function sprintf;
 
-class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
+class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
     /** @var InterfaceTypeDefinitionNode|null */
     public $astNode;
 
-    /** @var InterfaceTypeExtensionNode[] */
+    /** @var array<int, InterfaceTypeExtensionNode> */
     public $extensionASTNodes;
 
     /**
      * Lazily initialized.
      *
-     * @var FieldDefinition[]
+     * @var array<string, FieldDefinition>
      */
     private $fields;
+
+    /**
+     * Lazily initialized.
+     *
+     * @var array<int, InterfaceType>
+     */
+    private $interfaces;
+
+    /**
+     * Lazily initialized.
+     *
+     * @var array<string, InterfaceType>
+     */
+    private $interfaceMap;
 
     /**
      * @param mixed[] $config
@@ -52,7 +70,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      *
      * @throws InvariantViolation
      */
-    public static function assertInterfaceType($type) : self
+    public static function assertInterfaceType($type): self
     {
         Utils::invariant(
             $type instanceof self,
@@ -62,17 +80,18 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $type;
     }
 
-    public function getField(string $name) : FieldDefinition
+    public function getField(string $name): FieldDefinition
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
         }
+
         Utils::invariant(isset($this->fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
 
         return $this->fields[$name];
     }
 
-    public function hasField(string $name) : bool
+    public function hasField(string $name): bool
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
@@ -84,7 +103,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /**
      * @return FieldDefinition[]
      */
-    public function getFields() : array
+    public function getFields(): array
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
@@ -93,10 +112,52 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $this->fields;
     }
 
-    protected function initializeFields() : void
+    protected function initializeFields(): void
     {
         $fields       = $this->config['fields'] ?? [];
         $this->fields = FieldDefinition::defineFieldMap($this, $fields);
+    }
+
+    public function implementsInterface(InterfaceType $interfaceType): bool
+    {
+        if (! isset($this->interfaceMap)) {
+            $this->interfaceMap = [];
+            foreach ($this->getInterfaces() as $interface) {
+                /** @var Type&InterfaceType $interface */
+                $interface                            = Schema::resolveType($interface);
+                $this->interfaceMap[$interface->name] = $interface;
+            }
+        }
+
+        return isset($this->interfaceMap[$interfaceType->name]);
+    }
+
+    /**
+     * @return array<int, InterfaceType>
+     */
+    public function getInterfaces(): array
+    {
+        if (! isset($this->interfaces)) {
+            $interfaces = $this->config['interfaces'] ?? [];
+            if (is_callable($interfaces)) {
+                $interfaces = $interfaces();
+            }
+
+            if ($interfaces !== null && ! is_array($interfaces)) {
+                throw new InvariantViolation(
+                    sprintf('%s interfaces must be an Array or a callable which returns an Array.', $this->name)
+                );
+            }
+
+            /** @var array<int, InterfaceType> $interfaces */
+            $interfaces = $interfaces === null
+                ? []
+                : array_map([Schema::class, 'resolveType'], $interfaces);
+
+            $this->interfaces = $interfaces;
+        }
+
+        return $this->interfaces;
     }
 
     /**
@@ -121,7 +182,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /**
      * @throws InvariantViolation
      */
-    public function assertValid() : void
+    public function assertValid(): void
     {
         parent::assertValid();
 

@@ -11,6 +11,7 @@ namespace GraphQL\Utils;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
@@ -22,6 +23,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use TypeError;
+
 use function array_flip;
 use function array_key_exists;
 use function array_keys;
@@ -41,17 +43,21 @@ class BreakingChangesFinder
     public const BREAKING_CHANGE_ARG_CHANGED_KIND              = 'ARG_CHANGED_KIND';
     public const BREAKING_CHANGE_REQUIRED_ARG_ADDED            = 'REQUIRED_ARG_ADDED';
     public const BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED    = 'REQUIRED_INPUT_FIELD_ADDED';
-    public const BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT = 'INTERFACE_REMOVED_FROM_OBJECT';
+    public const BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED = 'IMPLEMENTED_INTERFACE_REMOVED';
     public const BREAKING_CHANGE_DIRECTIVE_REMOVED             = 'DIRECTIVE_REMOVED';
     public const BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED         = 'DIRECTIVE_ARG_REMOVED';
     public const BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED    = 'DIRECTIVE_LOCATION_REMOVED';
     public const BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED  = 'REQUIRED_DIRECTIVE_ARG_ADDED';
     public const DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED    = 'ARG_DEFAULT_VALUE_CHANGE';
     public const DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM          = 'VALUE_ADDED_TO_ENUM';
-    public const DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT    = 'INTERFACE_ADDED_TO_OBJECT';
+    public const DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED  = 'IMPLEMENTED_INTERFACE_ADDED';
     public const DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION          = 'TYPE_ADDED_TO_UNION';
     public const DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED   = 'OPTIONAL_INPUT_FIELD_ADDED';
     public const DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED           = 'OPTIONAL_ARG_ADDED';
+    /** @deprecated use BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED instead, will be removed in v15.0.0. */
+    public const BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT = 'IMPLEMENTED_INTERFACE_REMOVED';
+    /** @deprecated use DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED instead, will be removed in v15.0.0. */
+    public const DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT = 'IMPLEMENTED_INTERFACE_ADDED';
 
     /**
      * Given two schemas, returns an Array containing descriptions of all the types
@@ -114,7 +120,7 @@ class BreakingChangesFinder
     public static function findTypesThatChangedKind(
         Schema $schemaA,
         Schema $schemaB
-    ) : iterable {
+    ): iterable {
         $schemaATypeMap = $schemaA->getTypeMap();
         $schemaBTypeMap = $schemaB->getTypeMap();
 
@@ -123,6 +129,7 @@ class BreakingChangesFinder
             if (! isset($schemaBTypeMap[$typeName])) {
                 continue;
             }
+
             $schemaBType = $schemaBTypeMap[$typeName];
             if ($schemaAType instanceof $schemaBType) {
                 continue;
@@ -190,7 +197,8 @@ class BreakingChangesFinder
         $breakingChanges = [];
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
-            if (! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType) ||
+            if (
+                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType) ||
                 ! ($newType instanceof ObjectType || $newType instanceof InterfaceType) ||
                 ! ($newType instanceof $oldType)
             ) {
@@ -309,11 +317,13 @@ class BreakingChangesFinder
                         } else {
                             $oldFieldTypeString = $oldFieldType;
                         }
+
                         if ($newFieldType instanceof NamedType) {
                             $newFieldTypeString = $newFieldType->name;
                         } else {
                             $newFieldTypeString = $newFieldType;
                         }
+
                         $breakingChanges[] = [
                             'type'        => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                             'description' => "${typeName}.${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}.",
@@ -321,6 +331,7 @@ class BreakingChangesFinder
                     }
                 }
             }
+
             // Check if a field was added to the input object type
             foreach ($newTypeFieldsDef as $fieldName => $fieldDef) {
                 if (isset($oldTypeFieldsDef[$fieldName])) {
@@ -408,10 +419,12 @@ class BreakingChangesFinder
             if (! ($oldType instanceof UnionType) || ! ($newType instanceof UnionType)) {
                 continue;
             }
+
             $typeNamesInNewUnion = [];
             foreach ($newType->getTypes() as $type) {
                 $typeNamesInNewUnion[$type->name] = true;
             }
+
             foreach ($oldType->getTypes() as $type) {
                 if (isset($typeNamesInNewUnion[$type->name])) {
                     continue;
@@ -446,10 +459,12 @@ class BreakingChangesFinder
             if (! ($oldType instanceof EnumType) || ! ($newType instanceof EnumType)) {
                 continue;
             }
+
             $valuesInNewEnum = [];
             foreach ($newType->getValues() as $value) {
                 $valuesInNewEnum[$value->name] = true;
             }
+
             foreach ($oldType->getValues() as $value) {
                 if (isset($valuesInNewEnum[$value->name])) {
                     continue;
@@ -485,7 +500,8 @@ class BreakingChangesFinder
 
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
-            if (! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType) ||
+            if (
+                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType) ||
                 ! ($newType instanceof ObjectType || $newType instanceof InterfaceType) ||
                 ! ($newType instanceof $oldType)
             ) {
@@ -504,7 +520,7 @@ class BreakingChangesFinder
                     $newArgs   = $newTypeFields[$fieldName]->args;
                     $newArgDef = Utils::find(
                         $newArgs,
-                        static function ($arg) use ($oldArgDef) : bool {
+                        static function ($arg) use ($oldArgDef): bool {
                             return $arg->name === $oldArgDef->name;
                         }
                     );
@@ -539,12 +555,13 @@ class BreakingChangesFinder
                             ),
                         ];
                     }
+
                     // Check if arg was added to the field
                     foreach ($newTypeFields[$fieldName]->args as $newTypeFieldArgDef) {
                         $oldArgs   = $oldTypeFields[$fieldName]->args;
                         $oldArgDef = Utils::find(
                             $oldArgs,
-                            static function ($arg) use ($newTypeFieldArgDef) : bool {
+                            static function ($arg) use ($newTypeFieldArgDef): bool {
                                 return $arg->name === $newTypeFieldArgDef->name;
                             }
                         );
@@ -590,7 +607,7 @@ class BreakingChangesFinder
 
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
-            if (! ($oldType instanceof ObjectType) || ! ($newType instanceof ObjectType)) {
+            if (! ($oldType instanceof ImplementingType) || ! ($newType instanceof ImplementingType)) {
                 continue;
             }
 
@@ -599,7 +616,7 @@ class BreakingChangesFinder
             foreach ($oldInterfaces as $oldInterface) {
                 $interface = Utils::find(
                     $newInterfaces,
-                    static function (InterfaceType $interface) use ($oldInterface) : bool {
+                    static function (InterfaceType $interface) use ($oldInterface): bool {
                         return $interface->name === $oldInterface->name;
                     }
                 );
@@ -608,7 +625,7 @@ class BreakingChangesFinder
                 }
 
                 $breakingChanges[] = [
-                    'type'        => self::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
+                    'type'        => self::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
                     'description' => sprintf('%s no longer implements interface %s.', $typeName, $oldInterface->name),
                 ];
             }
@@ -659,10 +676,12 @@ class BreakingChangesFinder
                 continue;
             }
 
-            foreach (self::findRemovedArgsForDirectives(
-                $oldSchemaDirectiveMap[$newDirective->name],
-                $newDirective
-            ) as $arg) {
+            foreach (
+                self::findRemovedArgsForDirectives(
+                    $oldSchemaDirectiveMap[$newDirective->name],
+                    $newDirective
+                ) as $arg
+            ) {
                 $removedDirectiveArgs[] = [
                     'type'        => self::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
                     'description' => sprintf('%s was removed from %s', $arg->name, $newDirective->name),
@@ -708,13 +727,16 @@ class BreakingChangesFinder
                 continue;
             }
 
-            foreach (self::findAddedArgsForDirective(
-                $oldSchemaDirectiveMap[$newDirective->name],
-                $newDirective
-            ) as $arg) {
+            foreach (
+                self::findAddedArgsForDirective(
+                    $oldSchemaDirectiveMap[$newDirective->name],
+                    $newDirective
+                ) as $arg
+            ) {
                 if (! $arg->isRequired()) {
                     continue;
                 }
+
                 $addedNonNullableArgs[] = [
                     'type'        => self::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
                     'description' => sprintf(
@@ -760,10 +782,12 @@ class BreakingChangesFinder
                 continue;
             }
 
-            foreach (self::findRemovedLocationsForDirective(
-                $oldSchemaDirectiveMap[$newDirective->name],
-                $newDirective
-            ) as $location) {
+            foreach (
+                self::findRemovedLocationsForDirective(
+                    $oldSchemaDirectiveMap[$newDirective->name],
+                    $newDirective
+                ) as $location
+            ) {
                 $removedLocations[] = [
                     'type'        => self::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
                     'description' => sprintf('%s was removed from %s', $location, $newDirective->name),
@@ -825,10 +849,12 @@ class BreakingChangesFinder
             if (! ($oldType instanceof EnumType) || ! ($newType instanceof EnumType)) {
                 continue;
             }
+
             $valuesInOldEnum = [];
             foreach ($oldType->getValues() as $value) {
                 $valuesInOldEnum[$value->name] = true;
             }
+
             foreach ($newType->getValues() as $value) {
                 if (isset($valuesInOldEnum[$value->name])) {
                     continue;
@@ -857,7 +883,10 @@ class BreakingChangesFinder
 
         foreach ($newTypeMap as $typeName => $newType) {
             $oldType = $oldTypeMap[$typeName] ?? null;
-            if (! ($oldType instanceof ObjectType) || ! ($newType instanceof ObjectType)) {
+            if (
+                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
+                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+            ) {
                 continue;
             }
 
@@ -866,7 +895,7 @@ class BreakingChangesFinder
             foreach ($newInterfaces as $newInterface) {
                 $interface = Utils::find(
                     $oldInterfaces,
-                    static function (InterfaceType $interface) use ($newInterface) : bool {
+                    static function (InterfaceType $interface) use ($newInterface): bool {
                         return $interface->name === $newInterface->name;
                     }
                 );
@@ -876,7 +905,7 @@ class BreakingChangesFinder
                 }
 
                 $interfacesAddedToObjectTypes[] = [
-                    'type'        => self::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
+                    'type'        => self::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
                     'description' => sprintf(
                         '%s added to interfaces implemented by %s.',
                         $newInterface->name,
@@ -913,6 +942,7 @@ class BreakingChangesFinder
             foreach ($oldType->getTypes() as $type) {
                 $typeNamesInOldUnion[$type->name] = true;
             }
+
             foreach ($newType->getTypes() as $type) {
                 if (isset($typeNamesInOldUnion[$type->name])) {
                     continue;

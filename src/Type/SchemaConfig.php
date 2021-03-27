@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
+
 use function count;
 use function is_callable;
 
@@ -43,7 +44,7 @@ class SchemaConfig
     /** @var Directive[]|null */
     public $directives;
 
-    /** @var callable(string $name):Type|null */
+    /** @var callable|null */
     public $typeLoader;
 
     /** @var SchemaDefinitionNode|null */
@@ -254,7 +255,7 @@ class SchemaConfig
     }
 
     /**
-     * @return callable(string $name):Type|null
+     * @return callable|null
      *
      * @api
      */

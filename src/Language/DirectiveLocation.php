@@ -54,7 +54,7 @@ class DirectiveLocation
         self::INPUT_FIELD_DEFINITION => self::INPUT_FIELD_DEFINITION,
     ];
 
-    public static function has(string $name) : bool
+    public static function has(string $name): bool
     {
         return isset(self::$locations[$name]);
     }

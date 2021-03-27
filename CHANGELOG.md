@@ -1,5 +1,62 @@
 # Changelog
 
+#### Unreleased
+- PHP version required: 7.4+
+
+#### 14.5.1
+
+Fix:
+- Fix Input Object field shortcut definition with callable (#773)
+
+#### 14.5.0
+
+Feat:
+- Implement support for interfaces implementing interfaces (#740), huge kudos to @Kingdutch
+
+Deprecates:
+- Constant `BreakingChangeFinder::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT`.
+  Use `BreakingChangeFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED` instead.
+  Constant value also changed from `INTERFACE_REMOVED_FROM_OBJECT` to `IMPLEMENTED_INTERFACE_REMOVED`.
+
+- Constant `BreakingChangeFinder::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT`
+  Use `DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED` instead.
+  Constant value also changed from `INTERFACE_ADDED_TO_OBJECT` to `IMPLEMENTED_INTERFACE_ADDED`.
+
+Refactoring:
+- Reify AST node types and remove unneeded nullability (#751)
+
+#### 14.4.1
+
+Fix:
+- Allow pushing nodes to `NodeList` via `[]=` (#767)
+- Fix signature of `Error\FormattedError::prepareFormatter()` to address PHP8 deprecation (#742)
+- Do not add errors key to result when errors discarded by custom error handler (#766)
+
+#### 14.4.0
+
+Fix:
+- Fixed `SchemaPrinter` so that it uses late static bindings when extended
+- Parse `DirectiveDefinitionNode->locations` as `NodeList<NamedNode>` (fixes AST::fromArray conversion) (#723)
+- Parse `Parser::implementsInterfaces` as `NodeList<NamedTypeNode>` (fixes AST::fromArray conversion)
+- Fix signature of `Parser::unionMemberTypes` to match actual `NodeList<NamedTypeNode>`
+
+#### v14.3.0
+
+Feat:
+- Allow `typeLoader` to return a type thunk (#687)
+
+Fix:
+- Read getParsedBody() instead of getBody() when Request is ServerRequest (#715)
+- Fix default get/set behavior on InputObjectField and FieldDefinition (#716)
+
+#### v14.2.0
+
+Deprecates:
+- Public access to `FieldDefinition::$type` property (#702)
+
+Fixes:
+- Fix validation for input field definition directives (#714) 
+
 #### v14.1.1
 
 Fixes:

@@ -6,7 +6,6 @@ namespace GraphQL\Tests\Type;
 
 use Exception;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Exception\InvalidArgument;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -16,6 +15,7 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Throwable;
+
 use function lcfirst;
 
 final class LazyTypeLoaderTest extends TestCase
@@ -43,7 +43,7 @@ final class LazyTypeLoaderTest extends TestCase
     /** @var callable */
     private $postStoryMutationInput;
 
-    /** @var callable(string $name):Type */
+    /** @var callable */
     private $typeLoader;
 
     /** @var string[] */
@@ -52,23 +52,23 @@ final class LazyTypeLoaderTest extends TestCase
     /** @var Type[] */
     private $loadedTypes = [];
 
-    private function lazyLoad(string $name) : callable
+    private function lazyLoad(string $name): callable
     {
-        return function () use ($name) : ?Type {
+        return function () use ($name): ?Type {
             if (! isset($this->loadedTypes[$name])) {
                 $type = null;
                 switch ($name) {
                     case 'Node':
                         $type = new InterfaceType([
                             'name' => 'Node',
-                            'fields' => function () : array {
+                            'fields' => function (): array {
                                 $this->calls[] = 'Node.fields';
 
                                 return [
                                     'id' => Type::string(),
                                 ];
                             },
-                            'resolveType' => static function () : void {
+                            'resolveType' => static function (): void {
                             },
                         ]);
                         break;
@@ -76,7 +76,7 @@ final class LazyTypeLoaderTest extends TestCase
                     case 'Content':
                         $type = new InterfaceType([
                             'name' => 'Content',
-                            'fields' => function () : array {
+                            'fields' => function (): array {
                                 $this->calls[] = 'Content.fields';
 
                                 return [
@@ -84,7 +84,7 @@ final class LazyTypeLoaderTest extends TestCase
                                     'body' => Type::string(),
                                 ];
                             },
-                            'resolveType' => static function () : void {
+                            'resolveType' => static function (): void {
                             },
                         ]);
                         break;
@@ -96,7 +96,7 @@ final class LazyTypeLoaderTest extends TestCase
                                 $this->node,
                                 $this->content,
                             ],
-                            'fields' => function () : array {
+                            'fields' => function (): array {
                                 $this->calls[] = 'BlogStory.fields';
 
                                 return [
@@ -129,6 +129,7 @@ final class LazyTypeLoaderTest extends TestCase
                         ]);
                         break;
                 }
+
                 $this->loadedTypes[$name] = $type;
             }
 
@@ -136,7 +137,7 @@ final class LazyTypeLoaderTest extends TestCase
         };
     }
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->calls = [];
 
@@ -147,7 +148,7 @@ final class LazyTypeLoaderTest extends TestCase
         $this->postStoryMutationInput = $this->lazyLoad('PostStoryMutationInput');
         $this->query                  = new ObjectType([
             'name'   => 'Query',
-            'fields' => function () : array {
+            'fields' => function (): array {
                 $this->calls[] = 'Query.fields';
 
                 return [
@@ -159,7 +160,7 @@ final class LazyTypeLoaderTest extends TestCase
 
         $this->mutation = new ObjectType([
             'name'   => 'Mutation',
-            'fields' => function () : array {
+            'fields' => function (): array {
                 $this->calls[] = 'Mutation.fields';
 
                 return [
@@ -174,28 +175,32 @@ final class LazyTypeLoaderTest extends TestCase
             },
         ]);
 
-        $this->typeLoader = function (string $name) : Type {
+        $this->typeLoader = function (string $name) {
             $this->calls[] = $name;
             $prop          = lcfirst($name);
 
             switch ($prop) {
                 case 'node':
                     return ($this->node)();
+
                 case 'blogStory':
                     return ($this->blogStory)();
+
                 case 'content':
-                    return ($this->content)();
+                    return $this->content;
+
                 case 'postStoryMutation':
-                    return ($this->postStoryMutation)();
+                    return $this->postStoryMutation;
+
                 case 'postStoryMutationInput':
-                    return ($this->postStoryMutationInput)();
+                    return $this->postStoryMutationInput;
             }
 
-            throw new InvalidArgument('Unknown type');
+            return null;
         };
     }
 
-    public function testSchemaAcceptsTypeLoader() : void
+    public function testSchemaAcceptsTypeLoader(): void
     {
         $this->expectNotToPerformAssertions();
         new Schema([
@@ -203,12 +208,12 @@ final class LazyTypeLoaderTest extends TestCase
                 'name'   => 'Query',
                 'fields' => ['a' => Type::string()],
             ]),
-            'typeLoader' => static function () : void {
+            'typeLoader' => static function (): void {
             },
         ]);
     }
 
-    public function testSchemaRejectsNonCallableTypeLoader() : void
+    public function testSchemaRejectsNonCallableTypeLoader(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Schema type loader must be callable if provided but got: []');
@@ -222,7 +227,7 @@ final class LazyTypeLoaderTest extends TestCase
         ]);
     }
 
-    public function testWorksWithoutTypeLoader() : void
+    public function testWorksWithoutTypeLoader(): void
     {
         $schema = new Schema([
             'query'    => $this->query,
@@ -260,7 +265,7 @@ final class LazyTypeLoaderTest extends TestCase
         self::assertArraySubset($expectedTypeMap, $schema->getTypeMap());
     }
 
-    public function testWorksWithTypeLoader() : void
+    public function testWorksWithTypeLoader(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
@@ -286,10 +291,22 @@ final class LazyTypeLoaderTest extends TestCase
             Schema::resolveType($this->blogStory)
         );
         self::assertTrue($result);
-        self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
+        self::assertEquals(
+            [
+                'Node',
+                'Content',
+                'PostStoryMutationInput',
+                'Query.fields',
+                'Content.fields',
+                'Node.fields',
+                'Mutation.fields',
+                'BlogStory.fields',
+            ],
+            $this->calls
+        );
     }
 
-    public function testOnlyCallsLoaderOnce() : void
+    public function testOnlyCallsLoaderOnce(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
@@ -303,11 +320,11 @@ final class LazyTypeLoaderTest extends TestCase
         self::assertEquals(['Node'], $this->calls);
     }
 
-    public function testFailsOnNonExistentType() : void
+    public function testFailsOnNonExistentType(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () : void {
+            'typeLoader' => static function (): void {
             },
         ]);
 
@@ -317,11 +334,11 @@ final class LazyTypeLoaderTest extends TestCase
         $schema->getType('NonExistingType');
     }
 
-    public function testFailsOnNonType() : void
+    public function testFailsOnNonType(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () : stdClass {
+            'typeLoader' => static function (): stdClass {
                 return new stdClass();
             },
         ]);
@@ -332,11 +349,11 @@ final class LazyTypeLoaderTest extends TestCase
         $schema->getType('Node');
     }
 
-    public function testPassesThroughAnExceptionInLoader() : void
+    public function testPassesThroughAnExceptionInLoader(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () : void {
+            'typeLoader' => static function (): void {
                 throw new Exception('This is the exception we are looking for');
             },
         ]);
@@ -347,7 +364,7 @@ final class LazyTypeLoaderTest extends TestCase
         $schema->getType('Node');
     }
 
-    public function testReturnsIdenticalResults() : void
+    public function testReturnsIdenticalResults(): void
     {
         $withoutLoader = new Schema([
             'query'    => $this->query,
@@ -366,7 +383,7 @@ final class LazyTypeLoaderTest extends TestCase
         self::assertSame($withoutLoader->getDirectives(), $withLoader->getDirectives());
     }
 
-    public function testSkipsLoaderForInternalTypes() : void
+    public function testSkipsLoaderForInternalTypes(): void
     {
         $schema = new Schema([
             'query'      => $this->query,

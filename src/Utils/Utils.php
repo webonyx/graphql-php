@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use LogicException;
 use stdClass;
 use Traversable;
+
 use function array_keys;
 use function array_map;
 use function array_reduce;
@@ -36,7 +37,6 @@ use function is_scalar;
 use function is_string;
 use function json_encode;
 use function levenshtein;
-use function max;
 use function mb_convert_encoding;
 use function mb_strlen;
 use function mb_substr;
@@ -96,6 +96,7 @@ class Utils
                     Warning::WARNING_ASSIGN
                 );
             }
+
             $obj->{$key} = $value;
         }
 
@@ -130,7 +131,7 @@ class Utils
      *
      * @throws Exception
      */
-    public static function filter($iterable, callable $predicate) : array
+    public static function filter($iterable, callable $predicate): array
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -143,6 +144,7 @@ class Utils
             if (! $assoc && ! is_int($key)) {
                 $assoc = true;
             }
+
             if (! $predicate($value, $key)) {
                 continue;
             }
@@ -160,7 +162,7 @@ class Utils
      *
      * @throws Exception
      */
-    public static function mapKeyValue($iterable, callable $fn) : array
+    public static function mapKeyValue($iterable, callable $fn): array
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -183,7 +185,7 @@ class Utils
      *
      * @throws Exception
      */
-    public static function keyMap($iterable, callable $keyFn) : array
+    public static function keyMap($iterable, callable $keyFn): array
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -206,7 +208,7 @@ class Utils
     /**
      * @param iterable<mixed> $iterable
      */
-    public static function each($iterable, callable $fn) : void
+    public static function each($iterable, callable $fn): void
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -234,7 +236,7 @@ class Utils
      *
      * @return array<array<mixed>>
      */
-    public static function groupBy($iterable, callable $keyFn) : array
+    public static function groupBy($iterable, callable $keyFn): array
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -257,7 +259,7 @@ class Utils
      *
      * @return array<mixed>
      */
-    public static function keyValMap($iterable, callable $keyFn, callable $valFn) : array
+    public static function keyValMap($iterable, callable $keyFn, callable $valFn): array
     {
         $map = [];
         foreach ($iterable as $item) {
@@ -270,7 +272,7 @@ class Utils
     /**
      * @param iterable<mixed> $iterable
      */
-    public static function every($iterable, callable $predicate) : bool
+    public static function every($iterable, callable $predicate): bool
     {
         foreach ($iterable as $key => $value) {
             if (! $predicate($value, $key)) {
@@ -284,7 +286,7 @@ class Utils
     /**
      * @param iterable<mixed> $iterable
      */
-    public static function some($iterable, callable $predicate) : bool
+    public static function some($iterable, callable $predicate): bool
     {
         foreach ($iterable as $key => $value) {
             if ($predicate($value, $key)) {
@@ -301,15 +303,18 @@ class Utils
      */
     public static function invariant($test, $message = '')
     {
-        if (! $test) {
-            if (func_num_args() > 2) {
-                $args = func_get_args();
-                array_shift($args);
-                $message = sprintf(...$args);
-            }
-            // TODO switch to Error here
-            throw new InvariantViolation($message);
+        if ($test) {
+            return;
         }
+
+        if (func_num_args() > 2) {
+            $args = func_get_args();
+            array_shift($args);
+            $message = sprintf(...$args);
+        }
+
+        // TODO switch to Error here
+        throw new InvariantViolation($message);
     }
 
     /**
@@ -341,24 +346,31 @@ class Utils
         if ($var instanceof stdClass) {
             $var = (array) $var;
         }
+
         if (is_array($var)) {
             return json_encode($var);
         }
+
         if ($var === '') {
             return '(empty string)';
         }
+
         if ($var === null) {
             return 'null';
         }
+
         if ($var === false) {
             return 'false';
         }
+
         if ($var === true) {
             return 'true';
         }
+
         if (is_string($var)) {
             return sprintf('"%s"', $var);
         }
+
         if (is_scalar($var)) {
             return (string) $var;
         }
@@ -376,6 +388,7 @@ class Utils
         if ($var instanceof Type) {
             return $var->toString();
         }
+
         if (is_object($var)) {
             if (method_exists($var, '__toString')) {
                 return (string) $var;
@@ -383,24 +396,31 @@ class Utils
 
             return 'instance of ' . get_class($var);
         }
+
         if (is_array($var)) {
             return json_encode($var);
         }
+
         if ($var === '') {
             return '(empty string)';
         }
+
         if ($var === null) {
             return 'null';
         }
+
         if ($var === false) {
             return 'false';
         }
+
         if ($var === true) {
             return 'true';
         }
+
         if (is_string($var)) {
             return $var;
         }
+
         if (is_scalar($var)) {
             return (string) $var;
         }
@@ -438,9 +458,11 @@ class Utils
         if (! $char && $char !== '0') {
             return 0;
         }
+
         if (! isset($char[1])) {
             return ord($char);
         }
+
         if ($encoding !== 'UCS-4BE') {
             $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
         }
@@ -538,7 +560,7 @@ class Utils
     {
         return static function () use ($fn, &$errors) {
             // Catch custom errors (to report them in query results)
-            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors) : void {
+            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors): void {
                 $errors[] = new ErrorException($message, 0, $severity, $file, $line);
             });
 
@@ -558,7 +580,7 @@ class Utils
     public static function quotedOrList(array $items)
     {
         $items = array_map(
-            static function ($item) : string {
+            static function ($item): string {
                 return sprintf('"%s"', $item);
             },
             $items
@@ -577,6 +599,7 @@ class Utils
         if (count($items) === 0) {
             throw new LogicException('items must not need to be empty.');
         }
+
         $selected       = array_slice($items, 0, 5);
         $selectedLength = count($selected);
         $firstSelected  = $selected[0];
@@ -587,7 +610,7 @@ class Utils
 
         return array_reduce(
             range(1, $selectedLength - 1),
-            static function ($list, $index) use ($selected, $selectedLength) : string {
+            static function ($list, $index) use ($selected, $selectedLength): string {
                 return $list .
                     ($selectedLength > 2 ? ', ' : ' ') .
                     ($index === $selectedLength - 1 ? 'or ' : '') .
@@ -622,6 +645,7 @@ class Utils
                     ? 1
                     : levenshtein($input, $option));
             }
+
             if ($distance > $threshold) {
                 continue;
             }
