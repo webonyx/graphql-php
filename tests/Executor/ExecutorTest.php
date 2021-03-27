@@ -1325,7 +1325,7 @@ class ExecutorTest extends TestCase
                     ],
                     'objectVirtual' => [
                         'type' => $ObjectVirtual,
-                        'resolve' => static function () {
+                        'resolve' => static function () : object {
                             return new class {
                                 public function __isset($name) : bool
                                 {
