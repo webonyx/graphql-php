@@ -16,7 +16,7 @@ use function is_callable;
 /**
  * Schema configuration class.
  * Could be passed directly to schema constructor. List of options accepted by **create** method is
- * [described in docs](type-system/schema.md#configuration-options).
+ * [described in docs](type-definitions/schema-definition.md#configuration-options).
  *
  * Usage example:
  *

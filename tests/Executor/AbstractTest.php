@@ -568,7 +568,7 @@ class AbstractTest extends TestCase
             'Schema must contain unique named types but contains multiple types named "Test". ' .
             'Make sure that `resolveType` function of abstract type "Node" returns the same type instance ' .
             'as referenced anywhere else within the schema ' .
-            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
             $result->errors[0]->getMessage()
         );
     }

@@ -11,10 +11,10 @@ For smaller contributions just use this workflow:
 * Add your features and or bug fixes.
 * Add tests. Tests are important for us.
 * Check your changes using `composer check`.
-* Add an entry to the [Changelog's Unreleases section](CHANGELOG.md#unreleased).
+* Add an entry to the [Changelog's Unreleased section](CHANGELOG.md#unreleased).
 * Send a pull request.
 
-## Setup the Development Environment
+## Setup
 First, copy the URL of your fork and `git clone` it to your local machine.
 
 ```sh
@@ -22,34 +22,55 @@ cd graphql-php
 composer install
 ```
 
-## Running tests
+## Testing
+We use [PHPUnit](https://phpunit.de/) to ensure the code works and continues to work as expected.
+
+Run unit tests:
 ```sh
-./vendor/bin/phpunit
+composer test
 ```
 
-Some tests have annotation `@see it('<description>')`. It is used for reference to same tests in [graphql-js implementation](https://github.com/graphql/graphql-js) with the same description.
+Some tests have an annotation such as `@see it('<description>')`.
+It references a matching test in the [graphql-js implementation](https://github.com/graphql/graphql-js).
 
 ## Coding Standard
 The coding standard of this project is based on [Doctrine CS](https://github.com/doctrine/coding-standard).
 
 Run the inspections:
 ```sh
-./vendor/bin/phpcs
+composer lint
 ```
 
 Apply automatic code style fixes:
 ```sh
-./vendor/bin/phpcbf
+composer fix
 ```
 
-## Static analysis
-Based on [PHPStan](https://github.com/phpstan/phpstan).
+## Static Analysis
+We use [PHPStan](https://github.com/phpstan/phpstan) to validate code correctness.
+
+Run static analysis:
 ```sh
-./vendor/bin/phpstan
+composer stan
 ```
 
-## Running benchmarks
-Benchmarks are run via [PHPBench](https://github.com/phpbench/phpbench).
+Regenerate the [PHPStan baseline](https://phpstan.org/user-guide/baseline):
 ```sh
-./vendor/bin/phpbench run benchmarks
+composer baseline
+```
+
+## Running Benchmarks
+We benchmark performance critical code with [PHPBench](https://github.com/phpbench/phpbench).
+
+Check performance:
+```sh
+composer bench
+```
+
+## Documentation
+We document this library in [docs](docs).
+
+Generate the class reference docs:
+```sh
+composer docs
 ```

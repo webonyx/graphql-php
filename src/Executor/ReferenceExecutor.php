@@ -775,7 +775,7 @@ class ReferenceExecutor implements ExecutorImplementation
             throw new InvariantViolation(
                 sprintf(
                     'Schema must contain unique named types but contains multiple types named "%s". %s ' .
-                    '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
+                    '(see http://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
                     $returnType,
                     $hint
                 )
@@ -1294,7 +1294,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     'Schema must contain unique named types but contains multiple types named "%s". ' .
                     'Make sure that `resolveType` function of abstract type "%s" returns the same ' .
                     'type instance as referenced anywhere else within the schema ' .
-                    '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
+                    '(see http://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
                     $runtimeType,
                     $returnType
                 )

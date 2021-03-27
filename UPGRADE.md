@@ -561,7 +561,7 @@ See https://github.com/webonyx/graphql-php/issues/148
 Use [new PSR-7 compliant implementation](docs/executing-queries.md#using-server) instead.
 
 ### Deprecated: experimental `GraphQL\Type\Resolution` interface and implementations
-Use schema [**typeLoader** option](docs/type-system/schema.md#lazy-loading-of-types) instead.
+Use schema [**typeLoader** option](docs/schema-definition.md#lazy-loading-of-types) instead.
 
 ### Non-breaking: usage on async platforms
 When using the library on async platforms use separate method `GraphQL::promiseToExecute()`. 

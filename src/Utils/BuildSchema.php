@@ -26,7 +26,7 @@ use function sprintf;
 
 /**
  * Build instance of `GraphQL\Type\Schema` out of type language definition (string or parsed AST)
- * See [section in docs](type-system/type-language.md) for details.
+ * See [schema definition language docs](schema-definition-language.md) for details.
  */
 class BuildSchema
 {

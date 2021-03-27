@@ -1,9 +1,9 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 use GraphQL\Utils\Utils;
 
-$outputFile = __DIR__  . '/../docs/reference.md';
+$outputFile = __DIR__ . '/docs/class-reference.md';
 
 $entries = [
     \GraphQL\GraphQL::class,
