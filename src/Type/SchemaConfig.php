@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
+
 use function count;
 use function is_callable;
 

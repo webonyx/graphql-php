@@ -13,12 +13,13 @@ use Nyholm\Psr7\Request;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\Uri;
 use PHPUnit\Framework\TestCase;
+
 use function http_build_query;
 use function json_encode;
 
 class RequestParsingTest extends TestCase
 {
-    public function testParsesGraphqlRequest() : void
+    public function testParsesGraphqlRequest(): void
     {
         $query  = '{my query}';
         $parsed = [
@@ -45,7 +46,7 @@ class RequestParsingTest extends TestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(static function () use ($content) : string {
+        return $helper->parseHttpRequest(static function () use ($content): string {
             return $content;
         });
     }
@@ -95,7 +96,7 @@ class RequestParsingTest extends TestCase
         self::assertSame($extensions, $params->extensions, $message);
     }
 
-    public function testParsesUrlencodedRequest() : void
+    public function testParsesUrlencodedRequest(): void
     {
         $query     = '{my query}';
         $variables = ['test' => '1', 'test2' => '2'];
@@ -130,7 +131,7 @@ class RequestParsingTest extends TestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(static function () : void {
+        return $helper->parseHttpRequest(static function (): void {
             throw new InvariantViolation("Shouldn't read from php://input for urlencoded request");
         });
     }
@@ -154,7 +155,7 @@ class RequestParsingTest extends TestCase
         );
     }
 
-    public function testParsesGetRequest() : void
+    public function testParsesGetRequest(): void
     {
         $query     = '{my query}';
         $variables = ['test' => '1', 'test2' => '2'];
@@ -188,7 +189,7 @@ class RequestParsingTest extends TestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(static function () : void {
+        return $helper->parseHttpRequest(static function (): void {
             throw new InvariantViolation("Shouldn't read from php://input for urlencoded request");
         });
     }
@@ -207,7 +208,7 @@ class RequestParsingTest extends TestCase
         );
     }
 
-    public function testParsesMultipartFormdataRequest() : void
+    public function testParsesMultipartFormdataRequest(): void
     {
         $query     = '{my query}';
         $variables = ['test' => '1', 'test2' => '2'];
@@ -242,7 +243,7 @@ class RequestParsingTest extends TestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(static function () : void {
+        return $helper->parseHttpRequest(static function (): void {
             throw new InvariantViolation("Shouldn't read from php://input for multipart/form-data request");
         });
     }
@@ -266,7 +267,7 @@ class RequestParsingTest extends TestCase
         );
     }
 
-    public function testParsesJSONRequest() : void
+    public function testParsesJSONRequest(): void
     {
         $query     = '{my query}';
         $variables = ['test' => 1, 'test2' => 2];
@@ -287,7 +288,7 @@ class RequestParsingTest extends TestCase
         }
     }
 
-    public function testParsesParamsAsJSON() : void
+    public function testParsesParamsAsJSON(): void
     {
         $query      = '{my query}';
         $variables  = ['test1' => 1, 'test2' => 2];
@@ -310,7 +311,7 @@ class RequestParsingTest extends TestCase
         }
     }
 
-    public function testIgnoresInvalidVariablesJson() : void
+    public function testIgnoresInvalidVariablesJson(): void
     {
         $query     = '{my query}';
         $variables = '"some invalid json';
@@ -331,7 +332,7 @@ class RequestParsingTest extends TestCase
         }
     }
 
-    public function testParsesApolloPersistedQueryJSONRequest() : void
+    public function testParsesApolloPersistedQueryJSONRequest(): void
     {
         $queryId    = 'my-query-id';
         $extensions = ['persistedQuery' => ['sha256Hash' => $queryId]];
@@ -353,7 +354,7 @@ class RequestParsingTest extends TestCase
         }
     }
 
-    public function testParsesBatchJSONRequest() : void
+    public function testParsesBatchJSONRequest(): void
     {
         $body   = [
             [
@@ -395,7 +396,7 @@ class RequestParsingTest extends TestCase
         }
     }
 
-    public function testFailsParsingInvalidRawJsonRequestRaw() : void
+    public function testFailsParsingInvalidRawJsonRequestRaw(): void
     {
         $body = 'not really{} a json';
 
@@ -404,7 +405,7 @@ class RequestParsingTest extends TestCase
         $this->parseRawRequest('application/json', $body);
     }
 
-    public function testFailsParsingInvalidRawJsonRequestPsr() : void
+    public function testFailsParsingInvalidRawJsonRequestPsr(): void
     {
         $body = 'not really{} a json';
 
@@ -413,7 +414,7 @@ class RequestParsingTest extends TestCase
         $this->parsePsrRequest('application/json', $body);
     }
 
-    public function testFailsParsingNonPreParsedPsrRequest() : void
+    public function testFailsParsingNonPreParsedPsrRequest(): void
     {
         try {
             $this->parsePsrRequest('application/json', json_encode(null));
@@ -430,7 +431,7 @@ class RequestParsingTest extends TestCase
     /**
      * There is no equivalent for psr request, because it should throw
      */
-    public function testFailsParsingNonArrayOrObjectJsonRequestRaw() : void
+    public function testFailsParsingNonArrayOrObjectJsonRequestRaw(): void
     {
         $body = '"str"';
 
@@ -439,7 +440,7 @@ class RequestParsingTest extends TestCase
         $this->parseRawRequest('application/json', $body);
     }
 
-    public function testFailsParsingNonArrayOrObjectJsonRequestPsr() : void
+    public function testFailsParsingNonArrayOrObjectJsonRequestPsr(): void
     {
         $body = '"str"';
 
@@ -448,7 +449,7 @@ class RequestParsingTest extends TestCase
         $this->parsePsrRequest('application/json', $body);
     }
 
-    public function testFailsParsingInvalidContentTypeRaw() : void
+    public function testFailsParsingInvalidContentTypeRaw(): void
     {
         $contentType = 'not-supported-content-type';
         $body        = 'test';
@@ -458,7 +459,7 @@ class RequestParsingTest extends TestCase
         $this->parseRawRequest($contentType, $body);
     }
 
-    public function testFailsParsingInvalidContentTypePsr() : void
+    public function testFailsParsingInvalidContentTypePsr(): void
     {
         $contentType = 'not-supported-content-type';
         $body        = 'test';
@@ -468,27 +469,27 @@ class RequestParsingTest extends TestCase
         $this->parseRawRequest($contentType, $body);
     }
 
-    public function testFailsWithMissingContentTypeRaw() : void
+    public function testFailsWithMissingContentTypeRaw(): void
     {
         $this->expectException(RequestError::class);
         $this->expectExceptionMessage('Missing "Content-Type" header');
         $this->parseRawRequest(null, 'test');
     }
 
-    public function testFailsWithMissingContentTypePsr() : void
+    public function testFailsWithMissingContentTypePsr(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->parsePsrRequest(null, 'test');
     }
 
-    public function testFailsOnMethodsOtherThanPostOrGetRaw() : void
+    public function testFailsOnMethodsOtherThanPostOrGetRaw(): void
     {
         $this->expectException(RequestError::class);
         $this->expectExceptionMessage('HTTP Method "PUT" is not supported');
         $this->parseRawRequest('application/json', json_encode([]), 'PUT');
     }
 
-    public function testFailsOnMethodsOtherThanPostOrGetPsr() : void
+    public function testFailsOnMethodsOtherThanPostOrGetPsr(): void
     {
         $this->expectException(RequestError::class);
         $this->expectExceptionMessage('HTTP Method "PUT" is not supported');

@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class PossibleFragmentSpreads extends ValidationRule
@@ -23,13 +24,15 @@ class PossibleFragmentSpreads extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context) : void {
+            NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context): void {
                 $fragType   = $context->getType();
                 $parentType = $context->getParentType();
 
-                if (! ($fragType instanceof CompositeType) ||
+                if (
+                    ! ($fragType instanceof CompositeType) ||
                     ! ($parentType instanceof CompositeType) ||
-                    $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)) {
+                    $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
+                ) {
                     return;
                 }
 
@@ -38,12 +41,13 @@ class PossibleFragmentSpreads extends ValidationRule
                     [$node]
                 ));
             },
-            NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context) : void {
+            NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context): void {
                 $fragName   = $node->name->value;
                 $fragType   = $this->getFragmentType($context, $fragName);
                 $parentType = $context->getParentType();
 
-                if (! $fragType ||
+                if (
+                    ! $fragType ||
                     ! $parentType ||
                     $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
                 ) {

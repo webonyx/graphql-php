@@ -9,6 +9,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class NoUnusedVariables extends ValidationRule
@@ -22,10 +23,10 @@ class NoUnusedVariables extends ValidationRule
 
         return [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function () : void {
+                'enter' => function (): void {
                     $this->variableDefs = [];
                 },
-                'leave' => function (OperationDefinitionNode $operation) use ($context) : void {
+                'leave' => function (OperationDefinitionNode $operation) use ($context): void {
                     $variableNameUsed = [];
                     $usages           = $context->getRecursiveVariableUsages($operation);
                     $opName           = $operation->name !== null
@@ -51,7 +52,7 @@ class NoUnusedVariables extends ValidationRule
                     }
                 },
             ],
-            NodeKind::VARIABLE_DEFINITION  => function ($def) : void {
+            NodeKind::VARIABLE_DEFINITION  => function ($def): void {
                 $this->variableDefs[] = $def;
             },
         ];

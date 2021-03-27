@@ -33,7 +33,7 @@ class InterfaceImplementations
     /**
      * @return array<int, ObjectType>
      */
-    public function objects() : array
+    public function objects(): array
     {
         return $this->objects;
     }
@@ -41,7 +41,7 @@ class InterfaceImplementations
     /**
      * @return array<int, InterfaceType>
      */
-    public function interfaces() : array
+    public function interfaces(): array
     {
         return $this->interfaces;
     }

@@ -10,6 +10,7 @@ use GraphQL\Error\Warning;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function array_key_exists;
 use function sprintf;
 
@@ -52,10 +53,11 @@ class InputObjectField
                     $this->{$k} = $v;
             }
         }
+
         $this->config = $opts;
     }
 
-    public function __isset(string $name) : bool
+    public function __isset(string $name): bool
     {
         switch ($name) {
             case 'type':
@@ -82,6 +84,7 @@ class InputObjectField
                 );
 
                 return $this->getType();
+
             default:
                 return $this->$name;
         }
@@ -110,7 +113,7 @@ class InputObjectField
     /**
      * @return Type&InputType
      */
-    public function getType() : Type
+    public function getType(): Type
     {
         if (! isset($this->type)) {
             /**
@@ -125,12 +128,12 @@ class InputObjectField
         return $this->type;
     }
 
-    public function defaultValueExists() : bool
+    public function defaultValueExists(): bool
     {
         return array_key_exists('defaultValue', $this->config);
     }
 
-    public function isRequired() : bool
+    public function isRequired(): bool
     {
         return $this->getType() instanceof NonNull && ! $this->defaultValueExists();
     }
@@ -145,10 +148,12 @@ class InputObjectField
         } catch (Error $e) {
             throw new InvariantViolation(sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
         }
+
         $type = $this->getType();
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
+
         Utils::invariant(
             $type instanceof InputType,
             sprintf(

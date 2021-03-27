@@ -35,6 +35,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use Throwable;
+
 use function array_reverse;
 use function implode;
 use function is_array;
@@ -78,7 +79,7 @@ class ASTDefinitionBuilder
         $this->cache = Type::getAllBuiltInTypes();
     }
 
-    public function buildDirective(DirectiveDefinitionNode $directiveNode) : Directive
+    public function buildDirective(DirectiveDefinitionNode $directiveNode): Directive
     {
         return new Directive([
             'name'         => $directiveNode->name->value,
@@ -87,7 +88,7 @@ class ASTDefinitionBuilder
             'isRepeatable' => $directiveNode->repeatable,
             'locations'    => Utils::map(
                 $directiveNode->locations,
-                static function (NameNode $node) : string {
+                static function (NameNode $node): string {
                     return $node->value;
                 }
             ),
@@ -98,7 +99,7 @@ class ASTDefinitionBuilder
     /**
      * Given an ast node, returns its string description.
      */
-    private function getDescription(Node $node) : ?string
+    private function getDescription(Node $node): ?string
     {
         if (isset($node->description)) {
             return $node->description->value;
@@ -114,7 +115,7 @@ class ASTDefinitionBuilder
         return null;
     }
 
-    private function getLeadingCommentBlock(Node $node) : ?string
+    private function getLeadingCommentBlock(Node $node): ?string
     {
         $loc = $node->loc;
         if ($loc === null || $loc->startToken === null) {
@@ -123,7 +124,8 @@ class ASTDefinitionBuilder
 
         $comments = [];
         $token    = $loc->startToken->prev;
-        while ($token !== null
+        while (
+            $token !== null
             && $token->kind === Token::COMMENT
             && $token->next !== null
             && $token->prev !== null
@@ -141,14 +143,14 @@ class ASTDefinitionBuilder
     /**
      * @return array<string, array<string, mixed>>
      */
-    private function makeInputValues(NodeList $values) : array
+    private function makeInputValues(NodeList $values): array
     {
         return Utils::keyValMap(
             $values,
-            static function (InputValueDefinitionNode $value) : string {
+            static function (InputValueDefinitionNode $value): string {
                 return $value->name->value;
             },
-            function (InputValueDefinitionNode $value) : array {
+            function (InputValueDefinitionNode $value): array {
                 // Note: While this could make assertions to get the correctly typed
                 // value, that would throw immediately while type system validation
                 // with validateSchema() will produce more actionable results.
@@ -169,7 +171,7 @@ class ASTDefinitionBuilder
         );
     }
 
-    private function buildWrappedType(TypeNode $typeNode) : Type
+    private function buildWrappedType(TypeNode $typeNode): Type
     {
         if ($typeNode instanceof ListTypeNode) {
             return Type::listOf($this->buildWrappedType($typeNode->type));
@@ -185,7 +187,7 @@ class ASTDefinitionBuilder
     /**
      * @param string|(Node &NamedTypeNode)|(Node&TypeDefinitionNode) $ref
      */
-    public function buildType($ref) : Type
+    public function buildType($ref): Type
     {
         if (is_string($ref)) {
             return $this->internalBuildType($ref);
@@ -199,7 +201,7 @@ class ASTDefinitionBuilder
      *
      * @throws Error
      */
-    private function internalBuildType(string $typeName, ?Node $typeNode = null) : Type
+    private function internalBuildType(string $typeName, ?Node $typeNode = null): Type
     {
         if (! isset($this->cache[$typeName])) {
             if (isset($this->typeDefinitionsMap[$typeName])) {
@@ -219,6 +221,7 @@ class ASTDefinitionBuilder
                             $e
                         );
                     }
+
                     if (! is_array($config) || isset($config[0])) {
                         throw new Error(
                             sprintf(
@@ -228,8 +231,10 @@ class ASTDefinitionBuilder
                             )
                         );
                     }
+
                     $type = $this->makeSchemaDefFromConfig($this->typeDefinitionsMap[$typeName], $config);
                 }
+
                 $this->cache[$typeName] = $type;
             } else {
                 $fn                     = $this->resolveType;
@@ -247,35 +252,41 @@ class ASTDefinitionBuilder
      *
      * @throws Error
      */
-    private function makeSchemaDef(Node $def) : Type
+    private function makeSchemaDef(Node $def): Type
     {
         switch (true) {
             case $def instanceof ObjectTypeDefinitionNode:
                 return $this->makeTypeDef($def);
+
             case $def instanceof InterfaceTypeDefinitionNode:
                 return $this->makeInterfaceDef($def);
+
             case $def instanceof EnumTypeDefinitionNode:
                 return $this->makeEnumDef($def);
+
             case $def instanceof UnionTypeDefinitionNode:
                 return $this->makeUnionDef($def);
+
             case $def instanceof ScalarTypeDefinitionNode:
                 return $this->makeScalarDef($def);
+
             case $def instanceof InputObjectTypeDefinitionNode:
                 return $this->makeInputObjectDef($def);
+
             default:
                 throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
         }
     }
 
-    private function makeTypeDef(ObjectTypeDefinitionNode $def) : ObjectType
+    private function makeTypeDef(ObjectTypeDefinitionNode $def): ObjectType
     {
         return new ObjectType([
             'name'        => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields'      => function () use ($def) : array {
+            'fields'      => function () use ($def): array {
                 return $this->makeFieldDefMap($def);
             },
-            'interfaces'  => function () use ($def) : array {
+            'interfaces'  => function () use ($def): array {
                 return $this->makeImplementedInterfaces($def);
             },
             'astNode'     => $def,
@@ -287,14 +298,14 @@ class ASTDefinitionBuilder
      *
      * @return array<string, array<string, mixed>>
      */
-    private function makeFieldDefMap(Node $def) : array
+    private function makeFieldDefMap(Node $def): array
     {
         return Utils::keyValMap(
             $def->fields,
-            static function (FieldDefinitionNode $field) : string {
+            static function (FieldDefinitionNode $field): string {
                 return $field->name->value;
             },
-            function (FieldDefinitionNode $field) : array {
+            function (FieldDefinitionNode $field): array {
                 return $this->buildField($field);
             }
         );
@@ -303,7 +314,7 @@ class ASTDefinitionBuilder
     /**
      * @return array<string, mixed>
      */
-    public function buildField(FieldDefinitionNode $field) : array
+    public function buildField(FieldDefinitionNode $field): array
     {
         return [
             // Note: While this could make assertions to get the correctly typed
@@ -323,7 +334,7 @@ class ASTDefinitionBuilder
      *
      * @param EnumValueDefinitionNode|FieldDefinitionNode $node
      */
-    private function getDeprecationReason(Node $node) : ?string
+    private function getDeprecationReason(Node $node): ?string
     {
         $deprecated = Values::getDirectiveValues(
             Directive::deprecatedDirective(),
@@ -338,35 +349,35 @@ class ASTDefinitionBuilder
      *
      * @return array<int, Type>
      */
-    private function makeImplementedInterfaces($def) : array
+    private function makeImplementedInterfaces($def): array
     {
         // Note: While this could make early assertions to get the correctly
         // typed values, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
         return Utils::map(
             $def->interfaces,
-            function (NamedTypeNode $iface) : Type {
+            function (NamedTypeNode $iface): Type {
                 return $this->buildType($iface);
             }
         );
     }
 
-    private function makeInterfaceDef(InterfaceTypeDefinitionNode $def) : InterfaceType
+    private function makeInterfaceDef(InterfaceTypeDefinitionNode $def): InterfaceType
     {
         return new InterfaceType([
             'name'        => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields'      => function () use ($def) : array {
+            'fields'      => function () use ($def): array {
                 return $this->makeFieldDefMap($def);
             },
-            'interfaces'  => function () use ($def) : array {
+            'interfaces'  => function () use ($def): array {
                 return $this->makeImplementedInterfaces($def);
             },
             'astNode'     => $def,
         ]);
     }
 
-    private function makeEnumDef(EnumTypeDefinitionNode $def) : EnumType
+    private function makeEnumDef(EnumTypeDefinitionNode $def): EnumType
     {
         return new EnumType([
             'name'        => $def->name->value,
@@ -376,7 +387,7 @@ class ASTDefinitionBuilder
                 static function ($enumValue) {
                     return $enumValue->name->value;
                 },
-                function ($enumValue) : array {
+                function ($enumValue): array {
                     return [
                         'description'       => $this->getDescription($enumValue),
                         'deprecationReason' => $this->getDeprecationReason($enumValue),
@@ -388,7 +399,7 @@ class ASTDefinitionBuilder
         ]);
     }
 
-    private function makeUnionDef(UnionTypeDefinitionNode $def) : UnionType
+    private function makeUnionDef(UnionTypeDefinitionNode $def): UnionType
     {
         return new UnionType([
             'name'        => $def->name->value,
@@ -396,10 +407,10 @@ class ASTDefinitionBuilder
             // Note: While this could make assertions to get the correctly typed
             // values below, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
-            'types'       => function () use ($def) : array {
+            'types'       => function () use ($def): array {
                 return Utils::map(
                     $def->types,
-                    function ($typeNode) : Type {
+                    function ($typeNode): Type {
                         return $this->buildType($typeNode);
                     }
                 );
@@ -408,7 +419,7 @@ class ASTDefinitionBuilder
         ]);
     }
 
-    private function makeScalarDef(ScalarTypeDefinitionNode $def) : CustomScalarType
+    private function makeScalarDef(ScalarTypeDefinitionNode $def): CustomScalarType
     {
         return new CustomScalarType([
             'name'        => $def->name->value,
@@ -420,12 +431,12 @@ class ASTDefinitionBuilder
         ]);
     }
 
-    private function makeInputObjectDef(InputObjectTypeDefinitionNode $def) : InputObjectType
+    private function makeInputObjectDef(InputObjectTypeDefinitionNode $def): InputObjectType
     {
         return new InputObjectType([
             'name'        => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields'      => function () use ($def) : array {
+            'fields'      => function () use ($def): array {
                 return $this->makeInputValues($def->fields);
             },
             'astNode'     => $def,
@@ -439,21 +450,27 @@ class ASTDefinitionBuilder
      *
      * @throws Error
      */
-    private function makeSchemaDefFromConfig(Node $def, array $config) : Type
+    private function makeSchemaDefFromConfig(Node $def, array $config): Type
     {
         switch (true) {
             case $def instanceof ObjectTypeDefinitionNode:
                 return new ObjectType($config);
+
             case $def instanceof InterfaceTypeDefinitionNode:
                 return new InterfaceType($config);
+
             case $def instanceof EnumTypeDefinitionNode:
                 return new EnumType($config);
+
             case $def instanceof UnionTypeDefinitionNode:
                 return new UnionType($config);
+
             case $def instanceof ScalarTypeDefinitionNode:
                 return new CustomScalarType($config);
+
             case $def instanceof InputObjectTypeDefinitionNode:
                 return new InputObjectType($config);
+
             default:
                 throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
         }
@@ -462,7 +479,7 @@ class ASTDefinitionBuilder
     /**
      * @return array<string, mixed>
      */
-    public function buildInputField(InputValueDefinitionNode $value) : array
+    public function buildInputField(InputValueDefinitionNode $value): array
     {
         $type = $this->buildWrappedType($value->type);
 
@@ -483,7 +500,7 @@ class ASTDefinitionBuilder
     /**
      * @return array<string, mixed>
      */
-    public function buildEnumValue(EnumValueDefinitionNode $value) : array
+    public function buildEnumValue(EnumValueDefinitionNode $value): array
     {
         return [
             'description' => $this->getDescription($value),

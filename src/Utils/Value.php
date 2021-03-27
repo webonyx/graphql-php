@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\ScalarType;
 use stdClass;
 use Throwable;
 use Traversable;
+
 use function array_key_exists;
 use function array_keys;
 use function array_map;
@@ -90,7 +91,7 @@ class Value
             $suggestions = Utils::suggestionList(
                 Utils::printSafe($value),
                 array_map(
-                    static function ($enumValue) : string {
+                    static function ($enumValue): string {
                         return $enumValue->name;
                     },
                     $type->getValues()
@@ -132,6 +133,7 @@ class Value
 
                 return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
             }
+
             // Lists accept a non-list value as a list of one.
             $coercedItem = self::coerceValue($value, $itemType, $blameNode);
 

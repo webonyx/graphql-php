@@ -25,7 +25,7 @@ class MutationsTest extends TestCase
     /**
      * @see it('evaluates mutations serially')
      */
-    public function testEvaluatesMutationsSerially() : void
+    public function testEvaluatesMutationsSerially(): void
     {
         $doc            = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {
@@ -58,7 +58,7 @@ class MutationsTest extends TestCase
         self::assertEquals($expected, $mutationResult->toArray());
     }
 
-    private function schema() : Schema
+    private function schema(): Schema
     {
         $numberHolderType = new ObjectType([
             'fields' => [
@@ -79,28 +79,28 @@ class MutationsTest extends TestCase
                     'immediatelyChangeTheNumber'      => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) : NumberHolder {
+                        'resolve' => static function (Root $obj, $args): NumberHolder {
                             return $obj->immediatelyChangeTheNumber($args['newNumber']);
                         },
                     ],
                     'promiseToChangeTheNumber'        => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) : Deferred {
+                        'resolve' => static function (Root $obj, $args): Deferred {
                             return $obj->promiseToChangeTheNumber($args['newNumber']);
                         },
                     ],
                     'failToChangeTheNumber'           => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) : void {
+                        'resolve' => static function (Root $obj, $args): void {
                             $obj->failToChangeTheNumber();
                         },
                     ],
                     'promiseAndFailToChangeTheNumber' => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) : Deferred {
+                        'resolve' => static function (Root $obj, $args): Deferred {
                             return $obj->promiseAndFailToChangeTheNumber();
                         },
                     ],
@@ -113,7 +113,7 @@ class MutationsTest extends TestCase
     /**
      * @see it('evaluates mutations correctly in the presense of a failed mutation')
      */
-    public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation() : void
+    public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation(): void
     {
         $doc            = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {
