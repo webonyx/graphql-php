@@ -10,6 +10,7 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\Rules\ValidationRule;
+
 use function is_array;
 use function is_callable;
 use function method_exists;
@@ -49,6 +50,7 @@ class ServerConfig
             if (! method_exists($instance, $method)) {
                 throw new InvariantViolation(sprintf('Unknown server config option "%s"', $key));
             }
+
             $instance->$method($value);
         }
 
@@ -212,7 +214,7 @@ class ServerConfig
      *
      * @api
      */
-    public function setDebugFlag(int $debugFlag = DebugFlag::INCLUDE_DEBUG_MESSAGE) : self
+    public function setDebugFlag(int $debugFlag = DebugFlag::INCLUDE_DEBUG_MESSAGE): self
     {
         $this->debugFlag = $debugFlag;
 
@@ -224,7 +226,7 @@ class ServerConfig
      *
      * @api
      */
-    public function setQueryBatching(bool $enableBatching) : self
+    public function setQueryBatching(bool $enableBatching): self
     {
         $this->queryBatching = $enableBatching;
 
@@ -315,7 +317,7 @@ class ServerConfig
         return $this->persistentQueryLoader;
     }
 
-    public function getDebugFlag() : int
+    public function getDebugFlag(): int
     {
         return $this->debugFlag;
     }

@@ -10,7 +10,7 @@ use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
-use function floatval;
+
 use function is_bool;
 use function is_finite;
 use function is_float;
@@ -33,7 +33,7 @@ values as specified by
      *
      * @throws Error
      */
-    public function serialize($value) : float
+    public function serialize($value): float
     {
         $float = is_numeric($value) || is_bool($value)
             ? (float) $value
@@ -54,7 +54,7 @@ values as specified by
      *
      * @throws Error
      */
-    public function parseValue($value) : float
+    public function parseValue($value): float
     {
         $float = is_float($value) || is_int($value)
             ? (float) $value

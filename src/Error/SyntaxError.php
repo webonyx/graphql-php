@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Error;
 
 use GraphQL\Language\Source;
+
 use function sprintf;
 
 class SyntaxError extends Error

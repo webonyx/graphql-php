@@ -15,7 +15,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
     /**
      * @see it('with only operation')
      */
-    public function testWithOnlyOperation() : void
+    public function testWithOnlyOperation(): void
     {
         $this->expectPassesRule(
             new ExecutableDefinitions(),
@@ -32,7 +32,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
     /**
      * @see it('with operation and fragment')
      */
-    public function testWithOperationAndFragment() : void
+    public function testWithOperationAndFragment(): void
     {
         $this->expectPassesRule(
             new ExecutableDefinitions(),
@@ -54,7 +54,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
     /**
      * @see it('with typeDefinition')
      */
-    public function testWithTypeDefinition() : void
+    public function testWithTypeDefinition(): void
     {
         $this->expectFailsRule(
             new ExecutableDefinitions(),

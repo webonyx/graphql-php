@@ -12,12 +12,11 @@ use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
 use SplFixedArray;
 use stdClass;
+
 use function array_pop;
-use function array_splice;
 use function count;
 use function func_get_args;
 use function is_array;
-use function is_callable;
 use function json_encode;
 
 /**
@@ -219,6 +218,7 @@ class Visitor
                     } else {
                         $node = clone $node;
                     }
+
                     $editOffset = 0;
                     for ($ii = 0; $ii < count($edits); $ii++) {
                         $editKey   = $edits[$ii][0];
@@ -227,6 +227,7 @@ class Visitor
                         if ($inArray) {
                             $editKey -= $editOffset;
                         }
+
                         if ($inArray && $editValue === null) {
                             $node->splice($editKey, 1);
                             $editOffset++;
@@ -239,6 +240,7 @@ class Visitor
                         }
                     }
                 }
+
                 $index   = $stack['index'];
                 $keys    = $stack['keys'];
                 $edits   = $stack['edits'];
@@ -260,6 +262,7 @@ class Visitor
                 if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
+
                 if ($parent !== null) {
                     $path[] = $key;
                 }
@@ -282,10 +285,12 @@ class Visitor
                             if ($result->doBreak) {
                                 break;
                             }
+
                             if (! $isLeaving && $result->doContinue) {
                                 array_pop($path);
                                 continue;
                             }
+
                             if ($result->removeNode) {
                                 $editValue = null;
                             }
@@ -328,6 +333,7 @@ class Visitor
                 if ($parent !== null) {
                     $ancestors[] = $parent;
                 }
+
                 $parent = $node;
             }
         } while ($stack);
@@ -498,7 +504,7 @@ class Visitor
      * @param string          $kind
      * @param bool            $isLeaving
      */
-    public static function getVisitFn($visitor, $kind, $isLeaving) : ?callable
+    public static function getVisitFn($visitor, $kind, $isLeaving): ?callable
     {
         if ($visitor === null) {
             return null;

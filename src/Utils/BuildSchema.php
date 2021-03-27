@@ -21,6 +21,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
+
 use function array_map;
 use function sprintf;
 
@@ -125,6 +126,7 @@ class BuildSchema
                     if (isset($this->nodeMap[$typeName])) {
                         throw new Error(sprintf('Type "%s" was defined more than once.', $typeName));
                     }
+
                     $typeDefs[]               = $definition;
                     $this->nodeMap[$typeName] = $definition;
                     break;
@@ -145,14 +147,14 @@ class BuildSchema
         $DefinitionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
             $this->options,
-            static function ($typeName) : void {
+            static function ($typeName): void {
                 throw new Error('Type "' . $typeName . '" not found in document.');
             },
             $this->typeConfigDecorator
         );
 
         $directives = array_map(
-            static function (DirectiveDefinitionNode $def) use ($DefinitionBuilder) : Directive {
+            static function (DirectiveDefinitionNode $def) use ($DefinitionBuilder): Directive {
                 return $DefinitionBuilder->buildDirective($def);
             },
             $directiveDefs
@@ -161,16 +163,18 @@ class BuildSchema
         // If specified directives were not explicitly declared, add them.
         $directivesByName = Utils::groupBy(
             $directives,
-            static function (Directive $directive) : string {
+            static function (Directive $directive): string {
                 return $directive->name;
             }
         );
         if (! isset($directivesByName['skip'])) {
             $directives[] = Directive::skipDirective();
         }
+
         if (! isset($directivesByName['include'])) {
             $directives[] = Directive::includeDirective();
         }
+
         if (! isset($directivesByName['deprecated'])) {
             $directives[] = Directive::deprecatedDirective();
         }
@@ -189,12 +193,12 @@ class BuildSchema
             'subscription' => isset($operationTypes['subscription'])
                 ? $DefinitionBuilder->buildType($operationTypes['subscription'])
                 : null,
-            'typeLoader'   => static function ($name) use ($DefinitionBuilder) : Type {
+            'typeLoader'   => static function ($name) use ($DefinitionBuilder): Type {
                 return $DefinitionBuilder->buildType($name);
             },
             'directives'   => $directives,
             'astNode'      => $schemaDef,
-            'types'        => function () use ($DefinitionBuilder) : array {
+            'types'        => function () use ($DefinitionBuilder): array {
                 $types = [];
                 /** @var ScalarTypeDefinitionNode|ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|UnionTypeDefinitionNode|EnumTypeDefinitionNode|InputObjectTypeDefinitionNode $def */
                 foreach ($this->nodeMap as $name => $def) {

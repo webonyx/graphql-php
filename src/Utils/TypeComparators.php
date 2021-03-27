@@ -9,7 +9,6 @@ use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 

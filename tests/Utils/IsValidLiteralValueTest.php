@@ -17,7 +17,7 @@ class IsValidLiteralValueTest extends TestCase
     /**
      * @see it('Returns no errors for a valid value')
      */
-    public function testReturnsNoErrorsForAValidValue() : void
+    public function testReturnsNoErrorsForAValidValue(): void
     {
         self::assertEquals(
             [],
@@ -28,7 +28,7 @@ class IsValidLiteralValueTest extends TestCase
     /**
      * @see it('Returns errors for an invalid value')
      */
-    public function testReturnsErrorsForForInvalidValue() : void
+    public function testReturnsErrorsForForInvalidValue(): void
     {
         $errors = DocumentValidator::isValidLiteralValue(Type::int(), Parser::parseValue('"abc"'));
 

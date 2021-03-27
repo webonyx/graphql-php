@@ -12,6 +12,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 /**
@@ -54,7 +55,7 @@ class UniqueDirectivesPerLocation extends ValidationRule
         }
 
         return [
-            'enter' => static function (Node $node) use ($uniqueDirectiveMap, $context) : void {
+            'enter' => static function (Node $node) use ($uniqueDirectiveMap, $context): void {
                 if (! isset($node->directives)) {
                     return;
                 }

@@ -6,7 +6,6 @@ namespace GraphQL\Utils;
 
 use ArrayAccess;
 use Exception;
-use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
@@ -42,12 +41,11 @@ use GraphQL\Type\Schema;
 use stdClass;
 use Throwable;
 use Traversable;
+
 use function array_combine;
 use function array_key_exists;
 use function array_map;
 use function count;
-use function floatval;
-use function intval;
 use function is_array;
 use function is_bool;
 use function is_float;
@@ -87,7 +85,7 @@ class AST
      *
      * @api
      */
-    public static function fromArray(array $node) : Node
+    public static function fromArray(array $node): Node
     {
         if (! isset($node['kind']) || ! isset(NodeKind::$classMap[$node['kind']])) {
             throw new InvariantViolation('Unexpected node structure: ' . Utils::printSafeJson($node));
@@ -105,6 +103,7 @@ class AST
             if ($key === 'loc' || $key === 'kind') {
                 continue;
             }
+
             if (is_array($value)) {
                 if (isset($value[0]) || count($value) === 0) {
                     $value = new NodeList($value);
@@ -112,6 +111,7 @@ class AST
                     $value = self::fromArray($value);
                 }
             }
+
             $instance->{$key} = $value;
         }
 
@@ -125,7 +125,7 @@ class AST
      *
      * @api
      */
-    public static function toArray(Node $node) : array
+    public static function toArray(Node $node): array
     {
         return $node->toArray(true);
     }
@@ -198,6 +198,7 @@ class AST
             if ($value === null || (! $isArrayLike && ! is_object($value))) {
                 return null;
             }
+
             $fields     = $type->getFields();
             $fieldNodes = [];
             foreach ($fields as $fieldName => $field) {
@@ -247,6 +248,7 @@ class AST
                 if ($error instanceof Error && $type instanceof EnumType) {
                     return null;
                 }
+
                 throw $error;
             }
 
@@ -254,9 +256,11 @@ class AST
             if (is_bool($serialized)) {
                 return new BooleanValueNode(['value' => $serialized]);
             }
+
             if (is_int($serialized)) {
                 return new IntValueNode(['value' => (string) $serialized]);
             }
+
             if (is_float($serialized)) {
                 // int cast with == used for performance reasons
                 // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedEqualOperator
@@ -266,6 +270,7 @@ class AST
 
                 return new FloatValueNode(['value' => (string) $serialized]);
             }
+
             if (is_string($serialized)) {
                 // Enum types use Enum literals.
                 if ($type instanceof EnumType) {
@@ -374,6 +379,7 @@ class AST
                             // Invalid: intentionally return no value.
                             return $undefined;
                         }
+
                         $coercedValues[] = null;
                     } else {
                         $itemValue = self::valueFromAST($itemNode, $itemType, $variables);
@@ -381,12 +387,14 @@ class AST
                             // Invalid: intentionally return no value.
                             return $undefined;
                         }
+
                         $coercedValues[] = $itemValue;
                     }
                 }
 
                 return $coercedValues;
             }
+
             $coercedValue = self::valueFromAST($valueNode, $itemType, $variables);
             if ($undefined === $coercedValue) {
                 // Invalid: intentionally return no value.
@@ -422,6 +430,7 @@ class AST
                         // Invalid: intentionally return no value.
                         return $undefined;
                     }
+
                     continue;
                 }
 
@@ -435,6 +444,7 @@ class AST
                     // Invalid: intentionally return no value.
                     return $undefined;
                 }
+
                 $coercedObj[$fieldName] = $fieldValue;
             }
 
@@ -445,6 +455,7 @@ class AST
             if (! $valueNode instanceof EnumValueNode) {
                 return $undefined;
             }
+
             $enumValue = $type->getValue($valueNode->value);
             if (! $enumValue) {
                 return $undefined;
@@ -512,14 +523,18 @@ class AST
         switch (true) {
             case $valueNode instanceof NullValueNode:
                 return null;
+
             case $valueNode instanceof IntValueNode:
                 return (int) $valueNode->value;
+
             case $valueNode instanceof FloatValueNode:
                 return (float) $valueNode->value;
+
             case $valueNode instanceof StringValueNode:
             case $valueNode instanceof EnumValueNode:
             case $valueNode instanceof BooleanValueNode:
                 return $valueNode->value;
+
             case $valueNode instanceof ListValueNode:
                 return array_map(
                     static function ($node) use ($variables) {
@@ -527,10 +542,11 @@ class AST
                     },
                     iterator_to_array($valueNode->values)
                 );
+
             case $valueNode instanceof ObjectValueNode:
                 return array_combine(
                     array_map(
-                        static function ($field) : string {
+                        static function ($field): string {
                             return $field->name->value;
                         },
                         iterator_to_array($valueNode->fields)
@@ -542,6 +558,7 @@ class AST
                         iterator_to_array($valueNode->fields)
                     )
                 );
+
             case $valueNode instanceof VariableNode:
                 $variableName = $valueNode->name->value;
 
@@ -571,11 +588,13 @@ class AST
 
             return $innerType ? new ListOfType($innerType) : null;
         }
+
         if ($inputTypeNode instanceof NonNullTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
             return $innerType ? new NonNull($innerType) : null;
         }
+
         if ($inputTypeNode instanceof NamedTypeNode) {
             return $schema->getType($inputTypeNode->name->value);
         }

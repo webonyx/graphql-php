@@ -15,7 +15,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Object field selection')
      */
-    public function testObjectFieldSelection() : void
+    public function testObjectFieldSelection(): void
     {
         $this->expectPassesRule(
             new FieldsOnCorrectType(),
@@ -31,7 +31,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Aliased object field selection')
      */
-    public function testAliasedObjectFieldSelection() : void
+    public function testAliasedObjectFieldSelection(): void
     {
         $this->expectPassesRule(
             new FieldsOnCorrectType(),
@@ -47,7 +47,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Interface field selection')
      */
-    public function testInterfaceFieldSelection() : void
+    public function testInterfaceFieldSelection(): void
     {
         $this->expectPassesRule(
             new FieldsOnCorrectType(),
@@ -63,7 +63,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Aliased interface field selection')
      */
-    public function testAliasedInterfaceFieldSelection() : void
+    public function testAliasedInterfaceFieldSelection(): void
     {
         $this->expectPassesRule(
             new FieldsOnCorrectType(),
@@ -78,7 +78,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Lying alias selection')
      */
-    public function testLyingAliasSelection() : void
+    public function testLyingAliasSelection(): void
     {
         $this->expectPassesRule(
             new FieldsOnCorrectType(),
@@ -93,7 +93,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Ignores fields on unknown type')
      */
-    public function testIgnoresFieldsOnUnknownType() : void
+    public function testIgnoresFieldsOnUnknownType(): void
     {
         $this->expectPassesRule(
             new FieldsOnCorrectType(),
@@ -108,7 +108,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('reports errors when type is known again')
      */
-    public function testReportsErrorsWhenTypeIsKnownAgain() : void
+    public function testReportsErrorsWhenTypeIsKnownAgain(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -138,7 +138,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Field not defined on fragment')
      */
-    public function testFieldNotDefinedOnFragment() : void
+    public function testFieldNotDefinedOnFragment(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -153,7 +153,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Ignores deeply unknown field')
      */
-    public function testIgnoresDeeplyUnknownField() : void
+    public function testIgnoresDeeplyUnknownField(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -170,7 +170,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Sub-field not defined')
      */
-    public function testSubFieldNotDefined() : void
+    public function testSubFieldNotDefined(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -187,7 +187,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Field not defined on inline fragment')
      */
-    public function testFieldNotDefinedOnInlineFragment() : void
+    public function testFieldNotDefinedOnInlineFragment(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -204,7 +204,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Aliased field target not defined')
      */
-    public function testAliasedFieldTargetNotDefined() : void
+    public function testAliasedFieldTargetNotDefined(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -219,7 +219,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Aliased lying field target not defined')
      */
-    public function testAliasedLyingFieldTargetNotDefined() : void
+    public function testAliasedLyingFieldTargetNotDefined(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -234,7 +234,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Not defined on interface')
      */
-    public function testNotDefinedOnInterface() : void
+    public function testNotDefinedOnInterface(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -249,7 +249,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Defined on implementors but not on interface')
      */
-    public function testDefinedOnImplmentorsButNotOnInterface() : void
+    public function testDefinedOnImplmentorsButNotOnInterface(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -264,7 +264,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Meta field selection on union')
      */
-    public function testMetaFieldSelectionOnUnion() : void
+    public function testMetaFieldSelectionOnUnion(): void
     {
         $this->expectPassesRule(
             new FieldsOnCorrectType(),
@@ -278,7 +278,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Direct field selection on union')
      */
-    public function testDirectFieldSelectionOnUnion() : void
+    public function testDirectFieldSelectionOnUnion(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -293,7 +293,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Defined on implementors queried on union')
      */
-    public function testDefinedOnImplementorsQueriedOnUnion() : void
+    public function testDefinedOnImplementorsQueriedOnUnion(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),
@@ -301,14 +301,15 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
       fragment definedOnImplementorsQueriedOnUnion on CatOrDog {
         name
       }',
-            [$this->undefinedField(
-                'name',
-                'CatOrDog',
-                ['Being', 'Pet', 'Canine', 'Dog', 'Cat'],
-                [],
-                3,
-                9
-            ),
+            [
+                $this->undefinedField(
+                    'name',
+                    'CatOrDog',
+                    ['Being', 'Pet', 'Canine', 'Dog', 'Cat'],
+                    [],
+                    3,
+                    9
+                ),
             ]
         );
     }
@@ -318,7 +319,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('valid field in inline fragment')
      */
-    public function testValidFieldInInlineFragment() : void
+    public function testValidFieldInInlineFragment(): void
     {
         $this->expectPassesRule(
             new FieldsOnCorrectType(),
@@ -335,7 +336,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Works with no suggestions')
      */
-    public function testWorksWithNoSuggestions() : void
+    public function testWorksWithNoSuggestions(): void
     {
         self::assertEquals(
             'Cannot query field "f" on type "T".',
@@ -346,7 +347,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Works with no small numbers of type suggestions')
      */
-    public function testWorksWithNoSmallNumbersOfTypeSuggestions() : void
+    public function testWorksWithNoSmallNumbersOfTypeSuggestions(): void
     {
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean to use an inline fragment on "A" or "B"?';
@@ -357,7 +358,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Works with no small numbers of field suggestions')
      */
-    public function testWorksWithNoSmallNumbersOfFieldSuggestions() : void
+    public function testWorksWithNoSmallNumbersOfFieldSuggestions(): void
     {
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean "z" or "y"?';
@@ -368,7 +369,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Only shows one set of suggestions at a time, preferring types')
      */
-    public function testOnlyShowsOneSetOfSuggestionsAtATimePreferringTypes() : void
+    public function testOnlyShowsOneSetOfSuggestionsAtATimePreferringTypes(): void
     {
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean to use an inline fragment on "A" or "B"?';
@@ -379,7 +380,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Limits lots of type suggestions')
      */
-    public function testLimitsLotsOfTypeSuggestions() : void
+    public function testLimitsLotsOfTypeSuggestions(): void
     {
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean to use an inline fragment on "A", "B", "C", "D", or "E"?';
@@ -398,7 +399,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Limits lots of field suggestions')
      */
-    public function testLimitsLotsOfFieldSuggestions() : void
+    public function testLimitsLotsOfFieldSuggestions(): void
     {
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean "z", "y", "x", "w", or "v"?';

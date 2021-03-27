@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\Utils;
 use Throwable;
+
 use function addcslashes;
 use function array_filter;
 use function array_intersect_key;
@@ -171,9 +172,9 @@ class FormattedError
      *
      * @api
      */
-    public static function createFromException(Throwable $exception, int $debug = DebugFlag::NONE, $internalErrorMessage = null) : array
+    public static function createFromException(Throwable $exception, int $debug = DebugFlag::NONE, $internalErrorMessage = null): array
     {
-        $internalErrorMessage = $internalErrorMessage ?? self::$internalErrorMessage;
+        $internalErrorMessage ??= self::$internalErrorMessage;
 
         if ($exception instanceof ClientAware) {
             $formattedError = [
@@ -194,7 +195,7 @@ class FormattedError
         if ($exception instanceof Error) {
             $locations = Utils::map(
                 $exception->getLocations(),
-                static function (SourceLocation $loc) : array {
+                static function (SourceLocation $loc): array {
                     return $loc->toSerializableArray();
                 }
             );
@@ -205,6 +206,7 @@ class FormattedError
             if (count($exception->path ?? []) > 0) {
                 $formattedError['path'] = $exception->path;
             }
+
             if (count($exception->getExtensions() ?? []) > 0) {
                 $formattedError['extensions'] = $exception->getExtensions() + $formattedError['extensions'];
             }
@@ -227,7 +229,7 @@ class FormattedError
      *
      * @throws Throwable
      */
-    public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag) : array
+    public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag): array
     {
         if ($debugFlag === DebugFlag::NONE) {
             return $formattedError;
@@ -277,13 +279,13 @@ class FormattedError
      * Prepares final error formatter taking in account $debug flags.
      * If initial formatter is not set, FormattedError::createFromException is used
      */
-    public static function prepareFormatter(?callable $formatter, int $debug) : callable
+    public static function prepareFormatter(?callable $formatter, int $debug): callable
     {
-        $formatter = $formatter ?? static function ($e) : array {
+        $formatter ??= static function ($e): array {
             return FormattedError::createFromException($e);
         };
         if ($debug !== DebugFlag::NONE) {
-            $formatter = static function ($e) use ($formatter, $debug) : array {
+            $formatter = static function ($e) use ($formatter, $debug): array {
                 return FormattedError::addDebugEntries($formatter($e), $e, $debug);
             };
         }
@@ -304,9 +306,11 @@ class FormattedError
     {
         $trace = $error->getTrace();
 
-        if (isset($trace[0]['function']) && isset($trace[0]['class']) &&
+        if (
+            isset($trace[0]['function']) && isset($trace[0]['class']) &&
             // Remove invariant entries as they don't provide much value:
-            ($trace[0]['class'] . '::' . $trace[0]['function'] === 'GraphQL\Utils\Utils::invariant')) {
+            ($trace[0]['class'] . '::' . $trace[0]['function'] === 'GraphQL\Utils\Utils::invariant')
+        ) {
             array_shift($trace);
         } elseif (! isset($trace[0]['file'])) {
             // Remove root call as it's likely error handler trace:
@@ -314,7 +318,7 @@ class FormattedError
         }
 
         return array_map(
-            static function ($err) : array {
+            static function ($err): array {
                 $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
 
                 if (isset($err['function'])) {
@@ -354,21 +358,27 @@ class FormattedError
         if (is_object($var)) {
             return 'instance of ' . get_class($var) . ($var instanceof Countable ? '(' . count($var) . ')' : '');
         }
+
         if (is_array($var)) {
             return 'array(' . count($var) . ')';
         }
+
         if ($var === '') {
             return '(empty string)';
         }
+
         if (is_string($var)) {
             return "'" . addcslashes($var, "'") . "'";
         }
+
         if (is_bool($var)) {
             return $var ? 'true' : 'false';
         }
+
         if (is_scalar($var)) {
             return $var;
         }
+
         if ($var === null) {
             return 'null';
         }
@@ -390,7 +400,7 @@ class FormattedError
 
         if (count($locations) > 0) {
             $formatted['locations'] = array_map(
-                static function ($loc) : array {
+                static function ($loc): array {
                     return $loc->toArray();
                 },
                 $locations

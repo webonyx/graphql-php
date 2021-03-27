@@ -12,7 +12,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Correctly identifies R2-D2 as the hero of the Star Wars Saga')
      */
-    public function testCorrectlyIdentifiesR2D2AsTheHeroOfTheStarWarsSaga() : void
+    public function testCorrectlyIdentifiesR2D2AsTheHeroOfTheStarWarsSaga(): void
     {
         $query    = '
         query HeroNameQuery {
@@ -30,7 +30,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * Helper function to test a query and the expected response.
      */
-    private static function assertValidQuery($query, $expected) : void
+    private static function assertValidQuery($query, $expected): void
     {
         self::assertEquals(
             ['data' => $expected],
@@ -43,7 +43,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to query for the ID and friends of R2-D2')
      */
-    public function testAllowsUsToQueryForTheIDAndFriendsOfR2D2() : void
+    public function testAllowsUsToQueryForTheIDAndFriendsOfR2D2(): void
     {
         $query    = '
         query HeroNameAndFriendsQuery {
@@ -75,7 +75,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to query for the friends of friends of R2-D2')
      */
-    public function testAllowsUsToQueryForTheFriendsOfFriendsOfR2D2() : void
+    public function testAllowsUsToQueryForTheFriendsOfFriendsOfR2D2(): void
     {
         $query    = '
         query NestedQuery {
@@ -134,7 +134,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Using IDs and query parameters to refetch objects')
      */
-    public function testAllowsUsToQueryForLukeSkywalkerDirectlyUsingHisID() : void
+    public function testAllowsUsToQueryForLukeSkywalkerDirectlyUsingHisID(): void
     {
         $query    = '
         query FetchLukeQuery {
@@ -153,7 +153,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to create a generic query, then use it to fetch Luke Skywalker using his ID')
      */
-    public function testGenericQueryToGetLukeSkywalkerById() : void
+    public function testGenericQueryToGetLukeSkywalkerById(): void
     {
         $query    = '
         query FetchSomeIDQuery($someId: String!) {
@@ -186,7 +186,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to create a generic query, then use it to fetch Han Solo using his ID')
      */
-    public function testGenericQueryToGetHanSoloById() : void
+    public function testGenericQueryToGetHanSoloById(): void
     {
         $query    = '
         query FetchSomeIDQuery($someId: String!) {
@@ -205,7 +205,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to create a generic query, then pass an invalid ID to get null back')
      */
-    public function testGenericQueryWithInvalidId() : void
+    public function testGenericQueryWithInvalidId(): void
     {
         $query    = '
         query humanQuery($id: String!) {
@@ -224,7 +224,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to query for Luke, changing his key with an alias')
      */
-    public function testLukeKeyAlias() : void
+    public function testLukeKeyAlias(): void
     {
         $query    = '
         query FetchLukeAliased {
@@ -242,7 +242,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to query for both Luke and Leia, using two root fields and an alias')
      */
-    public function testTwoRootKeysAsAnAlias() : void
+    public function testTwoRootKeysAsAnAlias(): void
     {
         $query    = '
         query FetchLukeAndLeiaAliased {
@@ -264,7 +264,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to query using duplicated content')
      */
-    public function testQueryUsingDuplicatedContent() : void
+    public function testQueryUsingDuplicatedContent(): void
     {
         $query    = '
         query DuplicateFields {
@@ -294,7 +294,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to use a fragment to avoid duplicating content')
      */
-    public function testUsingFragment() : void
+    public function testUsingFragment(): void
     {
         $query = '
         query UseFragment {
@@ -328,7 +328,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Using __typename to find the type of an object')
      */
-    public function testVerifyThatR2D2IsADroid() : void
+    public function testVerifyThatR2D2IsADroid(): void
     {
         $query    = '
         query CheckTypeOfR2 {
@@ -350,7 +350,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to verify that Luke is a human')
      */
-    public function testVerifyThatLukeIsHuman() : void
+    public function testVerifyThatLukeIsHuman(): void
     {
         $query = '
         query CheckTypeOfLuke {

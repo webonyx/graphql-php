@@ -6,6 +6,7 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function class_alias;
 
 abstract class ValidationRule

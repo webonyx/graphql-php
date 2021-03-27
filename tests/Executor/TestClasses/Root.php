@@ -17,28 +17,28 @@ class Root
         $this->numberHolder = new NumberHolder($originalNumber);
     }
 
-    public function promiseToChangeTheNumber($newNumber) : Deferred
+    public function promiseToChangeTheNumber($newNumber): Deferred
     {
-        return new Deferred(function () use ($newNumber) : NumberHolder {
+        return new Deferred(function () use ($newNumber): NumberHolder {
             return $this->immediatelyChangeTheNumber($newNumber);
         });
     }
 
-    public function immediatelyChangeTheNumber($newNumber) : NumberHolder
+    public function immediatelyChangeTheNumber($newNumber): NumberHolder
     {
         $this->numberHolder->theNumber = $newNumber;
 
         return $this->numberHolder;
     }
 
-    public function failToChangeTheNumber() : void
+    public function failToChangeTheNumber(): void
     {
         throw new Exception('Cannot change the number');
     }
 
-    public function promiseAndFailToChangeTheNumber() : Deferred
+    public function promiseAndFailToChangeTheNumber(): Deferred
     {
-        return new Deferred(function () : void {
+        return new Deferred(function (): void {
             $this->failToChangeTheNumber();
         });
     }
