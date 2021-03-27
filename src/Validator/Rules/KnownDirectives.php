@@ -36,7 +36,6 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Utils\Utils;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
@@ -79,8 +78,9 @@ class KnownDirectives extends ValidationRule
 
             $locationNames = [];
             foreach ($def->locations as $location) {
-                $locationNames []= $location->value;
+                $locationNames[] = $location->value;
             }
+
             $locationsMap[$def->name->value] = $locationNames;
         }
 

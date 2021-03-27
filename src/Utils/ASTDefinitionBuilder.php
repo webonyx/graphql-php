@@ -15,7 +15,6 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\NamedTypeNode;
-use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
@@ -84,7 +83,7 @@ class ASTDefinitionBuilder
     {
         $locations = [];
         foreach ($directiveNode->locations as $location) {
-            $locations []= $location->value;
+            $locations[] = $location->value;
         }
 
         return new Directive([
