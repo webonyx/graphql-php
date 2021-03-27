@@ -41,6 +41,7 @@ class DirectiveLocation
         self::FRAGMENT_DEFINITION => self::FRAGMENT_DEFINITION,
         self::FRAGMENT_SPREAD => self::FRAGMENT_SPREAD,
         self::INLINE_FRAGMENT => self::INLINE_FRAGMENT,
+        self::VARIABLE_DEFINITION => self::VARIABLE_DEFINITION,
         self::SCHEMA => self::SCHEMA,
         self::SCALAR => self::SCALAR,
         self::OBJECT => self::OBJECT,
