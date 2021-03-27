@@ -31,10 +31,6 @@
     "psr/http-message": "To use standard GraphQL server",
     "react/promise": "To leverage async resolving on React PHP platform"
   },
-  "suggest": {
-    "psr/http-message": "To use standard GraphQL server",
-    "react/promise": "To leverage async resolving on React PHP platform"
-  },
   "config": {
     "preferred-install": "dist",
     "sort-packages": true
