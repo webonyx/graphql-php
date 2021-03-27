@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 
 final class QueryPlanTest extends TestCase
 {
-    public function testQueryPlan() : void
+    public function testQueryPlan(): void
     {
         $image = new ObjectType([
             'name'   => 'Image',
@@ -32,7 +32,7 @@ final class QueryPlanTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use ($image, &$article) : array {
+            'fields' => static function () use ($image, &$article): array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -298,7 +298,7 @@ final class QueryPlanTest extends TestCase
         self::assertFalse($queryPlan->hasType('Test'));
     }
 
-    public function testQueryPlanForWrappedTypes() : void
+    public function testQueryPlanForWrappedTypes(): void
     {
         $article = new ObjectType([
             'name'   => 'Article',
@@ -337,7 +337,7 @@ final class QueryPlanTest extends TestCase
                         ResolveInfo $info
                     ) use (
                         &$queryPlan
-                    ) : array {
+                    ): array {
                         $queryPlan = $info->lookAhead();
 
                         return [];
@@ -352,11 +352,11 @@ final class QueryPlanTest extends TestCase
         self::assertSame($expectedQueryPlan, $queryPlan->queryPlan());
     }
 
-    public function testQueryPlanOnInterface() : void
+    public function testQueryPlanOnInterface(): void
     {
         $petType = new InterfaceType([
             'name'   => 'Pet',
-            'fields' => static function () : array {
+            'fields' => static function (): array {
                 return [
                     'name' => ['type' => Type::string()],
                 ];
@@ -366,10 +366,10 @@ final class QueryPlanTest extends TestCase
         $dogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) : bool {
+            'isTypeOf'   => static function ($obj): bool {
                 return $obj instanceof Dog;
             },
-            'fields' => static function () : array {
+            'fields' => static function (): array {
                 return [
                     'name'  => ['type' => Type::string()],
                     'woofs' => ['type' => Type::boolean()],
@@ -426,7 +426,7 @@ final class QueryPlanTest extends TestCase
                     ) use (
                         &$hasCalled,
                         &$queryPlan
-                    ) : array {
+                    ): array {
                         $hasCalled = true;
                         $queryPlan = $info->lookAhead();
 
@@ -443,6 +443,7 @@ final class QueryPlanTest extends TestCase
                 switch ($name) {
                     case 'Dog':
                         return $dogType;
+
                     case 'Pet':
                         return $petType;
                 }
@@ -463,7 +464,7 @@ final class QueryPlanTest extends TestCase
         self::assertFalse($queryPlan->hasType('Test'));
     }
 
-    public function testMergedFragmentsQueryPlan() : void
+    public function testMergedFragmentsQueryPlan(): void
     {
         $image = new ObjectType([
             'name'   => 'Image',
@@ -478,7 +479,7 @@ final class QueryPlanTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use ($image, &$article) : array {
+            'fields' => static function () use ($image, &$article): array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -754,7 +755,7 @@ final class QueryPlanTest extends TestCase
         self::assertFalse($queryPlan->hasType('Test'));
     }
 
-    public function testQueryPlanGroupingImplementorFieldsForAbstractTypes() : void
+    public function testQueryPlanGroupingImplementorFieldsForAbstractTypes(): void
     {
         $car = null;
 
@@ -788,7 +789,7 @@ final class QueryPlanTest extends TestCase
         $transmission = new UnionType([
             'name' => 'Transmission',
             'types' => [$manualTransmission, $automaticTransmission],
-            'resolveType' => static function () use ($manualTransmission) : ObjectType {
+            'resolveType' => static function () use ($manualTransmission): ObjectType {
                 return $manualTransmission;
             },
         ]);

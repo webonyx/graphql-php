@@ -18,6 +18,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+
 use function count;
 use function is_string;
 use function json_encode;
@@ -50,7 +51,7 @@ class NonNullTest extends TestCase
     /** @var Schema */
     public $schemaWithNonNullArg;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->syncError           = new UserError('sync');
         $this->syncNonNullError    = new UserError('syncNonNull');
@@ -58,35 +59,35 @@ class NonNullTest extends TestCase
         $this->promiseNonNullError = new UserError('promiseNonNull');
 
         $this->throwingData = [
-            'sync'               => function () : void {
+            'sync'               => function (): void {
                 throw $this->syncError;
             },
-            'syncNonNull'        => function () : void {
+            'syncNonNull'        => function (): void {
                 throw $this->syncNonNullError;
             },
-            'promise'            => function () : Deferred {
-                return new Deferred(function () : void {
+            'promise'            => function (): Deferred {
+                return new Deferred(function (): void {
                     throw $this->promiseError;
                 });
             },
-            'promiseNonNull'     => function () : Deferred {
-                return new Deferred(function () : void {
+            'promiseNonNull'     => function (): Deferred {
+                return new Deferred(function (): void {
                     throw $this->promiseNonNullError;
                 });
             },
-            'syncNest'           => function () : array {
+            'syncNest'           => function (): array {
                 return $this->throwingData;
             },
-            'syncNonNullNest'    => function () : array {
+            'syncNonNullNest'    => function (): array {
                 return $this->throwingData;
             },
-            'promiseNest'        => function () : Deferred {
-                return new Deferred(function () : array {
+            'promiseNest'        => function (): Deferred {
+                return new Deferred(function (): array {
                     return $this->throwingData;
                 });
             },
-            'promiseNonNullNest' => function () : Deferred {
-                return new Deferred(function () : array {
+            'promiseNonNullNest' => function (): Deferred {
+                return new Deferred(function (): array {
                     return $this->throwingData;
                 });
             },
@@ -99,29 +100,29 @@ class NonNullTest extends TestCase
             'syncNonNull'        => static function () {
                 return null;
             },
-            'promise'            => static function () : Deferred {
+            'promise'            => static function (): Deferred {
                 return new Deferred(static function () {
                     return null;
                 });
             },
-            'promiseNonNull'     => static function () : Deferred {
+            'promiseNonNull'     => static function (): Deferred {
                 return new Deferred(static function () {
                     return null;
                 });
             },
-            'syncNest'           => function () : array {
+            'syncNest'           => function (): array {
                 return $this->nullingData;
             },
-            'syncNonNullNest'    => function () : array {
+            'syncNonNullNest'    => function (): array {
                 return $this->nullingData;
             },
-            'promiseNest'        => function () : Deferred {
-                return new Deferred(function () : array {
+            'promiseNest'        => function (): Deferred {
+                return new Deferred(function (): array {
                     return $this->nullingData;
                 });
             },
-            'promiseNonNullNest' => function () : Deferred {
-                return new Deferred(function () : array {
+            'promiseNonNullNest' => function (): Deferred {
+                return new Deferred(function (): array {
                     return $this->nullingData;
                 });
             },
@@ -129,7 +130,7 @@ class NonNullTest extends TestCase
 
         $dataType = new ObjectType([
             'name'   => 'DataType',
-            'fields' => static function () use (&$dataType) : array {
+            'fields' => static function () use (&$dataType): array {
                 return [
                     'sync'               => ['type' => Type::string()],
                     'syncNonNull'        => ['type' => Type::nonNull(Type::string())],
@@ -156,7 +157,7 @@ class NonNullTest extends TestCase
                                 'type' => Type::nonNull(Type::string()),
                             ],
                         ],
-                        'resolve' => static function ($value, $args) : ?string {
+                        'resolve' => static function ($value, $args): ?string {
                             if (is_string($args['cannotBeNull'])) {
                                 return 'Passed: ' . $args['cannotBeNull'];
                             }
@@ -174,7 +175,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('nulls a nullable field that throws synchronously')
      */
-    public function testNullsANullableFieldThatThrowsSynchronously() : void
+    public function testNullsANullableFieldThatThrowsSynchronously(): void
     {
         $doc = '
       query Q {
@@ -199,7 +200,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsANullableFieldThatThrowsInAPromise() : void
+    public function testNullsANullableFieldThatThrowsInAPromise(): void
     {
         $doc = '
       query Q {
@@ -225,7 +226,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsSynchronously() : void
+    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsSynchronously(): void
     {
         // nulls a synchronously returned object that contains a non-nullable field that throws synchronously
         $doc = '
@@ -250,7 +251,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsAsynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsInAPromise() : void
+    public function testNullsAsynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsInAPromise(): void
     {
         $doc = '
       query Q {
@@ -275,7 +276,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsSynchronously() : void
+    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsSynchronously(): void
     {
         $doc = '
       query Q {
@@ -300,7 +301,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsInAPromise() : void
+    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsInAPromise(): void
     {
         $doc = '
       query Q {
@@ -328,7 +329,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('nulls a complex tree of nullable fields that throw')
      */
-    public function testNullsAComplexTreeOfNullableFieldsThatThrow() : void
+    public function testNullsAComplexTreeOfNullableFieldsThatThrow(): void
     {
         $doc = '
       query Q {
@@ -420,11 +421,12 @@ class NonNullTest extends TestCase
                     continue;
                 }
             }
+
             self::assertTrue($found, 'Did not find error: ' . json_encode($expectedError));
         }
     }
 
-    public function testNullsTheFirstNullableObjectAfterAFieldThrowsInALongChainOfFieldsThatAreNonNull() : void
+    public function testNullsTheFirstNullableObjectAfterAFieldThrowsInALongChainOfFieldsThatAreNonNull(): void
     {
         $doc = '
       query Q {
@@ -498,7 +500,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsANullableFieldThatSynchronouslyReturnsNull() : void
+    public function testNullsANullableFieldThatSynchronouslyReturnsNull(): void
     {
         $doc = '
       query Q {
@@ -517,7 +519,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsANullableFieldThatReturnsNullInAPromise() : void
+    public function testNullsANullableFieldThatReturnsNullInAPromise(): void
     {
         $doc = '
       query Q {
@@ -537,7 +539,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullSynchronously() : void
+    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullSynchronously(): void
     {
         $doc = '
       query Q {
@@ -564,7 +566,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullInAPromise() : void
+    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullInAPromise(): void
     {
         $doc = '
       query Q {
@@ -592,7 +594,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullSynchronously() : void
+    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullSynchronously(): void
     {
         $doc = '
       query Q {
@@ -620,7 +622,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullInaAPromise() : void
+    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullInaAPromise(): void
     {
         $doc = '
       query Q {
@@ -648,7 +650,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsAComplexTreeOfNullableFieldsThatReturnNull() : void
+    public function testNullsAComplexTreeOfNullableFieldsThatReturnNull(): void
     {
         $doc = '
       query Q {
@@ -717,7 +719,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('nulls the first nullable object after a field in a long chain of non-null fields')
      */
-    public function testNullsTheFirstNullableObjectAfterAFieldReturnsNullInALongChainOfFieldsThatAreNonNull() : void
+    public function testNullsTheFirstNullableObjectAfterAFieldReturnsNullInALongChainOfFieldsThatAreNonNull(): void
     {
         $doc = '
       query Q {
@@ -794,7 +796,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('nulls the top level if non-nullable field')
      */
-    public function testNullsTheTopLevelIfSyncNonNullableFieldThrows() : void
+    public function testNullsTheTopLevelIfSyncNonNullableFieldThrows(): void
     {
         $doc = '
       query Q { syncNonNull }
@@ -813,7 +815,7 @@ class NonNullTest extends TestCase
      * @see describe('Handles non-null argument')
      * @see it('succeeds when passed non-null literal value')
      */
-    public function succeedsWhenPassedNonNullLiteralValue() : void
+    public function succeedsWhenPassedNonNullLiteralValue(): void
     {
         $result = Executor::execute(
             $this->schemaWithNonNullArg,
@@ -933,7 +935,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('field error when non-null arg not provided variable value')
      */
-    public function testFieldErrorWhenNonNullArgNotProvidedVariableValue() : void
+    public function testFieldErrorWhenNonNullArgNotProvidedVariableValue(): void
     {
       // Note: validation should identify this issue first (variables in allowed
       // position rule) however execution should still protect against this.
@@ -997,7 +999,7 @@ class NonNullTest extends TestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-    public function testNullsTheTopLevelIfAsyncNonNullableFieldErrors() : void
+    public function testNullsTheTopLevelIfAsyncNonNullableFieldErrors(): void
     {
         $doc = '
       query Q { promiseNonNull }
@@ -1017,7 +1019,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsTheTopLevelIfSyncNonNullableFieldReturnsNull() : void
+    public function testNullsTheTopLevelIfSyncNonNullableFieldReturnsNull(): void
     {
         // nulls the top level if sync non-nullable field returns null
         $doc = '
@@ -1038,7 +1040,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsTheTopLevelIfAsyncNonNullableFieldResolvesNull() : void
+    public function testNullsTheTopLevelIfAsyncNonNullableFieldResolvesNull(): void
     {
         $doc = '
       query Q { promiseNonNull }

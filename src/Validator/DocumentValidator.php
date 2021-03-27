@@ -46,6 +46,7 @@ use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 use Throwable;
+
 use function array_filter;
 use function array_merge;
 use function count;
@@ -111,7 +112,7 @@ class DocumentValidator
             return [];
         }
 
-        $typeInfo = $typeInfo ?? new TypeInfo($schema);
+        $typeInfo ??= new TypeInfo($schema);
 
         return static::visitUsingRules($schema, $typeInfo, $ast, $rules);
     }
@@ -221,6 +222,7 @@ class DocumentValidator
         foreach ($rules as $rule) {
             $visitors[] = $rule->getVisitor($context);
         }
+
         Visitor::visit($documentNode, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
 
         return $context->getErrors();
@@ -266,7 +268,7 @@ class DocumentValidator
         return is_array($value)
             ? count(array_filter(
                 $value,
-                static function ($item) : bool {
+                static function ($item): bool {
                     return $item instanceof Throwable;
                 }
             )) === count($value)
@@ -325,6 +327,7 @@ class DocumentValidator
         foreach ($usedRules as $rule) {
             $visitors[] = $rule->getSDLVisitor($context);
         }
+
         Visitor::visit($documentAST, Visitor::visitInParallel($visitors));
 
         return $context->getErrors();
@@ -349,11 +352,11 @@ class DocumentValidator
     /**
      * @param Error[] $errors
      */
-    private static function combineErrorMessages(array $errors) : string
+    private static function combineErrorMessages(array $errors): string
     {
         $str = '';
         foreach ($errors as $error) {
-            $str .= ($error->getMessage() . "\n\n");
+            $str .= $error->getMessage() . "\n\n";
         }
 
         return $str;

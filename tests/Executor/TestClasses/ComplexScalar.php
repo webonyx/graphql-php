@@ -14,7 +14,7 @@ class ComplexScalar extends ScalarType
     /** @var string */
     public $name = 'ComplexScalar';
 
-    public static function create() : self
+    public static function create(): self
     {
         return new self();
     }

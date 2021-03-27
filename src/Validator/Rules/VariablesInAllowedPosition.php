@@ -17,6 +17,7 @@ use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class VariablesInAllowedPosition extends ValidationRule
@@ -32,10 +33,10 @@ class VariablesInAllowedPosition extends ValidationRule
     {
         return [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function () : void {
+                'enter' => function (): void {
                     $this->varDefMap = [];
                 },
-                'leave' => function (OperationDefinitionNode $operation) use ($context) : void {
+                'leave' => function (OperationDefinitionNode $operation) use ($context): void {
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
@@ -68,7 +69,7 @@ class VariablesInAllowedPosition extends ValidationRule
                     }
                 },
             ],
-            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $varDefNode) : void {
+            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $varDefNode): void {
                 $this->varDefMap[$varDefNode->variable->name->value] = $varDefNode;
             },
         ];
@@ -98,7 +99,7 @@ class VariablesInAllowedPosition extends ValidationRule
      * @param ValueNode|null $varDefaultValue
      * @param mixed          $locationDefaultValue
      */
-    private function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue) : bool
+    private function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
     {
         if ($locationType instanceof NonNull && ! $varType instanceof NonNull) {
             $hasNonNullVariableDefaultValue = $varDefaultValue && ! $varDefaultValue instanceof NullValueNode;
@@ -106,6 +107,7 @@ class VariablesInAllowedPosition extends ValidationRule
             if (! $hasNonNullVariableDefaultValue && ! $hasLocationDefaultValue) {
                 return false;
             }
+
             $nullableLocationType = $locationType->getWrappedType();
 
             return TypeComparators::isTypeSubTypeOf($schema, $varType, $nullableLocationType);

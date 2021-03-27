@@ -11,7 +11,7 @@ class ValidationTest extends ValidatorTestCase
     /**
      * @see it('validates queries')
      */
-    public function testValidatesQueries() : void
+    public function testValidatesQueries(): void
     {
         $this->expectPassesCompleteValidation('
           query {
@@ -30,7 +30,7 @@ class ValidationTest extends ValidatorTestCase
     /**
      * @see it('detects bad scalar parse')
      */
-    public function testDetectsBadScalarParse() : void
+    public function testDetectsBadScalarParse(): void
     {
         $doc = '
       query {
@@ -51,7 +51,7 @@ class ValidationTest extends ValidatorTestCase
         );
     }
 
-    public function testPassesValidationWithEmptyRules() : void
+    public function testPassesValidationWithEmptyRules(): void
     {
         $query = '{invalid}';
 

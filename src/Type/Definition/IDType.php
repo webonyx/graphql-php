@@ -10,6 +10,7 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
+
 use function is_int;
 use function is_object;
 use function is_string;
@@ -53,11 +54,12 @@ When expected as an input type, any string (such as `"4"`) or integer
      *
      * @throws Error
      */
-    public function parseValue($value) : string
+    public function parseValue($value): string
     {
         if (is_string($value) || is_int($value)) {
             return (string) $value;
         }
+
         throw new Error('ID cannot represent value: ' . Utils::printSafe($value));
     }
 

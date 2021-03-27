@@ -8,11 +8,12 @@ use GraphQL\Utils\Utils;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+
 use function mb_check_encoding;
 
 class UtilsTest extends TestCase
 {
-    public function testAssignThrowsExceptionOnMissingRequiredKey() : void
+    public function testAssignThrowsExceptionOnMissingRequiredKey(): void
     {
         $object              = new stdClass();
         $object->requiredKey = 'value';
@@ -28,7 +29,7 @@ class UtilsTest extends TestCase
      *
      * @dataProvider    chrUtf8DataProvider
      */
-    public function testChrUtf8Generation($input, $expected) : void
+    public function testChrUtf8Generation($input, $expected): void
     {
         $result = Utils::chr($input);
         self::assertTrue(mb_check_encoding($result, 'UTF-8'));

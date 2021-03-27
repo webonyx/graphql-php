@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Validator;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\SingleFieldSubscription;
+
 use function array_map;
 
 class SingleFieldSubscriptionsTest extends ValidatorTestCase
@@ -14,7 +15,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
     /**
      * @see it('valid single field subscription')
      */
-    public function testValidSingleFieldSubscription() : void
+    public function testValidSingleFieldSubscription(): void
     {
         $this->expectPassesRule(
             new SingleFieldSubscription(),
@@ -31,7 +32,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
     /**
      * @see it('valid single field bulk subscriptions')
      */
-    public function testValidSingleFieldBulkSubscriptions() : void
+    public function testValidSingleFieldBulkSubscriptions(): void
     {
         $this->expectPassesRule(
             new SingleFieldSubscription(),
@@ -54,7 +55,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
     /**
      * @see it('valid single field anonymous subscription')
      */
-    public function testValidSingleFieldAnonymousSubscription() : void
+    public function testValidSingleFieldAnonymousSubscription(): void
     {
         $this->expectPassesRule(
             new SingleFieldSubscription(),
@@ -71,7 +72,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
     /**
      * @see it('valid single field subscription')
      */
-    public function testValidSingleFieldSubscriptionWithMultipleResultFields() : void
+    public function testValidSingleFieldSubscriptionWithMultipleResultFields(): void
     {
         $this->expectPassesRule(
             new SingleFieldSubscription(),
@@ -89,7 +90,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
     /**
      * @see it('invalid multiple field subscription')
      */
-    public function testInvalidMultipleFieldSubscription() : void
+    public function testInvalidMultipleFieldSubscription(): void
     {
         $this->expectFailsRule(
             new SingleFieldSubscription(),
@@ -110,7 +111,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
     /**
      * @see it('invalid multiple field anonymous subscription')
      */
-    public function testInvalidMultipleFieldAnonymousSubscription() : void
+    public function testInvalidMultipleFieldAnonymousSubscription(): void
     {
         $this->expectFailsRule(
             new SingleFieldSubscription(),
@@ -131,7 +132,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
     /**
      * @see it('invalid many fields subscription')
      */
-    public function testInvalidManyFieldsSubscription() : void
+    public function testInvalidManyFieldsSubscription(): void
     {
         $this->expectFailsRule(
             new SingleFieldSubscription(),
@@ -155,7 +156,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
     /**
      * @see it('invalid many fields anonymous subscription')
      */
-    public function testInvalidManyFieldAnonymousSubscription() : void
+    public function testInvalidManyFieldAnonymousSubscription(): void
     {
         $this->expectFailsRule(
             new SingleFieldSubscription(),
@@ -183,7 +184,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
     {
         return FormattedError::create(
             SingleFieldSubscription::multipleFieldsInOperation($operationName),
-            array_map(static function (array $location) : SourceLocation {
+            array_map(static function (array $location): SourceLocation {
                 [$line, $column] = $location;
 
                 return new SourceLocation($line, $column);

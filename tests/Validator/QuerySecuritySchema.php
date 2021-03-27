@@ -11,6 +11,7 @@ use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+
 use function array_merge;
 
 class QuerySecuritySchema
@@ -75,7 +76,7 @@ class QuerySecuritySchema
         self::$humanType = new ObjectType(
             [
                 'name'   => 'Human',
-                'fields' => static function () : array {
+                'fields' => static function (): array {
                     return [
                         'firstName' => ['type' => Type::nonNull(Type::string())],
                         'dogs'      => [
@@ -120,7 +121,7 @@ class QuerySecuritySchema
         return self::$dogType;
     }
 
-    public static function buildFooDirective() : Directive
+    public static function buildFooDirective(): Directive
     {
         if (self::$fooDirective !== null) {
             return self::$fooDirective;
@@ -129,11 +130,12 @@ class QuerySecuritySchema
         self::$fooDirective = new Directive([
             'name'      => 'foo',
             'locations' => [DirectiveLocation::FIELD],
-            'args'      => [new FieldArgument([
-                'name'         => 'bar',
-                'type'         => Type::nonNull(Type::boolean()),
-                'defaultValue' => ' ',
-            ]),
+            'args'      => [
+                new FieldArgument([
+                    'name'         => 'bar',
+                    'type'         => Type::nonNull(Type::boolean()),
+                    'defaultValue' => ' ',
+                ]),
             ],
         ]);
 

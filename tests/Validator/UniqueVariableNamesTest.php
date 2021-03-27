@@ -15,7 +15,7 @@ class UniqueVariableNamesTest extends ValidatorTestCase
     /**
      * @see it('unique variable names')
      */
-    public function testUniqueVariableNames() : void
+    public function testUniqueVariableNames(): void
     {
         $this->expectPassesRule(
             new UniqueVariableNames(),
@@ -29,7 +29,7 @@ class UniqueVariableNamesTest extends ValidatorTestCase
     /**
      * @see it('duplicate variable names')
      */
-    public function testDuplicateVariableNames() : void
+    public function testDuplicateVariableNames(): void
     {
         $this->expectFailsRule(
             new UniqueVariableNames(),

@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BreakingChangesFinder;
 use PHPUnit\Framework\TestCase;
+
 use function sprintf;
 
 class BreakingChangesFinderTest extends TestCase
@@ -23,7 +24,7 @@ class BreakingChangesFinderTest extends TestCase
     /** @var ObjectType */
     private $queryType;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->queryType = new ObjectType([
             'name'   => 'Query',
@@ -40,7 +41,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a type was removed or not')
      */
-    public function testShouldDetectIfTypeWasRemovedOrNot() : void
+    public function testShouldDetectIfTypeWasRemovedOrNot(): void
     {
         $type1     = new ObjectType([
             'name'   => 'Type1',
@@ -81,7 +82,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a type changed its type')
      */
-    public function testShouldDetectIfATypeChangedItsType() : void
+    public function testShouldDetectIfATypeChangedItsType(): void
     {
         $objectType = new ObjectType([
             'name'   => 'ObjectType',
@@ -135,7 +136,7 @@ class BreakingChangesFinderTest extends TestCase
      *
      * @see https://github.com/webonyx/graphql-php/pull/431
      */
-    public function testShouldNotMarkTypesWithInheritedClassesAsChanged() : void
+    public function testShouldNotMarkTypesWithInheritedClassesAsChanged(): void
     {
         $objectTypeConstructedFromRemoteSchema = new ObjectType([
             'name'   => 'ObjectType',
@@ -144,7 +145,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $localObjectType = new class([
+        $localObjectType = new class ([
             'name'   => 'ObjectType',
             'fields' => [
                 'field1' => ['type' => Type::string()],
@@ -169,7 +170,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a field on a type was deleted or changed type')
      */
-    public function testShouldDetectIfAFieldOnATypeWasDeletedOrChangedType() : void
+    public function testShouldDetectIfAFieldOnATypeWasDeletedOrChangedType(): void
     {
         $typeA = new ObjectType([
             'name'   => 'TypeA',
@@ -318,7 +319,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if fields on input types changed kind or were removed')
      */
-    public function testShouldDetectIfFieldsOnInputTypesChangedKindOrWereRemoved() : void
+    public function testShouldDetectIfFieldsOnInputTypesChangedKindOrWereRemoved(): void
     {
         $oldInputType = new InputObjectType([
             'name'   => 'InputType1',
@@ -488,7 +489,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a required field is added to an input type')
      */
-    public function testShouldDetectIfANonNullFieldIsAddedToAnInputType() : void
+    public function testShouldDetectIfANonNullFieldIsAddedToAnInputType(): void
     {
         $oldInputType = new InputObjectType([
             'name'   => 'InputType1',
@@ -539,7 +540,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a type was removed from a union type')
      */
-    public function testShouldRetectIfATypeWasRemovedFromAUnionType() : void
+    public function testShouldRetectIfATypeWasRemovedFromAUnionType(): void
     {
         $type1 = new ObjectType([
             'name'   => 'Type1',
@@ -602,7 +603,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a value was removed from an enum type')
      */
-    public function testShouldDetectIfAValueWasRemovedFromAnEnumType() : void
+    public function testShouldDetectIfAValueWasRemovedFromAnEnumType(): void
     {
         $oldEnumType = new EnumType([
             'name'   => 'EnumType1',
@@ -647,7 +648,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a field argument was removed')
      */
-    public function testShouldDetectIfAFieldArgumentWasRemoved() : void
+    public function testShouldDetectIfAFieldArgumentWasRemoved(): void
     {
         $oldType = new ObjectType([
             'name'   => 'Type1',
@@ -732,7 +733,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a field argument has changed type')
      */
-    public function testShouldDetectIfAFieldArgumentHasChangedType() : void
+    public function testShouldDetectIfAFieldArgumentHasChangedType(): void
     {
         $oldType = new ObjectType([
             'name'   => 'Type1',
@@ -856,7 +857,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a non-null field argument was added')
      */
-    public function testShouldDetectIfANonNullFieldArgumentWasAdded() : void
+    public function testShouldDetectIfANonNullFieldArgumentWasAdded(): void
     {
         $oldType   = new ObjectType([
             'name'   => 'Type1',
@@ -907,7 +908,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should not flag args with the same type signature as breaking')
      */
-    public function testShouldNotFlagArgsWithTheSameTypeSignatureAsBreaking() : void
+    public function testShouldNotFlagArgsWithTheSameTypeSignatureAsBreaking(): void
     {
         $inputType1a = new InputObjectType([
             'name'   => 'InputType1',
@@ -964,7 +965,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should consider args that move away from NonNull as non-breaking')
      */
-    public function testShouldConsiderArgsThatMoveAwayFromNonNullAsNonBreaking() : void
+    public function testShouldConsiderArgsThatMoveAwayFromNonNullAsNonBreaking(): void
     {
         $oldType = new ObjectType([
             'name'   => 'Type1',
@@ -1004,7 +1005,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect interfaces removed from types')
      */
-    public function testShouldDetectInterfacesRemovedFromTypes() : void
+    public function testShouldDetectInterfacesRemovedFromTypes(): void
     {
         $interface1 = new InterfaceType([
             'name'   => 'Interface1',
@@ -1051,7 +1052,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect interfaces removed from interfaces')
      */
-    public function testShouldDetectInterfacesRemovedFromInterfaces() : void
+    public function testShouldDetectInterfacesRemovedFromInterfaces(): void
     {
         $interface1 = new InterfaceType([
             'name'   => 'Interface1',
@@ -1099,7 +1100,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect all breaking changes')
      */
-    public function testShouldDetectAllBreakingChanges() : void
+    public function testShouldDetectAllBreakingChanges(): void
     {
         $typeThatGetsRemoved = new ObjectType([
             'name'   => 'TypeThatGetsRemoved',
@@ -1369,7 +1370,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a directive was explicitly removed')
      */
-    public function testShouldDetectIfADirectiveWasExplicitlyRemoved() : void
+    public function testShouldDetectIfADirectiveWasExplicitlyRemoved(): void
     {
         $oldSchema = new Schema([
             'directives' => [Directive::skipDirective(), Directive::includeDirective()],
@@ -1397,7 +1398,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a directive was implicitly removed')
      */
-    public function testShouldDetectIfADirectiveWasImplicitlyRemoved() : void
+    public function testShouldDetectIfADirectiveWasImplicitlyRemoved(): void
     {
         $oldSchema = new Schema([]);
 
@@ -1423,7 +1424,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a directive argument was removed')
      */
-    public function testShouldDetectIfADirectiveArgumentWasRemoved() : void
+    public function testShouldDetectIfADirectiveArgumentWasRemoved(): void
     {
         $oldSchema = new Schema([
             'directives' => [
@@ -1465,7 +1466,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a non-nullable directive argument was added')
      */
-    public function testShouldDetectIfANonNullableDirectiveArgumentWasAdded() : void
+    public function testShouldDetectIfANonNullableDirectiveArgumentWasAdded(): void
     {
         $oldSchema = new Schema([
             'directives' => [
@@ -1507,7 +1508,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect locations removed from a directive')
      */
-    public function testShouldDetectLocationsRemovedFromADirective() : void
+    public function testShouldDetectLocationsRemovedFromADirective(): void
     {
         $d1 = new Directive([
             'name'      => 'Directive Name',
@@ -1528,7 +1529,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect locations removed directives within a schema')
      */
-    public function testShouldDetectLocationsRemovedDirectiveWithinASchema() : void
+    public function testShouldDetectLocationsRemovedDirectiveWithinASchema(): void
     {
         $oldSchema = new Schema([
             'directives' => [
@@ -1570,7 +1571,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if an argument's defaultValue has changed')
      */
-    public function testShouldDetectIfAnArgumentsDefaultValueHasChanged() : void
+    public function testShouldDetectIfAnArgumentsDefaultValueHasChanged(): void
     {
         $oldType = new ObjectType([
             'name'   => 'Type1',
@@ -1628,7 +1629,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a value was added to an enum type')
      */
-    public function testShouldDetectIfAValueWasAddedToAnEnumType() : void
+    public function testShouldDetectIfAValueWasAddedToAnEnumType(): void
     {
         $oldEnumType = new EnumType([
             'name'   => 'EnumType1',
@@ -1672,7 +1673,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect interfaces added to types')
      */
-    public function testShouldDetectInterfacesAddedToTypes() : void
+    public function testShouldDetectInterfacesAddedToTypes(): void
     {
         $interface1 = new InterfaceType([
             'name'   => 'Interface1',
@@ -1721,7 +1722,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect interfaces added to interfaces')
      */
-    public function testShouldDetectInterfacesAddedToInterfaces() : void
+    public function testShouldDetectInterfacesAddedToInterfaces(): void
     {
         $oldInterface = new InterfaceType(['name' => 'OldInterface']);
         $newInterface = new InterfaceType(['name' => 'NewInterface']);
@@ -1761,7 +1762,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a type was added to a union type')
      */
-    public function testShouldDetectIfATypeWasAddedToAUnionType() : void
+    public function testShouldDetectIfATypeWasAddedToAUnionType(): void
     {
         $type1 = new ObjectType([
             'name'   => 'Type1',
@@ -1819,7 +1820,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a nullable field was added to an input')
      */
-    public function testShouldDetectIfANullableFieldWasAddedToAnInput() : void
+    public function testShouldDetectIfANullableFieldWasAddedToAnInput(): void
     {
         $oldInputType = new InputObjectType([
             'name'   => 'InputType1',
@@ -1870,7 +1871,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should find all dangerous changes')
      */
-    public function testShouldFindAllDangerousChanges() : void
+    public function testShouldFindAllDangerousChanges(): void
     {
         $enumThatGainsAValueOld = new EnumType([
             'name'   => 'EnumType1',
@@ -2009,7 +2010,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a nullable field argument was added')
      */
-    public function testShouldDetectIfANullableFieldArgumentWasAdded() : void
+    public function testShouldDetectIfANullableFieldArgumentWasAdded(): void
     {
         $oldType = new ObjectType([
             'name'   => 'Type1',

@@ -9,6 +9,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
+
 use function is_bool;
 
 class BooleanType extends ScalarType
@@ -27,7 +28,7 @@ class BooleanType extends ScalarType
      *
      * @param mixed $value
      */
-    public function serialize($value) : bool
+    public function serialize($value): bool
     {
         return (bool) $value;
     }

@@ -12,11 +12,12 @@ use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QuerySecurityRule;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+
 use function array_map;
 
 abstract class QuerySecurityTestCase extends TestCase
 {
-    public function testMaxQueryDepthMustBeGreaterOrEqualTo0() : void
+    public function testMaxQueryDepthMustBeGreaterOrEqualTo0(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('argument must be greater or equal to 0.');
@@ -45,6 +46,7 @@ abstract class QuerySecurityTestCase extends TestCase
         if ($newMax === QuerySecurityRule::DISABLED) {
             return;
         }
+
         $this->assertDocumentValidator($query, $newMax, [$this->createFormattedError($newMax, $maxExpected)]);
     }
 
@@ -55,7 +57,7 @@ abstract class QuerySecurityTestCase extends TestCase
      *
      * @return Error[]
      */
-    protected function assertDocumentValidator($queryString, $max, array $expectedErrors = []) : array
+    protected function assertDocumentValidator($queryString, $max, array $expectedErrors = []): array
     {
         $errors = DocumentValidator::validate(
             QuerySecuritySchema::buildSchema(),

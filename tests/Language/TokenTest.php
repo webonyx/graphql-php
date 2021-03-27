@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class TokenTest extends TestCase
 {
-    public function testReturnTokenOnArray() : void
+    public function testReturnTokenOnArray(): void
     {
         $token    = new Token('Kind', 1, 10, 3, 5);
         $expected = [
