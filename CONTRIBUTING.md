@@ -85,5 +85,5 @@ We document this library by rendering the Markdown files in [docs](docs) with [M
 Generate the class reference docs:
 
 ```sh
-composer api-docs
+composer docs
 ```
