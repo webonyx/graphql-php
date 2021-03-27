@@ -1,4 +1,5 @@
 # graphql-php
+
 ![CI](https://github.com/webonyx/graphql-php/workflows/CI/badge.svg)
 [![Coverage Status](https://codecov.io/gh/webonyx/graphql-php/branch/master/graph/badge.svg)](https://codecov.io/gh/webonyx/graphql-php/branch/master)
 [![Latest Stable Version](https://poser.pugx.org/webonyx/graphql-php/version)](https://packagist.org/packages/webonyx/graphql-php)
@@ -8,18 +9,22 @@ This is a PHP implementation of the GraphQL [specification](https://github.com/f
 based on the [reference implementation in JavaScript](https://github.com/graphql/graphql-js).
 
 ## Installation
+
 Via composer:
+
 ```
 composer require webonyx/graphql-php
 ```
 
 ## Documentation
-Full documentation is available on the [Documentation site](https://webonyx.github.io/graphql-php/) as well 
+
+Full documentation is available on the [Documentation site](https://webonyx.github.io/graphql-php/) as well
 as in the [docs](docs/) folder of the distribution.
 
 If you don't know what GraphQL is, visit the [official website](http://graphql.org) first.
 
 ## Examples
+
 There are several ready examples in the [examples](examples) folder of the distribution,
 with a specific README file per example.
 
