@@ -244,7 +244,6 @@ SDL;
      */
     public function testBuildsASchemaWithAnInterfaceHierarchy() : void
     {
-        self::markTestSkipped('Will work only once intermediate interfaces are possible');
         self::assertCycleIntrospection('
           type Dog implements Friendly & Named {
             bestFriend: Friendly
@@ -767,7 +766,7 @@ SDL;
         $introspection          = Introspection::fromSchema($dummySchema);
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ($type['name'] !== 'Query') {
+            if ($type['name'] !== 'SomeInterface') {
                 continue;
             }
 

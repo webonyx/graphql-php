@@ -75,7 +75,7 @@ class QuerySecuritySchema
         self::$humanType = new ObjectType(
             [
                 'name'   => 'Human',
-                'fields' => static function () {
+                'fields' => static function () : array {
                     return [
                         'firstName' => ['type' => Type::nonNull(Type::string())],
                         'dogs'      => [

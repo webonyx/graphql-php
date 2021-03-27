@@ -889,7 +889,10 @@ class ValidationTest extends TestCase
         | TypeB
         ');
 
-        $schema = SchemaExtender::extend($schema, Parser::parse('extend union BadUnion = Int'));
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('extend union BadUnion = Int')
+        );
 
         $this->assertMatchesValidationMessage(
             $schema->validate(),
@@ -1443,7 +1446,7 @@ class ValidationTest extends TestCase
      */
     public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingField()
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             test: AnotherObject
           }
@@ -1455,6 +1458,7 @@ class ValidationTest extends TestCase
           type AnotherObject implements AnotherInterface {
             field: String
           }');
+
         $extendedSchema = SchemaExtender::extend(
             $schema,
             Parser::parse('
@@ -1467,6 +1471,7 @@ class ValidationTest extends TestCase
                 }
             ')
         );
+
         $this->assertMatchesValidationMessage(
             $extendedSchema->validate(),
             [[
@@ -1486,7 +1491,7 @@ class ValidationTest extends TestCase
      */
     public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingFieldArgs()
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             test: AnotherObject
           }
@@ -1498,6 +1503,7 @@ class ValidationTest extends TestCase
           type AnotherObject implements AnotherInterface {
             field: String
           }');
+
         $extendedSchema = SchemaExtender::extend(
             $schema,
             Parser::parse('
@@ -1510,6 +1516,7 @@ class ValidationTest extends TestCase
                 }
             ')
         );
+
         $this->assertMatchesValidationMessage(
             $extendedSchema->validate(),
             [[
@@ -1528,7 +1535,7 @@ class ValidationTest extends TestCase
      */
     public function testRejectsObjectsImplementingTheExtendedInterfaceDueToMismatchingInterfaceType()
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             test: AnotherObject
           }
@@ -1540,6 +1547,7 @@ class ValidationTest extends TestCase
           type AnotherObject implements AnotherInterface {
             field: String
           }');
+
         $extendedSchema = SchemaExtender::extend(
             $schema,
             Parser::parse('
@@ -1565,6 +1573,7 @@ class ValidationTest extends TestCase
                 }
             ')
         );
+
         $this->assertMatchesValidationMessage(
             $extendedSchema->validate(),
             [[
@@ -2334,6 +2343,610 @@ class ValidationTest extends TestCase
                     'but AnotherObject.field is type String.',
                 'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
             ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an Object missing a transitive interface')
+     */
+    public function testRejectsAnObjectMissingATransitiveInterface() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
+      
+      interface SuperInterface {
+        field: String!
+      }
+      
+      interface AnotherInterface implements SuperInterface {
+        field: String!
+      }
+      
+      type AnotherObject implements AnotherInterface {
+        field: String!
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Type AnotherObject must implement SuperInterface ' .
+                    'because it is implemented by AnotherInterface.',
+                'locations' => [['line' => 10, 'column' => 45], ['line' => 14, 'column' => 37]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('accepts an Interface which implements an Interface')
+     */
+    public function testAcceptsAnInterfaceWhichImplementsAnInterface() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+
+      interface ParentInterface {
+        field(input: String): String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field(input: String): String
+      }
+        ');
+
+        self::assertEquals([], $schema->validate());
+    }
+
+    /**
+     * @see it('accepts an Interface which implements an Interface along with more fields')
+     */
+    public function testAcceptsAnInterfaceWhichImplementsAnInterfaceAlongWithMoreFields() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+
+      interface ParentInterface {
+        field(input: String): String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field(input: String): String
+        anotherField: String
+      }
+        ');
+
+        self::assertEquals([], $schema->validate());
+    }
+
+    /**
+     * @see it('accepts an Interface which implements an Interface field along with additional optional arguments')
+     */
+    public function testAcceptsAnInterfaceWhichImplementsAnInterfaceFieldAlongWithAdditionalOptionalArguments() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+
+      interface ParentInterface {
+        field(input: String): String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field(input: String, anotherInput: String): String
+      }
+        ');
+
+        self::assertEquals([], $schema->validate());
+    }
+
+    /**
+     * @see it('rejects an Interface missing an Interface field')
+     */
+    public function testRejectsAnInterfaceMissingAnInterfaceField() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+
+      interface ParentInterface {
+        field(input: String): String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        anotherField: String
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Interface field ParentInterface.field expected ' .
+                    'but ChildInterface does not provide it.',
+                'locations' => [['line' => 7, 'column' => 9], ['line' => 10, 'column' => 7]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an Interface with an incorrectly typed Interface field')
+     */
+    public function testRejectsAnInterfaceWithAnIncorrectlyTypedInterfaceField() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+
+      interface ParentInterface {
+        field(input: String): String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field(input: String): Int
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Interface field ParentInterface.field expects type String ' .
+                    'but ChildInterface.field is type Int.',
+                'locations' => [['line' => 7, 'column' => 31], ['line' => 11, 'column' => 31]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an Interface with a differently typed Interface field')
+     */
+    public function testRejectsAnInterfaceWithADifferentlyTypedInterfaceField() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+      
+      type A { foo: String }
+      type B { foo: String }
+
+      interface ParentInterface {
+        field: A
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field: B
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Interface field ParentInterface.field expects type A ' .
+                    'but ChildInterface.field is type B.',
+                'locations' => [['line' => 10, 'column' => 16], ['line' => 14, 'column' => 16]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('accepts an interface with a subtyped Interface field (interface)')
+     */
+    public function testAcceptsAnInterfaceWithASubtypedInterfaceFieldInterface() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+      
+      interface ParentInterface {
+        field: ParentInterface
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field: ChildInterface
+      }
+        ');
+
+        self::assertEquals([], $schema->validate());
+    }
+
+    /**
+     * @see it('accepts an interface with a subtyped Interface field (union)')
+     */
+    public function testAcceptsAnInterfaceWithASubtypedInterfaceFieldUnion() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+      
+      type SomeObject {
+        field: String
+      }
+      union SomeUnionType = SomeObject
+      
+      interface ParentInterface {
+        field: SomeUnionType
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field: SomeObject
+      }
+        ');
+
+        self::assertEquals([], $schema->validate());
+    }
+
+    /**
+     * @see it('rejects an Interface with an Interface argument')
+     */
+    public function testRejectsAnInterfaceMissingAnInterfaceArgument() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+
+      interface ParentInterface {
+        field(input: String): String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field: String
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Interface field argument ParentInterface.field(input:) expected ' .
+                    'but ChildInterface.field does not provide it.',
+                'locations' => [['line' => 7, 'column' => 15], ['line' => 11, 'column' => 9]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an Interface with an incorrectly typed Interface argument')
+     */
+    public function testRejectsAnInterfaceWithAnIncorrectlyTypedInterfaceArgument() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+
+      interface ParentInterface {
+        field(input: String): String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field(input: Int): String
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Interface field argument ParentInterface.field(input:) expects type String ' .
+                    'but ChildInterface.field(input:) is type Int.',
+                'locations' => [['line' => 7, 'column' => 22], ['line' => 11, 'column' => 22]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an Interface with both an incorrectly typed field and argument')
+     */
+    public function testRejectsAnInterfaceWithBothAnIncorrectlyTypedFieldAndArgument() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+
+      interface ParentInterface {
+        field(input: String): String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field(input: Int): Int
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message'   => 'Interface field ParentInterface.field expects type String ' .
+                        'but ChildInterface.field is type Int.',
+                    'locations' => [['line' => 7, 'column' => 31], ['line' => 11, 'column' => 28]],
+                ],
+                [
+                    'message'   => 'Interface field argument ParentInterface.field(input:) expects type String ' .
+                        'but ChildInterface.field(input:) is type Int.',
+                    'locations' => [['line' => 7, 'column' => 22], ['line' => 11, 'column' => 22]],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an Interface which implements an Interface field along with additional required arguments')
+     */
+    public function testRejectsAnInterfaceWhichImplementsAnInterfaceFieldAlongWithAdditionalRequiredArguments() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+
+      interface ParentInterface {
+        field(baseArg: String): String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field(
+          baseArg: String,
+          requiredArg: String!
+          optionalArg1: String,
+          optionalArg2: String = "",
+        ): String
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Object field ChildInterface.field includes required argument requiredArg ' .
+                    'that is missing from the Interface field ParentInterface.field.',
+                'locations' => [['line' => 13, 'column' => 11], ['line' => 7, 'column' => 9]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('accepts an Interface with an equivalently wrapped Interface field type')
+     */
+    public function testAcceptsAnInterfaceWithAnEquivalentlyWrappedInterfaceFieldType() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+      
+      interface ParentInterface {
+        field: [String]!
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field: [String]!
+      }
+        ');
+
+        self::assertEquals([], $schema->validate());
+    }
+
+    /**
+     * @see it('rejects an Interface with a non-list Interface field list type')
+     */
+    public function testRejectsAnInterfaceWithANonListInterfaceFieldListType() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+      
+      interface ParentInterface {
+        field: [String]
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field: String
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Interface field ParentInterface.field expects type [String] ' .
+                    'but ChildInterface.field is type String.',
+                'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an Interface with a list Interface field non-list type')
+     */
+    public function testRejectsAnInterfaceWithAListInterfaceFieldNonListType() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+      
+      interface ParentInterface {
+        field: String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field: [String]
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Interface field ParentInterface.field expects type String ' .
+                    'but ChildInterface.field is type [String].',
+                'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('accepts an Interface with a subset non-null Interface field type')
+     */
+    public function testAcceptsAnInterfaceWithASubsetNonNullInterfaceFieldType() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+      
+      interface ParentInterface {
+        field: String
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field: String!
+      }
+        ');
+
+        self::assertEquals([], $schema->validate());
+    }
+
+    /**
+     * @see it('rejects an Interface with a superset nullable interface field type')
+     */
+    public function testRejectsAnInterfaceWithASupsersetNullableInterfaceFieldType() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+      
+      interface ParentInterface {
+        field: String!
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field: String
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Interface field ParentInterface.field expects type String! ' .
+                    'but ChildInterface.field is type String.',
+                'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an Object missing a transitive interface')
+     */
+    public function testRejectsAnInterfaceMissingATransitiveInterface() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: ChildInterface
+      }
+      
+      interface SuperInterface {
+        field: String!
+      }
+      
+      interface ParentInterface implements SuperInterface {
+        field: String!
+      }
+      
+      interface ChildInterface implements ParentInterface {
+        field: String!
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Type ChildInterface must implement SuperInterface ' .
+                    'because it is implemented by ParentInterface.',
+                'locations' => [['line' => 10, 'column' => 44], ['line' => 14, 'column' => 43]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects a self reference interface')
+     */
+    public function testRejectsASelfReferenceInterface() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: FooInterface
+      }
+      
+      interface FooInterface implements FooInterface {
+        field: String!
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'Type FooInterface cannot implement itself ' .
+                    'because it would create a circular reference.',
+                'locations' => [['line' => 6, 'column' => 41]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects a circulare Interface implementation')
+     */
+    public function testRejectsACircularInterfaceImplementation() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: FooInterface
+      }
+      
+      interface FooInterface implements BarInterface {
+        field: String!
+      }
+      
+      interface BarInterface implements FooInterface {
+        field: String!
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message'   => 'Type FooInterface cannot implement BarInterface ' .
+                        'because it would create a circular reference.',
+                    'locations' => [['line' => 10, 'column' => 41], ['line' => 6, 'column' => 41]],
+                ],
+                [
+                    'message'   => 'Type BarInterface cannot implement FooInterface ' .
+                        'because it would create a circular reference.',
+                    'locations' => [['line' => 6, 'column' => 41], ['line' => 10, 'column' => 41]],
+                ],
             ]
         );
     }

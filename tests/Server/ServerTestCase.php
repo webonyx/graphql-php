@@ -83,7 +83,7 @@ abstract class ServerTestCase extends TestCase
                                 'type' => Type::nonNull(Type::int()),
                             ],
                         ],
-                        'resolve' => static function ($rootValue, $args, $context) {
+                        'resolve' => static function ($rootValue, $args, $context) : Deferred {
                             $context['buffer']($args['num']);
 
                             return new Deferred(static function () use ($args, $context) {

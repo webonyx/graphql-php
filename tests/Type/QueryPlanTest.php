@@ -298,6 +298,60 @@ final class QueryPlanTest extends TestCase
         self::assertFalse($queryPlan->hasType('Test'));
     }
 
+    public function testQueryPlanForWrappedTypes() : void
+    {
+        $article = new ObjectType([
+            'name'   => 'Article',
+            'fields' => [
+                'id' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $doc               = '
+      query Test {
+        articles {
+            id
+        }
+      }
+';
+        $expectedQueryPlan = [
+            'id' => [
+                'type' => Type::string(),
+                'fields' => [],
+                'args' => [],
+            ],
+        ];
+
+        /** @var QueryPlan|null $queryPlan */
+        $queryPlan = null;
+
+        $blogQuery = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'articles' => [
+                    'type'    => Type::nonNull(Type::listOf($article)),
+                    'resolve' => static function (
+                        $value,
+                        $args,
+                        $context,
+                        ResolveInfo $info
+                    ) use (
+                        &$queryPlan
+                    ) : array {
+                        $queryPlan = $info->lookAhead();
+
+                        return [];
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $blogQuery]);
+        GraphQL::executeQuery($schema, $doc);
+
+        self::assertSame($expectedQueryPlan, $queryPlan->queryPlan());
+    }
+
     public function testQueryPlanOnInterface() : void
     {
         $petType = new InterfaceType([

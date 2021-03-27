@@ -8,7 +8,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
-use function call_user_func;
 use function count;
 use function is_array;
 use function is_callable;
@@ -88,7 +87,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         }
 
         foreach ($fields as $name => $field) {
-            if ($field instanceof Type) {
+            if ($field instanceof Type || is_callable($field)) {
                 $field = ['type' => $field];
             }
             $field                      = new InputObjectField($field + ['name' => $name]);

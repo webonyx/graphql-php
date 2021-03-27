@@ -15,7 +15,7 @@ class EnumTypeDefinitionNode extends Node implements TypeDefinitionNode
     /** @var NodeList<DirectiveNode> */
     public $directives;
 
-    /** @var NodeList<EnumValueDefinitionNode>|null */
+    /** @var NodeList<EnumValueDefinitionNode> */
     public $values;
 
     /** @var StringValueNode|null */
