@@ -77,12 +77,11 @@ class KnownDirectives extends ValidationRule
                 continue;
             }
 
-            $locationsMap[$def->name->value] = Utils::map(
-                $def->locations,
-                static function ($name): string {
-                    return $name->value;
-                }
-            );
+            $locationNames = [];
+            foreach ($def->locations as $location) {
+                $locationNames []= $location->value;
+            }
+            $locationsMap[$def->name->value] = $locationNames;
         }
 
         return [

@@ -82,17 +82,17 @@ class ASTDefinitionBuilder
 
     public function buildDirective(DirectiveDefinitionNode $directiveNode): Directive
     {
+        $locations = [];
+        foreach ($directiveNode->locations as $location) {
+            $locations []= $location->value;
+        }
+
         return new Directive([
             'name'         => $directiveNode->name->value,
             'description'  => $this->getDescription($directiveNode),
             'args'         =>  FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)),
             'isRepeatable' => $directiveNode->repeatable,
-            'locations'    => array_map(
-                static function (NameNode $node): string {
-                    return $node->value;
-                },
-                $directiveNode->locations
-            ),
+            'locations'    => $locations,
             'astNode'      => $directiveNode,
         ]);
     }
