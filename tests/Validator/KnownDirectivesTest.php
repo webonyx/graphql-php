@@ -15,7 +15,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /** @var Schema */
     public $schemaWithSDLDirectives;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->schemaWithSDLDirectives = BuildSchema::build('
           directive @onSchema on SCHEMA
@@ -42,7 +42,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with no directives')
      */
-    public function testWithNoDirectives() : void
+    public function testWithNoDirectives(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
@@ -62,7 +62,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with known directives')
      */
-    public function testWithKnownDirectives() : void
+    public function testWithKnownDirectives(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
@@ -82,7 +82,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with unknown directive')
      */
-    public function testWithUnknownDirective() : void
+    public function testWithUnknownDirective(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),
@@ -108,7 +108,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with many unknown directives')
      */
-    public function testWithManyUnknownDirectives() : void
+    public function testWithManyUnknownDirectives(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),
@@ -136,7 +136,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with well placed directives')
      */
-    public function testWithWellPlacedDirectives() : void
+    public function testWithWellPlacedDirectives(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
@@ -281,7 +281,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with misplaced directives')
      */
-    public function testWithMisplacedDirectives() : void
+    public function testWithMisplacedDirectives(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),
@@ -331,7 +331,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with well placed directives')
      */
-    public function testWSLWithWellPlacedDirectives() : void
+    public function testWSLWithWellPlacedDirectives(): void
     {
         $this->expectSDLErrors(
             '
@@ -379,7 +379,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with misplaced directives')
      */
-    public function testWSLWithMisplacedDirectives() : void
+    public function testWSLWithMisplacedDirectives(): void
     {
         $this->expectSDLErrors(
             '

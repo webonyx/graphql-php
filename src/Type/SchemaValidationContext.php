@@ -32,7 +32,6 @@ use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
@@ -40,6 +39,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Validation\InputObjectCircularRefs;
 use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\Utils;
+
 use function array_filter;
 use function array_key_exists;
 use function array_merge;
@@ -74,7 +74,7 @@ class SchemaValidationContext
         return $this->errors;
     }
 
-    public function validateRootTypes() : void
+    public function validateRootTypes(): void
     {
         $queryType = $this->schema->getQueryType();
         if (! $queryType) {
@@ -180,6 +180,7 @@ class SchemaValidationContext
                 );
                 continue;
             }
+
             $existingDefinitions                    = $directiveDefinitions[$directive->name] ?? [];
             $existingDefinitions[]                  = $directive;
             $directiveDefinitions[$directive->name] = $existingDefinitions;
@@ -222,6 +223,7 @@ class SchemaValidationContext
                 );
             }
         }
+
         foreach ($directiveDefinitions as $directiveName => $directiveList) {
             if (count($directiveList) <= 1) {
                 continue;
@@ -229,7 +231,7 @@ class SchemaValidationContext
 
             $nodes = Utils::map(
                 $directiveList,
-                static function (Directive $directive) : ?DirectiveDefinitionNode {
+                static function (Directive $directive): ?DirectiveDefinitionNode {
                     return $directive->astNode;
                 }
             );
@@ -270,7 +272,7 @@ class SchemaValidationContext
 
         return Utils::filter(
             $subNodes,
-            static function ($argNode) use ($argName) : bool {
+            static function ($argNode) use ($argName): bool {
                 return $argNode->name->value === $argName;
             }
         );
@@ -281,14 +283,14 @@ class SchemaValidationContext
      *
      * @return NamedTypeNode|ListTypeNode|NonNullTypeNode|null
      */
-    private function getDirectiveArgTypeNode(Directive $directive, $argName) : ?TypeNode
+    private function getDirectiveArgTypeNode(Directive $directive, $argName): ?TypeNode
     {
         $argNode = $this->getAllDirectiveArgNodes($directive, $argName)[0];
 
         return $argNode ? $argNode->type : null;
     }
 
-    public function validateTypes() : void
+    public function validateTypes(): void
     {
         $typeMap = $this->schema->getTypeMap();
         foreach ($typeMap as $typeName => $type) {
@@ -386,9 +388,10 @@ class SchemaValidationContext
                 );
                 continue;
             }
+
             $includes = Utils::some(
                 $schemaDirective->locations,
-                static function ($schemaLocation) use ($location) : bool {
+                static function ($schemaLocation) use ($location): bool {
                     return $schemaLocation === $location;
                 }
             );
@@ -406,6 +409,7 @@ class SchemaValidationContext
             $existingNodes[]                 = $directive;
             $directivesNamed[$directiveName] = $existingNodes;
         }
+
         foreach ($directivesNamed as $directiveName => $directiveList) {
             if (count($directiveList) <= 1) {
                 continue;
@@ -479,6 +483,7 @@ class SchemaValidationContext
                         $this->getAllFieldArgNodes($type, $fieldName, $argName)
                     );
                 }
+
                 $argNames[$argName] = true;
 
                 // Ensure the type is an input type
@@ -543,7 +548,7 @@ class SchemaValidationContext
     /**
      * @param Schema|ObjectType|InterfaceType|UnionType|EnumType|Directive $obj
      */
-    private function getAllSubNodes($obj, callable $getter) : NodeList
+    private function getAllSubNodes($obj, callable $getter): NodeList
     {
         $result = new NodeList([]);
         foreach ($this->getAllNodes($obj) as $astNode) {
@@ -574,7 +579,7 @@ class SchemaValidationContext
             return $typeNode->fields;
         });
 
-        return Utils::filter($subNodes, static function ($fieldNode) use ($fieldName) : bool {
+        return Utils::filter($subNodes, static function ($fieldNode) use ($fieldName): bool {
             return $fieldNode->name->value === $fieldName;
         });
     }
@@ -585,7 +590,7 @@ class SchemaValidationContext
      *
      * @return NamedTypeNode|ListTypeNode|NonNullTypeNode|null
      */
-    private function getFieldTypeNode($type, $fieldName) : ?TypeNode
+    private function getFieldTypeNode($type, $fieldName): ?TypeNode
     {
         $fieldNode = $this->getFieldNode($type, $fieldName);
 
@@ -636,7 +641,7 @@ class SchemaValidationContext
      *
      * @return NamedTypeNode|ListTypeNode|NonNullTypeNode|null
      */
-    private function getFieldArgTypeNode($type, $fieldName, $argName) : ?TypeNode
+    private function getFieldArgTypeNode($type, $fieldName, $argName): ?TypeNode
     {
         $fieldArgNode = $this->getFieldArgNode($type, $fieldName, $argName);
 
@@ -660,7 +665,7 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      */
-    private function validateInterfaces(ImplementingType $type) : void
+    private function validateInterfaces(ImplementingType $type): void
     {
         $ifaceTypeNames = [];
         foreach ($type->getInterfaces() as $iface) {
@@ -694,6 +699,7 @@ class SchemaValidationContext
                 );
                 continue;
             }
+
             $ifaceTypeNames[$iface->name] = true;
 
             $this->validateTypeImplementsAncestors($type, $iface);
@@ -716,7 +722,7 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      */
-    private function getImplementsInterfaceNode(ImplementingType $type, Type $shouldBeInterface) : ?NamedTypeNode
+    private function getImplementsInterfaceNode(ImplementingType $type, Type $shouldBeInterface): ?NamedTypeNode
     {
         $nodes = $this->getAllImplementsInterfaceNodes($type, $shouldBeInterface);
 
@@ -728,14 +734,14 @@ class SchemaValidationContext
      *
      * @return array<int, NamedTypeNode>
      */
-    private function getAllImplementsInterfaceNodes(ImplementingType $type, Type $shouldBeInterface) : array
+    private function getAllImplementsInterfaceNodes(ImplementingType $type, Type $shouldBeInterface): array
     {
-        $subNodes = $this->getAllSubNodes($type, static function (Node $typeNode) : NodeList {
+        $subNodes = $this->getAllSubNodes($type, static function (Node $typeNode): NodeList {
             /** @var ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode $typeNode */
             return $typeNode->interfaces;
         });
 
-        return Utils::filter($subNodes, static function (NamedTypeNode $ifaceNode) use ($shouldBeInterface) : bool {
+        return Utils::filter($subNodes, static function (NamedTypeNode $ifaceNode) use ($shouldBeInterface): bool {
             return $ifaceNode->name->value === $shouldBeInterface->name;
         });
     }
@@ -773,11 +779,12 @@ class SchemaValidationContext
 
             // Assert interface field type is satisfied by type field type, by being
             // a valid subtype. (covariant)
-            if (! TypeComparators::isTypeSubTypeOf(
-                $this->schema,
-                $typeField->getType(),
-                $ifaceField->getType()
-            )
+            if (
+                ! TypeComparators::isTypeSubTypeOf(
+                    $this->schema,
+                    $typeField->getType(),
+                    $ifaceField->getType()
+                )
             ) {
                 $this->reportError(
                     sprintf(
@@ -849,6 +856,7 @@ class SchemaValidationContext
                         ]
                     );
                 }
+
                 // TODO: validate default values?
             }
 
@@ -889,7 +897,7 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      */
-    private function validateTypeImplementsAncestors(ImplementingType $type, InterfaceType $iface) : void
+    private function validateTypeImplementsAncestors(ImplementingType $type, InterfaceType $iface): void
     {
         $typeInterfaces = $type->getInterfaces();
         foreach ($iface->getInterfaces() as $transitive) {
@@ -940,6 +948,7 @@ class SchemaValidationContext
                 );
                 continue;
             }
+
             $includedTypeNames[$memberType->name] = true;
             if ($memberType instanceof ObjectType) {
                 continue;
@@ -967,7 +976,7 @@ class SchemaValidationContext
             return $unionNode->types;
         });
 
-        return Utils::filter($subNodes, static function ($typeNode) use ($typeName) : bool {
+        return Utils::filter($subNodes, static function ($typeNode) use ($typeName): bool {
             return $typeNode->name->value === $typeName;
         });
     }
@@ -1027,7 +1036,7 @@ class SchemaValidationContext
             return $enumNode->values;
         });
 
-        return Utils::filter($subNodes, static function ($valueNode) use ($valueName) : bool {
+        return Utils::filter($subNodes, static function ($valueNode) use ($valueName): bool {
             return $valueNode->name->value === $valueName;
         });
     }

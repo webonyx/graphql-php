@@ -12,6 +12,7 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Schema;
+
 use function is_array;
 use function is_object;
 
@@ -29,7 +30,7 @@ class Executor
     /** @var callable */
     private static $implementationFactory = [ReferenceExecutor::class, 'create'];
 
-    public static function getDefaultFieldResolver() : callable
+    public static function getDefaultFieldResolver(): callable
     {
         return self::$defaultFieldResolver;
     }
@@ -42,7 +43,7 @@ class Executor
         self::$defaultFieldResolver = $fieldResolver;
     }
 
-    public static function getPromiseAdapter() : PromiseAdapter
+    public static function getPromiseAdapter(): PromiseAdapter
     {
         return self::$defaultPromiseAdapter ?? (self::$defaultPromiseAdapter = new SyncPromiseAdapter());
     }
@@ -55,7 +56,7 @@ class Executor
         self::$defaultPromiseAdapter = $defaultPromiseAdapter;
     }
 
-    public static function getImplementationFactory() : callable
+    public static function getImplementationFactory(): callable
     {
         return self::$implementationFactory;
     }

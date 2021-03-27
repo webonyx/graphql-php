@@ -18,16 +18,17 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
+
 use function array_map;
 
 abstract class ValidatorTestCase extends TestCase
 {
-    protected function expectPassesRule($rule, $queryString, $options = []) : void
+    protected function expectPassesRule($rule, $queryString, $options = []): void
     {
         $this->expectValid(self::getTestSchema(), [$rule], $queryString, $options);
     }
 
-    protected function expectValid($schema, $rules, $queryString, $options = []) : void
+    protected function expectValid($schema, $rules, $queryString, $options = []): void
     {
         self::assertEquals(
             [],
@@ -65,7 +66,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Canine = new InterfaceType([
             'name'   => 'Canine',
-            'fields' => static function () : array {
+            'fields' => static function (): array {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -112,7 +113,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Cat = new ObjectType([
             'name'       => 'Cat',
-            'fields'     => static function () use (&$FurColor) : array {
+            'fields'     => static function () use (&$FurColor): array {
                 return [
                     'name'       => [
                         'type' => Type::string(),
@@ -143,7 +144,7 @@ abstract class ValidatorTestCase extends TestCase
         $Human = new ObjectType([
             'name'       => 'Human',
             'interfaces' => [$Being, $Intelligent],
-            'fields'     => static function () use (&$Human, $Pet) : array {
+            'fields'     => static function () use (&$Human, $Pet): array {
                 return [
                     'name'      => [
                         'type' => Type::string(),
@@ -301,10 +302,10 @@ abstract class ValidatorTestCase extends TestCase
             'serialize'    => static function ($value) {
                 return $value;
             },
-            'parseLiteral' => static function ($node) : void {
+            'parseLiteral' => static function ($node): void {
                 throw new Exception('Invalid scalar is always invalid: ' . $node->value);
             },
-            'parseValue'   => static function ($node) : void {
+            'parseValue'   => static function ($node): void {
                 throw new Exception('Invalid scalar is always invalid: ' . $node);
             },
         ]);
@@ -428,22 +429,22 @@ abstract class ValidatorTestCase extends TestCase
         return $errors;
     }
 
-    protected function expectPassesRuleWithSchema($schema, $rule, $queryString) : void
+    protected function expectPassesRuleWithSchema($schema, $rule, $queryString): void
     {
         $this->expectValid($schema, [$rule], $queryString);
     }
 
-    protected function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors) : void
+    protected function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors): void
     {
         $this->expectInvalid($schema, [$rule], $queryString, $errors);
     }
 
-    protected function expectPassesCompleteValidation($queryString) : void
+    protected function expectPassesCompleteValidation($queryString): void
     {
         $this->expectValid(self::getTestSchema(), DocumentValidator::allRules(), $queryString);
     }
 
-    protected function expectFailsCompleteValidation($queryString, $errors) : void
+    protected function expectFailsCompleteValidation($queryString, $errors): void
     {
         $this->expectInvalid(self::getTestSchema(), DocumentValidator::allRules(), $queryString, $errors);
     }

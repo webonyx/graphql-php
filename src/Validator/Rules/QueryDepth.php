@@ -13,6 +13,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class QueryDepth extends QuerySecurityRule
@@ -31,7 +32,7 @@ class QueryDepth extends QuerySecurityRule
             $context,
             [
                 NodeKind::OPERATION_DEFINITION => [
-                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context) : void {
+                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context): void {
                         $maxDepth = $this->fieldDepth($operationDefinition);
 
                         if ($maxDepth <= $this->getMaxQueryDepth()) {
@@ -68,8 +69,10 @@ class QueryDepth extends QuerySecurityRule
                     if ($depth > $maxDepth) {
                         $maxDepth = $depth;
                     }
+
                     $maxDepth = $this->fieldDepth($node, $depth + 1, $maxDepth);
                 }
+
                 break;
 
             case $node instanceof InlineFragmentNode:
@@ -77,6 +80,7 @@ class QueryDepth extends QuerySecurityRule
                 if ($node->selectionSet !== null) {
                     $maxDepth = $this->fieldDepth($node, $depth, $maxDepth);
                 }
+
                 break;
 
             case $node instanceof FragmentSpreadNode:
@@ -85,6 +89,7 @@ class QueryDepth extends QuerySecurityRule
                 if ($fragment !== null) {
                     $maxDepth = $this->fieldDepth($fragment, $depth, $maxDepth);
                 }
+
                 break;
         }
 

@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class InvalidArgumentTest extends TestCase
 {
-    public function testFromExpectedTypeAndArgument() : void
+    public function testFromExpectedTypeAndArgument(): void
     {
         $exception = InvalidArgument::fromExpectedTypeAndArgument('bool|int', 'stringValue');
 

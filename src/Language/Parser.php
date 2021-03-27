@@ -58,6 +58,7 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
+
 use function count;
 use function sprintf;
 
@@ -315,7 +316,7 @@ class Parser
      * Returns a location object, used to identify the place in
      * the source that created a given parsed object.
      */
-    private function loc(Token $startToken) : ?Location
+    private function loc(Token $startToken): ?Location
     {
         if (! ($this->lexer->options['noLocation'] ?? false)) {
             return new Location($startToken, $this->lexer->lastToken, $this->lexer->source);
@@ -327,7 +328,7 @@ class Parser
     /**
      * Determines if the next token is of a given kind
      */
-    private function peek(string $kind) : bool
+    private function peek(string $kind): bool
     {
         return $this->lexer->token->kind === $kind;
     }
@@ -336,7 +337,7 @@ class Parser
      * If the next token is of the given kind, return true after advancing
      * the parser. Otherwise, do not change the parser state and return false.
      */
-    private function skip(string $kind) : bool
+    private function skip(string $kind): bool
     {
         $match = $this->lexer->token->kind === $kind;
 
@@ -353,7 +354,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function expect(string $kind) : Token
+    private function expect(string $kind): Token
     {
         $token = $this->lexer->token;
 
@@ -376,7 +377,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function expectKeyword(string $value) : void
+    private function expectKeyword(string $value): void
     {
         $token = $this->lexer->token;
         if ($token->kind !== Token::NAME || $token->value !== $value) {
@@ -394,7 +395,7 @@ class Parser
      * If the next token is a given keyword, return "true" after advancing
      * the lexer. Otherwise, do not change the parser state and return "false".
      */
-    private function expectOptionalKeyword(string $value) : bool
+    private function expectOptionalKeyword(string $value): bool
     {
         $token = $this->lexer->token;
         if ($token->kind === Token::NAME && $token->value === $value) {
@@ -406,7 +407,7 @@ class Parser
         return false;
     }
 
-    private function unexpected(?Token $atToken = null) : SyntaxError
+    private function unexpected(?Token $atToken = null): SyntaxError
     {
         $token = $atToken ?? $this->lexer->token;
 
@@ -421,7 +422,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function any(string $openKind, callable $parseFn, string $closeKind) : NodeList
+    private function any(string $openKind, callable $parseFn, string $closeKind): NodeList
     {
         $this->expect($openKind);
 
@@ -441,7 +442,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function many(string $openKind, callable $parseFn, string $closeKind) : NodeList
+    private function many(string $openKind, callable $parseFn, string $closeKind): NodeList
     {
         $this->expect($openKind);
 
@@ -458,7 +459,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseName() : NameNode
+    private function parseName(): NameNode
     {
         $token = $this->expect(Token::NAME);
 
@@ -473,7 +474,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseDocument() : DocumentNode
+    private function parseDocument(): DocumentNode
     {
         $start = $this->lexer->token;
 
@@ -494,7 +495,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseDefinition() : DefinitionNode
+    private function parseDefinition(): DefinitionNode
     {
         if ($this->peek(Token::NAME)) {
             switch ($this->lexer->token->value) {
@@ -530,7 +531,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseExecutableDefinition() : ExecutableDefinitionNode
+    private function parseExecutableDefinition(): ExecutableDefinitionNode
     {
         if ($this->peek(Token::NAME)) {
             switch ($this->lexer->token->value) {
@@ -538,6 +539,7 @@ class Parser
                 case 'mutation':
                 case 'subscription':
                     return $this->parseOperationDefinition();
+
                 case 'fragment':
                     return $this->parseFragmentDefinition();
             }
@@ -553,7 +555,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseOperationDefinition() : OperationDefinitionNode
+    private function parseOperationDefinition(): OperationDefinitionNode
     {
         $start = $this->lexer->token;
         if ($this->peek(Token::BRACE_L)) {
@@ -587,14 +589,16 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseOperationType() : string
+    private function parseOperationType(): string
     {
         $operationToken = $this->expect(Token::NAME);
         switch ($operationToken->value) {
             case 'query':
                 return 'query';
+
             case 'mutation':
                 return 'mutation';
+
             case 'subscription':
                 return 'subscription';
         }
@@ -602,12 +606,12 @@ class Parser
         throw $this->unexpected($operationToken);
     }
 
-    private function parseVariableDefinitions() : NodeList
+    private function parseVariableDefinitions(): NodeList
     {
         return $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
-                function () : VariableDefinitionNode {
+                function (): VariableDefinitionNode {
                     return $this->parseVariableDefinition();
                 },
                 Token::PAREN_R
@@ -618,7 +622,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseVariableDefinition() : VariableDefinitionNode
+    private function parseVariableDefinition(): VariableDefinitionNode
     {
         $start = $this->lexer->token;
         $var   = $this->parseVariable();
@@ -640,7 +644,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseVariable() : VariableNode
+    private function parseVariable(): VariableNode
     {
         $start = $this->lexer->token;
         $this->expect(Token::DOLLAR);
@@ -651,7 +655,7 @@ class Parser
         ]);
     }
 
-    private function parseSelectionSet() : SelectionSetNode
+    private function parseSelectionSet(): SelectionSetNode
     {
         $start = $this->lexer->token;
 
@@ -659,7 +663,7 @@ class Parser
             [
                 'selections' => $this->many(
                     Token::BRACE_L,
-                    function () : SelectionNode {
+                    function (): SelectionNode {
                         return $this->parseSelection();
                     },
                     Token::BRACE_R
@@ -675,7 +679,7 @@ class Parser
      *   - FragmentSpread
      *   - InlineFragment
      */
-    private function parseSelection() : SelectionNode
+    private function parseSelection(): SelectionNode
     {
         return $this->peek(Token::SPREAD)
             ? $this->parseFragment()
@@ -685,7 +689,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseField() : FieldNode
+    private function parseField(): FieldNode
     {
         $start       = $this->lexer->token;
         $nameOrAlias = $this->parseName();
@@ -711,13 +715,13 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseArguments(bool $isConst) : NodeList
+    private function parseArguments(bool $isConst): NodeList
     {
         $parseFn = $isConst
-            ? function () : ArgumentNode {
+            ? function (): ArgumentNode {
                 return $this->parseConstArgument();
             }
-            : function () : ArgumentNode {
+            : function (): ArgumentNode {
                 return $this->parseArgument();
             };
 
@@ -729,7 +733,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseArgument() : ArgumentNode
+    private function parseArgument(): ArgumentNode
     {
         $start = $this->lexer->token;
         $name  = $this->parseName();
@@ -747,7 +751,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseConstArgument() : ArgumentNode
+    private function parseConstArgument(): ArgumentNode
     {
         $start = $this->lexer->token;
         $name  = $this->parseName();
@@ -769,7 +773,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseFragment() : SelectionNode
+    private function parseFragment(): SelectionNode
     {
         $start = $this->lexer->token;
         $this->expect(Token::SPREAD);
@@ -794,7 +798,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseFragmentDefinition() : FragmentDefinitionNode
+    private function parseFragmentDefinition(): FragmentDefinitionNode
     {
         $start = $this->lexer->token;
         $this->expectKeyword('fragment');
@@ -808,6 +812,7 @@ class Parser
         if (isset($this->lexer->options['experimentalFragmentVariables'])) {
             $variableDefinitions = $this->parseVariableDefinitions();
         }
+
         $this->expectKeyword('on');
         $typeCondition = $this->parseNamedType();
 
@@ -824,7 +829,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseFragmentName() : NameNode
+    private function parseFragmentName(): NameNode
     {
         if ($this->lexer->token->value === 'on') {
             throw $this->unexpected();
@@ -857,14 +862,16 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseValueLiteral(bool $isConst) : ValueNode
+    private function parseValueLiteral(bool $isConst): ValueNode
     {
         $token = $this->lexer->token;
         switch ($token->kind) {
             case Token::BRACKET_L:
                 return $this->parseArray($isConst);
+
             case Token::BRACE_L:
                 return $this->parseObject($isConst);
+
             case Token::INT:
                 $this->lexer->advance();
 
@@ -872,6 +879,7 @@ class Parser
                     'value' => $token->value,
                     'loc'   => $this->loc($token),
                 ]);
+
             case Token::FLOAT:
                 $this->lexer->advance();
 
@@ -879,9 +887,11 @@ class Parser
                     'value' => $token->value,
                     'loc'   => $this->loc($token),
                 ]);
+
             case Token::STRING:
             case Token::BLOCK_STRING:
                 return $this->parseStringLiteral();
+
             case Token::NAME:
                 if ($token->value === 'true' || $token->value === 'false') {
                     $this->lexer->advance();
@@ -906,18 +916,21 @@ class Parser
                         'loc'   => $this->loc($token),
                     ]);
                 }
+
                 break;
 
             case Token::DOLLAR:
                 if (! $isConst) {
                     return $this->parseVariable();
                 }
+
                 break;
         }
+
         throw $this->unexpected();
     }
 
-    private function parseStringLiteral() : StringValueNode
+    private function parseStringLiteral(): StringValueNode
     {
         $token = $this->lexer->token;
         $this->lexer->advance();
@@ -934,7 +947,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseConstValue() : ValueNode
+    private function parseConstValue(): ValueNode
     {
         return $this->parseValueLiteral(true);
     }
@@ -942,12 +955,12 @@ class Parser
     /**
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode
      */
-    private function parseVariableValue() : ValueNode
+    private function parseVariableValue(): ValueNode
     {
         return $this->parseValueLiteral(false);
     }
 
-    private function parseArray(bool $isConst) : ListValueNode
+    private function parseArray(bool $isConst): ListValueNode
     {
         $start   = $this->lexer->token;
         $parseFn = $isConst
@@ -966,7 +979,7 @@ class Parser
         );
     }
 
-    private function parseObject(bool $isConst) : ObjectValueNode
+    private function parseObject(bool $isConst): ObjectValueNode
     {
         $start = $this->lexer->token;
         $this->expect(Token::BRACE_L);
@@ -981,7 +994,7 @@ class Parser
         ]);
     }
 
-    private function parseObjectField(bool $isConst) : ObjectFieldNode
+    private function parseObjectField(bool $isConst): ObjectFieldNode
     {
         $start = $this->lexer->token;
         $name  = $this->parseName();
@@ -1000,7 +1013,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseDirectives(bool $isConst) : NodeList
+    private function parseDirectives(bool $isConst): NodeList
     {
         $directives = [];
         while ($this->peek(Token::AT)) {
@@ -1013,7 +1026,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseDirective(bool $isConst) : DirectiveNode
+    private function parseDirective(bool $isConst): DirectiveNode
     {
         $start = $this->lexer->token;
         $this->expect(Token::AT);
@@ -1034,7 +1047,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseTypeReference() : TypeNode
+    private function parseTypeReference(): TypeNode
     {
         $start = $this->lexer->token;
 
@@ -1048,6 +1061,7 @@ class Parser
         } else {
             $type = $this->parseNamedType();
         }
+
         if ($this->skip(Token::BANG)) {
             return new NonNullTypeNode([
                 'type' => $type,
@@ -1058,7 +1072,7 @@ class Parser
         return $type;
     }
 
-    private function parseNamedType() : NamedTypeNode
+    private function parseNamedType(): NamedTypeNode
     {
         $start = $this->lexer->token;
 
@@ -1087,7 +1101,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseTypeSystemDefinition() : TypeSystemDefinitionNode
+    private function parseTypeSystemDefinition(): TypeSystemDefinitionNode
     {
         // Many definitions begin with a description and require a lookahead.
         $keywordToken = $this->peekDescription()
@@ -1098,20 +1112,28 @@ class Parser
             switch ($keywordToken->value) {
                 case 'schema':
                     return $this->parseSchemaDefinition();
+
                 case 'scalar':
                     return $this->parseScalarTypeDefinition();
+
                 case 'type':
                     return $this->parseObjectTypeDefinition();
+
                 case 'interface':
                     return $this->parseInterfaceTypeDefinition();
+
                 case 'union':
                     return $this->parseUnionTypeDefinition();
+
                 case 'enum':
                     return $this->parseEnumTypeDefinition();
+
                 case 'input':
                     return $this->parseInputObjectTypeDefinition();
+
                 case 'extend':
                     return $this->parseTypeExtension();
+
                 case 'directive':
                     return $this->parseDirectiveDefinition();
             }
@@ -1120,12 +1142,12 @@ class Parser
         throw $this->unexpected($keywordToken);
     }
 
-    private function peekDescription() : bool
+    private function peekDescription(): bool
     {
         return $this->peek(Token::STRING) || $this->peek(Token::BLOCK_STRING);
     }
 
-    private function parseDescription() : ?StringValueNode
+    private function parseDescription(): ?StringValueNode
     {
         if ($this->peekDescription()) {
             return $this->parseStringLiteral();
@@ -1137,7 +1159,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseSchemaDefinition() : SchemaDefinitionNode
+    private function parseSchemaDefinition(): SchemaDefinitionNode
     {
         $start = $this->lexer->token;
         $this->expectKeyword('schema');
@@ -1145,7 +1167,7 @@ class Parser
 
         $operationTypes = $this->many(
             Token::BRACE_L,
-            function () : OperationTypeDefinitionNode {
+            function (): OperationTypeDefinitionNode {
                 return $this->parseOperationTypeDefinition();
             },
             Token::BRACE_R
@@ -1161,7 +1183,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseOperationTypeDefinition() : OperationTypeDefinitionNode
+    private function parseOperationTypeDefinition(): OperationTypeDefinitionNode
     {
         $start     = $this->lexer->token;
         $operation = $this->parseOperationType();
@@ -1178,7 +1200,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseScalarTypeDefinition() : ScalarTypeDefinitionNode
+    private function parseScalarTypeDefinition(): ScalarTypeDefinitionNode
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1197,7 +1219,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseObjectTypeDefinition() : ObjectTypeDefinitionNode
+    private function parseObjectTypeDefinition(): ObjectTypeDefinitionNode
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1222,7 +1244,7 @@ class Parser
      *   - implements `&`? NamedType
      *   - ImplementsInterfaces & NamedType
      */
-    private function parseImplementsInterfaces() : NodeList
+    private function parseImplementsInterfaces(): NodeList
     {
         $types = [];
         if ($this->expectOptionalKeyword('implements')) {
@@ -1230,7 +1252,8 @@ class Parser
             $this->skip(Token::AMP);
             do {
                 $types[] = $this->parseNamedType();
-            } while ($this->skip(Token::AMP) ||
+            } while (
+                $this->skip(Token::AMP) ||
                 // Legacy support for the SDL?
                 (($this->lexer->options['allowLegacySDLImplementsInterfaces'] ?? false) && $this->peek(Token::NAME))
             );
@@ -1242,10 +1265,11 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseFieldsDefinition() : NodeList
+    private function parseFieldsDefinition(): NodeList
     {
         // Legacy support for the SDL?
-        if (($this->lexer->options['allowLegacySDLEmptyFields'] ?? false)
+        if (
+            ($this->lexer->options['allowLegacySDLEmptyFields'] ?? false)
             && $this->peek(Token::BRACE_L)
             && $this->lexer->lookahead()->kind === Token::BRACE_R
         ) {
@@ -1259,7 +1283,7 @@ class Parser
             $nodeList = $this->peek(Token::BRACE_L)
                 ? $this->many(
                     Token::BRACE_L,
-                    function () : FieldDefinitionNode {
+                    function (): FieldDefinitionNode {
                         return $this->parseFieldDefinition();
                     },
                     Token::BRACE_R
@@ -1273,7 +1297,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseFieldDefinition() : FieldDefinitionNode
+    private function parseFieldDefinition(): FieldDefinitionNode
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1296,13 +1320,13 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseArgumentsDefinition() : NodeList
+    private function parseArgumentsDefinition(): NodeList
     {
         /** @var NodeList<InputValueDefinitionNode&Node> $nodeList */
         $nodeList = $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
-                function () : InputValueDefinitionNode {
+                function (): InputValueDefinitionNode {
                     return $this->parseInputValueDefinition();
                 },
                 Token::PAREN_R
@@ -1315,7 +1339,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseInputValueDefinition() : InputValueDefinitionNode
+    private function parseInputValueDefinition(): InputValueDefinitionNode
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1326,6 +1350,7 @@ class Parser
         if ($this->skip(Token::EQUALS)) {
             $defaultValue = $this->parseConstValue();
         }
+
         $directives = $this->parseDirectives(true);
 
         return new InputValueDefinitionNode([
@@ -1341,7 +1366,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseInterfaceTypeDefinition() : InterfaceTypeDefinitionNode
+    private function parseInterfaceTypeDefinition(): InterfaceTypeDefinitionNode
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1367,7 +1392,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseUnionTypeDefinition() : UnionTypeDefinitionNode
+    private function parseUnionTypeDefinition(): UnionTypeDefinitionNode
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1390,7 +1415,7 @@ class Parser
      *   - = `|`? NamedType
      *   - UnionMemberTypes | NamedType
      */
-    private function parseUnionMemberTypes() : NodeList
+    private function parseUnionMemberTypes(): NodeList
     {
         $types = [];
         if ($this->skip(Token::EQUALS)) {
@@ -1407,7 +1432,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseEnumTypeDefinition() : EnumTypeDefinitionNode
+    private function parseEnumTypeDefinition(): EnumTypeDefinitionNode
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1428,13 +1453,13 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseEnumValuesDefinition() : NodeList
+    private function parseEnumValuesDefinition(): NodeList
     {
         /** @var NodeList<EnumValueDefinitionNode&Node> $nodeList */
         $nodeList = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                function () : EnumValueDefinitionNode {
+                function (): EnumValueDefinitionNode {
                     return $this->parseEnumValueDefinition();
                 },
                 Token::BRACE_R
@@ -1447,7 +1472,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseEnumValueDefinition() : EnumValueDefinitionNode
+    private function parseEnumValueDefinition(): EnumValueDefinitionNode
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1465,7 +1490,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseInputObjectTypeDefinition() : InputObjectTypeDefinitionNode
+    private function parseInputObjectTypeDefinition(): InputObjectTypeDefinitionNode
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1486,13 +1511,13 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseInputFieldsDefinition() : NodeList
+    private function parseInputFieldsDefinition(): NodeList
     {
         /** @var NodeList<InputValueDefinitionNode&Node> $nodeList */
         $nodeList = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                function () : InputValueDefinitionNode {
+                function (): InputValueDefinitionNode {
                     return $this->parseInputValueDefinition();
                 },
                 Token::BRACE_R
@@ -1513,7 +1538,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseTypeExtension() : TypeExtensionNode
+    private function parseTypeExtension(): TypeExtensionNode
     {
         $keywordToken = $this->lexer->lookahead();
 
@@ -1521,16 +1546,22 @@ class Parser
             switch ($keywordToken->value) {
                 case 'schema':
                     return $this->parseSchemaTypeExtension();
+
                 case 'scalar':
                     return $this->parseScalarTypeExtension();
+
                 case 'type':
                     return $this->parseObjectTypeExtension();
+
                 case 'interface':
                     return $this->parseInterfaceTypeExtension();
+
                 case 'union':
                     return $this->parseUnionTypeExtension();
+
                 case 'enum':
                     return $this->parseEnumTypeExtension();
+
                 case 'input':
                     return $this->parseInputObjectTypeExtension();
             }
@@ -1542,7 +1573,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseSchemaTypeExtension() : SchemaTypeExtensionNode
+    private function parseSchemaTypeExtension(): SchemaTypeExtensionNode
     {
         $start = $this->lexer->token;
         $this->expectKeyword('extend');
@@ -1569,7 +1600,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseScalarTypeExtension() : ScalarTypeExtensionNode
+    private function parseScalarTypeExtension(): ScalarTypeExtensionNode
     {
         $start = $this->lexer->token;
         $this->expectKeyword('extend');
@@ -1590,7 +1621,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseObjectTypeExtension() : ObjectTypeExtensionNode
+    private function parseObjectTypeExtension(): ObjectTypeExtensionNode
     {
         $start = $this->lexer->token;
         $this->expectKeyword('extend');
@@ -1600,7 +1631,8 @@ class Parser
         $directives = $this->parseDirectives(true);
         $fields     = $this->parseFieldsDefinition();
 
-        if (count($interfaces) === 0 &&
+        if (
+            count($interfaces) === 0 &&
             count($directives) === 0 &&
             count($fields) === 0
         ) {
@@ -1619,7 +1651,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseInterfaceTypeExtension() : InterfaceTypeExtensionNode
+    private function parseInterfaceTypeExtension(): InterfaceTypeExtensionNode
     {
         $start = $this->lexer->token;
         $this->expectKeyword('extend');
@@ -1628,7 +1660,8 @@ class Parser
         $interfaces = $this->parseImplementsInterfaces();
         $directives = $this->parseDirectives(true);
         $fields     = $this->parseFieldsDefinition();
-        if (count($interfaces) === 0
+        if (
+            count($interfaces) === 0
             && count($directives) === 0
             && count($fields) === 0
         ) {
@@ -1651,7 +1684,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseUnionTypeExtension() : UnionTypeExtensionNode
+    private function parseUnionTypeExtension(): UnionTypeExtensionNode
     {
         $start = $this->lexer->token;
         $this->expectKeyword('extend');
@@ -1674,7 +1707,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseEnumTypeExtension() : EnumTypeExtensionNode
+    private function parseEnumTypeExtension(): EnumTypeExtensionNode
     {
         $start = $this->lexer->token;
         $this->expectKeyword('extend');
@@ -1682,7 +1715,8 @@ class Parser
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
         $values     = $this->parseEnumValuesDefinition();
-        if (count($directives) === 0 &&
+        if (
+            count($directives) === 0 &&
             count($values) === 0
         ) {
             throw $this->unexpected();
@@ -1699,7 +1733,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseInputObjectTypeExtension() : InputObjectTypeExtensionNode
+    private function parseInputObjectTypeExtension(): InputObjectTypeExtensionNode
     {
         $start = $this->lexer->token;
         $this->expectKeyword('extend');
@@ -1707,7 +1741,8 @@ class Parser
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
         $fields     = $this->parseInputFieldsDefinition();
-        if (count($directives) === 0 &&
+        if (
+            count($directives) === 0 &&
             count($fields) === 0
         ) {
             throw $this->unexpected();
@@ -1727,7 +1762,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseDirectiveDefinition() : DirectiveDefinitionNode
+    private function parseDirectiveDefinition(): DirectiveDefinitionNode
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1752,7 +1787,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseDirectiveLocations() : NodeList
+    private function parseDirectiveLocations(): NodeList
     {
         // Optional leading pipe
         $this->skip(Token::PIPE);
@@ -1767,7 +1802,7 @@ class Parser
     /**
      * @throws SyntaxError
      */
-    private function parseDirectiveLocation() : NameNode
+    private function parseDirectiveLocation(): NameNode
     {
         $start = $this->lexer->token;
         $name  = $this->parseName();

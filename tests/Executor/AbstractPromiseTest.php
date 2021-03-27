@@ -29,7 +29,7 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('isTypeOf used to resolve runtime type for Interface')
      */
-    public function testIsTypeOfUsedToResolveRuntimeTypeForInterface() : void
+    public function testIsTypeOfUsedToResolveRuntimeTypeForInterface(): void
     {
         $petType = new InterfaceType([
             'name'   => 'Pet',
@@ -41,8 +41,8 @@ class AbstractPromiseTest extends TestCase
         $DogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) : Deferred {
-                return new Deferred(static function () use ($obj) : bool {
+            'isTypeOf'   => static function ($obj): Deferred {
+                return new Deferred(static function () use ($obj): bool {
                     return $obj instanceof Dog;
                 });
             },
@@ -55,8 +55,8 @@ class AbstractPromiseTest extends TestCase
         $CatType = new ObjectType([
             'name'       => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) : Deferred {
-                return new Deferred(static function () use ($obj) : bool {
+            'isTypeOf'   => static function ($obj): Deferred {
+                return new Deferred(static function () use ($obj): bool {
                     return $obj instanceof Cat;
                 });
             },
@@ -72,7 +72,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -113,7 +113,7 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('isTypeOf can be rejected')
      */
-    public function testIsTypeOfCanBeRejected() : void
+    public function testIsTypeOfCanBeRejected(): void
     {
         $PetType = new InterfaceType([
             'name'   => 'Pet',
@@ -125,8 +125,8 @@ class AbstractPromiseTest extends TestCase
         $DogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$PetType],
-            'isTypeOf'   => static function () : Deferred {
-                return new Deferred(static function () : void {
+            'isTypeOf'   => static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('We are testing this error');
                 });
             },
@@ -139,8 +139,8 @@ class AbstractPromiseTest extends TestCase
         $CatType = new ObjectType([
             'name'       => 'Cat',
             'interfaces' => [$PetType],
-            'isTypeOf'   => static function ($obj) : Deferred {
-                return new Deferred(static function () use ($obj) : bool {
+            'isTypeOf'   => static function ($obj): Deferred {
+                return new Deferred(static function () use ($obj): bool {
                     return $obj instanceof Cat;
                 });
             },
@@ -156,7 +156,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -206,12 +206,12 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('isTypeOf used to resolve runtime type for Union')
      */
-    public function testIsTypeOfUsedToResolveRuntimeTypeForUnion() : void
+    public function testIsTypeOfUsedToResolveRuntimeTypeForUnion(): void
     {
         $dogType = new ObjectType([
             'name'     => 'Dog',
-            'isTypeOf' => static function ($obj) : Deferred {
-                return new Deferred(static function () use ($obj) : bool {
+            'isTypeOf' => static function ($obj): Deferred {
+                return new Deferred(static function () use ($obj): bool {
                     return $obj instanceof Dog;
                 });
             },
@@ -223,8 +223,8 @@ class AbstractPromiseTest extends TestCase
 
         $catType = new ObjectType([
             'name'     => 'Cat',
-            'isTypeOf' => static function ($obj) : Deferred {
-                return new Deferred(static function () use ($obj) : bool {
+            'isTypeOf' => static function ($obj): Deferred {
+                return new Deferred(static function () use ($obj): bool {
                     return $obj instanceof Cat;
                 });
             },
@@ -245,7 +245,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
@@ -283,18 +283,20 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('resolveType on Interface yields useful error')
      */
-    public function testResolveTypeOnInterfaceYieldsUsefulError() : void
+    public function testResolveTypeOnInterfaceYieldsUsefulError(): void
     {
         $PetType = new InterfaceType([
             'name'        => 'Pet',
-            'resolveType' => static function ($obj) use (&$DogType, &$CatType, &$HumanType) : Deferred {
-                return new Deferred(static function () use ($obj, $DogType, $CatType, $HumanType) : ?Type {
+            'resolveType' => static function ($obj) use (&$DogType, &$CatType, &$HumanType): Deferred {
+                return new Deferred(static function () use ($obj, $DogType, $CatType, $HumanType): ?Type {
                     if ($obj instanceof Dog) {
                         return $DogType;
                     }
+
                     if ($obj instanceof Cat) {
                         return $CatType;
                     }
+
                     if ($obj instanceof Human) {
                         return $HumanType;
                     }
@@ -338,8 +340,8 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () : Deferred {
-                            return new Deferred(static function () : array {
+                        'resolve' => static function (): Deferred {
+                            return new Deferred(static function (): array {
                                 return [
                                     new Dog('Odie', true),
                                     new Cat('Garfield', false),
@@ -390,7 +392,7 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('resolveType on Union yields useful error')
      */
-    public function testResolveTypeOnUnionYieldsUsefulError() : void
+    public function testResolveTypeOnUnionYieldsUsefulError(): void
     {
         $HumanType = new ObjectType([
             'name'   => 'Human',
@@ -417,14 +419,16 @@ class AbstractPromiseTest extends TestCase
 
         $PetType = new UnionType([
             'name'        => 'Pet',
-            'resolveType' => static function ($obj) use ($DogType, $CatType, $HumanType) : Deferred {
-                return new Deferred(static function () use ($obj, $DogType, $CatType, $HumanType) : ?Type {
+            'resolveType' => static function ($obj) use ($DogType, $CatType, $HumanType): Deferred {
+                return new Deferred(static function () use ($obj, $DogType, $CatType, $HumanType): ?Type {
                     if ($obj instanceof Dog) {
                         return $DogType;
                     }
+
                     if ($obj instanceof Cat) {
                         return $CatType;
                     }
+
                     if ($obj instanceof Human) {
                         return $HumanType;
                     }
@@ -441,7 +445,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -491,15 +495,16 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('resolveType allows resolving with type name')
      */
-    public function testResolveTypeAllowsResolvingWithTypeName() : void
+    public function testResolveTypeAllowsResolvingWithTypeName(): void
     {
         $PetType = new InterfaceType([
             'name'        => 'Pet',
-            'resolveType' => static function ($obj) : Deferred {
+            'resolveType' => static function ($obj): Deferred {
                 return new Deferred(static function () use ($obj) {
                     if ($obj instanceof Dog) {
                         return 'Dog';
                     }
+
                     if ($obj instanceof Cat) {
                         return 'Cat';
                     }
@@ -536,7 +541,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -576,12 +581,12 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('resolveType can be caught')
      */
-    public function testResolveTypeCanBeCaught() : void
+    public function testResolveTypeCanBeCaught(): void
     {
         $PetType = new InterfaceType([
             'name'        => 'Pet',
-            'resolveType' => static function () : Deferred {
-                return new Deferred(static function () : void {
+            'resolveType' => static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('We are testing this error');
                 });
             },
@@ -614,7 +619,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
