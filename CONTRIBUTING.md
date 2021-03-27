@@ -1,10 +1,10 @@
-# Contributing to GraphQL PHP
+# Contributing to graphql-php
 
 ## Workflow
 
 If your contribution requires significant or breaking changes, or if you plan to propose a major new feature,
-we recommend you to create an issue on the [GitHub](https://github.com/webonyx/graphql-php/issues) with
-a brief proposal and discuss it with us first.
+we recommend you to [create an issue](https://github.com/webonyx/graphql-php/issues/new)
+with a brief proposal and discuss it with us first.
 
 For smaller contributions just use this workflow:
 
@@ -12,54 +12,78 @@ For smaller contributions just use this workflow:
 - Add your features and or bug fixes.
 - Add tests. Tests are important for us.
 - Check your changes using `composer check`.
-- Add an entry to the [Changelog's Unreleases section](CHANGELOG.md#unreleased).
+- Add an entry to the [Changelog's Unreleased section](CHANGELOG.md#unreleased).
 - Send a pull request.
 
-## Setup the Development Environment
-
-First, copy the URL of your fork and `git clone` it to your local machine.
+## Setup
 
 ```sh
+git clone <your-fork-url>
 cd graphql-php
 composer install
 ```
 
-## Running tests
+## Testing
+
+We ensure the code works and continues to work as expected with [PHPUnit](https://phpunit.de).
+
+Run unit tests:
 
 ```sh
-./vendor/bin/phpunit
+composer test
 ```
 
-Some tests have annotation `@see it('<description>')`. It is used for reference to same tests in [graphql-js implementation](https://github.com/graphql/graphql-js) with the same description.
+Some tests have an annotation such as `@see it('<description>')`.
+It references a matching test in the [graphql-js implementation](https://github.com/graphql/graphql-js).
 
 ## Coding Standard
 
-The coding standard of this project is based on [Doctrine CS](https://github.com/doctrine/coding-standard).
+We check and fix the coding standard with [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer).
 
 Run the inspections:
 
 ```sh
-./vendor/bin/phpcs
+composer lint
 ```
 
 Apply automatic code style fixes:
 
 ```sh
-./vendor/bin/phpcbf
+composer fix
 ```
 
-## Static analysis
+## Static Analysis
 
-Based on [PHPStan](https://github.com/phpstan/phpstan).
+We validate code correctness with [PHPStan](https://phpstan.org).
+
+Run static analysis:
 
 ```sh
-./vendor/bin/phpstan
+composer stan
 ```
 
-## Running benchmarks
-
-Benchmarks are run via [PHPBench](https://github.com/phpbench/phpbench).
+Regenerate the [PHPStan baseline](https://phpstan.org/user-guide/baseline):
 
 ```sh
-./vendor/bin/phpbench run benchmarks
+composer baseline
+```
+
+## Running Benchmarks
+
+We benchmark performance critical code with [PHPBench](https://github.com/phpbench/phpbench).
+
+Check performance:
+
+```sh
+composer bench
+```
+
+## Documentation
+
+We document this library by rendering the Markdown files in [docs](docs) with [MkDocs](https://www.mkdocs.org).
+
+Generate the class reference docs:
+
+```sh
+composer api-docs
 ```
