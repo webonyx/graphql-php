@@ -18,7 +18,7 @@ For smaller contributions just use this workflow:
 ## Setup
 
 ```sh
-git clone <your-fork>
+git clone <your-fork-url>
 cd graphql-php
 composer install
 ```
