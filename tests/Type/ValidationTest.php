@@ -7,9 +7,11 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
+use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -3105,19 +3107,47 @@ class ValidationTest extends TestCase
 
     public function testRejectsASchemaWithDirectivesWithWrongArgs()
     {
-        $schema = BuildSchema::build('
-          type Query {
-            test: String
-          }
-    
-          directive @test(__arg: Int) on SCHEMA
-        ');
+        // Not using SDL as the duplicate arg name error is prevented by the parser
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                [
+                    'name' => 'test',
+                    'type' => Type::int(),
+                ]
+            ]
+        ]);
+        $directive = new Directive([
+            'name' => 'test',
+            'args' => [
+                [
+                    'name' => '__arg',
+                    'type' => Type::int(),
+                ],
+                [
+                    'name' => 'dup',
+                    'type' => Type::int(),
+                ],
+                [
+                    'name' => 'dup',
+                    'type' => Type::int(),
+                ],
+            ],
+            'locations' => [DirectiveLocation::QUERY],
+        ]);
+        $schema = new Schema([
+            'query' => $query,
+            'directives' => [$directive],
+        ]);
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [
                 [
                     'message' => 'Name "__arg" must not begin with "__", which is reserved by GraphQL introspection.',
-                    'locations' => [[ 'line' => 6, 'column' => 27 ]],
+                ],
+                [
+                    'message' => 'Argument @test(dup:) can only be defined once.',
                 ],
             ]
         );
