@@ -3109,14 +3109,14 @@ class ValidationTest extends TestCase
     {
         // Not using SDL as the duplicate arg name error is prevented by the parser
 
-        $query = new ObjectType([
+        $query     = new ObjectType([
             'name' => 'Query',
             'fields' => [
                 [
                     'name' => 'test',
                     'type' => Type::int(),
-                ]
-            ]
+                ],
+            ],
         ]);
         $directive = new Directive([
             'name' => 'test',
@@ -3136,26 +3136,20 @@ class ValidationTest extends TestCase
                 [
                     'name' => 'query',
                     'type' => $query,
-                ]
+                ],
             ],
             'locations' => [DirectiveLocation::QUERY],
         ]);
-        $schema = new Schema([
+        $schema    = new Schema([
             'query' => $query,
             'directives' => [$directive],
         ]);
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [
-                [
-                    'message' => 'Name "__arg" must not begin with "__", which is reserved by GraphQL introspection.',
-                ],
-                [
-                    'message' => 'Argument @test(dup:) can only be defined once.',
-                ],
-                [
-                    'message' => 'The type of @test(query:) must be Input Type but got: Query.',
-                ],
+                ['message' => 'Name "__arg" must not begin with "__", which is reserved by GraphQL introspection.'],
+                ['message' => 'Argument @test(dup:) can only be defined once.'],
+                ['message' => 'The type of @test(query:) must be Input Type but got: Query.'],
             ]
         );
     }

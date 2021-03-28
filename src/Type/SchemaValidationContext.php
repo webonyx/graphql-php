@@ -1099,7 +1099,9 @@ class SchemaValidationContext
                         $fieldName,
                         Utils::printSafe($field->getType())
                     ),
-                    $field->astNode ? $field->astNode->type : null
+                    $field->astNode !== null
+                        ? $field->astNode->type
+                        : null
                 );
             }
 
