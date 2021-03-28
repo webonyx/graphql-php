@@ -3103,6 +3103,26 @@ class ValidationTest extends TestCase
         );
     }
 
+    public function testRejectsASchemaWithDirectivesWithWrongArgs()
+    {
+        $schema = BuildSchema::build('
+          type Query {
+            test: String
+          }
+    
+          directive @test(__arg: Int) on SCHEMA
+        ');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message' => 'Name "__arg" must not begin with "__", which is reserved by GraphQL introspection.',
+                    'locations' => [[ 'line' => 6, 'column' => 27 ]],
+                ],
+            ]
+        );
+    }
+
     /**
      * @see it('rejects a Schema with same directive used twice per location')
      */

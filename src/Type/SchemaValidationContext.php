@@ -200,10 +200,10 @@ class SchemaValidationContext
 
             $argNames = [];
             foreach ($directive->args as $arg) {
-                $argName = $arg->name;
-
                 // Ensure they are named correctly.
-                $this->validateName($directive);
+                $this->validateName($arg);
+
+                $argName = $arg->name;
 
                 if (isset($argNames[$argName])) {
                     $this->reportError(
