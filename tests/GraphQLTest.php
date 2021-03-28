@@ -11,11 +11,12 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+
 use function sprintf;
 
 class GraphQLTest extends TestCase
 {
-    public function testPromiseToExecute() : void
+    public function testPromiseToExecute(): void
     {
         $promiseAdapter = new SyncPromiseAdapter();
         $schema         = new Schema(
@@ -31,7 +32,7 @@ class GraphQLTest extends TestCase
                                         'type' => Type::nonNull(Type::string()),
                                     ],
                                 ],
-                                'resolve' => static function ($rootValue, $args) use ($promiseAdapter) : Promise {
+                                'resolve' => static function ($rootValue, $args) use ($promiseAdapter): Promise {
                                     return $promiseAdapter->createFulfilled(sprintf('Hi %s!', $args['name']));
                                 },
                             ],

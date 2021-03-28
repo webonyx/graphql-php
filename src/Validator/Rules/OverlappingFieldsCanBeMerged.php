@@ -25,6 +25,7 @@ use GraphQL\Utils\PairSet;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 use SplObjectStorage;
+
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -60,7 +61,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $this->cachedFieldsAndFragmentNames = new SplObjectStorage();
 
         return [
-            NodeKind::SELECTION_SET => function (SelectionSetNode $selectionSet) use ($context) : void {
+            NodeKind::SELECTION_SET => function (SelectionSetNode $selectionSet) use ($context): void {
                 $conflicts = $this->findConflictsWithinSelectionSet(
                     $context,
                     $context->getParentType(),
@@ -250,18 +251,22 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 case $selection instanceof FieldNode:
                     $fieldName = $selection->name->value;
                     $fieldDef  = null;
-                    if ($parentType instanceof ObjectType ||
-                        $parentType instanceof InterfaceType) {
+                    if (
+                        $parentType instanceof ObjectType ||
+                        $parentType instanceof InterfaceType
+                    ) {
                         $tmp = $parentType->getFields();
                         if (isset($tmp[$fieldName])) {
                             $fieldDef = $tmp[$fieldName];
                         }
                     }
+
                     $responseName = $selection->alias ? $selection->alias->value : $fieldName;
 
                     if (! isset($astAndDefs[$responseName])) {
                         $astAndDefs[$responseName] = [];
                     }
+
                     $astAndDefs[$responseName][] = [$parentType, $selection, $fieldDef];
                     break;
                 case $selection instanceof FragmentSpreadNode:
@@ -433,6 +438,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         if (count($arguments1) !== count($arguments2)) {
             return false;
         }
+
         foreach ($arguments1 as $argument1) {
             $argument2 = null;
             foreach ($arguments2 as $argument) {
@@ -441,6 +447,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     break;
                 }
             }
+
             if (! $argument2) {
                 return false;
             }
@@ -466,28 +473,32 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * Composite types are ignored as their individual field types will be compared
      * later recursively. However List and Non-Null types must match.
      */
-    private function doTypesConflict(Type $type1, Type $type2) : bool
+    private function doTypesConflict(Type $type1, Type $type2): bool
     {
         if ($type1 instanceof ListOfType) {
             return $type2 instanceof ListOfType
                 ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
                 : true;
         }
+
         if ($type2 instanceof ListOfType) {
             return $type1 instanceof ListOfType
                 ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
                 : true;
         }
+
         if ($type1 instanceof NonNull) {
             return $type2 instanceof NonNull
                 ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
                 : true;
         }
+
         if ($type2 instanceof NonNull) {
             return $type1 instanceof NonNull
                 ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
                 : true;
         }
+
         if (Type::isLeafType($type1) || Type::isLeafType($type2)) {
             return $type1 !== $type2;
         }
@@ -660,6 +671,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         if (isset($comparedFragments[$fragmentName])) {
             return;
         }
+
         $comparedFragments[$fragmentName] = true;
 
         $fragment = $context->getFragment($fragmentName);
@@ -747,14 +759,16 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         }
 
         // Memoize so two fragments are not compared for conflicts more than once.
-        if ($this->comparedFragmentPairs->has(
-            $fragmentName1,
-            $fragmentName2,
-            $areMutuallyExclusive
-        )
+        if (
+            $this->comparedFragmentPairs->has(
+                $fragmentName1,
+                $fragmentName2,
+                $areMutuallyExclusive
+            )
         ) {
             return;
         }
+
         $this->comparedFragmentPairs->add(
             $fragmentName1,
             $fragmentName2,
@@ -844,14 +858,14 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             ],
             array_reduce(
                 $conflicts,
-                static function ($allFields, $conflict) : array {
+                static function ($allFields, $conflict): array {
                     return array_merge($allFields, $conflict[1]);
                 },
                 [$ast1]
             ),
             array_reduce(
                 $conflicts,
-                static function ($allFields, $conflict) : array {
+                static function ($allFields, $conflict): array {
                     return array_merge($allFields, $conflict[2]);
                 },
                 [$ast2]
@@ -878,7 +892,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     {
         if (is_array($reason)) {
             $tmp = array_map(
-                static function ($tmp) : string {
+                static function ($tmp): string {
                     [$responseName, $subReason] = $tmp;
 
                     $reasonMessage = self::reasonMessage($subReason);

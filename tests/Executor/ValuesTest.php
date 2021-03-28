@@ -14,6 +14,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+
 use function count;
 use function var_export;
 
@@ -22,7 +23,7 @@ class ValuesTest extends TestCase
     /** @var Schema */
     private static $schema;
 
-    public function testGetIDVariableValues() : void
+    public function testGetIDVariableValues(): void
     {
         $this->expectInputVariablesMatchOutputVariables(['idInput' => '123456789']);
         self::assertEquals(
@@ -32,7 +33,7 @@ class ValuesTest extends TestCase
         );
     }
 
-    private function expectInputVariablesMatchOutputVariables($variables) : void
+    private function expectInputVariablesMatchOutputVariables($variables): void
     {
         self::assertEquals(
             $variables,
@@ -46,12 +47,12 @@ class ValuesTest extends TestCase
      *
      * @return mixed[]
      */
-    private function runTestCase($variables) : array
+    private function runTestCase($variables): array
     {
         return Values::getVariableValues(self::getSchema(), self::getVariableDefinitionNodes(), $variables);
     }
 
-    private static function getSchema() : Schema
+    private static function getSchema(): Schema
     {
         if (! self::$schema) {
             self::$schema = new Schema([
@@ -76,7 +77,7 @@ class ValuesTest extends TestCase
         return self::$schema;
     }
 
-    private static function getVariableDefinitionNodes() : NodeList
+    private static function getVariableDefinitionNodes(): NodeList
     {
         $idInputDefinition     = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'idInput'])]),
@@ -102,13 +103,13 @@ class ValuesTest extends TestCase
         return new NodeList([$idInputDefinition, $boolInputDefinition, $intInputDefinition, $stringInputDefinition, $floatInputDefinition]);
     }
 
-    public function testGetBooleanVariableValues() : void
+    public function testGetBooleanVariableValues(): void
     {
         $this->expectInputVariablesMatchOutputVariables(['boolInput' => true]);
         $this->expectInputVariablesMatchOutputVariables(['boolInput' => false]);
     }
 
-    public function testGetIntVariableValues() : void
+    public function testGetIntVariableValues(): void
     {
         $this->expectInputVariablesMatchOutputVariables(['intInput' => -1]);
         $this->expectInputVariablesMatchOutputVariables(['intInput' => 0]);
@@ -119,7 +120,7 @@ class ValuesTest extends TestCase
         $this->expectInputVariablesMatchOutputVariables(['intInput' => -2147483648]);
     }
 
-    public function testGetStringVariableValues() : void
+    public function testGetStringVariableValues(): void
     {
         $this->expectInputVariablesMatchOutputVariables(['stringInput' => 'meow']);
         $this->expectInputVariablesMatchOutputVariables(['stringInput' => '']);
@@ -129,7 +130,7 @@ class ValuesTest extends TestCase
         $this->expectInputVariablesMatchOutputVariables(['stringInput' => '1.2']);
     }
 
-    public function testGetFloatVariableValues() : void
+    public function testGetFloatVariableValues(): void
     {
         $this->expectInputVariablesMatchOutputVariables(['floatInput' => 1.2]);
         $this->expectInputVariablesMatchOutputVariables(['floatInput' => 1.0]);
@@ -138,19 +139,19 @@ class ValuesTest extends TestCase
         $this->expectInputVariablesMatchOutputVariables(['floatInput' => 1e3]);
     }
 
-    public function testBooleanForIDVariableThrowsError() : void
+    public function testBooleanForIDVariableThrowsError(): void
     {
         $this->expectGraphQLError(['idInput' => true]);
     }
 
-    private function expectGraphQLError($variables) : void
+    private function expectGraphQLError($variables): void
     {
         $result = $this->runTestCase($variables);
         self::assertNotNull($result[0]);
         self::assertGreaterThan(0, count($result[0]));
     }
 
-    public function testFloatForIDVariableThrowsError() : void
+    public function testFloatForIDVariableThrowsError(): void
     {
         $this->expectGraphQLError(['idInput' => 1.0]);
     }
@@ -158,32 +159,32 @@ class ValuesTest extends TestCase
     /**
      * Helpers for running test cases and making assertions
      */
-    public function testStringForBooleanVariableThrowsError() : void
+    public function testStringForBooleanVariableThrowsError(): void
     {
         $this->expectGraphQLError(['boolInput' => 'true']);
     }
 
-    public function testIntForBooleanVariableThrowsError() : void
+    public function testIntForBooleanVariableThrowsError(): void
     {
         $this->expectGraphQLError(['boolInput' => 1]);
     }
 
-    public function testFloatForBooleanVariableThrowsError() : void
+    public function testFloatForBooleanVariableThrowsError(): void
     {
         $this->expectGraphQLError(['boolInput' => 1.0]);
     }
 
-    public function testStringForIntVariableThrowsError() : void
+    public function testStringForIntVariableThrowsError(): void
     {
         $this->expectGraphQLError(['intInput' => 'true']);
     }
 
-    public function testPositiveBigIntForIntVariableThrowsError() : void
+    public function testPositiveBigIntForIntVariableThrowsError(): void
     {
         $this->expectGraphQLError(['intInput' => 2147483648]);
     }
 
-    public function testNegativeBigIntForIntVariableThrowsError() : void
+    public function testNegativeBigIntForIntVariableThrowsError(): void
     {
         $this->expectGraphQLError(['intInput' => -2147483649]);
     }

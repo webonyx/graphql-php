@@ -10,6 +10,7 @@ use GraphQL\Error\Warning;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -90,16 +91,18 @@ class FieldDefinition
      *
      * @return array<string, self>
      */
-    public static function defineFieldMap(Type $type, $fields) : array
+    public static function defineFieldMap(Type $type, $fields): array
     {
         if (is_callable($fields)) {
             $fields = $fields();
         }
+
         if (! is_array($fields)) {
             throw new InvariantViolation(
                 sprintf('%s fields must be an array or a callable which returns such an array.', $type->name)
             );
         }
+
         $map = [];
         foreach ($fields as $name => $field) {
             if (is_array($field)) {
@@ -115,11 +118,13 @@ class FieldDefinition
 
                     $field['name'] = $name;
                 }
+
                 if (isset($field['args']) && ! is_array($field['args'])) {
                     throw new InvariantViolation(
                         sprintf('%s.%s args must be an array.', $type->name, $name)
                     );
                 }
+
                 $fieldDef = self::create($field);
             } elseif ($field instanceof self) {
                 $fieldDef = $field;
@@ -137,6 +142,7 @@ class FieldDefinition
 
                 $fieldDef = self::create(['name' => $name, 'type' => $field]);
             }
+
             $map[$fieldDef->name] = $fieldDef;
         }
 
@@ -175,7 +181,7 @@ class FieldDefinition
         return null;
     }
 
-    public function getType() : Type
+    public function getType(): Type
     {
         if (! isset($this->type)) {
             /**
@@ -190,7 +196,7 @@ class FieldDefinition
         return $this->type;
     }
 
-    public function __isset(string $name) : bool
+    public function __isset(string $name): bool
     {
         switch ($name) {
             case 'type':
@@ -217,6 +223,7 @@ class FieldDefinition
                 );
 
                 return $this->getType();
+
             default:
                 return $this->$name;
         }
@@ -268,6 +275,7 @@ class FieldDefinition
         } catch (Error $e) {
             throw new InvariantViolation(sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
         }
+
         Utils::invariant(
             ! isset($this->config['isDeprecated']),
             sprintf(
@@ -281,6 +289,7 @@ class FieldDefinition
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
+
         Utils::invariant(
             $type instanceof OutputType,
             sprintf(

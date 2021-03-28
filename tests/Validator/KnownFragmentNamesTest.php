@@ -15,7 +15,7 @@ class KnownFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('known fragment names are valid')
      */
-    public function testKnownFragmentNamesAreValid() : void
+    public function testKnownFragmentNamesAreValid(): void
     {
         $this->expectPassesRule(
             new KnownFragmentNames(),
@@ -45,7 +45,7 @@ class KnownFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown fragment names are invalid')
      */
-    public function testUnknownFragmentNamesAreInvalid() : void
+    public function testUnknownFragmentNamesAreInvalid(): void
     {
         $this->expectFailsRule(
             new KnownFragmentNames(),

@@ -15,7 +15,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @see it('parses simple values')
      */
-    public function testParsesSimpleValues() : void
+    public function testParsesSimpleValues(): void
     {
         self::assertTestCase('null', null);
         self::assertTestCase('true', true);
@@ -28,7 +28,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @param mixed[]|null $variables
      */
-    private static function assertTestCase($valueText, $expected, ?array $variables = null) : void
+    private static function assertTestCase($valueText, $expected, ?array $variables = null): void
     {
         self::assertEquals(
             $expected,
@@ -39,7 +39,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @see it('parses lists of values')
      */
-    public function testParsesListsOfValues() : void
+    public function testParsesListsOfValues(): void
     {
         self::assertTestCase('[true, false]', [true, false]);
         self::assertTestCase('[true, 123.45]', [true, 123.45]);
@@ -50,7 +50,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @see it('parses input objects')
      */
-    public function testParsesInputObjects() : void
+    public function testParsesInputObjects(): void
     {
         self::assertTestCase(
             '{ int: 123, bool: false }',
@@ -66,7 +66,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @see it('parses enum values as plain strings')
      */
-    public function testParsesEnumValuesAsPlainStrings() : void
+    public function testParsesEnumValuesAsPlainStrings(): void
     {
         self::assertTestCase(
             'TEST_ENUM_VALUE',
@@ -82,7 +82,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @see it('parses enum values as plain strings')
      */
-    public function testParsesVariables() : void
+    public function testParsesVariables(): void
     {
         self::assertTestCase(
             '$testVariable',

@@ -14,6 +14,7 @@ use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function is_int;
 use function is_string;
@@ -77,7 +78,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $lookup[$name] ?? null;
     }
 
-    private function getNameLookup() : ArrayObject
+    private function getNameLookup(): ArrayObject
     {
         if (! $this->nameLookup) {
             /** @var ArrayObject<string, EnumValueDefinition> $lookup */
@@ -85,6 +86,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             foreach ($this->getValues() as $value) {
                 $lookup[$value->name] = $value;
             }
+
             $this->nameLookup = $lookup;
         }
 
@@ -94,7 +96,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /**
      * @return EnumValueDefinition[]
      */
-    public function getValues() : array
+    public function getValues(): array
     {
         if (! isset($this->values)) {
             $this->values = [];
@@ -104,6 +106,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
                 if (! is_array($config['values'])) {
                     throw new InvariantViolation(sprintf('%s values must be an array', $this->name));
                 }
+
                 foreach ($config['values'] as $name => $value) {
                     if (is_string($name)) {
                         if (is_array($value)) {
@@ -121,6 +124,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
                             )
                         );
                     }
+
                     $this->values[] = new EnumValueDefinition($value);
                 }
             }
@@ -149,7 +153,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /**
      * Actually returns a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way
      */
-    private function getValueLookup() : MixedStore
+    private function getValueLookup(): MixedStore
     {
         if (! isset($this->valueLookup)) {
             $this->valueLookup = new MixedStore();
