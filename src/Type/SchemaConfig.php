@@ -207,7 +207,7 @@ class SchemaConfig
     }
 
     /**
-     * @return Type[]|callable
+     * @return array<Type>|(callable(): array<Type>)
      *
      * @api
      */
