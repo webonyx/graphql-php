@@ -156,22 +156,12 @@ parameters:
 			path: src/Type/SchemaValidationContext.php
 
 		-
-			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|GraphQL\\\\Language\\\\AST\\\\Node\\|GraphQL\\\\Language\\\\AST\\\\TypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\TypeNode\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\|null given\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Definition\\\\Type given\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Error\\\\Error\\|null given\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
 
@@ -187,11 +177,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\> given\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
-			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\AST\\\\FieldDefinitionNode\\> given on the left side\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
 
@@ -237,11 +222,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\> given\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
-			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\> given on the left side\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
 
