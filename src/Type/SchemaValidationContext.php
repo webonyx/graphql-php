@@ -7,8 +7,12 @@ namespace GraphQL\Type;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
@@ -20,8 +24,11 @@ use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeNode;
+use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -526,19 +533,22 @@ class SchemaValidationContext
     /**
      * @param Schema|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType|Directive $obj
      *
-     * @return array<ObjectTypeDefinitionNode>|array<ObjectTypeExtensionNode>|array<InterfaceTypeDefinitionNode>|array<InterfaceTypeExtensionNode>
+     * @return array<int, SchemaDefinitionNode|SchemaTypeExtensionNode>|array<int, ObjectTypeDefinitionNode|ObjectTypeExtensionNode>|array<int, InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode>|array<int, UnionTypeDefinitionNode|UnionTypeExtensionNode>|array<int, EnumTypeDefinitionNode|EnumTypeExtensionNode>|array<int, InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode>|array<int, DirectiveDefinitionNode>
      */
-    private function getAllNodes($obj) : array
+    private function getAllNodes($obj): array
     {
         if ($obj instanceof Schema) {
             $astNode        = $obj->getAstNode();
             $extensionNodes = $obj->extensionASTNodes;
+        } elseif ($obj instanceof Directive) {
+            $astNode        = $obj->astNode;
+            $extensionNodes = [];
         } else {
             $astNode        = $obj->astNode;
             $extensionNodes = $obj->extensionASTNodes;
         }
 
-        return $astNode
+        return $astNode !== null
             ? array_merge([$astNode], $extensionNodes)
             : $extensionNodes;
     }
@@ -550,7 +560,7 @@ class SchemaValidationContext
     {
         $result = new NodeList([]);
         foreach ($this->getAllNodes($obj) as $astNode) {
-            if (! $astNode) {
+            if ($astNode === null) {
                 continue;
             }
 
