@@ -18,7 +18,7 @@
     "doctrine/coding-standard": "^8.2",
     "ergebnis/composer-normalize": "^2.13",
     "nyholm/psr7": "^1.2",
-    "phpbench/phpbench": "^0.16.10",
+    "phpbench/phpbench": "^1.0.0-alpha7",
     "phpstan/extension-installer": "^1.0",
     "phpstan/phpstan": "0.12.82",
     "phpstan/phpstan-phpunit": "0.12.18",
@@ -50,7 +50,7 @@
   "scripts": {
     "api-docs": "php tools/gendocs.php",
     "baseline": "phpstan --ansi --generate-baseline",
-    "bench": "phpbench run .",
+    "bench": "phpbench run",
     "check": "composer lint && composer stan && composer test",
     "fix": "phpcbf",
     "lint": "phpcs",
