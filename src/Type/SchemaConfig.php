@@ -223,7 +223,7 @@ class SchemaConfig
      *
      * @api
      */
-    public function setTypes($types) : self
+    public function setTypes($types): self
     {
         $this->types = $types;
 

@@ -172,7 +172,7 @@ class Schema
         $this->getTypeMap();
     }
 
-    private function resolveAdditionalTypes() : Generator
+    private function resolveAdditionalTypes(): Generator
     {
         $types = $this->config->types;
 

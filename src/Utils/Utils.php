@@ -54,7 +54,7 @@ use function unpack;
 
 class Utils
 {
-    public static function undefined() : stdClass
+    public static function undefined(): stdClass
     {
         static $undefined;
 

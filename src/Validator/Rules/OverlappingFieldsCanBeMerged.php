@@ -433,7 +433,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @param NodeList<ArgumentNode> $arguments1 keep
      * @param NodeList<ArgumentNode> $arguments2 keep
      */
-    private function sameArguments(NodeList $arguments1, NodeList $arguments2) : bool
+    private function sameArguments(NodeList $arguments1, NodeList $arguments2): bool
     {
         if (count($arguments1) !== count($arguments2)) {
             return false;

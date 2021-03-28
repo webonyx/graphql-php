@@ -169,7 +169,7 @@ class FieldDefinition
         return $childrenComplexity + 1;
     }
 
-    public function getArg(string $name) : ?FieldArgument
+    public function getArg(string $name): ?FieldArgument
     {
         foreach ($this->args as $arg) {
             /** @var FieldArgument $arg */
