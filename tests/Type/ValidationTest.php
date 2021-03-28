@@ -3133,6 +3133,10 @@ class ValidationTest extends TestCase
                     'name' => 'dup',
                     'type' => Type::int(),
                 ],
+                [
+                    'name' => 'query',
+                    'type' => $query,
+                ]
             ],
             'locations' => [DirectiveLocation::QUERY],
         ]);
@@ -3148,6 +3152,9 @@ class ValidationTest extends TestCase
                 ],
                 [
                     'message' => 'Argument @test(dup:) can only be defined once.',
+                ],
+                [
+                    'message' => 'The type of @test(query:) must be Input Type but got: Query.',
                 ],
             ]
         );

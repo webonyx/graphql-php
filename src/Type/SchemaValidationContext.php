@@ -292,7 +292,7 @@ class SchemaValidationContext
      */
     private function getDirectiveArgTypeNode(Directive $directive, string $argName): ?TypeNode
     {
-        $argNode = $this->getAllDirectiveArgNodes($directive, $argName)[0];
+        $argNode = $this->getAllDirectiveArgNodes($directive, $argName)[0] ?? null;
 
         return $argNode ? $argNode->type : null;
     }
