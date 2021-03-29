@@ -3,4 +3,3 @@ coverage:
     project:
       default:
         only_pulls: true
-comment: false
