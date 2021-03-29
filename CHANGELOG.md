@@ -33,6 +33,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Removed deprecated `Type::getInternalTypes()`
 - Remove deprecated `GraphQL::execute()`
 - Remove deprecated `GraphQL::executeAndReturnResult()`
+- Removed depreacted experimental CoroutineExecutor
 
 #### 14.9.0
 
