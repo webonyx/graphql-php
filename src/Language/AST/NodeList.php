@@ -23,15 +23,15 @@ use function is_array;
 class NodeList implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
-     * @var Node[]
-     * @phpstan-var array<T>
+     * @var array<Node|array>
+     * @phpstan-var array<T|array<string, mixed>>
      */
     private $nodes;
 
     /**
-     * @param Node[] $nodes
+     * @param array<Node|array<string, mixed>> $nodes
      *
-     * @phpstan-param array<T> $nodes
+     * @phpstan-param array<T|array<string, mixed>> $nodes
      * @phpstan-return self<T>
      */
     public static function create(array $nodes): self
@@ -40,9 +40,9 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @param Node[] $nodes
+     * @param array<Node|array> $nodes
      *
-     * @phpstan-param array<T> $nodes
+     * @phpstan-param array<T|array<string, mixed>> $nodes
      */
     public function __construct(array $nodes)
     {
@@ -73,20 +73,22 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     {
         $item = $this->nodes[$offset];
 
-        if (is_array($item) && isset($item['kind'])) {
+        if (is_array($item)) {
             /** @phpstan-var T $node */
             $node                 = AST::fromArray($item);
             $this->nodes[$offset] = $node;
+
+            return $node;
         }
 
-        return $this->nodes[$offset];
+        return $item;
     }
 
     /**
-     * @param int|string|null $offset
-     * @param Node|mixed[]    $value
+     * @param int|string|null           $offset
+     * @param Node|array<string, mixed> $value
      *
-     * @phpstan-param T|mixed[] $value
+     * @phpstan-param T|array<string, mixed> $value
      */
     public function offsetSet($offset, $value): void
     {
@@ -124,7 +126,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @param NodeList|Node[] $list
+     * @param NodeList|array<Node|array<string, mixed>> $list
      *
      * @phpstan-param NodeList<T>|array<T> $list
      * @phpstan-return NodeList<T>
