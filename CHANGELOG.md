@@ -2,6 +2,9 @@
 
 #### Unreleased
 
+Feat:
+- Open ReferenceExecutor for extending
+
 #### 14.5.1
 
 Fix:
