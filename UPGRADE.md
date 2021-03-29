@@ -459,7 +459,7 @@ GraphQL::executeAndReturnResult(/**/)
 But note that this is deprecated format and will be removed in future versions. 
 
 In general, if new default formatting doesn't work for you - just set [your own error
-formatter](http://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting).
+formatter](https://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting).
 
 ### Breaking: Validation rules now have abstract base class
 Previously any callable was accepted by DocumentValidator as validation rule. Now only instances of 

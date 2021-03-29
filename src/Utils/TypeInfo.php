@@ -186,7 +186,7 @@ class TypeInfo
             Utils::invariant(
                 $typeMap[$type->name] === $type,
                 sprintf('Schema must contain unique named types but contains multiple types named "%s" ', $type) .
-                '(see http://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
+                '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
             );
 
             return $typeMap;

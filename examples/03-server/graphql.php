@@ -43,14 +43,14 @@ try {
     ]);
 
     // See docs on schema options:
-    // http://webonyx.github.io/graphql-php/type-system/schema/#configuration-options
+    // https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options
     $schema = new Schema([
         'query' => $queryType,
         'mutation' => $mutationType,
     ]);
 
     // See docs on server options:
-    // http://webonyx.github.io/graphql-php/executing-queries/#server-configuration-options
+    // https://webonyx.github.io/graphql-php/executing-queries/#server-configuration-options
     $server = new StandardServer([
         'schema' => $schema
     ]);

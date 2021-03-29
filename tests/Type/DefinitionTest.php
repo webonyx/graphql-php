@@ -1800,7 +1800,7 @@ class DefinitionTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "String" ' .
-            '(see http://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
         $schema = new Schema(['query' => $QueryType]);
         $schema->assertValid();
@@ -1833,7 +1833,7 @@ class DefinitionTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "SameName" ' .
-            '(see http://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
         $schema = new Schema(['query' => $QueryType]);
         $schema->assertValid();
@@ -1871,7 +1871,7 @@ class DefinitionTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "BadObject" ' .
-            '(see http://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
         $schema = new Schema([
             'query' => $QueryType,
