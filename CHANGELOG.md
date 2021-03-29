@@ -5,7 +5,7 @@
 #### 14.6.1
 
 Fix:
-- Add fallback for directive.isRepeatable in BuildClientSchema
+- Add fallback for `directive.isRepeatable` in `BuildClientSchema`
 
 #### 14.6.0
 
