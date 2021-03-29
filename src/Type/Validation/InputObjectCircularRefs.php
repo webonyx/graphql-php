@@ -9,6 +9,7 @@ use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\SchemaValidationContext;
+
 use function array_map;
 use function array_pop;
 use function array_slice;
@@ -50,7 +51,7 @@ class InputObjectCircularRefs
      * It does not terminate when a cycle was found but continues to explore
      * the graph to find all possible cycles.
      */
-    public function validate(InputObjectType $inputObj) : void
+    public function validate(InputObjectType $inputObj): void
     {
         if (isset($this->visitedTypes[$inputObj->name])) {
             return;
@@ -77,7 +78,7 @@ class InputObjectCircularRefs
                         $cycleIndex = $this->fieldPathIndexByTypeName[$fieldType->name];
                         $cyclePath  = array_slice($this->fieldPath, $cycleIndex);
                         $fieldNames = array_map(
-                            static function (InputObjectField $field) : string {
+                            static function (InputObjectField $field): string {
                                 return $field->name;
                             },
                             $cyclePath
@@ -87,7 +88,7 @@ class InputObjectCircularRefs
                             'Cannot reference Input Object "' . $fieldType->name . '" within itself '
                             . 'through a series of non-null fields: "' . implode('.', $fieldNames) . '".',
                             array_map(
-                                static function (InputObjectField $field) : ?InputValueDefinitionNode {
+                                static function (InputObjectField $field): ?InputValueDefinitionNode {
                                     return $field->astNode;
                                 },
                                 $cyclePath

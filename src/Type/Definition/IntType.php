@@ -9,9 +9,8 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
-use function floatval;
+
 use function floor;
-use function intval;
 use function is_bool;
 use function is_float;
 use function is_int;
@@ -75,7 +74,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      *
      * @throws Error
      */
-    public function parseValue($value) : int
+    public function parseValue($value): int
     {
         $isInt = is_int($value) || (is_float($value) && floor($value) === $value);
 

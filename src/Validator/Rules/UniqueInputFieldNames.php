@@ -13,6 +13,7 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function array_pop;
 use function sprintf;
 
@@ -41,15 +42,15 @@ class UniqueInputFieldNames extends ValidationRule
 
         return [
             NodeKind::OBJECT       => [
-                'enter' => function () : void {
+                'enter' => function (): void {
                     $this->knownNameStack[] = $this->knownNames;
                     $this->knownNames       = [];
                 },
-                'leave' => function () : void {
+                'leave' => function (): void {
                     $this->knownNames = array_pop($this->knownNameStack);
                 },
             ],
-            NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) use ($context) : VisitorOperation {
+            NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) use ($context): VisitorOperation {
                 $fieldName = $node->name->value;
 
                 if (isset($this->knownNames[$fieldName])) {

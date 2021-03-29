@@ -29,7 +29,7 @@ class DirectivesTest extends TestCase
     /**
      * @see it('basic query works')
      */
-    public function testWorksWithoutDirectives() : void
+    public function testWorksWithoutDirectives(): void
     {
         self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b }'));
     }
@@ -39,12 +39,12 @@ class DirectivesTest extends TestCase
      *
      * @return mixed[]
      */
-    private function executeTestQuery($doc) : array
+    private function executeTestQuery($doc): array
     {
         return Executor::execute(self::getSchema(), Parser::parse($doc), self::$data)->toArray();
     }
 
-    private static function getSchema() : Schema
+    private static function getSchema(): Schema
     {
         if (! self::$schema) {
             self::$schema = new Schema([
@@ -61,7 +61,7 @@ class DirectivesTest extends TestCase
         return self::$schema;
     }
 
-    public function testWorksOnScalars() : void
+    public function testWorksOnScalars(): void
     {
         // if true includes scalar
         self::assertEquals(
@@ -79,7 +79,7 @@ class DirectivesTest extends TestCase
         self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @skip(if: true) }'));
     }
 
-    public function testWorksOnFragmentSpreads() : void
+    public function testWorksOnFragmentSpreads(): void
     {
         // if false omits fragment spread
         $q = '
@@ -130,7 +130,7 @@ class DirectivesTest extends TestCase
         self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
     }
 
-    public function testWorksOnInlineFragment() : void
+    public function testWorksOnInlineFragment(): void
     {
         // if false omits inline fragment
         $q = '
@@ -177,7 +177,7 @@ class DirectivesTest extends TestCase
         self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
     }
 
-    public function testWorksOnAnonymousInlineFragment() : void
+    public function testWorksOnAnonymousInlineFragment(): void
     {
         // if false omits anonymous inline fragment
         $q = '
@@ -224,7 +224,7 @@ class DirectivesTest extends TestCase
         self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
     }
 
-    public function testWorksWithSkipAndIncludeDirectives() : void
+    public function testWorksWithSkipAndIncludeDirectives(): void
     {
         // include and no skip
         self::assertEquals(

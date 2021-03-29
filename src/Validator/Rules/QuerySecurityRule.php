@@ -15,6 +15,7 @@ use GraphQL\Type\Introspection;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 use InvalidArgumentException;
+
 use function class_alias;
 use function method_exists;
 use function sprintf;
@@ -133,10 +134,12 @@ abstract class QuerySecurityRule extends ValidationRule
                             $fieldDef = $tmp[$fieldName];
                         }
                     }
+
                     $responseName = $this->getFieldName($selection);
                     if (! isset($_astAndDefs[$responseName])) {
                         $_astAndDefs[$responseName] = new ArrayObject();
                     }
+
                     // create field context
                     $_astAndDefs[$responseName][] = [$selection, $fieldDef];
                     break;
@@ -166,6 +169,7 @@ abstract class QuerySecurityRule extends ValidationRule
                             );
                         }
                     }
+
                     break;
             }
         }

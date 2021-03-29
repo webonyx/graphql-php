@@ -16,6 +16,7 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use PHPUnit\Framework\TestCase;
+
 use function json_encode;
 use function sprintf;
 
@@ -26,7 +27,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('executes an introspection query')
      */
-    public function testExecutesAnIntrospectionQuery() : void
+    public function testExecutesAnIntrospectionQuery(): void
     {
         $emptySchema = new Schema([
             'query' => new ObjectType([
@@ -122,12 +123,11 @@ class IntrospectionTest extends TestCase
                                         'name'          => '__Schema',
                                         'fields'        =>
                                             [
-                                                0 =>
-                                                    [
-                                                        'name'              => 'types',
-                                                        'args'              =>
+                                                0 => [
+                                                    'name'              => 'types',
+                                                    'args'              =>
                                                             [],
-                                                        'type'              =>
+                                                    'type'              =>
                                                             [
                                                                 'kind'   => 'NON_NULL',
                                                                 'name'   => null,
@@ -147,15 +147,14 @@ class IntrospectionTest extends TestCase
                                                                             ],
                                                                     ],
                                                             ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                1 =>
-                                                    [
-                                                        'name'              => 'queryType',
-                                                        'args'              =>
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                1 => [
+                                                    'name'              => 'queryType',
+                                                    'args'              =>
                                                             [],
-                                                        'type'              =>
+                                                    'type'              =>
                                                             [
                                                                 'kind'   => 'NON_NULL',
                                                                 'name'   => null,
@@ -165,9 +164,9 @@ class IntrospectionTest extends TestCase
                                                                         'name' => '__Type',
                                                                     ],
                                                             ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
                                                 [
                                                     'name'              => 'mutationType',
                                                     'args'              =>
@@ -884,54 +883,46 @@ class IntrospectionTest extends TestCase
                                         'interfaces'    => null,
                                         'enumValues'    =>
                                             [
-                                                0 =>
-                                                    [
-                                                        'name'              => 'QUERY',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                1 =>
-                                                    [
-                                                        'name'              => 'MUTATION',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                2 =>
-                                                    [
-                                                        'name'              => 'SUBSCRIPTION',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                3 =>
-                                                    [
-                                                        'name'              => 'FIELD',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                4 =>
-                                                    [
-                                                        'name'              => 'FRAGMENT_DEFINITION',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                5 =>
-                                                    [
-                                                        'name'              => 'FRAGMENT_SPREAD',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                6 =>
-                                                    [
-                                                        'name'              => 'INLINE_FRAGMENT',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                7 =>
-                                                    [
-                                                        'name'              => 'VARIABLE_DEFINITION',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
+                                                0 => [
+                                                    'name'              => 'QUERY',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                1 => [
+                                                    'name'              => 'MUTATION',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                2 => [
+                                                    'name'              => 'SUBSCRIPTION',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                3 => [
+                                                    'name'              => 'FIELD',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                4 => [
+                                                    'name'              => 'FRAGMENT_DEFINITION',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                5 => [
+                                                    'name'              => 'FRAGMENT_SPREAD',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                6 => [
+                                                    'name'              => 'INLINE_FRAGMENT',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                7 => [
+                                                    'name'              => 'VARIABLE_DEFINITION',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
                                                 [
                                                     'name'              => 'SCHEMA',
                                                     'isDeprecated'      => false,
@@ -1089,7 +1080,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('introspects on input object')
      */
-    public function testIntrospectsOnInputObject() : void
+    public function testIntrospectsOnInputObject(): void
     {
         $TestInputObject = new InputObjectType([
             'name'   => 'TestInputObject',
@@ -1187,7 +1178,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('supports the __type root field')
      */
-    public function testSupportsTheTypeRootField() : void
+    public function testSupportsTheTypeRootField(): void
     {
         $TestType = new ObjectType([
             'name'   => 'TestType',
@@ -1219,7 +1210,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('identifies deprecated fields')
      */
-    public function testIdentifiesDeprecatedFields() : void
+    public function testIdentifiesDeprecatedFields(): void
     {
         $TestType = new ObjectType([
             'name'   => 'TestType',
@@ -1273,7 +1264,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('respects the includeDeprecated parameter for fields')
      */
-    public function testRespectsTheIncludeDeprecatedParameterForFields() : void
+    public function testRespectsTheIncludeDeprecatedParameterForFields(): void
     {
         $TestType = new ObjectType([
             'name'   => 'TestType',
@@ -1330,7 +1321,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('identifies deprecated enum values')
      */
-    public function testIdentifiesDeprecatedEnumValues() : void
+    public function testIdentifiesDeprecatedEnumValues(): void
     {
         $TestEnum = new EnumType([
             'name'   => 'TestEnum',
@@ -1392,7 +1383,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('respects the includeDeprecated parameter for enum values')
      */
-    public function testRespectsTheIncludeDeprecatedParameterForEnumValues() : void
+    public function testRespectsTheIncludeDeprecatedParameterForEnumValues(): void
     {
         $TestEnum = new EnumType([
             'name'   => 'TestEnum',
@@ -1453,7 +1444,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('fails as expected on the __type root field without an arg')
      */
-    public function testFailsAsExpectedOnTheTypeRootFieldWithoutAnArg() : void
+    public function testFailsAsExpectedOnTheTypeRootFieldWithoutAnArg(): void
     {
         $TestType = new ObjectType([
             'name'   => 'TestType',
@@ -1486,7 +1477,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('exposes descriptions on types and fields')
      */
-    public function testExposesDescriptionsOnTypesAndFields() : void
+    public function testExposesDescriptionsOnTypesAndFields(): void
     {
         $QueryRoot = new ObjectType([
             'name'   => 'QueryRoot',
@@ -1546,7 +1537,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('exposes descriptions on enums')
      */
-    public function testExposesDescriptionsOnEnums() : void
+    public function testExposesDescriptionsOnEnums(): void
     {
         $QueryRoot = new ObjectType([
             'name'   => 'QueryRoot',
@@ -1631,7 +1622,7 @@ class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema([ 'query' => $QueryRoot ]);
+        $schema = new Schema(['query' => $QueryRoot]);
         $source = Introspection::getIntrospectionQuery(['directiveIsRepeatable' => true]);
 
         $calledForFields = [];

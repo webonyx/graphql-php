@@ -20,6 +20,7 @@ use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Throwable;
+
 use function array_map;
 use function basename;
 use function count;
@@ -28,6 +29,7 @@ use function file_put_contents;
 use function json_encode;
 use function strlen;
 use function strncmp;
+
 use const DIRECTORY_SEPARATOR;
 use const JSON_PRETTY_PRINT;
 use const JSON_UNESCAPED_SLASHES;
@@ -42,7 +44,7 @@ class CollectorTest extends TestCase
      */
     public function testCollectFields(Schema $schema, DocumentNode $documentNode, string $operationName, ?array $variableValues)
     {
-        $runtime = new class($variableValues) implements Runtime
+        $runtime = new class ($variableValues) implements Runtime
         {
             /** @var Throwable[] */
             public $errors = [];
@@ -73,16 +75,19 @@ class CollectorTest extends TestCase
         foreach ($collector->collectFields($collector->rootType, $collector->operation->selectionSet) as $shared) {
             $execution = new stdClass();
             if (count($shared->fieldNodes ?? []) > 0) {
-                $execution->fieldNodes = array_map(static function (Node $node) : array {
+                $execution->fieldNodes = array_map(static function (Node $node): array {
                     return $node->toArray(true);
                 }, $shared->fieldNodes);
             }
+
             if (strlen($shared->fieldName ?? '') > 0) {
                 $execution->fieldName = $shared->fieldName;
             }
+
             if (strlen($shared->resultName ?? '') > 0) {
                 $execution->resultName = $shared->resultName;
             }
+
             if (isset($shared->argumentValueMap)) {
                 $execution->argumentValueMap = [];
                 /** @var Node $valueNode */
@@ -93,6 +98,7 @@ class CollectorTest extends TestCase
 
             $pipeline[] = $execution;
         }
+
         if (strncmp($operationName, 'ShouldEmitError', strlen('ShouldEmitError')) === 0) {
             self::assertNotEmpty($runtime->errors, 'There should be errors.');
         } else {
@@ -112,6 +118,7 @@ class CollectorTest extends TestCase
                 $runtime->errors
             );
         }
+
         if (count($pipeline) > 0) {
             $result['pipeline'] = $pipeline;
         }
