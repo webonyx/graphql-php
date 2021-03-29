@@ -2,6 +2,7 @@
 
 #### Unreleased
 - PHP version required: 7.4+
+- Removed deprecated `Type::getInternalTypes()`
 
 #### 14.6.1
 
