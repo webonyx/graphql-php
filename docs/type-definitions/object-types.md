@@ -57,8 +57,7 @@ $blogStory = new ObjectType([
 ]);
 ```
 This example uses **inline** style for Object Type definitions, but you can also use  
-[inheritance or type language](introduction.md#type-definition-styles).
-
+[inheritance or schema definition language](introduction.md#definition-styles).
 
 # Configuration options
 Object type constructor expects configuration array. Below is a full list of available options:

@@ -1,10 +1,10 @@
 # Schema Definition Language
 Since 0.9.0
 
-The [Schema definition language](http://graphql.org/learn/schema/#type-language) is a convenient way to define your schema,
+The [schema definition language](http://graphql.org/learn/schema/#type-language) is a convenient way to define your schema,
 especially with IDE autocompletion and syntax validation.
 
-Here is a simple schema defined in GraphQL type language (e.g. in a separate **schema.graphql** file):
+You can define this separate from your PHP code, e.g. in a **schema.graphql** file:
 
 ```graphql
 schema {

@@ -422,7 +422,7 @@ const INPUT_FIELD_DEFINITION = "INPUT_FIELD_DEFINITION";
 # GraphQL\Type\SchemaConfig
 Schema configuration class.
 Could be passed directly to schema constructor. List of options accepted by **create** method is
-[described in docs](schema-definition.md#configuration-options).
+[described in docs](type-definitions/schema-definition.md#configuration-options).
 
 Usage example:
 
@@ -565,7 +565,7 @@ function getTypeLoader()
 function setTypeLoader(callable $typeLoader)
 ```
 # GraphQL\Type\Schema
-Schema Definition (see [related docs](schema-definition.md))
+Schema Definition (see [related docs](type-definitions/schema-definition.md))
 
 A Schema is created by supplying the root types of each type of operation:
 query, mutation (optional) and subscription (optional). A schema definition is
@@ -763,7 +763,7 @@ function assertValid()
 function validate()
 ```
 # GraphQL\Language\Parser
-Parses string containing GraphQL query or [type definition](schema-definition-language.md) to Abstract Syntax Tree.
+Parses string containing GraphQL query or [type definition](type-definitions/schema-definition-language.md) to Abstract Syntax Tree.
 
 Those magic functions allow partial parsing:
 
@@ -2120,8 +2120,8 @@ function getOriginalInput($key)
 function isReadOnly()
 ```
 # GraphQL\Utils\BuildSchema
-Build instance of `GraphQL\Type\Schema` out of type language definition (string or parsed AST)
-See [section in docs](schema-definition-language.md) for details.
+Build instance of `GraphQL\Type\Schema` out of schema language definition (string or parsed AST)
+See [schema definition language docs](schema-definition-language.md) for details.
 
 **Class Methods:** 
 ```php
@@ -2335,7 +2335,7 @@ static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode)
 static function getOperation(GraphQL\Language\AST\DocumentNode $document, $operationName = null)
 ```
 # GraphQL\Utils\SchemaPrinter
-Given an instance of Schema, prints it in GraphQL type language.
+Given an instance of Schema, prints it in schema definition language.
 
 **Class Methods:** 
 ```php

@@ -32,7 +32,7 @@ Library features include:
  - Validation and introspection of this Type System (for compatibility with tools like [GraphiQL](complementary-tools.md#tools))
  - Parsing, validating and [executing GraphQL queries](executing-queries.md) against this Type System
  - Rich [error reporting](error-handling.md), including query validation and execution errors
- - Optional tools for [parsing GraphQL Type language](schema-definition-language.md)
+ - Optional tools for [parsing schema definition language](schema-definition-language.md)
  - Tools for [batching requests](data-fetching.md#solving-n1-problem) to backend storage
  - [Async PHP platforms support](data-fetching.md#async-php) via promises
  - [Standard HTTP server](executing-queries.md#using-server)
