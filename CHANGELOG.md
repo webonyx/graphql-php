@@ -3,6 +3,9 @@
 #### Unreleased
 - PHP version required: 7.4+
 
+Feat:
+- Open ReferenceExecutor for extending
+
 #### 14.5.1
 
 Fix:
