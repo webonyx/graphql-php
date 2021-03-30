@@ -8,6 +8,7 @@ use Exception;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
@@ -18,33 +19,37 @@ use function ucfirst;
 
 class SchemaGenerator
 {
-    private $config = [
+    /** @var array<string, int> */
+    private array $config = [
         'totalTypes' => 100,
         'nestingLevel' => 10,
         'fieldsPerType' => 10,
         'listFieldsPerType' => 2,
     ];
 
-    private $typeIndex = 0;
-
-    private $objectTypes = [];
+    private int $typeIndex = 0;
 
     /**
-     * @param array $config
+     * @var array<string, ObjectType>
+     */
+    private array $objectTypes = [];
+
+    /**
+     * @param array<string, int> $config
      */
     public function __construct(array $config)
     {
         $this->config = array_merge($this->config, $config);
     }
 
-    public function buildSchema()
+    public function buildSchema(): Schema
     {
         return new Schema([
             'query' => $this->buildQueryType(),
         ]);
     }
 
-    public function buildQueryType()
+    public function buildQueryType(): ObjectType
     {
         $this->typeIndex   = 0;
         $this->objectTypes = [];
@@ -52,7 +57,7 @@ class SchemaGenerator
         return $this->createType(0);
     }
 
-    public function loadType($name)
+    public function loadType(string $name): ObjectType
     {
         $tokens       = explode('_', $name);
         $nestingLevel = (int) $tokens[1];
@@ -60,12 +65,12 @@ class SchemaGenerator
         return $this->createType($nestingLevel, $name);
     }
 
-    protected function createType($nestingLevel, $typeName = null)
+    protected function createType(int $nestingLevel, ?string $typeName = null): ObjectType
     {
         if ($this->typeIndex > $this->config['totalTypes']) {
             throw new Exception(
-                "Cannot create new type: there are already {$this->typeIndex} " .
-                "which exceeds allowed number of {$this->config['totalTypes']} types total"
+                "Cannot create new type: there are already " . $this->typeIndex . " " .
+                "which exceeds allowed number of " . $this->config['totalTypes'] . " types total"
             );
         }
 
@@ -86,7 +91,10 @@ class SchemaGenerator
         return $type;
     }
 
-    protected function getFieldTypeAndName($nestingLevel, $fieldIndex)
+    /**
+     * @return array{0: ObjectType, 1: string}
+     */
+    protected function getFieldTypeAndName(int $nestingLevel, int $fieldIndex): array
     {
         if ($nestingLevel >= $this->config['nestingLevel']) {
             $fieldType = Type::string();
@@ -102,7 +110,10 @@ class SchemaGenerator
         return [$fieldType, $fieldName];
     }
 
-    protected function createTypeFields($typeName, $nestingLevel)
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function createTypeFields(string $typeName, int $nestingLevel): array
     {
         $fields = [];
         for ($index = 0; $index < $this->config['fieldsPerType']; $index++) {
@@ -137,7 +148,10 @@ class SchemaGenerator
         return $fields;
     }
 
-    protected function createFieldArgs($fieldName, $typeName)
+    /**
+     * @return array<string, mixed>
+     */
+    protected function createFieldArgs(string $fieldName, string $typeName): array
     {
         return [
             'argString' => [
@@ -165,7 +179,10 @@ class SchemaGenerator
         ];
     }
 
-    public function resolveField($objectValue, $args, $context, $resolveInfo)
+    /**
+     * @param array<string, mixed> $args
+     */
+    public function resolveField($root, array $args, $context, ResolveInfo $resolveInfo): string
     {
         return $resolveInfo->fieldName . '-value';
     }

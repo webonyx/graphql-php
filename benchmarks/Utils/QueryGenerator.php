@@ -23,13 +23,13 @@ use function round;
 
 class QueryGenerator
 {
-    private $schema;
+    private Schema $schema;
 
-    private $maxLeafFields;
+    private int $maxLeafFields;
 
-    private $currentLeafFields;
+    private int $currentLeafFields;
 
-    public function __construct(Schema $schema, $percentOfLeafFields)
+    public function __construct(Schema $schema, float $percentOfLeafFields)
     {
         $this->schema = $schema;
 
@@ -44,11 +44,11 @@ class QueryGenerator
             $totalFields += count($type->getFields());
         }
 
-        $this->maxLeafFields     = max(1, round($totalFields * $percentOfLeafFields));
+        $this->maxLeafFields     = max(1, (int) round($totalFields * $percentOfLeafFields));
         $this->currentLeafFields = 0;
     }
 
-    public function buildQuery()
+    public function buildQuery(): string
     {
         $qtype = $this->schema->getQueryType();
 
@@ -66,11 +66,9 @@ class QueryGenerator
     }
 
     /**
-     * @param FieldDefinition[] $fields
-     *
-     * @return SelectionSetNode
+     * @param array<FieldDefinition> $fields
      */
-    public function buildSelectionSet($fields)
+    public function buildSelectionSet(array $fields): SelectionSetNode
     {
         $selections[] = new FieldNode([
             'name' => new NameNode(['value' => '__typename']),
