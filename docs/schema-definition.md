@@ -86,9 +86,9 @@ Option       | Type     | Notes
 query        | `ObjectType` | **Required.** Object type (usually named "Query") containing root-level fields of your read API
 mutation     | `ObjectType` | Object type (usually named "Mutation") containing root-level fields of your write API
 subscription     | `ObjectType` | Reserved for future subscriptions implementation. Currently presented for compatibility with introspection query of **graphql-js**, used by various clients (like Relay or GraphiQL)
-directives  | `Directive[]` | A full list of [directives](type-definitions/directives.md) supported by your schema. By default, contains built-in **@skip** and **@include** directives.<br><br> If you pass your own directives and still want to use built-in directives - add them explicitly. For example:<br><br> *array_merge(GraphQL::getStandardDirectives(), [$myCustomDirective]);*
-types     | `ObjectType[]` | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often it happens when the object type is never referenced in fields directly but is still a part of a schema because it implements an interface which resolves to this object type in its **resolveType** callable. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for concrete use-case.
-typeLoader     | `callable` | **function($name)** Expected to return type instance given the name. Must always return the same instance if called multiple times. See section below on lazy type loading.
+directives  | `array<Directive>` | A full list of [directives](type-definitions/directives.md) supported by your schema. By default, contains built-in **@skip** and **@include** directives.<br><br> If you pass your own directives and still want to use built-in directives - add them explicitly. For example:<br><br> *array_merge(GraphQL::getStandardDirectives(), [$myCustomDirective]);*
+types     | `array<ObjectType>` | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often it happens when the object type is never referenced in fields directly but is still a part of a schema because it implements an interface which resolves to this object type in its **resolveType** callable. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for concrete use-case.
+typeLoader     | `callable(string $name): Type` | Expected to return type instance given the name. Must always return the same instance if called multiple times, see [lazy loading](#lazy-loading-of-types). See section below on lazy type loading.
 
 # Using config class
 If you prefer fluid interface for config with auto-completion in IDE and static time validation, 
@@ -114,53 +114,58 @@ In this case, it is recommended to pass **typeLoader** option to schema construc
 of your object **fields** as callbacks.
 
 Type loading concept is very similar to PHP class loading, but keep in mind that **typeLoader** must
-always return the same instance of a type.
+always return the same instance of a type. A good way to ensure this is to use a type registry:
 
-Usage example:
 ```php
-<?php
+<?php declare(strict_types=1);
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
 
-class Types
+class TypeRegistry
 {
-    private $types = [];
+    /**
+     * @var array<string, Type> 
+     */
+    private array $types = [];
 
-    public function get($name)
+    public function __invoke(string $name): Type
     {
-        if (!isset($this->types[$name])) {
-            $this->types[$name] = $this->{$name}();
-        }
-        return $this->types[$name];
+        return $this->types[$name]
+            ??= $this->{$name}();
     }
 
-    private function MyTypeA()
+    private function MyTypeA(): ObjectType
     {
         return new ObjectType([
             'name' => 'MyTypeA',
-            'fields' => function() {
-                return [
-                    'b' => ['type' => $this->get('MyTypeB')]
-                ];
-            }
+            'fields' => fn() => [
+                'b' => [
+                    'type' => $this('MyTypeB')
+                ],
+            ]
         ]);
     }
-    
-    private function MyTypeB()
+
+    private function MyTypeB(): ObjectType
     {
         // ...
     }
 }
 
-$registry = new Types();
+$typeRegistry = new TypeRegistry();
 
 $schema = new Schema([
-    'query' => $registry->get('Query'),
-    'typeLoader' => function($name) use ($registry) {
-        return $registry->get($name);
-    }
+    'query' => $typeRegistry('Query'),
+    'typeLoader' => $typeRegistry,
 ]);
 ```
+
+You can automate this registry as you wish to reduce boilerplate or even
+introduce Dependency Injection Container if your types have other dependencies.
+
+Alternatively, all methods of the registry could be static - then there is no need
+to pass it in the constructor - instead use **TypeRegistry::myAType()** in your type definitions.
 
 # Schema Validation
 By default, the schema is created with only shallow validation of type and field definitions  

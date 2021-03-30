@@ -77,7 +77,7 @@ Below is a full list of available field configuration options:
 Option | Type | Notes
 ------ | ---- | -----
 name | `string` | **Required.** Name of the field. When not set - inferred from **fields** array key (read about [shorthand field definition](#shorthand-field-definitions) below)
-type | `Type` | **Required.** An instance of internal or custom type. Note: type must be represented by a single instance within one schema (see also [Type Registry](introduction.md#type-registry))
+type | `Type` | **Required.** An instance of internal or custom type. Note: type must be represented by a single instance within one schema (see also [lazy loading of types](../schema-definition.md#lazy-loading-of-types))
 args | `array` | An array of possible type arguments. Each entry is expected to be an array with keys: **name**, **type**, **description**, **defaultValue**. See [Field Arguments](#field-arguments) section below.
 resolve | `callable` | **function($objectValue, $args, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Given the **$objectValue** of this type, it is expected to return actual value of the current field. See section on [Data Fetching](../data-fetching.md) for details
 complexity | `callable` | **function($childrenComplexity, $args)**<br> Used to restrict query complexity. The feature is disabled by default, read about [Security](../security.md#query-complexity-analysis) to use it.
