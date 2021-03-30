@@ -36,6 +36,12 @@ use function sprintf;
 
 class OverlappingFieldsCanBeMerged extends ValidationRule
 {
+    /** @var string */
+    public static $fieldsConflictMessage = 'Fields "%s" conflict because %s. Use different aliases on the fields to fetch both if this was intentional.';
+
+    /** @var string */
+    public static $reasonMessage = 'subfields "%s" conflict because %s';
+
     /**
      * A memoization for when two fragments are compared "between" each other for
      * conflicts. Two fragments may be compared many times, so memoizing this can
@@ -883,7 +889,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $reasonMessage = self::reasonMessage($reason);
 
         return sprintf(
-            'Fields "%s" conflict because %s. Use different aliases on the fields to fetch both if this was intentional.',
+            static::$fieldsConflictMessage,
             $responseName,
             $reasonMessage
         );
@@ -898,7 +904,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
                     $reasonMessage = self::reasonMessage($subReason);
 
-                    return sprintf('subfields "%s" conflict because %s', $responseName, $reasonMessage);
+                    return sprintf(static::$reasonMessage, $responseName, $reasonMessage);
                 },
                 $reason
             );

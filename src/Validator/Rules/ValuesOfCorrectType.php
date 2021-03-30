@@ -47,6 +47,24 @@ use function sprintf;
  */
 class ValuesOfCorrectType extends ValidationRule
 {
+    /** @var string */
+    public static $didYouMeanMessage = 'Did you mean ';
+
+    /** @var string */
+    public static $badValueMessage = 'Expected type %s, found %s';
+
+    /** @var string */
+    public static $enumTypeSuggestionMessage = 'Did you mean the enum value %s?';
+
+    /** @var string */
+    public static $badArgumentValueMessage = 'Field "%s" argument "%s" requires type %s, found %s';
+
+    /** @var string */
+    public static $requiredFieldMessage = 'Field %s.%s of required type %s was not provided.';
+
+    /** @var string */
+    public static $unknownFieldMessage = 'Field "%s" is not defined by type %s';
+
     public function getVisitor(ValidationContext $context)
     {
         $fieldName = '';
@@ -134,7 +152,7 @@ class ValuesOfCorrectType extends ValidationRule
                     array_keys($parentType->getFields())
                 );
                 $didYouMean  = $suggestions
-                    ? 'Did you mean ' . Utils::orList($suggestions) . '?'
+                    ? static::$didYouMeanMessage . Utils::orList($suggestions) . '?'
                     : null;
 
                 $context->reportError(
@@ -180,7 +198,7 @@ class ValuesOfCorrectType extends ValidationRule
 
     public static function badValueMessage($typeName, $valueName, $message = null)
     {
-        return sprintf('Expected type %s, found %s', $typeName, $valueName) .
+        return sprintf(static::$badValueMessage, $typeName, $valueName) .
             ($message ? "; ${message}" : '.');
     }
 
@@ -257,24 +275,24 @@ class ValuesOfCorrectType extends ValidationRule
                 )
             );
 
-            return $suggestions ? 'Did you mean the enum value ' . Utils::orList($suggestions) . '?' : null;
+            return $suggestions ? sprintf(static::$enumTypeSuggestionMessage, Utils::orList($suggestions)) : null;
         }
     }
 
     public static function badArgumentValueMessage($typeName, $valueName, $fieldName, $argName, $message = null)
     {
-        return sprintf('Field "%s" argument "%s" requires type %s, found %s', $fieldName, $argName, $typeName, $valueName) .
+        return sprintf(static::$badArgumentValueMessage, $fieldName, $argName, $typeName, $valueName) .
             ($message ? sprintf('; %s', $message) : '.');
     }
 
     public static function requiredFieldMessage($typeName, $fieldName, $fieldTypeName)
     {
-        return sprintf('Field %s.%s of required type %s was not provided.', $typeName, $fieldName, $fieldTypeName);
+        return sprintf(static::$requiredFieldMessage, $typeName, $fieldName, $fieldTypeName);
     }
 
     public static function unknownFieldMessage($typeName, $fieldName, $message = null)
     {
-        return sprintf('Field "%s" is not defined by type %s', $fieldName, $typeName) .
+        return sprintf(static::$unknownFieldMessage, $fieldName, $typeName) .
             ($message ? sprintf('; %s', $message) : '.');
     }
 

@@ -21,6 +21,9 @@ use function sprintf;
 
 class NoFragmentCycles extends ValidationRule
 {
+    /** @var string */
+    public static $cycleErrorMessage = 'Cannot spread fragment "%s" within itself%s.';
+
     /** @var bool[] */
     public $visitedFrags;
 
@@ -106,7 +109,7 @@ class NoFragmentCycles extends ValidationRule
     public static function cycleErrorMessage($fragName, array $spreadNames = [])
     {
         return sprintf(
-            'Cannot spread fragment "%s" within itself%s.',
+            static::$cycleErrorMessage,
             $fragName,
             count($spreadNames) > 0 ? ' via ' . implode(', ', $spreadNames) : ''
         );

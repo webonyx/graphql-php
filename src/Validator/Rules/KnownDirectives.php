@@ -48,6 +48,12 @@ use function sprintf;
 
 class KnownDirectives extends ValidationRule
 {
+    /** @var string */
+    public static $unknownDirectiveMessage = 'Unknown directive "%s".';
+
+    /** @var string */
+    public static $misplacedDirectiveMessage = 'Directive "%s" may not be used on "%s".';
+
     public function getVisitor(ValidationContext $context)
     {
         return $this->getASTVisitor($context);
@@ -126,7 +132,7 @@ class KnownDirectives extends ValidationRule
 
     public static function unknownDirectiveMessage($directiveName)
     {
-        return sprintf('Unknown directive "%s".', $directiveName);
+        return sprintf(static::$unknownDirectiveMessage, $directiveName);
     }
 
     /**
@@ -213,6 +219,6 @@ class KnownDirectives extends ValidationRule
 
     public static function misplacedDirectiveMessage($directiveName, $location)
     {
-        return sprintf('Directive "%s" may not be used on "%s".', $directiveName, $location);
+        return sprintf(static::$misplacedDirectiveMessage, $directiveName, $location);
     }
 }

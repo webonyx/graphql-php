@@ -21,6 +21,12 @@ use function sprintf;
 
 class PossibleFragmentSpreads extends ValidationRule
 {
+    /** @var string */
+    public static $typeIncompatibleAnonSpreadMessage = 'Fragment cannot be spread here as objects of type "%s" can never be of type "%s".';
+
+    /** @var string */
+    public static $typeIncompatibleSpreadMessage = 'Fragment "%s" cannot be spread here as objects of type "%s" can never be of type "%s".';
+
     public function getVisitor(ValidationContext $context)
     {
         return [
@@ -133,7 +139,7 @@ class PossibleFragmentSpreads extends ValidationRule
     public static function typeIncompatibleAnonSpreadMessage($parentType, $fragType)
     {
         return sprintf(
-            'Fragment cannot be spread here as objects of type "%s" can never be of type "%s".',
+            static::$typeIncompatibleAnonSpreadMessage,
             $parentType,
             $fragType
         );
@@ -155,7 +161,7 @@ class PossibleFragmentSpreads extends ValidationRule
     public static function typeIncompatibleSpreadMessage($fragName, $parentType, $fragType)
     {
         return sprintf(
-            'Fragment "%s" cannot be spread here as objects of type "%s" can never be of type "%s".',
+            static::$typeIncompatibleSpreadMessage,
             $fragName,
             $parentType,
             $fragType

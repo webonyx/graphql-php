@@ -16,6 +16,9 @@ use function sprintf;
 
 class UniqueOperationNames extends ValidationRule
 {
+    /** @var string */
+    public static $duplicateOperationNameMessage = 'There can be only one operation named "%s".';
+
     /** @var NameNode[] */
     public $knownOperationNames;
 
@@ -48,6 +51,6 @@ class UniqueOperationNames extends ValidationRule
 
     public static function duplicateOperationNameMessage($operationName)
     {
-        return sprintf('There can be only one operation named "%s".', $operationName);
+        return sprintf(static::$duplicateOperationNameMessage, $operationName);
     }
 }

@@ -19,6 +19,9 @@ use function sprintf;
 
 class UniqueInputFieldNames extends ValidationRule
 {
+    /** @var string */
+    public static $duplicateInputFieldMessage = 'There can be only one input field named "%s".';
+
     /** @var array<string, NameNode> */
     public $knownNames;
 
@@ -69,6 +72,6 @@ class UniqueInputFieldNames extends ValidationRule
 
     public static function duplicateInputFieldMessage($fieldName)
     {
-        return sprintf('There can be only one input field named "%s".', $fieldName);
+        return sprintf(static::$duplicateInputFieldMessage, $fieldName);
     }
 }
