@@ -1,0 +1,20 @@
+name: "Docs"
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  deploy-docs:
+    name: "Deploy docs"
+    runs-on: "ubuntu-20.04"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Deploy docs"
+        uses: "mhausenblas/mkdocs-deploy-gh-pages@1.16"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

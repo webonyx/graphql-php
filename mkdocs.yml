@@ -1,5 +1,9 @@
 site_name: graphql-php
-pages:
+site_description: PHP implementation of the GraphQL specification
+docs_dir: docs/
+repo_name: webonyx/graphql-php
+repo_url: https://github.com/webonyx/graphql-php
+nav:
 - About: index.md
 - Getting Started: getting-started.md
 - Complementary Tools: complementary-tools.md
@@ -23,4 +27,5 @@ pages:
 # - Performance tips: performance.md
 - How it works: how-it-works.md
 - Class Reference: reference.md
-theme: readthedocs
+theme:
+  name: material

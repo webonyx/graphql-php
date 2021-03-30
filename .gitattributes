@@ -5,6 +5,7 @@
 /tests export-ignore
 /examples export-ignore
 /tools export-ignore
+.codecov.yml export-ignore
 .gitattributes export-ignore
 .gitignore export-ignore
 CONTRIBUTING.md export-ignore
