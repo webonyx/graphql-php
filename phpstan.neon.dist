@@ -4,6 +4,7 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
 
     paths:
+        - %currentWorkingDirectory%/benchmarks
         - %currentWorkingDirectory%/src
         - %currentWorkingDirectory%/tests
 

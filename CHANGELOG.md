@@ -2,6 +2,7 @@
 
 #### Unreleased
 - PHP version required: 7.4+
+- Remove deprecated `GraphQL::execute()`
 
 #### 14.6.1
 
