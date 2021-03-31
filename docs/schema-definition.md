@@ -129,10 +129,9 @@ class TypeRegistry
      */
     private array $types = [];
 
-    public function __invoke(string $name): Type
+    public function get(string $name): Type
     {
-        return $this->types[$name]
-            ??= $this->{$name}();
+        return $this->types[$name] ??= $this->{$name}();
     }
 
     private function MyTypeA(): ObjectType
@@ -141,7 +140,7 @@ class TypeRegistry
             'name' => 'MyTypeA',
             'fields' => fn() => [
                 'b' => [
-                    'type' => $this('MyTypeB')
+                    'type' => $this->get('MyTypeB')
                 ],
             ]
         ]);
@@ -156,8 +155,8 @@ class TypeRegistry
 $typeRegistry = new TypeRegistry();
 
 $schema = new Schema([
-    'query' => $typeRegistry('Query'),
-    'typeLoader' => $typeRegistry,
+    'query' => $typeRegistry->get('Query'),
+    'typeLoader' => static fn (string $name): Type => $typeRegistry->get($name),
 ]);
 ```
 
