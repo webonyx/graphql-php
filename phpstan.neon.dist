@@ -5,6 +5,7 @@ parameters:
 
     paths:
         - %currentWorkingDirectory%/benchmarks
+        - %currentWorkingDirectory%/examples/00-hello-world
         - %currentWorkingDirectory%/src
         - %currentWorkingDirectory%/tests
 
