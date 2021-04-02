@@ -895,7 +895,6 @@ class NonNullTest extends TestCase
                     'message' => 'Argument "cannotBeNull" of required type "String!" was not provided.',
                     'locations' => [['line' => 3, 'column' => 13]],
                     'path' => ['withNonNullArg'],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -925,7 +924,6 @@ class NonNullTest extends TestCase
                     'message' => 'Argument "cannotBeNull" of non-null type "String!" must not be null.',
                     'locations' => [['line' => 3, 'column' => 13]],
                     'path' => ['withNonNullArg'],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -960,7 +958,6 @@ class NonNullTest extends TestCase
                       'runtime value.',
                     'locations' => [['line' => 3, 'column' => 42]],
                     'path' => ['withNonNullArg'],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -991,7 +988,6 @@ class NonNullTest extends TestCase
                     'message' => 'Argument "cannotBeNull" of non-null type "String!" must not be null.',
                     'locations' => [['line' => 3, 'column' => 13]],
                     'path' => ['withNonNullArg'],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];

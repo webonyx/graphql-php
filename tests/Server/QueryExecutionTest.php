@@ -262,10 +262,7 @@ class QueryExecutionTest extends ServerTestCase
 
         $expected = [
             'errors' => [
-                [
-                    'message'  => 'Persisted queries are not supported by this server',
-                    'extensions' => ['category' => 'request'],
-                ],
+                ['message' => 'Persisted queries are not supported by this server'],
             ],
         ];
         self::assertEquals($expected, $result->toArray());
@@ -293,18 +290,12 @@ class QueryExecutionTest extends ServerTestCase
         $expected = [
             [
                 'errors' => [
-                    [
-                        'message'  => 'Batched queries are not supported by this server',
-                        'extensions' => ['category' => 'request'],
-                    ],
+                    ['message' => 'Batched queries are not supported by this server'],
                 ],
             ],
             [
                 'errors' => [
-                    [
-                        'message'  => 'Batched queries are not supported by this server',
-                        'extensions' => ['category' => 'request'],
-                    ],
+                    ['message' => 'Batched queries are not supported by this server'],
                 ],
             ],
         ];
@@ -345,10 +336,7 @@ class QueryExecutionTest extends ServerTestCase
 
         $expected = [
             'errors' => [
-                [
-                    'message'  => 'GET supports only query operation',
-                    'extensions' => ['category' => 'request'],
-                ],
+                ['message' => 'GET supports only query operation'],
             ],
         ];
 
@@ -411,7 +399,6 @@ class QueryExecutionTest extends ServerTestCase
                 [
                     'message'   => 'Cannot query field "invalid" on type "Query".',
                     'locations' => [['line' => 1, 'column' => 2]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -448,7 +435,6 @@ class QueryExecutionTest extends ServerTestCase
                 [
                     'message'   => 'Cannot query field "invalid2" on type "Query".',
                     'locations' => [['line' => 1, 'column' => 2]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];

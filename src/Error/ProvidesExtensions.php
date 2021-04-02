@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace GraphQL\Error;
+
+/**
+ * Implementing HasExtensions allows this error to provide additional data to clients.
+ */
+interface ProvidesExtensions
+{
+    /**
+     * Data to include within the "extensions" key of the formatted error.
+     *
+     * @return array<string, mixed>
+     */
+    public function getExtensions(): array;
+}
