@@ -264,20 +264,20 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 
 New features and notable changes:
 - Changed minimum PHP version from 5.4 to 5.5
-- Lazy loading of types without separate build step (see #69, see [docs](http://webonyx.github.io/graphql-php/type-system/schema/#lazy-loading-of-types))
-- PSR-7 compliant Standard Server (see [docs](http://webonyx.github.io/graphql-php/executing-queries/#using-server))
-- New default error formatting, which does not expose sensitive data (see [docs](http://webonyx.github.io/graphql-php/error-handling/))
-- Ability to define custom error handler to filter/log/re-throw exceptions after execution (see [docs](http://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting))
-- Allow defining schema configuration using objects with fluent setters vs array (see [docs](http://webonyx.github.io/graphql-php/type-system/schema/#using-config-class))
-- Allow serializing AST to array and re-creating AST from array lazily (see [docs](http://webonyx.github.io/graphql-php/reference/#graphqlutilsast))
-- [Apollo-style](https://dev-blog.apollodata.com/query-batching-in-apollo-63acfd859862) query batching support via server (see [docs](http://webonyx.github.io/graphql-php/executing-queries/#query-batching))
-- Schema validation, including validation of interface implementations (see [docs](http://webonyx.github.io/graphql-php/type-system/schema/#schema-validation))
-- Ability to pass custom config formatter when defining schema using [GraphQL type language](http://graphql.org/learn/schema/#type-language) (see [docs](http://webonyx.github.io/graphql-php/type-system/type-language/))
+- Lazy loading of types without separate build step (see #69, see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#lazy-loading-of-types))
+- PSR-7 compliant Standard Server (see [docs](https://webonyx.github.io/graphql-php/executing-queries/#using-server))
+- New default error formatting, which does not expose sensitive data (see [docs](https://webonyx.github.io/graphql-php/error-handling/))
+- Ability to define custom error handler to filter/log/re-throw exceptions after execution (see [docs](https://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting))
+- Allow defining schema configuration using objects with fluent setters vs array (see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#using-config-class))
+- Allow serializing AST to array and re-creating AST from array lazily (see [docs](https://webonyx.github.io/graphql-php/reference/#graphqlutilsast))
+- [Apollo-style](https://dev-blog.apollodata.com/query-batching-in-apollo-63acfd859862) query batching support via server (see [docs](https://webonyx.github.io/graphql-php/executing-queries/#query-batching))
+- Schema validation, including validation of interface implementations (see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#schema-validation))
+- Ability to pass custom config formatter when defining schema using [GraphQL type language](http://graphql.org/learn/schema/#type-language) (see [docs](https://webonyx.github.io/graphql-php/type-system/type-language/))
 
 Improvements:
 - Significantly improved parser performance (see #137 and #128)
 - Support for PHP7 exceptions everywhere (see #127)
-- Improved [documentation](http://webonyx.github.io/graphql-php/) and docblock comments
+- Improved [documentation](https://webonyx.github.io/graphql-php/) and docblock comments
 
 Deprecations and breaking changes - see [UPGRADE](UPGRADE.md) document.
 

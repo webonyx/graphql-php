@@ -26,7 +26,7 @@ $searchResultType = new UnionType([
 ```
 
 This example uses **inline** style for Union definition, but you can also use  
-[inheritance or type language](index.md#type-definition-styles).
+[inheritance or schema definition language](introduction.md#definition-styles).
 
 # Configuration options
 The constructor of UnionType accepts an array. Below is a full list of allowed options:
@@ -36,4 +36,4 @@ Option | Type | Notes
 name | `string` | **Required.** Unique name of this interface type within Schema
 types | `array` | **Required.** List of Object Types included in this Union. Note that you can't create a Union type out of Interfaces or other Unions.
 description | `string` | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
-resolveType | `callback` | **function($value, $context, [ResolveInfo](../reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Receives **$value** from resolver of the parent field and returns concrete Object Type for this **$value**.
+resolveType | `callback` | **function($value, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Receives **$value** from resolver of the parent field and returns concrete Object Type for this **$value**.

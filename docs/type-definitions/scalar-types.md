@@ -1,6 +1,6 @@
 # Built-in Scalar Types
 GraphQL specification describes several built-in scalar types. In **graphql-php** they are 
-exposed as static methods of [`GraphQL\Type\Definition\Type`](../reference.md#graphqltypedefinitiontype) class:
+exposed as static methods of [`GraphQL\Type\Definition\Type`](../class-reference.md#graphqltypedefinitiontype) class:
 
 ```php
 <?php
@@ -14,7 +14,7 @@ Type::boolean(); // Boolean type
 Type::id();      // ID type
 ```
 Those methods return instances of `GraphQL\Type\Definition\ScalarType` (actually one of subclasses).
-Use them directly in type definitions, or wrap in your [TypeRegistry](index.md#type-registry) 
+Use them directly in type definitions, or wrap in your [TypeRegistry](introduction.md#type-registry) 
 (if you use one).
 
 # Writing Custom Scalar Types

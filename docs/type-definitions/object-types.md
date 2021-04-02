@@ -57,8 +57,7 @@ $blogStory = new ObjectType([
 ]);
 ```
 This example uses **inline** style for Object Type definitions, but you can also use  
-[inheritance or type language](index.md#type-definition-styles).
-
+[inheritance or schema definition language](introduction.md#definition-styles).
 
 # Configuration options
 Object type constructor expects configuration array. Below is a full list of available options:
@@ -69,8 +68,8 @@ name         | `string` | **Required.** Unique name of this object type within S
 fields       | `array` or `callable` | **Required**. An array describing object fields or callable returning such an array. See [Fields](#field-definitions) section below for expected structure of each array entry. See also the section on [Circular types](#recurring-and-circular-types) for an explanation of when to use callable for this option.
 description  | `string` | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 interfaces   | `array` or `callable` | List of interfaces implemented by this type or callable returning such a list. See [Interface Types](interfaces.md) for details. See also the section on [Circular types](#recurring-and-circular-types) for an explanation of when to use callable for this option.
-isTypeOf     | `callable` | **function($value, $context, [ResolveInfo](../reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Expected to return **true** if **$value** qualifies for this type (see section about [Abstract Type Resolution](interfaces.md#interface-role-in-data-fetching) for explanation).
-resolveField | `callable` | **function($value, $args, $context, [ResolveInfo](../reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Given the **$value** of this type, it is expected to return value for a field defined in **$info->fieldName**. A good place to define a type-specific strategy for field resolution. See section on [Data Fetching](../data-fetching.md) for details.
+isTypeOf     | `callable` | **function($value, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Expected to return **true** if **$value** qualifies for this type (see section about [Abstract Type Resolution](interfaces.md#interface-role-in-data-fetching) for explanation).
+resolveField | `callable` | **function($value, $args, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Given the **$value** of this type, it is expected to return value for a field defined in **$info->fieldName**. A good place to define a type-specific strategy for field resolution. See section on [Data Fetching](../data-fetching.md) for details.
 
 # Field configuration options
 Below is a full list of available field configuration options:
@@ -78,9 +77,9 @@ Below is a full list of available field configuration options:
 Option | Type | Notes
 ------ | ---- | -----
 name | `string` | **Required.** Name of the field. When not set - inferred from **fields** array key (read about [shorthand field definition](#shorthand-field-definitions) below)
-type | `Type` | **Required.** An instance of internal or custom type. Note: type must be represented by a single instance within one schema (see also [Type Registry](index.md#type-registry))
+type | `Type` | **Required.** An instance of internal or custom type. Note: type must be represented by a single instance within one schema (see also [lazy loading of types](../schema-definition.md#lazy-loading-of-types))
 args | `array` | An array of possible type arguments. Each entry is expected to be an array with keys: **name**, **type**, **description**, **defaultValue**. See [Field Arguments](#field-arguments) section below.
-resolve | `callable` | **function($objectValue, $args, $context, [ResolveInfo](../reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Given the **$objectValue** of this type, it is expected to return actual value of the current field. See section on [Data Fetching](../data-fetching.md) for details
+resolve | `callable` | **function($objectValue, $args, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Given the **$objectValue** of this type, it is expected to return actual value of the current field. See section on [Data Fetching](../data-fetching.md) for details
 complexity | `callable` | **function($childrenComplexity, $args)**<br> Used to restrict query complexity. The feature is disabled by default, read about [Security](../security.md#query-complexity-analysis) to use it.
 description | `string` | Plain-text description of this field for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 deprecationReason | `string` | Text describing why this field is deprecated. When not empty - field will not be returned by introspection queries (unless forced)
@@ -92,7 +91,7 @@ Each argument is an array with following options:
 Option | Type | Notes
 ------ | ---- | -----
 name | `string` | **Required.** Name of the argument. When not set - inferred from **args** array key
-type | `Type` | **Required.** Instance of one of [Input Types](input-types.md) (**scalar**, **enum**, **InputObjectType** + any combination of those with **nonNull** and **listOf** modifiers)
+type | `Type` | **Required.** Instance of one of [Input Types](inputs.md) (**scalar**, **enum**, **InputObjectType** + any combination of those with **nonNull** and **listOf** modifiers)
 description | `string` | Plain-text description of this argument for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 defaultValue | `scalar` | Default value for this argument. Use the internal value if specifying a default for an **enum** type
 
@@ -150,7 +149,7 @@ $userType = new ObjectType([
 ]);
 ```
 
-Same example for [inheritance style of type definitions](index.md#type-definition-styles) using [TypeRegistry](index.md#type-registry):
+Same example for [inheritance style of type definitions](introduction.md#type-definition-styles) using [TypeRegistry](introduction.md#type-registry):
 ```php
 <?php
 namespace MyApp;

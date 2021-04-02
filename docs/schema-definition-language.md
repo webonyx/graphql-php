@@ -1,10 +1,10 @@
-# Defining your schema
+# Schema Definition Language
 Since 0.9.0
 
-[Type language](http://graphql.org/learn/schema/#type-language) is a convenient way to define your schema,
+The [schema definition language](http://graphql.org/learn/schema/#type-language) is a convenient way to define your schema,
 especially with IDE autocompletion and syntax validation.
 
-Here is a simple schema defined in GraphQL type language (e.g. in a separate **schema.graphql** file):
+You can define this separate from your PHP code, e.g. in a **schema.graphql** file:
 
 ```graphql
 schema {
@@ -23,7 +23,7 @@ input HelloInput {
 ```
 
 In order to create schema instance out of this file, use 
-[`GraphQL\Utils\BuildSchema`](../reference.md#graphqlutilsbuildschema):
+[`GraphQL\Utils\BuildSchema`](class-reference.md#graphqlutilsbuildschema):
 
 ```php
 <?php
@@ -35,7 +35,7 @@ $schema = BuildSchema::build($contents);
 
 By default, such schema is created without any resolvers.
 
-We have to rely on [default field resolver](../data-fetching.md#default-field-resolver) and **root value** in 
+We have to rely on [default field resolver](data-fetching.md#default-field-resolver) and **root value** in 
 order to execute a query against this schema.
 
 # Defining resolvers
@@ -45,8 +45,8 @@ In order to enable **Interfaces**, **Unions** and custom field resolvers you can
 **type config decorator** to schema builder.
 
 It accepts default type config produced by the builder and is expected to add missing options like
-[**resolveType**](interfaces.md#configuration-options) for interface types or
-[**resolveField**](object-types.md#configuration-options) for object types.
+[**resolveType**](type-definitions/interfaces.md#configuration-options) for interface types or
+[**resolveField**](type-definitions/object-types.md#configuration-options) for object types.
 
 ```php
 <?php
@@ -65,7 +65,7 @@ $schema = BuildSchema::build($contents, $typeConfigDecorator);
 # Performance considerations
 Since 0.10.0
 
-Method **build()** produces a [lazy schema](schema.md#lazy-loading-of-types)
+Method **build()** produces a [lazy schema](schema-definition.md#lazy-loading-of-types)
 automatically, so it works efficiently even with very large schemas.
 
 But parsing type definition file on each request is suboptimal, so it is recommended to cache 

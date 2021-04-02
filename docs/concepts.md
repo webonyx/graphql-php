@@ -39,8 +39,9 @@ and executes using [data fetching tools](data-fetching.md) provided by you
 as a part of integration. Queries are supposed to be idempotent.
 
 ## Mutations
-Mutations use advanced features of the very same query language (like arguments and variables)  
-and have only semantic difference from Queries:
+Mutations are root fields that are allowed to have side effects, such as creating, updating or deleting data.
+In contrast to Query fields, the fields within the root Mutation type are executed serially.
+Otherwise, their definition and execution is identical to all other fields.
 
 ```graphql
 mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
@@ -82,7 +83,7 @@ returned after mutation. In our example mutation will return:
 
 # Type System
 Conceptually GraphQL type is a collection of fields. Each field in turn
-has it's own type which allows to build complex hierarchies.
+has its own type which allows building complex hierarchies.
 
 Quick example on pseudo-language:
 ```

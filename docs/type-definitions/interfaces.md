@@ -33,7 +33,7 @@ $character = new InterfaceType([
 ]);
 ```
 This example uses **inline** style for Interface definition, but you can also use  
-[inheritance or type language](index.md#type-definition-styles).
+[inheritance or schema definition language](introduction.md#definition-styles).
 
 # Configuration options
 The constructor of InterfaceType accepts an array. Below is a full list of allowed options:
@@ -43,7 +43,7 @@ Option | Type | Notes
 name | `string` | **Required.** Unique name of this interface type within Schema
 fields | `array` | **Required.** List of fields required to be defined by interface implementors. Same as [Fields for Object Type](object-types.md#field-configuration-options)
 description | `string` | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
-resolveType | `callback` | **function($value, $context, [ResolveInfo](../reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Receives **$value** from resolver of the parent field and returns concrete interface implementor for this **$value**.
+resolveType | `callback` | **function($value, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Receives **$value** from resolver of the parent field and returns concrete interface implementor for this **$value**.
 
 # Implementing interface
 To implement the Interface simply add it to **interfaces** array of Object Type definition:

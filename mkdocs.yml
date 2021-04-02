@@ -1,31 +1,28 @@
 site_name: graphql-php
 site_description: PHP implementation of the GraphQL specification
-docs_dir: docs/
 repo_name: webonyx/graphql-php
 repo_url: https://github.com/webonyx/graphql-php
-nav:
-- About: index.md
+theme:
+  name: material
+docs_dir: docs/
+pages:
+- About: about.md
 - Getting Started: getting-started.md
 - Complementary Tools: complementary-tools.md
+- Schema Definition: schema-definition.md
 - Type Definitions:
-  - Introduction: type-system/index.md
-  - Object Types: type-system/object-types.md
-  - Scalar Types: type-system/scalar-types.md
-  - Enumeration Types: type-system/enum-types.md
-  - Lists and Non-Null: type-system/lists-and-nonnulls.md
-  - Interfaces: type-system/interfaces.md
-  - Unions: type-system/unions.md
-  - Mutations and Input Types: type-system/input-types.md
-  - Directives: type-system/directives.md
-  - Schema: type-system/schema.md
-  - Using Type Language: type-system/type-language.md
+  - Introduction: type-definitions/introduction.md
+  - Object Types: type-definitions/object-types.md
+  - Scalars: type-definitions/scalar-types.md
+  - Enums: type-definitions/enums.md
+  - Lists and Non-Nulls: type-definitions/lists-and-nonnulls.md
+  - Interfaces: type-definitions/interfaces.md
+  - Unions: type-definitions/unions.md
+  - Inputs: type-definitions/inputs.md
+  - Directives: type-definitions/directives.md
+- Schema Definition Language: type-definitions/schema-definition-language.md
 - Executing Queries: executing-queries.md
 - Fetching Data: data-fetching.md
 - Handling Errors: error-handling.md
-# - Mutations: mutations.md
 - Security: security.md
-# - Performance tips: performance.md
-- How it works: how-it-works.md
-- Class Reference: reference.md
-theme:
-  name: material
+- Class Reference: class-reference.md
