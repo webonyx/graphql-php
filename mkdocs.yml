@@ -5,7 +5,7 @@ repo_url: https://github.com/webonyx/graphql-php
 theme:
   name: material
 docs_dir: docs/
-pages:
+nav:
 - About: about.md
 - Getting Started: getting-started.md
 - Complementary Tools: complementary-tools.md
