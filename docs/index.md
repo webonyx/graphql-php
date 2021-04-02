@@ -28,8 +28,8 @@ are used. Instead, it provides tools for creating rich API for your existing app
  
 Library features include:
 
- - Primitives to express your app as a [Type System](type-definitions/introduction.md)
- - Validation and introspection of this Type System (for compatibility with tools like [GraphiQL](complementary-tools.md#tools))
+ - Primitives to express your app as a [Type System](type-definitions/index.md)
+ - Validation and introspection of this Type System (for compatibility with [tools like GraphiQL](complementary-tools.md#general-graphql-tools))
  - Parsing, validating and [executing GraphQL queries](executing-queries.md) against this Type System
  - Rich [error reporting](error-handling.md), including query validation and execution errors
  - Optional tools for [parsing schema definition language](schema-definition-language.md)

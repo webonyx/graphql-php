@@ -1,6 +1,6 @@
 # Integrations
 
-* [Standard Server](executing-queries.md/#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](http://slimframework.com) or [Zend Expressive](http://zendframework.github.io/zend-expressive/)).
+* [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](http://slimframework.com) or [Zend Expressive](http://zendframework.github.io/zend-expressive/)).
 * [Relay Library for graphql-php](https://github.com/ivome/graphql-relay-php) – Helps construct Relay related schema definitions.
 * [Lighthouse](https://github.com/nuwave/lighthouse) – Laravel based, uses Schema Definition Language
 * [Laravel GraphQL](https://github.com/rebing/graphql-laravel) - Laravel wrapper for Facebook's GraphQL

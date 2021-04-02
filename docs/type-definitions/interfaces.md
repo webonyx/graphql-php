@@ -33,7 +33,7 @@ $character = new InterfaceType([
 ]);
 ```
 This example uses **inline** style for Interface definition, but you can also use  
-[inheritance or schema definition language](introduction.md#definition-styles).
+[inheritance or schema definition language](index.md#definition-styles).
 
 # Configuration options
 The constructor of InterfaceType accepts an array. Below is a full list of allowed options:

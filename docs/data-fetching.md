@@ -4,7 +4,7 @@ plain files or in-memory data structures.
 
 In order to convert the GraphQL query to PHP array, **graphql-php** traverses query fields (using depth-first algorithm) and 
 runs special **resolve** function on each field. This **resolve** function is provided by you as a part of 
-[field definition](type-definitions/object-types.md#field-configuration-options) or [query execution call](executing-queries.md#overview).
+[field definition](type-definitions/object-types.md#field-configuration-options) or [query execution call](executing-queries.md).
 
 Result returned by **resolve** function is directly included in the response (for scalars and enums)
 or passed down to nested fields (for objects).

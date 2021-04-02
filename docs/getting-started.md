@@ -62,7 +62,7 @@ $queryType = new ObjectType([
 
 ```
 
-(Note: type definition can be expressed in [different styles](type-definitions/introduction.md#definition-styles))
+(Note: type definition can be expressed in [different styles](type-definitions/index.md#definition-styles))
 
 The interesting piece here is **resolve** option of field definition. It is responsible for returning 
 a value of our field. Values of **scalar** fields will be directly included in response while values of 

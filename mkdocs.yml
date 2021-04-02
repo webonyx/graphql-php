@@ -6,12 +6,12 @@ theme:
   name: material
 docs_dir: docs/
 nav:
-- About: about.md
+- About: index.md
 - Getting Started: getting-started.md
 - Complementary Tools: complementary-tools.md
 - Schema Definition: schema-definition.md
 - Type Definitions:
-  - Introduction: type-definitions/introduction.md
+  - Introduction: type-definitions/index.md
   - Object Types: type-definitions/object-types.md
   - Scalars: type-definitions/scalar-types.md
   - Enums: type-definitions/enums.md
@@ -20,7 +20,7 @@ nav:
   - Unions: type-definitions/unions.md
   - Inputs: type-definitions/inputs.md
   - Directives: type-definitions/directives.md
-- Schema Definition Language: type-definitions/schema-definition-language.md
+- Schema Definition Language: schema-definition-language.md
 - Executing Queries: executing-queries.md
 - Fetching Data: data-fetching.md
 - Handling Errors: error-handling.md

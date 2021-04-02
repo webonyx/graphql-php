@@ -29,7 +29,7 @@ use function is_callable;
 use function sprintf;
 
 /**
- * Schema Definition (see [related docs](type-definitions/schema-definition.md))
+ * Schema Definition (see [schema definition docs](schema-definition.md))
  *
  * A Schema is created by supplying the root types of each type of operation:
  * query, mutation (optional) and subscription (optional). A schema definition is

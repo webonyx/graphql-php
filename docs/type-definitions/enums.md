@@ -30,7 +30,7 @@ $episodeEnum = new EnumType([
 ```
 
 This example uses an **inline** style for Enum Type definition, but you can also use
-[inheritance or schema definition language](introduction.md#definition-styles).
+[inheritance or schema definition language](index.md#definition-styles).
 
 # Configuration options
 Enum Type constructor accepts an array with following options:
