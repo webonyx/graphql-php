@@ -38,7 +38,7 @@ use function strlen;
 use function substr;
 
 /**
- * Given an instance of Schema, prints it in GraphQL type language.
+ * Given an instance of Schema, prints it in schema definition language.
  */
 class SchemaPrinter
 {

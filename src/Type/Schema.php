@@ -29,7 +29,7 @@ use function is_callable;
 use function sprintf;
 
 /**
- * Schema Definition (see [related docs](type-system/schema.md))
+ * Schema Definition (see [schema definition docs](schema-definition.md))
  *
  * A Schema is created by supplying the root types of each type of operation:
  * query, mutation (optional) and subscription (optional). A schema definition is
@@ -152,7 +152,7 @@ class Schema
                     Utils::invariant(
                         $type === $this->resolvedTypes[$type->name],
                         sprintf(
-                            'Schema must contain unique named types but contains multiple types named "%s" (see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
+                            'Schema must contain unique named types but contains multiple types named "%s" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
                             $type
                         )
                     );

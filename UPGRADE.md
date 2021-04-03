@@ -459,7 +459,7 @@ GraphQL::executeAndReturnResult(/**/)
 But note that this is deprecated format and will be removed in future versions. 
 
 In general, if new default formatting doesn't work for you - just set [your own error
-formatter](http://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting).
+formatter](https://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting).
 
 ### Breaking: Validation rules now have abstract base class
 Previously any callable was accepted by DocumentValidator as validation rule. Now only instances of 
@@ -561,7 +561,7 @@ See https://github.com/webonyx/graphql-php/issues/148
 Use [new PSR-7 compliant implementation](docs/executing-queries.md#using-server) instead.
 
 ### Deprecated: experimental `GraphQL\Type\Resolution` interface and implementations
-Use schema [**typeLoader** option](docs/type-system/schema.md#lazy-loading-of-types) instead.
+Use schema [**typeLoader** option](docs/schema-definition.md#lazy-loading-of-types) instead.
 
 ### Non-breaking: usage on async platforms
 When using the library on async platforms use separate method `GraphQL::promiseToExecute()`. 

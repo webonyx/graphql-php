@@ -48,10 +48,10 @@
     }
   },
   "scripts": {
-    "api-docs": "php tools/gendocs.php",
     "baseline": "phpstan --ansi --generate-baseline",
     "bench": "phpbench run",
     "check": "composer lint && composer stan && composer test",
+    "docs": "php generate-class-reference.php",
     "fix": "phpcbf",
     "lint": "phpcs",
     "stan": "phpstan --ansi",

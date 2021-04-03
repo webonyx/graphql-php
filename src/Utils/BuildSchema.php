@@ -26,8 +26,8 @@ use function array_map;
 use function sprintf;
 
 /**
- * Build instance of `GraphQL\Type\Schema` out of type language definition (string or parsed AST)
- * See [section in docs](type-system/type-language.md) for details.
+ * Build instance of `GraphQL\Type\Schema` out of schema language definition (string or parsed AST)
+ * See [schema definition language docs](schema-definition-language.md) for details.
  */
 class BuildSchema
 {

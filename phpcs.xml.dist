@@ -9,6 +9,8 @@
     <!-- Ignore warnings, show progress of the run and show sniff names -->
     <arg value="nps" />
 
+    <file>benchmarks</file>
+    <file>examples/00-hello-world</file>
     <file>src</file>
     <file>tests</file>
 

@@ -11,8 +11,8 @@ composer require webonyx/graphql-php
 ```
 
 # Upgrading
-We try to keep library releases backwards compatible. But when breaking changes are inevitable 
-they are explained in [upgrade instructions](https://github.com/webonyx/graphql-php/blob/master/UPGRADE.md).
+We try to keep library releases backwards compatible when possible.
+For breaking changes we provide [upgrade instructions](https://github.com/webonyx/graphql-php/blob/master/UPGRADE.md).
 
 # Install Tools (optional)
 While it is possible to communicate with GraphQL API using regular HTTP tools it is way 
@@ -30,7 +30,6 @@ The easiest way to use it is to install one of the existing Google Chrome extens
 Alternatively, you can follow instructions on [the GraphiQL](https://github.com/graphql/graphiql)
 page and install it locally.
 
-
 # Hello World
 Let's create a type system that will be capable to process following simple query:
 ```
@@ -39,7 +38,7 @@ query {
 }
 ```
 
-To do so we need an object type with field `echo`:
+We need an object type with the field `echo`:
 
 ```php
 <?php
@@ -63,8 +62,7 @@ $queryType = new ObjectType([
 
 ```
 
-(Note: type definition can be expressed in [different styles](type-system/index.md#type-definition-styles), 
-but this example uses **inline** style for simplicity)
+(Note: type definition can be expressed in [different styles](type-definitions/index.md#definition-styles))
 
 The interesting piece here is **resolve** option of field definition. It is responsible for returning 
 a value of our field. Values of **scalar** fields will be directly included in response while values of 
@@ -113,13 +111,15 @@ curl http://localhost:8080 -d '{"query": "query { echo(message: \"Hello World\")
 Check out the full [source code](https://github.com/webonyx/graphql-php/blob/master/examples/00-hello-world) of this example
 which also includes simple mutation.
 
+Check out [the blog example](https://github.com/webonyx/graphql-php/blob/master/examples/01-blog) for something
+which is closer to real-world apps or read about the details of [schema definition](schema-definition.md).
+
+# Next Steps
 Obviously hello world only scratches the surface of what is possible. 
-So check out next example, which is closer to real-world apps.
-Or keep reading about [schema definition](type-system/index.md).
 
-# Blog example
-It is often easier to start with a full-featured example and then get back to documentation
-for your own work. 
+To learn by example, check out the [blog example](https://github.com/webonyx/graphql-php/tree/master/examples/01-blog)
+which is quite close to real-world GraphQL hierarchies.
 
-Check out [Blog example of GraphQL API](https://github.com/webonyx/graphql-php/tree/master/examples/01-blog).
-It is quite close to real-world GraphQL hierarchies. Follow instructions and try it yourself in ~10 minutes.
+For a deeper understanding of GraphQL in general, check out [concepts](concepts.md).
+
+To delve right into the implementation, see [schema definition](schema-definition.md).
