@@ -18,9 +18,6 @@ use function assert;
 use function implode;
 use function in_array;
 use function preg_replace;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 /**
  * Registry of standard GraphQL types
@@ -173,20 +170,6 @@ abstract class Type implements JsonSerializable
             self::INT => static::int(),
             self::BOOLEAN => static::boolean(),
         ];
-    }
-
-    /**
-     * @deprecated Use method getStandardTypes() instead
-     *
-     * @return Type[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function getInternalTypes()
-    {
-        trigger_error(__METHOD__ . ' is deprecated. Use Type::getStandardTypes() instead', E_USER_DEPRECATED);
-
-        return self::getStandardTypes();
     }
 
     /**
