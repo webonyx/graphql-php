@@ -4,7 +4,7 @@
 - PHP version required: 7.4+
 - Removed deprecated `Type::getInternalTypes()`
 - Remove deprecated `GraphQL::execute()`
-
+- Remove deprecated `GraphQL::executeAndReturnResult()`
 
 #### 14.6.1
 
