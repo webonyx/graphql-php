@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
 use GraphQL\Type\Definition\CustomScalarType;
