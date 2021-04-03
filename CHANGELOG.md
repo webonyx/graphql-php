@@ -16,6 +16,10 @@ Fix:
 Feat:
 - Open ReferenceExecutor for extending
 
+Fix:
+- Ensure properties annotated to hold NodeList are not null
+- Validate that directive argument names do not use reserved or duplicate names
+
 #### 14.5.1
 
 Fix:

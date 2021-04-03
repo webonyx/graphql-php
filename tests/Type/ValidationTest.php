@@ -7,9 +7,11 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
+use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -3099,6 +3101,55 @@ class ValidationTest extends TestCase
                     'message' => 'Directive @testA defined multiple times.',
                     'locations' => [[ 'line' => 6, 'column' => 11 ], [ 'line' => 7, 'column' => 11 ]],
                 ],
+            ]
+        );
+    }
+
+    public function testRejectsASchemaWithDirectivesWithWrongArgs()
+    {
+        // Not using SDL as the duplicate arg name error is prevented by the parser
+
+        $query     = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                [
+                    'name' => 'test',
+                    'type' => Type::int(),
+                ],
+            ],
+        ]);
+        $directive = new Directive([
+            'name' => 'test',
+            'args' => [
+                [
+                    'name' => '__arg',
+                    'type' => Type::int(),
+                ],
+                [
+                    'name' => 'dup',
+                    'type' => Type::int(),
+                ],
+                [
+                    'name' => 'dup',
+                    'type' => Type::int(),
+                ],
+                [
+                    'name' => 'query',
+                    'type' => $query,
+                ],
+            ],
+            'locations' => [DirectiveLocation::QUERY],
+        ]);
+        $schema    = new Schema([
+            'query' => $query,
+            'directives' => [$directive],
+        ]);
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                ['message' => 'Name "__arg" must not begin with "__", which is reserved by GraphQL introspection.'],
+                ['message' => 'Argument @test(dup:) can only be defined once.'],
+                ['message' => 'The type of @test(query:) must be Input Type but got: Query.'],
             ]
         );
     }

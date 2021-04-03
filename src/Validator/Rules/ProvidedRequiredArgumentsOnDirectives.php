@@ -70,7 +70,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                 continue;
             }
 
-            $arguments = $def->arguments ?? [];
+            $arguments = $def->arguments;
 
             $requiredArgsMap[$def->name->value] = Utils::keyMap(
                 Utils::filter($arguments, static function (InputValueDefinitionNode $argument): bool {
@@ -96,7 +96,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                         return null;
                     }
 
-                    $argNodes   = $directiveNode->arguments ?? [];
+                    $argNodes   = $directiveNode->arguments;
                     $argNodeMap = Utils::keyMap(
                         $argNodes,
                         static function (ArgumentNode $arg): string {

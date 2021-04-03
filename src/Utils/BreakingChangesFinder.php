@@ -710,7 +710,7 @@ class BreakingChangesFinder
     private static function getArgumentMapForDirective(Directive $directive)
     {
         return Utils::keyMap(
-            $directive->args ?? [],
+            $directive->args,
             static function ($arg) {
                 return $arg->name;
             }

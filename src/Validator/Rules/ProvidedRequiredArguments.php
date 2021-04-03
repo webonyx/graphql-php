@@ -28,7 +28,7 @@ class ProvidedRequiredArguments extends ValidationRule
                         return Visitor::skipNode();
                     }
 
-                    $argNodes = $fieldNode->arguments ?? [];
+                    $argNodes = $fieldNode->arguments;
 
                     $argNodeMap = [];
                     foreach ($argNodes as $argNode) {
