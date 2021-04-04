@@ -540,7 +540,7 @@ class SchemaExtender
                     $type = null;
                 }
 
-                if ($type) {
+                if ($type !== null) {
                     throw new Error('Type "' . $typeName . '" already exists in the schema. It cannot also be defined in this type definition.', [$def]);
                 }
 
@@ -599,7 +599,7 @@ class SchemaExtender
             'subscription' => static::extendMaybeNamedType($schema->getSubscriptionType()),
         ];
 
-        if ($schemaDef) {
+        if ($schemaDef !== null) {
             foreach ($schemaDef->operationTypes as $operationType) {
                 $operation = $operationType->operation;
                 $type      = $operationType->type;

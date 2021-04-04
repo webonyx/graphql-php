@@ -321,7 +321,7 @@ abstract class Type implements JsonSerializable
      */
     protected function tryInferName()
     {
-        if ($this->name) {
+        if (isset($this->name)) {
             return $this->name;
         }
 

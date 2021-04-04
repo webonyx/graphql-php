@@ -19,18 +19,18 @@ class ScalarLeafs extends ValidationRule
         return [
             NodeKind::FIELD => static function (FieldNode $node) use ($context): void {
                 $type = $context->getType();
-                if (! $type) {
+                if ($type === null) {
                     return;
                 }
 
                 if (Type::isLeafType(Type::getNamedType($type))) {
-                    if ($node->selectionSet) {
+                    if ($node->selectionSet !== null) {
                         $context->reportError(new Error(
                             self::noSubselectionAllowedMessage($node->name->value, $type),
                             [$node->selectionSet]
                         ));
                     }
-                } elseif (! $node->selectionSet) {
+                } elseif ($node->selectionSet === null) {
                     $context->reportError(new Error(
                         self::requiredSubselectionMessage($node->name->value, $type),
                         [$node]

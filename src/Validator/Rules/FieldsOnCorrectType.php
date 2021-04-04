@@ -17,7 +17,6 @@ use GraphQL\Validator\ValidationContext;
 use function array_keys;
 use function array_merge;
 use function arsort;
-use function count;
 use function sprintf;
 
 class FieldsOnCorrectType extends ValidationRule
@@ -27,12 +26,12 @@ class FieldsOnCorrectType extends ValidationRule
         return [
             NodeKind::FIELD => function (FieldNode $node) use ($context): void {
                 $type = $context->getParentType();
-                if (! $type) {
+                if ($type === null) {
                     return;
                 }
 
                 $fieldDef = $context->getFieldDef();
-                if ($fieldDef) {
+                if ($fieldDef !== null) {
                     return;
                 }
 
@@ -46,13 +45,13 @@ class FieldsOnCorrectType extends ValidationRule
                     $fieldName
                 );
                 // If there are no suggested types, then perhaps this was a typo?
-                $suggestedFieldNames = $suggestedTypeNames
-                    ? []
-                    : $this->getSuggestedFieldNames(
+                $suggestedFieldNames = $suggestedTypeNames === []
+                    ? $this->getSuggestedFieldNames(
                         $schema,
                         $type,
                         $fieldName
-                    );
+                    )
+                    : [];
 
                 // Report an error, including helpful suggestions.
                 $context->reportError(new Error(
@@ -156,11 +155,11 @@ class FieldsOnCorrectType extends ValidationRule
     ) {
         $message = sprintf('Cannot query field "%s" on type "%s".', $fieldName, $type);
 
-        if ($suggestedTypeNames) {
+        if ($suggestedTypeNames !== []) {
             $suggestions = Utils::quotedOrList($suggestedTypeNames);
 
             $message .= sprintf(' Did you mean to use an inline fragment on %s?', $suggestions);
-        } elseif (count($suggestedFieldNames) > 0) {
+        } elseif ($suggestedFieldNames !== []) {
             $suggestions = Utils::quotedOrList($suggestedFieldNames);
 
             $message .= sprintf(' Did you mean %s?', $suggestions);

@@ -148,7 +148,7 @@ class ValidationContext extends ASTValidationContext
 
                     $collectedNames[$fragName] = true;
                     $fragment                  = $this->getFragment($fragName);
-                    if (! $fragment) {
+                    if ($fragment === null) {
                         continue;
                     }
 
@@ -183,7 +183,7 @@ class ValidationContext extends ASTValidationContext
                     if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
                     } elseif ($selection instanceof FieldNode || $selection instanceof InlineFragmentNode) {
-                        if ($selection->selectionSet) {
+                        if ($selection->selectionSet !== null) {
                             $setsToVisit[] = $selection->selectionSet;
                         }
                     } else {
@@ -205,8 +205,7 @@ class ValidationContext extends ASTValidationContext
      */
     public function getFragment($name)
     {
-        $fragments = $this->fragments;
-        if (! $fragments) {
+        if (! isset($this->fragments)) {
             $fragments = [];
             foreach ($this->getDocument()->definitions as $statement) {
                 if (! ($statement instanceof FragmentDefinitionNode)) {
@@ -219,7 +218,7 @@ class ValidationContext extends ASTValidationContext
             $this->fragments = $fragments;
         }
 
-        return $fragments[$name] ?? null;
+        return $this->fragments[$name] ?? null;
     }
 
     public function getType(): ?OutputType
@@ -251,10 +250,7 @@ class ValidationContext extends ASTValidationContext
         return $this->typeInfo->getParentInputType();
     }
 
-    /**
-     * @return FieldDefinition
-     */
-    public function getFieldDef()
+    public function getFieldDef(): ?FieldDefinition
     {
         return $this->typeInfo->getFieldDef();
     }

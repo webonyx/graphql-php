@@ -48,7 +48,7 @@ class PossibleFragmentSpreads extends ValidationRule
 
                 if (
                     ! $fragType ||
-                    ! $parentType ||
+                    $parentType === null ||
                     $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
                 ) {
                     return;
@@ -142,14 +142,13 @@ class PossibleFragmentSpreads extends ValidationRule
     private function getFragmentType(ValidationContext $context, $name)
     {
         $frag = $context->getFragment($name);
-        if ($frag) {
-            $type = TypeInfo::typeFromAST($context->getSchema(), $frag->typeCondition);
-            if ($type instanceof CompositeType) {
-                return $type;
-            }
+        if ($frag === null) {
+            return null;
         }
 
-        return null;
+        $type = TypeInfo::typeFromAST($context->getSchema(), $frag->typeCondition);
+
+        return $type instanceof CompositeType ? $type : null;
     }
 
     public static function typeIncompatibleSpreadMessage($fragName, $parentType, $fragType)

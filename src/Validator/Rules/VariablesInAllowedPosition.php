@@ -58,7 +58,7 @@ class VariablesInAllowedPosition extends ValidationRule
                         $schema  = $context->getSchema();
                         $varType = TypeInfo::typeFromAST($schema, $varDef->type);
 
-                        if (! $varType || $this->allowedVariableUsage($schema, $varType, $varDef->defaultValue, $type, $defaultValue)) {
+                        if ($varType === null || $this->allowedVariableUsage($schema, $varType, $varDef->defaultValue, $type, $defaultValue)) {
                             continue;
                         }
 
@@ -102,7 +102,7 @@ class VariablesInAllowedPosition extends ValidationRule
     private function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
     {
         if ($locationType instanceof NonNull && ! $varType instanceof NonNull) {
-            $hasNonNullVariableDefaultValue = $varDefaultValue && ! $varDefaultValue instanceof NullValueNode;
+            $hasNonNullVariableDefaultValue = $varDefaultValue !== null && ! $varDefaultValue instanceof NullValueNode;
             $hasLocationDefaultValue        = ! Utils::isInvalid($locationDefaultValue);
             if (! $hasNonNullVariableDefaultValue && ! $hasLocationDefaultValue) {
                 return false;
