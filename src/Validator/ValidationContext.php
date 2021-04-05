@@ -198,12 +198,7 @@ class ValidationContext extends ASTValidationContext
         return $spreads;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return FragmentDefinitionNode|null
-     */
-    public function getFragment($name)
+    public function getFragment(string $name): ?FragmentDefinitionNode
     {
         if (! isset($this->fragments)) {
             $fragments = [];
