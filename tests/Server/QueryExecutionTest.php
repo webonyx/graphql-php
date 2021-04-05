@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Server;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -14,7 +15,6 @@ use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\RequestError;
 use GraphQL\Server\ServerConfig;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;

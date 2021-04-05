@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Server;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Server\Helper;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use Nyholm\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
 

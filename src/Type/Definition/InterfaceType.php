@@ -59,7 +59,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
-        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
         $this->config            = $config;
     }
 

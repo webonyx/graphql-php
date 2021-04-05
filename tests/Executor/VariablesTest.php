@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\ComplexScalar;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;

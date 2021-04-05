@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Executor;
 
 use ArrayAccess;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\Error;
@@ -14,7 +15,6 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NotSpecial;
 use GraphQL\Tests\Executor\TestClasses\Special;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;

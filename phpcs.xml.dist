@@ -10,6 +10,7 @@
     <arg value="nps" />
 
     <file>benchmarks</file>
+    <file>examples/00-hello-world</file>
     <file>src</file>
     <file>tests</file>
 

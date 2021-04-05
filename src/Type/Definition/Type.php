@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Type\Introspection;
@@ -18,9 +19,6 @@ use function assert;
 use function implode;
 use function in_array;
 use function preg_replace;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 /**
  * Registry of standard GraphQL types
@@ -46,7 +44,7 @@ abstract class Type implements JsonSerializable
     /** @var string|null */
     public $description;
 
-    /** @var TypeDefinitionNode|null */
+    /** @var (Node&TypeDefinitionNode)|null */
     public $astNode;
 
     /** @var mixed[] */
@@ -173,20 +171,6 @@ abstract class Type implements JsonSerializable
             self::INT => static::int(),
             self::BOOLEAN => static::boolean(),
         ];
-    }
-
-    /**
-     * @deprecated Use method getStandardTypes() instead
-     *
-     * @return Type[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function getInternalTypes()
-    {
-        trigger_error(__METHOD__ . ' is deprecated. Use Type::getStandardTypes() instead', E_USER_DEPRECATED);
-
-        return self::getStandardTypes();
     }
 
     /**

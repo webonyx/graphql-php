@@ -77,7 +77,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
             $name = $def->name->value;
             if ($def->arguments !== null) {
                 $directiveArgs[$name] = Utils::map(
-                    $def->arguments ?? [],
+                    $def->arguments,
                     static function (InputValueDefinitionNode $arg): string {
                         return $arg->name->value;
                     }

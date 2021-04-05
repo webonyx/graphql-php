@@ -178,49 +178,6 @@ class GraphQL
     }
 
     /**
-     * @deprecated renamed to executeQuery()
-     *
-     * @param string|DocumentNode $source
-     * @param mixed               $rootValue
-     * @param mixed               $contextValue
-     * @param mixed[]|null        $variableValues
-     *
-     * @return ExecutionResult|Promise
-     *
-     * @codeCoverageIgnore
-     */
-    public static function executeAndReturnResult(
-        SchemaType $schema,
-        $source,
-        $rootValue = null,
-        $contextValue = null,
-        $variableValues = null,
-        ?string $operationName = null
-    ) {
-        trigger_error(
-            __METHOD__ . ' is deprecated, use GraphQL::executeQuery() as a quick replacement',
-            E_USER_DEPRECATED
-        );
-
-        $promiseAdapter = Executor::getPromiseAdapter();
-        $result         = self::promiseToExecute(
-            $promiseAdapter,
-            $schema,
-            $source,
-            $rootValue,
-            $contextValue,
-            $variableValues,
-            $operationName
-        );
-
-        if ($promiseAdapter instanceof SyncPromiseAdapter) {
-            $result = $promiseAdapter->wait($result);
-        }
-
-        return $result;
-    }
-
-    /**
      * Returns directives defined in GraphQL spec
      *
      * @return Directive[]

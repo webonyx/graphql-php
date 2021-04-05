@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\DebugFlag;
@@ -12,7 +13,6 @@ use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;

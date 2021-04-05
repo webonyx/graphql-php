@@ -84,7 +84,7 @@ class Schema
     /** @var Error[] */
     private $validationErrors;
 
-    /** @var SchemaTypeExtensionNode[] */
+    /** @var array<int, SchemaTypeExtensionNode> */
     public $extensionASTNodes = [];
 
     /**
@@ -172,12 +172,9 @@ class Schema
         $this->getTypeMap();
     }
 
-    /**
-     * @return Generator
-     */
-    private function resolveAdditionalTypes()
+    private function resolveAdditionalTypes(): Generator
     {
-        $types = $this->config->types ?? [];
+        $types = $this->config->types;
 
         if (is_callable($types)) {
             $types = $types();

@@ -507,7 +507,7 @@ EOD;
                         'args'              => [
                             'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
                             'resolve' => static function (FieldDefinition $field): array {
-                                return $field->args ?? [];
+                                return $field->args;
                             },
                         ],
                         'type'              => [
@@ -668,7 +668,7 @@ EOD;
                     'args'        => [
                         'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
                         'resolve' => static function (Directive $directive): array {
-                            return $directive->args ?? [];
+                            return $directive->args;
                         },
                     ],
                     'isRepeatable' => [

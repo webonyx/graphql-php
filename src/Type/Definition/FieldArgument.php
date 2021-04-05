@@ -58,9 +58,9 @@ class FieldArgument
     }
 
     /**
-     * @param mixed[] $config
+     * @param array<mixed> $config
      *
-     * @return FieldArgument[]
+     * @return array<int, FieldArgument>
      */
     public static function createMap(array $config): array
     {

@@ -206,7 +206,7 @@ class TypeInfo
 
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
             foreach ($type->getFields() as $fieldName => $field) {
-                if (count($field->args ?? []) > 0) {
+                if (count($field->args) > 0) {
                     $fieldArgTypes = array_map(
                         static function (FieldArgument $arg): Type {
                             return $arg->getType();

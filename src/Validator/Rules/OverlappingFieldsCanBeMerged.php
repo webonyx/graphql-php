@@ -12,6 +12,7 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\CompositeType;
@@ -385,7 +386,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 ];
             }
 
-            if (! $this->sameArguments($ast1->arguments ?? [], $ast2->arguments ?? [])) {
+            if (! $this->sameArguments($ast1->arguments, $ast2->arguments)) {
                 return [
                     [$responseName, 'they have differing arguments'],
                     [$ast1],
@@ -429,12 +430,10 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     }
 
     /**
-     * @param ArgumentNode[] $arguments1
-     * @param ArgumentNode[] $arguments2
-     *
-     * @return bool
+     * @param NodeList<ArgumentNode> $arguments1 keep
+     * @param NodeList<ArgumentNode> $arguments2 keep
      */
-    private function sameArguments($arguments1, $arguments2)
+    private function sameArguments(NodeList $arguments1, NodeList $arguments2): bool
     {
         if (count($arguments1) !== count($arguments2)) {
             return false;

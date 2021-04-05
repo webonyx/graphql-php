@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use ArrayObject;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;

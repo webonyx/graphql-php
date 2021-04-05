@@ -569,11 +569,11 @@ class SchemaExtenderTest extends TestCase
         self::assertCount(2, $someInput->extensionASTNodes);
         self::assertCount(2, $someInterface->extensionASTNodes);
 
-        self::assertCount(0, $testType->extensionASTNodes ?? []);
-        self::assertCount(0, $testEnum->extensionASTNodes ?? []);
-        self::assertCount(0, $testUnion->extensionASTNodes ?? []);
-        self::assertCount(0, $testInput->extensionASTNodes ?? []);
-        self::assertCount(0, $testInterface->extensionASTNodes ?? []);
+        self::assertCount(0, $testType->extensionASTNodes);
+        self::assertCount(0, $testEnum->extensionASTNodes);
+        self::assertCount(0, $testUnion->extensionASTNodes);
+        self::assertCount(0, $testInput->extensionASTNodes);
+        self::assertCount(0, $testInterface->extensionASTNodes);
 
         $restoredExtensionAST = new DocumentNode([
             'definitions' => array_merge(
