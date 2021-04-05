@@ -3,3 +3,6 @@ coverage:
     project:
       default:
         only_pulls: true
+
+comment:
+  layout: "diff, flags, files"
