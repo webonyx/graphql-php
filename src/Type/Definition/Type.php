@@ -34,7 +34,7 @@ abstract class Type implements JsonSerializable
     /** @var array<string, ScalarType> */
     protected static $standardTypes;
 
-    /** @var array<Type[] */
+    /** @var array<string, Type> */
     private static $builtInTypes;
 
     /** @var string */
@@ -46,7 +46,7 @@ abstract class Type implements JsonSerializable
     /** @var (Node&TypeDefinitionNode)|null */
     public $astNode;
 
-    /** @var mixed[] */
+    /** @var array<string, mixed> */
     public $config;
 
     /** @var array<Node&TypeExtensionNode> */
@@ -117,9 +117,9 @@ abstract class Type implements JsonSerializable
      *
      * @api
      */
-    public static function listOf($wrappedType): ListOfType
+    public static function listOf($type): ListOfType
     {
-        return new ListOfType($wrappedType);
+        return new ListOfType($type);
     }
 
     /**
@@ -129,9 +129,9 @@ abstract class Type implements JsonSerializable
      *
      * @api
      */
-    public static function nonNull($wrappedType): NonNull
+    public static function nonNull($type): NonNull
     {
-        return new NonNull($wrappedType);
+        return new NonNull($type);
     }
 
     /**
@@ -205,7 +205,7 @@ abstract class Type implements JsonSerializable
     /**
      * @api
      */
-    public static function isInputType(Type $type): bool
+    public static function isInputType($type): bool
     {
         return self::getNamedType($type) instanceof InputType;
     }
@@ -213,7 +213,7 @@ abstract class Type implements JsonSerializable
     /**
      * @api
      */
-    public static function getNamedType(Type $type): ?Type
+    public static function getNamedType($type): ?Type
     {
         while ($type instanceof WrappingType) {
             $type = $type->getWrappedType();
@@ -225,7 +225,7 @@ abstract class Type implements JsonSerializable
     /**
      * @api
      */
-    public static function isOutputType(Type $type): bool
+    public static function isOutputType($type): bool
     {
         return self::getNamedType($type) instanceof OutputType;
     }
@@ -233,7 +233,7 @@ abstract class Type implements JsonSerializable
     /**
      * @api
      */
-    public static function isLeafType(Type $type): bool
+    public static function isLeafType($type): bool
     {
         return $type instanceof LeafType;
     }
@@ -241,7 +241,7 @@ abstract class Type implements JsonSerializable
     /**
      * @api
      */
-    public static function isCompositeType(Type $type): bool
+    public static function isCompositeType($type): bool
     {
         return $type instanceof CompositeType;
     }
@@ -249,14 +249,11 @@ abstract class Type implements JsonSerializable
     /**
      * @api
      */
-    public static function isAbstractType(Type $type): bool
+    public static function isAbstractType($type): bool
     {
         return $type instanceof AbstractType;
     }
 
-    /**
-     * @param mixed $type
-     */
     public static function assertType($type): Type
     {
         assert(

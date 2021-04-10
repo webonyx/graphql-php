@@ -26,16 +26,20 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
         return $this->getWrappedType()->toString() . '!';
     }
 
+    /**
+     * @return NullableType&Type
+     */
     public function getOfType(): Type
     {
-        return Schema::resolveType($this->ofType);
+        /** @var NullableType&Type $type */
+        $type = Schema::resolveType($this->ofType);
+
+        return $type;
     }
 
-    /**
-     * @return (NullableType&Type)
-     */
     public function getWrappedType(bool $recurse = false): Type
     {
+        /** @var NullableType&Type $type */
         $type = $this->getOfType();
 
         return $recurse && $type instanceof WrappingType
