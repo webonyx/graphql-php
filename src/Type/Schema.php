@@ -410,11 +410,16 @@ class Schema
     }
 
     /**
-     * @param Type|callable():Type $type
+     * @param Type|callable $type
+     *
+     * @template T of Type
+     * @phpstan-param T|callable():T $type
+     * @phpstan-return T
      */
     public static function resolveType($type): Type
     {
         if ($type instanceof Type) {
+            /** @phpstan-var T $type */
             return $type;
         }
 

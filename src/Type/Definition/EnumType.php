@@ -209,7 +209,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /**
      * @throws InvariantViolation
      */
-    public function assertValid()
+    public function assertValid(): void
     {
         parent::assertValid();
 
