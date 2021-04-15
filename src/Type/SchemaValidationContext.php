@@ -508,25 +508,21 @@ class SchemaValidationContext
                 }
 
                 // Ensure argument definition directives are valid
-                if (! isset($arg->astNode, $arg->astNode->directives)) {
-                    continue;
+                if (isset($arg->astNode, $arg->astNode->directives)) {
+                    $this->validateDirectivesAtLocation(
+                        $arg->astNode->directives,
+                        DirectiveLocation::ARGUMENT_DEFINITION
+                    );
                 }
-
-                $this->validateDirectivesAtLocation(
-                    $arg->astNode->directives,
-                    DirectiveLocation::ARGUMENT_DEFINITION
-                );
             }
 
             // Ensure any directives are valid
-            if (! isset($field->astNode, $field->astNode->directives)) {
-                continue;
+            if (isset($field->astNode, $field->astNode->directives)) {
+                $this->validateDirectivesAtLocation(
+                    $field->astNode->directives,
+                    DirectiveLocation::FIELD_DEFINITION
+                );
             }
-
-            $this->validateDirectivesAtLocation(
-                $field->astNode->directives,
-                DirectiveLocation::FIELD_DEFINITION
-            );
         }
     }
 

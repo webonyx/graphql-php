@@ -1264,6 +1264,32 @@ class ValidationTest extends TestCase
         ];
     }
 
+    public function testRejectsFieldArgumentsWithIncorrectDefaultType(): void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        foo(
+            int: Int = "not an int"
+            string: String = 42
+        ): ID
+      }
+        ');
+
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message'   => 'Expected foo.int to have a default value of type Int, got "not an int".',
+                    'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
+                ],
+                [
+                    'message'   => 'Expected foo.string to have a default value of type String, got 42.',
+                    'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
+                ],
+            ]
+        );
+    }
+
     /**
      * @see          it('rejects an Enum type with incorrectly named values')
      *
