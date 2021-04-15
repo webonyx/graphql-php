@@ -8,6 +8,7 @@ docs_dir: docs/
 nav:
 - About: index.md
 - Getting Started: getting-started.md
+- Concepts: concepts.md
 - Complementary Tools: complementary-tools.md
 - Schema Definition: schema-definition.md
 - Type Definitions:
