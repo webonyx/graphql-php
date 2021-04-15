@@ -14,7 +14,7 @@ nav:
 - Type Definitions:
   - Introduction: type-definitions/index.md
   - Object Types: type-definitions/object-types.md
-  - Scalars: type-definitions/scalar-types.md
+  - Scalars: type-definitions/scalars.md
   - Enums: type-definitions/enums.md
   - Lists and Non-Nulls: type-definitions/lists-and-nonnulls.md
   - Interfaces: type-definitions/interfaces.md
