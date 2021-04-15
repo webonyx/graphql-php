@@ -19,7 +19,7 @@
     "doctrine/coding-standard": "^8.2",
     "ergebnis/composer-normalize": "^2.13",
     "nyholm/psr7": "^1.2",
-    "phpbench/phpbench": "^1.0.0-alpha7",
+    "phpbench/phpbench": "1.0.0-beta1",
     "phpstan/extension-installer": "^1.0",
     "phpstan/phpstan": "0.12.82",
     "phpstan/phpstan-phpunit": "0.12.18",
