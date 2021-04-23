@@ -372,8 +372,9 @@ class SchemaValidationContext
      */
     private function validateDirectivesAtLocation($directives, string $location)
     {
-        $directivesNamed = [];
-        $schema          = $this->schema;
+        /** @var array<string, array<int, DirectiveNode>> $potentiallyDuplicateDirectives */
+        $potentiallyDuplicateDirectives = [];
+        $schema                         = $this->schema;
         foreach ($directives as $directive) {
             $directiveName = $directive->name->value;
 
@@ -386,6 +387,7 @@ class SchemaValidationContext
                 );
                 continue;
             }
+
             $includes = Utils::some(
                 $schemaDirective->locations,
                 static function ($schemaLocation) use ($location) : bool {
@@ -402,17 +404,22 @@ class SchemaValidationContext
                 );
             }
 
-            $existingNodes                   = $directivesNamed[$directiveName] ?? [];
-            $existingNodes[]                 = $directive;
-            $directivesNamed[$directiveName] = $existingNodes;
+            if ($schemaDirective->isRepeatable) {
+                continue;
+            }
+
+            $existingNodes                                  = $potentiallyDuplicateDirectives[$directiveName] ?? [];
+            $existingNodes[]                                = $directive;
+            $potentiallyDuplicateDirectives[$directiveName] = $existingNodes;
         }
-        foreach ($directivesNamed as $directiveName => $directiveList) {
+
+        foreach ($potentiallyDuplicateDirectives as $directiveName => $directiveList) {
             if (count($directiveList) <= 1) {
                 continue;
             }
 
             $this->reportError(
-                sprintf('Directive @%s used twice at the same location.', $directiveName),
+                sprintf('Non-repeatable directive @%s used more than once at the same location.', $directiveName),
                 $directiveList
             );
         }
