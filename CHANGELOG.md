@@ -9,6 +9,8 @@ Removed:
 - Remove deprecated `GraphQL::execute()`
 - Remove deprecated `GraphQL::executeAndReturnResult()`
 
+#### 14.6.2
+
 Fix:
 - Fix overly eager validation of repeatable directive usage
 
