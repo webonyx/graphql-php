@@ -1,10 +1,18 @@
 # Changelog
 
 #### Unreleased
+Changed:
 - PHP version required: 7.4+
+
+Removed:
 - Removed deprecated `Type::getInternalTypes()`
 - Remove deprecated `GraphQL::execute()`
 - Remove deprecated `GraphQL::executeAndReturnResult()`
+
+#### 14.6.2
+
+Fix:
+- Fix overly eager validation of repeatable directive usage
 
 #### 14.6.1
 
