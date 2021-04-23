@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.6.2
+
+Fix:
+- Fix overly eager validation of repeatable directive usage
+
 #### 14.6.1
 
 Fix:
