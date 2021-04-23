@@ -3078,19 +3078,19 @@ class ValidationTest extends TestCase
           type Query implements SomeInterface @object @object {
             test(arg: SomeInput @argument_definition @argument_definition): String
           }
-    
+
           interface SomeInterface @interface @interface {
             test: String @field_definition @field_definition
           }
-    
+
           union SomeUnion @union @union = Query
-    
+
           scalar SomeScalar @scalar @scalar
-    
+
           enum SomeEnum @enum @enum {
             SOME_VALUE @enum_value @enum_value
           }
-    
+
           input SomeInput @input_object @input_object {
             some_input_field: String @input_field_definition @input_field_definition
           }
@@ -3099,40 +3099,65 @@ class ValidationTest extends TestCase
             $schema->validate(),
             [
                 [
-                    'message' => 'Directive @schema used twice at the same location.',
+                    'message' => 'Non-repeatable directive @schema used more than once at the same location.',
                     'locations' => [[ 'line' => 14, 'column' => 18 ], [ 'line' => 14, 'column' => 26 ]],
-                ],[
-                    'message' => 'Directive @argument_definition used twice at the same location.',
+                ],
+                [
+                    'message' => 'Non-repeatable directive @argument_definition used more than once at the same location.',
                     'locations' => [[ 'line' => 19, 'column' => 33 ], [ 'line' => 19, 'column' => 54 ]],
-                ],[
-                    'message' => 'Directive @object used twice at the same location.',
+                ],
+                [
+                    'message' => 'Non-repeatable directive @object used more than once at the same location.',
                     'locations' => [[ 'line' => 18, 'column' => 47 ], [ 'line' => 18, 'column' => 55 ]],
-                ],[
-                    'message' => 'Directive @field_definition used twice at the same location.',
+                ],
+                [
+                    'message' => 'Non-repeatable directive @field_definition used more than once at the same location.',
                     'locations' => [[ 'line' => 23, 'column' => 26 ], [ 'line' => 23, 'column' => 44 ]],
-                ],[
-                    'message' => 'Directive @interface used twice at the same location.',
+                ],
+                [
+                    'message' => 'Non-repeatable directive @interface used more than once at the same location.',
                     'locations' => [[ 'line' => 22, 'column' => 35 ], [ 'line' => 22, 'column' => 46 ]],
-                ],[
-                    'message' => 'Directive @input_field_definition used twice at the same location.',
+                ],
+                [
+                    'message' => 'Non-repeatable directive @input_field_definition used more than once at the same location.',
                     'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 35, 'column' => 62 ]],
-                ],[
-                    'message' => 'Directive @input_object used twice at the same location.',
+                ],
+                [
+                    'message' => 'Non-repeatable directive @input_object used more than once at the same location.',
                     'locations' => [[ 'line' => 34, 'column' => 27 ], [ 'line' => 34, 'column' => 41 ]],
-                ],[
-                    'message' => 'Directive @union used twice at the same location.',
+                ],
+                [
+                    'message' => 'Non-repeatable directive @union used more than once at the same location.',
                     'locations' => [[ 'line' => 26, 'column' => 27 ], [ 'line' => 26, 'column' => 34 ]],
-                ],[
-                    'message' => 'Directive @scalar used twice at the same location.',
+                ],
+                [
+                    'message' => 'Non-repeatable directive @scalar used more than once at the same location.',
                     'locations' => [[ 'line' => 28, 'column' => 29 ], [ 'line' => 28, 'column' => 37 ]],
-                ],[
-                    'message' => 'Directive @enum_value used twice at the same location.',
+                ],
+                [
+                    'message' => 'Non-repeatable directive @enum_value used more than once at the same location.',
                     'locations' => [[ 'line' => 31, 'column' => 24 ], [ 'line' => 31, 'column' => 36 ]],
-                ],[
-                    'message' => 'Directive @enum used twice at the same location.',
+                ],
+                [
+                    'message' => 'Non-repeatable directive @enum used more than once at the same location.',
                     'locations' => [[ 'line' => 30, 'column' => 25 ], [ 'line' => 30, 'column' => 31 ]],
                 ],
             ]
+        );
+    }
+
+    public function testAllowsRepeatableDirectivesMultipleTimesAtTheSameLocation() : void
+    {
+        $schema = BuildSchema::build('
+          directive @repeatable repeatable on OBJECT
+
+          type Query @repeatable @repeatable {
+            foo: ID
+          }
+        ', null, ['assumeValid' => true]);
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            []
         );
     }
 
@@ -3157,10 +3182,11 @@ class ValidationTest extends TestCase
 
         $this->assertMatchesValidationMessage(
             $extendedSchema->validate(),
-            [[
-                'message' => 'Directive @testA used twice at the same location.',
-                'locations' => [[ 'line' => 4, 'column' => 22 ], [ 'line' => 2, 'column' => 29 ]],
-            ],
+            [
+                [
+                    'message' => 'Non-repeatable directive @testA used more than once at the same location.',
+                    'locations' => [[ 'line' => 4, 'column' => 22 ], [ 'line' => 2, 'column' => 29 ]],
+                ],
             ]
         );
     }
