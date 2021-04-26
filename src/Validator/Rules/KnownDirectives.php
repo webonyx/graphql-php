@@ -134,7 +134,7 @@ class KnownDirectives extends ValidationRule
      *
      * @return string
      */
-    private function getDirectiveLocationForASTPath(array $ancestors)
+    protected function getDirectiveLocationForASTPath(array $ancestors)
     {
         $appliedTo = $ancestors[count($ancestors) - 1];
         switch (true) {

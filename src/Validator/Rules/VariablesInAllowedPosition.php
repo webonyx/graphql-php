@@ -99,7 +99,7 @@ class VariablesInAllowedPosition extends ValidationRule
      * @param ValueNode|null $varDefaultValue
      * @param mixed          $locationDefaultValue
      */
-    private function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
+    protected function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
     {
         if ($locationType instanceof NonNull && ! $varType instanceof NonNull) {
             $hasNonNullVariableDefaultValue = $varDefaultValue && ! $varDefaultValue instanceof NullValueNode;

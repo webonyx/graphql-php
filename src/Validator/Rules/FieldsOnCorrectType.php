@@ -79,7 +79,7 @@ class FieldsOnCorrectType extends ValidationRule
      *
      * @return string[]
      */
-    private function getSuggestedTypeNames(Schema $schema, $type, $fieldName)
+    protected function getSuggestedTypeNames(Schema $schema, $type, $fieldName)
     {
         if (Type::isAbstractType($type)) {
             $suggestedObjectTypes = [];
@@ -128,7 +128,7 @@ class FieldsOnCorrectType extends ValidationRule
      *
      * @return array|string[]
      */
-    private function getSuggestedFieldNames(Schema $schema, $type, $fieldName)
+    protected function getSuggestedFieldNames(Schema $schema, $type, $fieldName)
     {
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
             $possibleFieldNames = array_keys($type->getFields());

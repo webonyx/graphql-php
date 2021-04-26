@@ -62,7 +62,7 @@ class PossibleFragmentSpreads extends ValidationRule
         ];
     }
 
-    private function doTypesOverlap(Schema $schema, CompositeType $fragType, CompositeType $parentType)
+    protected function doTypesOverlap(Schema $schema, CompositeType $fragType, CompositeType $parentType)
     {
         // Checking in the order of the most frequently used scenarios:
         // Parent type === fragment type
@@ -139,7 +139,7 @@ class PossibleFragmentSpreads extends ValidationRule
         );
     }
 
-    private function getFragmentType(ValidationContext $context, $name)
+    protected function getFragmentType(ValidationContext $context, $name)
     {
         $frag = $context->getFragment($name);
         if ($frag) {

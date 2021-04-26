@@ -19,7 +19,7 @@ use function sprintf;
 class QueryDepth extends QuerySecurityRule
 {
     /** @var int */
-    private $maxQueryDepth;
+    protected $maxQueryDepth;
 
     public function __construct($maxQueryDepth)
     {
@@ -48,7 +48,7 @@ class QueryDepth extends QuerySecurityRule
         );
     }
 
-    private function fieldDepth($node, $depth = 0, $maxDepth = 0)
+    protected function fieldDepth($node, $depth = 0, $maxDepth = 0)
     {
         if (isset($node->selectionSet) && $node->selectionSet instanceof SelectionSetNode) {
             foreach ($node->selectionSet->selections as $childNode) {
@@ -59,7 +59,7 @@ class QueryDepth extends QuerySecurityRule
         return $maxDepth;
     }
 
-    private function nodeDepth(Node $node, $depth = 0, $maxDepth = 0)
+    protected function nodeDepth(Node $node, $depth = 0, $maxDepth = 0)
     {
         switch (true) {
             case $node instanceof FieldNode:

@@ -10,7 +10,7 @@ use GraphQL\Validator\ValidationContext;
 class CustomValidationRule extends ValidationRule
 {
     /** @var callable */
-    private $visitorFn;
+    protected $visitorFn;
 
     public function __construct($name, callable $visitorFn)
     {

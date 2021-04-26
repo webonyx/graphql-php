@@ -6,6 +6,7 @@ Changed:
 
 Feat.
 - Replace self with static in validator rules to improve extendability
+- Replace private with protected in validator rules to improve extendability
 
 Removed:
 - Removed deprecated `Type::getInternalTypes()`

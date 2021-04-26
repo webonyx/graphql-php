@@ -31,22 +31,22 @@ use function sprintf;
 class QueryComplexity extends QuerySecurityRule
 {
     /** @var int */
-    private $maxQueryComplexity;
+    protected $maxQueryComplexity;
 
     /** @var array<string, mixed> */
-    private $rawVariableValues = [];
+    protected $rawVariableValues = [];
 
     /** @var NodeList<VariableDefinitionNode> */
-    private $variableDefs;
+    protected $variableDefs;
 
     /** @var ArrayObject */
-    private $fieldNodeAndDefs;
+    protected $fieldNodeAndDefs;
 
     /** @var ValidationContext */
-    private $context;
+    protected $context;
 
     /** @var int */
-    private $complexity;
+    protected $complexity;
 
     public function __construct($maxQueryComplexity)
     {
@@ -105,7 +105,7 @@ class QueryComplexity extends QuerySecurityRule
         );
     }
 
-    private function fieldComplexity($node, $complexity = 0)
+    protected function fieldComplexity($node, $complexity = 0)
     {
         if (isset($node->selectionSet) && $node->selectionSet instanceof SelectionSetNode) {
             foreach ($node->selectionSet->selections as $childNode) {
@@ -116,7 +116,7 @@ class QueryComplexity extends QuerySecurityRule
         return $complexity;
     }
 
-    private function nodeComplexity(Node $node, $complexity = 0)
+    protected function nodeComplexity(Node $node, $complexity = 0)
     {
         switch (true) {
             case $node instanceof FieldNode:
@@ -171,7 +171,7 @@ class QueryComplexity extends QuerySecurityRule
         return $complexity;
     }
 
-    private function astFieldInfo(FieldNode $field)
+    protected function astFieldInfo(FieldNode $field)
     {
         $fieldName    = $this->getFieldName($field);
         $astFieldInfo = [null, null];
@@ -187,7 +187,7 @@ class QueryComplexity extends QuerySecurityRule
         return $astFieldInfo;
     }
 
-    private function directiveExcludesField(FieldNode $node)
+    protected function directiveExcludesField(FieldNode $node)
     {
         foreach ($node->directives as $directiveNode) {
             if ($directiveNode->name->value === 'deprecated') {
@@ -247,7 +247,7 @@ class QueryComplexity extends QuerySecurityRule
         $this->rawVariableValues = $rawVariableValues ?? [];
     }
 
-    private function buildFieldArguments(FieldNode $node)
+    protected function buildFieldArguments(FieldNode $node)
     {
         $rawVariableValues = $this->getRawVariableValues();
         $astFieldInfo      = $this->astFieldInfo($node);
