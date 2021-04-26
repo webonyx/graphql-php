@@ -17,6 +17,7 @@
 * [GraphQL Batch Processor](https://github.com/vasily-kartashov/graphql-batch-processing) – Provides a builder interface for defining collection, querying, filtering, and post-processing logic of batched data fetches 
 * [GraphQL Utils](https://github.com/simPod/GraphQL-Utils) – Objective schema definition builders (no need for arrays anymore) and `DateTime` scalar
 * [Relay Library](https://github.com/ivome/graphql-relay-php) – Helps construct Relay related schema definitions
+- [MLL Scalars](https://github.com/mll-lab/graphql-php-scalars) - Collection of custom scalar types
 
 # GraphQL Clients
 
