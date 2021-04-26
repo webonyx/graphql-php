@@ -55,7 +55,7 @@ class NoUnusedFragments extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            self::unusedFragMessage($fragName),
+                            static::unusedFragMessage($fragName),
                             [$fragmentDef]
                         ));
                     }

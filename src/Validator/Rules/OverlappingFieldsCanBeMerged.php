@@ -72,7 +72,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     [[$responseName, $reason], $fields1, $fields2] = $conflict;
 
                     $context->reportError(new Error(
-                        self::fieldsConflictMessage($responseName, $reason),
+                        static::fieldsConflictMessage($responseName, $reason),
                         array_merge($fields1, $fields2)
                     ));
                 }
@@ -879,7 +879,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     public static function fieldsConflictMessage($responseName, $reason)
     {
-        $reasonMessage = self::reasonMessage($reason);
+        $reasonMessage = static::reasonMessage($reason);
 
         return sprintf(
             'Fields "%s" conflict because %s. Use different aliases on the fields to fetch both if this was intentional.',
@@ -895,7 +895,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 static function ($tmp): string {
                     [$responseName, $subReason] = $tmp;
 
-                    $reasonMessage = self::reasonMessage($subReason);
+                    $reasonMessage = static::reasonMessage($subReason);
 
                     return sprintf('subfields "%s" conflict because %s', $responseName, $reasonMessage);
                 },

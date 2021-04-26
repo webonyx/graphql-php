@@ -89,7 +89,7 @@ class NoFragmentCycles extends ValidationRule
                 });
 
                 $context->reportError(new Error(
-                    self::cycleErrorMessage($spreadName, $fragmentNames),
+                    static::cycleErrorMessage($spreadName, $fragmentNames),
                     $cyclePath
                 ));
             }

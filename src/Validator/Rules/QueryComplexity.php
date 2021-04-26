@@ -94,7 +94,7 @@ class QueryComplexity extends QuerySecurityRule
                         }
 
                         $context->reportError(
-                            new Error(self::maxQueryComplexityErrorMessage(
+                            new Error(static::maxQueryComplexityErrorMessage(
                                 $this->getMaxQueryComplexity(),
                                 $this->getQueryComplexity()
                             ))
@@ -307,6 +307,6 @@ class QueryComplexity extends QuerySecurityRule
 
     protected function isEnabled()
     {
-        return $this->getMaxQueryComplexity() !== self::DISABLED;
+        return $this->getMaxQueryComplexity() !== static::DISABLED;
     }
 }

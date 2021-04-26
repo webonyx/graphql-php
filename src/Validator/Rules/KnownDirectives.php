@@ -101,7 +101,7 @@ class KnownDirectives extends ValidationRule
 
                 if (! $locations) {
                     $context->reportError(new Error(
-                        self::unknownDirectiveMessage($name),
+                        static::unknownDirectiveMessage($name),
                         [$node]
                     ));
 
@@ -116,7 +116,7 @@ class KnownDirectives extends ValidationRule
 
                 $context->reportError(
                     new Error(
-                        self::misplacedDirectiveMessage($name, $candidateLocation),
+                        static::misplacedDirectiveMessage($name, $candidateLocation),
                         [$node]
                     )
                 );

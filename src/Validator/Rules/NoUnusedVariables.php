@@ -46,7 +46,7 @@ class NoUnusedVariables extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            self::unusedVariableMessage($variableName, $opName),
+                            static::unusedVariableMessage($variableName, $opName),
                             [$variableDef]
                         ));
                     }

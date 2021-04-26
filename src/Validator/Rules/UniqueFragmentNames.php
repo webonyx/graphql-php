@@ -33,7 +33,7 @@ class UniqueFragmentNames extends ValidationRule
                     $this->knownFragmentNames[$fragmentName] = $node->name;
                 } else {
                     $context->reportError(new Error(
-                        self::duplicateFragmentNameMessage($fragmentName),
+                        static::duplicateFragmentNameMessage($fragmentName),
                         [$this->knownFragmentNames[$fragmentName], $node->name]
                     ));
                 }

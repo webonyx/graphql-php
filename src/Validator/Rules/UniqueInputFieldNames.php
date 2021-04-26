@@ -55,7 +55,7 @@ class UniqueInputFieldNames extends ValidationRule
 
                 if (isset($this->knownNames[$fieldName])) {
                     $context->reportError(new Error(
-                        self::duplicateInputFieldMessage($fieldName),
+                        static::duplicateInputFieldMessage($fieldName),
                         [$this->knownNames[$fieldName], $node->name]
                     ));
                 } else {

@@ -37,7 +37,7 @@ class PossibleFragmentSpreads extends ValidationRule
                 }
 
                 $context->reportError(new Error(
-                    self::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
+                    static::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
                     [$node]
                 ));
             },
@@ -55,7 +55,7 @@ class PossibleFragmentSpreads extends ValidationRule
                 }
 
                 $context->reportError(new Error(
-                    self::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
+                    static::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
                     [$node]
                 ));
             },

@@ -31,7 +31,7 @@ class UniqueVariableNames extends ValidationRule
                     $this->knownVariableNames[$variableName] = $node->variable->name;
                 } else {
                     $context->reportError(new Error(
-                        self::duplicateVariableMessage($variableName),
+                        static::duplicateVariableMessage($variableName),
                         [$this->knownVariableNames[$variableName], $node->variable->name]
                     ));
                 }

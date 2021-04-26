@@ -32,7 +32,7 @@ class UniqueOperationNames extends ValidationRule
                         $this->knownOperationNames[$operationName->value] = $operationName;
                     } else {
                         $context->reportError(new Error(
-                            self::duplicateOperationNameMessage($operationName->value),
+                            static::duplicateOperationNameMessage($operationName->value),
                             [$this->knownOperationNames[$operationName->value], $operationName]
                         ));
                     }

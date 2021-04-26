@@ -4,6 +4,9 @@
 Changed:
 - PHP version required: 7.4+
 
+Feat.
+- Replace self with static in validator rules to improve extendability
+
 Removed:
 - Removed deprecated `Type::getInternalTypes()`
 - Remove deprecated `GraphQL::execute()`

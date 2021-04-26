@@ -63,7 +63,7 @@ class VariablesInAllowedPosition extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            self::badVarPosMessage($varName, $varType, $type),
+                            static::badVarPosMessage($varName, $varType, $type),
                             [$varDef, $node]
                         ));
                     }
