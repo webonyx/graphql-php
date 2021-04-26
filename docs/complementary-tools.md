@@ -1,29 +1,26 @@
-# Integrations
+# Server Integrations
 
-* [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](http://slimframework.com) or [Zend Expressive](http://zendframework.github.io/zend-expressive/)).
-* [Relay Library for graphql-php](https://github.com/ivome/graphql-relay-php) – Helps construct Relay related schema definitions.
-* [Lighthouse](https://github.com/nuwave/lighthouse) – Laravel based, uses Schema Definition Language
-* [Laravel GraphQL](https://github.com/rebing/graphql-laravel) - Laravel wrapper for Facebook's GraphQL
-* [OverblogGraphQLBundle](https://github.com/overblog/GraphQLBundle) – Bundle for Symfony
-* [WP-GraphQL](https://github.com/wp-graphql/wp-graphql) - GraphQL API for WordPress
-* [Siler](https://github.com/leocavalcante/siler) - Straightforward way to map GraphQL SDL to resolver callables, also built-in support for Swoole
+* [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](http://slimframework.com) or [Zend Expressive](http://zendframework.github.io/zend-expressive/))
+* [Lighthouse](https://github.com/nuwave/lighthouse) – Laravel package, SDL-first
+* [Laravel GraphQL](https://github.com/rebing/graphql-laravel) - Laravel package, code-first 
+* [OverblogGraphQLBundle](https://github.com/overblog/GraphQLBundle) – Symfony bundle
+* [WP-GraphQL](https://github.com/wp-graphql/wp-graphql) - WordPress plugin
+* [Siler](https://github.com/leocavalcante/siler) - Flat files and plain-old PHP functions, supports Swoole
 * [API Platform](https://api-platform.com/docs/core/graphql) - Creates a GraphQL API from PHP models
 
-# GraphQL PHP Tools
+# Server Utilities
 
-* [GraphQLite](https://graphqlite.thecodingmachine.io) – Define your complete schema with annotations
+* [GraphQLite](https://graphqlite.thecodingmachine.io) – Use PHP Annotations to define your schema
 * [GraphQL Doctrine](https://github.com/Ecodev/graphql-doctrine) – Define types with Doctrine ORM annotations
-* [DataLoaderPHP](https://github.com/overblog/dataloader-php) – as a ready implementation for [deferred resolvers](data-fetching.md#solving-n1-problem)
-* [GraphQL Uploads](https://github.com/Ecodev/graphql-upload) – A PSR-15 middleware to support file uploads in GraphQL.
-* [GraphQL Batch Processor](https://github.com/vasily-kartashov/graphql-batch-processing) – Provides a builder interface for defining collection, querying, filtering, and post-processing logic of batched data fetches. 
+* [DataLoaderPHP](https://github.com/overblog/dataloader-php) – Implements [deferred resolvers](data-fetching.md#solving-n1-problem)
+* [GraphQL Upload](https://github.com/Ecodev/graphql-upload) – PSR-15 middleware to support file uploads in GraphQL
+* [GraphQL Batch Processor](https://github.com/vasily-kartashov/graphql-batch-processing) – Provides a builder interface for defining collection, querying, filtering, and post-processing logic of batched data fetches 
 * [GraphQL Utils](https://github.com/simPod/GraphQL-Utils) – Objective schema definition builders (no need for arrays anymore) and `DateTime` scalar
-* [PSR 15 compliant middleware](https://github.com/phps-cans/psr7-middleware-graphql) for the Standard Server _(experimental)_
+* [Relay Library](https://github.com/ivome/graphql-relay-php) – Helps construct Relay related schema definitions
 
-# General GraphQL Tools
+# GraphQL Clients
 
-* [GraphQL Playground](https://github.com/prismagraphql/graphql-playground) – GraphQL IDE for better development workflows (GraphQL Subscriptions, interactive docs & collaboration).
-* [GraphiQL](https://github.com/graphql/graphiql) – An in-browser IDE for exploring GraphQL
-* [ChromeiQL](https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij)
-  or [GraphiQL Feen](https://chrome.google.com/webstore/detail/graphiql-feen/mcbfdonlkfpbfdpimkjilhdneikhfklp) –
-  GraphiQL as Google Chrome extension
-* [Altair GraphQL Client](https://altair.sirmuel.design/) - A beautiful feature-rich GraphQL Client for all platforms
+* [GraphiQL](https://github.com/graphql/graphiql) – Graphical interactive in-browser GraphQL IDE
+* [GraphQL Playground](https://github.com/prismagraphql/graphql-playground) – GraphQL IDE for better development workflows (GraphQL Subscriptions, interactive docs & collaboration)
+* [Altair GraphQL Client](https://altair.sirmuel.design) - Beautiful feature-rich GraphQL Client for all platforms
+* [Sailor](https://github.com/spawnia/sailor) - Typesafe GraphQL client for PHP
