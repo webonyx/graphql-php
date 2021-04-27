@@ -11,7 +11,9 @@ based on the [reference implementation in JavaScript](https://github.com/graphql
 
 Via composer:
 
-    composer require webonyx/graphql-php
+```sh
+composer require webonyx/graphql-php
+```
 
 ## Documentation
 
