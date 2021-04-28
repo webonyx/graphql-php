@@ -41,19 +41,15 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * A memoization for when two fragments are compared "between" each other for
      * conflicts. Two fragments may be compared many times, so memoizing this can
      * dramatically improve the performance of this validator.
-     *
-     * @var PairSet
      */
-    protected $comparedFragmentPairs;
+    protected PairSet $comparedFragmentPairs;
 
     /**
      * A cache for the "field map" and list of fragment names found in any given
      * selection set. Selection sets may be asked for this information multiple
      * times, so this improves the performance of this validator.
-     *
-     * @var SplObjectStorage
      */
-    protected $cachedFieldsAndFragmentNames;
+    protected SplObjectStorage $cachedFieldsAndFragmentNames;
 
     public function getVisitor(ValidationContext $context)
     {

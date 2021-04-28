@@ -18,8 +18,7 @@ use function sprintf;
 
 class QueryDepth extends QuerySecurityRule
 {
-    /** @var int */
-    protected $maxQueryDepth;
+    protected int $maxQueryDepth;
 
     public function __construct($maxQueryDepth)
     {

@@ -30,23 +30,19 @@ use function sprintf;
 
 class QueryComplexity extends QuerySecurityRule
 {
-    /** @var int */
-    protected $maxQueryComplexity;
+    protected int $maxQueryComplexity;
 
     /** @var array<string, mixed> */
-    protected $rawVariableValues = [];
+    protected array $rawVariableValues = [];
 
     /** @var NodeList<VariableDefinitionNode> */
-    protected $variableDefs;
+    protected NodeList $variableDefs;
 
-    /** @var ArrayObject */
-    protected $fieldNodeAndDefs;
+    protected ArrayObject $fieldNodeAndDefs;
 
-    /** @var ValidationContext */
-    protected $context;
+    protected ValidationContext $context;
 
-    /** @var int */
-    protected $complexity;
+    protected int $complexity;
 
     public function __construct($maxQueryComplexity)
     {
