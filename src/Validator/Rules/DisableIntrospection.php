@@ -13,7 +13,7 @@ class DisableIntrospection extends QuerySecurityRule
 {
     public const ENABLED = 1;
 
-    protected bool $isEnabled;
+    protected int $isEnabled;
 
     public function __construct($enabled = self::ENABLED)
     {

@@ -20,10 +20,10 @@ use function sprintf;
 class UniqueInputFieldNames extends ValidationRule
 {
     /** @var array<string, NameNode> */
-    public $knownNames;
+    protected array $knownNames;
 
     /** @var array<array<string, NameNode>> */
-    public $knownNameStack;
+    protected array $knownNameStack;
 
     public function getVisitor(ValidationContext $context)
     {

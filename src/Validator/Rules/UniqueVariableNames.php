@@ -15,7 +15,7 @@ use function sprintf;
 class UniqueVariableNames extends ValidationRule
 {
     /** @var NameNode[] */
-    public $knownVariableNames;
+    protected array $knownVariableNames;
 
     public function getVisitor(ValidationContext $context)
     {

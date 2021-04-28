@@ -17,7 +17,7 @@ use function sprintf;
 class UniqueOperationNames extends ValidationRule
 {
     /** @var NameNode[] */
-    public $knownOperationNames;
+    protected array $knownOperationNames;
 
     public function getVisitor(ValidationContext $context)
     {

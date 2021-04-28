@@ -17,7 +17,7 @@ use function sprintf;
 class UniqueFragmentNames extends ValidationRule
 {
     /** @var NameNode[] */
-    public $knownFragmentNames;
+    protected array $knownFragmentNames;
 
     public function getVisitor(ValidationContext $context)
     {

@@ -27,7 +27,7 @@ class VariablesInAllowedPosition extends ValidationRule
      *
      * @var VariableDefinitionNode[]
      */
-    public $varDefMap;
+    protected array $varDefMap;
 
     public function getVisitor(ValidationContext $context)
     {

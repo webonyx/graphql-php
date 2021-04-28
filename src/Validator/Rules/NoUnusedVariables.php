@@ -15,7 +15,7 @@ use function sprintf;
 class NoUnusedVariables extends ValidationRule
 {
     /** @var VariableDefinitionNode[] */
-    public $variableDefs;
+    protected array $variableDefs;
 
     public function getVisitor(ValidationContext $context)
     {
