@@ -25,7 +25,7 @@ abstract class QuerySecurityRule extends ValidationRule
     public const DISABLED = 0;
 
     /** @var FragmentDefinitionNode[] */
-    private $fragments = [];
+    protected array $fragments = [];
 
     /**
      * check if equal to 0 no check is done. Must be greater or equal to 0.

@@ -40,7 +40,7 @@ class KnownArgumentNames extends ValidationRule
                 }
 
                 $context->reportError(new Error(
-                    self::unknownArgMessage(
+                    static::unknownArgMessage(
                         $node->name->value,
                         $fieldDef->name,
                         $parentType->name,
