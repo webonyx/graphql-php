@@ -307,6 +307,6 @@ class QueryComplexity extends QuerySecurityRule
 
     protected function isEnabled()
     {
-        return $this->getMaxQueryComplexity() !== static::DISABLED;
+        return $this->getMaxQueryComplexity() !== self::DISABLED;
     }
 }
