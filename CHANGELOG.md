@@ -4,7 +4,7 @@
 Changed:
 - PHP version required: 7.4+
 
-Feat.
+Feat:
 - Improve extendability of validator rules
 
 Removed:
