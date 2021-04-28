@@ -1,12 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type;
 
-use GraphQL\Examples\Blog\AppContext;
+use Exception;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
+
+use function method_exists;
+use function ucfirst;
 
 class UserType extends ObjectType
 {
@@ -15,7 +21,7 @@ class UserType extends ObjectType
         $config = [
             'name' => 'User',
             'description' => 'Our blog authors',
-            'fields' => function() {
+            'fields' => static function () {
                 return [
                     'id' => Types::id(),
                     'email' => Types::email(),
@@ -24,7 +30,7 @@ class UserType extends ObjectType
                         'description' => 'User photo URL',
                         'args' => [
                             'size' => Types::nonNull(Types::imageSizeEnum()),
-                        ]
+                        ],
                     ],
                     'firstName' => [
                         'type' => Types::string(),
@@ -35,23 +41,21 @@ class UserType extends ObjectType
                     'lastStoryPosted' => Types::story(),
                     'fieldWithError' => [
                         'type' => Types::string(),
-                        'resolve' => function() {
-                            throw new \Exception("This is error field");
-                        }
-                    ]
+                        'resolve' => static function (): void {
+                            throw new Exception('This is error field');
+                        },
+                    ],
                 ];
             },
-            'interfaces' => [
-                Types::node()
-            ],
-            'resolveField' => function($user, $args, $context, ResolveInfo $info) {
+            'interfaces' => [Types::node()],
+            'resolveField' => function ($user, $args, $context, ResolveInfo $info) {
                 $method = 'resolve' . ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($user, $args, $context, $info);
-                } else {
-                    return $user->{$info->fieldName};
                 }
-            }
+
+                return $user->{$info->fieldName};
+            },
         ];
         parent::__construct($config);
     }

@@ -1,9 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type;
 
+use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
-use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\InterfaceType;
 
@@ -14,9 +17,9 @@ class NodeType extends InterfaceType
         $config = [
             'name' => 'Node',
             'fields' => [
-                'id' => Types::id()
+                'id' => Types::id(),
             ],
-            'resolveType' => [$this, 'resolveNodeType']
+            'resolveType' => [$this, 'resolveNodeType'],
         ];
         parent::__construct($config);
     }
@@ -25,9 +28,13 @@ class NodeType extends InterfaceType
     {
         if ($object instanceof User) {
             return Types::user();
-        } else if ($object instanceof Image) {
+        }
+
+        if ($object instanceof Image) {
             return Types::image();
-        } else if ($object instanceof Story) {
+        }
+
+        if ($object instanceof Story) {
             return Types::story();
         }
     }

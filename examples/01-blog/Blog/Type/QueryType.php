@@ -1,6 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type;
 
+use Exception;
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Types;
@@ -19,12 +23,12 @@ class QueryType extends ObjectType
                     'type' => Types::user(),
                     'description' => 'Returns user by id (in range of 1-5)',
                     'args' => [
-                        'id' => Types::nonNull(Types::id())
-                    ]
+                        'id' => Types::nonNull(Types::id()),
+                    ],
                 ],
                 'viewer' => [
                     'type' => Types::user(),
-                    'description' => 'Represents currently logged-in user (for the sake of example - simply returns user with id == 1)'
+                    'description' => 'Represents currently logged-in user (for the sake of example - simply returns user with id == 1)',
                 ],
                 'stories' => [
                     'type' => Types::listOf(Types::story()),
@@ -32,34 +36,34 @@ class QueryType extends ObjectType
                     'args' => [
                         'after' => [
                             'type' => Types::id(),
-                            'description' => 'Fetch stories listed after the story with this ID'
+                            'description' => 'Fetch stories listed after the story with this ID',
                         ],
                         'limit' => [
                             'type' => Types::int(),
                             'description' => 'Number of stories to be returned',
-                            'defaultValue' => 10
-                        ]
-                    ]
+                            'defaultValue' => 10,
+                        ],
+                    ],
                 ],
                 'lastStoryPosted' => [
                     'type' => Types::story(),
-                    'description' => 'Returns last story posted for this blog'
+                    'description' => 'Returns last story posted for this blog',
                 ],
                 'deprecatedField' => [
                     'type' => Types::string(),
-                    'deprecationReason' => 'This field is deprecated!'
+                    'deprecationReason' => 'This field is deprecated!',
                 ],
                 'fieldWithException' => [
                     'type' => Types::string(),
-                    'resolve' => function() {
-                        throw new \Exception("Exception message thrown in field resolver");
-                    }
+                    'resolve' => static function (): void {
+                        throw new Exception('Exception message thrown in field resolver');
+                    },
                 ],
-                'hello' => Type::string()
+                'hello' => Type::string(),
             ],
-            'resolveField' => function($rootValue, $args, $context, ResolveInfo $info) {
+            'resolveField' => function ($rootValue, $args, $context, ResolveInfo $info) {
                 return $this->{$info->fieldName}($rootValue, $args, $context, $info);
-            }
+            },
         ];
         parent::__construct($config);
     }
@@ -77,6 +81,7 @@ class QueryType extends ObjectType
     public function stories($rootValue, $args)
     {
         $args += ['after' => null];
+
         return DataSource::findStories($args['limit'], $args['after']);
     }
 

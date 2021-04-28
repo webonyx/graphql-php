@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\Data\Story;
@@ -12,19 +15,21 @@ class SearchResultType extends UnionType
     {
         $config = [
             'name' => 'SearchResultType',
-            'types' => function() {
+            'types' => static function () {
                 return [
                     Types::story(),
-                    Types::user()
+                    Types::user(),
                 ];
             },
-            'resolveType' => function($value) {
+            'resolveType' => static function ($value) {
                 if ($value instanceof Story) {
                     return Types::story();
-                } else if ($value instanceof User) {
+                }
+
+                if ($value instanceof User) {
                     return Types::user();
                 }
-            }
+            },
         ];
         parent::__construct($config);
     }
