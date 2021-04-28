@@ -5,8 +5,7 @@ Changed:
 - PHP version required: 7.4+
 
 Feat.
-- Replace self with static in validator rules to improve extendability
-- Replace private with protected in validator rules to improve extendability
+- Improve extendability of validator rules
 
 Removed:
 - Removed deprecated `Type::getInternalTypes()`
