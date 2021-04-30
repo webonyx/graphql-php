@@ -78,8 +78,8 @@ Field names of Mutation type are usually verbs and they almost always have argum
 with complex input values (see [Mutations and Input Types](type-definitions/inputs.md) for details).
 
 # Configuration Options
-Schema constructor expects an instance of [`GraphQL\Type\SchemaConfig`](class-reference.md#graphqltypeschemaconfig) 
-or an array with following options:
+The schema constructor expects an instance of [`GraphQL\Type\SchemaConfig`](class-reference.md#graphqltypeschemaconfig) 
+or an array with the following options:
 
 Option       | Type     | Notes
 ------------ | -------- | -----
@@ -87,11 +87,11 @@ query        | `ObjectType` | **Required.** Object type (usually named "Query") 
 mutation     | `ObjectType` | Object type (usually named "Mutation") containing root-level fields of your write API
 subscription     | `ObjectType` | Reserved for future subscriptions implementation. Currently presented for compatibility with introspection query of **graphql-js**, used by various clients (like Relay or GraphiQL)
 directives  | `array<Directive>` | A full list of [directives](type-definitions/directives.md) supported by your schema. By default, contains built-in **@skip** and **@include** directives.<br><br> If you pass your own directives and still want to use built-in directives - add them explicitly. For example:<br><br> *array_merge(GraphQL::getStandardDirectives(), [$myCustomDirective]);*
-types     | `array<ObjectType>` | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often it happens when the object type is never referenced in fields directly but is still a part of a schema because it implements an interface which resolves to this object type in its **resolveType** callable. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for concrete use-case.
-typeLoader     | `callable(string $name): Type` | Expected to return type instance given the name. Must always return the same instance if called multiple times, see [lazy loading](#lazy-loading-of-types). See section below on lazy type loading.
+types     | `array<ObjectType>` | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often this happens when the object type is never referenced in fields directly but is still a part of a schema because it implements an interface which resolves to this object type in its **resolveType** callable. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for concrete a use-case.
+typeLoader     | `callable(string $name): Type` | Expected to return a type instance given the name. Must always return the same instance if called multiple times, see [lazy loading](#lazy-loading-of-types). See section below on lazy type loading.
 
 # Using config class
-If you prefer fluid interface for config with auto-completion in IDE and static time validation, 
+If you prefer a fluid interface for the config with auto-completion in IDE and static time validation, 
 use [`GraphQL\Type\SchemaConfig`](class-reference.md#graphqltypeschemaconfig) instead of an array:
 
 ```php
@@ -110,10 +110,10 @@ $schema = new Schema($config);
 By default, the schema will scan all of your type, field and argument definitions to serve GraphQL queries. 
 It may cause performance overhead when there are many types in the schema. 
 
-In this case, it is recommended to pass **typeLoader** option to schema constructor and define all 
+In this case, it is recommended to pass the **typeLoader** option to the schema constructor and define all 
 of your object **fields** as callbacks.
 
-Type loading concept is very similar to PHP class loading, but keep in mind that **typeLoader** must
+Type loading is very similar to PHP class loading, but keep in mind that the **typeLoader** must
 always return the same instance of a type. A good way to ensure this is to use a type registry:
 
 ```php
@@ -160,17 +160,17 @@ $schema = new Schema([
 ]);
 ```
 
-You can automate this registry as you wish to reduce boilerplate or even
-introduce Dependency Injection Container if your types have other dependencies.
+You can automate this registry if you wish to reduce boilerplate or even
+introduce a Dependency Injection Container if your types have other dependencies.
 
 Alternatively, all methods of the registry could be static - then there is no need
 to pass it in the constructor - instead use **TypeRegistry::myAType()** in your type definitions.
 
 # Schema Validation
 By default, the schema is created with only shallow validation of type and field definitions  
-(because validation requires full schema scan and is very costly on bigger schemas).
+(because validation requires a full schema scan and is very costly on bigger schemas).
 
-There is a special method **assertValid()** on schema instance which throws 
+There is a special method **assertValid()** on the schema instance which throws 
 `GraphQL\Error\InvariantViolation` exception when it encounters any error, like:
 
 - Invalid types used for fields/arguments
@@ -178,7 +178,7 @@ There is a special method **assertValid()** on schema instance which throws
 - Invalid interface implementations
 - Other schema errors...
 
-Schema validation is supposed to be used in CLI commands or during build step of your app.
+Schema validation is supposed to be used in CLI commands or during a build step of your app.
 Don't call it in web requests in production. 
 
 Usage example:
