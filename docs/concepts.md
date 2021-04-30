@@ -3,7 +3,7 @@ GraphQL is data-centric. On the very top level it is built around three major co
 **Schema**, **Query** and **Mutation**.
  
 You are expected to express your application as a **Schema** (aka Type System) and expose it
-with single a HTTP endpoint (e.g. using our [standard server](executing-queries.md#using-server)). 
+as a single HTTP endpoint (e.g. using our [standard server](executing-queries.md#using-server)). 
 Application clients (e.g. web or mobile clients) send **Queries** 
 to this endpoint to request structured data and **Mutations** to perform changes (usually with HTTP POST method).
  
