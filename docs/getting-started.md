@@ -31,7 +31,7 @@ Alternatively, you can follow instructions on [the GraphiQL](https://github.com/
 page and install it locally.
 
 # Hello World
-Let's create a type system that will be capable to process following simple query:
+Let's create a type system that will be capable to process the following simple query:
 ```
 query {
   echo(message: "Hello World")
@@ -64,12 +64,12 @@ $queryType = new ObjectType([
 
 (Note: type definition can be expressed in [different styles](type-definitions/index.md#definition-styles))
 
-The interesting piece here is **resolve** option of field definition. It is responsible for returning 
-a value of our field. Values of **scalar** fields will be directly included in response while values of 
+The interesting piece here is the **resolve** option of the field definition. It is responsible for returning 
+a value of our field. Values of **scalar** fields will be directly included in the response while values of 
 **composite** fields (objects, interfaces, unions) will be passed down to nested field resolvers 
 (not in this example though).
 
-Now when our type is ready, let's create GraphQL endpoint file for it **graphql.php**:
+Now when our type is ready, let's create a GraphQL endpoint file for it **graphql.php**:
 
 ```php
 <?php
