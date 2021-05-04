@@ -11,12 +11,10 @@ use GraphQL\Examples\Blog\Data\User;
  */
 class AppContext
 {
-    /** @var string */
-    public $rootUrl;
+    public string $rootUrl;
 
-    /** @var User */
-    public $viewer;
+    public User $viewer;
 
-    /** @var mixed */
-    public $request;
+    /** @var array<string, mixed> */
+    public array $request;
 }

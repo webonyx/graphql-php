@@ -15,15 +15,15 @@ class Image
     const SIZE_MEDIUM   = 'medium';
     const SIZE_ORIGINAL = 'original';
 
-    public $id;
+    public int $id;
 
-    public $type;
+    public string $type;
 
-    public $size;
+    public string $size;
 
-    public $width;
+    public int $width;
 
-    public $height;
+    public int $height;
 
     public function __construct(array $data)
     {

@@ -10,13 +10,14 @@ use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use UnexpectedValueException;
 
 class ImageType extends ObjectType
 {
     public function __construct()
     {
-        $config = [
+        parent::__construct([
             'name' => 'ImageType',
             'fields' => [
                 'id' => Types::id(),
@@ -37,23 +38,21 @@ class ImageType extends ObjectType
                 // Just for the sake of example
                 'fieldWithError' => [
                     'type' => Types::string(),
-                    'resolve' => static function () {
+                    'resolve' => static function (): void {
                         throw new Exception('Field with exception');
                     },
                 ],
                 'nonNullFieldWithError' => [
                     'type' => Types::nonNull(Types::string()),
-                    'resolve' => static function () {
+                    'resolve' => static function (): void {
                         throw new Exception('Non-null field with exception');
                     },
                 ],
             ],
-        ];
-
-        parent::__construct($config);
+        ]);
     }
 
-    public function resolveUrl(Image $value, $args, AppContext $context)
+    public function resolveUrl(Image $value, array $args, AppContext $context, ResolveInfo $info): string
     {
         switch ($value->type) {
             case Image::TYPE_USERPIC:

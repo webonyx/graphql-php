@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Examples\Blog;
 
+use Closure;
 use Exception;
 use GraphQL\Examples\Blog\Type\CommentType;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
@@ -16,6 +17,7 @@ use GraphQL\Examples\Blog\Type\Scalar\UrlType;
 use GraphQL\Examples\Blog\Type\SearchResultType;
 use GraphQL\Examples\Blog\Type\StoryType;
 use GraphQL\Examples\Blog\Type\UserType;
+use GraphQL\Type\Definition\BooleanType;
 use GraphQL\Type\Definition\FloatType;
 use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\IntType;
@@ -40,8 +42,8 @@ use function strtolower;
  */
 class Types
 {
-    private static $types         = [];
-    const LAZY_LOAD_GRAPHQL_TYPES = true;
+    /** @var array<string, Type> */
+    private static array $types = [];
 
     public static function user(): callable
     {
@@ -93,16 +95,18 @@ class Types
         return static::get(UrlType::class);
     }
 
-    public static function get($classname)
+    /**
+     * @return Closure(): Type
+     */
+    public static function get(string $classname): Closure
     {
-        return self::LAZY_LOAD_GRAPHQL_TYPES ? static function () use ($classname) {
-            return static::byClassName($classname);
-        } : static::byClassName($classname);
+        return static fn () => static::byClassName($classname);
     }
 
-    protected static function byClassName($classname)
+    protected static function byClassName(string $classname): Type
     {
-        $parts     = explode('\\', $classname);
+        $parts = explode('\\', $classname);
+
         $cacheName = strtolower(preg_replace('~Type$~', '', $parts[count($parts) - 1]));
         $type      = null;
 
@@ -123,7 +127,7 @@ class Types
         return $type;
     }
 
-    public static function byTypeName($shortName, $removeType = true)
+    public static function byTypeName(string $shortName, bool $removeType = true): Type
     {
         $cacheName = strtolower($shortName);
         $type      = null;
@@ -145,71 +149,46 @@ class Types
     }
 
     /**
-     * @param $name
-     * @param null $objectKey
-     *
-     * @return array
+     * @return array<string, mixed>
      */
-    public static function htmlField($name, $objectKey = null)
+    public static function htmlField(string $name, ?string $objectKey = null): array
     {
         return HtmlField::build($name, $objectKey);
     }
 
     // Let's add internal types as well for consistent experience
 
-    public static function boolean()
+    public static function boolean(): BooleanType
     {
         return Type::boolean();
     }
 
-    /**
-     * @return FloatType
-     */
-    public static function float()
+    public static function float(): FloatType
     {
         return Type::float();
     }
 
-    /**
-     * @return IDType
-     */
-    public static function id()
+    public static function id(): IDType
     {
         return Type::id();
     }
 
-    /**
-     * @return IntType
-     */
-    public static function int()
+    public static function int(): IntType
     {
         return Type::int();
     }
 
-    /**
-     * @return StringType
-     */
-    public static function string()
+    public static function string(): StringType
     {
         return Type::string();
     }
 
-    /**
-     * @param Type $type
-     *
-     * @return ListOfType
-     */
-    public static function listOf($type)
+    public static function listOf(Type $type): ListOfType
     {
         return new ListOfType($type);
     }
 
-    /**
-     * @param Type $type
-     *
-     * @return NonNull
-     */
-    public static function nonNull($type)
+    public static function nonNull(Type $type): NonNull
     {
         return new NonNull($type);
     }

@@ -7,6 +7,8 @@ namespace GraphQL\Examples\Blog\Type;
 use Exception;
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\DataSource;
+use GraphQL\Examples\Blog\Data\Story;
+use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -16,7 +18,7 @@ class QueryType extends ObjectType
 {
     public function __construct()
     {
-        $config = [
+        parent::__construct([
             'name' => 'Query',
             'fields' => [
                 'user' => [
@@ -64,38 +66,49 @@ class QueryType extends ObjectType
             'resolveField' => function ($rootValue, $args, $context, ResolveInfo $info) {
                 return $this->{$info->fieldName}($rootValue, $args, $context, $info);
             },
-        ];
-        parent::__construct($config);
+        ]);
     }
 
-    public function user($rootValue, $args)
+    /**
+     * @param null              $rootValue
+     * @param array{id: string} $args
+     */
+    public function user($rootValue, array $args): ?User
     {
-        return DataSource::findUser($args['id']);
+        return DataSource::findUser((int) $args['id']);
     }
 
-    public function viewer($rootValue, $args, AppContext $context)
+    /**
+     * @param null        $rootValue
+     * @param array<void> $args
+     */
+    public function viewer($rootValue, array $args, AppContext $context): User
     {
         return $context->viewer;
     }
 
-    public function stories($rootValue, $args)
+    /**
+     * @param null                           $rootValue
+     * @param array{limit: int, after?: int} $args
+     *
+     * @return array<int, Story>
+     */
+    public function stories($rootValue, array $args): array
     {
-        $args += ['after' => null];
-
-        return DataSource::findStories($args['limit'], $args['after']);
+        return DataSource::findStories($args['limit'], $args['after'] ?? null);
     }
 
-    public function lastStoryPosted()
+    public function lastStoryPosted(): ?Story
     {
         return DataSource::findLatestStory();
     }
 
-    public function hello()
+    public function hello(): string
     {
         return 'Your graphql-php endpoint is ready! Use GraphiQL to browse API';
     }
 
-    public function deprecatedField()
+    public function deprecatedField(): string
     {
         return 'You can request deprecated field, but it is not displayed in auto-generated documentation by default.';
     }

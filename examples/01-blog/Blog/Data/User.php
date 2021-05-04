@@ -8,15 +8,15 @@ use GraphQL\Utils\Utils;
 
 class User
 {
-    public $id;
+    public int $id;
 
-    public $email;
+    public string $email;
 
-    public $firstName;
+    public string $firstName;
 
-    public $lastName;
+    public string $lastName;
 
-    public $hasPhoto;
+    public bool $hasPhoto;
 
     public function __construct(array $data)
     {

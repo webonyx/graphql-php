@@ -8,15 +8,15 @@ use GraphQL\Utils\Utils;
 
 class Story
 {
-    public $id;
+    public int $id;
 
-    public $authorId;
+    public int $authorId;
 
-    public $title;
+    public string $title;
 
-    public $body;
+    public string $body;
 
-    public $isAnonymous = false;
+    public bool $isAnonymous = false;
 
     public function __construct(array $data)
     {

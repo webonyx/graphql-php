@@ -8,17 +8,17 @@ use GraphQL\Utils\Utils;
 
 class Comment
 {
-    public $id;
+    public int $id;
 
-    public $authorId;
+    public int $authorId;
 
-    public $storyId;
+    public int $storyId;
 
-    public $parentId;
+    public ?int $parentId = null;
 
-    public $body;
+    public string $body;
 
-    public $isAnonymous;
+    public bool $isAnonymous = true;
 
     public function __construct(array $data)
     {

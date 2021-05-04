@@ -13,13 +13,14 @@ use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Type\QueryType;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\GraphQL;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
 // Disable default PHP error reporting - we have better one for debug mode (see below)
-ini_set('display_errors', 0);
+ini_set('display_errors', '0');
 
 $debug = DebugFlag::NONE;
-if (! empty($_GET['debug'])) {
+if (isset($_GET['debug'])) {
     set_error_handler(static function ($severity, $message, $file, $line): void {
         throw new ErrorException($message, 0, $severity, $file, $line);
     });
@@ -32,7 +33,7 @@ try {
 
     // Prepare context that will be available in all field resolvers (as 3rd argument):
     $appContext          = new AppContext();
-    $appContext->viewer  = DataSource::findUser('1'); // simulated "currently logged-in user"
+    $appContext->viewer  = DataSource::findUser(1); // simulated "currently logged-in user"
     $appContext->rootUrl = 'http://localhost:8080';
     $appContext->request = $_REQUEST;
 
@@ -50,12 +51,9 @@ try {
         $data['query'] = '{hello}';
     }
 
-    // GraphQL schema to be passed to query executor:
     $schema = new Schema([
         'query' => new QueryType(),
-        'typeLoader' => static function ($name) {
-            return Types::byTypeName($name, true);
-        },
+        'typeLoader' => static fn (string $name): Type => Types::byTypeName($name, true),
     ]);
 
     $result     = GraphQL::executeQuery(
@@ -68,8 +66,8 @@ try {
     $output     = $result->toArray($debug);
     $httpStatus = 200;
 } catch (Throwable $error) {
-    $httpStatus       = 500;
-    $output['errors'] = [FormattedError::createFromException($error, $debug)];
+    $httpStatus = 500;
+    $output     = ['errors' => [FormattedError::createFromException($error, $debug)]];
 }
 
 header('Content-Type: application/json', true, $httpStatus);

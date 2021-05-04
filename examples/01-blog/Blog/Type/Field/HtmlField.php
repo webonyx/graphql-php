@@ -13,7 +13,10 @@ use function strip_tags;
 
 class HtmlField
 {
-    public static function build($name, $objectKey = null)
+    /**
+     * @return array<string, mixed>
+     */
+    public static function build(string $name, ?string $objectKey = null): array
     {
         $objectKey = $objectKey ?: $name;
 
@@ -34,7 +37,7 @@ class HtmlField
                 $html = $object->{$objectKey};
                 $text = strip_tags($html);
 
-                if (! empty($args['maxLength'])) {
+                if (isset($args['maxLength'])) {
                     $safeText = mb_substr($text, 0, $args['maxLength']);
                 } else {
                     $safeText = $text;

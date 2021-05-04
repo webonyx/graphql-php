@@ -4,27 +4,30 @@ declare(strict_types=1);
 
 namespace GraphQL\Examples\Blog\Type;
 
+use Exception;
 use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\Type;
+
+use function get_class;
 
 class NodeType extends InterfaceType
 {
     public function __construct()
     {
-        $config = [
+        parent::__construct([
             'name' => 'Node',
             'fields' => [
                 'id' => Types::id(),
             ],
             'resolveType' => [$this, 'resolveNodeType'],
-        ];
-        parent::__construct($config);
+        ]);
     }
 
-    public function resolveNodeType($object)
+    public function resolveNodeType(object $object): Type
     {
         if ($object instanceof User) {
             return Types::user();
@@ -37,5 +40,7 @@ class NodeType extends InterfaceType
         if ($object instanceof Story) {
             return Types::story();
         }
+
+        throw new Exception('Unknown type: ' . get_class($object));
     }
 }
