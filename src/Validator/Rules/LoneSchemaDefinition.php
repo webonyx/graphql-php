@@ -43,13 +43,13 @@ class LoneSchemaDefinition extends ValidationRule
         return [
             NodeKind::SCHEMA_DEFINITION => static function (SchemaDefinitionNode $node) use ($alreadyDefined, $context, &$schemaDefinitionsCount): void {
                 if ($alreadyDefined !== false) {
-                    $context->reportError(new Error(self::canNotDefineSchemaWithinExtensionMessage(), $node));
+                    $context->reportError(new Error(static::canNotDefineSchemaWithinExtensionMessage(), $node));
 
                     return;
                 }
 
                 if ($schemaDefinitionsCount > 0) {
-                    $context->reportError(new Error(self::schemaDefinitionNotAloneMessage(), $node));
+                    $context->reportError(new Error(static::schemaDefinitionNotAloneMessage(), $node));
                 }
 
                 ++$schemaDefinitionsCount;

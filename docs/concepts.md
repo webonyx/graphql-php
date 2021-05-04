@@ -2,8 +2,8 @@
 GraphQL is data-centric. On the very top level it is built around three major concepts: 
 **Schema**, **Query** and **Mutation**.
  
-You are expected to express your application as **Schema** (aka Type System) and expose it
-with single HTTP endpoint (e.g. using our [standard server](executing-queries.md#using-server)). 
+You are expected to express your application as a **Schema** (aka Type System) and expose it
+as a single HTTP endpoint (e.g. using our [standard server](executing-queries.md#using-server)). 
 Application clients (e.g. web or mobile clients) send **Queries** 
 to this endpoint to request structured data and **Mutations** to perform changes (usually with HTTP POST method).
  
@@ -21,7 +21,7 @@ Queries are expressed in simple language that resembles JSON:
 }
 ```
  
-It was designed to mirror the structure of expected response:
+It was designed to mirror the structure of the expected response:
 ```json
 {
   "hero": {
@@ -34,9 +34,9 @@ It was designed to mirror the structure of expected response:
   }
 }
 ```
-**graphql-php** runtime parses Queries, makes sure that they are valid for given Type System 
+The **graphql-php** runtime parses Queries, makes sure that they are valid for a given Type System 
 and executes using [data fetching tools](data-fetching.md) provided by you 
-as a part of integration. Queries are supposed to be idempotent.
+as part of the integration. Queries are supposed to be idempotent.
 
 ## Mutations
 Mutations are root fields that are allowed to have side effects, such as creating, updating or deleting data.
@@ -51,7 +51,7 @@ mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
   }
 }
 ```
-Variables `$ep` and `$review` are sent alongside with mutation. Full HTTP request might look like this:
+Variables `$ep` and `$review` are sent alongside with the mutation. A full HTTP request might look like this:
 ```json
 // POST /graphql-endpoint
 // Content-Type: application/javascript
@@ -68,10 +68,10 @@ Variables `$ep` and `$review` are sent alongside with mutation. Full HTTP reques
 }
 ```
 As you see variables may include complex objects and they will be correctly validated by 
-**graphql-php** runtime.
+the **graphql-php** runtime.
 
 Another nice feature of GraphQL mutations is that they also hold the query for data to be 
-returned after mutation. In our example mutation will return:
+returned after mutation. In our example the mutation will return:
 ```
 {
   "createReview": {
@@ -82,7 +82,7 @@ returned after mutation. In our example mutation will return:
 ```
 
 # Type System
-Conceptually GraphQL type is a collection of fields. Each field in turn
+Conceptually a GraphQL type is a collection of fields. Each field in turn
 has its own type which allows building complex hierarchies.
 
 Quick example on pseudo-language:
@@ -100,9 +100,9 @@ type User {
 }
 ```
 
-Type system is a heart of GraphQL integration. That's where **graphql-php** comes into play.
+The type system is at the heart of GraphQL integration. That's where **graphql-php** comes into play.
  
-It provides following tools and primitives to describe your App as hierarchy of types:
+It provides the following tools and primitives to describe your App as a hierarchy of types:
 
  * Primitives for defining **objects** and **interfaces**
  * Primitives for defining **enumerations** and **unions**

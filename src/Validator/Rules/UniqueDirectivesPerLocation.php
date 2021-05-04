@@ -72,7 +72,7 @@ class UniqueDirectivesPerLocation extends ValidationRule
 
                     if (isset($knownDirectives[$directiveName])) {
                         $context->reportError(new Error(
-                            self::duplicateDirectiveMessage($directiveName),
+                            static::duplicateDirectiveMessage($directiveName),
                             [$knownDirectives[$directiveName], $directive]
                         ));
                     } else {

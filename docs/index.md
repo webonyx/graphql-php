@@ -18,7 +18,7 @@ All of them equally apply to this PHP implementation.
 
 # About graphql-php
 
-**graphql-php** is a feature-complete implementation of GraphQL specification in PHP (5.5+, 7.0+). 
+**graphql-php** is a feature-complete implementation of GraphQL specification in PHP. 
 It was originally inspired by [reference JavaScript implementation](https://github.com/graphql/graphql-js) 
 published by Facebook.
 
