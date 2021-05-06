@@ -11,7 +11,6 @@ use function array_search;
 use function array_slice;
 use function array_values;
 use function count;
-use function end;
 use function in_array;
 use function rand;
 
@@ -139,7 +138,7 @@ class DataSource
             static fn (Story $story): bool => $story->authorId === $authorId
         );
 
-        return end($storiesFound) ?: null;
+        return $storiesFound[count($storiesFound) - 1] ?? null;
     }
 
     /**
@@ -176,7 +175,7 @@ class DataSource
 
     public static function findLatestStory(): ?Story
     {
-        return end(self::$stories) ?: null;
+        return self::$stories[count(self::$stories) - 1] ?? null;
     }
 
     /**
@@ -184,7 +183,7 @@ class DataSource
      */
     public static function findStories(int $limit, ?int $afterId = null): array
     {
-        $start = $afterId
+        $start = $afterId !== null
             ? (int) array_search($afterId, array_keys(self::$stories), true) + 1
             : 0;
 

@@ -52,11 +52,14 @@ class ImageType extends ObjectType
         ]);
     }
 
+    /**
+     * @param array<void> $args
+     */
     public function resolveUrl(Image $value, array $args, AppContext $context, ResolveInfo $info): string
     {
         switch ($value->type) {
             case Image::TYPE_USERPIC:
-                $path = "/images/user/{$value->id}-{$value->size}.jpg";
+                $path = '/images/user/' . $value->id . '-' . $value->size . '.jpg';
                 break;
             default:
                 throw new UnexpectedValueException('Unexpected image type: ' . $value->type);

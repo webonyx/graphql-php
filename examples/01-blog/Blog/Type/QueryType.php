@@ -105,7 +105,7 @@ class QueryType extends ObjectType
 
     public function hello(): string
     {
-        return 'Your graphql-php endpoint is ready! Use GraphiQL to browse API';
+        return 'Your graphql-php endpoint is ready! Use a GraphQL client to explore the schema.';
     }
 
     public function deprecatedField(): string

@@ -9,7 +9,6 @@ use Exception;
 use GraphQL\Examples\Blog\Type\CommentType;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
 use GraphQL\Examples\Blog\Type\Enum\ImageSizeEnumType;
-use GraphQL\Examples\Blog\Type\Field\HtmlField;
 use GraphQL\Examples\Blog\Type\ImageType;
 use GraphQL\Examples\Blog\Type\NodeType;
 use GraphQL\Examples\Blog\Type\Scalar\EmailType;
@@ -17,13 +16,9 @@ use GraphQL\Examples\Blog\Type\Scalar\UrlType;
 use GraphQL\Examples\Blog\Type\SearchResultType;
 use GraphQL\Examples\Blog\Type\StoryType;
 use GraphQL\Examples\Blog\Type\UserType;
-use GraphQL\Type\Definition\BooleanType;
-use GraphQL\Type\Definition\FloatType;
-use GraphQL\Type\Definition\IDType;
-use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\StringType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 
 use function class_exists;
@@ -98,12 +93,12 @@ class Types
     /**
      * @return Closure(): Type
      */
-    public static function get(string $classname): Closure
+    private static function get(string $classname): Closure
     {
         return static fn () => static::byClassName($classname);
     }
 
-    protected static function byClassName(string $classname): Type
+    private static function byClassName(string $classname): Type
     {
         $parts = explode('\\', $classname);
 
@@ -127,7 +122,7 @@ class Types
         return $type;
     }
 
-    public static function byTypeName(string $shortName, bool $removeType = true): Type
+    public static function byTypeName(string $shortName): Type
     {
         $cacheName = strtolower($shortName);
         $type      = null;
@@ -148,47 +143,43 @@ class Types
         return $type;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public static function htmlField(string $name, ?string $objectKey = null): array
-    {
-        return HtmlField::build($name, $objectKey);
-    }
-
-    // Let's add internal types as well for consistent experience
-
-    public static function boolean(): BooleanType
+    public static function boolean(): ScalarType
     {
         return Type::boolean();
     }
 
-    public static function float(): FloatType
+    public static function float(): ScalarType
     {
         return Type::float();
     }
 
-    public static function id(): IDType
+    public static function id(): ScalarType
     {
         return Type::id();
     }
 
-    public static function int(): IntType
+    public static function int(): ScalarType
     {
         return Type::int();
     }
 
-    public static function string(): StringType
+    public static function string(): ScalarType
     {
         return Type::string();
     }
 
-    public static function listOf(Type $type): ListOfType
+    /**
+     * @param Type|callable():Type $type
+     */
+    public static function listOf($type): ListOfType
     {
         return new ListOfType($type);
     }
 
-    public static function nonNull(Type $type): NonNull
+    /**
+     * @param Type|callable():Type $type
+     */
+    public static function nonNull($type): NonNull
     {
         return new NonNull($type);
     }

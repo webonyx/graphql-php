@@ -7,6 +7,7 @@ namespace GraphQL\Examples\Blog\Type;
 use GraphQL\Examples\Blog\Data\Comment;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\User;
+use GraphQL\Examples\Blog\Type\Field\HtmlField;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -37,7 +38,7 @@ class CommentType extends ObjectType
                 ],
                 'totalReplyCount' => Types::int(),
 
-                Types::htmlField('body'),
+                'body' => HtmlField::build('body'),
             ],
             'resolveField' => function (Comment $comment, array $args, $context, ResolveInfo $info) {
                 $fieldName = $info->fieldName;

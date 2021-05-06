@@ -9,6 +9,7 @@ use GraphQL\Examples\Blog\Data\Comment;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
+use GraphQL\Examples\Blog\Type\Field\HtmlField;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
@@ -72,7 +73,7 @@ class StoryType extends ObjectType
                 ])),
                 'hasViewerLiked' => Types::boolean(),
 
-                Types::htmlField('body'),
+                'body' => HtmlField::build('body'),
             ],
             'interfaces' => [Types::node()],
             'resolveField' => function (Story $story, array $args, $context, ResolveInfo $info) {
@@ -120,6 +121,9 @@ class StoryType extends ObjectType
         return $affordances;
     }
 
+    /**
+     * @param array<void> $args
+     */
     public function resolveHasViewerLiked(Story $story, array $args, AppContext $context): bool
     {
         return DataSource::isLikedBy($story->id, $context->viewer->id);
