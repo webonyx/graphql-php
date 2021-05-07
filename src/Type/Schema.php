@@ -524,6 +524,10 @@ class Schema
      */
     public function isSubType(AbstractType $abstractType, ImplementingType $maybeSubType): bool
     {
+        if ($abstractType instanceof InterfaceType && $maybeSubType instanceof ImplementingType) {
+            return $maybeSubType->implementsInterface($abstractType);
+        }
+
         if (! isset($this->subTypeMap[$abstractType->name])) {
             $this->subTypeMap[$abstractType->name] = [];
 
