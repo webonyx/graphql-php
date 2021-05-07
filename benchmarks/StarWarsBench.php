@@ -91,6 +91,29 @@ class StarWarsBench
         );
     }
 
+    public function benchQueryWithInterfaceFragment(): void
+    {
+        $q = '
+        query UseInterfaceFragment {
+          luke: human(id: "1000") {
+            ...CharacterFragment
+          }
+          leia: human(id: "1003") {
+            ...CharacterFragment
+          }
+        }
+
+        fragment CharacterFragment on Character {
+          name
+        }
+        ';
+
+        GraphQL::executeQuery(
+            StarWarsSchema::build(),
+            $q
+        );
+    }
+
     public function benchStarWarsIntrospectionQuery(): void
     {
         GraphQL::executeQuery(

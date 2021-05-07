@@ -25,4 +25,5 @@ $b->benchSchema();
 $b->benchHeroQuery();
 $b->benchNestedQuery();
 $b->benchQueryWithFragment();
+$b->benchQueryWithInterfaceFragment();
 $b->benchStarWarsIntrospectionQuery();
