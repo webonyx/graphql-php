@@ -524,7 +524,7 @@ class Schema
      */
     public function isSubType(AbstractType $abstractType, ImplementingType $maybeSubType): bool
     {
-        if ($abstractType instanceof InterfaceType && $maybeSubType instanceof ImplementingType) {
+        if ($abstractType instanceof InterfaceType) {
             return $maybeSubType->implementsInterface($abstractType);
         }
 
