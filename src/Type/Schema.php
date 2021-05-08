@@ -526,7 +526,9 @@ class Schema
     {
         if ($abstractType instanceof InterfaceType && $maybeSubType instanceof ImplementingType) {
             return $maybeSubType->implementsInterface($abstractType);
-        } elseif ($abstractType instanceof UnionType) {
+        }
+
+        if ($abstractType instanceof UnionType) {
             return $abstractType->isPossibleType($maybeSubType);
         }
 
