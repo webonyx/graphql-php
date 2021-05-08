@@ -526,24 +526,20 @@ class Schema
     {
         if ($abstractType instanceof InterfaceType && $maybeSubType instanceof ImplementingType) {
             return $maybeSubType->implementsInterface($abstractType);
+        } elseif ($abstractType instanceof UnionType) {
+            return $abstractType->isPossibleType($maybeSubType);
         }
 
         if (! isset($this->subTypeMap[$abstractType->name])) {
             $this->subTypeMap[$abstractType->name] = [];
 
-            if ($abstractType instanceof UnionType) {
-                foreach ($abstractType->getTypes() as $type) {
-                    $this->subTypeMap[$abstractType->name][$type->name] = true;
-                }
-            } else {
-                $implementations = $this->getImplementations($abstractType);
-                foreach ($implementations->objects() as $type) {
-                    $this->subTypeMap[$abstractType->name][$type->name] = true;
-                }
+            $implementations = $this->getImplementations($abstractType);
+            foreach ($implementations->objects() as $type) {
+                $this->subTypeMap[$abstractType->name][$type->name] = true;
+            }
 
-                foreach ($implementations->interfaces() as $type) {
-                    $this->subTypeMap[$abstractType->name][$type->name] = true;
-                }
+            foreach ($implementations->interfaces() as $type) {
+                $this->subTypeMap[$abstractType->name][$type->name] = true;
             }
         }
 
