@@ -1883,6 +1883,9 @@ class DefinitionTest extends TestCase
 
     // Lazy Fields
 
+    /**
+     * @see it('allows a type to define it\'s fields as closures to be lazy loaded')
+     */
     public function testAllowsTypeWhichDefinesItFieldsAsClosure(): void
     {
         $objType = new ObjectType([
@@ -1899,6 +1902,9 @@ class DefinitionTest extends TestCase
         self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 
+    /**
+     * @see it('does not resolve field definitions if they are not accessed')
+     */
     public function testFieldClosureNotExecutedIfNotAccessed(): void
     {
         $resolvedCount = 0;
@@ -1922,6 +1928,9 @@ class DefinitionTest extends TestCase
         self::assertSame(1, $resolvedCount);
     }
 
+    /**
+     * @see it('does resolve all field definitions when validating the type')
+     */
     public function testAllUnresolvedFieldsAreResolvedWhenValidatingType(): void
     {
         $resolvedCount = 0;
@@ -1936,13 +1945,11 @@ class DefinitionTest extends TestCase
             'fields' => [
                 'f' => $fieldCallback,
                 'o' => $fieldCallback,
-                'b' => $fieldCallback,
-                'r' => $fieldCallback,
             ],
         ]);
         $objType->assertValid();
 
         self::assertSame(Type::string(), $objType->getField('f')->getType());
-        self::assertSame(4, $resolvedCount);
+        self::assertSame(2, $resolvedCount);
     }
 }
