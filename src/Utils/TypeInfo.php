@@ -437,9 +437,7 @@ class TypeInfo
             $parentType instanceof ObjectType ||
             $parentType instanceof InterfaceType
         ) {
-            $fields = $parentType->getFields();
-
-            return $fields[$name] ?? null;
+            return $parentType->tryGetField($name);
         }
 
         return null;

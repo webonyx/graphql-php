@@ -481,11 +481,6 @@ parameters:
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
 
 		-
-			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Validator/Rules/QuerySecurityRule.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/QuerySecurityRule.php

@@ -619,9 +619,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return $typeNameMetaFieldDef;
         }
 
-        $tmp = $parentType->getFields();
-
-        return $tmp[$fieldName] ?? null;
+        return $parentType->tryGetField($fieldName);
     }
 
     /**

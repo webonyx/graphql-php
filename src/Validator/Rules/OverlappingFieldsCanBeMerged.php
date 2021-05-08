@@ -251,9 +251,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         $parentType instanceof ObjectType ||
                         $parentType instanceof InterfaceType
                     ) {
-                        $tmp = $parentType->getFields();
-                        if (isset($tmp[$fieldName])) {
-                            $fieldDef = $tmp[$fieldName];
+                        if ($parentType->hasField($fieldName)) {
+                            $fieldDef = $parentType->getField($fieldName);
                         }
                     }
 
