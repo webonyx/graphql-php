@@ -1879,12 +1879,4 @@ class DefinitionTest extends TestCase
         ]);
         $schema->assertValid();
     }
-
-    public function objectWithIsTypeOf(): ObjectType
-    {
-        return new ObjectType([
-            'name'   => 'ObjectWithIsTypeOf',
-            'fields' => ['f' => ['type' => Type::string()]],
-        ]);
-    }
 }
