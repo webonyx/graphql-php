@@ -61,13 +61,6 @@ class Schema
     private $resolvedTypes = [];
 
     /**
-     * Lazily initialized.
-     *
-     * @var array<string, array<string, ObjectType|UnionType>>
-     */
-    private $subTypeMap;
-
-    /**
      * Lazily initialised.
      *
      * @var array<string, InterfaceImplementations>
@@ -532,20 +525,7 @@ class Schema
             return $abstractType->isPossibleType($maybeSubType);
         }
 
-        if (! isset($this->subTypeMap[$abstractType->name])) {
-            $this->subTypeMap[$abstractType->name] = [];
-
-            $implementations = $this->getImplementations($abstractType);
-            foreach ($implementations->objects() as $type) {
-                $this->subTypeMap[$abstractType->name][$type->name] = true;
-            }
-
-            foreach ($implementations->interfaces() as $type) {
-                $this->subTypeMap[$abstractType->name][$type->name] = true;
-            }
-        }
-
-        return isset($this->subTypeMap[$abstractType->name][$maybeSubType->name]);
+        return false;
     }
 
     /**
