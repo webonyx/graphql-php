@@ -1952,4 +1952,70 @@ class DefinitionTest extends TestCase
         self::assertSame(Type::string(), $objType->getField('f')->getType());
         self::assertSame(2, $resolvedCount);
     }
+
+    /**
+     * @see it('does throw when lazy loaded field definition changes its name')
+     */
+    public function testThrowsWhenLazyLoadedFieldDefinitionChangesItsName(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): array {
+                    return ['name' => 'foo', 'type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject.f should not dynamically change its name when resolved lazily.'
+        );
+
+        $objType->assertValid();
+    }
+
+    /**
+     * @see it('does throw when lazy loaded field definition has no keys for field names')
+     */
+    public function testThrowsWhenLazyLoadedFieldDefinitionHasNoKeysForFieldNames(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                static function (): array {
+                    return ['type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject lazy fields must be an associative array with field names as keys.'
+        );
+
+        $objType->assertValid();
+    }
+
+    /**
+     * @see it('does throw when lazy loaded field definition has invalid args')
+     */
+    public function testThrowsWhenLazyLoadedFieldHasInvalidArgs(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): array {
+                    return ['args' => 'invalid', 'type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject.f args must be an array.'
+        );
+
+        $objType->assertValid();
+    }
 }

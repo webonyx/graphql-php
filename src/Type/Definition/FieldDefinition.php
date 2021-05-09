@@ -130,6 +130,15 @@ class FieldDefinition
             } elseif ($field instanceof self) {
                 $fieldDef = $field;
             } elseif ($field instanceof Closure) {
+                if (! is_string($name)) {
+                    throw new InvariantViolation(
+                        sprintf(
+                            '%s lazy fields must be an associative array with field names as keys.',
+                            $type->name
+                        )
+                    );
+                }
+
                 $fieldDef = new UnresolvedFieldDefinition($type, $name, $field);
             } else {
                 if (! is_string($name) || ! $field) {
