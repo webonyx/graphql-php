@@ -42,7 +42,7 @@ class UnresolvedFieldDefinition
             $field['name'] = $this->name;
         } elseif ($field['name'] !== $this->name) {
             throw new InvariantViolation(
-                sprintf('%s.%s should not dynamically change it\'s name when resolved lazily.', $this->type->name, $this->name)
+                sprintf('%s.%s should not dynamically change its name when resolved lazily.', $this->type->name, $this->name)
             );
         }
 
