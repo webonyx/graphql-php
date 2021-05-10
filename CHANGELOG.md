@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.6.3
+
+Refactoring:
+- Improve performance of subtype checks
+
 #### 14.6.2
 
 Fix:
