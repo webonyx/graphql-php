@@ -14,9 +14,9 @@ trait HasFieldsTypeImpl
     /**
      * Lazily initialized.
      *
-     * @var FieldDefinition[]|null
+     * @var array<string, FieldDefinition>|null
      */
-    private $fields;
+    private ?array $fields;
 
     /**
      * @throws InvariantViolation
@@ -51,7 +51,7 @@ trait HasFieldsTypeImpl
     }
 
     /**
-     * @return FieldDefinition[]
+     * @return array<string, FieldDefinition>
      *
      * @throws InvariantViolation
      */
@@ -84,7 +84,7 @@ trait HasFieldsTypeImpl
 
     protected function initializeFields(): void
     {
-        if ($this->fields !== null) {
+        if (isset($this->fields)) {
             return;
         }
 

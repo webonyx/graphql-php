@@ -18,7 +18,7 @@ interface HasFieldsType
     public function tryGetField(string $name): ?FieldDefinition;
 
     /**
-     * @return FieldDefinition[]
+     * @return array<string, FieldDefinition>
      *
      * @throws InvariantViolation
      */

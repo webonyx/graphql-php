@@ -440,7 +440,7 @@ class SchemaValidationContext
         $fieldMap = $type->getFields();
 
         // Objects and Interfaces both must define one or more fields.
-        if (! $fieldMap) {
+        if (count($fieldMap) === 0) {
             $this->reportError(
                 sprintf('Type %s must define one or more fields.', $type->name),
                 $this->getAllNodes($type)

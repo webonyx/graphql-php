@@ -176,11 +176,6 @@ parameters:
 			path: src/Type/SchemaValidationContext.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\> given\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\FieldDefinitionNode\\|null given\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
