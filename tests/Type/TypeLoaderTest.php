@@ -243,11 +243,6 @@ class TypeLoaderTest extends TestCase
                 'Node',
                 'Content',
                 'PostStoryMutationInput',
-                'Query.fields',
-                'Content.fields',
-                'Node.fields',
-                'Mutation.fields',
-                'BlogStory.fields',
             ],
             $this->calls
         );
