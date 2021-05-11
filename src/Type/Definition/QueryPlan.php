@@ -11,6 +11,7 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use function array_diff_key;
 use function array_filter;
@@ -167,7 +168,12 @@ class QueryPlan
         $implementors = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
-                $fieldName     = $selectionNode->name->value;
+                $fieldName = $selectionNode->name->value;
+
+                if ($fieldName === Introspection::TYPE_NAME_FIELD_NAME) {
+                    continue;
+                }
+
                 $type          = $parentType->getField($fieldName);
                 $selectionType = $type->getType();
 
