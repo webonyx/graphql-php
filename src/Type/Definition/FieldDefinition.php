@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Closure;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
@@ -129,7 +128,7 @@ class FieldDefinition
                 $fieldDef = self::create($field);
             } elseif ($field instanceof self) {
                 $fieldDef = $field;
-            } elseif ($field instanceof Closure) {
+            } elseif (is_callable($field)) {
                 if (! is_string($name)) {
                     throw new InvariantViolation(
                         sprintf(

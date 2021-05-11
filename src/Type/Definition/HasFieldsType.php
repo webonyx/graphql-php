@@ -25,7 +25,7 @@ interface HasFieldsType
     public function getFields(): array;
 
     /**
-     * @return string[]
+     * @return array<int, string>
      *
      * @throws InvariantViolation
      */

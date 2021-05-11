@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Closure;
 use GraphQL\Error\InvariantViolation;
 
 use function is_array;
@@ -16,9 +15,13 @@ class UnresolvedFieldDefinition
 
     private string $name;
 
-    private Closure $resolver;
+    /** @var (callable(): FieldDefinition|array<string, mixed>|Type) $resolver */
+    private $resolver;
 
-    public function __construct(Type $type, string $name, Closure $resolver)
+    /**
+     * @param (callable(): FieldDefinition|array<string, mixed>|Type) $resolver
+     */
+    public function __construct(Type $type, string $name, $resolver)
     {
         $this->type     = $type;
         $this->name     = $name;
@@ -33,6 +36,16 @@ class UnresolvedFieldDefinition
     public function resolve(): FieldDefinition
     {
         $field = ($this->resolver)();
+
+        if ($field instanceof FieldDefinition) {
+            if ($field->name !== $this->name) {
+                throw new InvariantViolation(
+                    sprintf('%s.%s should not dynamically change its name when resolved lazily.', $this->type->name, $this->name)
+                );
+            }
+
+            return $field;
+        }
 
         if (! is_array($field)) {
             return FieldDefinition::create(['name' => $this->name, 'type' => $field]);

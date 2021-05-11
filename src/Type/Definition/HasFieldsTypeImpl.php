@@ -14,9 +14,9 @@ trait HasFieldsTypeImpl
     /**
      * Lazily initialized.
      *
-     * @var array<string, FieldDefinition>|null
+     * @var array<string, FieldDefinition>
      */
-    private ?array $fields;
+    private array $fields;
 
     /**
      * @throws InvariantViolation
@@ -71,7 +71,7 @@ trait HasFieldsTypeImpl
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      *
      * @throws InvariantViolation
      */

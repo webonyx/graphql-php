@@ -1884,15 +1884,56 @@ class DefinitionTest extends TestCase
     // Lazy Fields
 
     /**
-     * @see it('allows a type to define it\'s fields as closures to be lazy loaded')
+     * @see it('allows a type to define its fields as closure returning array field definition to be lazy loaded')
      */
-    public function testAllowsTypeWhichDefinesItFieldsAsClosure(): void
+    public function testAllowsTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsArray(): void
     {
         $objType = new ObjectType([
             'name'   => 'SomeObject',
             'fields' => [
                 'f' => static function (): array {
                     return ['type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
+    /**
+     * @see it('allows a type to define its fields as closure returning object field definition to be lazy loaded')
+     */
+    public function testAllowsTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsObject(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): FieldDefinition {
+                    return FieldDefinition::create(['name' => 'f', 'type' => Type::string()]);
+                },
+            ],
+        ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
+    /**
+     * @see it('allows a type to define its fields as invokable class returning array field definition to be lazy loaded')
+     */
+    public function testAllowsTypeWhichDefinesItFieldsAsInvokableClassReturningFieldDefinitionAsArray(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => new class {
+                    public function __invoke(): array
+                    {
+                        return ['type' => Type::string()];
+                    }
                 },
             ],
         ]);
@@ -1954,15 +1995,37 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @see it('does throw when lazy loaded field definition changes its name')
+     * @see it('does throw when lazy loaded array field definition changes its name')
      */
-    public function testThrowsWhenLazyLoadedFieldDefinitionChangesItsName(): void
+    public function testThrowsWhenLazyLoadedArrayFieldDefinitionChangesItsName(): void
     {
         $objType = new ObjectType([
             'name'   => 'SomeObject',
             'fields' => [
                 'f' => static function (): array {
                     return ['name' => 'foo', 'type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject.f should not dynamically change its name when resolved lazily.'
+        );
+
+        $objType->assertValid();
+    }
+
+    /**
+     * @see it('does throw when lazy loaded object field definition changes its name')
+     */
+    public function testThrowsWhenLazyLoadedObjectFieldDefinitionChangesItsName(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): FieldDefinition {
+                    return FieldDefinition::create(['name' => 'foo', 'type' => Type::string()]);
                 },
             ],
         ]);
