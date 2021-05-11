@@ -21,7 +21,7 @@ class UnresolvedFieldDefinition
     /**
      * @param (callable(): FieldDefinition|array<string, mixed>|Type) $resolver
      */
-    public function __construct(Type $type, string $name, $resolver)
+    public function __construct(Type $type, string $name, callable $resolver)
     {
         $this->type     = $type;
         $this->name     = $name;
