@@ -15,11 +15,11 @@ class UnresolvedFieldDefinition
 
     private string $name;
 
-    /** @var (callable(): FieldDefinition|array<string, mixed>|Type) $resolver */
+    /** @var callable(): (FieldDefinition|array<string, mixed>|Type) $resolver */
     private $resolver;
 
     /**
-     * @param (callable(): FieldDefinition|array<string, mixed>|Type) $resolver
+     * @param callable(): (FieldDefinition|array<string, mixed>|Type) $resolver
      */
     public function __construct(Type $type, string $name, callable $resolver)
     {
