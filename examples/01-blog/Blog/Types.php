@@ -7,8 +7,9 @@ namespace GraphQL\Examples\Blog;
 use Closure;
 use Exception;
 use GraphQL\Examples\Blog\Type\CommentType;
-use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
-use GraphQL\Examples\Blog\Type\Enum\ImageSizeEnumType;
+use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
+use GraphQL\Examples\Blog\Type\Enum\ImageSizeType;
+use GraphQL\Examples\Blog\Type\Enum\StoryAffordancesType;
 use GraphQL\Examples\Blog\Type\ImageType;
 use GraphQL\Examples\Blog\Type\NodeType;
 use GraphQL\Examples\Blog\Type\Scalar\EmailType;
@@ -70,14 +71,19 @@ class Types
         return static::get(SearchResultType::class);
     }
 
-    public static function imageSizeEnum(): callable
+    public static function imageSize(): callable
     {
-        return static::get(ImageSizeEnumType::class);
+        return static::get(ImageSizeType::class);
     }
 
-    public static function contentFormatEnum(): callable
+    public static function contentFormat(): callable
     {
-        return static::get(ContentFormatEnum::class);
+        return static::get(ContentFormatType::class);
+    }
+
+    public static function storyAffordances(): callable
+    {
+        return static::get(StoryAffordancesType::class);
     }
 
     public static function email(): callable

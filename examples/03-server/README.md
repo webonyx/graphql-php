@@ -1,5 +1,5 @@
 # Hello world
-Same example as 01-hello-world, but uses 
+Same example as 00-hello-world, but uses 
 [Standard Http Server](https://webonyx.github.io/graphql-php/executing-queries/#using-server)
 instead of manual parsing of incoming data.
 

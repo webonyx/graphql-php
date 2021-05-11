@@ -8,7 +8,6 @@ use Exception;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 
 use function get_class;
@@ -18,12 +17,12 @@ class SearchResultType extends UnionType
     public function __construct()
     {
         parent::__construct([
-            'name' => 'SearchResultType',
+            'name' => 'SearchResult',
             'types' => static fn (): array => [
                 Types::story(),
                 Types::user(),
             ],
-            'resolveType' => static function (object $value): Type {
+            'resolveType' => static function (object $value): callable {
                 if ($value instanceof Story) {
                     return Types::story();
                 }

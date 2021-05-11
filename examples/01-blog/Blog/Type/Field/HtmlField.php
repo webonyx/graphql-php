@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Examples\Blog\Type\Field;
 
-use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
+use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
 use GraphQL\Examples\Blog\Types;
 
 use function mb_substr;
@@ -25,8 +25,8 @@ class HtmlField
             'type' => Types::string(),
             'args' => [
                 'format' => [
-                    'type' => Types::contentFormatEnum(),
-                    'defaultValue' => ContentFormatEnum::FORMAT_HTML,
+                    'type' => Types::contentFormat(),
+                    'defaultValue' => ContentFormatType::FORMAT_HTML,
                 ],
                 'maxLength' => Types::int(),
             ],
@@ -41,14 +41,14 @@ class HtmlField
                 }
 
                 switch ($args['format']) {
-                    case ContentFormatEnum::FORMAT_HTML:
+                    case ContentFormatType::FORMAT_HTML:
                         if ($safeText !== $text) {
                             // Text was truncated, so just show what's safe:
                             return nl2br($safeText);
                         } else {
                             return $html;
                         }
-                    case ContentFormatEnum::FORMAT_TEXT:
+                    case ContentFormatType::FORMAT_TEXT:
                     default:
                         return $safeText;
                 }

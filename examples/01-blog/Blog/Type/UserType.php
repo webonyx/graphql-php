@@ -29,7 +29,7 @@ class UserType extends ObjectType
                     'type' => Types::image(),
                     'description' => 'User photo URL',
                     'args' => [
-                        'size' => Types::nonNull(Types::imageSizeEnum()),
+                        'size' => Types::nonNull(Types::imageSize()),
                     ],
                 ],
                 'firstName' => [

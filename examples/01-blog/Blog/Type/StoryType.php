@@ -11,7 +11,6 @@ use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Type\Field\HtmlField;
 use GraphQL\Examples\Blog\Types;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
@@ -20,12 +19,6 @@ use function ucfirst;
 
 class StoryType extends ObjectType
 {
-    const EDIT   = 'EDIT';
-    const DELETE = 'DELETE';
-    const LIKE   = 'LIKE';
-    const UNLIKE = 'UNLIKE';
-    const REPLY  = 'REPLY';
-
     public function __construct()
     {
         parent::__construct([
@@ -58,19 +51,8 @@ class StoryType extends ObjectType
                         ],
                     ],
                 ],
-                'likedBy' => [
-                    'type' => Types::listOf(Types::user()),
-                ],
-                'affordances' => Types::listOf(new EnumType([
-                    'name' => 'StoryAffordancesEnum',
-                    'values' => [
-                        self::EDIT,
-                        self::DELETE,
-                        self::LIKE,
-                        self::UNLIKE,
-                        self::REPLY,
-                    ],
-                ])),
+                'likedBy' => Types::listOf(Types::user()),
+                'affordances' => Types::listOf(Types::storyAffordances()),
                 'hasViewerLiked' => Types::boolean(),
 
                 'body' => HtmlField::build('body'),
@@ -106,16 +88,16 @@ class StoryType extends ObjectType
 
         $isViewer = $context->viewer === DataSource::findUser($story->authorId);
         if ($isViewer) {
-            $affordances[] = self::EDIT;
-            $affordances[] = self::EDIT;
-            $affordances[] = self::DELETE;
+            $affordances[] = Enum\StoryAffordancesType::EDIT;
+            $affordances[] = Enum\StoryAffordancesType::EDIT;
+            $affordances[] = Enum\StoryAffordancesType::DELETE;
         }
 
         $isLiked = DataSource::isLikedBy($story->id, $context->viewer->id);
         if ($isLiked) {
-            $affordances[] = self::UNLIKE;
+            $affordances[] = Enum\StoryAffordancesType::UNLIKE;
         } else {
-            $affordances[] = self::LIKE;
+            $affordances[] = Enum\StoryAffordancesType::LIKE;
         }
 
         return $affordances;

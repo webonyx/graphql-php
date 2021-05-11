@@ -8,7 +8,6 @@ use Exception;
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Types;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use UnexpectedValueException;
@@ -18,16 +17,10 @@ class ImageType extends ObjectType
     public function __construct()
     {
         parent::__construct([
-            'name' => 'ImageType',
+            'name' => 'Image',
             'fields' => [
                 'id' => Types::id(),
-                'type' => new EnumType([
-                    'name' => 'ImageTypeEnum',
-                    'values' => [
-                        'USERPIC' => Image::TYPE_USERPIC,
-                    ],
-                ]),
-                'size' => Types::imageSizeEnum(),
+                'size' => Types::imageSize(),
                 'width' => Types::int(),
                 'height' => Types::int(),
                 'url' => [
