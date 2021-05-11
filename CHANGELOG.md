@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.6.4
+
+Fix:
+- Avoid crashing in `QueryPlan` when `__typename` is used in the query
+
 #### 14.6.3
 
 Refactoring:
