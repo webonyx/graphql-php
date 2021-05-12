@@ -8,12 +8,12 @@ use GraphQL\Utils\Utils;
 
 class Image
 {
-    const TYPE_USERPIC = 'userpic';
+    public const TYPE_USERPIC = 'userpic';
 
-    const SIZE_ICON     = 'icon';
-    const SIZE_SMALL    = 'small';
-    const SIZE_MEDIUM   = 'medium';
-    const SIZE_ORIGINAL = 'original';
+    public const SIZE_ICON     = 'icon';
+    public const SIZE_SMALL    = 'small';
+    public const SIZE_MEDIUM   = 'medium';
+    public const SIZE_ORIGINAL = 'original';
 
     public int $id;
 
