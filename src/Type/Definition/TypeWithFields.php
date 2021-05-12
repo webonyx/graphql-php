@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
 use function array_keys;
@@ -28,9 +27,6 @@ abstract class TypeWithFields extends Type implements HasFieldsType
         $this->fields = FieldDefinition::defineFieldMap($this, $fields);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
     public function getField(string $name): FieldDefinition
     {
         Utils::invariant($this->hasField($name), 'Field "%s" is not defined for type "%s"', $name, $this->name);
@@ -60,11 +56,7 @@ abstract class TypeWithFields extends Type implements HasFieldsType
         return isset($this->fields[$name]);
     }
 
-    /**
-     * @return array<string, FieldDefinition>
-     *
-     * @throws InvariantViolation
-     */
+    /** @inheritDoc */
     public function getFields(): array
     {
         $this->initializeFields();
@@ -80,11 +72,7 @@ abstract class TypeWithFields extends Type implements HasFieldsType
         return $this->fields;
     }
 
-    /**
-     * @return array<int, string>
-     *
-     * @throws InvariantViolation
-     */
+    /** @inheritDoc */
     public function getFieldNames(): array
     {
         $this->initializeFields();
