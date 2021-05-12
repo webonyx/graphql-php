@@ -93,8 +93,7 @@ class FieldsOnCorrectType extends ValidationRule
                 // This object type defines this field.
                 $suggestedObjectTypes[] = $possibleType->name;
                 foreach ($possibleType->getInterfaces() as $possibleInterface) {
-                    $fields = $possibleInterface->getFields();
-                    if (! isset($fields[$fieldName])) {
+                    if (! $possibleInterface->hasField($fieldName)) {
                         continue;
                     }
 

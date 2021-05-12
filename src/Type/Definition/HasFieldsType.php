@@ -15,7 +15,7 @@ interface HasFieldsType
 
     public function hasField(string $name): bool;
 
-    public function tryGetField(string $name): ?FieldDefinition;
+    public function findField(string $name): ?FieldDefinition;
 
     /**
      * @return array<string, FieldDefinition>

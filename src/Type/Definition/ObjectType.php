@@ -56,10 +56,8 @@ use function sprintf;
  *        }
  *     ]);
  */
-class ObjectType extends Type implements OutputType, CompositeType, NullableType, NamedType, ImplementingType, HasFieldsType
+class ObjectType extends TypeWithFields implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
-    use HasFieldsTypeImpl;
-
     /** @var ObjectTypeDefinitionNode|null */
     public $astNode;
 

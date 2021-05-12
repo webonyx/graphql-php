@@ -9,7 +9,7 @@ use GraphQL\Utils\Utils;
 
 use function array_keys;
 
-trait HasFieldsTypeImpl
+abstract class TypeWithFields extends Type implements HasFieldsType
 {
     /**
      * Lazily initialized.
@@ -18,6 +18,16 @@ trait HasFieldsTypeImpl
      */
     private array $fields;
 
+    private function initializeFields(): void
+    {
+        if (isset($this->fields)) {
+            return;
+        }
+
+        $fields       = $this->config['fields'] ?? [];
+        $this->fields = FieldDefinition::defineFieldMap($this, $fields);
+    }
+
     /**
      * @throws InvariantViolation
      */
@@ -25,10 +35,10 @@ trait HasFieldsTypeImpl
     {
         Utils::invariant($this->hasField($name), 'Field "%s" is not defined for type "%s"', $name, $this->name);
 
-        return $this->tryGetField($name);
+        return $this->findField($name);
     }
 
-    public function tryGetField(string $name): ?FieldDefinition
+    public function findField(string $name): ?FieldDefinition
     {
         $this->initializeFields();
 
@@ -80,15 +90,5 @@ trait HasFieldsTypeImpl
         $this->initializeFields();
 
         return array_keys($this->fields);
-    }
-
-    protected function initializeFields(): void
-    {
-        if (isset($this->fields)) {
-            return;
-        }
-
-        $fields       = $this->config['fields'] ?? [];
-        $this->fields = FieldDefinition::defineFieldMap($this, $fields);
     }
 }

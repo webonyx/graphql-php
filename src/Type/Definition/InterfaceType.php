@@ -16,10 +16,8 @@ use function is_callable;
 use function is_string;
 use function sprintf;
 
-class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType, ImplementingType, HasFieldsType
+class InterfaceType extends TypeWithFields implements AbstractType, OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
-    use HasFieldsTypeImpl;
-
     /** @var InterfaceTypeDefinitionNode|null */
     public $astNode;
 
