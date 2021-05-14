@@ -77,7 +77,7 @@ class StoryType extends ObjectType
     }
 
     /**
-     * @param array<void> $args
+     * @param array<never> $args
      *
      * @return array<int, string>
      */
@@ -104,7 +104,7 @@ class StoryType extends ObjectType
     }
 
     /**
-     * @param array<void> $args
+     * @param array<never> $args
      */
     public function resolveHasViewerLiked(Story $story, array $args, AppContext $context): bool
     {

@@ -46,7 +46,7 @@ class ImageType extends ObjectType
     }
 
     /**
-     * @param array<void> $args
+     * @param array<never> $args
      */
     public function resolveUrl(Image $value, array $args, AppContext $context, ResolveInfo $info): string
     {
