@@ -1,23 +1,28 @@
 <?php
-namespace GraphQL\Examples\Blog\Data;
 
+declare(strict_types=1);
+
+namespace GraphQL\Examples\Blog\Data;
 
 use GraphQL\Utils\Utils;
 
 class Comment
 {
-    public $id;
+    public int $id;
 
-    public $authorId;
+    public int $authorId;
 
-    public $storyId;
+    public int $storyId;
 
-    public $parentId;
+    public ?int $parentId = null;
 
-    public $body;
+    public string $body;
 
-    public $isAnonymous;
+    public bool $isAnonymous = true;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         Utils::assign($this, $data);
