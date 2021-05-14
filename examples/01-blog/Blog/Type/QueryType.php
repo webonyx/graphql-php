@@ -79,7 +79,7 @@ class QueryType extends ObjectType
     }
 
     /**
-     * @param null        $rootValue
+     * @param null         $rootValue
      * @param array<never> $args
      */
     public function viewer($rootValue, array $args, AppContext $context): User
