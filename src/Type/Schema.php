@@ -117,7 +117,7 @@ class Schema
                 Utils::getVariableType($config)
             );
             Utils::invariant(
-                ! $config->types || is_array($config->types) || is_callable($config->types),
+                ($config->types ?? []) !== [] || is_array($config->types) || is_callable($config->types),
                 '"types" must be array or callable if provided but got: ' . Utils::getVariableType($config->types)
             );
             Utils::invariant(
@@ -159,7 +159,7 @@ class Schema
 
         $this->resolvedTypes += Type::getStandardTypes() + Introspection::getTypes();
 
-        if ($this->config->typeLoader) {
+        if ($this->config->typeLoader !== null) {
             return;
         }
 
@@ -334,7 +334,7 @@ class Schema
         if (! isset($this->resolvedTypes[$name])) {
             $type = $this->loadType($name);
 
-            if (! $type) {
+            if ($type === null) {
                 return null;
             }
 
@@ -564,7 +564,7 @@ class Schema
     {
         $errors = $this->validate();
 
-        if ($errors) {
+        if ($errors !== []) {
             throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
@@ -577,7 +577,7 @@ class Schema
             $type->assertValid();
 
             // Make sure type loader returns the same instance as registered in other places of schema
-            if (! $this->config->typeLoader) {
+            if ($this->config->typeLoader === null) {
                 continue;
             }
 

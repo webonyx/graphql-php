@@ -76,19 +76,15 @@ class LazyInterfaceTest extends TestCase
      */
     protected function getLazyInterfaceType()
     {
-        if (! $this->lazyInterface) {
-            $this->lazyInterface = new InterfaceType([
-                'name'        => 'LazyInterface',
-                'fields'      => [
-                    'a' => Type::string(),
-                ],
-                'resolveType' => function (): ObjectType {
-                    return $this->getTestObjectType();
-                },
-            ]);
-        }
-
-        return $this->lazyInterface;
+        return $this->lazyInterface ??= new InterfaceType([
+            'name'        => 'LazyInterface',
+            'fields'      => [
+                'a' => Type::string(),
+            ],
+            'resolveType' => function (): ObjectType {
+                return $this->getTestObjectType();
+            },
+        ]);
     }
 
     /**
@@ -98,21 +94,17 @@ class LazyInterfaceTest extends TestCase
      */
     protected function getTestObjectType()
     {
-        if (! $this->testObject) {
-            $this->testObject = new ObjectType([
-                'name'       => 'TestObject',
-                'fields'     => [
-                    'name' => [
-                        'type'    => Type::string(),
-                        'resolve' => static function (): string {
-                            return 'testname';
-                        },
-                    ],
+        return $this->testObject ??= new ObjectType([
+            'name'       => 'TestObject',
+            'fields'     => [
+                'name' => [
+                    'type'    => Type::string(),
+                    'resolve' => static function (): string {
+                        return 'testname';
+                    },
                 ],
-                'interfaces' => [$this->getLazyInterfaceType()],
-            ]);
-        }
-
-        return $this->testObject;
+            ],
+            'interfaces' => [$this->getLazyInterfaceType()],
+        ]);
     }
 }

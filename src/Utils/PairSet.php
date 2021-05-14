@@ -28,7 +28,7 @@ class PairSet
     public function has($a, $b, $areMutuallyExclusive)
     {
         $first  = $this->data[$a] ?? null;
-        $result = $first && isset($first[$b]) ? $first[$b] : null;
+        $result = $first !== null && isset($first[$b]) ? $first[$b] : null;
         if ($result === null) {
             return false;
         }

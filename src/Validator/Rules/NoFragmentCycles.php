@@ -79,7 +79,7 @@ class NoFragmentCycles extends ValidationRule
             $this->spreadPath[] = $spreadNode;
             if ($cycleIndex === null) {
                 $spreadFragment = $context->getFragment($spreadName);
-                if ($spreadFragment) {
+                if ($spreadFragment !== null) {
                     $this->detectCycleRecursive($spreadFragment, $context);
                 }
             } else {

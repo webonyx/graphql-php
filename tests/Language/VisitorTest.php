@@ -1479,9 +1479,9 @@ class VisitorTest extends ValidatorTestCase
                             'enter',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
-                            $parentType ? (string) $parentType : null,
-                            $type ? (string) $type : null,
-                            $inputType ? (string) $inputType : null,
+                            $parentType === null ? null : (string) $parentType,
+                            $type === null ? null : (string) $type,
+                            $inputType === null ? null : (string) $inputType,
                         ];
                     },
                     'leave' => function ($node) use ($typeInfo, &$visited, $ast): void {
@@ -1494,9 +1494,9 @@ class VisitorTest extends ValidatorTestCase
                             'leave',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
-                            $parentType ? (string) $parentType : null,
-                            $type ? (string) $type : null,
-                            $inputType ? (string) $inputType : null,
+                            $parentType === null ? null : (string) $parentType,
+                            $type === null ? null : (string) $type,
+                            $inputType === null ? null : (string) $inputType,
                         ];
                     },
                 ]
@@ -1573,9 +1573,9 @@ class VisitorTest extends ValidatorTestCase
                             'enter',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
-                            $parentType ? (string) $parentType : null,
-                            $type ? (string) $type : null,
-                            $inputType ? (string) $inputType : null,
+                            $parentType === null ? null : (string) $parentType,
+                            $type === null ? null : (string) $type,
+                            $inputType === null ? null : (string) $inputType,
                         ];
 
                         // Make a query valid by adding missing selection sets.
@@ -1612,9 +1612,9 @@ class VisitorTest extends ValidatorTestCase
                             'leave',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
-                            $parentType ? (string) $parentType : null,
-                            $type ? (string) $type : null,
-                            $inputType ? (string) $inputType : null,
+                            $parentType === null ? null : (string) $parentType,
+                            $type === null ? null : (string) $type,
+                            $inputType === null ? null : (string) $inputType,
                         ];
                     },
                 ]

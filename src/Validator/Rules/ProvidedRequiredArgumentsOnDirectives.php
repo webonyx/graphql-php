@@ -49,9 +49,9 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
     {
         $requiredArgsMap   = [];
         $schema            = $context->getSchema();
-        $definedDirectives = $schema
-            ? $schema->getDirectives()
-            : Directive::getInternalDirectives();
+        $definedDirectives = $schema === null
+            ? Directive::getInternalDirectives()
+            : $schema->getDirectives();
 
         foreach ($definedDirectives as $directive) {
             $requiredArgsMap[$directive->name] = Utils::keyMap(
@@ -92,7 +92,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                 'leave' => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context): ?string {
                     $directiveName = $directiveNode->name->value;
                     $requiredArgs  = $requiredArgsMap[$directiveName] ?? null;
-                    if (! $requiredArgs) {
+                    if ($requiredArgs === null || $requiredArgs === []) {
                         return null;
                     }
 

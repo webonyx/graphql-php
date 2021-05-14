@@ -19,7 +19,7 @@ class KnownFragmentNames extends ValidationRule
             NodeKind::FRAGMENT_SPREAD => static function (FragmentSpreadNode $node) use ($context): void {
                 $fragmentName = $node->name->value;
                 $fragment     = $context->getFragment($fragmentName);
-                if ($fragment) {
+                if ($fragment !== null) {
                     return;
                 }
 

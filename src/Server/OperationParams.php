@@ -27,13 +27,13 @@ class OperationParams
      * - documentId
      *
      * @api
-     * @var string
+     * @var string|null
      */
     public $queryId;
 
     /**
      * @api
-     * @var string
+     * @var string|null
      */
     public $query;
 

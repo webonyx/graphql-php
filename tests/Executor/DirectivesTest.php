@@ -46,19 +46,15 @@ class DirectivesTest extends TestCase
 
     private static function getSchema(): Schema
     {
-        if (! self::$schema) {
-            self::$schema = new Schema([
-                'query' => new ObjectType([
-                    'name'   => 'TestType',
-                    'fields' => [
-                        'a' => ['type' => Type::string()],
-                        'b' => ['type' => Type::string()],
-                    ],
-                ]),
-            ]);
-        }
-
-        return self::$schema;
+        return self::$schema ??= new Schema([
+            'query' => new ObjectType([
+                'name'   => 'TestType',
+                'fields' => [
+                    'a' => ['type' => Type::string()],
+                    'b' => ['type' => Type::string()],
+                ],
+            ]),
+        ]);
     }
 
     public function testWorksOnScalars(): void

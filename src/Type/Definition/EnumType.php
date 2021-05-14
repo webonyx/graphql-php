@@ -80,7 +80,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     private function getNameLookup(): ArrayObject
     {
-        if (! $this->nameLookup) {
+        if (! isset($this->nameLookup)) {
             /** @var ArrayObject<string, EnumValueDefinition> $lookup */
             $lookup = new ArrayObject();
             foreach ($this->getValues() as $value) {

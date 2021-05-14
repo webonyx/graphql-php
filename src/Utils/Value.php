@@ -83,7 +83,7 @@ class Value
         if ($type instanceof EnumType) {
             if (is_string($value)) {
                 $enumValue = $type->getValue($value);
-                if ($enumValue) {
+                if ($enumValue !== null) {
                     return self::ofValue($enumValue->value);
                 }
             }
@@ -98,9 +98,9 @@ class Value
                 )
             );
 
-            $didYouMean = $suggestions
-                ? 'did you mean ' . Utils::orList($suggestions) . '?'
-                : null;
+            $didYouMean = $suggestions === []
+                ? null
+                : 'did you mean ' . Utils::orList($suggestions) . '?';
 
             return self::ofErrors([
                 self::coercionError(
@@ -131,7 +131,7 @@ class Value
                     }
                 }
 
-                return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
+                return $errors === [] ? self::ofValue($coercedValue) : self::ofErrors($errors);
             }
 
             // Lists accept a non-list value as a list of one.
@@ -201,9 +201,9 @@ class Value
                     (string) $fieldName,
                     array_keys($fields)
                 );
-                $didYouMean  = $suggestions
-                    ? 'did you mean ' . Utils::orList($suggestions) . '?'
-                    : null;
+                $didYouMean  = $suggestions === []
+                    ? null
+                    : 'did you mean ' . Utils::orList($suggestions) . '?';
                 $errors      = self::add(
                     $errors,
                     self::coercionError(
@@ -215,7 +215,7 @@ class Value
                 );
             }
 
-            return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
+            return $errors === [] ? self::ofValue($coercedValue) : self::ofErrors($errors);
         }
 
         throw new Error(sprintf('Unexpected type %s', $type->name));
@@ -230,7 +230,6 @@ class Value
      * @param string                   $message
      * @param Node                     $blameNode
      * @param mixed[]|null             $path
-     * @param string                   $subMessage
      * @param Exception|Throwable|null $originalError
      *
      * @return Error
@@ -239,7 +238,7 @@ class Value
         $message,
         $blameNode,
         ?array $path = null,
-        $subMessage = null,
+        ?string $subMessage = null,
         $originalError = null
     ) {
         $pathStr = self::printPath($path);
@@ -247,8 +246,7 @@ class Value
         // Return a GraphQLError instance
         return new Error(
             $message .
-            ($pathStr ? ' at ' . $pathStr : '') .
-            ($subMessage ? '; ' . $subMessage : '.'),
+            ($pathStr === '' ? '' : ' at ' . $pathStr) . (($subMessage ?? '') === '' ? '.' : '; ' . $subMessage),
             $blameNode,
             null,
             [],
@@ -276,7 +274,7 @@ class Value
             $currentPath = $currentPath['prev'];
         }
 
-        return $pathStr ? 'value' . $pathStr : '';
+        return $pathStr === '' ? '' : 'value' . $pathStr;
     }
 
     /**

@@ -205,7 +205,7 @@ class Visitor
             $isEdited  = $isLeaving && count($edits) > 0;
 
             if ($isLeaving) {
-                $key    = ! $ancestors ? $UNDEFINED : $path[count($path) - 1];
+                $key    = $ancestors === [] ? $UNDEFINED : $path[count($path) - 1];
                 $node   = $parent;
                 $parent = array_pop($ancestors);
 
@@ -413,7 +413,7 @@ class Visitor
                         false
                     );
 
-                    if (! $fn) {
+                    if ($fn === null) {
                         continue;
                     }
 

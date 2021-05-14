@@ -165,7 +165,7 @@ class AstFromValueTest extends TestCase
 
     private function complexValue()
     {
-        if (! $this->complexValue) {
+        if (! isset($this->complexValue)) {
             $this->complexValue                = new stdClass();
             $this->complexValue->someArbitrary = 'complexValue';
         }
