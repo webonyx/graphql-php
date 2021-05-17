@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.7.0
+
+Feat:
+- Allow providing field definitions as a callable and resolve them lazily
+
 #### 14.6.4
 
 Fix:
