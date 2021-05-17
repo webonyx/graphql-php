@@ -37,7 +37,7 @@ class QueryGenerator
                 continue;
             }
 
-            $totalFields += count($type->getFields());
+            $totalFields += count($type->getFieldNames());
         }
 
         $this->maxLeafFields     = max(1, round($totalFields * $percentOfLeafFields));
