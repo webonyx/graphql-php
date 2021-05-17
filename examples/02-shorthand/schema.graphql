@@ -1,0 +1,4 @@
+type Query {
+  echo(message: String!): String!
+  sum(x: Int!, y: Int!): Int!
+}
