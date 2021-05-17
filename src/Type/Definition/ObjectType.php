@@ -55,7 +55,7 @@ use function sprintf;
  *        }
  *     ]);
  */
-class ObjectType extends Type implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
+class ObjectType extends TypeWithFields implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
     /** @var ObjectTypeDefinitionNode|null */
     public $astNode;
@@ -65,13 +65,6 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
     /** @var ?callable */
     public $resolveFieldFn;
-
-    /**
-     * Lazily initialized.
-     *
-     * @var FieldDefinition[]
-     */
-    private $fields;
 
     /**
      * Lazily initialized.
@@ -121,48 +114,6 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         );
 
         return $type;
-    }
-
-    /**
-     * @throws InvariantViolation
-     */
-    public function getField(string $name) : FieldDefinition
-    {
-        if (! isset($this->fields)) {
-            $this->initializeFields();
-        }
-        Utils::invariant(isset($this->fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
-
-        return $this->fields[$name];
-    }
-
-    public function hasField(string $name) : bool
-    {
-        if (! isset($this->fields)) {
-            $this->initializeFields();
-        }
-
-        return isset($this->fields[$name]);
-    }
-
-    /**
-     * @return FieldDefinition[]
-     *
-     * @throws InvariantViolation
-     */
-    public function getFields() : array
-    {
-        if (! isset($this->fields)) {
-            $this->initializeFields();
-        }
-
-        return $this->fields;
-    }
-
-    protected function initializeFields() : void
-    {
-        $fields       = $this->config['fields'] ?? [];
-        $this->fields = FieldDefinition::defineFieldMap($this, $fields);
     }
 
     public function implementsInterface(InterfaceType $interfaceType) : bool

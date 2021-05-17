@@ -250,10 +250,10 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     $fieldName = $selection->name->value;
                     $fieldDef  = null;
                     if ($parentType instanceof ObjectType ||
-                        $parentType instanceof InterfaceType) {
-                        $tmp = $parentType->getFields();
-                        if (isset($tmp[$fieldName])) {
-                            $fieldDef = $tmp[$fieldName];
+                        $parentType instanceof InterfaceType
+                    ) {
+                        if ($parentType->hasField($fieldName)) {
+                            $fieldDef = $parentType->getField($fieldName);
                         }
                     }
                     $responseName = $selection->alias ? $selection->alias->value : $fieldName;

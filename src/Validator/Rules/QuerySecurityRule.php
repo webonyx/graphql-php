@@ -10,13 +10,14 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Type\Definition\HasFieldsType;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 use InvalidArgumentException;
 use function class_alias;
-use function method_exists;
 use function sprintf;
 
 abstract class QuerySecurityRule extends ValidationRule
@@ -117,8 +118,7 @@ abstract class QuerySecurityRule extends ValidationRule
                 case $selection instanceof FieldNode:
                     $fieldName = $selection->name->value;
                     $fieldDef  = null;
-                    if ($parentType && method_exists($parentType, 'getFields')) {
-                        $tmp                  = $parentType->getFields();
+                    if ($parentType instanceof HasFieldsType || $parentType instanceof InputObjectType) {
                         $schemaMetaFieldDef   = Introspection::schemaMetaFieldDef();
                         $typeMetaFieldDef     = Introspection::typeMetaFieldDef();
                         $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
@@ -129,8 +129,8 @@ abstract class QuerySecurityRule extends ValidationRule
                             $fieldDef = $typeMetaFieldDef;
                         } elseif ($fieldName === $typeNameMetaFieldDef->name) {
                             $fieldDef = $typeNameMetaFieldDef;
-                        } elseif (isset($tmp[$fieldName])) {
-                            $fieldDef = $tmp[$fieldName];
+                        } elseif ($parentType->hasField($fieldName)) {
+                            $fieldDef = $parentType->getField($fieldName);
                         }
                     }
                     $responseName = $this->getFieldName($selection);
