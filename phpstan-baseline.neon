@@ -221,11 +221,6 @@ parameters:
 			path: src/Type/SchemaValidationContext.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\> given\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\FieldDefinitionNode\\|null given\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
@@ -524,11 +519,6 @@ parameters:
 			message: "#^Only booleans are allowed in a negated boolean, array\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
-
-		-
-			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Validator/Rules/QuerySecurityRule.php
 
 		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"

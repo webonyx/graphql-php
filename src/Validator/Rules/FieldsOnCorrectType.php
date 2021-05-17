@@ -86,16 +86,14 @@ class FieldsOnCorrectType extends ValidationRule
             $interfaceUsageCount  = [];
 
             foreach ($schema->getPossibleTypes($type) as $possibleType) {
-                $fields = $possibleType->getFields();
-                if (! isset($fields[$fieldName])) {
+                if (! $possibleType->hasField($fieldName)) {
                     continue;
                 }
 
                 // This object type defines this field.
                 $suggestedObjectTypes[] = $possibleType->name;
                 foreach ($possibleType->getInterfaces() as $possibleInterface) {
-                    $fields = $possibleInterface->getFields();
-                    if (! isset($fields[$fieldName])) {
+                    if (! $possibleInterface->hasField($fieldName)) {
                         continue;
                     }
 
@@ -131,7 +129,7 @@ class FieldsOnCorrectType extends ValidationRule
     protected function getSuggestedFieldNames(Schema $schema, $type, $fieldName)
     {
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
-            $possibleFieldNames = array_keys($type->getFields());
+            $possibleFieldNames = $type->getFieldNames();
 
             return Utils::suggestionList($fieldName, $possibleFieldNames);
         }
