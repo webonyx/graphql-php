@@ -77,13 +77,13 @@ use GraphQL\Language\Parser;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\AST;
 
-$cacheFilename = 'cached_schema.php';
+$cacheFilename = 'cached_schema';
 
 if (!file_exists($cacheFilename)) {
     $document = Parser::parse(file_get_contents('./schema.graphql'));
-    file_put_contents($cacheFilename, "<?php\nreturn " . var_export(AST::toArray($document), true) . ";\n");
+    file_put_contents($cacheFilename, serialize(AST::toArray($document)));
 } else {
-    $document = AST::fromArray(require $cacheFilename); // fromArray() is a lazy operation as well
+    $document = AST::fromArray(unserialize(file_get_contents($cacheFilename))); // fromArray() is a lazy operation as well
 }
 
 $typeConfigDecorator = function () {};
