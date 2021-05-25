@@ -1,7 +1,7 @@
-# Parsing GraphQL IDL shorthand
+# Schema Definition Language
 
-Same as the Hello world example but shows how to build GraphQL schema from shorthand 
-and wire up some resolvers
+Same as the Hello world example, but shows how to use schema definition language
+and wire up some resolvers as plain functions.
 
 ### Run locally
 ```
