@@ -15,8 +15,17 @@ use GraphQL\GraphQL;
 use GraphQL\Utils\BuildSchema;
 
 try {
-    $schema    = BuildSchema::build(file_get_contents(__DIR__ . '/schema.graphql'));
-    $rootValue = include __DIR__ . '/rootValue.php';
+    $schema    = BuildSchema::build(/** @lang GraphQL */ '
+    type Query {
+      echo(message: String!): String!
+      sum(x: Int!, y: Int!): Int!
+    }
+    ');
+    $rootValue = [
+        'echo' => static fn (array $rootValue, array $args): string => $rootValue['prefix'] . $args['message'],
+        'sum' => static fn (array $rootValue, array $args): int => $args['x'] + $args['y'],
+        'prefix' => 'You said: ',
+    ];
 
     $rawInput       = file_get_contents('php://input');
     $input          = json_decode($rawInput, true);
