@@ -100,7 +100,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         $previous = null,
         array $extensions = []
     ) {
-        parent::__construct($message, 0, $previous);
+        parent::__construct($message, $previous->getCode(), $previous);
 
         // Compute list of blame nodes.
         if ($nodes instanceof Traversable) {
