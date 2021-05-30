@@ -6,7 +6,6 @@ namespace GraphQL\Examples\Blog\Data;
 
 use function array_filter;
 use function array_keys;
-use function array_map;
 use function array_search;
 use function array_slice;
 use function array_values;
@@ -150,9 +149,11 @@ class DataSource
 
         $result = [];
         foreach ($likes as $i => $userId) {
-            if ($i < $limit) {
-                $result[] = self::$users[$userId];
+            if ($i >= $limit) {
+                continue;
             }
+
+            $result[] = self::$users[$userId];
         }
 
         return $result;
@@ -207,7 +208,7 @@ class DataSource
 
         $comments = [];
         foreach ($storyComments as $commentId) {
-            $comments []= self::$comments[$commentId];
+            $comments[] = self::$comments[$commentId];
         }
 
         return $comments;
@@ -226,8 +227,8 @@ class DataSource
         $commentReplies = array_slice($commentReplies, $start, $limit);
 
         $comments = [];
-        foreach ($commentReplies as $commentId) {
-            $comments []= self::$comments[$commentId];
+        foreach ($commentReplies as $replyId) {
+            $comments[] = self::$comments[$replyId];
         }
 
         return $comments;

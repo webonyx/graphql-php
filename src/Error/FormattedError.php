@@ -16,6 +16,7 @@ use Throwable;
 use function addcslashes;
 use function array_filter;
 use function array_intersect_key;
+use function array_map;
 use function array_merge;
 use function array_shift;
 use function count;
@@ -165,7 +166,7 @@ class FormattedError
      *
      * @api
      */
-    public static function createFromException(Throwable $exception, int $debugFlag = DebugFlag::NONE, string $internalErrorMessage = null): array
+    public static function createFromException(Throwable $exception, int $debugFlag = DebugFlag::NONE, ?string $internalErrorMessage = null): array
     {
         $internalErrorMessage ??= self::$internalErrorMessage;
 
@@ -188,17 +189,18 @@ class FormattedError
         if ($exception instanceof Error) {
             $locations = [];
             foreach ($exception->getLocations() as $location) {
-                $locations []= $location->toSerializableArray();
+                $locations[] = $location->toSerializableArray();
             }
+
             if (count($locations) > 0) {
                 $formattedError['locations'] = $locations;
             }
 
-            if (count($exception->path ?? []) > 0) {
+            if ($exception->path !== null && count($exception->path) > 0) {
                 $formattedError['path'] = $exception->path;
             }
 
-            if (count($exception->getExtensions() ?? []) > 0) {
+            if (count($exception->getExtensions()) > 0) {
                 $formattedError['extensions'] = $exception->getExtensions() + $formattedError['extensions'];
             }
         }

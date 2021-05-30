@@ -12,8 +12,6 @@ use JsonSerializable;
 use Throwable;
 use Traversable;
 
-use function array_filter;
-use function array_values;
 use function count;
 use function is_array;
 use function iterator_to_array;
@@ -48,54 +46,48 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * An array describing the JSON-path into the execution response which
      * corresponds to this error. Only included for errors during execution.
      *
-     * @var mixed[]|null
+     * @var array<int, int|string>|null
      */
-    public $path;
+    public ?array $path;
 
     /**
      * An array of GraphQL AST Nodes corresponding to this error.
      *
-     * @var Node[]|null
+     * @var array<Node>|null
      */
-    public $nodes;
+    public ?array $nodes;
 
     /**
      * The source GraphQL document for the first location of this error.
      *
      * Note that if this Error represents more than one node, the source may not
      * represent nodes after the first node.
-     *
-     * @var Source|null
      */
-    private $source;
+    private ?Source $source;
 
     /** @var array<int, int> */
     private array $positions;
 
-    /** @var bool */
-    private $isClientSafe;
+    private bool $isClientSafe;
 
-    /** @var string */
-    protected $category;
+    protected string $category;
 
-    /** @var mixed[]|null */
-    protected $extensions;
+    /** @var array<string, mixed> */
+    protected array $extensions;
 
     /**
-     * @param string                       $message
-     * @param Node|Node[]|Traversable|null $nodes
-     * @param mixed[]                      $positions
-     * @param mixed[]|null                 $path
-     * @param Throwable                    $previous
-     * @param mixed[]                      $extensions
+     * @param iterable<Node>|Node|null    $nodes
+     * @param array<int, int>             $positions
+     * @param array<int, int|string>|null $path
+     * @param array<string, mixed>        $extensions
      */
     public function __construct(
-        $message = '',
+        string $message = '',
         $nodes = null,
         ?Source $source = null,
         array $positions = [],
-        $path = null,
-        $previous = null,
+        ?array $path = [],
+        ?Throwable $previous = null,
         array $extensions = []
     ) {
         parent::__construct($message, 0, $previous);
@@ -111,16 +103,19 @@ class Error extends Exception implements JsonSerializable, ClientAware
         $this->source     = $source;
         $this->positions  = $positions;
         $this->path       = $path;
-        $this->extensions = count($extensions) > 0 ? $extensions : (
-        $previous instanceof self
-            ? $previous->extensions
-            : []
-        );
+        $this->extensions = count($extensions) > 0
+            ? $extensions
+            : ($previous instanceof self
+                ? $previous->extensions
+                : []
+            );
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
             $cat                = $previous->getCategory();
-            $this->category     = $cat === '' || $cat === null  ? self::CATEGORY_INTERNAL : $cat;
+            $this->category     = $cat === '' || $cat === null
+                ? self::CATEGORY_INTERNAL
+                : $cat;
         } elseif ($previous !== null) {
             $this->isClientSafe = false;
             $this->category     = self::CATEGORY_INTERNAL;
@@ -183,7 +178,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, mixed>
      */
     public static function formatError(Error $error)
     {
@@ -224,9 +219,11 @@ class Error extends Exception implements JsonSerializable, ClientAware
     {
         if (count($this->positions) === 0 && count($this->nodes ?? []) > 0) {
             foreach ($this->nodes as $node) {
-                if (isset($node->loc)) {
-                    $this->positions []= $node->loc->start;
+                if (! isset($node->loc)) {
+                    continue;
                 }
+
+                $this->positions[] = $node->loc->start;
             }
         }
 
@@ -258,13 +255,15 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $this->locations = [];
             if ($source !== null && count($positions) !== 0) {
                 foreach ($positions as $position) {
-                    $this->locations []= $source->getLocation($position);
+                    $this->locations[] = $source->getLocation($position);
                 }
             } elseif ($nodes !== null && count($nodes) !== 0) {
                 foreach ($nodes as $node) {
-                    if (isset($node->loc->source)) {
-                        $this->positions = $node->loc->source->getLocation($node->loc->start);
+                    if (! isset($node->loc->source)) {
+                        continue;
                     }
+
+                    $this->locations[] = $node->loc->source->getLocation($node->loc->start);
                 }
             }
         }
@@ -284,19 +283,19 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * Returns an array describing the path from the root value to the field which produced this error.
      * Only included for execution errors.
      *
-     * @return mixed[]|null
+     * @return array<int, int|string>|null
      *
      * @api
      */
-    public function getPath()
+    public function getPath(): ?array
     {
         return $this->path;
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, mixed>
      */
-    public function getExtensions()
+    public function getExtensions(): array
     {
         return $this->extensions;
     }
@@ -318,17 +317,18 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         $locations = [];
         foreach ($this->getLocations() as $location) {
-            $locations []= $location->toSerializableArray();
+            $locations[] = $location->toSerializableArray();
         }
+
         if (count($locations) > 0) {
             $arr['locations'] = $locations;
         }
 
-        if (count($this->path ?? []) > 0) {
+        if ($this->path !== null && count($this->path) > 0) {
             $arr['path'] = $this->path;
         }
 
-        if (count($this->extensions ?? []) > 0) {
+        if (count($this->extensions) > 0) {
             $arr['extensions'] = $this->extensions;
         }
 
