@@ -5,9 +5,7 @@ parameters:
 
     paths:
         - %currentWorkingDirectory%/benchmarks
-        - %currentWorkingDirectory%/examples/00-hello-world
-        - %currentWorkingDirectory%/examples/01-blog
-        - %currentWorkingDirectory%/examples/02-schema-definition-language
+        - %currentWorkingDirectory%/examples
         - %currentWorkingDirectory%/src
         - %currentWorkingDirectory%/tests
 

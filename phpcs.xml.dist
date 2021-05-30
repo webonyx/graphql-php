@@ -10,9 +10,7 @@
     <arg value="nps" />
 
     <file>benchmarks</file>
-    <file>examples/00-hello-world</file>
-    <file>examples/01-blog</file>
-    <file>examples/02-schema-definition-language</file>
+    <file>examples</file>
     <file>src</file>
     <file>tests</file>
 
