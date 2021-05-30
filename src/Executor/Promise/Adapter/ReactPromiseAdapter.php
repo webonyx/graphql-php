@@ -9,7 +9,6 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use React\Promise\Promise as ReactPromise;
 use React\Promise\PromiseInterface as ReactPromiseInterface;
 
-use function array_map;
 use function React\Promise\all;
 use function React\Promise\reject;
 use function React\Promise\resolve;
@@ -76,17 +75,17 @@ class ReactPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function all(array $promisesOrValues)
+    public function all(array $promisesOrValues): Promise
     {
         // TODO: rework with generators when PHP minimum required version is changed to 5.5+
-        $promisesOrValues = array_map(
-            static function ($item) {
-                return $item instanceof Promise
-                    ? $item->adoptedPromise
-                    : $item;
-            },
-            $promisesOrValues
-        );
+
+        foreach ($promisesOrValues as &$promiseOrValue) {
+            if (! ($promiseOrValue instanceof Promise)) {
+                continue;
+            }
+
+            $promiseOrValue = $promiseOrValue->adoptedPromise;
+        }
 
         $promise = all($promisesOrValues)->then(static function ($values) use ($promisesOrValues): array {
             $orderedResults = [];
