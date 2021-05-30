@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use Closure;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
+use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -30,38 +33,31 @@ use function array_merge;
 
 class ValidationTest extends TestCase
 {
-    /** @var ScalarType */
-    public $SomeScalarType;
+    public ScalarType $SomeScalarType;
 
-    /** @var ObjectType */
-    public $SomeObjectType;
+    public ObjectType $SomeObjectType;
 
-    /** @var UnionType */
-    public $SomeUnionType;
+    public UnionType $SomeUnionType;
 
-    /** @var InterfaceType */
-    public $SomeInterfaceType;
+    public InterfaceType $SomeInterfaceType;
 
-    /** @var EnumType */
-    public $SomeEnumType;
+    public EnumType $SomeEnumType;
 
-    /** @var InputObjectType */
-    public $SomeInputObjectType;
+    public InputObjectType $SomeInputObjectType;
 
-    /** @var mixed[] */
-    public $outputTypes;
+    /** @var array<Type> */
+    public array $outputTypes;
 
-    /** @var mixed[] */
-    public $notOutputTypes;
+    /** @var array<Type> */
+    public array $notOutputTypes;
 
-    /** @var mixed[] */
-    public $inputTypes;
+    /** @var array<Type> */
+    public array $inputTypes;
 
-    /** @var mixed[] */
-    public $notInputTypes;
+    /** @var array<Type> */
+    public array $notInputTypes;
 
-    /** @var float */
-    public $Number;
+    public float $Number;
 
     public function setUp(): void
     {
@@ -203,9 +199,9 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * DESCRIBE: Type System: A Schema must have Object root types
+     * @param array<int, Closure(): Type> $closures
      */
-    private function assertEachCallableThrows($closures, $expectedError)
+    private function assertEachCallableThrows(array $closures, string $expectedError): void
     {
         foreach ($closures as $index => $factory) {
             try {
@@ -216,6 +212,10 @@ class ValidationTest extends TestCase
             }
         }
     }
+
+    /*
+     * @see describe('Type System: A Schema must have Object root types')
+     */
 
     /**
      * @see it('accepts a Schema whose query type is an object type')
@@ -344,7 +344,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @return array<array<string, int>>>
+     * @return array<int, array{line: int, column: int}>
      */
     private function formatLocations(Error $error): array
     {
@@ -357,9 +357,9 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @param Error[] $errors
+     * @param array<Error> $errors
      *
-     * @return mixed[]
+     * @return array<int, array{message: string, locations: array<int, array{line: int, column: int}>}>
      */
     private function formatErrors(array $errors, bool $withLocation = true): array
     {
@@ -378,8 +378,13 @@ class ValidationTest extends TestCase
         );
     }
 
-    private function assertMatchesValidationMessage($errors, $expected)
+    /**
+     * @param array<int, array{message: string, locations: array<int, array{line: int, column: int}>}>  $errors
+     * @param array<int, array{message: string, locations?: array<int, array{line: int, column: int}>}> $expected
+     */
+    private function assertMatchesValidationMessage(array $errors, array $expected): void
     {
+        /** @var array<int, array{message: string, locations: array<int, array{line: int, column: int}>}> $expectedWithLocations */
         $expectedWithLocations = [];
         foreach ($expected as $index => $err) {
             if (! isset($err['locations']) && isset($errors[$index])) {
@@ -541,7 +546,7 @@ class ValidationTest extends TestCase
     /**
      * @see it('rejects a schema extended with invalid root types')
      */
-    public function testRejectsASchemaExtendedWithInvalidRootTypes()
+    public function testRejectsASchemaExtendedWithInvalidRootTypes(): void
     {
         $schema = BuildSchema::build('
             input SomeInputObject {
@@ -681,7 +686,7 @@ class ValidationTest extends TestCase
     /**
      * DESCRIBE: Type System: Fields args must be properly named
      */
-    private function schemaWithFieldType($type): Schema
+    private function schemaWithFieldType(Type $type): Schema
     {
         return new Schema([
             'query' => new ObjectType([
@@ -1262,7 +1267,7 @@ class ValidationTest extends TestCase
     /**
      * DESCRIBE: Type System: Object fields must have output types
      *
-     * @return string[][]
+     * @return array<int, array{0: string, 1: string}>
      */
     public function invalidEnumValueName(): array
     {
@@ -1281,7 +1286,7 @@ class ValidationTest extends TestCase
      *
      * @dataProvider invalidEnumValueName
      */
-    public function testRejectsAnEnumTypeWithIncorrectlyNamedValues($name, $expectedMessage): void
+    public function testRejectsAnEnumTypeWithIncorrectlyNamedValues(string $name, string $expectedMessage): void
     {
         $schema = $this->schemaWithEnum($name);
 
@@ -1293,7 +1298,7 @@ class ValidationTest extends TestCase
         );
     }
 
-    private function schemaWithEnum($name)
+    private function schemaWithEnum(string $name): Schema
     {
         return $this->schemaWithFieldType(
             new EnumType([
@@ -1479,7 +1484,7 @@ class ValidationTest extends TestCase
     /**
      * @see it('rejects an Object implementing the extended interface due to missing field')
      */
-    public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingField()
+    public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingField(): void
     {
         $schema = BuildSchema::build('
           type Query {
@@ -1525,7 +1530,7 @@ class ValidationTest extends TestCase
     /**
      * @see it('rejects an Object implementing the extended interface due to missing field args')
      */
-    public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingFieldArgs()
+    public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingFieldArgs(): void
     {
         $schema = BuildSchema::build('
           type Query {
@@ -1570,7 +1575,7 @@ class ValidationTest extends TestCase
     /**
      * @see it('rejects Objects implementing the extended interface due to mismatching interface type')
      */
-    public function testRejectsObjectsImplementingTheExtendedInterfaceDueToMismatchingInterfaceType()
+    public function testRejectsObjectsImplementingTheExtendedInterfaceDueToMismatchingInterfaceType(): void
     {
         $schema = BuildSchema::build('
           type Query {
@@ -1635,7 +1640,7 @@ class ValidationTest extends TestCase
         }
     }
 
-    private function schemaWithInterfaceFieldOfType($fieldType)
+    private function schemaWithInterfaceFieldOfType($fieldType): Schema
     {
         $BadInterfaceType = new InterfaceType([
             'name'   => 'BadInterface',
@@ -1723,7 +1728,7 @@ class ValidationTest extends TestCase
     /**
      * @see it('accepts an interface not implemented by at least one object')
      */
-    public function testRejectsAnInterfaceNotImplementedByAtLeastOneObject()
+    public function testRejectsAnInterfaceNotImplementedByAtLeastOneObject(): void
     {
         $schema = BuildSchema::build('
       type Query {
@@ -1751,7 +1756,7 @@ class ValidationTest extends TestCase
         }
     }
 
-    private function schemaWithArgOfType($argType)
+    private function schemaWithArgOfType($argType): Schema
     {
         $BadObjectType = new ObjectType([
             'name'   => 'BadObject',
@@ -3048,7 +3053,7 @@ class ValidationTest extends TestCase
     /**
      * @see it('accepts a Schema with valid directives')
      */
-    public function testAcceptsASchemaWithValidDirectives()
+    public function testAcceptsASchemaWithValidDirectives(): void
     {
         $schema = BuildSchema::build('
           schema @testA @testB {
@@ -3096,7 +3101,7 @@ class ValidationTest extends TestCase
     /**
      * @see it('rejects a Schema with directive defined multiple times')
      */
-    public function testRejectsASchemaWithDirectiveDefinedMultipleTimes()
+    public function testRejectsASchemaWithDirectiveDefinedMultipleTimes(): void
     {
         $schema = BuildSchema::build('
           type Query {
@@ -3117,10 +3122,59 @@ class ValidationTest extends TestCase
         );
     }
 
+    public function testRejectsASchemaWithDirectivesWithWrongArgs(): void
+    {
+        // Not using SDL as the duplicate arg name error is prevented by the parser
+
+        $query     = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                [
+                    'name' => 'test',
+                    'type' => Type::int(),
+                ],
+            ],
+        ]);
+        $directive = new Directive([
+            'name' => 'test',
+            'args' => [
+                [
+                    'name' => '__arg',
+                    'type' => Type::int(),
+                ],
+                [
+                    'name' => 'dup',
+                    'type' => Type::int(),
+                ],
+                [
+                    'name' => 'dup',
+                    'type' => Type::int(),
+                ],
+                [
+                    'name' => 'query',
+                    'type' => $query,
+                ],
+            ],
+            'locations' => [DirectiveLocation::QUERY],
+        ]);
+        $schema    = new Schema([
+            'query' => $query,
+            'directives' => [$directive],
+        ]);
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                ['message' => 'Name "__arg" must not begin with "__", which is reserved by GraphQL introspection.'],
+                ['message' => 'Argument @test(dup:) can only be defined once.'],
+                ['message' => 'The type of @test(query:) must be Input Type but got: Query.'],
+            ]
+        );
+    }
+
     /**
      * @see it('rejects a Schema with same directive used twice per location')
      */
-    public function testRejectsASchemaWithSameSchemaDirectiveUsedTwice()
+    public function testRejectsASchemaWithSameSchemaDirectiveUsedTwice(): void
     {
         $schema = BuildSchema::build('
           directive @schema on SCHEMA
@@ -3142,19 +3196,19 @@ class ValidationTest extends TestCase
           type Query implements SomeInterface @object @object {
             test(arg: SomeInput @argument_definition @argument_definition): String
           }
-    
+
           interface SomeInterface @interface @interface {
             test: String @field_definition @field_definition
           }
-    
+
           union SomeUnion @union @union = Query
-    
+
           scalar SomeScalar @scalar @scalar
-    
+
           enum SomeEnum @enum @enum {
             SOME_VALUE @enum_value @enum_value
           }
-    
+
           input SomeInput @input_object @input_object {
             some_input_field: String @input_field_definition @input_field_definition
           }
@@ -3163,57 +3217,72 @@ class ValidationTest extends TestCase
             $schema->validate(),
             [
                 [
-                    'message' => 'Directive @schema used twice at the same location.',
+                    'message' => 'Non-repeatable directive @schema used more than once at the same location.',
                     'locations' => [[ 'line' => 14, 'column' => 18 ], [ 'line' => 14, 'column' => 26 ]],
                 ],
                 [
-                    'message' => 'Directive @argument_definition used twice at the same location.',
+                    'message' => 'Non-repeatable directive @argument_definition used more than once at the same location.',
                     'locations' => [[ 'line' => 19, 'column' => 33 ], [ 'line' => 19, 'column' => 54 ]],
                 ],
                 [
-                    'message' => 'Directive @object used twice at the same location.',
+                    'message' => 'Non-repeatable directive @object used more than once at the same location.',
                     'locations' => [[ 'line' => 18, 'column' => 47 ], [ 'line' => 18, 'column' => 55 ]],
                 ],
                 [
-                    'message' => 'Directive @field_definition used twice at the same location.',
+                    'message' => 'Non-repeatable directive @field_definition used more than once at the same location.',
                     'locations' => [[ 'line' => 23, 'column' => 26 ], [ 'line' => 23, 'column' => 44 ]],
                 ],
                 [
-                    'message' => 'Directive @interface used twice at the same location.',
+                    'message' => 'Non-repeatable directive @interface used more than once at the same location.',
                     'locations' => [[ 'line' => 22, 'column' => 35 ], [ 'line' => 22, 'column' => 46 ]],
                 ],
                 [
-                    'message' => 'Directive @input_field_definition used twice at the same location.',
+                    'message' => 'Non-repeatable directive @input_field_definition used more than once at the same location.',
                     'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 35, 'column' => 62 ]],
                 ],
                 [
-                    'message' => 'Directive @input_object used twice at the same location.',
+                    'message' => 'Non-repeatable directive @input_object used more than once at the same location.',
                     'locations' => [[ 'line' => 34, 'column' => 27 ], [ 'line' => 34, 'column' => 41 ]],
                 ],
                 [
-                    'message' => 'Directive @union used twice at the same location.',
+                    'message' => 'Non-repeatable directive @union used more than once at the same location.',
                     'locations' => [[ 'line' => 26, 'column' => 27 ], [ 'line' => 26, 'column' => 34 ]],
                 ],
                 [
-                    'message' => 'Directive @scalar used twice at the same location.',
+                    'message' => 'Non-repeatable directive @scalar used more than once at the same location.',
                     'locations' => [[ 'line' => 28, 'column' => 29 ], [ 'line' => 28, 'column' => 37 ]],
                 ],
                 [
-                    'message' => 'Directive @enum_value used twice at the same location.',
+                    'message' => 'Non-repeatable directive @enum_value used more than once at the same location.',
                     'locations' => [[ 'line' => 31, 'column' => 24 ], [ 'line' => 31, 'column' => 36 ]],
                 ],
                 [
-                    'message' => 'Directive @enum used twice at the same location.',
+                    'message' => 'Non-repeatable directive @enum used more than once at the same location.',
                     'locations' => [[ 'line' => 30, 'column' => 25 ], [ 'line' => 30, 'column' => 31 ]],
                 ],
             ]
         );
     }
 
+    public function testAllowsRepeatableDirectivesMultipleTimesAtTheSameLocation(): void
+    {
+        $schema = BuildSchema::build('
+          directive @repeatable repeatable on OBJECT
+
+          type Query @repeatable @repeatable {
+            foo: ID
+          }
+        ', null, ['assumeValid' => true]);
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            []
+        );
+    }
+
     /**
      * @see it('rejects a Schema with directive used again in extension')
      */
-    public function testRejectsASchemaWithSameDefinitionDirectiveUsedTwice()
+    public function testRejectsASchemaWithSameDefinitionDirectiveUsedTwice(): void
     {
         $schema = BuildSchema::build('
           directive @testA on OBJECT
@@ -3233,7 +3302,7 @@ class ValidationTest extends TestCase
             $extendedSchema->validate(),
             [
                 [
-                    'message' => 'Directive @testA used twice at the same location.',
+                    'message' => 'Non-repeatable directive @testA used more than once at the same location.',
                     'locations' => [[ 'line' => 4, 'column' => 22 ], [ 'line' => 2, 'column' => 29 ]],
                 ],
             ]
@@ -3243,7 +3312,7 @@ class ValidationTest extends TestCase
     /**
      * @see it('rejects a Schema with directives used in wrong location')
      */
-    public function testRejectsASchemaWithDirectivesUsedInWrongLocation()
+    public function testRejectsASchemaWithDirectivesUsedInWrongLocation(): void
     {
         $schema = BuildSchema::build('
           directive @schema on SCHEMA

@@ -1,48 +1,39 @@
-## Blog Example
-Simple yet full-featured example of GraphQL API. Models blogging platform with Stories, Users
-and hierarchical comments. 
+# Blog Example
 
-### Run locally
-```
-php -S localhost:8080 ./graphql.php
+Simple yet full-featured example of GraphQL API.
+Models a blogging platform with Stories, Users and hierarchical comments. 
+
+## Start the Server
+
+```sh
+php -S localhost:8080 graphql.php
 ```
 
-### Test if GraphQL is running
-If you open `http://localhost:8080` in browser you should see `json` response with 
-following message:
-```
+## Check the Response
+
+Opening `http://localhost:8080` in your browser should return the following response:
+
+```json
 {
-  data: {
-    hello: "Your GraphQL endpoint is ready! Install GraphiQL to browse API"
+  "data": {
+    "hello": "Your graphql-php endpoint is ready! Use a GraphQL client to explore the schema."
   }
 }
 ```
 
-Note that some browsers may try to download JSON file instead of showing you the response.
-In this case try to install browser plugin that adds JSON support (like JSONView or similar)
+## Explore the Schema
 
-### Debugging Mode
-By default GraphQL endpoint exposed at `http://localhost:8080` runs in production mode without 
-additional debugging tools enabled.
+The most convenient way to explore a GraphQL schema is to use a GraphQL client.
+We recommend you download and install [Altair](https://altair.sirmuel.design).
 
-In order to enable debugging mode with additional validation, error handling and reporting - 
-use `http://localhost:8080?debug=1` as endpoint
+Set `http://localhost:8080` as your GraphQL endpoint and try clicking the "Docs" button
+to explore the schema definition.
 
-### Browsing API
-The most convenient way to browse GraphQL API is by using [GraphiQL](https://github.com/graphql/graphiql)
-But setting it up from scratch may be inconvenient. An easy alternative is to use one of 
-the existing Google Chrome extensions:
-- [ChromeiQL](https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij)
-- [GraphiQL Feen](https://chrome.google.com/webstore/detail/graphiql-feen/mcbfdonlkfpbfdpimkjilhdneikhfklp)
+## Running GraphQL Queries
 
-Set `http://localhost:8080?debug=1` as your GraphQL endpoint/server in one of these extensions 
-and try clicking "Docs" button (usually in the top-right corner) to browse auto-generated 
-documentation.
+Copy the following query to your GraphQL client and send the request:
 
-### Running GraphQL queries
-Copy following query to GraphiQL and execute (by clicking play button on top bar)
-
-```
+```graphql
 {
   viewer {
     id
@@ -62,7 +53,6 @@ Copy following query to GraphiQL and execute (by clicking play button on top bar
   lastStoryPosted {
     id
     hasViewerLiked
-   
     author {
       id
       photo(size: ICON) {
@@ -98,8 +88,9 @@ fragment CommentView on Comment {
 }
 ```
 
-### Run your own query
-Use GraphiQL autocomplete (via CTRL+space) to easily create your own query.
+## Run your own query
+
+Use autocomplete (via CTRL+space) to easily create your own query.
 
 Note: GraphQL query requires at least one field per object type (to prevent accidental overfetching).
 For example following query is invalid in GraphQL:

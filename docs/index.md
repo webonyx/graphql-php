@@ -16,10 +16,9 @@ engineers. Various implementations of this specification were written
 Great overview of GraphQL features and benefits is presented on [the official website](http://graphql.org/). 
 All of them equally apply to this PHP implementation. 
 
-
 # About graphql-php
 
-**graphql-php** is a feature-complete implementation of GraphQL specification in PHP (5.5+, 7.0+). 
+**graphql-php** is a feature-complete implementation of GraphQL specification in PHP. 
 It was originally inspired by [reference JavaScript implementation](https://github.com/graphql/graphql-js) 
 published by Facebook.
 
@@ -29,11 +28,11 @@ are used. Instead, it provides tools for creating rich API for your existing app
  
 Library features include:
 
- - Primitives to express your app as a [Type System](type-system/index.md)
- - Validation and introspection of this Type System (for compatibility with tools like [GraphiQL](complementary-tools.md#tools))
+ - Primitives to express your app as a [Type System](type-definitions/index.md)
+ - Validation and introspection of this Type System (for compatibility with [tools like GraphiQL](complementary-tools.md#general-graphql-tools))
  - Parsing, validating and [executing GraphQL queries](executing-queries.md) against this Type System
  - Rich [error reporting](error-handling.md), including query validation and execution errors
- - Optional tools for [parsing GraphQL Type language](type-system/type-language.md)
+ - Optional tools for [parsing schema definition language](schema-definition-language.md)
  - Tools for [batching requests](data-fetching.md#solving-n1-problem) to backend storage
  - [Async PHP platforms support](data-fetching.md#async-php) via promises
  - [Standard HTTP server](executing-queries.md#using-server)
@@ -46,8 +45,8 @@ The first version of this library (v0.1) was released on August 10th 2015.
 
 The current version supports all features described by GraphQL specification 
 as well as some experimental features like 
-[Schema Language parser](type-system/type-language.md) and 
-[Schema printer](reference.md#graphqlutilsschemaprinter).
+[schema definition language](schema-definition-language.md) and 
+[schema printer](class-reference.md#graphqlutilsschemaprinter).
 
 Ready for real-world usage. 
 

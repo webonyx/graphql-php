@@ -28,7 +28,7 @@ class ProvidedRequiredArguments extends ValidationRule
                         return Visitor::skipNode();
                     }
 
-                    $argNodes = $fieldNode->arguments ?? [];
+                    $argNodes = $fieldNode->arguments;
 
                     $argNodeMap = [];
                     foreach ($argNodes as $argNode) {
@@ -42,7 +42,7 @@ class ProvidedRequiredArguments extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            self::missingFieldArgMessage($fieldNode->name->value, $argDef->name, $argDef->getType()),
+                            static::missingFieldArgMessage($fieldNode->name->value, $argDef->name, $argDef->getType()),
                             [$fieldNode]
                         ));
                     }

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Lexer;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Language\Token;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 

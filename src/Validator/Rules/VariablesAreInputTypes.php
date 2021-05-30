@@ -29,7 +29,7 @@ class VariablesAreInputTypes extends ValidationRule
 
                 $variableName = $node->variable->name->value;
                 $context->reportError(new Error(
-                    self::nonInputTypeOnVarMessage($variableName, Printer::doPrint($node->type)),
+                    static::nonInputTypeOnVarMessage($variableName, Printer::doPrint($node->type)),
                     [$node->type]
                 ));
             },

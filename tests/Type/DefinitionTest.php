@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -22,6 +22,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use stdClass;
 
 use function count;
@@ -1800,7 +1801,7 @@ class DefinitionTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "String" ' .
-            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
         $schema = new Schema(['query' => $QueryType]);
         $schema->assertValid();
@@ -1833,7 +1834,7 @@ class DefinitionTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "SameName" ' .
-            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
         $schema = new Schema(['query' => $QueryType]);
         $schema->assertValid();
@@ -1871,7 +1872,7 @@ class DefinitionTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "BadObject" ' .
-            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
         $schema = new Schema([
             'query' => $QueryType,
@@ -1880,11 +1881,204 @@ class DefinitionTest extends TestCase
         $schema->assertValid();
     }
 
-    public function objectWithIsTypeOf(): ObjectType
+    // Lazy Fields
+
+    /**
+     * @see it('allows a type to define its fields as closure returning array field definition to be lazy loaded')
+     */
+    public function testAllowsTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsArray(): void
     {
-        return new ObjectType([
-            'name'   => 'ObjectWithIsTypeOf',
-            'fields' => ['f' => ['type' => Type::string()]],
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): array {
+                    return ['type' => Type::string()];
+                },
+            ],
         ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
+    /**
+     * @see it('allows a type to define its fields as closure returning object field definition to be lazy loaded')
+     */
+    public function testAllowsTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsObject(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): FieldDefinition {
+                    return FieldDefinition::create(['name' => 'f', 'type' => Type::string()]);
+                },
+            ],
+        ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
+    /**
+     * @see it('allows a type to define its fields as invokable class returning array field definition to be lazy loaded')
+     */
+    public function testAllowsTypeWhichDefinesItFieldsAsInvokableClassReturningFieldDefinitionAsArray(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => new class {
+                    public function __invoke(): array
+                    {
+                        return ['type' => Type::string()];
+                    }
+                },
+            ],
+        ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
+    /**
+     * @see it('does not resolve field definitions if they are not accessed')
+     */
+    public function testFieldClosureNotExecutedIfNotAccessed(): void
+    {
+        $resolvedCount = 0;
+        $fieldCallback = static function () use (&$resolvedCount): array {
+            $resolvedCount++;
+
+            return ['type' => Type::string()];
+        };
+
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => $fieldCallback,
+                'b' => static function (): void {
+                    throw new RuntimeException('Would not expect this to be called!');
+                },
+            ],
+        ]);
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+        self::assertSame(1, $resolvedCount);
+    }
+
+    /**
+     * @see it('does resolve all field definitions when validating the type')
+     */
+    public function testAllUnresolvedFieldsAreResolvedWhenValidatingType(): void
+    {
+        $resolvedCount = 0;
+        $fieldCallback = static function () use (&$resolvedCount): array {
+            $resolvedCount++;
+
+            return ['type' => Type::string()];
+        };
+
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => $fieldCallback,
+                'o' => $fieldCallback,
+            ],
+        ]);
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+        self::assertSame(2, $resolvedCount);
+    }
+
+    /**
+     * @see it('does throw when lazy loaded array field definition changes its name')
+     */
+    public function testThrowsWhenLazyLoadedArrayFieldDefinitionChangesItsName(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): array {
+                    return ['name' => 'foo', 'type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject.f should not dynamically change its name when resolved lazily.'
+        );
+
+        $objType->assertValid();
+    }
+
+    /**
+     * @see it('does throw when lazy loaded object field definition changes its name')
+     */
+    public function testThrowsWhenLazyLoadedObjectFieldDefinitionChangesItsName(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): FieldDefinition {
+                    return FieldDefinition::create(['name' => 'foo', 'type' => Type::string()]);
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject.f should not dynamically change its name when resolved lazily.'
+        );
+
+        $objType->assertValid();
+    }
+
+    /**
+     * @see it('does throw when lazy loaded field definition has no keys for field names')
+     */
+    public function testThrowsWhenLazyLoadedFieldDefinitionHasNoKeysForFieldNames(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                static function (): array {
+                    return ['type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject lazy fields must be an associative array with field names as keys.'
+        );
+
+        $objType->assertValid();
+    }
+
+    /**
+     * @see it('does throw when lazy loaded field definition has invalid args')
+     */
+    public function testThrowsWhenLazyLoadedFieldHasInvalidArgs(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): array {
+                    return ['args' => 'invalid', 'type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject.f args must be an array.'
+        );
+
+        $objType->assertValid();
     }
 }

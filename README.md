@@ -1,27 +1,39 @@
 # graphql-php
+
 ![CI](https://github.com/webonyx/graphql-php/workflows/CI/badge.svg)
 [![Coverage Status](https://codecov.io/gh/webonyx/graphql-php/branch/master/graph/badge.svg)](https://codecov.io/gh/webonyx/graphql-php/branch/master)
 [![Latest Stable Version](https://poser.pugx.org/webonyx/graphql-php/version)](https://packagist.org/packages/webonyx/graphql-php)
-[![License](https://poser.pugx.org/webonyx/graphql-php/license)](https://packagist.org/packages/webonyx/graphql-php)
 
 This is a PHP implementation of the GraphQL [specification](https://github.com/facebook/graphql)
 based on the [reference implementation in JavaScript](https://github.com/graphql/graphql-js).
 
 ## Installation
+
 Via composer:
-```
+
+```sh
 composer require webonyx/graphql-php
 ```
 
 ## Documentation
-Full documentation is available on the [Documentation site](https://webonyx.github.io/graphql-php/) as well 
-as in the [docs](docs/) folder of the distribution.
+
+Full documentation is available at [https://webonyx.github.io/graphql-php](https://webonyx.github.io/graphql-php)
+or in the [docs](docs) directory.
 
 If you don't know what GraphQL is, visit the [official website](http://graphql.org) first.
 
 ## Examples
-There are several ready examples in the [examples](examples) folder of the distribution,
+
+There are several ready examples in the [examples](examples) directory,
 with a specific README file per example.
+
+## Versioning
+
+This project follows [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html).
+
+Elements that belong to the public API of this package are marked with the `@api` PHPDoc tag.
+Those elements are thus guaranteed to be stable within major versions. All other elements are
+not part of this backwards compatibility guarantee and may change between minor or patch versions.
 
 ## Contributors
 

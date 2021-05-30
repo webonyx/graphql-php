@@ -103,7 +103,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
                     $suggestions = Utils::suggestionList($argName, $knownArgs);
                     $context->reportError(new Error(
-                        self::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),
+                        static::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),
                         [$argNode]
                     ));
                 }

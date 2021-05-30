@@ -12,8 +12,10 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
@@ -28,23 +30,19 @@ use function sprintf;
 
 class QueryComplexity extends QuerySecurityRule
 {
-    /** @var int */
-    private $maxQueryComplexity;
+    protected int $maxQueryComplexity;
 
-    /** @var mixed[]|null */
-    private $rawVariableValues = [];
+    /** @var array<string, mixed> */
+    protected array $rawVariableValues = [];
 
-    /** @var ArrayObject */
-    private $variableDefs;
+    /** @var NodeList<VariableDefinitionNode> */
+    protected NodeList $variableDefs;
 
-    /** @var ArrayObject */
-    private $fieldNodeAndDefs;
+    protected ArrayObject $fieldNodeAndDefs;
 
-    /** @var ValidationContext */
-    private $context;
+    protected ValidationContext $context;
 
-    /** @var int */
-    private $complexity;
+    protected int $complexity;
 
     public function __construct($maxQueryComplexity)
     {
@@ -55,7 +53,8 @@ class QueryComplexity extends QuerySecurityRule
     {
         $this->context = $context;
 
-        $this->variableDefs     = new ArrayObject();
+        // @phpstan-ignore-next-line Initializing with an empty array does not set the generic type
+        $this->variableDefs     = new NodeList([]);
         $this->fieldNodeAndDefs = new ArrayObject();
         $this->complexity       = 0;
 
@@ -91,7 +90,7 @@ class QueryComplexity extends QuerySecurityRule
                         }
 
                         $context->reportError(
-                            new Error(self::maxQueryComplexityErrorMessage(
+                            new Error(static::maxQueryComplexityErrorMessage(
                                 $this->getMaxQueryComplexity(),
                                 $this->getQueryComplexity()
                             ))
@@ -102,7 +101,7 @@ class QueryComplexity extends QuerySecurityRule
         );
     }
 
-    private function fieldComplexity($node, $complexity = 0)
+    protected function fieldComplexity($node, $complexity = 0)
     {
         if (isset($node->selectionSet) && $node->selectionSet instanceof SelectionSetNode) {
             foreach ($node->selectionSet->selections as $childNode) {
@@ -113,7 +112,7 @@ class QueryComplexity extends QuerySecurityRule
         return $complexity;
     }
 
-    private function nodeComplexity(Node $node, $complexity = 0)
+    protected function nodeComplexity(Node $node, $complexity = 0)
     {
         switch (true) {
             case $node instanceof FieldNode:
@@ -168,7 +167,7 @@ class QueryComplexity extends QuerySecurityRule
         return $complexity;
     }
 
-    private function astFieldInfo(FieldNode $field)
+    protected function astFieldInfo(FieldNode $field)
     {
         $fieldName    = $this->getFieldName($field);
         $astFieldInfo = [null, null];
@@ -184,7 +183,7 @@ class QueryComplexity extends QuerySecurityRule
         return $astFieldInfo;
     }
 
-    private function directiveExcludesField(FieldNode $node)
+    protected function directiveExcludesField(FieldNode $node)
     {
         foreach ($node->directives as $directiveNode) {
             if ($directiveNode->name->value === 'deprecated') {
@@ -228,20 +227,23 @@ class QueryComplexity extends QuerySecurityRule
         return false;
     }
 
-    public function getRawVariableValues()
+    /**
+     * @return array<string, mixed>
+     */
+    public function getRawVariableValues(): array
     {
         return $this->rawVariableValues;
     }
 
     /**
-     * @param mixed[]|null $rawVariableValues
+     * @param array<string, mixed>|null $rawVariableValues
      */
-    public function setRawVariableValues(?array $rawVariableValues = null)
+    public function setRawVariableValues(?array $rawVariableValues = null): void
     {
         $this->rawVariableValues = $rawVariableValues ?? [];
     }
 
-    private function buildFieldArguments(FieldNode $node)
+    protected function buildFieldArguments(FieldNode $node)
     {
         $rawVariableValues = $this->getRawVariableValues();
         $astFieldInfo      = $this->astFieldInfo($node);

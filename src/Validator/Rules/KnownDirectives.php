@@ -100,7 +100,7 @@ class KnownDirectives extends ValidationRule
 
                 if ($locations === null) {
                     $context->reportError(new Error(
-                        self::unknownDirectiveMessage($name),
+                        static::unknownDirectiveMessage($name),
                         [$node]
                     ));
 
@@ -115,7 +115,7 @@ class KnownDirectives extends ValidationRule
 
                 $context->reportError(
                     new Error(
-                        self::misplacedDirectiveMessage($name, $candidateLocation),
+                        static::misplacedDirectiveMessage($name, $candidateLocation),
                         [$node]
                     )
                 );
@@ -133,7 +133,7 @@ class KnownDirectives extends ValidationRule
      *
      * @return string
      */
-    private function getDirectiveLocationForASTPath(array $ancestors)
+    protected function getDirectiveLocationForASTPath(array $ancestors)
     {
         $appliedTo = $ancestors[count($ancestors) - 1];
         switch (true) {
