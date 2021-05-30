@@ -989,7 +989,7 @@ class NonNullTest extends TestCase
             'errors' => [
                 [
                     'message' => 'Argument "cannotBeNull" of non-null type "String!" must not be null.',
-                    'locations' => [['line' => 3, 'column' => 13]],
+                    'locations' => [['line' => 3, 'column' => 42]],
                     'path' => ['withNonNullArg'],
                     'extensions' => ['category' => 'graphql'],
                 ],

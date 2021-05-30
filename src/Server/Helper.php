@@ -270,12 +270,13 @@ class Helper
             $errors = $this->validateOperationParams($op);
 
             if (count($errors) > 0) {
-                foreach ($errors as &$error) {
-                    $error = Error::createLocatedError($error);
+                $locatedErrors = [];
+                foreach ($errors as $error) {
+                    $locatedErrors []= Error::createLocatedError($error);
                 }
 
                 return $promiseAdapter->createFulfilled(
-                    new ExecutionResult(null, $errors)
+                    new ExecutionResult(null, $locatedErrors)
                 );
             }
 

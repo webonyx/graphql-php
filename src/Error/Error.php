@@ -130,16 +130,14 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * GraphQL operation, produce a new GraphQLError aware of the location in the
      * document responsible for the original Error.
      *
-     * @param mixed        $error
-     * @param Node[]|null  $nodes
-     * @param mixed[]|null $path
-     *
-     * @return Error
+     * @param mixed                       $error
+     * @param iterable<Node>|Node|null    $nodes
+     * @param array<int, int|string>|null $path
      */
-    public static function createLocatedError($error, $nodes = null, $path = null)
+    public static function createLocatedError($error, $nodes = null, ?array $path = null): Error
     {
         if ($error instanceof self) {
-            if ($error->path !== null && $error->nodes !== null && count($error->nodes) !== 0) {
+            if ($error->isLocated()) {
                 return $error;
             }
 
@@ -155,7 +153,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         if ($error instanceof self) {
             $message       = $error->getMessage();
             $originalError = $error;
-            $nodes         = $error->nodes ?? $nodes;
+            $nodes         = $error->nodes ?? $nodes; // TODO why does this line change the behaviour?
             $source        = $error->source;
             $positions     = $error->positions;
             $extensions    = $error->extensions;
@@ -177,10 +175,18 @@ class Error extends Exception implements JsonSerializable, ClientAware
         );
     }
 
+    public function isLocated(): bool
+    {
+        return $this->path !== null
+            && count($this->path) > 0
+            && $this->nodes !== null
+            && count($this->nodes) > 0;
+    }
+
     /**
      * @return array<string, mixed>
      */
-    public static function formatError(Error $error)
+    public static function formatError(Error $error): array
     {
         return $error->toSerializableArray();
     }
@@ -188,7 +194,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * @inheritdoc
      */
-    public function isClientSafe()
+    public function isClientSafe(): bool
     {
         return $this->isClientSafe;
     }
@@ -196,15 +202,15 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * @inheritdoc
      */
-    public function getCategory()
+    public function getCategory(): string
     {
         return $this->category;
     }
 
     public function getSource(): ?Source
     {
-        if ($this->source === null) {
-            if (isset($this->nodes[0]) && $this->nodes[0]->loc !== null) {
+        if (! isset($this->source)) {
+            if (isset($this->nodes[0]->loc)) {
                 $this->source = $this->nodes[0]->loc->source;
             }
         }
@@ -217,7 +223,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
      */
     public function getPositions(): array
     {
-        if (count($this->positions) === 0 && count($this->nodes ?? []) > 0) {
+        if (! isset($this->positions) && $this->nodes !== null && count($this->positions) === 0 && count($this->nodes ?? []) > 0) {
             foreach ($this->nodes as $node) {
                 if (! isset($node->loc)) {
                     continue;
@@ -250,7 +256,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         if (! isset($this->locations)) {
             $positions = $this->getPositions();
             $source    = $this->getSource();
-            $nodes     = $this->nodes;
+            $nodes     = $this->getNodes();
 
             $this->locations = [];
             if ($source !== null && count($positions) !== 0) {
@@ -272,9 +278,9 @@ class Error extends Exception implements JsonSerializable, ClientAware
     }
 
     /**
-     * @return Node[]|null
+     * @return array<Node>|null
      */
-    public function getNodes()
+    public function getNodes(): ?array
     {
         return $this->nodes;
     }
@@ -348,9 +354,6 @@ class Error extends Exception implements JsonSerializable, ClientAware
         return $this->toSerializableArray();
     }
 
-    /**
-     * @return string
-     */
     public function __toString()
     {
         return FormattedError::printError($this);
