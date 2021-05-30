@@ -16,7 +16,6 @@ use Throwable;
 use function addcslashes;
 use function array_filter;
 use function array_intersect_key;
-use function array_map;
 use function array_merge;
 use function array_shift;
 use function count;
@@ -84,7 +83,7 @@ class FormattedError
             }
         } elseif ($error->getSource() !== null && count($error->getLocations()) !== 0) {
             $source = $error->getSource();
-            foreach (($error->getLocations() ?? []) as $location) {
+            foreach ($error->getLocations() as $location) {
                 $printedLocations[] = self::highlightSourceAtLocation($source, $location);
             }
         }
@@ -155,23 +154,18 @@ class FormattedError
     }
 
     /**
-     * Standard GraphQL error formatter. Converts any exception to array
-     * conforming to GraphQL spec.
+     * Convert any exception to a GraphQL spec compliant array.
      *
-     * This method only exposes exception message when exception implements ClientAware interface
-     * (or when debug flags are passed).
+     * This method only exposes the exception message when the given exception
+     * implements the ClientAware interface, or when debug flags are passed.
      *
      * For a list of available debug flags @see \GraphQL\Error\DebugFlag constants.
      *
-     * @param string $internalErrorMessage
-     *
-     * @return mixed[]
-     *
-     * @throws Throwable
+     * @return array<string, mixed>
      *
      * @api
      */
-    public static function createFromException(Throwable $exception, int $debug = DebugFlag::NONE, $internalErrorMessage = null): array
+    public static function createFromException(Throwable $exception, int $debugFlag = DebugFlag::NONE, string $internalErrorMessage = null): array
     {
         $internalErrorMessage ??= self::$internalErrorMessage;
 
@@ -192,12 +186,10 @@ class FormattedError
         }
 
         if ($exception instanceof Error) {
-            $locations = array_map(
-                static function (SourceLocation $loc): array {
-                    return $loc->toSerializableArray();
-                },
-                $exception->getLocations()
-            );
+            $locations = [];
+            foreach ($exception->getLocations() as $location) {
+                $locations []= $location->toSerializableArray();
+            }
             if (count($locations) > 0) {
                 $formattedError['locations'] = $locations;
             }
@@ -211,8 +203,8 @@ class FormattedError
             }
         }
 
-        if ($debug !== DebugFlag::NONE) {
-            $formattedError = self::addDebugEntries($formattedError, $exception, $debug);
+        if ($debugFlag !== DebugFlag::NONE) {
+            $formattedError = self::addDebugEntries($formattedError, $exception, $debugFlag);
         }
 
         return $formattedError;

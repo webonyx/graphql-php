@@ -13,7 +13,6 @@ use Throwable;
 use Traversable;
 
 use function array_filter;
-use function array_map;
 use function array_values;
 use function count;
 use function is_array;
@@ -41,9 +40,9 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * Lazily initialized.
      *
-     * @var SourceLocation[]
+     * @var array<int, SourceLocation>
      */
-    private $locations;
+    private array $locations;
 
     /**
      * An array describing the JSON-path into the execution response which
@@ -70,8 +69,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
      */
     private $source;
 
-    /** @var int[] */
-    private $positions;
+    /** @var array<int, int> */
+    private array $positions;
 
     /** @var bool */
     private $isClientSafe;
@@ -219,26 +218,16 @@ class Error extends Exception implements JsonSerializable, ClientAware
     }
 
     /**
-     * @return int[]
+     * @return array<int, int>
      */
     public function getPositions(): array
     {
         if (count($this->positions) === 0 && count($this->nodes ?? []) > 0) {
-            $positions = array_map(
-                static function ($node): ?int {
-                    return isset($node->loc) ? $node->loc->start : null;
-                },
-                $this->nodes
-            );
-
-            $positions = array_filter(
-                $positions,
-                static function ($p): bool {
-                    return $p !== null;
+            foreach ($this->nodes as $node) {
+                if (isset($node->loc)) {
+                    $this->positions []= $node->loc->start;
                 }
-            );
-
-            $this->positions = array_values($positions);
+            }
         }
 
         return $this->positions;
@@ -255,7 +244,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * point out to field mentioned in multiple fragments. Errors during execution include a
      * single location, the field which produced the error.
      *
-     * @return SourceLocation[]
+     * @return array<int, SourceLocation>
      *
      * @api
      */
@@ -266,29 +255,17 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $source    = $this->getSource();
             $nodes     = $this->nodes;
 
+            $this->locations = [];
             if ($source !== null && count($positions) !== 0) {
-                $this->locations = array_map(
-                    static function ($pos) use ($source): SourceLocation {
-                        return $source->getLocation($pos);
-                    },
-                    $positions
-                );
+                foreach ($positions as $position) {
+                    $this->locations []= $source->getLocation($position);
+                }
             } elseif ($nodes !== null && count($nodes) !== 0) {
-                $locations       = array_filter(
-                    array_map(
-                        static function ($node): ?SourceLocation {
-                            if (isset($node->loc->source)) {
-                                return $node->loc->source->getLocation($node->loc->start);
-                            }
-
-                            return null;
-                        },
-                        $nodes
-                    )
-                );
-                $this->locations = array_values($locations);
-            } else {
-                $this->locations = [];
+                foreach ($nodes as $node) {
+                    if (isset($node->loc->source)) {
+                        $this->positions = $node->loc->source->getLocation($node->loc->start);
+                    }
+                }
             }
         }
 
@@ -329,23 +306,20 @@ class Error extends Exception implements JsonSerializable, ClientAware
      *
      * @deprecated Use FormattedError::createFromException() instead
      *
-     * @return mixed[]
+     * @return array<string, mixed>
      *
      * @codeCoverageIgnore
      */
-    public function toSerializableArray()
+    public function toSerializableArray(): array
     {
         $arr = [
             'message' => $this->getMessage(),
         ];
 
-        $locations = array_map(
-            static function (SourceLocation $loc): array {
-                return $loc->toSerializableArray();
-            },
-            $this->getLocations()
-        );
-
+        $locations = [];
+        foreach ($this->getLocations() as $location) {
+            $locations []= $location->toSerializableArray();
+        }
         if (count($locations) > 0) {
             $arr['locations'] = $locations;
         }

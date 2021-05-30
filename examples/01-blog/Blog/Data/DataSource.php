@@ -117,14 +117,16 @@ class DataSource
 
     public static function findLikes($storyId, $limit)
     {
-        $likes = isset(self::$storyLikes[$storyId]) ? self::$storyLikes[$storyId] : [];
-        $result = array_map(
-            function($userId) {
-                return self::$users[$userId];
-            },
-            $likes
-        );
-        return array_slice($result, 0, $limit);
+        $likes = self::$storyLikes[$storyId] ?? [];
+
+        $result = [];
+        foreach ($likes as $i => $userId) {
+            if ($i < $limit) {
+                $result[] = self::$users[$userId];
+            }
+        }
+
+        return $result;
     }
 
     public static function isLikedBy($storyId, $userId)
@@ -157,32 +159,32 @@ class DataSource
 
     public static function findComments($storyId, $limit = 5, $afterId = null)
     {
-        $storyComments = isset(self::$storyComments[$storyId]) ? self::$storyComments[$storyId] : [];
+        $storyComments = self::$storyComments[$storyId] ?? [];
 
         $start = isset($after) ? (int) array_search($afterId, $storyComments) + 1 : 0;
         $storyComments = array_slice($storyComments, $start, $limit);
 
-        return array_map(
-            function($commentId) {
-                return self::$comments[$commentId];
-            },
-            $storyComments
-        );
+        $comments = [];
+        foreach ($storyComments as $commentId) {
+            $comments []= self::$comments[$commentId];
+        }
+
+        return $comments;
     }
 
     public static function findReplies($commentId, $limit = 5, $afterId = null)
     {
-        $commentReplies = isset(self::$commentReplies[$commentId]) ? self::$commentReplies[$commentId] : [];
+        $commentReplies = self::$commentReplies[$commentId] ?? [];
 
         $start = isset($after) ? (int) array_search($afterId, $commentReplies) + 1: 0;
         $commentReplies = array_slice($commentReplies, $start, $limit);
 
-        return array_map(
-            function($replyId) {
-                return self::$comments[$replyId];
-            },
-            $commentReplies
-        );
+        $comments = [];
+        foreach ($commentReplies as $commentId) {
+            $comments []= self::$comments[$commentId];
+        }
+
+        return $comments;
     }
 
     public static function countComments($storyId)
