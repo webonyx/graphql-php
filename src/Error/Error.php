@@ -324,7 +324,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $arr['locations'] = $locations;
         }
 
-        if ($this->path !== null && count($this->path) > 0) {
+        if (count($this->path) > 0) {
             $arr['path'] = $this->path;
         }
 
