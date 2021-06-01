@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.8.0
+
+Feat:
+- Implement `Utils::getOperationAST()`
+
 #### 14.7.0
 
 Feat:

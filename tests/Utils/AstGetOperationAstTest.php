@@ -8,7 +8,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 
-class AstGetOperationAstTest extends TestCase
+final class AstGetOperationAstTest extends TestCase
 {
     // Describe: getOperationAST
 
