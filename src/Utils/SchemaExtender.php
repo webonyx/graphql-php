@@ -506,8 +506,12 @@ class SchemaExtender
     /**
      * @param array<string, bool> $options
      */
-    public static function extend(Schema $schema, DocumentNode $documentAST, array $options = []): Schema
-    {
+    public static function extend(
+        Schema $schema,
+        DocumentNode $documentAST,
+        array $options = [],
+        ?callable $typeConfigDecorator = null
+    ): Schema {
         if (! (isset($options['assumeValid']) || isset($options['assumeValidSDL']))) {
             DocumentValidator::assertValidSDLExtension($documentAST, $schema);
         }
@@ -588,7 +592,8 @@ class SchemaExtender
                 }
 
                 throw new Error('Unknown type: "' . $typeName . '". Ensure that this type exists either in the original schema, or is added in a type definition.', [$typeName]);
-            }
+            },
+            $typeConfigDecorator
         );
 
         static::$extendTypeCache = [];
