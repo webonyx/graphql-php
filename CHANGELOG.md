@@ -5,7 +5,7 @@
 #### 14.8.0
 
 Feat:
-- Implement `Utils::getOperationAST()`
+- Implement `GraphQL\Utils\AST::getOperationAST()`
 
 #### 14.7.0
 
