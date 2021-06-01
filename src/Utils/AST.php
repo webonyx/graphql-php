@@ -637,7 +637,7 @@ class AST
      *
      * @api
      */
-    public static function getOperationAST(DocumentNode $document, ?string $operationName = null) : ?OperationDefinitionNode
+    public static function getOperationAST(DocumentNode $document, ?string $operationName = null): ?OperationDefinitionNode
     {
         $operation = null;
         foreach ($document->definitions->getIterator() as $node) {
@@ -650,6 +650,7 @@ class AST
                 if ($operation !== null) {
                     return null;
                 }
+
                 $operation = $node;
             } elseif ($node->name instanceof NameNode && $node->name->value === $operationName) {
                 return $node;

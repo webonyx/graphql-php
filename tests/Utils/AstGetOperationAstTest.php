@@ -8,14 +8,14 @@ use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 
-class AstGetOperationAstTest extends TestCase
+final class AstGetOperationAstTest extends TestCase
 {
     // Describe: getOperationAST
 
     /**
      * @see it('Gets an operation from a simple document')
      */
-    public function testGetsAnOperationFromASimpleDocument() : void
+    public function testGetsAnOperationFromASimpleDocument(): void
     {
         $doc = Parser::parse('{ field }');
         self::assertEquals(
@@ -27,7 +27,7 @@ class AstGetOperationAstTest extends TestCase
     /**
      * @see it('Gets an operation from a document with named op (mutation)')
      */
-    public function testGetsAnOperationFromADcoumentWithNamedOpMutation() : void
+    public function testGetsAnOperationFromADcoumentWithNamedOpMutation(): void
     {
         $doc = Parser::parse('mutation Test { field }');
         self::assertEquals(AST::getOperationAST($doc), $doc->definitions->offsetGet(0));
@@ -36,7 +36,7 @@ class AstGetOperationAstTest extends TestCase
     /**
      * @see it('Gets an operation from a document with named op (subscription)')
      */
-    public function testGetsAnOperationFromADcoumentWithNamedOpSubscription() : void
+    public function testGetsAnOperationFromADcoumentWithNamedOpSubscription(): void
     {
         $doc = Parser::parse('subscription Test { field }');
         self::assertEquals(AST::getOperationAST($doc), $doc->definitions->offsetGet(0));
@@ -45,7 +45,7 @@ class AstGetOperationAstTest extends TestCase
     /**
      * @see it('Does not get missing operation')
      */
-    public function testDoesNotGetMissingOperation() : void
+    public function testDoesNotGetMissingOperation(): void
     {
         $doc = Parser::parse('type Foo { field: String }');
         self::assertEquals(AST::getOperationAST($doc), null);
@@ -54,7 +54,7 @@ class AstGetOperationAstTest extends TestCase
     /**
      * @see it('Does not get ambiguous unnamed operation')
      */
-    public function testDoesNotGetAmbiguousUnnamedOperation() : void
+    public function testDoesNotGetAmbiguousUnnamedOperation(): void
     {
         $doc = Parser::parse('
           { field }
@@ -67,7 +67,7 @@ class AstGetOperationAstTest extends TestCase
     /**
      * @see it('Does not get ambiguous named operation')
      */
-    public function testDoesNotGetAmbiguousNamedOperation() : void
+    public function testDoesNotGetAmbiguousNamedOperation(): void
     {
         $doc = Parser::parse('
           query TestQ { field }
@@ -80,7 +80,7 @@ class AstGetOperationAstTest extends TestCase
     /**
      * @see it('Does not get misnamed operation')
      */
-    public function testDoesNotGetMisnamedOperation() : void
+    public function testDoesNotGetMisnamedOperation(): void
     {
         $doc = Parser::parse('
           { field }
@@ -94,7 +94,7 @@ class AstGetOperationAstTest extends TestCase
     /**
      * @see it('Gets named operation')
      */
-    public function testGetsNamedOperation() : void
+    public function testGetsNamedOperation(): void
     {
         $doc = Parser::parse('
           query TestQ { field }
