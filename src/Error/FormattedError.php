@@ -216,6 +216,7 @@ class FormattedError
             $formattedError = self::addDebugEntries($formattedError, $exception, $debug);
         }
 
+        $formattedError['code'] = $e->getCode();
         return $formattedError;
     }
 
