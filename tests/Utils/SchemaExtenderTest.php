@@ -2038,4 +2038,55 @@ extend type Query {
 
         static::assertEquals($this->dedent($expected), SchemaPrinter::doPrint($extendedSchema));
     }
+
+    public function testSupportsTypeConfigDecorator()
+    {
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'hello' => [
+                    'type' => Type::string(),
+                ],
+            ],
+            'resolveField' => static function () : string {
+                return 'Hello World!';
+            },
+        ]);
+
+        $schema = new Schema(['query' => $queryType]);
+
+        $documentNode = Parser::parse('
+              type Foo {
+                value: String
+              }
+              extend type Query {
+                defaultValue: String
+                foo: Foo
+              }
+        ');
+
+        $typeConfigDecorator = static function ($typeConfig) {
+            switch ($typeConfig['name']) {
+                case 'Foo':
+                    $typeConfig['resolveField'] = static function () : string {
+                        return 'bar';
+                    };
+                    break;
+            }
+
+            return $typeConfig;
+        };
+
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode, [], $typeConfigDecorator);
+
+        $query  = '{ 
+            hello
+            foo {
+              value
+            }
+        }';
+        $result = GraphQL::executeQuery($extendedSchema, $query);
+
+        self::assertSame(['data' => ['hello' => 'Hello World!', 'foo' => ['value' => 'bar']]], $result->toArray());
+    }
 }
