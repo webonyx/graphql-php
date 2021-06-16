@@ -12,6 +12,11 @@ Removed:
 - Remove deprecated `GraphQL::execute()`
 - Remove deprecated `GraphQL::executeAndReturnResult()`
 
+#### 14.9.0
+
+Feat:
+- Add support for type config decorator in `SchemaExtender`
+
 #### 14.8.0
 
 Feat:
