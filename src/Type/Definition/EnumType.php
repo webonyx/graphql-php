@@ -147,7 +147,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             return $lookup[$value]->name;
         }
 
-        throw new Error('Cannot serialize value as enum: ' . Utils::printSafe($value));
+        throw new InvariantViolation('Cannot serialize value as enum: ' . Utils::printSafe($value));
     }
 
     /**
