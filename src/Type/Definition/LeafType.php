@@ -17,7 +17,7 @@ GraphQLScalarType |
 GraphQLEnumType;
 */
 
-interface  LeafType
+interface LeafType
 {
     /**
      * Serializes an internal value to include in a response.

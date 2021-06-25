@@ -609,10 +609,8 @@ class EnumTypeTest extends TestCase
                         'debugMessage' => 'Expected a value of type SimpleEnum but received: WRONG. Cannot serialize value as enum: WRONG',
                         'locations'    => [['line' => 4, 'column' => 13]],
                         'trace' => [
-                            [
-                                'call' => 'GraphQL\Type\Definition\EnumType::serialize()',
-                            ]
-                        ]
+                            ['call' => 'GraphQL\Type\Definition\EnumType::serialize()'],
+                        ],
                     ],
                 ],
             ],
