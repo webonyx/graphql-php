@@ -190,7 +190,7 @@ class SyncPromise
             return $this;
         }
 
-        $tmp             = new self();
+        $tmp             = new static();
         $this->waiting[] = [$tmp, $onFulfilled, $onRejected];
 
         if ($this->state !== self::PENDING) {
