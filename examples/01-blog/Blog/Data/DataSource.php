@@ -181,7 +181,7 @@ class DataSource
     /**
      * @return array<int, Story>
      */
-    public static function findStories(int $limit, ?int $afterId = null): array
+    public static function findStories(int $limit, $afterId = null): array
     {
         $start = $afterId !== null
             ? (int) array_search($afterId, array_keys(self::$stories), true) + 1
