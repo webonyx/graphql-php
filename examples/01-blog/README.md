@@ -58,7 +58,6 @@ Copy the following query to your GraphQL client and send the request:
       photo(size: ICON) {
         id
         url
-        type
         size
         width
         height
