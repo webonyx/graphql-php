@@ -26,7 +26,7 @@ try {
                     'message' => ['type' => Type::string()],
                 ],
                 'resolve' => static function ($rootValue, array $args): string {
-                    return $rootValue['prefix'] . $args['message'];
+                    return $args['message'];
                 },
             ],
         ],
