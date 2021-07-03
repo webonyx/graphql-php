@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Type\QueryType;
@@ -32,7 +33,10 @@ try {
 
     // See docs on server options:
     // https://webonyx.github.io/graphql-php/executing-queries/#server-configuration-options
-    $server = new StandardServer(['schema' => $schema]);
+    $server = new StandardServer([
+        'schema' => $schema,
+        'debugFlag' => DebugFlag::INCLUDE_DEBUG_MESSAGE,
+    ]);
 
     $server->handleRequest();
 } catch (Throwable $error) {
