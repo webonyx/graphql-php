@@ -18,6 +18,9 @@ try {
     $schema    = BuildSchema::build(/** @lang GraphQL */ '
     type Query {
       echo(message: String!): String!
+    }
+    
+    type Mutation {
       sum(x: Int!, y: Int!): Int!
     }
     ');
