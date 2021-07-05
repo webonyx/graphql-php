@@ -9,9 +9,12 @@ Models a blogging platform with Stories, Users and hierarchical comments.
 php -S localhost:8080 graphql.php
 ```
 
-## Check the Response
+### Try query
+```
+curl -d '{"query": "query { hello }" }' -H "Content-Type: application/json" http://localhost:8080
+```
 
-Opening `http://localhost:8080` in your browser should return the following response:
+and response should be:
 
 ```json
 {
