@@ -3,9 +3,9 @@
 Same as the Hello world example, but shows how to use schema definition language
 and wire up some resolvers as plain functions.
 
-### Run locally
+### Run local test server
 ```
-php -S localhost:8080 ./graphql.php
+php -S localhost:8080 graphql.php
 ```
 
 ### Try query
