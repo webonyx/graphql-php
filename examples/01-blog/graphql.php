@@ -32,7 +32,10 @@ try {
 
     // See docs on server options:
     // https://webonyx.github.io/graphql-php/executing-queries/#server-configuration-options
-    $server = new StandardServer(['schema' => $schema]);
+    $server = new StandardServer([
+        'schema' => $schema,
+        'context' => $appContext,
+    ]);
 
     $server->handleRequest();
 } catch (Throwable $error) {
