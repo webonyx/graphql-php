@@ -88,7 +88,7 @@ class QueryType extends ObjectType
     }
 
     /**
-     * @param null                           $rootValue
+     * @param null                              $rootValue
      * @param array{limit: int, after?: string} $args
      *
      * @return array<int, Story>
