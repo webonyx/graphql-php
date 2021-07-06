@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-// Test this using the following command:
+// Run local test server
 // php -S localhost:8080 graphql.php
 
-// Try the following example queries:
-// curl http://localhost:8080 -d '{"query": "query { echo(message: \"Hello World\") }" }'
-// curl http://localhost:8080 -d '{"query": "mutation { sum(x: 2, y: 2) }" }'
+// Try query
+// curl -d '{"query": "query { echo(message: \"Hello World\") }" }' -H "Content-Type: application/json" http://localhost:8080
+
+// Try mutation
+// curl -d '{"query": "mutation { sum(x: 2, y: 2) }" }' -H "Content-Type: application/json" http://localhost:8080
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 

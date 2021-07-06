@@ -117,13 +117,13 @@ class StoryType extends ObjectType
     }
 
     /**
-     * @param array{limit: int, after?: int} $args
+     * @param array{limit: int, after?: string} $args
      *
      * @return array<int, Comment>
      */
     public function resolveComments(Story $story, array $args): array
     {
-        return DataSource::findComments($story->id, $args['limit'], $args['after'] ?? null);
+        return DataSource::findComments($story->id, $args['limit'], (int) $args['after'] ?? null);
     }
 
     /**

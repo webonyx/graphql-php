@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
-// Test this using the following command:
+// Run local test server
 // php -S localhost:8080 graphql.php
+
+// Try query
+// curl -d '{"query": "query { hello }" }' -H "Content-Type: application/json" http://localhost:8080
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -19,16 +22,18 @@ try {
     // Initialize our fake data source
     DataSource::init();
 
+    // See docs on schema options:
+    // https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options
+    $schema = new Schema([
+        'query' => new QueryType(),
+        'typeLoader' => static fn (string $name): Type => Types::byTypeName($name),
+    ]);
+
     // Prepare context that will be available in all field resolvers (as 3rd argument):
     $appContext          = new AppContext();
     $appContext->viewer  = DataSource::findUser(1); // simulated "currently logged-in user"
     $appContext->rootUrl = 'http://localhost:8080';
     $appContext->request = $_REQUEST;
-
-    $schema = new Schema([
-        'query' => new QueryType(),
-        'typeLoader' => static fn (string $name): Type => Types::byTypeName($name),
-    ]);
 
     // See docs on server options:
     // https://webonyx.github.io/graphql-php/executing-queries/#server-configuration-options
