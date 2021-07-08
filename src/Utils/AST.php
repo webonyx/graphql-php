@@ -245,7 +245,7 @@ class AST
             try {
                 $serialized = $type->serialize($value);
             } catch (Throwable $error) {
-                if ($error instanceof Error && $type instanceof EnumType) {
+                if ($error instanceof InvariantViolation && $type instanceof EnumType) {
                     return null;
                 }
 

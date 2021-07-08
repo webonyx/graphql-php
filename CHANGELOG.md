@@ -3,6 +3,8 @@
 #### Unreleased
 Changed:
 - PHP version required: 7.4+
+- Propagate error message and stack trace for why leaf value serialization failed
+- Do not throw client safe `Error` when failing to serialize an Enum type
 
 Feat:
 - Improve extendability of validator rules
