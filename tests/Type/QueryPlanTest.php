@@ -1026,7 +1026,7 @@ GRAPHQL;
         ];
 
         $hasCalled = false;
-        /** @var QueryPlan $queryPlan */
+        /** @var QueryPlan|null $queryPlan */
         $queryPlan = null;
 
         $query = new ObjectType(
