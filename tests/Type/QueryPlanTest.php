@@ -1059,7 +1059,7 @@ GRAPHQL;
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertTrue($hasCalled);
-        self::assertEquals(['data' => ['entity' => null]], $result);
+        self::assertSame(['data' => ['entity' => null]], $result);
         self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
     }
 }
