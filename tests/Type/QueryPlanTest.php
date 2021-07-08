@@ -1061,6 +1061,6 @@ GRAPHQL;
         self::assertTrue($hasCalled);
         self::assertSame(['data' => ['entity' => null]], $result);
         self::assertInstanceOf(QueryPlan::class, $queryPlan);
-        self::assertSame($expectedQueryPlan, $queryPlan->queryPlan());
+        self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
     }
 }
