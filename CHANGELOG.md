@@ -7,6 +7,9 @@ Changed:
 Feat:
 - Improve extendability of validator rules
 
+Fix:
+- Avoid QueryPlan crash when multiple $fieldNodes are present
+
 Removed:
 - Removed deprecated `Type::getInternalTypes()`
 - Remove deprecated `GraphQL::execute()`
