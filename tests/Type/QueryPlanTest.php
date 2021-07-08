@@ -977,6 +977,7 @@ final class QueryPlanTest extends TestCase
 
     public function testQueryPlanForMultipleFieldNodes(): void
     {
+        /** @var ObjectType|null $entity */
         $entity = null;
 
         $subEntity = new ObjectType([
