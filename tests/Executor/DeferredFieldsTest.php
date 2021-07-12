@@ -542,7 +542,6 @@ class DeferredFieldsTest extends TestCase
             ['!dfd for: ', ['deferredNest', 'deferredNest', 'deferred']],
         ];
 
-        // Note: not using self::assertEquals() because coroutineExecutor has a different sequence of calls
         self::assertCount(count($expectedPaths), $this->paths);
         foreach ($expectedPaths as $expectedPath) {
             self::assertTrue(in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
