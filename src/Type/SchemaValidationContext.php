@@ -157,6 +157,33 @@ class SchemaValidationContext
                 : null);
     }
 
+    /**
+     * @return NamedTypeNode|(Node&TypeDefinitionNode)|null
+     */
+    private function missingcoverage(Type $type, string $operation): ?Node
+    {
+        $astNode = $this->schema->getAstNode();
+
+        $operationTypeNode = null;
+        if ($astNode instanceof SchemaDefinitionNode) {
+            /** @var OperationTypeDefinitionNode|null $operationTypeNode */
+            $operationTypeNode = null;
+
+            foreach ($astNode->operationTypes as $operationType) {
+                if ($operationType->operation === $operation) {
+                    $operationTypeNode = $operationType;
+                    break;
+                }
+            }
+        }
+
+        return $operationTypeNode
+            ? $operationTypeNode->type
+            : ($type
+                ? $type->astNode
+                : null);
+    }
+
     public function validateDirectives(): void
     {
         $this->validateDirectiveDefinitions();
