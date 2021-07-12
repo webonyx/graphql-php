@@ -6,7 +6,6 @@ namespace GraphQL\Examples\Blog\Data;
 
 use function array_filter;
 use function array_keys;
-use function array_map;
 use function array_search;
 use function array_slice;
 use function array_values;
@@ -147,12 +146,17 @@ class DataSource
     public static function findLikes(int $storyId, int $limit): array
     {
         $likes = self::$storyLikes[$storyId] ?? [];
-        $users = array_map(
-            static fn (int $userId) => self::$users[$userId],
-            $likes
-        );
 
-        return array_slice($users, 0, $limit);
+        $result = [];
+        foreach ($likes as $i => $userId) {
+            if ($i >= $limit) {
+                continue;
+            }
+
+            $result[] = self::$users[$userId];
+        }
+
+        return $result;
     }
 
     public static function isLikedBy(int $storyId, int $userId): bool
@@ -202,10 +206,12 @@ class DataSource
             : 0;
         $storyComments = array_slice($storyComments, $start, $limit);
 
-        return array_map(
-            static fn (int $commentId): Comment => self::$comments[$commentId],
-            $storyComments
-        );
+        $comments = [];
+        foreach ($storyComments as $commentId) {
+            $comments[] = self::$comments[$commentId];
+        }
+
+        return $comments;
     }
 
     /**
@@ -220,10 +226,12 @@ class DataSource
             : 0;
         $commentReplies = array_slice($commentReplies, $start, $limit);
 
-        return array_map(
-            static fn (int $replyId): Comment => self::$comments[$replyId],
-            $commentReplies
-        );
+        $comments = [];
+        foreach ($commentReplies as $replyId) {
+            $comments[] = self::$comments[$replyId];
+        }
+
+        return $comments;
     }
 
     public static function countComments(int $storyId): int

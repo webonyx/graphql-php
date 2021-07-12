@@ -487,7 +487,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
     /**
      * @param mixed    $value
-     * @param string[] $path
+     * @param array<int, string> $path
      * @param mixed    $returnValue
      */
     private function completeValueFast(CoroutineContext $ctx, Type $type, $value, array $path, &$returnValue): bool
@@ -571,7 +571,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
     /**
      * @param mixed         $value
-     * @param string[]      $path
+     * @param array<int, string|int>      $path
      * @param string[]|null $nullFence
      *
      * @return mixed

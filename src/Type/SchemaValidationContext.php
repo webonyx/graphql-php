@@ -52,6 +52,7 @@ use GraphQL\Utils\Utils;
 
 use function array_filter;
 use function array_key_exists;
+use function array_map;
 use function array_merge;
 use function count;
 use function in_array;
@@ -235,11 +236,11 @@ class SchemaValidationContext
                 continue;
             }
 
-            $nodes = Utils::map(
-                $directiveList,
+            $nodes = array_map(
                 static function (Directive $directive): ?DirectiveDefinitionNode {
                     return $directive->astNode;
-                }
+                },
+                $directiveList
             );
             $this->reportError(
                 sprintf('Directive @%s defined multiple times.', $directiveName),

@@ -24,7 +24,7 @@ class CoroutineContext
     /** @var object */
     public $result;
 
-    /** @var string[] */
+    /** @var array<int, string|int> */
     public $path;
 
     /** @var ResolveInfo */

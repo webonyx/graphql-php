@@ -7,7 +7,6 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
-use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
@@ -76,12 +75,12 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
             $name = $def->name->value;
             if ($def->arguments !== null) {
-                $directiveArgs[$name] = Utils::map(
-                    $def->arguments,
-                    static function (InputValueDefinitionNode $arg): string {
-                        return $arg->name->value;
-                    }
-                );
+                $args = [];
+                foreach ($def->arguments as $arg) {
+                    $args[] = $arg->name->value;
+                }
+
+                $directiveArgs[$name] = $args;
             } else {
                 $directiveArgs[$name] = [];
             }

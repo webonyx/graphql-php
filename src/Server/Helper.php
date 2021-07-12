@@ -270,15 +270,13 @@ class Helper
             $errors = $this->validateOperationParams($op);
 
             if (count($errors) > 0) {
-                $errors = Utils::map(
-                    $errors,
-                    static function (RequestError $err): Error {
-                        return Error::createLocatedError($err, null, null);
-                    }
-                );
+                $locatedErrors = [];
+                foreach ($errors as $error) {
+                    $locatedErrors []= Error::createLocatedError($error);
+                }
 
                 return $promiseAdapter->createFulfilled(
-                    new ExecutionResult(null, $errors)
+                    new ExecutionResult(null, $locatedErrors)
                 );
             }
 

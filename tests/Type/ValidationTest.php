@@ -28,6 +28,7 @@ use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
+use function array_map;
 use function array_merge;
 
 class ValidationTest extends TestCase
@@ -146,23 +147,23 @@ class ValidationTest extends TestCase
     {
         return array_merge(
             $types,
-            Utils::map(
-                $types,
-                static function ($type): ListOfType {
+            array_map(
+                static function (Type $type): ListOfType {
                     return Type::listOf($type);
-                }
+                },
+                $types
             ),
-            Utils::map(
-                $types,
-                static function ($type): NonNull {
+            array_map(
+                static function (Type $type): NonNull {
                     return Type::nonNull($type);
-                }
+                },
+                $types
             ),
-            Utils::map(
-                $types,
-                static function ($type): NonNull {
+            array_map(
+                static function (Type $type): NonNull {
                     return Type::nonNull(Type::listOf($type));
-                }
+                },
+                $types
             )
         );
     }
@@ -347,9 +348,12 @@ class ValidationTest extends TestCase
      */
     private function formatLocations(Error $error): array
     {
-        return Utils::map($error->getLocations(), static function (SourceLocation $loc): array {
-            return ['line' => $loc->line, 'column' => $loc->column];
-        });
+        return array_map(
+            static function (SourceLocation $loc): array {
+                return ['line' => $loc->line, 'column' => $loc->column];
+            },
+            $error->getLocations()
+        );
     }
 
     /**
@@ -359,16 +363,19 @@ class ValidationTest extends TestCase
      */
     private function formatErrors(array $errors, bool $withLocation = true): array
     {
-        return Utils::map($errors, function (Error $error) use ($withLocation): array {
-            if (! $withLocation) {
-                return ['message' => $error->getMessage()];
-            }
+        return array_map(
+            function (Error $error) use ($withLocation): array {
+                if (! $withLocation) {
+                    return ['message' => $error->getMessage()];
+                }
 
-            return [
-                'message' => $error->getMessage(),
-                'locations' => $this->formatLocations($error),
-            ];
-        });
+                return [
+                    'message' => $error->getMessage(),
+                    'locations' => $this->formatLocations($error),
+                ];
+            },
+            $errors
+        );
     }
 
     /**

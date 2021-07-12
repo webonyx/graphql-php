@@ -13,6 +13,7 @@ use GraphQL\Language\Token;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
+use function array_map;
 use function count;
 use function json_decode;
 
@@ -742,11 +743,11 @@ class LexerTest extends TestCase
                 '}',
                 '<EOF>',
             ],
-            Utils::map(
-                $tokens,
-                static function ($tok) {
+            array_map(
+                static function (Token $tok): string {
                     return $tok->kind;
-                }
+                },
+                $tokens
             )
         );
     }
