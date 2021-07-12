@@ -11,19 +11,8 @@ use RuntimeException;
  */
 class UserError extends RuntimeException implements ClientAware
 {
-    /**
-     * @return bool
-     */
-    public function isClientSafe()
+    public function isClientSafe(): bool
     {
         return true;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCategory()
-    {
-        return 'user';
     }
 }
