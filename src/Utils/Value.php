@@ -13,7 +13,6 @@ use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
-use stdClass;
 use Throwable;
 use Traversable;
 
@@ -141,7 +140,7 @@ class Value
         }
 
         if ($type instanceof InputObjectType) {
-            if (! is_object($value) && ! is_array($value) && ! $value instanceof Traversable) {
+            if (! is_object($value) && ! is_array($value)) {
                 return self::ofErrors([
                     self::coercionError(
                         sprintf('Expected type %s to be an object', $type->name),
@@ -151,10 +150,9 @@ class Value
                 ]);
             }
 
-            // Cast \stdClass to associative array before checking the fields. Note that the coerced value will be an array.
-            if ($value instanceof stdClass) {
-                $value = (array) $value;
-            }
+            // Cast objects to associative array before checking the fields.
+            // Note that the coerced value will be an array.
+            $value = (array) $value;
 
             $errors       = [];
             $coercedValue = [];

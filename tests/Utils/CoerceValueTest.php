@@ -396,10 +396,27 @@ class CoerceValueTest extends TestCase
         $this->expectGraphQLError($result, 'Expected type TestInputObject to be an object.');
     }
 
-    public function testReturnsNoErrorForStdClassInput(): void
+    /**
+     * @dataProvider coercibleObjects
+     */
+    public function testReturnsNoErrorForObjectInput(object $object): void
     {
-        $result = Value::coerceValue((object) ['foo' => 123], $this->testInputObject);
+        $result = Value::coerceValue($object, $this->testInputObject);
         $this->expectValue($result, ['foo' => 123]);
+    }
+
+    /**
+     * @return iterable<int, array{object}>
+     */
+    public function coercibleObjects(): iterable
+    {
+        yield [(object) ['foo' => 123]];
+
+        yield [
+            new class {
+                public int $foo = 123;
+            },
+        ];
     }
 
     /**
