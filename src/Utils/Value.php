@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
+use stdClass;
 use Throwable;
 use Traversable;
 
@@ -21,7 +22,6 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function is_array;
-use function is_object;
 use function is_string;
 use function sprintf;
 
@@ -140,7 +140,7 @@ class Value
         }
 
         if ($type instanceof InputObjectType) {
-            if (! is_object($value) && ! is_array($value)) {
+            if (! is_array($value) && ! $value instanceof stdClass) {
                 return self::ofErrors([
                     self::coercionError(
                         sprintf('Expected type %s to be an object', $type->name),

@@ -380,41 +380,43 @@ class CoerceValueTest extends TestCase
 
     /**
      * @see it('returns no error for a valid input')
+     *
+     * @dataProvider validInputObjects
      */
-    public function testReturnsNoErrorForValidInput(): void
+    public function testReturnsNoErrorForValidInputObject($input): void
     {
-        $result = Value::coerceValue(['foo' => 123], $this->testInputObject);
+        $result = Value::coerceValue($input, $this->testInputObject);
         $this->expectValue($result, ['foo' => 123]);
+    }
+
+    /**
+     * @return iterable<int, array{mixed}>
+     */
+    public function validInputObjects(): iterable
+    {
+        yield [['foo' => 123]];
+        yield [(object) ['foo' => 123]];
     }
 
     /**
      * @see it('returns no error for a non-object type')
+     *
+     * @dataProvider invalidInputObjects
      */
-    public function testReturnsErrorForNonObjectType(): void
+    public function testReturnsErrorForInvalidInputObject($input): void
     {
-        $result = Value::coerceValue(123, $this->testInputObject);
+        $result = Value::coerceValue($input, $this->testInputObject);
         $this->expectGraphQLError($result, 'Expected type TestInputObject to be an object.');
     }
 
     /**
-     * @dataProvider coercibleObjects
+     * @return iterable<int, array{mixed}>
      */
-    public function testReturnsNoErrorForObjectInput(object $object): void
+    public function invalidInputObjects(): iterable
     {
-        $result = Value::coerceValue($object, $this->testInputObject);
-        $this->expectValue($result, ['foo' => 123]);
-    }
-
-    /**
-     * @return iterable<int, array{object}>
-     */
-    public function coercibleObjects(): iterable
-    {
-        yield [(object) ['foo' => 123]];
-
+        yield [123];
         yield [
             new class {
-                public int $foo = 123;
             },
         ];
     }
