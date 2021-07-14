@@ -130,13 +130,17 @@ class Value
                     }
                 }
 
-                return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
+                return $errors
+                    ? self::ofErrors($errors)
+                    : self::ofValue($coercedValue);
             }
 
             // Lists accept a non-list value as a list of one.
             $coercedItem = self::coerceValue($value, $itemType, $blameNode);
 
-            return $coercedItem['errors'] ? $coercedItem : self::ofValue([$coercedItem['value']]);
+            return $coercedItem['errors']
+                ? $coercedItem
+                : self::ofValue([$coercedItem['value']]);
         }
 
         if ($type instanceof InputObjectType) {
@@ -213,7 +217,9 @@ class Value
                 );
             }
 
-            return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
+            return $errors
+                ? self::ofErrors($errors)
+                : self::ofValue($coercedValue);
         }
 
         throw new Error(sprintf('Unexpected type %s', $type->name));
@@ -242,11 +248,16 @@ class Value
     ) {
         $pathStr = self::printPath($path);
 
-        // Return a GraphQLError instance
+        $fullMessage = $message
+            . ($pathStr
+                ? ' at ' . $pathStr
+                : '')
+            . ($subMessage
+                ? '; ' . $subMessage
+                : '.');
+
         return new Error(
-            $message .
-            ($pathStr ? ' at ' . $pathStr : '') .
-            ($subMessage ? '; ' . $subMessage : '.'),
+            $fullMessage,
             $blameNode,
             null,
             [],
@@ -267,14 +278,16 @@ class Value
         $pathStr     = '';
         $currentPath = $path;
         while ($currentPath) {
-            $pathStr     =
-                (is_string($currentPath['key'])
+            $pathStr     = (is_string($currentPath['key'])
                     ? '.' . $currentPath['key']
-                    : '[' . $currentPath['key'] . ']') . $pathStr;
+                    : '[' . $currentPath['key'] . ']')
+                . $pathStr;
             $currentPath = $currentPath['prev'];
         }
 
-        return $pathStr ? 'value' . $pathStr : '';
+        return $pathStr
+            ? 'value' . $pathStr
+            : '';
     }
 
     /**
@@ -306,6 +319,8 @@ class Value
      */
     private static function add($errors, $moreErrors)
     {
-        return array_merge($errors, is_array($moreErrors) ? $moreErrors : [$moreErrors]);
+        return array_merge($errors, is_array($moreErrors)
+            ? $moreErrors
+            : [$moreErrors]);
     }
 }
