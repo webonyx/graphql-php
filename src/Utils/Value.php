@@ -140,7 +140,11 @@ class Value
         }
 
         if ($type instanceof InputObjectType) {
-            if (! is_array($value) && ! $value instanceof stdClass) {
+            // Cast objects to associative array before checking the fields.
+            // Note that the coerced value will be an array.
+            if ($value instanceof stdClass) {
+                $value = (array) $value;
+            } elseif (! is_array($value)) {
                 return self::ofErrors([
                     self::coercionError(
                         sprintf('Expected type %s to be an object', $type->name),
@@ -149,10 +153,6 @@ class Value
                     ),
                 ]);
             }
-
-            // Cast objects to associative array before checking the fields.
-            // Note that the coerced value will be an array.
-            $value = (array) $value;
 
             $errors       = [];
             $coercedValue = [];
