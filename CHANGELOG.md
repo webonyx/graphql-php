@@ -11,6 +11,7 @@ Feat:
 
 Fix:
 - Avoid QueryPlan crash when multiple $fieldNodes are present
+- Clarify error when attempting to coerce anything but `array` or `stdClass` to an input object  
 
 Removed:
 - Removed deprecated `Type::getInternalTypes()`
