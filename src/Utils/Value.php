@@ -140,9 +140,9 @@ class Value
         }
 
         if ($type instanceof InputObjectType) {
-            // Cast objects to associative array before checking the fields.
-            // Note that the coerced value will be an array.
             if ($value instanceof stdClass) {
+                // Cast objects to associative array before checking the fields.
+                // Note that the coerced value will be an array.
                 $value = (array) $value;
             } elseif (! is_array($value)) {
                 return self::ofErrors([
