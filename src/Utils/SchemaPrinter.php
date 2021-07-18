@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -29,6 +32,7 @@ use function array_values;
 use function count;
 use function explode;
 use function implode;
+use function iterator_to_array;
 use function ksort;
 use function mb_strlen;
 use function preg_match_all;
@@ -371,7 +375,7 @@ class SchemaPrinter
      */
     protected static function printScalar(ScalarType $type, array $options): string
     {
-        return sprintf('%sscalar %s', static::printDescription($options, $type), $type->name);
+        return sprintf('%sscalar %s', static::printDescription($options, $type), $type->name) . static::printFieldOrTypeDirectives($type);
     }
 
     /**
@@ -410,12 +414,62 @@ class SchemaPrinter
                 static function (FieldDefinition $f, int $i) use ($options): string {
                     return static::printDescription($options, $f, '  ', $i === 0) . '  ' .
                         $f->name . static::printArgs($options, $f->args, '  ') . ': ' .
-                        (string) $f->getType() . static::printDeprecated($f);
+                        (string) $f->getType() . static::printFieldOrTypeDirectives($f);
                 },
                 $fields,
                 array_keys($fields)
             )
         );
+    }
+
+    /**
+     * @param FieldDefinition|ScalarType|EnumValueDefinition $fieldOrEnumVal
+     */
+    protected static function printFieldOrTypeDirectives($fieldOrEnumVal): string
+    {
+        $serialized = '';
+
+        if (($fieldOrEnumVal instanceof FieldDefinition || $fieldOrEnumVal instanceof EnumValueDefinition) && $fieldOrEnumVal->deprecationReason !== null) {
+            $serialized .= static::printDeprecated($fieldOrEnumVal);
+        }
+
+        if ($fieldOrEnumVal->astNode !== null) {
+            foreach ($fieldOrEnumVal->astNode->directives as $directive) {
+                /** @var DirectiveNode $directive */
+                if ($directive->name->value === Directive::DEPRECATED_NAME && $fieldOrEnumVal->deprecationReason !== null) {
+                    continue;
+                }
+
+                $serialized .= ' @' . $directive->name->value;
+
+                if ($directive->arguments->count() === 0) {
+                    continue;
+                }
+
+                $serialized .= '(' . implode(', ', array_map(static function (ArgumentNode $argument): string {
+                    switch ($argument->value->kind) {
+                        case NodeKind::INT:
+                            $type = Type::int();
+                            break;
+                        case NodeKind::FLOAT:
+                            $type = Type::float();
+                            break;
+                        case NodeKind::STRING:
+                            $type = Type::string();
+                            break;
+                        case NodeKind::BOOLEAN:
+                            $type = Type::boolean();
+                            break;
+                        default:
+                            return '';
+                    }
+
+                    return $argument->name->value . ': ' . Printer::doPrint(AST::astFromValue($argument->value->value, $type));
+                }, iterator_to_array($directive->arguments))) . ')';
+            }
+        }
+
+        return $serialized;
     }
 
     /**
@@ -487,7 +541,7 @@ class SchemaPrinter
             array_map(
                 static function (EnumValueDefinition $value, int $i) use ($options): string {
                     return static::printDescription($options, $value, '  ', $i === 0) . '  ' .
-                        $value->name . static::printDeprecated($value);
+                        $value->name . static::printFieldOrTypeDirectives($value);
                 },
                 $values,
                 array_keys($values)

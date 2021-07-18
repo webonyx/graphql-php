@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Utils;
 
 use Generator;
 use GraphQL\Language\DirectiveLocation;
+use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -1369,5 +1370,26 @@ enum __TypeKind {
 
 EOT;
         self::assertEquals($introspectionSchema, $output);
+    }
+
+    public function testPrintParsedSDLIncludesCustomDirectives(): void
+    {
+        $SDL          = <<<'EOT'
+directive @customDirective(stringArgument: String!, intArgument: Int!, floatArgument: Float!, booleanArgument: Boolean!) on FIELD_DEFINITION
+
+directive @customDirectiveWithoutArguments on FIELD_DEFINITION
+
+type Query {
+  field1: Boolean @customDirective(stringArgument: "test", intArgument: 42, floatArgument: 0.1, booleanArgument: true)
+  field2: Boolean @customDirectiveWithoutArguments
+  field3: Boolean
+}
+
+EOT;
+        $documentNode = Parser::parse($SDL);
+        $schema       = BuildSchema::build($documentNode);
+        $output       = SchemaPrinter::doPrint($schema);
+
+        self::assertEquals($SDL, $output);
     }
 }
