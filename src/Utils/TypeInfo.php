@@ -25,6 +25,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\HasFieldsType;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
@@ -204,8 +205,8 @@ class TypeInfo
             $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
         }
 
-        if ($type instanceof ObjectType || $type instanceof InterfaceType) {
-            foreach ($type->getFields() as $fieldName => $field) {
+        if ($type instanceof HasFieldsType) {
+            foreach ($type->getFields() as $field) {
                 if (count($field->args) > 0) {
                     $fieldArgTypes = array_map(
                         static function (FieldArgument $arg): Type {
@@ -222,7 +223,7 @@ class TypeInfo
         }
 
         if ($type instanceof InputObjectType) {
-            foreach ($type->getFields() as $fieldName => $field) {
+            foreach ($type->getFields() as $field) {
                 $nestedTypes[] = $field->getType();
             }
         }
@@ -436,9 +437,7 @@ class TypeInfo
             $parentType instanceof ObjectType ||
             $parentType instanceof InterfaceType
         ) {
-            $fields = $parentType->getFields();
-
-            return $fields[$name] ?? null;
+            return $parentType->findField($name);
         }
 
         return null;

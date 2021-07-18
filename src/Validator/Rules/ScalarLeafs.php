@@ -26,13 +26,13 @@ class ScalarLeafs extends ValidationRule
                 if (Type::isLeafType(Type::getNamedType($type))) {
                     if ($node->selectionSet !== null) {
                         $context->reportError(new Error(
-                            self::noSubselectionAllowedMessage($node->name->value, $type),
+                            static::noSubselectionAllowedMessage($node->name->value, $type),
                             [$node->selectionSet]
                         ));
                     }
                 } elseif ($node->selectionSet === null) {
                     $context->reportError(new Error(
-                        self::requiredSubselectionMessage($node->name->value, $type),
+                        static::requiredSubselectionMessage($node->name->value, $type),
                         [$node]
                     ));
                 }

@@ -22,13 +22,13 @@ use function sprintf;
 class NoFragmentCycles extends ValidationRule
 {
     /** @var bool[] */
-    public $visitedFrags;
+    protected array $visitedFrags;
 
     /** @var FragmentSpreadNode[] */
-    public $spreadPath;
+    protected array $spreadPath;
 
     /** @var (int|null)[] */
-    public $spreadPathIndexByName;
+    protected array $spreadPathIndexByName;
 
     public function getVisitor(ValidationContext $context)
     {
@@ -54,7 +54,7 @@ class NoFragmentCycles extends ValidationRule
         ];
     }
 
-    private function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context)
+    protected function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context)
     {
         if (isset($this->visitedFrags[$fragment->name->value])) {
             return;
@@ -89,7 +89,7 @@ class NoFragmentCycles extends ValidationRule
                 });
 
                 $context->reportError(new Error(
-                    self::cycleErrorMessage($spreadName, $fragmentNames),
+                    static::cycleErrorMessage($spreadName, $fragmentNames),
                     $cyclePath
                 ));
             }

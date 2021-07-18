@@ -1,20 +1,26 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Data;
 
 use GraphQL\Utils\Utils;
 
 class Story
 {
-    public $id;
+    public int $id;
 
-    public $authorId;
+    public int $authorId;
 
-    public $title;
+    public string $title;
 
-    public $body;
+    public string $body;
 
-    public $isAnonymous = false;
+    public bool $isAnonymous = false;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         Utils::assign($this, $data);

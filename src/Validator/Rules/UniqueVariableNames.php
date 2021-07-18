@@ -15,7 +15,7 @@ use function sprintf;
 class UniqueVariableNames extends ValidationRule
 {
     /** @var NameNode[] */
-    public $knownVariableNames;
+    protected array $knownVariableNames;
 
     public function getVisitor(ValidationContext $context)
     {
@@ -31,7 +31,7 @@ class UniqueVariableNames extends ValidationRule
                     $this->knownVariableNames[$variableName] = $node->variable->name;
                 } else {
                     $context->reportError(new Error(
-                        self::duplicateVariableMessage($variableName),
+                        static::duplicateVariableMessage($variableName),
                         [$this->knownVariableNames[$variableName], $node->variable->name]
                     ));
                 }

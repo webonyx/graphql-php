@@ -1,4 +1,5 @@
 # Schema Definition Language
+
 Since 0.9.0
 
 The [schema definition language](http://graphql.org/learn/schema/#type-language) is a convenient way to define your schema,
@@ -8,21 +9,21 @@ You can define this separate from your PHP code, e.g. in a **schema.graphql** fi
 
 ```graphql
 schema {
-    query: Query
-    mutation: Mutation
+  query: Query
+  mutation: Mutation
 }
 
 type Query {
-    greetings(input: HelloInput!): String!
+  greetings(input: HelloInput!): String!
 }
 
 input HelloInput {
-    firstName: String!
-    lastName: String
+  firstName: String!
+  lastName: String
 }
 ```
 
-In order to create schema instance out of this file, use 
+In order to create schema instance out of this file, use
 [`GraphQL\Utils\BuildSchema`](class-reference.md#graphqlutilsbuildschema):
 
 ```php
@@ -35,10 +36,11 @@ $schema = BuildSchema::build($contents);
 
 By default, such schema is created without any resolvers.
 
-We have to rely on [default field resolver](data-fetching.md#default-field-resolver) and **root value** in 
+We have to rely on [default field resolver](data-fetching.md#default-field-resolver) and **root value** in
 order to execute a query against this schema.
 
 # Defining resolvers
+
 Since 0.10.0
 
 In order to enable **Interfaces**, **Unions** and custom field resolvers you can pass the second argument:
@@ -63,12 +65,13 @@ $schema = BuildSchema::build($contents, $typeConfigDecorator);
 ```
 
 # Performance considerations
+
 Since 0.10.0
 
 Method **build()** produces a [lazy schema](schema-definition.md#lazy-loading-of-types)
 automatically, so it works efficiently even with very large schemas.
 
-But parsing type definition file on each request is suboptimal, so it is recommended to cache 
+But parsing type definition file on each request is suboptimal, so it is recommended to cache
 intermediate parsed representation of the schema for the production environment:
 
 ```php

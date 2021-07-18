@@ -1,31 +1,38 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type;
 
+use Exception;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\UnionType;
 
+use function get_class;
+
 class SearchResultType extends UnionType
 {
     public function __construct()
     {
-        $config = [
-            'name' => 'SearchResultType',
-            'types' => function() {
-                return [
-                    Types::story(),
-                    Types::user()
-                ];
-            },
-            'resolveType' => function($value) {
+        parent::__construct([
+            'name' => 'SearchResult',
+            'types' => static fn (): array => [
+                Types::story(),
+                Types::user(),
+            ],
+            'resolveType' => static function (object $value): callable {
                 if ($value instanceof Story) {
                     return Types::story();
-                } else if ($value instanceof User) {
+                }
+
+                if ($value instanceof User) {
                     return Types::user();
                 }
-            }
-        ];
-        parent::__construct($config);
+
+                throw new Exception('Unknown type: ' . get_class($value));
+            },
+        ]);
     }
 }

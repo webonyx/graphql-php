@@ -22,7 +22,6 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function is_array;
-use function is_object;
 use function is_string;
 use function sprintf;
 
@@ -137,11 +136,17 @@ class Value
             // Lists accept a non-list value as a list of one.
             $coercedItem = self::coerceValue($value, $itemType, $blameNode);
 
-            return $coercedItem['errors'] ? $coercedItem : self::ofValue([$coercedItem['value']]);
+            return $coercedItem['errors']
+                ? $coercedItem
+                : self::ofValue([$coercedItem['value']]);
         }
 
         if ($type instanceof InputObjectType) {
-            if (! is_object($value) && ! is_array($value) && ! $value instanceof Traversable) {
+            if ($value instanceof stdClass) {
+                // Cast objects to associative array before checking the fields.
+                // Note that the coerced value will be an array.
+                $value = (array) $value;
+            } elseif (! is_array($value)) {
                 return self::ofErrors([
                     self::coercionError(
                         sprintf('Expected type %s to be an object', $type->name),
@@ -149,11 +154,6 @@ class Value
                         $path
                     ),
                 ]);
-            }
-
-            // Cast \stdClass to associative array before checking the fields. Note that the coerced value will be an array.
-            if ($value instanceof stdClass) {
-                $value = (array) $value;
             }
 
             $errors       = [];
@@ -243,10 +243,16 @@ class Value
     ) {
         $pathStr = self::printPath($path);
 
-        // Return a GraphQLError instance
+        $fullMessage = $message
+            . ($pathStr === ''
+                ? ''
+                : ' at ' . $pathStr)
+            . ($subMessage === ''
+                ? '.'
+                : '; ' . $subMessage);
+
         return new Error(
-            $message .
-            ($pathStr === '' ? '' : ' at ' . $pathStr) . (($subMessage ?? '') === '' ? '.' : '; ' . $subMessage),
+            $fullMessage,
             $blameNode,
             null,
             [],
@@ -267,10 +273,10 @@ class Value
         $pathStr     = '';
         $currentPath = $path;
         while ($currentPath) {
-            $pathStr     =
-                (is_string($currentPath['key'])
+            $pathStr     = (is_string($currentPath['key'])
                     ? '.' . $currentPath['key']
-                    : '[' . $currentPath['key'] . ']') . $pathStr;
+                    : '[' . $currentPath['key'] . ']')
+                . $pathStr;
             $currentPath = $currentPath['prev'];
         }
 
@@ -306,6 +312,8 @@ class Value
      */
     private static function add($errors, $moreErrors)
     {
-        return array_merge($errors, is_array($moreErrors) ? $moreErrors : [$moreErrors]);
+        return array_merge($errors, is_array($moreErrors)
+            ? $moreErrors
+            : [$moreErrors]);
     }
 }

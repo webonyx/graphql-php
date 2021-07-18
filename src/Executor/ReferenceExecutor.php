@@ -619,9 +619,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return $typeNameMetaFieldDef;
         }
 
-        $tmp = $parentType->getFields();
-
-        return $tmp[$fieldName] ?? null;
+        return $parentType->findField($fieldName);
     }
 
     /**
@@ -951,7 +949,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return $returnType->serialize($result);
         } catch (Throwable $error) {
             throw new InvariantViolation(
-                'Expected a value of type "' . Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
+                'Expected a value of type ' . Utils::printSafe($returnType) . ' but received: ' . Utils::printSafe($result) . '. ' . $error->getMessage(),
                 0,
                 $error
             );

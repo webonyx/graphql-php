@@ -54,7 +54,7 @@ class ExecutorTest extends TestCase
             });
         };
 
-        $data = [
+        $data     = [
             'a'       => static function (): string {
                 return 'Apple';
             },

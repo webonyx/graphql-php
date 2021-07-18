@@ -62,13 +62,11 @@ use function sprintf;
 class SchemaValidationContext
 {
     /** @var array<int, Error> */
-    private $errors = [];
+    private array $errors = [];
 
-    /** @var Schema */
-    private $schema;
+    private Schema $schema;
 
-    /** @var InputObjectCircularRefs */
-    private $inputObjectCircularRefs;
+    private InputObjectCircularRefs $inputObjectCircularRefs;
 
     public function __construct(Schema $schema)
     {
@@ -379,8 +377,9 @@ class SchemaValidationContext
      */
     private function validateDirectivesAtLocation(NodeList $directives, string $location)
     {
-        $directivesNamed = [];
-        $schema          = $this->schema;
+        /** @var array<string, array<int, DirectiveNode>> $potentiallyDuplicateDirectives */
+        $potentiallyDuplicateDirectives = [];
+        $schema                         = $this->schema;
         foreach ($directives as $directive) {
             $directiveName = $directive->name->value;
 
@@ -410,18 +409,22 @@ class SchemaValidationContext
                 );
             }
 
-            $existingNodes                   = $directivesNamed[$directiveName] ?? [];
-            $existingNodes[]                 = $directive;
-            $directivesNamed[$directiveName] = $existingNodes;
+            if ($schemaDirective->isRepeatable) {
+                continue;
+            }
+
+            $existingNodes                                  = $potentiallyDuplicateDirectives[$directiveName] ?? [];
+            $existingNodes[]                                = $directive;
+            $potentiallyDuplicateDirectives[$directiveName] = $existingNodes;
         }
 
-        foreach ($directivesNamed as $directiveName => $directiveList) {
+        foreach ($potentiallyDuplicateDirectives as $directiveName => $directiveList) {
             if (count($directiveList) <= 1) {
                 continue;
             }
 
             $this->reportError(
-                sprintf('Directive @%s used twice at the same location.', $directiveName),
+                sprintf('Non-repeatable directive @%s used more than once at the same location.', $directiveName),
                 $directiveList
             );
         }

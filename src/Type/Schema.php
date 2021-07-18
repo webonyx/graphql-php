@@ -20,9 +20,11 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\InterfaceImplementations;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
+use InvalidArgumentException;
 use Traversable;
 
 use function array_map;
+use function get_class;
 use function implode;
 use function is_array;
 use function is_callable;
@@ -59,13 +61,6 @@ class Schema
      * @var Type[]
      */
     private $resolvedTypes = [];
-
-    /**
-     * Lazily initialized.
-     *
-     * @var array<string, array<string, ObjectType|UnionType>>
-     */
-    private $subTypeMap;
 
     /**
      * Lazily initialised.
@@ -410,11 +405,16 @@ class Schema
     }
 
     /**
-     * @param Type|callable():Type $type
+     * @param Type|callable $type
+     *
+     * @template T of Type
+     * @phpstan-param T|callable():T $type
+     * @phpstan-return T
      */
     public static function resolveType($type): Type
     {
         if ($type instanceof Type) {
+            /** @phpstan-var T $type */
             return $type;
         }
 
@@ -519,26 +519,15 @@ class Schema
      */
     public function isSubType(AbstractType $abstractType, ImplementingType $maybeSubType): bool
     {
-        if (! isset($this->subTypeMap[$abstractType->name])) {
-            $this->subTypeMap[$abstractType->name] = [];
-
-            if ($abstractType instanceof UnionType) {
-                foreach ($abstractType->getTypes() as $type) {
-                    $this->subTypeMap[$abstractType->name][$type->name] = true;
-                }
-            } else {
-                $implementations = $this->getImplementations($abstractType);
-                foreach ($implementations->objects() as $type) {
-                    $this->subTypeMap[$abstractType->name][$type->name] = true;
-                }
-
-                foreach ($implementations->interfaces() as $type) {
-                    $this->subTypeMap[$abstractType->name][$type->name] = true;
-                }
-            }
+        if ($abstractType instanceof InterfaceType) {
+            return $maybeSubType->implementsInterface($abstractType);
         }
 
-        return isset($this->subTypeMap[$abstractType->name][$maybeSubType->name]);
+        if ($abstractType instanceof UnionType) {
+            return $abstractType->isPossibleType($maybeSubType);
+        }
+
+        throw new InvalidArgumentException(sprintf('$abstractType must be of type UnionType|InterfaceType got: %s.', get_class($abstractType)));
     }
 
     /**

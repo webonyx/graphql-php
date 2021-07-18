@@ -27,7 +27,7 @@ class VariablesInAllowedPosition extends ValidationRule
      *
      * @var VariableDefinitionNode[]
      */
-    public $varDefMap;
+    protected array $varDefMap;
 
     public function getVisitor(ValidationContext $context)
     {
@@ -63,7 +63,7 @@ class VariablesInAllowedPosition extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            self::badVarPosMessage($varName, $varType, $type),
+                            static::badVarPosMessage($varName, $varType, $type),
                             [$varDef, $node]
                         ));
                     }
@@ -99,7 +99,7 @@ class VariablesInAllowedPosition extends ValidationRule
      * @param ValueNode|null $varDefaultValue
      * @param mixed          $locationDefaultValue
      */
-    private function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
+    protected function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
     {
         if ($locationType instanceof NonNull && ! $varType instanceof NonNull) {
             $hasNonNullVariableDefaultValue = $varDefaultValue !== null && ! $varDefaultValue instanceof NullValueNode;
