@@ -12,6 +12,7 @@ use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
@@ -139,7 +140,7 @@ class PossibleFragmentSpreads extends ValidationRule
         );
     }
 
-    protected function getFragmentType(ValidationContext $context, $name)
+    protected function getFragmentType(ValidationContext $context, string $name): ?Type
     {
         $frag = $context->getFragment($name);
         if ($frag === null) {
@@ -148,7 +149,9 @@ class PossibleFragmentSpreads extends ValidationRule
 
         $type = TypeInfo::typeFromAST($context->getSchema(), $frag->typeCondition);
 
-        return $type instanceof CompositeType ? $type : null;
+        return $type instanceof CompositeType
+            ? $type
+            : null;
     }
 
     public static function typeIncompatibleSpreadMessage($fragName, $parentType, $fragType)
