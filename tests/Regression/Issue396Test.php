@@ -12,6 +12,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+
 use function stristr;
 
 /**
@@ -30,14 +31,16 @@ class Issue396Test extends TestCase
         $unionResult = new UnionType([
             'name' => 'UnionResult',
             'types' => [$a, $b, $c],
-            'resolveType' => static function ($result, $value, ResolveInfo $info) use ($a, $b, $c, &$log) : ?Type {
+            'resolveType' => static function ($result, $value, ResolveInfo $info) use ($a, $b, $c, &$log): ?Type {
                 $log[] = [$result, $info->path];
                 if (stristr($result['name'], 'A')) {
                     return $a;
                 }
+
                 if (stristr($result['name'], 'B')) {
                     return $b;
                 }
+
                 if (stristr($result['name'], 'C')) {
                     return $c;
                 }
@@ -51,7 +54,7 @@ class Issue396Test extends TestCase
             'fields' => [
                 'field' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull($unionResult))),
-                    'resolve' => static function () : array {
+                    'resolve' => static function (): array {
                         return [
                             ['name' => 'A 1'],
                             ['name' => 'B 2'],
@@ -99,14 +102,16 @@ class Issue396Test extends TestCase
             'fields' => [
                 'name' => Type::string(),
             ],
-            'resolveType' => static function ($result, $value, ResolveInfo $info) use (&$a, &$b, &$c, &$log) : ?Type {
+            'resolveType' => static function ($result, $value, ResolveInfo $info) use (&$a, &$b, &$c, &$log): ?Type {
                 $log[] = [$result, $info->path];
                 if (stristr($result['name'], 'A')) {
                     return $a;
                 }
+
                 if (stristr($result['name'], 'B')) {
                     return $b;
                 }
+
                 if (stristr($result['name'], 'C')) {
                     return $c;
                 }
@@ -124,7 +129,7 @@ class Issue396Test extends TestCase
             'fields' => [
                 'field' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull($interfaceResult))),
-                    'resolve' => static function () : array {
+                    'resolve' => static function (): array {
                         return [
                             ['name' => 'A 1'],
                             ['name' => 'B 2'],

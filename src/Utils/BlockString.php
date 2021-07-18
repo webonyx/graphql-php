@@ -34,7 +34,8 @@ class BlockString
             $line   = $lines[$i];
             $indent = self::leadingWhitespace($line);
 
-            if ($indent >= mb_strlen($line) ||
+            if (
+                $indent >= mb_strlen($line) ||
                 ($commonIndent !== null && $indent >= $commonIndent)
             ) {
                 continue;
@@ -57,6 +58,7 @@ class BlockString
         while (count($lines) > 0 && trim($lines[0], " \t") === '') {
             array_shift($lines);
         }
+
         while (count($lines) > 0 && trim($lines[count($lines) - 1], " \t") === '') {
             array_pop($lines);
         }

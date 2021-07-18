@@ -42,6 +42,7 @@ use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
 use stdClass;
 use Throwable;
+
 use function array_key_exists;
 use function array_map;
 use function count;
@@ -161,7 +162,7 @@ class Values
         if (isset($node->directives) && $node->directives instanceof NodeList) {
             $directiveNode = Utils::find(
                 $node->directives,
-                static function (DirectiveNode $directive) use ($directiveDef) : bool {
+                static function (DirectiveNode $directive) use ($directiveDef): bool {
                     return $directive->name->value === $directiveDef->name;
                 }
             );
@@ -247,6 +248,7 @@ class Values
 
                 if ($argumentValueNode instanceof VariableNode) {
                     $variableName = $argumentValueNode->name->value;
+
                     throw new Error(
                         'Argument "' . $name . '" of required type "' . Utils::printSafe($argType) . '" was ' .
                         'provided the variable "$' . $variableName . '" which was not provided ' .
@@ -284,6 +286,7 @@ class Values
                             [$argumentValueNode]
                         );
                     }
+
                     $coercedValues[$name] = $coercedValue;
                 }
             }
@@ -324,7 +327,7 @@ class Values
 
         return $errors
             ? array_map(
-                static function (Throwable $error) : string {
+                static function (Throwable $error): string {
                     return $error->getMessage();
                 },
                 $errors

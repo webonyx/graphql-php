@@ -37,6 +37,7 @@ use GraphQL\Utils\Utils;
 use SplQueue;
 use stdClass;
 use Throwable;
+
 use function count;
 use function is_array;
 use function is_string;
@@ -171,7 +172,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         return $value;
     }
 
-    public function doExecute() : Promise
+    public function doExecute(): Promise
     {
         $this->rootResult = new stdClass();
         $this->errors     = [];
@@ -227,7 +228,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         $this->run();
 
         if ($this->pending > 0) {
-            return $this->promiseAdapter->create(function (callable $resolve) : void {
+            return $this->promiseAdapter->create(function (callable $resolve): void {
                 $this->doResolve = $resolve;
             });
         }
@@ -239,7 +240,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
      * @param object|null $value
      * @param Error[]     $errors
      */
-    private function finishExecute($value, array $errors) : ExecutionResult
+    private function finishExecute($value, array $errors): ExecutionResult
     {
         $this->rootResult     = null;
         $this->errors         = [];
@@ -314,13 +315,13 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                         $this->promiseAdapter
                             ->then(
                                 $value,
-                                function ($value) use ($strand) : void {
+                                function ($value) use ($strand): void {
                                     $strand->success = true;
                                     $strand->value   = $value;
                                     $this->queue->enqueue($strand);
                                     $this->done();
                                 },
-                                function (Throwable $throwable) use ($strand) : void {
+                                function (Throwable $throwable) use ($strand): void {
                                     $strand->success = false;
                                     $strand->value   = $throwable;
                                     $this->queue->enqueue($strand);
@@ -462,6 +463,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                     $result =& $result[$key];
                 }
             }
+
             $result = null;
         }
     }
@@ -488,7 +490,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
      * @param string[] $path
      * @param mixed    $returnValue
      */
-    private function completeValueFast(CoroutineContext $ctx, Type $type, $value, array $path, &$returnValue) : bool
+    private function completeValueFast(CoroutineContext $ctx, Type $type, $value, array $path, &$returnValue): bool
     {
         // special handling of Throwable inherited from JS reference implementation, but makes no sense in this PHP
         if ($this->isPromise($value) || $value instanceof Throwable) {
@@ -514,11 +516,12 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                     $ctx->shared->fieldName
                 );
             }
+
             $this->addError(Error::createLocatedError(
                 new InvariantViolation(
                     sprintf(
                         'Schema must contain unique named types but contains multiple types named "%s". %s ' .
-                        '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
+                        '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
                         $type->name,
                         $hint
                     )
@@ -601,6 +604,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             } else {
                 $returnValue = null;
             }
+
             goto CHECKED_RETURN;
         }
 
@@ -619,6 +623,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             } else {
                 $returnValue = null;
             }
+
             goto CHECKED_RETURN;
         }
 
@@ -645,10 +650,12 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                     ));
                     $itemReturnValue = null;
                 }
+
                 if ($itemReturnValue === self::$undefined) {
                     $returnValue = self::$undefined;
                     goto CHECKED_RETURN;
                 }
+
                 $returnValue[$index] = $itemReturnValue;
             }
 
@@ -663,11 +670,12 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                         $ctx->shared->fieldName
                     );
                 }
+
                 $this->addError(Error::createLocatedError(
                     new InvariantViolation(
                         sprintf(
                             'Schema must contain unique named types but contains multiple types named "%s". %s ' .
-                            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
+                            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
                             $type->name,
                             $hint
                         )
@@ -695,6 +703,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                     ));
                     $returnValue = null;
                 }
+
                 goto CHECKED_RETURN;
             } elseif ($type instanceof CompositeType) {
                 /** @var ObjectType|null $objectType */
@@ -745,7 +754,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
                         $returnValue = null;
                         goto CHECKED_RETURN;
-                    } elseif (! $this->schema->isPossibleType($type, $objectType)) {
+                    } elseif (! $this->schema->isSubType($type, $objectType)) {
                         $this->addError(Error::createLocatedError(
                             new InvariantViolation(sprintf(
                                 'Runtime Object type "%s" is not a possible type for "%s".',
@@ -765,7 +774,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                                     'Schema must contain unique named types but contains multiple types named "%s". ' .
                                     'Make sure that `resolveType` function of abstract type "%s" returns the same ' .
                                     'type instance as referenced anywhere else within the schema ' .
-                                    '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
+                                    '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
                                     $objectType,
                                     $type
                                 )
@@ -918,7 +927,8 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
      */
     private function resolveTypeSlow(CoroutineContext $ctx, $value, AbstractType $abstractType)
     {
-        if ($value !== null &&
+        if (
+            $value !== null &&
             is_array($value) &&
             isset($value['__typename']) &&
             is_string($value['__typename'])

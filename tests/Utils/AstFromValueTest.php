@@ -31,7 +31,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts boolean values to ASTs')
      */
-    public function testConvertsBooleanValueToASTs() : void
+    public function testConvertsBooleanValueToASTs(): void
     {
         self::assertEquals(new BooleanValueNode(['value' => true]), AST::astFromValue(true, Type::boolean()));
         self::assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(false, Type::boolean()));
@@ -51,7 +51,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts Int values to Int ASTs')
      */
-    public function testConvertsIntValuesToASTs() : void
+    public function testConvertsIntValuesToASTs(): void
     {
         self::assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::int()));
         self::assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.0, Type::int()));
@@ -59,7 +59,7 @@ class AstFromValueTest extends TestCase
         self::assertEquals(new IntValueNode(['value' => '0']), AST::astFromValue(0e4, Type::int()));
     }
 
-    public function testConvertsIntValuesToASTsCannotRepresentNonInteger() : void
+    public function testConvertsIntValuesToASTsCannotRepresentNonInteger(): void
     {
         // GraphQL spec does not allow coercing non-integer values to Int to avoid
         // accidental data loss.
@@ -68,7 +68,7 @@ class AstFromValueTest extends TestCase
         AST::astFromValue(123.5, Type::int());
     }
 
-    public function testConvertsIntValuesToASTsCannotRepresentNon32bitsInteger() : void
+    public function testConvertsIntValuesToASTsCannotRepresentNon32bitsInteger(): void
     {
         $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: 1.0E+40');
@@ -81,7 +81,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts Float values to Int/Float ASTs')
      */
-    public function testConvertsFloatValuesToIntOrFloatASTs() : void
+    public function testConvertsFloatValuesToIntOrFloatASTs(): void
     {
         self::assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::float()));
         self::assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123, Type::float()));
@@ -95,7 +95,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts String values to String ASTs')
      */
-    public function testConvertsStringValuesToASTs() : void
+    public function testConvertsStringValuesToASTs(): void
     {
         self::assertEquals(new StringValueNode(['value' => 'hello']), AST::astFromValue('hello', Type::string()));
         self::assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::string()));
@@ -109,7 +109,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts ID values to Int/String ASTs')
      */
-    public function testConvertIdValuesToIntOrStringASTs() : void
+    public function testConvertIdValuesToIntOrStringASTs(): void
     {
         self::assertEquals(new StringValueNode(['value' => 'hello']), AST::astFromValue('hello', Type::id()));
         self::assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::id()));
@@ -125,7 +125,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('does not converts NonNull values to NullValue')
      */
-    public function testDoesNotConvertsNonNullValuestoNullValue() : void
+    public function testDoesNotConvertsNonNullValuestoNullValue(): void
     {
         self::assertNull(AST::astFromValue(null, Type::nonNull(Type::boolean())));
     }
@@ -133,7 +133,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts string values to Enum ASTs if possible')
      */
-    public function testConvertsStringValuesToEnumASTsIfPossible() : void
+    public function testConvertsStringValuesToEnumASTsIfPossible(): void
     {
         self::assertEquals(new EnumValueNode(['value' => 'HELLO']), AST::astFromValue('HELLO', $this->myEnum()));
         self::assertEquals(
@@ -165,7 +165,7 @@ class AstFromValueTest extends TestCase
 
     private function complexValue()
     {
-        if (! $this->complexValue) {
+        if (! isset($this->complexValue)) {
             $this->complexValue                = new stdClass();
             $this->complexValue->someArbitrary = 'complexValue';
         }
@@ -176,7 +176,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts array values to List ASTs')
      */
-    public function testConvertsArrayValuesToListASTs() : void
+    public function testConvertsArrayValuesToListASTs(): void
     {
         $value1 = new ListValueNode([
             'values' => new NodeList([
@@ -198,7 +198,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts list singletons')
      */
-    public function testConvertsListSingletons() : void
+    public function testConvertsListSingletons(): void
     {
         self::assertEquals(
             new StringValueNode(['value' => 'FOO']),
@@ -209,7 +209,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts input objects')
      */
-    public function testConvertsInputObjects() : void
+    public function testConvertsInputObjects(): void
     {
         $inputObj = new InputObjectType([
             'name'   => 'MyInputObj',
@@ -247,7 +247,7 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts input objects with explicit nulls')
      */
-    public function testConvertsInputObjectsWithExplicitNulls() : void
+    public function testConvertsInputObjectsWithExplicitNulls(): void
     {
         $inputObj = new InputObjectType([
             'name'   => 'MyInputObj',

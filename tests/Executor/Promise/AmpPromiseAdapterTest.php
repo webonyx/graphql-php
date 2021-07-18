@@ -15,6 +15,7 @@ use Generator;
 use GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+
 use function Amp\call;
 use function interface_exists;
 
@@ -23,7 +24,7 @@ use function interface_exists;
  */
 class AmpPromiseAdapterTest extends TestCase
 {
-    public function setUp() : void
+    public function setUp(): void
     {
         if (interface_exists(Promise::class)) {
             return;
@@ -32,12 +33,12 @@ class AmpPromiseAdapterTest extends TestCase
         self::markTestSkipped('amphp/amp package must be installed to run GraphQL\Tests\Executor\Promise\AmpPromiseAdapterTest');
     }
 
-    public function testIsThenableReturnsTrueWhenAnAmpPromiseIsGiven() : void
+    public function testIsThenableReturnsTrueWhenAnAmpPromiseIsGiven(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
 
         self::assertTrue(
-            $ampAdapter->isThenable(call(static function () : Generator {
+            $ampAdapter->isThenable(call(static function (): Generator {
                 yield from [];
             }))
         );
@@ -45,7 +46,7 @@ class AmpPromiseAdapterTest extends TestCase
         self::assertTrue($ampAdapter->isThenable(new Failure(new Exception())));
         self::assertTrue($ampAdapter->isThenable(new Delayed(0)));
         self::assertTrue(
-            $ampAdapter->isThenable(new LazyPromise(static function () : void {
+            $ampAdapter->isThenable(new LazyPromise(static function (): void {
             }))
         );
         self::assertFalse($ampAdapter->isThenable(false));
@@ -58,7 +59,7 @@ class AmpPromiseAdapterTest extends TestCase
         self::assertFalse($ampAdapter->isThenable(new stdClass()));
     }
 
-    public function testConvertsReactPromisesToGraphQlOnes() : void
+    public function testConvertsReactPromisesToGraphQlOnes(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
         $ampPromise = new Success(1);
@@ -69,7 +70,7 @@ class AmpPromiseAdapterTest extends TestCase
         self::assertInstanceOf(Success::class, $promise->adoptedPromise);
     }
 
-    public function testThen() : void
+    public function testThen(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
         $ampPromise = new Success(1);
@@ -79,7 +80,7 @@ class AmpPromiseAdapterTest extends TestCase
 
         $resultPromise = $ampAdapter->then(
             $promise,
-            static function ($value) use (&$result) : void {
+            static function ($value) use (&$result): void {
                 $result = $value;
             }
         );
@@ -89,10 +90,10 @@ class AmpPromiseAdapterTest extends TestCase
         self::assertInstanceOf(Promise::class, $resultPromise->adoptedPromise);
     }
 
-    public function testCreate() : void
+    public function testCreate(): void
     {
         $ampAdapter      = new AmpPromiseAdapter();
-        $resolvedPromise = $ampAdapter->create(static function ($resolve) : void {
+        $resolvedPromise = $ampAdapter->create(static function ($resolve): void {
             $resolve(1);
         });
 
@@ -101,14 +102,14 @@ class AmpPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $resolvedPromise->then(static function ($value) use (&$result) : void {
+        $resolvedPromise->then(static function ($value) use (&$result): void {
             $result = $value;
         });
 
         self::assertSame(1, $result);
     }
 
-    public function testCreateFulfilled() : void
+    public function testCreateFulfilled(): void
     {
         $ampAdapter       = new AmpPromiseAdapter();
         $fulfilledPromise = $ampAdapter->createFulfilled(1);
@@ -118,14 +119,14 @@ class AmpPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $fulfilledPromise->then(static function ($value) use (&$result) : void {
+        $fulfilledPromise->then(static function ($value) use (&$result): void {
             $result = $value;
         });
 
         self::assertSame(1, $result);
     }
 
-    public function testCreateRejected() : void
+    public function testCreateRejected(): void
     {
         $ampAdapter      = new AmpPromiseAdapter();
         $rejectedPromise = $ampAdapter->createRejected(new Exception('I am a bad promise'));
@@ -137,7 +138,7 @@ class AmpPromiseAdapterTest extends TestCase
 
         $rejectedPromise->then(
             null,
-            static function ($error) use (&$exception) : void {
+            static function ($error) use (&$exception): void {
                 $exception = $error;
             }
         );
@@ -146,7 +147,7 @@ class AmpPromiseAdapterTest extends TestCase
         self::assertEquals('I am a bad promise', $exception->getMessage());
     }
 
-    public function testAll() : void
+    public function testAll(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
         $promises   = [new Success(1), new Success(2), new Success(3)];
@@ -158,21 +159,21 @@ class AmpPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $allPromise->then(static function ($values) use (&$result) : void {
+        $allPromise->then(static function ($values) use (&$result): void {
             $result = $values;
         });
 
         self::assertSame([1, 2, 3], $result);
     }
 
-    public function testAllShouldPreserveTheOrderOfTheArrayWhenResolvingAsyncPromises() : void
+    public function testAllShouldPreserveTheOrderOfTheArrayWhenResolvingAsyncPromises(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
         $deferred   = new Deferred();
         $promises   = [new Success(1), 2, $deferred->promise(), new Success(4)];
         $result     = null;
 
-        $ampAdapter->all($promises)->then(static function ($values) use (&$result) : void {
+        $ampAdapter->all($promises)->then(static function ($values) use (&$result): void {
             $result = $values;
         });
 

@@ -17,6 +17,7 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function array_map;
 use function in_array;
 use function sprintf;
@@ -60,7 +61,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
         foreach ($definedDirectives as $directive) {
             $directiveArgs[$directive->name] = array_map(
-                static function (FieldArgument $arg) : string {
+                static function (FieldArgument $arg): string {
                     return $arg->name;
                 },
                 $directive->args
@@ -76,8 +77,8 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
             $name = $def->name->value;
             if ($def->arguments !== null) {
                 $directiveArgs[$name] = Utils::map(
-                    $def->arguments ?? [],
-                    static function (InputValueDefinitionNode $arg) : string {
+                    $def->arguments,
+                    static function (InputValueDefinitionNode $arg): string {
                         return $arg->name->value;
                     }
                 );
@@ -87,7 +88,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         }
 
         return [
-            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context) : VisitorOperation {
+            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context): VisitorOperation {
                 $directiveName = $directiveNode->name->value;
                 $knownArgs     = $directiveArgs[$directiveName] ?? null;
 
@@ -103,7 +104,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
                     $suggestions = Utils::suggestionList($argName, $knownArgs);
                     $context->reportError(new Error(
-                        self::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),
+                        static::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),
                         [$argNode]
                     ));
                 }

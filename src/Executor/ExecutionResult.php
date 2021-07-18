@@ -8,6 +8,7 @@ use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use JsonSerializable;
+
 use function array_map;
 use function count;
 
@@ -133,19 +134,24 @@ class ExecutionResult implements JsonSerializable
      *
      * @api
      */
-    public function toArray(int $debug = DebugFlag::NONE) : array
+    public function toArray(int $debug = DebugFlag::NONE): array
     {
         $result = [];
 
         if (count($this->errors ?? []) > 0) {
-            $errorsHandler = $this->errorsHandler ?? static function (array $errors, callable $formatter) : array {
+            $errorsHandler = $this->errorsHandler ?? static function (array $errors, callable $formatter): array {
                 return array_map($formatter, $errors);
             };
 
-            $result['errors'] = $errorsHandler(
+            $handledErrors = $errorsHandler(
                 $this->errors,
                 FormattedError::prepareFormatter($this->errorFormatter, $debug)
             );
+
+            // While we know that there were errors initially, they might have been discarded
+            if ($handledErrors !== []) {
+                $result['errors'] = $handledErrors;
+            }
         }
 
         if ($this->data !== null) {

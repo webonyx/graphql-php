@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
+
 use function array_key_exists;
 use function is_array;
 
@@ -31,7 +32,7 @@ class Directive
     /** @var string|null */
     public $description;
 
-    /** @var FieldArgument[] */
+    /** @var array<int, FieldArgument> */
     public $args = [];
 
     /** @var bool */
@@ -54,6 +55,7 @@ class Directive
         if (! isset($config['name'])) {
             throw new InvariantViolation('Directive must be named.');
         }
+
         $this->name = $config['name'];
 
         $this->description = $config['description'] ?? null;
@@ -67,12 +69,14 @@ class Directive
                     $args[] = $arg;
                 }
             }
+
             $this->args = $args;
         }
 
         if (! isset($config['locations']) || ! is_array($config['locations'])) {
             throw new InvariantViolation('Must provide locations for directive.');
         }
+
         $this->locations = $config['locations'];
 
         $this->isRepeatable = $config['isRepeatable'] ?? false;
@@ -94,7 +98,7 @@ class Directive
     /**
      * @return Directive[]
      */
-    public static function getInternalDirectives() : array
+    public static function getInternalDirectives(): array
     {
         if (self::$internalDirectives === null) {
             self::$internalDirectives = [
@@ -106,11 +110,12 @@ class Directive
                         DirectiveLocation::FRAGMENT_SPREAD,
                         DirectiveLocation::INLINE_FRAGMENT,
                     ],
-                    'args'        => [new FieldArgument([
-                        'name'        => self::IF_ARGUMENT_NAME,
-                        'type'        => Type::nonNull(Type::boolean()),
-                        'description' => 'Included when true.',
-                    ]),
+                    'args'        => [
+                        new FieldArgument([
+                            'name'        => self::IF_ARGUMENT_NAME,
+                            'type'        => Type::nonNull(Type::boolean()),
+                            'description' => 'Included when true.',
+                        ]),
                     ],
                 ]),
                 'skip'       => new self([
@@ -121,11 +126,12 @@ class Directive
                         DirectiveLocation::FRAGMENT_SPREAD,
                         DirectiveLocation::INLINE_FRAGMENT,
                     ],
-                    'args'        => [new FieldArgument([
-                        'name'        => self::IF_ARGUMENT_NAME,
-                        'type'        => Type::nonNull(Type::boolean()),
-                        'description' => 'Skipped when true.',
-                    ]),
+                    'args'        => [
+                        new FieldArgument([
+                            'name'        => self::IF_ARGUMENT_NAME,
+                            'type'        => Type::nonNull(Type::boolean()),
+                            'description' => 'Skipped when true.',
+                        ]),
                     ],
                 ]),
                 'deprecated' => new self([
@@ -135,15 +141,16 @@ class Directive
                         DirectiveLocation::FIELD_DEFINITION,
                         DirectiveLocation::ENUM_VALUE,
                     ],
-                    'args'        => [new FieldArgument([
-                        'name'         => self::REASON_ARGUMENT_NAME,
-                        'type'         => Type::string(),
-                        'description'  =>
+                    'args'        => [
+                        new FieldArgument([
+                            'name'         => self::REASON_ARGUMENT_NAME,
+                            'type'         => Type::string(),
+                            'description'  =>
                             'Explains why this element was deprecated, usually also including a ' .
                             'suggestion for how to access supported similar data. Formatted using ' .
                             'the Markdown syntax (as specified by [CommonMark](https://commonmark.org/).',
-                        'defaultValue' => self::DEFAULT_DEPRECATION_REASON,
-                    ]),
+                            'defaultValue' => self::DEFAULT_DEPRECATION_REASON,
+                        ]),
                     ],
                 ]),
             ];

@@ -15,12 +15,12 @@ class StandardTypesTest extends TestCase
     /** @var Type[] */
     private static $originalStandardTypes;
 
-    public static function setUpBeforeClass() : void
+    public static function setUpBeforeClass(): void
     {
         self::$originalStandardTypes = Type::getStandardTypes();
     }
 
-    public function tearDown() : void
+    public function tearDown(): void
     {
         parent::tearDown();
         Type::overrideStandardTypes(self::$originalStandardTypes);
@@ -114,18 +114,18 @@ class StandardTypesTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage($expectedMessage);
 
-        Type::overrideStandardTypes([ $type ]);
+        Type::overrideStandardTypes([$type]);
     }
 
     private function createCustomScalarType($name)
     {
         return new CustomScalarType([
             'name' => $name,
-            'serialize' => static function () : void {
+            'serialize' => static function (): void {
             },
-            'parseValue' => static function () : void {
+            'parseValue' => static function (): void {
             },
-            'parseLiteral' => static function () : void {
+            'parseLiteral' => static function (): void {
             },
         ]);
     }

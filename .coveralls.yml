@@ -1,2 +1,0 @@
-coverage_clover: /tmp/coverage/*.xml
-json_path: /tmp/coverage/coverage.json

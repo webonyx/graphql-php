@@ -15,7 +15,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     /**
      * @see it('fails if the query contains __schema')
      */
-    public function testQueryContainsSchema() : void
+    public function testQueryContainsSchema(): void
     {
         $this->expectFailsRule(
             new DisableIntrospection(DisableIntrospection::ENABLED),
@@ -43,7 +43,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     /**
      * @see it('fails if the query contains __type')
      */
-    public function testQueryContainsType() : void
+    public function testQueryContainsType(): void
     {
         $this->expectFailsRule(
             new DisableIntrospection(DisableIntrospection::ENABLED),
@@ -63,7 +63,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     /**
      * @see it('does not fail on a query that does not contain __type')
      */
-    public function testValidQuery() : void
+    public function testValidQuery(): void
     {
         $this->expectPassesRule(
             new DisableIntrospection(DisableIntrospection::ENABLED),
@@ -84,7 +84,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     /**
      * @see it('does not fail when not enabled')
      */
-    public function testQueryWhenDisabled() : void
+    public function testQueryWhenDisabled(): void
     {
         $this->expectPassesRule(
             new DisableIntrospection(DisableIntrospection::DISABLED),
@@ -103,7 +103,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     /**
      * @see it('has a public interface for enabeling the rule')
      */
-    public function testPublicEnableInterface() : void
+    public function testPublicEnableInterface(): void
     {
         $disableIntrospection = new DisableIntrospection(DisableIntrospection::DISABLED);
         $disableIntrospection->setEnabled(DisableIntrospection::ENABLED);
@@ -125,7 +125,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     /**
      * @see it('has a public interface for disableing the rule')
      */
-    public function testPublicDisableInterface() : void
+    public function testPublicDisableInterface(): void
     {
         $disableIntrospection = new DisableIntrospection(DisableIntrospection::ENABLED);
         $disableIntrospection->setEnabled(DisableIntrospection::DISABLED);

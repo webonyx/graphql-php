@@ -15,7 +15,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('object is valid fragment type')
      */
-    public function testObjectIsValidFragmentType() : void
+    public function testObjectIsValidFragmentType(): void
     {
         $this->expectPassesRule(
             new FragmentsOnCompositeTypes(),
@@ -30,7 +30,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('interface is valid fragment type')
      */
-    public function testInterfaceIsValidFragmentType() : void
+    public function testInterfaceIsValidFragmentType(): void
     {
         $this->expectPassesRule(
             new FragmentsOnCompositeTypes(),
@@ -45,7 +45,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('object is valid inline fragment type')
      */
-    public function testObjectIsValidInlineFragmentType() : void
+    public function testObjectIsValidInlineFragmentType(): void
     {
         $this->expectPassesRule(
             new FragmentsOnCompositeTypes(),
@@ -60,9 +60,26 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     }
 
     /**
+     * @see it('interface is valid inline fragment type')
+     */
+    public function testInterfaceIsValidInlineFragmentType(): void
+    {
+        $this->expectPassesRule(
+            new FragmentsOnCompositeTypes(),
+            '
+      fragment validFragment on Mammal {
+        ... on Canine {
+          name
+        }
+      }
+        '
+        );
+    }
+
+    /**
      * @see it('inline fragment without type is valid')
      */
-    public function testInlineFragmentWithoutTypeIsValid() : void
+    public function testInlineFragmentWithoutTypeIsValid(): void
     {
         $this->expectPassesRule(
             new FragmentsOnCompositeTypes(),
@@ -79,7 +96,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('union is valid fragment type')
      */
-    public function testUnionIsValidFragmentType() : void
+    public function testUnionIsValidFragmentType(): void
     {
         $this->expectPassesRule(
             new FragmentsOnCompositeTypes(),
@@ -94,7 +111,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('scalar is invalid fragment type')
      */
-    public function testScalarIsInvalidFragmentType() : void
+    public function testScalarIsInvalidFragmentType(): void
     {
         $this->expectFailsRule(
             new FragmentsOnCompositeTypes(),
@@ -118,7 +135,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('enum is invalid fragment type')
      */
-    public function testEnumIsInvalidFragmentType() : void
+    public function testEnumIsInvalidFragmentType(): void
     {
         $this->expectFailsRule(
             new FragmentsOnCompositeTypes(),
@@ -134,7 +151,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('input object is invalid fragment type')
      */
-    public function testInputObjectIsInvalidFragmentType() : void
+    public function testInputObjectIsInvalidFragmentType(): void
     {
         $this->expectFailsRule(
             new FragmentsOnCompositeTypes(),
@@ -150,7 +167,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('scalar is invalid inline fragment type')
      */
-    public function testScalarIsInvalidInlineFragmentType() : void
+    public function testScalarIsInvalidInlineFragmentType(): void
     {
         $this->expectFailsRule(
             new FragmentsOnCompositeTypes(),
@@ -161,10 +178,11 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         }
       }
         ',
-            [FormattedError::create(
-                FragmentsOnCompositeTypes::inlineFragmentOnNonCompositeErrorMessage('String'),
-                [new SourceLocation(3, 16)]
-            ),
+            [
+                FormattedError::create(
+                    FragmentsOnCompositeTypes::inlineFragmentOnNonCompositeErrorMessage('String'),
+                    [new SourceLocation(3, 16)]
+                ),
             ]
         );
     }

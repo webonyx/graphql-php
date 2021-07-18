@@ -9,6 +9,7 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -33,7 +34,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
      */
     private $possibleTypeNames;
 
-    /** @var UnionTypeExtensionNode[] */
+    /** @var array<int, UnionTypeExtensionNode> */
     public $extensionASTNodes;
 
     /**
@@ -55,11 +56,11 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
-        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
         $this->config            = $config;
     }
 
-    public function isPossibleType(Type $type) : bool
+    public function isPossibleType(Type $type): bool
     {
         if (! $type instanceof ObjectType) {
             return false;
@@ -80,7 +81,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
      *
      * @throws InvariantViolation
      */
-    public function getTypes() : array
+    public function getTypes(): array
     {
         if (! isset($this->types)) {
             $types = $this->config['types'] ?? null;
@@ -130,7 +131,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     /**
      * @throws InvariantViolation
      */
-    public function assertValid() : void
+    public function assertValid(): void
     {
         parent::assertValid();
 

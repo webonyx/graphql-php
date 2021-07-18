@@ -9,6 +9,7 @@ use function is_string;
 use function json_decode;
 use function json_last_error;
 use function strlen;
+
 use const CASE_LOWER;
 use const JSON_ERROR_NONE;
 
@@ -26,13 +27,13 @@ class OperationParams
      * - documentId
      *
      * @api
-     * @var string
+     * @var string|null
      */
     public $queryId;
 
     /**
      * @api
-     * @var string
+     * @var string|null
      */
     public $query;
 
@@ -67,7 +68,7 @@ class OperationParams
      *
      * @api
      */
-    public static function create(array $params, bool $readonly = false) : OperationParams
+    public static function create(array $params, bool $readonly = false): OperationParams
     {
         $instance = new static();
 

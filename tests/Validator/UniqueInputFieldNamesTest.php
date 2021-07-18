@@ -15,7 +15,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     /**
      * @see it('input object with fields')
      */
-    public function testInputObjectWithFields() : void
+    public function testInputObjectWithFields(): void
     {
         $this->expectPassesRule(
             new UniqueInputFieldNames(),
@@ -30,7 +30,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     /**
      * @see it('same input object within two args')
      */
-    public function testSameInputObjectWithinTwoArgs() : void
+    public function testSameInputObjectWithinTwoArgs(): void
     {
         $this->expectPassesRule(
             new UniqueInputFieldNames(),
@@ -45,7 +45,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple input object fields')
      */
-    public function testMultipleInputObjectFields() : void
+    public function testMultipleInputObjectFields(): void
     {
         $this->expectPassesRule(
             new UniqueInputFieldNames(),
@@ -60,7 +60,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     /**
      * @see it('allows for nested input objects with similar fields')
      */
-    public function testAllowsForNestedInputObjectsWithSimilarFields() : void
+    public function testAllowsForNestedInputObjectsWithSimilarFields(): void
     {
         $this->expectPassesRule(
             new UniqueInputFieldNames(),
@@ -83,7 +83,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     /**
      * @see it('duplicate input object fields')
      */
-    public function testDuplicateInputObjectFields() : void
+    public function testDuplicateInputObjectFields(): void
     {
         $this->expectFailsRule(
             new UniqueInputFieldNames(),
@@ -107,7 +107,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     /**
      * @see it('many duplicate input object fields')
      */
-    public function testManyDuplicateInputObjectFields() : void
+    public function testManyDuplicateInputObjectFields(): void
     {
         $this->expectFailsRule(
             new UniqueInputFieldNames(),

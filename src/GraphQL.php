@@ -22,9 +22,11 @@ use GraphQL\Type\Schema as SchemaType;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\ValidationRule;
+
 use function array_values;
 use function count;
 use function trigger_error;
+
 use const E_USER_DEPRECATED;
 
 /**
@@ -87,7 +89,7 @@ class GraphQL
         ?string $operationName = null,
         ?callable $fieldResolver = null,
         ?array $validationRules = null
-    ) : ExecutionResult {
+    ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
         $promise = self::promiseToExecute(
@@ -127,7 +129,7 @@ class GraphQL
         ?string $operationName = null,
         ?callable $fieldResolver = null,
         ?array $validationRules = null
-    ) : Promise {
+    ): Promise {
         try {
             if ($source instanceof DocumentNode) {
                 $documentNode = $source;
@@ -176,103 +178,13 @@ class GraphQL
     }
 
     /**
-     * @deprecated Use executeQuery()->toArray() instead
-     *
-     * @param string|DocumentNode $source
-     * @param mixed               $rootValue
-     * @param mixed               $contextValue
-     * @param mixed[]|null        $variableValues
-     *
-     * @return Promise|mixed[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function execute(
-        SchemaType $schema,
-        $source,
-        $rootValue = null,
-        $contextValue = null,
-        $variableValues = null,
-        ?string $operationName = null
-    ) {
-        trigger_error(
-            __METHOD__ . ' is deprecated, use GraphQL::executeQuery()->toArray() as a quick replacement',
-            E_USER_DEPRECATED
-        );
-
-        $promiseAdapter = Executor::getPromiseAdapter();
-        $result         = self::promiseToExecute(
-            $promiseAdapter,
-            $schema,
-            $source,
-            $rootValue,
-            $contextValue,
-            $variableValues,
-            $operationName
-        );
-
-        if ($promiseAdapter instanceof SyncPromiseAdapter) {
-            $result = $promiseAdapter->wait($result)->toArray();
-        } else {
-            $result = $result->then(static function (ExecutionResult $r) : array {
-                return $r->toArray();
-            });
-        }
-
-        return $result;
-    }
-
-    /**
-     * @deprecated renamed to executeQuery()
-     *
-     * @param string|DocumentNode $source
-     * @param mixed               $rootValue
-     * @param mixed               $contextValue
-     * @param mixed[]|null        $variableValues
-     *
-     * @return ExecutionResult|Promise
-     *
-     * @codeCoverageIgnore
-     */
-    public static function executeAndReturnResult(
-        SchemaType $schema,
-        $source,
-        $rootValue = null,
-        $contextValue = null,
-        $variableValues = null,
-        ?string $operationName = null
-    ) {
-        trigger_error(
-            __METHOD__ . ' is deprecated, use GraphQL::executeQuery() as a quick replacement',
-            E_USER_DEPRECATED
-        );
-
-        $promiseAdapter = Executor::getPromiseAdapter();
-        $result         = self::promiseToExecute(
-            $promiseAdapter,
-            $schema,
-            $source,
-            $rootValue,
-            $contextValue,
-            $variableValues,
-            $operationName
-        );
-
-        if ($promiseAdapter instanceof SyncPromiseAdapter) {
-            $result = $promiseAdapter->wait($result);
-        }
-
-        return $result;
-    }
-
-    /**
      * Returns directives defined in GraphQL spec
      *
      * @return Directive[]
      *
      * @api
      */
-    public static function getStandardDirectives() : array
+    public static function getStandardDirectives(): array
     {
         return array_values(Directive::getInternalDirectives());
     }
@@ -284,7 +196,7 @@ class GraphQL
      *
      * @api
      */
-    public static function getStandardTypes() : array
+    public static function getStandardTypes(): array
     {
         return array_values(Type::getStandardTypes());
     }
@@ -309,7 +221,7 @@ class GraphQL
      *
      * @api
      */
-    public static function getStandardValidationRules() : array
+    public static function getStandardValidationRules(): array
     {
         return array_values(DocumentValidator::defaultRules());
     }
@@ -319,12 +231,12 @@ class GraphQL
      *
      * @api
      */
-    public static function setDefaultFieldResolver(callable $fn) : void
+    public static function setDefaultFieldResolver(callable $fn): void
     {
         Executor::setDefaultFieldResolver($fn);
     }
 
-    public static function setPromiseAdapter(?PromiseAdapter $promiseAdapter = null) : void
+    public static function setPromiseAdapter(?PromiseAdapter $promiseAdapter = null): void
     {
         Executor::setPromiseAdapter($promiseAdapter);
     }
@@ -358,7 +270,7 @@ class GraphQL
      *
      * @codeCoverageIgnore
      */
-    public static function getInternalDirectives() : array
+    public static function getInternalDirectives(): array
     {
         return self::getStandardDirectives();
     }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\EnumType;
@@ -16,12 +15,12 @@ use GraphQL\Type\Definition\ScalarType;
 use stdClass;
 use Throwable;
 use Traversable;
+
 use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_merge;
 use function is_array;
-use function is_object;
 use function is_string;
 use function sprintf;
 
@@ -82,7 +81,7 @@ class Value
         if ($type instanceof EnumType) {
             if (is_string($value)) {
                 $enumValue = $type->getValue($value);
-                if ($enumValue) {
+                if ($enumValue !== null) {
                     return self::ofValue($enumValue->value);
                 }
             }
@@ -90,16 +89,16 @@ class Value
             $suggestions = Utils::suggestionList(
                 Utils::printSafe($value),
                 array_map(
-                    static function ($enumValue) : string {
+                    static function ($enumValue): string {
                         return $enumValue->name;
                     },
                     $type->getValues()
                 )
             );
 
-            $didYouMean = $suggestions
-                ? 'did you mean ' . Utils::orList($suggestions) . '?'
-                : null;
+            $didYouMean = $suggestions === []
+                ? null
+                : 'did you mean ' . Utils::orList($suggestions) . '?';
 
             return self::ofErrors([
                 self::coercionError(
@@ -130,16 +129,23 @@ class Value
                     }
                 }
 
-                return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
+                return $errors === [] ? self::ofValue($coercedValue) : self::ofErrors($errors);
             }
+
             // Lists accept a non-list value as a list of one.
             $coercedItem = self::coerceValue($value, $itemType, $blameNode);
 
-            return $coercedItem['errors'] ? $coercedItem : self::ofValue([$coercedItem['value']]);
+            return $coercedItem['errors']
+                ? $coercedItem
+                : self::ofValue([$coercedItem['value']]);
         }
 
         if ($type instanceof InputObjectType) {
-            if (! is_object($value) && ! is_array($value) && ! $value instanceof Traversable) {
+            if ($value instanceof stdClass) {
+                // Cast objects to associative array before checking the fields.
+                // Note that the coerced value will be an array.
+                $value = (array) $value;
+            } elseif (! is_array($value)) {
                 return self::ofErrors([
                     self::coercionError(
                         sprintf('Expected type %s to be an object', $type->name),
@@ -147,11 +153,6 @@ class Value
                         $path
                     ),
                 ]);
-            }
-
-            // Cast \stdClass to associative array before checking the fields. Note that the coerced value will be an array.
-            if ($value instanceof stdClass) {
-                $value = (array) $value;
             }
 
             $errors       = [];
@@ -199,9 +200,9 @@ class Value
                     (string) $fieldName,
                     array_keys($fields)
                 );
-                $didYouMean  = $suggestions
-                    ? 'did you mean ' . Utils::orList($suggestions) . '?'
-                    : null;
+                $didYouMean  = $suggestions === []
+                    ? null
+                    : 'did you mean ' . Utils::orList($suggestions) . '?';
                 $errors      = self::add(
                     $errors,
                     self::coercionError(
@@ -213,7 +214,7 @@ class Value
                 );
             }
 
-            return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
+            return $errors === [] ? self::ofValue($coercedValue) : self::ofErrors($errors);
         }
 
         throw new Error(sprintf('Unexpected type %s', $type->name));
@@ -225,28 +226,27 @@ class Value
     }
 
     /**
-     * @param string                   $message
-     * @param Node                     $blameNode
-     * @param mixed[]|null             $path
-     * @param string                   $subMessage
-     * @param Exception|Throwable|null $originalError
-     *
-     * @return Error
+     * @param array<mixed>|null $path
      */
     private static function coercionError(
-        $message,
-        $blameNode,
+        string $message,
+        ?Node $blameNode,
         ?array $path = null,
-        $subMessage = null,
-        $originalError = null
-    ) {
+        ?string $subMessage = null,
+        ?Throwable $originalError = null
+    ): Error {
         $pathStr = self::printPath($path);
 
-        // Return a GraphQLError instance
+        $fullMessage = $message
+            . ($pathStr === ''
+                ? ''
+                : ' at ' . $pathStr)
+            . ($subMessage === null || $subMessage === ''
+                ? '.'
+                : '; ' . $subMessage);
+
         return new Error(
-            $message .
-            ($pathStr ? ' at ' . $pathStr : '') .
-            ($subMessage ? '; ' . $subMessage : '.'),
+            $fullMessage,
             $blameNode,
             null,
             [],
@@ -267,14 +267,14 @@ class Value
         $pathStr     = '';
         $currentPath = $path;
         while ($currentPath) {
-            $pathStr     =
-                (is_string($currentPath['key'])
+            $pathStr     = (is_string($currentPath['key'])
                     ? '.' . $currentPath['key']
-                    : '[' . $currentPath['key'] . ']') . $pathStr;
+                    : '[' . $currentPath['key'] . ']')
+                . $pathStr;
             $currentPath = $currentPath['prev'];
         }
 
-        return $pathStr ? 'value' . $pathStr : '';
+        return $pathStr === '' ? '' : 'value' . $pathStr;
     }
 
     /**
@@ -306,6 +306,8 @@ class Value
      */
     private static function add($errors, $moreErrors)
     {
-        return array_merge($errors, is_array($moreErrors) ? $moreErrors : [$moreErrors]);
+        return array_merge($errors, is_array($moreErrors)
+            ? $moreErrors
+            : [$moreErrors]);
     }
 }

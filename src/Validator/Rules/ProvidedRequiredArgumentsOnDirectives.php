@@ -18,6 +18,7 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function array_filter;
 
 /**
@@ -48,16 +49,16 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
     {
         $requiredArgsMap   = [];
         $schema            = $context->getSchema();
-        $definedDirectives = $schema
-            ? $schema->getDirectives()
-            : Directive::getInternalDirectives();
+        $definedDirectives = $schema === null
+            ? Directive::getInternalDirectives()
+            : $schema->getDirectives();
 
         foreach ($definedDirectives as $directive) {
             $requiredArgsMap[$directive->name] = Utils::keyMap(
-                array_filter($directive->args, static function (FieldArgument $arg) : bool {
+                array_filter($directive->args, static function (FieldArgument $arg): bool {
                     return $arg->isRequired();
                 }),
-                static function (FieldArgument $arg) : string {
+                static function (FieldArgument $arg): string {
                     return $arg->name;
                 }
             );
@@ -68,17 +69,18 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
             if (! ($def instanceof DirectiveDefinitionNode)) {
                 continue;
             }
-            $arguments = $def->arguments ?? [];
+
+            $arguments = $def->arguments;
 
             $requiredArgsMap[$def->name->value] = Utils::keyMap(
-                Utils::filter($arguments, static function (InputValueDefinitionNode $argument) : bool {
+                Utils::filter($arguments, static function (InputValueDefinitionNode $argument): bool {
                     return $argument->type instanceof NonNullTypeNode &&
                         (
                             ! isset($argument->defaultValue) ||
                             $argument->defaultValue === null
                         );
                 }),
-                static function (InputValueDefinitionNode $argument) : string {
+                static function (InputValueDefinitionNode $argument): string {
                     return $argument->name->value;
                 }
             );
@@ -87,17 +89,17 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         return [
             NodeKind::DIRECTIVE => [
                 // Validate on leave to allow for deeper errors to appear first.
-                'leave' => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context) : ?string {
+                'leave' => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context): ?string {
                     $directiveName = $directiveNode->name->value;
                     $requiredArgs  = $requiredArgsMap[$directiveName] ?? null;
-                    if (! $requiredArgs) {
+                    if ($requiredArgs === null || $requiredArgs === []) {
                         return null;
                     }
 
-                    $argNodes   = $directiveNode->arguments ?? [];
+                    $argNodes   = $directiveNode->arguments;
                     $argNodeMap = Utils::keyMap(
                         $argNodes,
-                        static function (ArgumentNode $arg) : string {
+                        static function (ArgumentNode $arg): string {
                             return $arg->name->value;
                         }
                     );
