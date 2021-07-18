@@ -3,9 +3,9 @@
 Clean and simple single-file example of main GraphQL concepts originally proposed and 
 implemented by [Leo Cavalcante](https://github.com/leocavalcante).
 
-### Run locally
+### Run local test server
 ```
-php -S localhost:8080 ./graphql.php
+php -S localhost:8080 graphql.php
 ```
 
 ### Try query

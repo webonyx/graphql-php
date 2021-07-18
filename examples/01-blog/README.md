@@ -3,15 +3,18 @@
 Simple yet full-featured example of GraphQL API.
 Models a blogging platform with Stories, Users and hierarchical comments. 
 
-## Start the Server
+## Run local test server
 
 ```sh
 php -S localhost:8080 graphql.php
 ```
 
-## Check the Response
+### Try query
+```
+curl -d '{"query": "query { hello }" }' -H "Content-Type: application/json" http://localhost:8080
+```
 
-Opening `http://localhost:8080` in your browser should return the following response:
+The response should be:
 
 ```json
 {
@@ -58,7 +61,6 @@ Copy the following query to your GraphQL client and send the request:
       photo(size: ICON) {
         id
         url
-        type
         size
         width
         height
@@ -93,19 +95,14 @@ fragment CommentView on Comment {
 Use autocomplete (via CTRL+space) to easily create your own query.
 
 Note: GraphQL query requires at least one field per object type (to prevent accidental overfetching).
-For example following query is invalid in GraphQL:
+For example, the following query is invalid in GraphQL:
 
-```
+```graphql
 {
     viewer
 }
 ```
 
-Try copying this query and see what happens
-
-### Run mutation query
-TODOC
-
 ### Dig into source code
 Now when you tried GraphQL API as a consumer, see how it is implemented by browsing
-source code.
+the source code.

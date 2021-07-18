@@ -3,14 +3,30 @@
 #### Unreleased
 Changed:
 - PHP version required: 7.4+
+- Propagate error message and stack trace for why leaf value serialization failed
+- Do not throw client safe `Error` when failing to serialize an Enum type
 
 Feat:
 - Improve extendability of validator rules
+
+Fix:
+- Avoid QueryPlan crash when multiple $fieldNodes are present
+- Clarify error when attempting to coerce anything but `array` or `stdClass` to an input object  
 
 Removed:
 - Removed deprecated `Type::getInternalTypes()`
 - Remove deprecated `GraphQL::execute()`
 - Remove deprecated `GraphQL::executeAndReturnResult()`
+
+#### 14.9.0
+
+Feat:
+- Add support for type config decorator in `SchemaExtender`
+
+#### 14.8.0
+
+Feat:
+- Implement `GraphQL\Utils\AST::getOperationAST()`
 
 #### 14.7.0
 

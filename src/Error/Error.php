@@ -157,6 +157,9 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $source        = $error->source;
             $positions     = $error->positions;
             $extensions    = $error->extensions;
+        } elseif ($error instanceof InvariantViolation) {
+            $message       = $error->getMessage();
+            $originalError = $error->getPrevious() ?? $error;
         } elseif ($error instanceof Throwable) {
             $message       = $error->getMessage();
             $originalError = $error;

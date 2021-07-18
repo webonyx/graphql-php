@@ -3,9 +3,9 @@
 Same as the Hello World example, but uses the [Standard Http Server](https://webonyx.github.io/graphql-php/executing-queries/#using-server)
 instead of manually parsing the incoming data.
 
-### Run locally
+### Run local test server
 ```
-php -S localhost:8080 ./graphql.php
+php -S localhost:8080 graphql.php
 ```
 
 ### Try query
