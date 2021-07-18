@@ -272,7 +272,7 @@ class Helper
             if (count($errors) > 0) {
                 $locatedErrors = [];
                 foreach ($errors as $error) {
-                    $locatedErrors []= Error::createLocatedError($error);
+                    $locatedErrors[] = Error::createLocatedError($error);
                 }
 
                 return $promiseAdapter->createFulfilled(

@@ -194,17 +194,11 @@ class Error extends Exception implements JsonSerializable, ClientAware
         return $error->toSerializableArray();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function isClientSafe(): bool
     {
         return $this->isClientSafe;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getCategory(): string
     {
         return $this->category;

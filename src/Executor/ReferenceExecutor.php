@@ -697,7 +697,7 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param mixed             $rawError
+     * @param mixed                  $rawError
      * @param array<int, string|int> $path
      *
      * @throws Error
