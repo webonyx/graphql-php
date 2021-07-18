@@ -2,6 +2,8 @@ name: "Format"
 
 on:
   push:
+    branches:
+      - master
 
 jobs:
   prettify-markdown:
