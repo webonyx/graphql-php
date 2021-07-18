@@ -19,6 +19,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 - Improve extendability of validator rules
 
+### Optimized
+
+- Use recursive algorithm for printer and improve its performance
+
 ### Fixed
 
 - Avoid QueryPlan crash when multiple $fieldNodes are present
