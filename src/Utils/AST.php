@@ -177,7 +177,7 @@ class AST
                 $valuesNodes = [];
                 foreach ($value as $item) {
                     $itemNode = self::astFromValue($item, $itemType);
-                    if (! $itemNode) {
+                    if ($itemNode === null) {
                         continue;
                     }
 
@@ -226,7 +226,7 @@ class AST
 
                 $fieldNode = self::astFromValue($fieldValue, $field->getType());
 
-                if (! $fieldNode) {
+                if ($fieldNode === null) {
                     continue;
                 }
 
@@ -349,7 +349,7 @@ class AST
         if ($valueNode instanceof VariableNode) {
             $variableName = $valueNode->name->value;
 
-            if (! $variables || ! array_key_exists($variableName, $variables)) {
+            if (($variables ?? []) === [] || ! array_key_exists($variableName, $variables)) {
                 // No valid return value.
                 return $undefined;
             }
@@ -457,7 +457,7 @@ class AST
             }
 
             $enumValue = $type->getValue($valueNode->value);
-            if (! $enumValue) {
+            if ($enumValue === null) {
                 return $undefined;
             }
 
@@ -562,7 +562,7 @@ class AST
             case $valueNode instanceof VariableNode:
                 $variableName = $valueNode->name->value;
 
-                return $variables && isset($variables[$variableName])
+                return ($variables ?? []) !== [] && isset($variables[$variableName])
                     ? $variables[$variableName]
                     : null;
         }
@@ -586,13 +586,13 @@ class AST
         if ($inputTypeNode instanceof ListTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
-            return $innerType ? new ListOfType($innerType) : null;
+            return $innerType === null ? null : new ListOfType($innerType);
         }
 
         if ($inputTypeNode instanceof NonNullTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
-            return $innerType ? new NonNull($innerType) : null;
+            return $innerType === null ? null : new NonNull($innerType);
         }
 
         if ($inputTypeNode instanceof NamedTypeNode) {
@@ -607,21 +607,19 @@ class AST
      *
      * Returns operation type ("query", "mutation" or "subscription") given a document and operation name
      *
-     * @param string $operationName
-     *
      * @return bool|string
      *
      * @api
      */
-    public static function getOperation(DocumentNode $document, $operationName = null)
+    public static function getOperation(DocumentNode $document, ?string $operationName = null)
     {
-        if ($document->definitions) {
+        if ($document->definitions !== null) {
             foreach ($document->definitions as $def) {
                 if (! ($def instanceof OperationDefinitionNode)) {
                     continue;
                 }
 
-                if (! $operationName || (isset($def->name->value) && $def->name->value === $operationName)) {
+                if (($operationName ?? '') === '' || (isset($def->name->value) && $def->name->value === $operationName)) {
                     return $def->operation;
                 }
             }

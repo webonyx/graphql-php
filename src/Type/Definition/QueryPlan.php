@@ -121,7 +121,7 @@ class QueryPlan
         $implementors = [];
         /** @var FieldNode $fieldNode */
         foreach ($fieldNodes as $fieldNode) {
-            if (! $fieldNode->selectionSet) {
+            if ($fieldNode->selectionSet === null) {
                 continue;
             }
 
@@ -179,7 +179,7 @@ class QueryPlan
 
                 $subfields       = [];
                 $subImplementors = [];
-                if ($selectionNode->selectionSet) {
+                if ($selectionNode->selectionSet !== null) {
                     $subfields = $this->analyzeSubFields($selectionType, $selectionNode->selectionSet, $subImplementors);
                 }
 

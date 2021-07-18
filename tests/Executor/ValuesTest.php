@@ -54,27 +54,23 @@ class ValuesTest extends TestCase
 
     private static function getSchema(): Schema
     {
-        if (! self::$schema) {
-            self::$schema = new Schema([
-                'query' => new ObjectType([
-                    'name'   => 'Query',
-                    'fields' => [
-                        'test' => [
-                            'type' => Type::boolean(),
-                            'args' => [
-                                'idInput'     => Type::id(),
-                                'boolInput'   => Type::boolean(),
-                                'intInput'    => Type::int(),
-                                'stringInput' => Type::string(),
-                                'floatInput'  => Type::float(),
-                            ],
+        return self::$schema ??= new Schema([
+            'query' => new ObjectType([
+                'name'   => 'Query',
+                'fields' => [
+                    'test' => [
+                        'type' => Type::boolean(),
+                        'args' => [
+                            'idInput'     => Type::id(),
+                            'boolInput'   => Type::boolean(),
+                            'intInput'    => Type::int(),
+                            'stringInput' => Type::string(),
+                            'floatInput'  => Type::float(),
                         ],
                     ],
-                ]),
-            ]);
-        }
-
-        return self::$schema;
+                ],
+            ]),
+        ]);
     }
 
     private static function getVariableDefinitionNodes(): NodeList

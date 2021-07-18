@@ -256,7 +256,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         }
                     }
 
-                    $responseName = $selection->alias ? $selection->alias->value : $fieldName;
+                    $responseName = $selection->alias === null ? $fieldName : $selection->alias->value;
 
                     if (! isset($astAndDefs[$responseName])) {
                         $astAndDefs[$responseName] = [];
@@ -269,9 +269,9 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     break;
                 case $selection instanceof InlineFragmentNode:
                     $typeCondition      = $selection->typeCondition;
-                    $inlineFragmentType = $typeCondition
-                        ? TypeInfo::typeFromAST($context->getSchema(), $typeCondition)
-                        : $parentType;
+                    $inlineFragmentType = $typeCondition === null
+                        ? $parentType
+                        : TypeInfo::typeFromAST($context->getSchema(), $typeCondition);
 
                     $this->internalCollectFieldsAndFragmentNames(
                         $context,
@@ -318,7 +318,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         $fields[$i],
                         $fields[$j]
                     );
-                    if (! $conflict) {
+                    if ($conflict === null) {
                         continue;
                     }
 
@@ -443,7 +443,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 }
             }
 
-            if (! $argument2) {
+            if ($argument2 === null) {
                 return false;
             }
 
@@ -460,7 +460,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected function sameValue(Node $value1, Node $value2)
     {
-        return (! $value1 && ! $value2) || (Printer::doPrint($value1) === Printer::doPrint($value2));
+        return ($value1 === null && $value2 === null) || (Printer::doPrint($value1) === Printer::doPrint($value2));
     }
 
     /**
@@ -635,7 +635,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         $fields1[$i],
                         $fields2[$j]
                     );
-                    if (! $conflict) {
+                    if ($conflict === null) {
                         continue;
                     }
 
@@ -670,7 +670,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $comparedFragments[$fragmentName] = true;
 
         $fragment = $context->getFragment($fragmentName);
-        if (! $fragment) {
+        if ($fragment === null) {
             return;
         }
 
@@ -772,7 +772,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         $fragment1 = $context->getFragment($fragmentName1);
         $fragment2 = $context->getFragment($fragmentName2);
-        if (! $fragment1 || ! $fragment2) {
+        if ($fragment1 === null || $fragment2 === null) {
             return;
         }
 
