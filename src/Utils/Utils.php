@@ -18,7 +18,6 @@ use stdClass;
 use Traversable;
 
 use function array_keys;
-use function array_map;
 use function array_reduce;
 use function array_shift;
 use function array_slice;
@@ -579,14 +578,12 @@ class Utils
      */
     public static function quotedOrList(array $items)
     {
-        $items = array_map(
-            static function ($item): string {
-                return sprintf('"%s"', $item);
-            },
-            $items
-        );
+        $quoted = [];
+        foreach ($items as $item) {
+            $quoted[] = sprintf('"%s"', $item);
+        }
 
-        return self::orList($items);
+        return self::orList($quoted);
     }
 
     /**

@@ -12,7 +12,6 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
-use function array_map;
 use function array_pop;
 use function array_slice;
 use function count;
@@ -84,12 +83,10 @@ class NoFragmentCycles extends ValidationRule
                 }
             } else {
                 $cyclePath     = array_slice($this->spreadPath, $cycleIndex);
-                $fragmentNames = array_map(
-                    static function (FragmentSpreadNode $s): string {
-                        return $s->name->value;
-                    },
-                    array_slice($cyclePath, 0, -1)
-                );
+                $fragmentNames = [];
+                foreach (array_slice($cyclePath, 0, -1) as $frag) {
+                    $fragmentNames[] = $frag->name->value;
+                }
 
                 $context->reportError(new Error(
                     static::cycleErrorMessage($spreadName, $fragmentNames),

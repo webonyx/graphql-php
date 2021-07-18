@@ -16,7 +16,6 @@ use Throwable;
 use function addcslashes;
 use function array_filter;
 use function array_intersect_key;
-use function array_map;
 use function array_merge;
 use function array_shift;
 use function count;
@@ -315,8 +314,12 @@ class FormattedError
         foreach ($trace as $key => $err) {
             $safeError = array_intersect_key($err, ['file' => true, 'line' => true]);
             if (isset($err['function'])) {
-                $func    = $err['function'];
-                $args    = array_map([self::class, 'printVar'], $err['args'] ?? []);
+                $func = $err['function'];
+                $args = [];
+                foreach ($err['args'] ?? [] as $arg) {
+                    $args[] = self::printVar($arg);
+                }
+
                 $funcStr = $func . '(' . implode(', ', $args) . ')';
 
                 if (isset($err['class'])) {

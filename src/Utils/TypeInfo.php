@@ -39,7 +39,6 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 
-use function array_map;
 use function array_merge;
 use function array_pop;
 use function count;
@@ -207,15 +206,8 @@ class TypeInfo
 
         if ($type instanceof HasFieldsType) {
             foreach ($type->getFields() as $field) {
-                if (count($field->args) > 0) {
-                    $fieldArgTypes = array_map(
-                        static function (FieldArgument $arg): Type {
-                            return $arg->getType();
-                        },
-                        $field->args
-                    );
-
-                    $nestedTypes = array_merge($nestedTypes, $fieldArgTypes);
+                foreach ($field->args as $arg) {
+                    $nestedTypes[] = $arg->getType();
                 }
 
                 $nestedTypes[] = $field->getType();

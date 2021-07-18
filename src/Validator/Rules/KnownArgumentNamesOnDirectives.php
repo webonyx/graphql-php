@@ -11,13 +11,11 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
-use function array_map;
 use function in_array;
 use function sprintf;
 
@@ -59,12 +57,12 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         $definedDirectives = $schema !== null ? $schema->getDirectives() : Directive::getInternalDirectives();
 
         foreach ($definedDirectives as $directive) {
-            $directiveArgs[$directive->name] = array_map(
-                static function (FieldArgument $arg): string {
-                    return $arg->name;
-                },
-                $directive->args
-            );
+            $argNames = [];
+            foreach ($directive->args as $arg) {
+                $argNames[] = $arg->name;
+            }
+
+            $directiveArgs[$directive->name] = $argNames;
         }
 
         $astDefinitions = $context->getDocument()->definitions;
@@ -75,12 +73,12 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
             $name = $def->name->value;
             if ($def->arguments !== null) {
-                $args = [];
+                $argNames = [];
                 foreach ($def->arguments as $arg) {
-                    $args[] = $arg->name->value;
+                    $argNames[] = $arg->name->value;
                 }
 
-                $directiveArgs[$name] = $args;
+                $directiveArgs[$name] = $argNames;
             } else {
                 $directiveArgs[$name] = [];
             }

@@ -19,7 +19,6 @@ use Traversable;
 
 use function array_key_exists;
 use function array_keys;
-use function array_map;
 use function array_merge;
 use function is_array;
 use function is_string;
@@ -87,14 +86,14 @@ class Value
                 }
             }
 
+            $valueNames = [];
+            foreach ($type->getValues() as $enumValue) {
+                $valueNames[] = $enumValue->name;
+            }
+
             $suggestions = Utils::suggestionList(
                 Utils::printSafe($value),
-                array_map(
-                    static function ($enumValue): string {
-                        return $enumValue->name;
-                    },
-                    $type->getValues()
-                )
+                $valueNames
             );
 
             $didYouMean = $suggestions

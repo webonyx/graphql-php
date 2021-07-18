@@ -27,7 +27,6 @@ use GraphQL\Validator\ValidationContext;
 use SplObjectStorage;
 
 use function array_keys;
-use function array_map;
 use function array_merge;
 use function array_reduce;
 use function count;
@@ -841,15 +840,15 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             return null;
         }
 
+        $firstConflict = [];
+        foreach ($conflicts as $conflict) {
+            $firstConflict[] = $conflict[0];
+        }
+
         return [
             [
                 $responseName,
-                array_map(
-                    static function ($conflict) {
-                        return $conflict[0];
-                    },
-                    $conflicts
-                ),
+                $firstConflict,
             ],
             array_reduce(
                 $conflicts,
@@ -883,23 +882,19 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         );
     }
 
-    public static function reasonMessage($reason)
+    public static function reasonMessage($reasonOrReasons)
     {
-        if (is_array($reason)) {
-            $tmp = array_map(
-                static function ($tmp): string {
-                    [$responseName, $subReason] = $tmp;
+        if (is_array($reasonOrReasons)) {
+            $reasons = [];
+            foreach ($reasonOrReasons as $reason) {
+                [$responseName, $subReason] = $reason;
+                $reasonMessage              = static::reasonMessage($subReason);
+                $reasons[]                  = sprintf('subfields "%s" conflict because %s', $responseName, $reasonMessage);
+            }
 
-                    $reasonMessage = static::reasonMessage($subReason);
-
-                    return sprintf('subfields "%s" conflict because %s', $responseName, $reasonMessage);
-                },
-                $reason
-            );
-
-            return implode(' and ', $tmp);
+            return implode(' and ', $reasons);
         }
 
-        return $reason;
+        return $reasonOrReasons;
     }
 }

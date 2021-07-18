@@ -11,7 +11,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
-use function array_map;
 use function sprintf;
 
 /**
@@ -39,20 +38,17 @@ class KnownArgumentNames extends ValidationRule
                     return;
                 }
 
+                $argNames = [];
+                foreach ($fieldDef->args as $arg) {
+                    $argNames[] = $arg->name;
+                }
+
                 $context->reportError(new Error(
                     static::unknownArgMessage(
                         $node->name->value,
                         $fieldDef->name,
                         $parentType->name,
-                        Utils::suggestionList(
-                            $node->name->value,
-                            array_map(
-                                static function ($arg): string {
-                                    return $arg->name;
-                                },
-                                $fieldDef->args
-                            )
-                        )
+                        Utils::suggestionList($node->name->value, $argNames)
                     ),
                     [$node]
                 ));
