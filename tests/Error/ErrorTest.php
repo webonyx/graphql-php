@@ -17,7 +17,7 @@ class ErrorTest extends TestCase
     /**
      * @see it('uses the stack of an original error')
      */
-    public function testUsesTheStackOfAnOriginalError() : void
+    public function testUsesTheStackOfAnOriginalError(): void
     {
         $prev = new Exception('Original');
         $err  = new Error('msg', null, null, [], null, $prev);
@@ -28,7 +28,7 @@ class ErrorTest extends TestCase
     /**
      * @see it('converts nodes to positions and locations')
      */
-    public function testConvertsNodesToPositionsAndLocations() : void
+    public function testConvertsNodesToPositionsAndLocations(): void
     {
         $source = new Source('{
       field
@@ -48,7 +48,7 @@ class ErrorTest extends TestCase
     /**
      * @see it('converts single node to positions and locations')
      */
-    public function testConvertSingleNodeToPositionsAndLocations() : void
+    public function testConvertSingleNodeToPositionsAndLocations(): void
     {
         $source = new Source('{
       field
@@ -68,7 +68,7 @@ class ErrorTest extends TestCase
     /**
      * @see it('converts node with loc.start === 0 to positions and locations')
      */
-    public function testConvertsNodeWithStart0ToPositionsAndLocations() : void
+    public function testConvertsNodeWithStart0ToPositionsAndLocations(): void
     {
         $source        = new Source('{
       field
@@ -86,7 +86,7 @@ class ErrorTest extends TestCase
     /**
      * @see it('converts source and positions to locations')
      */
-    public function testConvertsSourceAndPositionsToLocations() : void
+    public function testConvertsSourceAndPositionsToLocations(): void
     {
         $source = new Source('{
       field
@@ -102,7 +102,7 @@ class ErrorTest extends TestCase
     /**
      * @see it('serializes to include message')
      */
-    public function testSerializesToIncludeMessage() : void
+    public function testSerializesToIncludeMessage(): void
     {
         $e = new Error('msg');
         self::assertEquals(['message' => 'msg'], $e->toSerializableArray());
@@ -111,7 +111,7 @@ class ErrorTest extends TestCase
     /**
      * @see it('serializes to include message and locations')
      */
-    public function testSerializesToIncludeMessageAndLocations() : void
+    public function testSerializesToIncludeMessageAndLocations(): void
     {
         $ast = Parser::parse('{ field }');
         /** @var OperationDefinitionNode $operationDefinition */
@@ -128,7 +128,7 @@ class ErrorTest extends TestCase
     /**
      * @see it('serializes to include path')
      */
-    public function testSerializesToIncludePath() : void
+    public function testSerializesToIncludePath(): void
     {
         $e = new Error(
             'msg',
@@ -145,7 +145,7 @@ class ErrorTest extends TestCase
     /**
      * @see it('default error formatter includes extension fields')
      */
-    public function testDefaultErrorFormatterIncludesExtensionFields() : void
+    public function testDefaultErrorFormatterIncludesExtensionFields(): void
     {
         $e = new Error(
             'msg',

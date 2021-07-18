@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Server;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
@@ -13,6 +14,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Throwable;
+
 use function is_array;
 
 /**
@@ -25,7 +27,7 @@ use function is_array;
  *     ]);
  *     $server->handleRequest();
  *
- * Or using [ServerConfig](reference.md#graphqlserverserverconfig) instance:
+ * Or using [ServerConfig](class-reference.md#graphqlserverserverconfig) instance:
  *
  *     $config = GraphQL\Server\ServerConfig::create()
  *         ->setSchema($mySchema)
@@ -50,12 +52,12 @@ class StandardServer
      * (e.g. during schema instantiation).
      *
      * @param Throwable $error
-     * @param bool      $debug
+     * @param int       $debug
      * @param bool      $exitWhenDone
      *
      * @api
      */
-    public static function send500Error($error, $debug = false, $exitWhenDone = false)
+    public static function send500Error($error, $debug = DebugFlag::NONE, $exitWhenDone = false)
     {
         $response = [
             'errors' => [FormattedError::createFromException($error, $debug)],
@@ -76,9 +78,11 @@ class StandardServer
         if (is_array($config)) {
             $config = ServerConfig::create($config);
         }
+
         if (! $config instanceof ServerConfig) {
             throw new InvariantViolation('Expecting valid server config, but got ' . Utils::printSafe($config));
         }
+
         $this->config = $config;
         $this->helper = new Helper();
     }

@@ -12,6 +12,7 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
+
 use function array_pop;
 use function array_slice;
 use function count;
@@ -21,13 +22,13 @@ use function sprintf;
 class NoFragmentCycles extends ValidationRule
 {
     /** @var bool[] */
-    public $visitedFrags;
+    protected array $visitedFrags;
 
     /** @var FragmentSpreadNode[] */
-    public $spreadPath;
+    protected array $spreadPath;
 
     /** @var (int|null)[] */
-    public $spreadPathIndexByName;
+    protected array $spreadPathIndexByName;
 
     public function getVisitor(ValidationContext $context)
     {
@@ -42,10 +43,10 @@ class NoFragmentCycles extends ValidationRule
         $this->spreadPathIndexByName = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => static function () : VisitorOperation {
+            NodeKind::OPERATION_DEFINITION => static function (): VisitorOperation {
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION  => function (FragmentDefinitionNode $node) use ($context) : VisitorOperation {
+            NodeKind::FRAGMENT_DEFINITION  => function (FragmentDefinitionNode $node) use ($context): VisitorOperation {
                 $this->detectCycleRecursive($node, $context);
 
                 return Visitor::skipNode();
@@ -53,7 +54,7 @@ class NoFragmentCycles extends ValidationRule
         ];
     }
 
-    private function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context)
+    protected function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context)
     {
         if (isset($this->visitedFrags[$fragment->name->value])) {
             return;
@@ -88,10 +89,11 @@ class NoFragmentCycles extends ValidationRule
                 });
 
                 $context->reportError(new Error(
-                    self::cycleErrorMessage($spreadName, $fragmentNames),
+                    static::cycleErrorMessage($spreadName, $fragmentNames),
                     $cyclePath
                 ));
             }
+
             array_pop($this->spreadPath);
         }
 

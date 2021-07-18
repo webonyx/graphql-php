@@ -12,15 +12,17 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\ValidationContext;
+
 use function array_map;
-use function call_user_func_array;
 use function count;
 use function implode;
 use function method_exists;
@@ -28,23 +30,19 @@ use function sprintf;
 
 class QueryComplexity extends QuerySecurityRule
 {
-    /** @var int */
-    private $maxQueryComplexity;
+    protected int $maxQueryComplexity;
 
-    /** @var mixed[]|null */
-    private $rawVariableValues = [];
+    /** @var array<string, mixed> */
+    protected array $rawVariableValues = [];
 
-    /** @var ArrayObject */
-    private $variableDefs;
+    /** @var NodeList<VariableDefinitionNode> */
+    protected NodeList $variableDefs;
 
-    /** @var ArrayObject */
-    private $fieldNodeAndDefs;
+    protected ArrayObject $fieldNodeAndDefs;
 
-    /** @var ValidationContext */
-    private $context;
+    protected ValidationContext $context;
 
-    /** @var int */
-    private $complexity;
+    protected int $complexity;
 
     public function __construct($maxQueryComplexity)
     {
@@ -55,14 +53,15 @@ class QueryComplexity extends QuerySecurityRule
     {
         $this->context = $context;
 
-        $this->variableDefs     = new ArrayObject();
+        // @phpstan-ignore-next-line Initializing with an empty array does not set the generic type
+        $this->variableDefs     = new NodeList([]);
         $this->fieldNodeAndDefs = new ArrayObject();
         $this->complexity       = 0;
 
         return $this->invokeIfNeeded(
             $context,
             [
-                NodeKind::SELECTION_SET        => function (SelectionSetNode $selectionSet) use ($context) : void {
+                NodeKind::SELECTION_SET        => function (SelectionSetNode $selectionSet) use ($context): void {
                     $this->fieldNodeAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $context->getParentType(),
@@ -71,13 +70,13 @@ class QueryComplexity extends QuerySecurityRule
                         $this->fieldNodeAndDefs
                     );
                 },
-                NodeKind::VARIABLE_DEFINITION  => function ($def) : VisitorOperation {
+                NodeKind::VARIABLE_DEFINITION  => function ($def): VisitorOperation {
                     $this->variableDefs[] = $def;
 
                     return Visitor::skipNode();
                 },
                 NodeKind::OPERATION_DEFINITION => [
-                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity) : void {
+                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity): void {
                         $errors = $context->getErrors();
 
                         if (count($errors) > 0) {
@@ -91,7 +90,7 @@ class QueryComplexity extends QuerySecurityRule
                         }
 
                         $context->reportError(
-                            new Error(self::maxQueryComplexityErrorMessage(
+                            new Error(static::maxQueryComplexityErrorMessage(
                                 $this->getMaxQueryComplexity(),
                                 $this->getQueryComplexity()
                             ))
@@ -102,7 +101,7 @@ class QueryComplexity extends QuerySecurityRule
         );
     }
 
-    private function fieldComplexity($node, $complexity = 0)
+    protected function fieldComplexity($node, $complexity = 0)
     {
         if (isset($node->selectionSet) && $node->selectionSet instanceof SelectionSetNode) {
             foreach ($node->selectionSet->selections as $childNode) {
@@ -113,7 +112,7 @@ class QueryComplexity extends QuerySecurityRule
         return $complexity;
     }
 
-    private function nodeComplexity(Node $node, $complexity = 0)
+    protected function nodeComplexity(Node $node, $complexity = 0)
     {
         switch (true) {
             case $node instanceof FieldNode:
@@ -152,6 +151,7 @@ class QueryComplexity extends QuerySecurityRule
                 if (isset($node->selectionSet)) {
                     $complexity = $this->fieldComplexity($node, $complexity);
                 }
+
                 break;
 
             case $node instanceof FragmentSpreadNode:
@@ -160,13 +160,14 @@ class QueryComplexity extends QuerySecurityRule
                 if ($fragment !== null) {
                     $complexity = $this->fieldComplexity($fragment, $complexity);
                 }
+
                 break;
         }
 
         return $complexity;
     }
 
-    private function astFieldInfo(FieldNode $field)
+    protected function astFieldInfo(FieldNode $field)
     {
         $fieldName    = $this->getFieldName($field);
         $astFieldInfo = [null, null];
@@ -182,12 +183,13 @@ class QueryComplexity extends QuerySecurityRule
         return $astFieldInfo;
     }
 
-    private function directiveExcludesField(FieldNode $node)
+    protected function directiveExcludesField(FieldNode $node)
     {
         foreach ($node->directives as $directiveNode) {
             if ($directiveNode->name->value === 'deprecated') {
                 return false;
             }
+
             [$errors, $variableValues] = Values::getVariableValues(
                 $this->context->getSchema(),
                 $this->variableDefs,
@@ -204,6 +206,7 @@ class QueryComplexity extends QuerySecurityRule
                     )
                 ));
             }
+
             if ($directiveNode->name->value === 'include') {
                 $directive = Directive::includeDirective();
                 /** @var bool $directiveArgsIf */
@@ -211,6 +214,7 @@ class QueryComplexity extends QuerySecurityRule
 
                 return ! $directiveArgsIf;
             }
+
             if ($directiveNode->name->value === Directive::SKIP_NAME) {
                 $directive = Directive::skipDirective();
                 /** @var bool $directiveArgsIf */
@@ -223,20 +227,23 @@ class QueryComplexity extends QuerySecurityRule
         return false;
     }
 
-    public function getRawVariableValues()
+    /**
+     * @return array<string, mixed>
+     */
+    public function getRawVariableValues(): array
     {
         return $this->rawVariableValues;
     }
 
     /**
-     * @param mixed[]|null $rawVariableValues
+     * @param array<string, mixed>|null $rawVariableValues
      */
-    public function setRawVariableValues(?array $rawVariableValues = null)
+    public function setRawVariableValues(?array $rawVariableValues = null): void
     {
         $this->rawVariableValues = $rawVariableValues ?? [];
     }
 
-    private function buildFieldArguments(FieldNode $node)
+    protected function buildFieldArguments(FieldNode $node)
     {
         $rawVariableValues = $this->getRawVariableValues();
         $astFieldInfo      = $this->astFieldInfo($node);

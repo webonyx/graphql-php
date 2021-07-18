@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Language\AST;
 
 use GraphQL\Utils\Utils;
+
 use function count;
 use function get_object_vars;
 use function is_array;
@@ -87,7 +88,7 @@ abstract class Node
         return $cloned;
     }
 
-    public function __toString() : string
+    public function __toString(): string
     {
         $tmp = $this->toArray(true);
 
@@ -95,9 +96,9 @@ abstract class Node
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, mixed>
      */
-    public function toArray(bool $recursive = false) : array
+    public function toArray(bool $recursive = false): array
     {
         if ($recursive) {
             return $this->recursiveToArray($this);

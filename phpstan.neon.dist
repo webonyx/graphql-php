@@ -4,13 +4,10 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
 
     paths:
+        - %currentWorkingDirectory%/benchmarks
+        - %currentWorkingDirectory%/examples
         - %currentWorkingDirectory%/src
         - %currentWorkingDirectory%/tests
-
-    excludes_analyse:
-        # Ported from dms/phpunit-arraysubset-asserts
-        - tests/PHPUnit/ArraySubsetAsserts.php
-        - tests/PHPUnit/Constraint/ArraySubset.php
 
     ignoreErrors:
         # Since this is a library that is supposed to be flexible, we don't

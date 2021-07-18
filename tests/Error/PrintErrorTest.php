@@ -17,7 +17,7 @@ class PrintErrorTest extends TestCase
     /**
      * @see it('prints an line numbers with correct padding')
      */
-    public function testPrintsAnLineNumbersWithCorrectPadding() : void
+    public function testPrintsAnLineNumbersWithCorrectPadding(): void
     {
         $singleDigit = new Error(
             'Single digit line number with no padding',
@@ -55,7 +55,7 @@ Test (9:1)
     /**
      * @see it('prints an error with nodes from different sources')
      */
-    public function testPrintsAnErrorWithNodesFromDifferentSources() : void
+    public function testPrintsAnErrorWithNodesFromDifferentSources(): void
     {
         $sourceA = Parser::parse(new Source(
             'type Foo {

@@ -17,6 +17,7 @@ use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class VariablesInAllowedPosition extends ValidationRule
@@ -26,16 +27,16 @@ class VariablesInAllowedPosition extends ValidationRule
      *
      * @var VariableDefinitionNode[]
      */
-    public $varDefMap;
+    protected array $varDefMap;
 
     public function getVisitor(ValidationContext $context)
     {
         return [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function () : void {
+                'enter' => function (): void {
                     $this->varDefMap = [];
                 },
-                'leave' => function (OperationDefinitionNode $operation) use ($context) : void {
+                'leave' => function (OperationDefinitionNode $operation) use ($context): void {
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
@@ -62,13 +63,13 @@ class VariablesInAllowedPosition extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            self::badVarPosMessage($varName, $varType, $type),
+                            static::badVarPosMessage($varName, $varType, $type),
                             [$varDef, $node]
                         ));
                     }
                 },
             ],
-            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $varDefNode) : void {
+            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $varDefNode): void {
                 $this->varDefMap[$varDefNode->variable->name->value] = $varDefNode;
             },
         ];
@@ -98,7 +99,7 @@ class VariablesInAllowedPosition extends ValidationRule
      * @param ValueNode|null $varDefaultValue
      * @param mixed          $locationDefaultValue
      */
-    private function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue) : bool
+    protected function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
     {
         if ($locationType instanceof NonNull && ! $varType instanceof NonNull) {
             $hasNonNullVariableDefaultValue = $varDefaultValue && ! $varDefaultValue instanceof NullValueNode;
@@ -106,6 +107,7 @@ class VariablesInAllowedPosition extends ValidationRule
             if (! $hasNonNullVariableDefaultValue && ! $hasLocationDefaultValue) {
                 return false;
             }
+
             $nullableLocationType = $locationType->getWrappedType();
 
             return TypeComparators::isTypeSubTypeOf($schema, $varType, $nullableLocationType);

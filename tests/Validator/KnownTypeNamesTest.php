@@ -15,7 +15,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     /**
      * @see it('known type names are valid')
      */
-    public function testKnownTypeNamesAreValid() : void
+    public function testKnownTypeNamesAreValid(): void
     {
         $this->expectPassesRule(
             new KnownTypeNames(),
@@ -35,7 +35,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown type names are invalid')
      */
-    public function testUnknownTypeNamesAreInvalid() : void
+    public function testUnknownTypeNamesAreInvalid(): void
     {
         $this->expectFailsRule(
             new KnownTypeNames(),
@@ -69,7 +69,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     /**
      * @see it('ignores type definitions')
      */
-    public function testIgnoresTypeDefinitions() : void
+    public function testIgnoresTypeDefinitions(): void
     {
         $this->expectFailsRule(
             new KnownTypeNames(),

@@ -9,6 +9,7 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class ScalarLeafs extends ValidationRule
@@ -16,7 +17,7 @@ class ScalarLeafs extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::FIELD => static function (FieldNode $node) use ($context) : void {
+            NodeKind::FIELD => static function (FieldNode $node) use ($context): void {
                 $type = $context->getType();
                 if (! $type) {
                     return;
@@ -25,13 +26,13 @@ class ScalarLeafs extends ValidationRule
                 if (Type::isLeafType(Type::getNamedType($type))) {
                     if ($node->selectionSet) {
                         $context->reportError(new Error(
-                            self::noSubselectionAllowedMessage($node->name->value, $type),
+                            static::noSubselectionAllowedMessage($node->name->value, $type),
                             [$node->selectionSet]
                         ));
                     }
                 } elseif (! $node->selectionSet) {
                     $context->reportError(new Error(
-                        self::requiredSubselectionMessage($node->name->value, $type),
+                        static::requiredSubselectionMessage($node->name->value, $type),
                         [$node]
                     ));
                 }

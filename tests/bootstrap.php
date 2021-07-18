@@ -6,6 +6,7 @@ namespace GraphQL\Tests;
 
 use GraphQL\Executor\Executor;
 use GraphQL\Experimental\Executor\CoroutineExecutor;
+
 use function getenv;
 
 require_once __DIR__ . '/../vendor/autoload.php';

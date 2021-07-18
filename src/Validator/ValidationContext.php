@@ -17,18 +17,14 @@ use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\CompositeType;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
-use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\OutputType;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use SplObjectStorage;
+
 use function array_merge;
 use function array_pop;
 use function count;
@@ -83,6 +79,7 @@ class ValidationContext extends ASTValidationContext
             foreach ($fragments as $fragment) {
                 $allUsages[] = $this->getVariableUsages($fragment);
             }
+
             $usages                                    = array_merge(...$allUsages);
             $this->recursiveVariableUsages[$operation] = $usages;
         }
@@ -105,13 +102,13 @@ class ValidationContext extends ASTValidationContext
                 Visitor::visitWithTypeInfo(
                     $typeInfo,
                     [
-                        NodeKind::VARIABLE_DEFINITION => static function () : bool {
+                        NodeKind::VARIABLE_DEFINITION => static function (): bool {
                             return false;
                         },
                         NodeKind::VARIABLE            => static function (VariableNode $variable) use (
                             &$newUsages,
                             $typeInfo
-                        ) : void {
+                        ): void {
                             $newUsages[] = [
                                 'node' => $variable,
                                 'type' => $typeInfo->getInputType(),
@@ -159,6 +156,7 @@ class ValidationContext extends ASTValidationContext
                     $nodesToVisit[] = $fragment;
                 }
             }
+
             $this->recursivelyReferencedFragments[$operation] = $fragments;
         }
 
@@ -170,7 +168,7 @@ class ValidationContext extends ASTValidationContext
      *
      * @return FragmentSpreadNode[]
      */
-    public function getFragmentSpreads(HasSelectionSet $node) : array
+    public function getFragmentSpreads(HasSelectionSet $node): array
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
         if ($spreads === null) {
@@ -193,6 +191,7 @@ class ValidationContext extends ASTValidationContext
                     }
                 }
             }
+
             $this->fragmentSpreads[$node] = $spreads;
         }
 
@@ -216,13 +215,14 @@ class ValidationContext extends ASTValidationContext
 
                 $fragments[$statement->name->value] = $statement;
             }
+
             $this->fragments = $fragments;
         }
 
         return $fragments[$name] ?? null;
     }
 
-    public function getType() : ?OutputType
+    public function getType(): ?OutputType
     {
         return $this->typeInfo->getType();
     }
@@ -230,7 +230,7 @@ class ValidationContext extends ASTValidationContext
     /**
      * @return (CompositeType & Type) | null
      */
-    public function getParentType() : ?CompositeType
+    public function getParentType(): ?CompositeType
     {
         return $this->typeInfo->getParentType();
     }
@@ -238,7 +238,7 @@ class ValidationContext extends ASTValidationContext
     /**
      * @return (Type & InputType) | null
      */
-    public function getInputType() : ?InputType
+    public function getInputType(): ?InputType
     {
         return $this->typeInfo->getInputType();
     }
@@ -246,7 +246,7 @@ class ValidationContext extends ASTValidationContext
     /**
      * @return (Type&InputType)|null
      */
-    public function getParentInputType() : ?InputType
+    public function getParentInputType(): ?InputType
     {
         return $this->typeInfo->getParentInputType();
     }

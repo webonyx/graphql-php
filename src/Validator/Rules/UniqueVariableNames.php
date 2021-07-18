@@ -9,28 +9,29 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class UniqueVariableNames extends ValidationRule
 {
     /** @var NameNode[] */
-    public $knownVariableNames;
+    protected array $knownVariableNames;
 
     public function getVisitor(ValidationContext $context)
     {
         $this->knownVariableNames = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => function () : void {
+            NodeKind::OPERATION_DEFINITION => function (): void {
                 $this->knownVariableNames = [];
             },
-            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $node) use ($context) : void {
+            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $node) use ($context): void {
                 $variableName = $node->variable->name->value;
                 if (! isset($this->knownVariableNames[$variableName])) {
                     $this->knownVariableNames[$variableName] = $node->variable->name;
                 } else {
                     $context->reportError(new Error(
-                        self::duplicateVariableMessage($variableName),
+                        static::duplicateVariableMessage($variableName),
                         [$this->knownVariableNames[$variableName], $node->variable->name]
                     ));
                 }

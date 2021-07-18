@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use ArrayObject;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+
 use function count;
 use function is_array;
 
@@ -34,7 +35,7 @@ class EnumTypeTest extends TestCase
     /** @var ArrayObject */
     private $Complex2;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $ColorType = new EnumType([
             'name'   => 'Color',
@@ -55,7 +56,7 @@ class EnumTypeTest extends TestCase
         ]);
 
         $Complex1 = [
-            'someRandomFunction' => static function () : void {
+            'someRandomFunction' => static function (): void {
             },
         ];
         $Complex2 = new ArrayObject(['someRandomValue' => 123]);
@@ -91,9 +92,11 @@ class EnumTypeTest extends TestCase
                         if (isset($args['fromInt'])) {
                             return $args['fromInt'];
                         }
+
                         if (isset($args['fromString'])) {
                             return $args['fromString'];
                         }
+
                         if (isset($args['fromEnum'])) {
                             return $args['fromEnum'];
                         }
@@ -109,6 +112,7 @@ class EnumTypeTest extends TestCase
                         if (isset($args['fromName'])) {
                             return $args['fromName'];
                         }
+
                         if (isset($args['fromValue'])) {
                             return $args['fromValue'];
                         }
@@ -124,6 +128,7 @@ class EnumTypeTest extends TestCase
                         if (isset($args['fromInt'])) {
                             return $args['fromInt'];
                         }
+
                         if (isset($args['fromEnum'])) {
                             return $args['fromEnum'];
                         }
@@ -151,6 +156,7 @@ class EnumTypeTest extends TestCase
                             // ComplexEnum allows.
                             return $Complex2;
                         }
+
                         if ($args['provideBadValue'] ?? false) {
                             // Note: similar shape, but not the same *reference*
                             // as Complex2 above. Enum internal values require === equality.
@@ -180,6 +186,7 @@ class EnumTypeTest extends TestCase
                         if ($args['provideOneByReference'] ?? false) {
                             return $Array1;
                         }
+
                         if ($args['provideTwo'] ?? false) {
                             return ['two', 'TWO'];
                         }
@@ -232,7 +239,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('accepts enum literals as input')
      */
-    public function testAcceptsEnumLiteralsAsInput() : void
+    public function testAcceptsEnumLiteralsAsInput(): void
     {
         self::assertEquals(
             ['data' => ['colorInt' => 1]],
@@ -243,7 +250,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('enum may be output type')
      */
-    public function testEnumMayBeOutputType() : void
+    public function testEnumMayBeOutputType(): void
     {
         self::assertEquals(
             ['data' => ['colorEnum' => 'GREEN']],
@@ -254,7 +261,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('enum may be both input and output type')
      */
-    public function testEnumMayBeBothInputAndOutputType() : void
+    public function testEnumMayBeBothInputAndOutputType(): void
     {
         self::assertEquals(
             ['data' => ['colorEnum' => 'GREEN']],
@@ -265,7 +272,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('does not accept string literals')
      */
-    public function testDoesNotAcceptStringLiterals() : void
+    public function testDoesNotAcceptStringLiterals(): void
     {
         $this->expectFailure(
             '{ colorEnum(fromEnum: "GREEN") }',
@@ -302,7 +309,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('does not accept valuesNotInTheEnum')
      */
-    public function testDoesNotAcceptValuesNotInTheEnum() : void
+    public function testDoesNotAcceptValuesNotInTheEnum(): void
     {
         $this->expectFailure(
             '{ colorEnum(fromEnum: GREENISH) }',
@@ -317,7 +324,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('does not accept values with incorrect casing')
      */
-    public function testDoesNotAcceptValuesWithIncorrectCasing() : void
+    public function testDoesNotAcceptValuesWithIncorrectCasing(): void
     {
         $this->expectFailure(
             '{ colorEnum(fromEnum: green) }',
@@ -332,7 +339,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('does not accept incorrect internal value')
      */
-    public function testDoesNotAcceptIncorrectInternalValue() : void
+    public function testDoesNotAcceptIncorrectInternalValue(): void
     {
         $this->expectFailure(
             '{ colorEnum(fromString: "GREEN") }',
@@ -348,7 +355,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('does not accept internal value in place of enum literal')
      */
-    public function testDoesNotAcceptInternalValueInPlaceOfEnumLiteral() : void
+    public function testDoesNotAcceptInternalValueInPlaceOfEnumLiteral(): void
     {
         $this->expectFailure(
             '{ colorEnum(fromEnum: 1) }',
@@ -360,7 +367,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('does not accept enum literal in place of int')
      */
-    public function testDoesNotAcceptEnumLiteralInPlaceOfInt() : void
+    public function testDoesNotAcceptEnumLiteralInPlaceOfInt(): void
     {
         $this->expectFailure(
             '{ colorEnum(fromInt: GREEN) }',
@@ -372,7 +379,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('accepts JSON string as enum variable')
      */
-    public function testAcceptsJSONStringAsEnumVariable() : void
+    public function testAcceptsJSONStringAsEnumVariable(): void
     {
         self::assertEquals(
             ['data' => ['colorEnum' => 'BLUE']],
@@ -389,7 +396,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('accepts enum literals as input arguments to mutations')
      */
-    public function testAcceptsEnumLiteralsAsInputArgumentsToMutations() : void
+    public function testAcceptsEnumLiteralsAsInputArgumentsToMutations(): void
     {
         self::assertEquals(
             ['data' => ['favoriteEnum' => 'GREEN']],
@@ -408,7 +415,7 @@ class EnumTypeTest extends TestCase
      *
      * @todo
      */
-    public function testAcceptsEnumLiteralsAsInputArgumentsToSubscriptions() : void
+    public function testAcceptsEnumLiteralsAsInputArgumentsToSubscriptions(): void
     {
         self::assertEquals(
             ['data' => ['subscribeToEnum' => 'GREEN']],
@@ -425,7 +432,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('does not accept internal value as enum variable')
      */
-    public function testDoesNotAcceptInternalValueAsEnumVariable() : void
+    public function testDoesNotAcceptInternalValueAsEnumVariable(): void
     {
         $this->expectFailure(
             'query test($color: Color!) { colorEnum(fromEnum: $color) }',
@@ -437,7 +444,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('does not accept string variables as enum input')
      */
-    public function testDoesNotAcceptStringVariablesAsEnumInput() : void
+    public function testDoesNotAcceptStringVariablesAsEnumInput(): void
     {
         $this->expectFailure(
             'query test($color: String!) { colorEnum(fromEnum: $color) }',
@@ -449,7 +456,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('does not accept internal value variable as enum input')
      */
-    public function testDoesNotAcceptInternalValueVariableSsEnumInput() : void
+    public function testDoesNotAcceptInternalValueVariableSsEnumInput(): void
     {
         $this->expectFailure(
             'query test($color: Int!) { colorEnum(fromEnum: $color) }',
@@ -461,7 +468,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('enum value may have an internal value of 0')
      */
-    public function testEnumValueMayHaveAnInternalValueOf0() : void
+    public function testEnumValueMayHaveAnInternalValueOf0(): void
     {
         self::assertEquals(
             ['data' => ['colorEnum' => 'RED', 'colorInt' => 0]],
@@ -478,7 +485,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('enum inputs may be nullable')
      */
-    public function testEnumInputsMayBeNullable() : void
+    public function testEnumInputsMayBeNullable(): void
     {
         self::assertEquals(
             ['data' => ['colorEnum' => null, 'colorInt' => null]],
@@ -495,7 +502,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('presents a getValues() API for complex enums')
      */
-    public function testPresentsGetValuesAPIForComplexEnums() : void
+    public function testPresentsGetValuesAPIForComplexEnums(): void
     {
         $ComplexEnum = $this->ComplexEnum;
         $values      = $ComplexEnum->getValues();
@@ -510,7 +517,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('presents a getValue() API for complex enums')
      */
-    public function testPresentsGetValueAPIForComplexEnums() : void
+    public function testPresentsGetValueAPIForComplexEnums(): void
     {
         $oneValue = $this->ComplexEnum->getValue('ONE');
         self::assertEquals('ONE', $oneValue->name);
@@ -523,7 +530,7 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('may be internally represented with complex values')
      */
-    public function testMayBeInternallyRepresentedWithComplexValues() : void
+    public function testMayBeInternallyRepresentedWithComplexValues(): void
     {
         $result = GraphQL::executeQuery(
             $this->schema,
@@ -542,18 +549,19 @@ class EnumTypeTest extends TestCase
                 'good'   => 'TWO',
                 'bad'    => null,
             ],
-            'errors' => [[
-                'debugMessage' =>
+            'errors' => [
+                [
+                    'debugMessage' =>
                     'Expected a value of type "Complex" but received: instance of ArrayObject',
-                'locations'    => [['line' => 5, 'column' => 9]],
-            ],
+                    'locations'    => [['line' => 5, 'column' => 9]],
+                ],
             ],
         ];
 
         self::assertArraySubset($expected, $result);
     }
 
-    public function testMayBeInternallyRepresentedWithArrayValues() : void
+    public function testMayBeInternallyRepresentedWithArrayValues(): void
     {
         $result = GraphQL::executeQuery(
             $this->schema,
@@ -580,13 +588,13 @@ class EnumTypeTest extends TestCase
     /**
      * @see it('can be introspected without error')
      */
-    public function testCanBeIntrospectedWithoutError() : void
+    public function testCanBeIntrospectedWithoutError(): void
     {
         $result = GraphQL::executeQuery($this->schema, Introspection::getIntrospectionQuery())->toArray();
         self::assertArrayNotHasKey('errors', $result);
     }
 
-    public function testAllowsSimpleArrayAsValues() : void
+    public function testAllowsSimpleArrayAsValues(): void
     {
         $q = '{
             first: simpleEnum(fromName: "ONE")
@@ -597,10 +605,11 @@ class EnumTypeTest extends TestCase
         self::assertArraySubset(
             [
                 'data'   => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
-                'errors' => [[
-                    'debugMessage' => 'Expected a value of type "SimpleEnum" but received: WRONG',
-                    'locations'    => [['line' => 4, 'column' => 13]],
-                ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Expected a value of type "SimpleEnum" but received: WRONG',
+                        'locations'    => [['line' => 4, 'column' => 13]],
+                    ],
                 ],
             ],
             GraphQL::executeQuery($this->schema, $q)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)

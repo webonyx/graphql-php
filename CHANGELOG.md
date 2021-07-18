@@ -8,6 +8,107 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
 
 ## Unreleased
+#### Unreleased
+Changed:
+- PHP version required: 7.4+
+
+Feat:
+- Improve extendability of validator rules
+
+Removed:
+- Removed deprecated `Type::getInternalTypes()`
+- Remove deprecated `GraphQL::execute()`
+- Remove deprecated `GraphQL::executeAndReturnResult()`
+
+#### 14.7.0
+
+Feat:
+- Allow providing field definitions as a callable and resolve them lazily
+
+#### 14.6.4
+
+Fix:
+- Avoid crashing in `QueryPlan` when `__typename` is used in the query
+
+#### 14.6.3
+
+Refactoring:
+- Improve performance of subtype checks
+
+#### 14.6.2
+
+Fix:
+- Fix overly eager validation of repeatable directive usage
+
+#### 14.6.1
+asdfasdf
+Fix:
+- Add fallback for `directive.isRepeatable` in `BuildClientSchema`
+
+#### 14.6.0
+
+Feat:
+- Open ReferenceExecutor for extending
+
+Fix:
+- Ensure properties annotated to hold NodeList are not null
+- Validate that directive argument names do not use reserved or duplicate names
+
+#### 14.5.1
+
+Fix:
+- Fix Input Object field shortcut definition with callable (#773)
+
+#### 14.5.0
+
+Feat:
+- Implement support for interfaces implementing interfaces (#740), huge kudos to @Kingdutch
+
+Deprecates:
+- Constant `BreakingChangeFinder::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT`.
+  Use `BreakingChangeFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED` instead.
+  Constant value also changed from `INTERFACE_REMOVED_FROM_OBJECT` to `IMPLEMENTED_INTERFACE_REMOVED`.
+
+- Constant `BreakingChangeFinder::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT`
+  Use `DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED` instead.
+  Constant value also changed from `INTERFACE_ADDED_TO_OBJECT` to `IMPLEMENTED_INTERFACE_ADDED`.
+
+Refactoring:
+- Reify AST node types and remove unneeded nullability (#751)
+
+#### 14.4.1
+
+Fix:
+- Allow pushing nodes to `NodeList` via `[]=` (#767)
+- Fix signature of `Error\FormattedError::prepareFormatter()` to address PHP8 deprecation (#742)
+- Do not add errors key to result when errors discarded by custom error handler (#766)
+
+#### 14.4.0
+
+Fix:
+- Fixed `SchemaPrinter` so that it uses late static bindings when extended
+- Parse `DirectiveDefinitionNode->locations` as `NodeList<NamedNode>` (fixes AST::fromArray conversion) (#723)
+- Parse `Parser::implementsInterfaces` as `NodeList<NamedTypeNode>` (fixes AST::fromArray conversion)
+- Fix signature of `Parser::unionMemberTypes` to match actual `NodeList<NamedTypeNode>`
+
+#### v14.3.0
+
+Feat:
+- Allow `typeLoader` to return a type thunk (#687)
+
+Fix:
+- Read getParsedBody() instead of getBody() when Request is ServerRequest (#715)
+- Fix default get/set behavior on InputObjectField and FieldDefinition (#716)
+
+#### v14.2.0
+
+Deprecates:
+- Public access to `FieldDefinition::$type` property (#702)
+
+Fixes:
+- Fix validation for input field definition directives (#714) 
+
+#### v14.1.1
 
 ## v14.1.1
 
@@ -210,20 +311,20 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 
 New features and notable changes:
 - Changed minimum PHP version from 5.4 to 5.5
-- Lazy loading of types without separate build step (see #69, see [docs](http://webonyx.github.io/graphql-php/type-system/schema/#lazy-loading-of-types))
-- PSR-7 compliant Standard Server (see [docs](http://webonyx.github.io/graphql-php/executing-queries/#using-server))
-- New default error formatting, which does not expose sensitive data (see [docs](http://webonyx.github.io/graphql-php/error-handling/))
-- Ability to define custom error handler to filter/log/re-throw exceptions after execution (see [docs](http://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting))
-- Allow defining schema configuration using objects with fluent setters vs array (see [docs](http://webonyx.github.io/graphql-php/type-system/schema/#using-config-class))
-- Allow serializing AST to array and re-creating AST from array lazily (see [docs](http://webonyx.github.io/graphql-php/reference/#graphqlutilsast))
-- [Apollo-style](https://dev-blog.apollodata.com/query-batching-in-apollo-63acfd859862) query batching support via server (see [docs](http://webonyx.github.io/graphql-php/executing-queries/#query-batching))
-- Schema validation, including validation of interface implementations (see [docs](http://webonyx.github.io/graphql-php/type-system/schema/#schema-validation))
-- Ability to pass custom config formatter when defining schema using [GraphQL type language](http://graphql.org/learn/schema/#type-language) (see [docs](http://webonyx.github.io/graphql-php/type-system/type-language/))
+- Lazy loading of types without separate build step (see #69, see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#lazy-loading-of-types))
+- PSR-7 compliant Standard Server (see [docs](https://webonyx.github.io/graphql-php/executing-queries/#using-server))
+- New default error formatting, which does not expose sensitive data (see [docs](https://webonyx.github.io/graphql-php/error-handling/))
+- Ability to define custom error handler to filter/log/re-throw exceptions after execution (see [docs](https://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting))
+- Allow defining schema configuration using objects with fluent setters vs array (see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#using-config-class))
+- Allow serializing AST to array and re-creating AST from array lazily (see [docs](https://webonyx.github.io/graphql-php/reference/#graphqlutilsast))
+- [Apollo-style](https://dev-blog.apollodata.com/query-batching-in-apollo-63acfd859862) query batching support via server (see [docs](https://webonyx.github.io/graphql-php/executing-queries/#query-batching))
+- Schema validation, including validation of interface implementations (see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#schema-validation))
+- Ability to pass custom config formatter when defining schema using [GraphQL type language](http://graphql.org/learn/schema/#type-language) (see [docs](https://webonyx.github.io/graphql-php/type-system/type-language/))
 
 Improvements:
 - Significantly improved parser performance (see #137 and #128)
 - Support for PHP7 exceptions everywhere (see #127)
-- Improved [documentation](http://webonyx.github.io/graphql-php/) and docblock comments
+- Improved [documentation](https://webonyx.github.io/graphql-php/) and docblock comments
 
 Deprecations and breaking changes - see [UPGRADE](UPGRADE.md) document.
 

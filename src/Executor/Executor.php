@@ -12,6 +12,7 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Schema;
+
 use function is_array;
 use function is_object;
 
@@ -20,7 +21,7 @@ use function is_object;
  */
 class Executor
 {
-    /** @var callable|string[] */
+    /** @var callable */
     private static $defaultFieldResolver = [self::class, 'defaultFieldResolver'];
 
     /** @var PromiseAdapter */
@@ -29,38 +30,39 @@ class Executor
     /** @var callable */
     private static $implementationFactory = [ReferenceExecutor::class, 'create'];
 
-    public static function getDefaultFieldResolver() : callable
+    public static function getDefaultFieldResolver(): callable
     {
         return self::$defaultFieldResolver;
     }
 
     /**
-     * Custom default resolve function.
+     * Set a custom default resolve function.
      */
     public static function setDefaultFieldResolver(callable $fieldResolver)
     {
         self::$defaultFieldResolver = $fieldResolver;
     }
 
-    public static function getPromiseAdapter() : PromiseAdapter
+    public static function getPromiseAdapter(): PromiseAdapter
     {
         return self::$defaultPromiseAdapter ?? (self::$defaultPromiseAdapter = new SyncPromiseAdapter());
     }
 
+    /**
+     * Set a custom default promise adapter.
+     */
     public static function setPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null)
     {
         self::$defaultPromiseAdapter = $defaultPromiseAdapter;
     }
 
-    public static function getImplementationFactory() : callable
+    public static function getImplementationFactory(): callable
     {
         return self::$implementationFactory;
     }
 
     /**
-     * Custom executor implementation factory.
-     *
-     * Will be called with as
+     * Set a custom executor implementation factory.
      */
     public static function setImplementationFactory(callable $implementationFactory)
     {
@@ -70,13 +72,13 @@ class Executor
     /**
      * Executes DocumentNode against given $schema.
      *
-     * Always returns ExecutionResult and never throws. All errors which occur during operation
-     * execution are collected in `$result->errors`.
+     * Always returns ExecutionResult and never throws.
+     * All errors which occur during operation execution are collected in `$result->errors`.
      *
-     * @param mixed|null               $rootValue
-     * @param mixed|null               $contextValue
-     * @param mixed[]|ArrayAccess|null $variableValues
-     * @param string|null              $operationName
+     * @param mixed|null                    $rootValue
+     * @param mixed|null                    $contextValue
+     * @param array<mixed>|ArrayAccess|null $variableValues
+     * @param string|null                   $operationName
      *
      * @return ExecutionResult|Promise
      *
@@ -119,10 +121,10 @@ class Executor
      *
      * Useful for async PHP platforms.
      *
-     * @param mixed|null   $rootValue
-     * @param mixed|null   $contextValue
-     * @param mixed[]|null $variableValues
-     * @param string|null  $operationName
+     * @param mixed|null        $rootValue
+     * @param mixed|null        $contextValue
+     * @param array<mixed>|null $variableValues
+     * @param string|null       $operationName
      *
      * @return Promise
      *
@@ -161,9 +163,9 @@ class Executor
      * and returns it as the result, or if it's a function, returns the result
      * of calling that function while passing along args and context.
      *
-     * @param mixed      $objectValue
-     * @param mixed[]    $args
-     * @param mixed|null $contextValue
+     * @param mixed                $objectValue
+     * @param array<string, mixed> $args
+     * @param mixed|null           $contextValue
      *
      * @return mixed|null
      */

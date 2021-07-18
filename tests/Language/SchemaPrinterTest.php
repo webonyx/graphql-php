@@ -10,6 +10,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use PHPUnit\Framework\TestCase;
 use Throwable;
+
 use function file_get_contents;
 
 class SchemaPrinterTest extends TestCase
@@ -17,7 +18,7 @@ class SchemaPrinterTest extends TestCase
     /**
      * @see it('prints minimal ast')
      */
-    public function testPrintsMinimalAst() : void
+    public function testPrintsMinimalAst(): void
     {
         $ast = new ScalarTypeDefinitionNode([
             'name' => new NameNode(['value' => 'foo']),
@@ -28,7 +29,7 @@ class SchemaPrinterTest extends TestCase
     /**
      * @see it('produces helpful error messages')
      */
-    public function testProducesHelpfulErrorMessages() : void
+    public function testProducesHelpfulErrorMessages(): void
     {
         $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Invalid AST Node: {"random":"Data"}');
@@ -41,7 +42,7 @@ class SchemaPrinterTest extends TestCase
     /**
      * @see it('does not alter ast')
      */
-    public function testDoesNotAlterAst() : void
+    public function testDoesNotAlterAst(): void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
 
@@ -55,7 +56,7 @@ class SchemaPrinterTest extends TestCase
     /**
      * @see it('prints kitchen sink')
      */
-    public function testPrintsKitchenSink() : void
+    public function testPrintsKitchenSink(): void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
 
@@ -71,7 +72,7 @@ class SchemaPrinterTest extends TestCase
 This is a description
 of the `Foo` type.
 """
-type Foo implements Bar & Baz {
+type Foo implements Bar & Baz & Two {
   one: Type
   """
   This is a description of the `two` field.
@@ -112,11 +113,17 @@ interface AnnotatedInterface @onInterface {
 
 interface UndefinedInterface
 
-extend interface Bar {
+extend interface Bar implements Two {
   two(argument: InputType!): Type
 }
 
 extend interface Bar @onInterface
+
+interface Baz implements Bar & Two {
+  one: Type
+  two(argument: InputType!): Type
+  four(argument: String = "string"): String
+}
 
 union Feed = Story | Article | Advert
 

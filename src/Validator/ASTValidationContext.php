@@ -47,7 +47,7 @@ abstract class ASTValidationContext
         return $this->ast;
     }
 
-    public function getSchema() : ?Schema
+    public function getSchema(): ?Schema
     {
         return $this->schema;
     }

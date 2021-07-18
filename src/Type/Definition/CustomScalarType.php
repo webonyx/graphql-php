@@ -8,6 +8,7 @@ use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
+
 use function is_callable;
 use function sprintf;
 
@@ -53,7 +54,7 @@ class CustomScalarType extends ScalarType
         return AST::valueFromASTUntyped($valueNode, $variables);
     }
 
-    public function assertValid()
+    public function assertValid(): void
     {
         parent::assertValid();
 

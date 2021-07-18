@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace GraphQL\Language;
 
 use GraphQL\Utils\Utils;
+
 use function is_string;
 use function json_decode;
 use function mb_strlen;
 use function mb_substr;
 use function preg_match_all;
+
 use const PREG_OFFSET_CAPTURE;
 
 class Source

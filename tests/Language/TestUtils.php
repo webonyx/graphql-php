@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Language;
 use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
+
 use function get_object_vars;
 use function is_array;
 use function is_scalar;
@@ -16,7 +17,7 @@ class TestUtils
     /**
      * @return mixed[]
      */
-    public static function nodeToArray(Node $node) : array
+    public static function nodeToArray(Node $node): array
     {
         $result = [
             'kind' => $node->kind,
@@ -50,7 +51,7 @@ class TestUtils
     /**
      * @return int[]
      */
-    public static function locationToArray(Location $loc) : array
+    public static function locationToArray(Location $loc): array
     {
         return [
             'start' => $loc->start,
@@ -61,7 +62,7 @@ class TestUtils
     /**
      * @return int[]
      */
-    public static function locArray(int $start, int $end) : array
+    public static function locArray(int $start, int $end): array
     {
         return ['start' => $start, 'end' => $end];
     }

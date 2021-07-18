@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 class SchemaTest extends TestCase
@@ -33,7 +36,7 @@ class SchemaTest extends TestCase
     /** @var Schema */
     private $schema;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->interfaceType = new InterfaceType([
             'name'   => 'Interface',
@@ -46,7 +49,7 @@ class SchemaTest extends TestCase
             'fields'     => [
                 'fieldName' => [
                     'type'    => Type::string(),
-                    'resolve' => static function () : string {
+                    'resolve' => static function (): string {
                         return '';
                     },
                 ],
@@ -90,7 +93,7 @@ class SchemaTest extends TestCase
                 'fields' => [
                     'getObject' => [
                         'type'    => $this->interfaceType,
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return [];
                         },
                     ],
@@ -106,7 +109,7 @@ class SchemaTest extends TestCase
     /**
      * @see it('throws human-reable error if schema.types is not defined')
      */
-    public function testThrowsHumanReableErrorIfSchemaTypesIsNotDefined() : void
+    public function testThrowsHumanReableErrorIfSchemaTypesIsNotDefined(): void
     {
         self::markTestSkipped("Can't check interface implementations without full schema scan");
 
@@ -124,10 +127,32 @@ class SchemaTest extends TestCase
     /**
      * @see it('includes input types only used in directives')
      */
-    public function testIncludesInputTypesOnlyUsedInDirectives() : void
+    public function testIncludesInputTypesOnlyUsedInDirectives(): void
     {
         $typeMap = $this->schema->getTypeMap();
         self::assertArrayHasKey('DirInput', $typeMap);
         self::assertArrayHasKey('WrappedDirInput', $typeMap);
+    }
+
+    // Sub Type
+
+    /**
+     * @see it('validates argument to isSubType to be of the correct type')
+     */
+    public function testThrowsInvalidArgumentExceptionWhenInvalidTypeIsPassedToIsSubType(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $anonymousAbstractType = new class implements AbstractType {
+            public function resolveType($objectValue, $context, ResolveInfo $info)
+            {
+                return null;
+            }
+        };
+
+        $this->schema->isSubType(
+            $anonymousAbstractType,
+            new InterfaceType(['name' => 'Interface'])
+        );
     }
 }

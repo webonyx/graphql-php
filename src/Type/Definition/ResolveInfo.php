@@ -11,6 +11,7 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Schema;
+
 use function array_merge_recursive;
 
 /**
@@ -205,7 +206,7 @@ class ResolveInfo
     /**
      * @param mixed[] $options
      */
-    public function lookAhead(array $options = []) : QueryPlan
+    public function lookAhead(array $options = []): QueryPlan
     {
         if (! isset($this->queryPlan)) {
             $this->queryPlan = new QueryPlan(
@@ -224,7 +225,7 @@ class ResolveInfo
     /**
      * @return bool[]
      */
-    private function foldSelectionSet(SelectionSetNode $selectionSet, int $descend) : array
+    private function foldSelectionSet(SelectionSetNode $selectionSet, int $descend): array
     {
         $fields = [];
         foreach ($selectionSet->selections as $selectionNode) {

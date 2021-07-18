@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
+
 use function array_keys;
 use function array_merge;
 use function arsort;
@@ -24,7 +25,7 @@ class FieldsOnCorrectType extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::FIELD => function (FieldNode $node) use ($context) : void {
+            NodeKind::FIELD => function (FieldNode $node) use ($context): void {
                 $type = $context->getParentType();
                 if (! $type) {
                     return;
@@ -78,24 +79,24 @@ class FieldsOnCorrectType extends ValidationRule
      *
      * @return string[]
      */
-    private function getSuggestedTypeNames(Schema $schema, $type, $fieldName)
+    protected function getSuggestedTypeNames(Schema $schema, $type, $fieldName)
     {
         if (Type::isAbstractType($type)) {
             $suggestedObjectTypes = [];
             $interfaceUsageCount  = [];
 
             foreach ($schema->getPossibleTypes($type) as $possibleType) {
-                $fields = $possibleType->getFields();
-                if (! isset($fields[$fieldName])) {
+                if (! $possibleType->hasField($fieldName)) {
                     continue;
                 }
+
                 // This object type defines this field.
                 $suggestedObjectTypes[] = $possibleType->name;
                 foreach ($possibleType->getInterfaces() as $possibleInterface) {
-                    $fields = $possibleInterface->getFields();
-                    if (! isset($fields[$fieldName])) {
+                    if (! $possibleInterface->hasField($fieldName)) {
                         continue;
                     }
+
                     // This interface type defines this field.
                     $interfaceUsageCount[$possibleInterface->name] =
                         ! isset($interfaceUsageCount[$possibleInterface->name])
@@ -125,10 +126,10 @@ class FieldsOnCorrectType extends ValidationRule
      *
      * @return array|string[]
      */
-    private function getSuggestedFieldNames(Schema $schema, $type, $fieldName)
+    protected function getSuggestedFieldNames(Schema $schema, $type, $fieldName)
     {
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
-            $possibleFieldNames = array_keys($type->getFields());
+            $possibleFieldNames = $type->getFieldNames();
 
             return Utils::suggestionList($fieldName, $possibleFieldNames);
         }

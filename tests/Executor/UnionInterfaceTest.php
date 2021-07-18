@@ -37,7 +37,7 @@ class UnionInterfaceTest extends TestCase
     /** @var Person */
     public $john;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $NamedType = new InterfaceType([
             'name'   => 'Named',
@@ -46,26 +46,57 @@ class UnionInterfaceTest extends TestCase
             ],
         ]);
 
+        $LifeType = new InterfaceType([
+            'name'   => 'Life',
+            'fields' => static function () use (&$LifeType): array {
+                return [
+                    'progeny' => ['type' => Type::listOf($LifeType)],
+                ];
+            },
+        ]);
+
+        $MammalType = new InterfaceType([
+            'name'       => 'Mammal',
+            'interfaces' => [$LifeType],
+            'fields'     => static function () use (&$MammalType): array {
+                return [
+                    'progeny' => ['type' => Type::listOf($MammalType)],
+                    'mother'  => ['type' => &$MammalType],
+                    'father'  => ['type' => &$MammalType],
+                ];
+            },
+        ]);
+
         $DogType = new ObjectType([
             'name'       => 'Dog',
-            'interfaces' => [$NamedType],
-            'fields'     => [
-                'name'  => ['type' => Type::string()],
-                'woofs' => ['type' => Type::boolean()],
-            ],
-            'isTypeOf'   => static function ($value) : bool {
+            'interfaces' => [$MammalType, $LifeType, $NamedType],
+            'fields'     => static function () use (&$DogType): array {
+                return [
+                    'name' => ['type' => Type::string()],
+                    'woofs' => ['type' => Type::boolean()],
+                    'progeny' => ['type' => Type::listOf($DogType)],
+                    'mother' => ['type' => &$DogType],
+                    'father' => ['type' => &$DogType],
+                ];
+            },
+            'isTypeOf'   => static function ($value): bool {
                 return $value instanceof Dog;
             },
         ]);
 
         $CatType = new ObjectType([
             'name'       => 'Cat',
-            'interfaces' => [$NamedType],
-            'fields'     => [
-                'name'  => ['type' => Type::string()],
-                'meows' => ['type' => Type::boolean()],
-            ],
-            'isTypeOf'   => static function ($value) : bool {
+            'interfaces' => [$MammalType, $LifeType, $NamedType],
+            'fields'     => static function () use (&$CatType): array {
+                return [
+                    'name'    => ['type' => Type::string()],
+                    'meows'   => ['type' => Type::boolean()],
+                    'progeny' => ['type' => Type::listOf($CatType)],
+                    'mother'  => ['type' => &$CatType],
+                    'father'  => ['type' => &$CatType],
+                ];
+            },
+            'isTypeOf'   => static function ($value): bool {
                 return $value instanceof Cat;
             },
         ]);
@@ -73,10 +104,11 @@ class UnionInterfaceTest extends TestCase
         $PetType = new UnionType([
             'name'        => 'Pet',
             'types'       => [$DogType, $CatType],
-            'resolveType' => static function ($value) use ($DogType, $CatType) : ObjectType {
+            'resolveType' => static function ($value) use ($DogType, $CatType): ObjectType {
                 if ($value instanceof Dog) {
                     return $DogType;
                 }
+
                 if ($value instanceof Cat) {
                     return $CatType;
                 }
@@ -87,13 +119,18 @@ class UnionInterfaceTest extends TestCase
 
         $PersonType = new ObjectType([
             'name'       => 'Person',
-            'interfaces' => [$NamedType],
-            'fields'     => [
-                'name'    => ['type' => Type::string()],
-                'pets'    => ['type' => Type::listOf($PetType)],
-                'friends' => ['type' => Type::listOf($NamedType)],
-            ],
-            'isTypeOf'   => static function ($value) : bool {
+            'interfaces' => [$NamedType, $MammalType, $LifeType],
+            'fields'     => static function () use (&$PetType, &$NamedType, &$PersonType): array {
+                return [
+                    'name'    => ['type' => Type::string()],
+                    'pets'    => ['type' => Type::listOf($PetType)],
+                    'friends' => ['type' => Type::listOf($NamedType)],
+                    'progeny' => ['type' => Type::listOf($PersonType)],
+                    'mother'  => ['type' => $PersonType],
+                    'father'  => ['type' => $PersonType],
+                ];
+            },
+            'isTypeOf'   => static function ($value): bool {
                 return $value instanceof Person;
             },
         ]);
@@ -103,10 +140,16 @@ class UnionInterfaceTest extends TestCase
             'types' => [$PetType],
         ]);
 
-        $this->garfield = new Cat('Garfield', false);
-        $this->odie     = new Dog('Odie', true);
-        $this->liz      = new Person('Liz');
-        $this->john     = new Person('John', [$this->garfield, $this->odie], [$this->liz, $this->odie]);
+        $this->garfield                  = new Cat('Garfield', false);
+        $this->garfield->mother          = new Cat("Garfield's Mom", false);
+        $this->garfield->mother->progeny = [$this->garfield];
+
+        $this->odie                  = new Dog('Odie', true);
+        $this->odie->mother          = new Dog("Odie's Mom", true);
+        $this->odie->mother->progeny = [$this->odie];
+
+        $this->liz  = new Person('Liz');
+        $this->john = new Person('John', [$this->garfield, $this->odie], [$this->liz, $this->odie]);
     }
 
     // Execute: Union and intersection types
@@ -114,11 +157,20 @@ class UnionInterfaceTest extends TestCase
     /**
      * @see it('can introspect on union and intersection types')
      */
-    public function testCanIntrospectOnUnionAndIntersectionTypes() : void
+    public function testCanIntrospectOnUnionAndIntersectionTypes(): void
     {
         $ast = Parser::parse('
       {
         Named: __type(name: "Named") {
+          kind
+          name
+          fields { name }
+          interfaces { name }
+          possibleTypes { name }
+          enumValues { name }
+          inputFields { name }
+        }
+        Mammal: __type(name: "Mammal") {
           kind
           name
           fields { name }
@@ -147,7 +199,26 @@ class UnionInterfaceTest extends TestCase
                     'fields'        => [
                         ['name' => 'name'],
                     ],
-                    'interfaces'    => null,
+                    'interfaces'    => [],
+                    'possibleTypes' => [
+                        ['name' => 'Person'],
+                        ['name' => 'Dog'],
+                        ['name' => 'Cat'],
+                    ],
+                    'enumValues'    => null,
+                    'inputFields'   => null,
+                ],
+                'Mammal' => [
+                    'kind'          => 'INTERFACE',
+                    'name'          => 'Mammal',
+                    'fields'        => [
+                        ['name' => 'progeny'],
+                        ['name' => 'mother'],
+                        ['name' => 'father'],
+                    ],
+                    'interfaces'    => [
+                        ['name' => 'Life'],
+                    ],
                     'possibleTypes' => [
                         ['name' => 'Person'],
                         ['name' => 'Dog'],
@@ -176,7 +247,7 @@ class UnionInterfaceTest extends TestCase
     /**
      * @see it('executes using union types')
      */
-    public function testExecutesUsingUnionTypes() : void
+    public function testExecutesUsingUnionTypes(): void
     {
         // NOTE: This is an *invalid* query, but it should be an *executable* query.
         $ast      = Parser::parse('
@@ -196,8 +267,16 @@ class UnionInterfaceTest extends TestCase
                 '__typename' => 'Person',
                 'name'       => 'John',
                 'pets'       => [
-                    ['__typename' => 'Cat', 'name' => 'Garfield', 'meows' => false],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true],
+                    [
+                        '__typename' => 'Cat',
+                        'name'       => 'Garfield',
+                        'meows'      => false,
+                    ],
+                    [
+                        '__typename' => 'Dog',
+                        'name'       => 'Odie',
+                        'woofs'      => true,
+                    ],
                 ],
             ],
         ];
@@ -208,7 +287,7 @@ class UnionInterfaceTest extends TestCase
     /**
      * @see it('executes union types with inline fragments')
      */
-    public function testExecutesUnionTypesWithInlineFragments() : void
+    public function testExecutesUnionTypesWithInlineFragments(): void
     {
         // This is the valid version of the query in the above test.
         $ast      = Parser::parse('
@@ -233,8 +312,16 @@ class UnionInterfaceTest extends TestCase
                 '__typename' => 'Person',
                 'name'       => 'John',
                 'pets'       => [
-                    ['__typename' => 'Cat', 'name' => 'Garfield', 'meows' => false],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true],
+                    [
+                        '__typename' => 'Cat',
+                        'name'       => 'Garfield',
+                        'meows'      => false,
+                    ],
+                    [
+                        '__typename' => 'Dog',
+                        'name'       => 'Odie',
+                        'woofs'      => true,
+                    ],
                 ],
 
             ],
@@ -245,7 +332,7 @@ class UnionInterfaceTest extends TestCase
     /**
      * @see it('executes using interface types')
      */
-    public function testExecutesUsingInterfaceTypes() : void
+    public function testExecutesUsingInterfaceTypes(): void
     {
         // NOTE: This is an *invalid* query, but it should be an *executable* query.
         $ast      = Parser::parse('
@@ -277,7 +364,7 @@ class UnionInterfaceTest extends TestCase
     /**
      * @see it('executes interface types with inline fragments')
      */
-    public function testExecutesInterfaceTypesWithInlineFragments() : void
+    public function testExecutesInterfaceTypesWithInlineFragments(): void
     {
         // This is the valid version of the query in the above test.
         $ast      = Parser::parse('
@@ -293,6 +380,20 @@ class UnionInterfaceTest extends TestCase
           ... on Cat {
             meows
           }
+          
+          ... on Mammal {
+            mother {
+              __typename
+              ... on Dog {
+                name
+                woofs
+              }
+              ... on Cat {
+                name
+                meows
+              }
+            }
+          }
         }
       }
         ');
@@ -301,8 +402,21 @@ class UnionInterfaceTest extends TestCase
                 '__typename' => 'Person',
                 'name'       => 'John',
                 'friends'    => [
-                    ['__typename' => 'Person', 'name' => 'Liz'],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true],
+                    [
+                        '__typename' => 'Person',
+                        'name'       => 'Liz',
+                        'mother'     => null,
+                    ],
+                    [
+                        '__typename' => 'Dog',
+                        'name'       => 'Odie',
+                        'woofs'      => true,
+                        'mother'     => [
+                            '__typename' => 'Dog',
+                            'name'       => "Odie's Mom",
+                            'woofs'      => true,
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -313,13 +427,20 @@ class UnionInterfaceTest extends TestCase
     /**
      * @see it('allows fragment conditions to be abstract types')
      */
-    public function testAllowsFragmentConditionsToBeAbstractTypes() : void
+    public function testAllowsFragmentConditionsToBeAbstractTypes(): void
     {
         $ast = Parser::parse('
       {
         __typename
         name
-        pets { ...PetFields }
+        pets {
+          ...PetFields,
+          ...on Mammal {
+            mother {
+              ...ProgenyFields
+            }
+          }
+        }
         friends { ...FriendFields }
       }
 
@@ -345,6 +466,12 @@ class UnionInterfaceTest extends TestCase
           meows
         }
       }
+      
+      fragment ProgenyFields on Life {
+        progeny {
+          __typename
+        }
+      }
     ');
 
         $expected = [
@@ -352,12 +479,37 @@ class UnionInterfaceTest extends TestCase
                 '__typename' => 'Person',
                 'name'       => 'John',
                 'pets'       => [
-                    ['__typename' => 'Cat', 'name' => 'Garfield', 'meows' => false],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true],
+                    [
+                        '__typename' => 'Cat',
+                        'name'       => 'Garfield',
+                        'meows'      => false,
+                        'mother'     => [
+                            'progeny' => [
+                                ['__typename' => 'Cat'],
+                            ],
+                        ],
+                    ],
+                    [
+                        '__typename' => 'Dog',
+                        'name' => 'Odie',
+                        'woofs' => true,
+                        'mother'     => [
+                            'progeny' => [
+                                ['__typename' => 'Dog'],
+                            ],
+                        ],
+                    ],
                 ],
                 'friends'    => [
-                    ['__typename' => 'Person', 'name' => 'Liz'],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true],
+                    [
+                        '__typename' => 'Person',
+                        'name' => 'Liz',
+                    ],
+                    [
+                        '__typename' => 'Dog',
+                        'name' => 'Odie',
+                        'woofs' => true,
+                    ],
                 ],
             ],
         ];
@@ -368,7 +520,7 @@ class UnionInterfaceTest extends TestCase
     /**
      * @see it('gets execution info in resolver')
      */
-    public function testGetsExecutionInfoInResolver() : void
+    public function testGetsExecutionInfoInResolver(): void
     {
         $encounteredContext   = null;
         $encounteredSchema    = null;

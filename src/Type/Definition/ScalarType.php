@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Utils\Utils;
+
 use function is_string;
 
 /**
@@ -43,7 +44,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
         $this->name              = $config['name'] ?? $this->tryInferName();
         $this->description       = $config['description'] ?? $this->description;
         $this->astNode           = $config['astNode'] ?? null;
-        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
         $this->config            = $config;
 
         Utils::invariant(is_string($this->name), 'Must provide name.');
