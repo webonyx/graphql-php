@@ -20,7 +20,6 @@ use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
-use function array_merge_recursive;
 use function array_unique;
 use function array_values;
 use function count;
@@ -138,7 +137,7 @@ class QueryPlan
                 array_keys($subfields)
             ));
 
-            $queryPlan = array_merge_recursive(
+            $queryPlan = $this->arrayMergeDeep(
                 $queryPlan,
                 $subfields
             );
