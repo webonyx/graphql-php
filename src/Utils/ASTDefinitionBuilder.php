@@ -88,7 +88,7 @@ class ASTDefinitionBuilder
         return new Directive([
             'name'         => $directiveNode->name->value,
             'description'  => $this->getDescription($directiveNode),
-            'args'         =>  FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)),
+            'args'         => FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)),
             'isRepeatable' => $directiveNode->repeatable,
             'locations'    => $locations,
             'astNode'      => $directiveNode,
