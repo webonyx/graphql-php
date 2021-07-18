@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\EnumType;
@@ -227,27 +226,22 @@ class Value
     }
 
     /**
-     * @param string                   $message
-     * @param Node                     $blameNode
-     * @param mixed[]|null             $path
-     * @param Exception|Throwable|null $originalError
-     *
-     * @return Error
+     * @param array<mixed>|null $path
      */
     private static function coercionError(
-        $message,
-        $blameNode,
+        string $message,
+        ?Node $blameNode,
         ?array $path = null,
         ?string $subMessage = null,
-        $originalError = null
-    ) {
+        ?Throwable $originalError = null
+    ): Error {
         $pathStr = self::printPath($path);
 
         $fullMessage = $message
             . ($pathStr === ''
                 ? ''
                 : ' at ' . $pathStr)
-            . ($subMessage === ''
+            . ($subMessage === null || $subMessage === ''
                 ? '.'
                 : '; ' . $subMessage);
 
