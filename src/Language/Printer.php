@@ -459,10 +459,6 @@ class Printer
 
     protected function printList(NodeList $list, $separator = ''): string
     {
-        if ($list === null) {
-            return '';
-        }
-
         $parts = [];
         foreach ($list as $item) {
             $parts[] = $this->p($item);
