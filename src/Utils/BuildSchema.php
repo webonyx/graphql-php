@@ -22,7 +22,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 
-use function array_map;
 use function sprintf;
 
 /**
@@ -153,12 +152,10 @@ class BuildSchema
             $this->typeConfigDecorator
         );
 
-        $directives = array_map(
-            static function (DirectiveDefinitionNode $def) use ($DefinitionBuilder): Directive {
-                return $DefinitionBuilder->buildDirective($def);
-            },
-            $directiveDefs
-        );
+        $directives = [];
+        foreach ($directiveDefs as $def) {
+            $directives[] = $DefinitionBuilder->buildDirective($def);
+        }
 
         // If specified directives were not explicitly declared, add them.
         $directivesByName = Utils::groupBy(

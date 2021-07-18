@@ -17,6 +17,9 @@ You can find and compare releases at the [GitHub release page](https://github.co
 ### Added
 - Improve extendability of validator rules
 
+### Optimized
+- Use `foreach` over slower functions `array_map()` and `Utils::map()`
+
 ### Fixed
 - Avoid QueryPlan crash when multiple $fieldNodes are present
 - Clarify error when attempting to coerce anything but `array` or `stdClass` to an input object

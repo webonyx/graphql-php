@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Validation;
 
-use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\SchemaValidationContext;
 
-use function array_map;
 use function array_pop;
 use function array_slice;
 use function count;
@@ -77,22 +75,21 @@ class InputObjectCircularRefs
                     } else {
                         $cycleIndex = $this->fieldPathIndexByTypeName[$fieldType->name];
                         $cyclePath  = array_slice($this->fieldPath, $cycleIndex);
-                        $fieldNames = array_map(
-                            static function (InputObjectField $field): string {
-                                return $field->name;
-                            },
-                            $cyclePath
-                        );
+
+                        $fieldNames = [];
+                        foreach ($cyclePath as $cycleField) {
+                            $fieldNames[] = $cycleField->name;
+                        }
+
+                        $fieldNodes = [];
+                        foreach ($cyclePath as $cycleField) {
+                            $fieldNodes[] = $cycleField->astNode;
+                        }
 
                         $this->schemaValidationContext->reportError(
                             'Cannot reference Input Object "' . $fieldType->name . '" within itself '
                             . 'through a series of non-null fields: "' . implode('.', $fieldNames) . '".',
-                            array_map(
-                                static function (InputObjectField $field): ?InputValueDefinitionNode {
-                                    return $field->astNode;
-                                },
-                                $cyclePath
-                            )
+                            $fieldNodes
                         );
                     }
                 }

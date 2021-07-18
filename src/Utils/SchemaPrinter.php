@@ -24,7 +24,6 @@ use GraphQL\Type\Schema;
 use function array_filter;
 use function array_keys;
 use function array_map;
-use function array_merge;
 use function array_values;
 use function count;
 use function explode;
@@ -78,29 +77,17 @@ class SchemaPrinter
         ksort($types);
         $types = array_filter($types, $typeFilter);
 
-        return sprintf(
-            "%s\n",
-            implode(
-                "\n\n",
-                array_filter(
-                    array_merge(
-                        [static::printSchemaDefinition($schema)],
-                        array_map(
-                            static function (Directive $directive) use ($options): string {
-                                return static::printDirective($directive, $options);
-                            },
-                            $directives
-                        ),
-                        array_map(
-                            static function ($type) use ($options): string {
-                                return static::printType($type, $options);
-                            },
-                            $types
-                        )
-                    )
-                )
-            )
-        );
+        $elements = [static::printSchemaDefinition($schema)];
+
+        foreach ($directives as $directive) {
+            $elements[] = static::printDirective($directive, $options);
+        }
+
+        foreach ($types as $type) {
+            $elements[] = static::printType($type, $options);
+        }
+
+        return implode("\n\n", array_filter($elements)) . "\n";
     }
 
     protected static function printSchemaDefinition(Schema $schema): string

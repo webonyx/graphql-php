@@ -27,7 +27,6 @@ use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\TypeKind;
 
 use function array_key_exists;
-use function array_map;
 use function array_merge;
 use function json_encode;
 
@@ -127,12 +126,12 @@ class BuildClientSchema
             ? $this->getObjectType($schemaIntrospection['subscriptionType'])
             : null;
 
-        $directives = isset($schemaIntrospection['directives'])
-            ? array_map(
-                [$this, 'buildDirective'],
-                $schemaIntrospection['directives']
-            )
-            : [];
+        $directives = [];
+        if (isset($schemaIntrospection['directives'])) {
+            foreach ($schemaIntrospection['directives'] as $directive) {
+                $directives[] = $this->buildDirective($directive);
+            }
+        }
 
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setQuery($queryType)
@@ -310,7 +309,12 @@ class BuildClientSchema
             throw new InvariantViolation('Introspection result missing interfaces: ' . json_encode($implementingIntrospection) . '.');
         }
 
-        return array_map([$this, 'getInterfaceType'], $implementingIntrospection['interfaces']);
+        $interfaces = [];
+        foreach ($implementingIntrospection['interfaces'] as $interface) {
+            $interfaces[] = $this->getInterfaceType($interface);
+        }
+
+        return $interfaces;
     }
 
     /**
@@ -360,10 +364,12 @@ class BuildClientSchema
             'name' => $union['name'],
             'description' => $union['description'],
             'types' => function () use ($union): array {
-                return array_map(
-                    [$this, 'getObjectType'],
-                    $union['possibleTypes']
-                );
+                $types = [];
+                foreach ($union['possibleTypes'] as $possibleType) {
+                    $types[] = $this->getObjectType($possibleType);
+                }
+
+                return $types;
             },
         ]);
     }

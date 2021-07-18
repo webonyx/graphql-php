@@ -182,7 +182,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         );
     }
 
-    public function isLocated(): bool
+    protected function isLocated(): bool
     {
         return $this->path !== null
             && count($this->path) > 0

@@ -11,7 +11,6 @@ use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
-use function array_map;
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -148,10 +147,14 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
                 );
             }
 
-            /** @var InterfaceType[] $interfaces */
-            $interfaces = array_map([Schema::class, 'resolveType'], $interfaces ?? []);
-
-            $this->interfaces = $interfaces;
+            $this->interfaces = [];
+            if (is_array($interfaces)) {
+                foreach ($interfaces as $interface) {
+                    /** @var InterfaceType $interfaceType Ensured to be true during schema validation */
+                    $interfaceType      = Schema::resolveType($interface);
+                    $this->interfaces[] = $interfaceType;
+                }
+            }
         }
 
         return $this->interfaces;

@@ -37,7 +37,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 
 use function array_keys;
-use function array_map;
 use function array_merge;
 use function count;
 
@@ -262,9 +261,10 @@ class SchemaExtender
      */
     protected static function extendPossibleTypes(UnionType $type): array
     {
-        $possibleTypes = array_map(static function ($type) {
-            return static::extendNamedType($type);
-        }, $type->getTypes());
+        $possibleTypes = [];
+        foreach ($type->getTypes() as $possibleType) {
+            $possibleTypes[] = static::extendNamedType($possibleType);
+        }
 
         $extensions = static::$typeExtensionsMap[$type->name] ?? null;
         if ($extensions !== null) {
@@ -285,9 +285,10 @@ class SchemaExtender
      */
     protected static function extendImplementedInterfaces(ImplementingType $type): array
     {
-        $interfaces = array_map(static function (InterfaceType $interfaceType) {
-            return static::extendNamedType($interfaceType);
-        }, $type->getInterfaces());
+        $interfaces = [];
+        foreach ($type->getInterfaces() as $interfaceType) {
+            $interfaces[] = static::extendNamedType($interfaceType);
+        }
 
         $extensions = static::$typeExtensionsMap[$type->name] ?? null;
         if ($extensions !== null) {
@@ -478,18 +479,18 @@ class SchemaExtender
      */
     protected static function getMergedDirectives(Schema $schema, array $directiveDefinitions): array
     {
-        $existingDirectives = array_map(static function (Directive $directive): Directive {
-            return static::extendDirective($directive);
-        }, $schema->getDirectives());
+        $directives = [];
+        foreach ($schema->getDirectives() as $directive) {
+            $directives[] = static::extendDirective($directive);
+        }
 
-        Utils::invariant(count($existingDirectives) > 0, 'schema must have default directives');
+        Utils::invariant(count($directives) > 0, 'schema must have default directives');
 
-        return array_merge(
-            $existingDirectives,
-            array_map(static function (DirectiveDefinitionNode $directive): Directive {
-                return static::$astBuilder->buildDirective($directive);
-            }, $directiveDefinitions)
-        );
+        foreach ($directiveDefinitions as $directive) {
+            $directives[] = static::$astBuilder->buildDirective($directive);
+        }
+
+        return $directives;
     }
 
     protected static function extendDirective(Directive $directive): Directive
@@ -634,17 +635,17 @@ class SchemaExtender
 
         $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
 
-        $types = array_merge(
-            // Iterate through all types, getting the type definition for each, ensuring
-            // that any type not directly referenced by a field will get created.
-            array_map(static function (Type $type): Type {
-                return static::extendNamedType($type);
-            }, $schema->getTypeMap()),
-            // Do the same with new types.
-            array_map(static function (TypeDefinitionNode $type): Type {
-                return static::$astBuilder->buildType($type);
-            }, $typeDefinitionMap)
-        );
+        $types = [];
+        // Iterate through all types, getting the type definition for each, ensuring
+        // that any type not directly referenced by a field will get created.
+        foreach ($schema->getTypeMap() as $type) {
+            $types[] = static::extendNamedType($type);
+        }
+
+        // Do the same with new types.
+        foreach ($typeDefinitionMap as $type) {
+            $types[] = static::$astBuilder->buildType($type);
+        }
 
         return new Schema([
             'query' => $operationTypes['query'],

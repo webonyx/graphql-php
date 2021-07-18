@@ -311,26 +311,25 @@ class FormattedError
             array_shift($trace);
         }
 
-        return array_map(
-            static function ($err): array {
-                $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
+        $safeErrors = [];
+        foreach ($trace as $key => $err) {
+            $safeError = array_intersect_key($err, ['file' => true, 'line' => true]);
+            if (isset($err['function'])) {
+                $func    = $err['function'];
+                $args    = array_map([self::class, 'printVar'], $err['args'] ?? []);
+                $funcStr = $func . '(' . implode(', ', $args) . ')';
 
-                if (isset($err['function'])) {
-                    $func    = $err['function'];
-                    $args    = array_map([self::class, 'printVar'], $err['args'] ?? []);
-                    $funcStr = $func . '(' . implode(', ', $args) . ')';
-
-                    if (isset($err['class'])) {
-                        $safeErr['call'] = $err['class'] . '::' . $funcStr;
-                    } else {
-                        $safeErr['function'] = $funcStr;
-                    }
+                if (isset($err['class'])) {
+                    $safeError['call'] = $err['class'] . '::' . $funcStr;
+                } else {
+                    $safeError['function'] = $funcStr;
                 }
+            }
 
-                return $safeErr;
-            },
-            $trace
-        );
+            $safeErrors[$key] = $safeError;
+        }
+
+        return $safeErrors;
     }
 
     /**
@@ -393,12 +392,12 @@ class FormattedError
         $formatted = ['message' => $error];
 
         if (count($locations) > 0) {
-            $formatted['locations'] = array_map(
-                static function ($loc): array {
-                    return $loc->toArray();
-                },
-                $locations
-            );
+            $formattedLocations = [];
+            foreach ($locations as $key => $loc) {
+                $formattedLocations[$key] = $loc->toArray();
+            }
+
+            $formatted['locations'] = $formattedLocations;
         }
 
         return $formatted;
