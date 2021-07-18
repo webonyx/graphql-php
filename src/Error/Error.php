@@ -65,30 +65,30 @@ class Error extends Exception implements JsonSerializable, ClientAware
      */
     private ?Source $source;
 
-    /** @var array<int, int> */
-    private array $positions;
+    /** @var array<int, int>|null */
+    private ?array $positions;
 
     private bool $isClientSafe;
 
     protected string $category;
 
-    /** @var array<string, mixed> */
-    protected array $extensions;
+    /** @var array<string, mixed>|null */
+    protected ?array $extensions;
 
     /**
      * @param iterable<Node>|Node|null    $nodes
-     * @param array<int, int>             $positions
+     * @param array<int, int>|null        $positions
      * @param array<int, int|string>|null $path
-     * @param array<string, mixed>        $extensions
+     * @param array<string, mixed>|null   $extensions
      */
     public function __construct(
         string $message = '',
         $nodes = null,
         ?Source $source = null,
-        array $positions = [],
-        ?array $path = [],
+        ?array $positions = null,
+        ?array $path = null,
         ?Throwable $previous = null,
-        array $extensions = []
+        ?array $extensions = null
     ) {
         parent::__construct($message, 0, $previous);
 
@@ -103,7 +103,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         $this->source     = $source;
         $this->positions  = $positions;
         $this->path       = $path;
-        $this->extensions = count($extensions) > 0
+        $this->extensions = is_array($extensions) && count($extensions) > 0
             ? $extensions
             : ($previous instanceof self
                 ? $previous->extensions
@@ -167,8 +167,12 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $message = (string) $error;
         }
 
+        $nonEmptyMessage = $message === '' || $message === null
+            ? 'An unknown error occurred.'
+            : $message;
+
         return new static(
-            $message === '' || $message === null ? 'An unknown error occurred.' : $message,
+            $nonEmptyMessage,
             $nodes,
             $source,
             $positions,
@@ -206,13 +210,9 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
     public function getSource(): ?Source
     {
-        if (! isset($this->source)) {
-            if (isset($this->nodes[0]->loc)) {
-                $this->source = $this->nodes[0]->loc->source;
-            }
-        }
-
-        return $this->source;
+        return $this->source
+            ??= $this->nodes[0]->loc->source
+            ?? null;
     }
 
     /**
@@ -220,13 +220,18 @@ class Error extends Exception implements JsonSerializable, ClientAware
      */
     public function getPositions(): array
     {
-        if (! isset($this->positions) && $this->nodes !== null && count($this->positions) === 0 && count($this->nodes ?? []) > 0) {
-            foreach ($this->nodes as $node) {
-                if (! isset($node->loc)) {
-                    continue;
-                }
+        if (! isset($this->positions)) {
+            $this->positions = [];
 
-                $this->positions[] = $node->loc->start;
+            if (isset($this->nodes)) {
+                foreach ($this->nodes as $node) {
+                    $start = $node->loc->start ?? null;
+                    if ($start === null) {
+                        continue;
+                    }
+
+                    $this->positions[] = $start;
+                }
             }
         }
 
@@ -296,9 +301,9 @@ class Error extends Exception implements JsonSerializable, ClientAware
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    public function getExtensions(): array
+    public function getExtensions(): ?array
     {
         return $this->extensions;
     }
@@ -331,7 +336,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $arr['path'] = $this->path;
         }
 
-        if (count($this->extensions) > 0) {
+        if (isset($this->extensions) && count($this->extensions) > 0) {
             $arr['extensions'] = $this->extensions;
         }
 
@@ -343,15 +348,15 @@ class Error extends Exception implements JsonSerializable, ClientAware
      *
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
      *
-     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * @return array<string, mixed> data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
-        return $this->toSerializableArray();
+        return FormattedError::createFromException($this);
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return FormattedError::printError($this);
     }

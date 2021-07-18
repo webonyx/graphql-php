@@ -200,8 +200,9 @@ class FormattedError
                 $formattedError['path'] = $exception->path;
             }
 
-            if (count($exception->getExtensions()) > 0) {
-                $formattedError['extensions'] = $exception->getExtensions() + $formattedError['extensions'];
+            $extensions = $exception->getExtensions();
+            if (is_array($extensions)) {
+                $formattedError['extensions'] = $extensions + $formattedError['extensions'];
             }
         }
 
