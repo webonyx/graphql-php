@@ -64,8 +64,8 @@ class SerializationTest extends TestCase
             if ($expectedValue instanceof Node) {
                 self::assertNodesAreEqual($expectedValue, $actualValue, $tmpPath);
             } elseif ($expectedValue instanceof NodeList) {
-                self::assertEquals(count($expectedValue), count($actualValue), $err);
                 self::assertInstanceOf(NodeList::class, $actualValue, $err);
+                self::assertEquals(count($expectedValue), count($actualValue), $err);
 
                 foreach ($expectedValue as $index => $listNode) {
                     $tmpPath2   = $tmpPath;

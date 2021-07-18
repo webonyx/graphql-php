@@ -7,6 +7,7 @@ namespace GraphQL\Benchmarks\Utils;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Printer;
@@ -73,6 +74,8 @@ class QueryGenerator
         $selections = [
             new FieldNode([
                 'name' => new NameNode(['value' => '__typename']),
+                'arguments' => new NodeList([]),
+                'directives' => new NodeList([]),
             ]),
         ];
         $this->currentLeafFields++;
@@ -98,6 +101,8 @@ class QueryGenerator
             $selections[] = new FieldNode([
                 'name' => new NameNode(['value' => $field->name]),
                 'selectionSet' => $selectionSet,
+                'arguments' => new NodeList([]),
+                'directives' => new NodeList([]),
             ]);
         }
 

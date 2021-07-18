@@ -314,6 +314,8 @@ class VisitorTest extends ValidatorTestCase
     {
         $addedField = new FieldNode([
             'name' => new NameNode(['value' => '__typename']),
+            'arguments' => new NodeList([]),
+            'directives' => new NodeList([]),
         ]);
 
         $didVisitAddedField = false;
@@ -330,6 +332,8 @@ class VisitorTest extends ValidatorTestCase
                             'selectionSet' => new SelectionSetNode([
                                 'selections' => NodeList::create([$addedField])->merge($node->selectionSet->selections),
                             ]),
+                            'arguments' => new NodeList([]),
+                            'directives' => new NodeList([]),
                         ]);
                     }
 
@@ -1590,10 +1594,13 @@ class VisitorTest extends ValidatorTestCase
                                 'selectionSet' => new SelectionSetNode([
                                     'kind'       => 'SelectionSet',
                                     'selections' =>
-                                        new NodeList([new FieldNode([
-                                        'name' => new NameNode(['value' => '__typename']),
-                                    ]),
-                                    ]),
+                                        new NodeList([
+                                            new FieldNode([
+                                                'name' => new NameNode(['value' => '__typename']),
+                                                'arguments' => new NodeList([]),
+                                                'directives' => new NodeList([]),
+                                            ]),
+                                        ]),
                                 ]),
                             ]);
                         }

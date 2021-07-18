@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
-use ArrayObject;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
-use Throwable;
 
 use function file_get_contents;
 
@@ -38,19 +37,12 @@ class PrinterTest extends TestCase
      */
     public function testPrintsMinimalAst(): void
     {
-        $ast = new FieldNode(['name' => new NameNode(['value' => 'foo'])]);
+        $ast = new FieldNode([
+            'name' => new NameNode(['value' => 'foo']),
+            'arguments' => new NodeList([]),
+            'directives' => new NodeList([]),
+        ]);
         self::assertEquals('foo', Printer::doPrint($ast));
-    }
-
-    /**
-     * @see it('produces helpful error messages')
-     */
-    public function testProducesHelpfulErrorMessages(): void
-    {
-        $badAst1 = new ArrayObject(['random' => 'Data']);
-        $this->expectException(Throwable::class);
-        $this->expectExceptionMessage('Invalid AST Node: {"random":"Data"}');
-        Printer::doPrint($badAst1);
     }
 
     /**
