@@ -54,13 +54,15 @@ class QueryGenerator
         $qtype = $this->schema->getQueryType();
 
         $ast = new DocumentNode([
-            'definitions' => [
+            'definitions' => new NodeList([
                 new OperationDefinitionNode([
                     'name' => new NameNode(['value' => 'TestQuery']),
                     'operation' => 'query',
                     'selectionSet' => $this->buildSelectionSet($qtype->getFields()),
+                    'variableDefinitions' => new NodeList([]),
+                    'directives' => new NodeList([]),
                 ]),
-            ],
+            ]),
         ]);
 
         return Printer::doPrint($ast);
@@ -106,6 +108,8 @@ class QueryGenerator
             ]);
         }
 
-        return new SelectionSetNode(['selections' => $selections]);
+        return new SelectionSetNode([
+            'selections' => new NodeList($selections),
+        ]);
     }
 }
