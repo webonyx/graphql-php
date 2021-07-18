@@ -499,7 +499,7 @@ class BuildClientSchema
             'name' => $directive['name'],
             'description' => $directive['description'],
             'args' => $this->buildInputValueDefMap($directive['args']),
-            'isRepeatable' => $directive['isRepeatable'],
+            'isRepeatable' => $directive['isRepeatable'] ?? false,
             'locations' => $directive['locations'],
         ]);
     }

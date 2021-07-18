@@ -17,7 +17,7 @@ use function sprintf;
 class UniqueFragmentNames extends ValidationRule
 {
     /** @var NameNode[] */
-    public $knownFragmentNames;
+    protected array $knownFragmentNames;
 
     public function getVisitor(ValidationContext $context)
     {
@@ -33,7 +33,7 @@ class UniqueFragmentNames extends ValidationRule
                     $this->knownFragmentNames[$fragmentName] = $node->name;
                 } else {
                     $context->reportError(new Error(
-                        self::duplicateFragmentNameMessage($fragmentName),
+                        static::duplicateFragmentNameMessage($fragmentName),
                         [$this->knownFragmentNames[$fragmentName], $node->name]
                     ));
                 }

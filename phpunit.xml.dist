@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <phpunit
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-        bootstrap="tests/bootstrap.php"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap="tests/bootstrap.php"
 >
-    <php>
-        <ini name="error_reporting" value="E_ALL"/>
-    </php>
-
-    <testsuites>
-        <testsuite name="webonyx/graphql-php Test Suite">
-            <directory>./tests/</directory>
-        </testsuite>
-    </testsuites>
-
-    <groups>
-        <exclude>
-            <group>ReactPromise</group>
-        </exclude>
-    </groups>
-
-    <filter>
-        <whitelist>
-            <directory suffix=".php">./src</directory>
-        </whitelist>
-    </filter>
+  <coverage>
+    <include>
+      <directory suffix=".php">./src</directory>
+    </include>
+  </coverage>
+  <php>
+    <ini name="error_reporting" value="E_ALL"/>
+  </php>
+  <testsuites>
+    <testsuite name="webonyx/graphql-php Test Suite">
+      <directory>./tests/</directory>
+    </testsuite>
+  </testsuites>
+  <groups>
+    <exclude>
+      <group>ReactPromise</group>
+    </exclude>
+  </groups>
 </phpunit>

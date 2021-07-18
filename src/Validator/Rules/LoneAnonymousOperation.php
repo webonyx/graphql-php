@@ -46,7 +46,7 @@ class LoneAnonymousOperation extends ValidationRule
                 }
 
                 $context->reportError(
-                    new Error(self::anonOperationNotAloneMessage(), [$node])
+                    new Error(static::anonOperationNotAloneMessage(), [$node])
                 );
             },
         ];

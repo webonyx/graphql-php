@@ -1,10 +1,8 @@
 # GraphQL\GraphQL
-
 This is the primary facade for fulfilling GraphQL operations.
 See [related documentation](executing-queries.md).
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Executes graphql query.
@@ -142,14 +140,11 @@ static function getStandardValidationRules(): array
  */
 static function setDefaultFieldResolver(callable $fn): void
 ```
-
 # GraphQL\Type\Definition\Type
-
 Registry of standard GraphQL types
 and a base class for all other types.
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * @api
@@ -261,15 +256,12 @@ static function isAbstractType($type): bool
  */
 static function getNullableType(GraphQL\Type\Definition\Type $type): GraphQL\Type\Definition\Type
 ```
-
 # GraphQL\Type\Definition\ResolveInfo
-
 Structure containing information useful for field resolution process.
 
 Passed as 4th argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
 
-**Class Props:**
-
+**Class Props:** 
 ```php
 /**
  * The definition of the field being resolved.
@@ -360,8 +352,7 @@ public $operation;
 public $variableValues;
 ```
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Helper method that returns names of all fields selected in query for
@@ -402,13 +393,10 @@ public $variableValues;
  */
 function getFieldSelection($depth = 0)
 ```
-
 # GraphQL\Language\DirectiveLocation
-
 List of available directive locations
 
-**Class Constants:**
-
+**Class Constants:** 
 ```php
 const QUERY = "QUERY";
 const MUTATION = "MUTATION";
@@ -432,10 +420,9 @@ const INPUT_FIELD_DEFINITION = "INPUT_FIELD_DEFINITION";
 ```
 
 # GraphQL\Type\SchemaConfig
-
 Schema configuration class.
 Could be passed directly to schema constructor. List of options accepted by **create** method is
-[described in docs](type-system/schema.md#configuration-options).
+described in the [schema definition docs](schema-definition.md#configuration-options).
 
 Usage example:
 
@@ -445,8 +432,7 @@ Usage example:
 
     $schema = new Schema($config);
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Converts an array of options to instance of SchemaConfig
@@ -563,7 +549,7 @@ function setDirectives(array $directives)
 
 ```php
 /**
- * @return callable(string $name):Type|null
+ * @return callable|null
  *
  * @api
  */
@@ -578,10 +564,8 @@ function getTypeLoader()
  */
 function setTypeLoader(callable $typeLoader)
 ```
-
 # GraphQL\Type\Schema
-
-Schema Definition (see [related docs](type-system/schema.md))
+Schema Definition (see [schema definition docs](schema-definition.md))
 
 A Schema is created by supplying the root types of each type of operation:
 query, mutation (optional) and subscription (optional). A schema definition is
@@ -600,8 +584,7 @@ Or using Schema Config instance:
 
     $schema = new GraphQL\Type\Schema($config);
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * @param mixed[]|SchemaConfig $config
@@ -618,11 +601,11 @@ function __construct($config)
  *
  * This operation requires full schema scan. Do not use in production environment.
  *
- * @return Type[]
+ * @return array<string, Type>
  *
  * @api
  */
-function getTypeMap()
+function getTypeMap(): array
 ```
 
 ```php
@@ -705,14 +688,43 @@ function getPossibleTypes(GraphQL\Type\Definition\Type $abstractType): array
 
 ```php
 /**
+ * Returns all types that implement a given interface type.
+ *
+ * This operations requires full schema scan. Do not use in production environment.
+ *
+ * @api
+ */
+function getImplementations(GraphQL\Type\Definition\InterfaceType $abstractType): GraphQL\Utils\InterfaceImplementations
+```
+
+```php
+/**
+ * @deprecated as of 14.4.0 use isSubType instead, will be removed in 15.0.0.
+ *
  * Returns true if object type is concrete type of given abstract type
  * (implementation for interfaces and members of union type for unions)
  *
  * @api
+ * @codeCoverageIgnore
  */
 function isPossibleType(
     GraphQL\Type\Definition\AbstractType $abstractType,
     GraphQL\Type\Definition\ObjectType $possibleType
+): bool
+```
+
+```php
+/**
+ * Returns true if the given type is a sub type of the given abstract type.
+ *
+ * @param UnionType|InterfaceType  $abstractType
+ * @param ObjectType|InterfaceType $maybeSubType
+ *
+ * @api
+ */
+function isSubType(
+    GraphQL\Type\Definition\AbstractType $abstractType,
+    GraphQL\Type\Definition\ImplementingType $maybeSubType
 ): bool
 ```
 
@@ -750,10 +762,8 @@ function assertValid()
  */
 function validate()
 ```
-
 # GraphQL\Language\Parser
-
-Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
+Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
 
 Those magic functions allow partial parsing:
 
@@ -781,7 +791,7 @@ Those magic functions allow partial parsing:
 @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
 @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
 @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
-@method static NamedTypeNode[] unionMemberTypes(Source|string $source, bool[] $options = [])
+@method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, bool[] $options = [])
 @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
 @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
 @method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
@@ -789,10 +799,9 @@ Those magic functions allow partial parsing:
 @method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, bool[] $options = [])
 @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
 @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
-@method static DirectiveLocation directiveLocation(Source|string $source, bool[] $options = [])
+@method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
@@ -888,9 +897,7 @@ static function parseValue($source, array $options = [])
  */
 static function parseType($source, array $options = [])
 ```
-
 # GraphQL\Language\Printer
-
 Prints AST to string. Capable of printing GraphQL queries and Type definition language.
 Useful for pretty-printing queries or printing back AST for logging, documentation, etc.
 
@@ -902,8 +909,7 @@ $ast = GraphQL\Language\Parser::parse($query);
 $printed = GraphQL\Language\Printer::doPrint($ast);
 ```
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Prints AST to string. Capable of printing GraphQL queries and Type definition language.
@@ -916,9 +922,7 @@ $printed = GraphQL\Language\Printer::doPrint($ast);
  */
 static function doPrint($ast)
 ```
-
 # GraphQL\Language\Visitor
-
 Utility for efficient AST traversal and modification.
 
 `visit()` will walk through an AST using a depth first traversal, calling
@@ -953,60 +957,59 @@ visit function.
     ]);
 
 Alternatively to providing enter() and leave() functions, a visitor can
-instead provide functions named the same as the [kinds of AST nodes](reference.md#graphqllanguageastnodekind),
+instead provide functions named the same as the [kinds of AST nodes](class-reference.md#graphqllanguageastnodekind),
 or enter/leave visitors at a named key, leading to four permutations of
 visitor API:
 
-1. Named visitors triggered when entering a node a specific kind.
+1) Named visitors triggered when entering a node a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => function ($node) {
-   // enter the "Kind" node
-   }
-   ]);
+        // enter the "Kind" node
+      }
+    ]);
 
-2. Named visitors that trigger upon entering and leaving a node of
+2) Named visitors that trigger upon entering and leaving a node of
    a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => [
         'enter' => function ($node) {
-   // enter the "Kind" node
-   }
-   'leave' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+        'leave' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
-3. Generic visitors that trigger upon entering and leaving any node.
+3) Generic visitors that trigger upon entering and leaving any node.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => function ($node) {
-   // enter any node
-   },
-   'leave' => function ($node) {
-   // leave any node
-   }
-   ]);
+        // enter any node
+      },
+      'leave' => function ($node) {
+        // leave any node
+      }
+    ]);
 
-4. Parallel visitors for entering and leaving nodes of a specific kind.
+4) Parallel visitors for entering and leaving nodes of a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => [
         'Kind' => function($node) {
-   // enter the "Kind" node
-   }
-   },
-   'leave' => [
-   'Kind' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+      },
+      'leave' => [
+        'Kind' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Visit the AST (see class description for details)
@@ -1056,11 +1059,10 @@ static function skipNode()
  */
 static function removeNode()
 ```
-
 # GraphQL\Language\AST\NodeKind
 
-**Class Constants:**
 
+**Class Constants:** 
 ```php
 const NAME = "Name";
 const DOCUMENT = "Document";
@@ -1108,22 +1110,20 @@ const SCHEMA_EXTENSION = "SchemaExtension";
 ```
 
 # GraphQL\Executor\Executor
-
 Implements the "Evaluating requests" section of the GraphQL specification.
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Executes DocumentNode against given $schema.
  *
- * Always returns ExecutionResult and never throws. All errors which occur during operation
- * execution are collected in `$result->errors`.
+ * Always returns ExecutionResult and never throws.
+ * All errors which occur during operation execution are collected in `$result->errors`.
  *
- * @param mixed|null               $rootValue
- * @param mixed|null               $contextValue
- * @param mixed[]|ArrayAccess|null $variableValues
- * @param string|null              $operationName
+ * @param mixed|null                    $rootValue
+ * @param mixed|null                    $contextValue
+ * @param array<mixed>|ArrayAccess|null $variableValues
+ * @param string|null                   $operationName
  *
  * @return ExecutionResult|Promise
  *
@@ -1147,10 +1147,10 @@ static function execute(
  *
  * Useful for async PHP platforms.
  *
- * @param mixed|null   $rootValue
- * @param mixed|null   $contextValue
- * @param mixed[]|null $variableValues
- * @param string|null  $operationName
+ * @param mixed|null        $rootValue
+ * @param mixed|null        $contextValue
+ * @param array<mixed>|null $variableValues
+ * @param string|null       $operationName
  *
  * @return Promise
  *
@@ -1167,9 +1167,7 @@ static function promiseToExecute(
     callable $fieldResolver = null
 )
 ```
-
 # GraphQL\Executor\ExecutionResult
-
 Returned after [query execution](executing-queries.md).
 Represents both - result of successful execution and of a failed one
 (with errors collected in `errors` prop)
@@ -1177,8 +1175,7 @@ Represents both - result of successful execution and of a failed one
 Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
 serializable array using `toArray()`
 
-**Class Props:**
-
+**Class Props:** 
 ```php
 /**
  * Data collected from resolvers during query execution
@@ -1209,8 +1206,7 @@ public $errors;
 public $extensions;
 ```
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Define custom error formatting (must conform to http://facebook.github.io/graphql/#sec-Errors)
@@ -1266,13 +1262,10 @@ function setErrorsHandler(callable $handler)
  */
 function toArray(int $debug = "GraphQL\Error\DebugFlag::NONE"): array
 ```
-
 # GraphQL\Executor\Promise\PromiseAdapter
-
 Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php))
 
-**Interface Methods:**
-
+**Interface Methods:** 
 ```php
 /**
  * Return true if the value is a promise or a deferred of the underlying platform
@@ -1369,9 +1362,7 @@ function createRejected($reason)
  */
 function all(array $promisesOrValues)
 ```
-
 # GraphQL\Validator\DocumentValidator
-
 Implements the "Validation" section of the spec.
 
 Validation runs synchronously, returning an array of encountered errors, or
@@ -1381,16 +1372,15 @@ A list of specific validation rules may be provided. If not provided, the
 default list of rules defined by the GraphQL specification will be used.
 
 Each validation rule is an instance of GraphQL\Validator\Rules\ValidationRule
-which returns a visitor (see the [GraphQL\Language\Visitor API](reference.md#graphqllanguagevisitor)).
+which returns a visitor (see the [GraphQL\Language\Visitor API](class-reference.md#graphqllanguagevisitor)).
 
-Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference.md#graphqlerrorerror),
+Visitor methods are expected to return an instance of [GraphQL\Error\Error](class-reference.md#graphqlerrorerror),
 or array of such instances when invalid.
 
 Optionally a custom TypeInfo instance may be provided. If not provided, one
 will be created from the provided schema.
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Primary method for query validation. See class description for details.
@@ -1444,9 +1434,7 @@ static function getRule($name)
  */
 static function addRule(GraphQL\Validator\Rules\ValidationRule $rule)
 ```
-
 # GraphQL\Error\Error
-
 Describes an Error found during the parse, validate, or
 execute phases of performing a GraphQL operation. In addition to a message
 and stack trace, it also includes information about the locations in a
@@ -1460,15 +1448,13 @@ Also read related docs on [error handling](error-handling.md)
 Class extends standard PHP `\Exception`, so all standard methods of base `\Exception` class
 are available in addition to those listed below.
 
-**Class Constants:**
-
+**Class Constants:** 
 ```php
 const CATEGORY_GRAPHQL = "graphql";
 const CATEGORY_INTERNAL = "internal";
 ```
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * An array of locations within the source GraphQL document which correspond to this error.
@@ -1485,7 +1471,7 @@ const CATEGORY_INTERNAL = "internal";
  *
  * @api
  */
-function getLocations()
+function getLocations(): array
 ```
 
 ```php
@@ -1499,16 +1485,13 @@ function getLocations()
  */
 function getPath()
 ```
-
 # GraphQL\Error\Warning
-
 Encapsulates warnings produced by the library.
 
 Warnings can be suppressed (individually or all) if required.
 Also it is possible to override warning handler (which is **trigger_error()** by default)
 
-**Class Constants:**
-
+**Class Constants:** 
 ```php
 const WARNING_ASSIGN = 2;
 const WARNING_CONFIG = 4;
@@ -1518,8 +1501,7 @@ const WARNING_NOT_A_TYPE = 32;
 const ALL = 63;
 ```
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Sets warning handler which can intercept all system warnings.
@@ -1561,9 +1543,7 @@ static function suppress($suppress = true): void
  */
 static function enable($enable = true): void
 ```
-
 # GraphQL\Error\ClientAware
-
 This interface is used for [default error formatting](error-handling.md).
 
 Only errors implementing this interface (and returning true from `isClientSafe()`)
@@ -1571,8 +1551,7 @@ will be formatted with original error message.
 
 All other errors will be formatted with generic "Internal server error".
 
-**Interface Methods:**
-
+**Interface Methods:** 
 ```php
 /**
  * Returns true when exception message is safe to be displayed to a client.
@@ -1596,13 +1575,10 @@ function isClientSafe()
  */
 function getCategory()
 ```
-
 # GraphQL\Error\DebugFlag
-
 Collection of flags for [error debugging](error-handling.md#debugging-tools).
 
-**Class Constants:**
-
+**Class Constants:** 
 ```php
 const NONE = 0;
 const INCLUDE_DEBUG_MESSAGE = 1;
@@ -1612,13 +1588,11 @@ const RETHROW_UNSAFE_EXCEPTIONS = 8;
 ```
 
 # GraphQL\Error\FormattedError
-
 This class is used for [default error formatting](error-handling.md).
 It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io/graphql/#sec-Errors)
 and provides tools for error debugging.
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Set default error message for internal errors formatted using createFormattedError().
@@ -1668,9 +1642,7 @@ static function createFromException(
  */
 static function toSafeTrace($error)
 ```
-
 # GraphQL\Server\StandardServer
-
 GraphQL server compatible with both: [express-graphql](https://github.com/graphql/express-graphql)
 and [Apollo Server](https://github.com/apollographql/graphql-server).
 Usage Example:
@@ -1680,7 +1652,7 @@ Usage Example:
     ]);
     $server->handleRequest();
 
-Or using [ServerConfig](reference.md#graphqlserverserverconfig) instance:
+Or using [ServerConfig](class-reference.md#graphqlserverserverconfig) instance:
 
     $config = GraphQL\Server\ServerConfig::create()
         ->setSchema($mySchema)
@@ -1691,8 +1663,7 @@ Or using [ServerConfig](reference.md#graphqlserverserverconfig) instance:
 
 See [dedicated section in docs](executing-queries.md#using-server) for details.
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Converts and exception to error and sends spec-compliant HTTP 500 error.
@@ -1700,12 +1671,12 @@ See [dedicated section in docs](executing-queries.md#using-server) for details.
  * (e.g. during schema instantiation).
  *
  * @param Throwable $error
- * @param bool      $debug
+ * @param int       $debug
  * @param bool      $exitWhenDone
  *
  * @api
  */
-static function send500Error($error, $debug = false, $exitWhenDone = false)
+static function send500Error($error, $debug = "GraphQL\Error\DebugFlag::NONE", $exitWhenDone = false)
 ```
 
 ```php
@@ -1801,9 +1772,7 @@ function executePsrRequest(Psr\Http\Message\RequestInterface $request)
  */
 function getHelper()
 ```
-
 # GraphQL\Server\ServerConfig
-
 Server configuration class.
 Could be passed directly to server constructor. List of options accepted by **create** method is
 [described in docs](executing-queries.md#server-configuration-options).
@@ -1816,8 +1785,7 @@ Usage example:
 
     $server = new GraphQL\Server\StandardServer($config);
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Converts an array of options to instance of ServerConfig
@@ -1946,13 +1914,10 @@ function setQueryBatching(bool $enableBatching): self
  */
 function setPromiseAdapter(GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter)
 ```
-
 # GraphQL\Server\Helper
-
 Contains functionality that could be re-used by various server implementations
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Parses HTTP request using PHP globals and returns GraphQL OperationParams
@@ -2077,13 +2042,10 @@ function toPsrResponse(
     Psr\Http\Message\StreamInterface $writableBodyStream
 )
 ```
-
 # GraphQL\Server\OperationParams
-
 Structure representing parsed HTTP parameters for GraphQL operation
 
-**Class Props:**
-
+**Class Props:** 
 ```php
 /**
  * Id of the query (when using persistent queries).
@@ -2123,8 +2085,7 @@ public $variables;
 public $extensions;
 ```
 
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * Creates an instance from given array
@@ -2158,21 +2119,18 @@ function getOriginalInput($key)
  */
 function isReadOnly()
 ```
-
 # GraphQL\Utils\BuildSchema
+Build instance of `GraphQL\Type\Schema` out of schema language definition (string or parsed AST)
+See [schema definition language docs](schema-definition-language.md) for details.
 
-Build instance of `GraphQL\Type\Schema` out of type language definition (string or parsed AST)
-See [section in docs](type-system/type-language.md) for details.
-
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * A helper function to build a GraphQLSchema directly from a source
  * document.
  *
  * @param DocumentNode|Source|string $source
- * @param bool[]                     $options
+ * @param array<string, bool>        $options
  *
  * @return Schema
  *
@@ -2198,7 +2156,7 @@ static function build($source, callable $typeConfigDecorator = null, array $opti
  *        Provide true to use preceding comments as the description.
  *        This option is provided to ease adoption and will be removed in v16.
  *
- * @param bool[] $options
+ * @param array<string, bool> $options
  *
  * @return Schema
  *
@@ -2212,14 +2170,11 @@ static function buildAST(
     array $options = []
 )
 ```
-
 # GraphQL\Utils\AST
-
 Various utilities dealing with AST
 
-**Class Methods:**
-
-````php
+**Class Methods:** 
+```php
 /**
  * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
  *
@@ -2246,7 +2201,7 @@ Various utilities dealing with AST
  * @api
  */
 static function fromArray(array $node): GraphQL\Language\AST\Node
-````
+```
 
 ```php
 /**
@@ -2379,13 +2334,10 @@ static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode)
  */
 static function getOperation(GraphQL\Language\AST\DocumentNode $document, $operationName = null)
 ```
-
 # GraphQL\Utils\SchemaPrinter
+Given an instance of Schema, prints it in schema definition language.
 
-Given an instance of Schema, prints it in GraphQL type language.
-
-**Class Methods:**
-
+**Class Methods:** 
 ```php
 /**
  * @param array<string, bool> $options

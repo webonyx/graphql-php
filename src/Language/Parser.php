@@ -63,7 +63,7 @@ use function count;
 use function sprintf;
 
 /**
- * Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
+ * Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
  *
  * Those magic functions allow partial parsing:
  *

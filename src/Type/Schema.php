@@ -20,16 +20,18 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\InterfaceImplementations;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
+use InvalidArgumentException;
 use Traversable;
 
 use function array_map;
+use function get_class;
 use function implode;
 use function is_array;
 use function is_callable;
 use function sprintf;
 
 /**
- * Schema Definition (see [related docs](type-system/schema.md))
+ * Schema Definition (see [schema definition docs](schema-definition.md))
  *
  * A Schema is created by supplying the root types of each type of operation:
  * query, mutation (optional) and subscription (optional). A schema definition is
@@ -61,13 +63,6 @@ class Schema
     private $resolvedTypes = [];
 
     /**
-     * Lazily initialized.
-     *
-     * @var array<string, array<string, ObjectType|UnionType>>
-     */
-    private $subTypeMap;
-
-    /**
      * Lazily initialised.
      *
      * @var array<string, InterfaceImplementations>
@@ -84,7 +79,7 @@ class Schema
     /** @var Error[] */
     private $validationErrors;
 
-    /** @var SchemaTypeExtensionNode[] */
+    /** @var array<int, SchemaTypeExtensionNode> */
     public $extensionASTNodes = [];
 
     /**
@@ -152,7 +147,7 @@ class Schema
                     Utils::invariant(
                         $type === $this->resolvedTypes[$type->name],
                         sprintf(
-                            'Schema must contain unique named types but contains multiple types named "%s" (see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
+                            'Schema must contain unique named types but contains multiple types named "%s" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
                             $type
                         )
                     );
@@ -172,12 +167,9 @@ class Schema
         $this->getTypeMap();
     }
 
-    /**
-     * @return Generator
-     */
-    private function resolveAdditionalTypes()
+    private function resolveAdditionalTypes(): Generator
     {
-        $types = $this->config->types ?? [];
+        $types = $this->config->types;
 
         if (is_callable($types)) {
             $types = $types();
@@ -413,11 +405,16 @@ class Schema
     }
 
     /**
-     * @param Type|callable():Type $type
+     * @param Type|callable $type
+     *
+     * @template T of Type
+     * @phpstan-param T|callable():T $type
+     * @phpstan-return T
      */
     public static function resolveType($type): Type
     {
         if ($type instanceof Type) {
+            /** @phpstan-var T $type */
             return $type;
         }
 
@@ -522,26 +519,15 @@ class Schema
      */
     public function isSubType(AbstractType $abstractType, ImplementingType $maybeSubType): bool
     {
-        if (! isset($this->subTypeMap[$abstractType->name])) {
-            $this->subTypeMap[$abstractType->name] = [];
-
-            if ($abstractType instanceof UnionType) {
-                foreach ($abstractType->getTypes() as $type) {
-                    $this->subTypeMap[$abstractType->name][$type->name] = true;
-                }
-            } else {
-                $implementations = $this->getImplementations($abstractType);
-                foreach ($implementations->objects() as $type) {
-                    $this->subTypeMap[$abstractType->name][$type->name] = true;
-                }
-
-                foreach ($implementations->interfaces() as $type) {
-                    $this->subTypeMap[$abstractType->name][$type->name] = true;
-                }
-            }
+        if ($abstractType instanceof InterfaceType) {
+            return $maybeSubType->implementsInterface($abstractType);
         }
 
-        return isset($this->subTypeMap[$abstractType->name][$maybeSubType->name]);
+        if ($abstractType instanceof UnionType) {
+            return $abstractType->isPossibleType($maybeSubType);
+        }
+
+        throw new InvalidArgumentException(sprintf('$abstractType must be of type UnionType|InterfaceType got: %s.', get_class($abstractType)));
     }
 
     /**

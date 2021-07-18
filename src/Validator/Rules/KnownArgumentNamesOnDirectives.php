@@ -77,7 +77,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
             $name = $def->name->value;
             if ($def->arguments !== null) {
                 $directiveArgs[$name] = Utils::map(
-                    $def->arguments ?? [],
+                    $def->arguments,
                     static function (InputValueDefinitionNode $arg): string {
                         return $arg->name->value;
                     }
@@ -104,7 +104,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
                     $suggestions = Utils::suggestionList($argName, $knownArgs);
                     $context->reportError(new Error(
-                        self::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),
+                        static::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),
                         [$argNode]
                     ));
                 }

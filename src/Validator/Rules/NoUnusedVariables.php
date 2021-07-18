@@ -15,7 +15,7 @@ use function sprintf;
 class NoUnusedVariables extends ValidationRule
 {
     /** @var VariableDefinitionNode[] */
-    public $variableDefs;
+    protected array $variableDefs;
 
     public function getVisitor(ValidationContext $context)
     {
@@ -46,7 +46,7 @@ class NoUnusedVariables extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            self::unusedVariableMessage($variableName, $opName),
+                            static::unusedVariableMessage($variableName, $opName),
                             [$variableDef]
                         ));
                     }

@@ -10,15 +10,17 @@ use function is_callable;
 
 class ListOfType extends Type implements WrappingType, OutputType, NullableType, InputType
 {
-    /** @var callable():Type|Type */
+    /** @var Type|callable():Type */
     public $ofType;
 
     /**
-     * @param callable():Type|Type $type
+     * @param Type|callable():Type $type
      */
     public function __construct($type)
     {
-        $this->ofType = is_callable($type) ? $type : Type::assertType($type);
+        $this->ofType = is_callable($type)
+            ? $type
+            : Type::assertType($type);
     }
 
     public function toString(): string
@@ -26,7 +28,7 @@ class ListOfType extends Type implements WrappingType, OutputType, NullableType,
         return '[' . $this->getOfType()->toString() . ']';
     }
 
-    public function getOfType()
+    public function getOfType(): Type
     {
         return Schema::resolveType($this->ofType);
     }

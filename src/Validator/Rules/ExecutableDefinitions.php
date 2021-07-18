@@ -34,7 +34,7 @@ class ExecutableDefinitions extends ValidationRule
                     }
 
                     $context->reportError(new Error(
-                        self::nonExecutableDefinitionMessage($definition->name->value),
+                        static::nonExecutableDefinitionMessage($definition->name->value),
                         [$definition->name]
                     ));
                 }

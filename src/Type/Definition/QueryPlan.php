@@ -11,6 +11,7 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 
 use function array_diff_key;
@@ -19,7 +20,6 @@ use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
-use function array_merge_recursive;
 use function array_unique;
 use function array_values;
 use function count;
@@ -137,7 +137,7 @@ class QueryPlan
                 array_keys($subfields)
             ));
 
-            $queryPlan = array_merge_recursive(
+            $queryPlan = $this->arrayMergeDeep(
                 $queryPlan,
                 $subfields
             );
@@ -168,7 +168,12 @@ class QueryPlan
         $implementors = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
-                $fieldName     = $selectionNode->name->value;
+                $fieldName = $selectionNode->name->value;
+
+                if ($fieldName === Introspection::TYPE_NAME_FIELD_NAME) {
+                    continue;
+                }
+
                 $type          = $parentType->getField($fieldName);
                 $selectionType = $type->getType();
 

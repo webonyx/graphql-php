@@ -1,14 +1,22 @@
 <?php
-// Test this using following command
-// php -S localhost:8080 ./graphql.php &
-// curl http://localhost:8080 -d '{"query": "query { echo(message: \"Hello World\") }" }'
-// curl http://localhost:8080 -d '{"query": "mutation { sum(x: 2, y: 2) }" }'
+
+declare(strict_types=1);
+
+// Run local test server
+// php -S localhost:8080 graphql.php
+
+// Try query
+// curl -d '{"query": "query { echo(message: \"Hello World\") }" }' -H "Content-Type: application/json" http://localhost:8080
+
+// Try mutation
+// curl -d '{"query": "mutation { sum(x: 2, y: 2) }" }' -H "Content-Type: application/json" http://localhost:8080
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use GraphQL\GraphQL;
 
 try {
     $queryType = new ObjectType([
@@ -19,15 +27,15 @@ try {
                 'args' => [
                     'message' => ['type' => Type::string()],
                 ],
-                'resolve' => function ($rootValue, $args) {
+                'resolve' => static function ($rootValue, array $args): string {
                     return $rootValue['prefix'] . $args['message'];
-                }
+                },
             ],
         ],
     ]);
 
     $mutationType = new ObjectType([
-        'name' => 'Calc',
+        'name' => 'Mutation',
         'fields' => [
             'sum' => [
                 'type' => Type::int(),
@@ -35,7 +43,7 @@ try {
                     'x' => ['type' => Type::int()],
                     'y' => ['type' => Type::int()],
                 ],
-                'resolve' => function ($calc, $args) {
+                'resolve' => static function ($calc, array $args): int {
                     return $args['x'] + $args['y'];
                 },
             ],
@@ -43,27 +51,27 @@ try {
     ]);
 
     // See docs on schema options:
-    // http://webonyx.github.io/graphql-php/type-system/schema/#configuration-options
+    // https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options
     $schema = new Schema([
         'query' => $queryType,
         'mutation' => $mutationType,
     ]);
 
-    $rawInput = file_get_contents('php://input');
-    $input = json_decode($rawInput, true);
-    $query = $input['query'];
-    $variableValues = isset($input['variables']) ? $input['variables'] : null;
+    $rawInput       = file_get_contents('php://input');
+    $input          = json_decode($rawInput, true);
+    $query          = $input['query'];
+    $variableValues = $input['variables'] ?? null;
 
     $rootValue = ['prefix' => 'You said: '];
-    $result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
-    $output = $result->toArray();
-} catch (\Exception $e) {
+    $result    = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
+    $output    = $result->toArray();
+} catch (Throwable $e) {
     $output = [
         'error' => [
-            'message' => $e->getMessage()
-        ]
+            'message' => $e->getMessage(),
+        ],
     ];
 }
+
 header('Content-Type: application/json; charset=UTF-8');
 echo json_encode($output);
-

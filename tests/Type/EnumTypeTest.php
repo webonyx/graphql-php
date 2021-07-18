@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use ArrayObject;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -345,7 +345,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromString: "GREEN") }',
             null,
             [
-                'message'   => 'Expected a value of type "Color" but received: GREEN',
+                'message'   => 'Expected a value of type Color but received: GREEN. Cannot serialize value as enum: GREEN',
                 'locations' => [new SourceLocation(1, 3)],
                 'path'      => ['colorEnum'],
             ]
@@ -551,8 +551,7 @@ class EnumTypeTest extends TestCase
             ],
             'errors' => [
                 [
-                    'debugMessage' =>
-                    'Expected a value of type "Complex" but received: instance of ArrayObject',
+                    'debugMessage' => 'Expected a value of type Complex but received: instance of ArrayObject. Cannot serialize value as enum: instance of ArrayObject',
                     'locations'    => [['line' => 5, 'column' => 9]],
                 ],
             ],
@@ -607,12 +606,15 @@ class EnumTypeTest extends TestCase
                 'data'   => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Expected a value of type "SimpleEnum" but received: WRONG',
+                        'debugMessage' => 'Expected a value of type SimpleEnum but received: WRONG. Cannot serialize value as enum: WRONG',
                         'locations'    => [['line' => 4, 'column' => 13]],
+                        'trace' => [
+                            ['call' => 'GraphQL\Type\Definition\EnumType::serialize()'],
+                        ],
                     ],
                 ],
             ],
-            GraphQL::executeQuery($this->schema, $q)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
+            GraphQL::executeQuery($this->schema, $q)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE)
         );
     }
 }

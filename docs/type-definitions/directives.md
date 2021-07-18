@@ -25,7 +25,7 @@ from the response. Important implementation detail: those fields will never be e
 
 # Custom directives
 **graphql-php** supports custom directives even though their presence does not affect the execution of fields.
-But you can use [`GraphQL\Type\Definition\ResolveInfo`](../reference.md#graphqltypedefinitionresolveinfo) 
+You can use [`GraphQL\Type\Definition\ResolveInfo`](../class-reference.md#graphqltypedefinitionresolveinfo) 
 in field resolvers to modify the output depending on those directives or perform statistics collection.
  
 Other use case is your own query validation rules relying on custom directives.
@@ -58,4 +58,4 @@ $trackDirective = new Directive([
 ```
 
 See possible directive locations in 
-[`GraphQL\Language\DirectiveLocation`](../reference.md#graphqllanguagedirectivelocation).
+[`GraphQL\Language\DirectiveLocation`](../class-reference.md#graphqllanguagedirectivelocation).

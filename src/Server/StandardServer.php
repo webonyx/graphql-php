@@ -27,7 +27,7 @@ use function is_array;
  *     ]);
  *     $server->handleRequest();
  *
- * Or using [ServerConfig](reference.md#graphqlserverserverconfig) instance:
+ * Or using [ServerConfig](class-reference.md#graphqlserverserverconfig) instance:
  *
  *     $config = GraphQL\Server\ServerConfig::create()
  *         ->setSchema($mySchema)

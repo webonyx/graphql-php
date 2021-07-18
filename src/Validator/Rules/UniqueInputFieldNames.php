@@ -20,10 +20,10 @@ use function sprintf;
 class UniqueInputFieldNames extends ValidationRule
 {
     /** @var array<string, NameNode> */
-    public $knownNames;
+    protected array $knownNames;
 
     /** @var array<array<string, NameNode>> */
-    public $knownNameStack;
+    protected array $knownNameStack;
 
     public function getVisitor(ValidationContext $context)
     {
@@ -55,7 +55,7 @@ class UniqueInputFieldNames extends ValidationRule
 
                 if (isset($this->knownNames[$fieldName])) {
                     $context->reportError(new Error(
-                        self::duplicateInputFieldMessage($fieldName),
+                        static::duplicateInputFieldMessage($fieldName),
                         [$this->knownNames[$fieldName], $node->name]
                     ));
                 } else {

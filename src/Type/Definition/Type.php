@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Type\Introspection;
@@ -18,13 +19,9 @@ use function assert;
 use function implode;
 use function in_array;
 use function preg_replace;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 /**
- * Registry of standard GraphQL types
- * and a base class for all other types.
+ * Registry of standard GraphQL types and base class for all other types.
  */
 abstract class Type implements JsonSerializable
 {
@@ -37,7 +34,7 @@ abstract class Type implements JsonSerializable
     /** @var array<string, ScalarType> */
     protected static $standardTypes;
 
-    /** @var Type[] */
+    /** @var array<string, Type> */
     private static $builtInTypes;
 
     /** @var string */
@@ -46,13 +43,13 @@ abstract class Type implements JsonSerializable
     /** @var string|null */
     public $description;
 
-    /** @var TypeDefinitionNode|null */
+    /** @var (Node&TypeDefinitionNode)|null */
     public $astNode;
 
-    /** @var mixed[] */
+    /** @var array<string, mixed> */
     public $config;
 
-    /** @var TypeExtensionNode[] */
+    /** @var array<Node&TypeExtensionNode> */
     public $extensionASTNodes;
 
     /**
@@ -116,38 +113,45 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @api
-     */
-    public static function listOf(Type $wrappedType): ListOfType
-    {
-        return new ListOfType($wrappedType);
-    }
-
-    /**
-     * @param callable|NullableType $wrappedType
+     * @param Type|callable():Type $type
      *
      * @api
      */
-    public static function nonNull($wrappedType): NonNull
+    public static function listOf($type): ListOfType
     {
-        return new NonNull($wrappedType);
+        return new ListOfType($type);
     }
 
     /**
-     * Checks if the type is a builtin type
+     * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
+     * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
+     * @param (NullableType&Type)|callable():(NullableType&Type) $type
+     *
+     * @api
+     */
+    public static function nonNull($type): NonNull
+    {
+        return new NonNull($type);
+    }
+
+    /**
+     * Checks if the type is a builtin type.
      */
     public static function isBuiltInType(Type $type): bool
     {
-        return in_array($type->name, array_keys(self::getAllBuiltInTypes()), true);
+        return in_array(
+            $type->name,
+            array_keys(self::getAllBuiltInTypes()),
+            true
+        );
     }
 
     /**
-     * Returns all builtin in types including base scalar and
-     * introspection types
+     * Returns all builtin in types including base scalar and introspection types.
      *
-     * @return Type[]
+     * @return array<string, Type>
      */
-    public static function getAllBuiltInTypes()
+    public static function getAllBuiltInTypes(): array
     {
         if (self::$builtInTypes === null) {
             self::$builtInTypes = array_merge(
@@ -160,11 +164,11 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * Returns all builtin scalar types
+     * Returns all builtin scalar types.
      *
-     * @return ScalarType[]
+     * @return array<string, ScalarType>
      */
-    public static function getStandardTypes()
+    public static function getStandardTypes(): array
     {
         return [
             self::ID => static::id(),
@@ -176,23 +180,9 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @deprecated Use method getStandardTypes() instead
-     *
-     * @return Type[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function getInternalTypes()
-    {
-        trigger_error(__METHOD__ . ' is deprecated. Use Type::getStandardTypes() instead', E_USER_DEPRECATED);
-
-        return self::getStandardTypes();
-    }
-
-    /**
      * @param array<string, ScalarType> $types
      */
-    public static function overrideStandardTypes(array $types)
+    public static function overrideStandardTypes(array $types): void
     {
         $standardTypes = self::getStandardTypes();
         foreach ($types as $type) {
@@ -213,8 +203,6 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param Type $type
-     *
      * @api
      */
     public static function isInputType($type): bool
@@ -223,16 +211,10 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param Type $type
-     *
      * @api
      */
     public static function getNamedType($type): ?Type
     {
-        if ($type === null) {
-            return null;
-        }
-
         while ($type instanceof WrappingType) {
             $type = $type->getWrappedType();
         }
@@ -241,8 +223,6 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param Type $type
-     *
      * @api
      */
     public static function isOutputType($type): bool
@@ -251,8 +231,6 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param Type $type
-     *
      * @api
      */
     public static function isLeafType($type): bool
@@ -261,8 +239,6 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param Type $type
-     *
      * @api
      */
     public static function isCompositeType($type): bool
@@ -271,8 +247,6 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param Type $type
-     *
      * @api
      */
     public static function isAbstractType($type): bool
@@ -280,12 +254,12 @@ abstract class Type implements JsonSerializable
         return $type instanceof AbstractType;
     }
 
-    /**
-     * @param mixed $type
-     */
     public static function assertType($type): Type
     {
-        assert($type instanceof Type, new InvariantViolation('Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'));
+        assert(
+            $type instanceof Type,
+            new InvariantViolation('Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.')
+        );
 
         return $type;
     }
@@ -303,39 +277,27 @@ abstract class Type implements JsonSerializable
     /**
      * @throws InvariantViolation
      */
-    public function assertValid()
+    public function assertValid(): void
     {
         Utils::assertValidName($this->name);
     }
 
-    /**
-     * @return string
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return $this->toString();
     }
 
-    /**
-     * @return string
-     */
-    public function toString()
+    public function toString(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toString();
     }
 
-    /**
-     * @return string|null
-     */
-    protected function tryInferName()
+    protected function tryInferName(): ?string
     {
         if ($this->name) {
             return $this->name;

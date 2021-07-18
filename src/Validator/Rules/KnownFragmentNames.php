@@ -24,7 +24,7 @@ class KnownFragmentNames extends ValidationRule
                 }
 
                 $context->reportError(new Error(
-                    self::unknownFragmentMessage($fragmentName),
+                    static::unknownFragmentMessage($fragmentName),
                     [$node->name]
                 ));
             },

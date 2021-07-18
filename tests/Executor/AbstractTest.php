@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
@@ -13,7 +14,6 @@ use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\Cat;
 use GraphQL\Tests\Executor\TestClasses\Dog;
 use GraphQL\Tests\Executor\TestClasses\Human;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -575,7 +575,7 @@ class AbstractTest extends TestCase
             'Schema must contain unique named types but contains multiple types named "Test". ' .
             'Make sure that `resolveType` function of abstract type "Node" returns the same type instance ' .
             'as referenced anywhere else within the schema ' .
-            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
             $result->errors[0]->getMessage()
         );
     }

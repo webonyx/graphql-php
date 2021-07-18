@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 
 class SchemaParserTest extends TestCase

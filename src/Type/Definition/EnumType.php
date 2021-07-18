@@ -44,7 +44,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /** @var ArrayObject<string, EnumValueDefinition> */
     private $nameLookup;
 
-    /** @var EnumTypeExtensionNode[] */
+    /** @var array<int, EnumTypeExtensionNode> */
     public $extensionASTNodes;
 
     public function __construct($config)
@@ -58,7 +58,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
-        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
         $this->config            = $config;
     }
 
@@ -147,7 +147,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             return $lookup[$value]->name;
         }
 
-        throw new Error('Cannot serialize value as enum: ' . Utils::printSafe($value));
+        throw new InvariantViolation('Cannot serialize value as enum: ' . Utils::printSafe($value));
     }
 
     /**
@@ -209,7 +209,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /**
      * @throws InvariantViolation
      */
-    public function assertValid()
+    public function assertValid(): void
     {
         parent::assertValid();
 
