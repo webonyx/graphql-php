@@ -118,6 +118,7 @@ This will make each error entry to look like this:
 
 ```php
 [
+    'debugMessage' => 'Actual exception message',
     'message' => 'Internal server error',
     'locations' => [
         ['line' => 10, 'column' => 2],
@@ -127,12 +128,9 @@ This will make each error entry to look like this:
         0,
         'fieldWithException',
     ],
-    'extensions' => [
-        'debugMessage' => 'Actual exception message',
-        'trace' => [
-            /* Formatted original exception trace */
-        ],
-    ]
+    'trace' => [
+        /* Formatted original exception trace */
+    ],
 ];
 ```
 
