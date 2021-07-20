@@ -419,7 +419,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param FieldArgument|EnumValueDefinition $fieldOrEnumVal
+     * @param FieldDefinition|EnumValueDefinition $fieldOrEnumVal
      */
     protected static function printDeprecated($fieldOrEnumVal): string
     {

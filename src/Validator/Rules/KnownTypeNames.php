@@ -47,7 +47,7 @@ class KnownTypeNames extends ValidationRule
                 }
 
                 $context->reportError(new Error(
-                    self::unknownTypeMessage(
+                    static::unknownTypeMessage(
                         $typeName,
                         Utils::suggestionList($typeName, array_keys($schema->getTypeMap()))
                     ),

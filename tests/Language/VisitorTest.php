@@ -191,9 +191,7 @@ class VisitorTest extends ValidatorTestCase
                         $selectionSet = $node->selectionSet;
 
                         $newNode               = clone $node;
-                        $newNode->selectionSet = new SelectionSetNode([
-                            'selections' => [],
-                        ]);
+                        $newNode->selectionSet = new SelectionSetNode(['selections' => null]);
                         $newNode->didEnter     = true;
 
                         return $newNode;
@@ -316,6 +314,8 @@ class VisitorTest extends ValidatorTestCase
     {
         $addedField = new FieldNode([
             'name' => new NameNode(['value' => '__typename']),
+            'arguments' => new NodeList([]),
+            'directives' => new NodeList([]),
         ]);
 
         $didVisitAddedField = false;
@@ -332,6 +332,8 @@ class VisitorTest extends ValidatorTestCase
                             'selectionSet' => new SelectionSetNode([
                                 'selections' => NodeList::create([$addedField])->merge($node->selectionSet->selections),
                             ]),
+                            'arguments' => new NodeList([]),
+                            'directives' => new NodeList([]),
                         ]);
                     }
 
@@ -1479,9 +1481,9 @@ class VisitorTest extends ValidatorTestCase
                             'enter',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
-                            $parentType ? (string) $parentType : null,
-                            $type ? (string) $type : null,
-                            $inputType ? (string) $inputType : null,
+                            $parentType === null ? null : (string) $parentType,
+                            $type === null ? null : (string) $type,
+                            $inputType === null ? null : (string) $inputType,
                         ];
                     },
                     'leave' => function ($node) use ($typeInfo, &$visited, $ast): void {
@@ -1494,9 +1496,9 @@ class VisitorTest extends ValidatorTestCase
                             'leave',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
-                            $parentType ? (string) $parentType : null,
-                            $type ? (string) $type : null,
-                            $inputType ? (string) $inputType : null,
+                            $parentType === null ? null : (string) $parentType,
+                            $type === null ? null : (string) $type,
+                            $inputType === null ? null : (string) $inputType,
                         ];
                     },
                 ]
@@ -1573,9 +1575,9 @@ class VisitorTest extends ValidatorTestCase
                             'enter',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
-                            $parentType ? (string) $parentType : null,
-                            $type ? (string) $type : null,
-                            $inputType ? (string) $inputType : null,
+                            $parentType === null ? null : (string) $parentType,
+                            $type === null ? null : (string) $type,
+                            $inputType === null ? null : (string) $inputType,
                         ];
 
                         // Make a query valid by adding missing selection sets.
@@ -1591,11 +1593,14 @@ class VisitorTest extends ValidatorTestCase
                                 'directives'   => $node->directives,
                                 'selectionSet' => new SelectionSetNode([
                                     'kind'       => 'SelectionSet',
-                                    'selections' => [
-                                        new FieldNode([
-                                            'name' => new NameNode(['value' => '__typename']),
+                                    'selections' =>
+                                        new NodeList([
+                                            new FieldNode([
+                                                'name' => new NameNode(['value' => '__typename']),
+                                                'arguments' => new NodeList([]),
+                                                'directives' => new NodeList([]),
+                                            ]),
                                         ]),
-                                    ],
                                 ]),
                             ]);
                         }
@@ -1612,9 +1617,9 @@ class VisitorTest extends ValidatorTestCase
                             'leave',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
-                            $parentType ? (string) $parentType : null,
-                            $type ? (string) $type : null,
-                            $inputType ? (string) $inputType : null,
+                            $parentType === null ? null : (string) $parentType,
+                            $type === null ? null : (string) $type,
+                            $inputType === null ? null : (string) $inputType,
                         ];
                     },
                 ]

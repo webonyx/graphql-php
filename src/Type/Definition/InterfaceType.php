@@ -16,20 +16,13 @@ use function is_callable;
 use function is_string;
 use function sprintf;
 
-class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType, ImplementingType
+class InterfaceType extends TypeWithFields implements AbstractType, OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
     /** @var InterfaceTypeDefinitionNode|null */
     public $astNode;
 
     /** @var array<int, InterfaceTypeExtensionNode> */
     public $extensionASTNodes;
-
-    /**
-     * Lazily initialized.
-     *
-     * @var array<string, FieldDefinition>
-     */
-    private $fields;
 
     /**
      * Lazily initialized.
@@ -78,44 +71,6 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         );
 
         return $type;
-    }
-
-    public function getField(string $name): FieldDefinition
-    {
-        if (! isset($this->fields)) {
-            $this->initializeFields();
-        }
-
-        Utils::invariant(isset($this->fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
-
-        return $this->fields[$name];
-    }
-
-    public function hasField(string $name): bool
-    {
-        if (! isset($this->fields)) {
-            $this->initializeFields();
-        }
-
-        return isset($this->fields[$name]);
-    }
-
-    /**
-     * @return FieldDefinition[]
-     */
-    public function getFields(): array
-    {
-        if (! isset($this->fields)) {
-            $this->initializeFields();
-        }
-
-        return $this->fields;
-    }
-
-    protected function initializeFields(): void
-    {
-        $fields       = $this->config['fields'] ?? [];
-        $this->fields = FieldDefinition::defineFieldMap($this, $fields);
     }
 
     public function implementsInterface(InterfaceType $interfaceType): bool

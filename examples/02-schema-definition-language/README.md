@@ -1,11 +1,11 @@
-# Hello world
-Same example as 01-hello-world, but uses 
-[Standard Http Server](https://webonyx.github.io/graphql-php/executing-queries/#using-server)
-instead of manual parsing of incoming data.
+# Schema Definition Language
 
-### Run locally
+Same as the Hello world example, but shows how to use schema definition language
+and wire up some resolvers as plain functions.
+
+### Run local test server
 ```
-php -S localhost:8080 ./graphql.php
+php -S localhost:8080 graphql.php
 ```
 
 ### Try query

@@ -54,7 +54,7 @@ class CustomScalarType extends ScalarType
         return AST::valueFromASTUntyped($valueNode, $variables);
     }
 
-    public function assertValid()
+    public function assertValid(): void
     {
         parent::assertValid();
 

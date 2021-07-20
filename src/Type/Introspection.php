@@ -351,7 +351,7 @@ EOD;
                                         $fields = array_filter(
                                             $fields,
                                             static function (FieldDefinition $field): bool {
-                                                return ! $field->deprecationReason;
+                                                return ($field->deprecationReason ?? '') === '';
                                             }
                                         );
                                     }
@@ -395,7 +395,7 @@ EOD;
                                         $values = array_filter(
                                             $values,
                                             static function ($value): bool {
-                                                return ! $value->deprecationReason;
+                                                return ($value->deprecationReason ?? '') === '';
                                             }
                                         );
                                     }

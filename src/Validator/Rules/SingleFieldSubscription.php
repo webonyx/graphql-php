@@ -36,7 +36,7 @@ class SingleFieldSubscription extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            self::multipleFieldsInOperation($node->name->value ?? null),
+                            static::multipleFieldsInOperation($node->name->value ?? null),
                             $offendingSelections
                         ));
                     }

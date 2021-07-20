@@ -62,9 +62,9 @@ class KnownDirectives extends ValidationRule
     {
         $locationsMap      = [];
         $schema            = $context->getSchema();
-        $definedDirectives = $schema
-            ? $schema->getDirectives()
-            : Directive::getInternalDirectives();
+        $definedDirectives = $schema === null
+            ? Directive::getInternalDirectives()
+            : $schema->getDirectives();
 
         foreach ($definedDirectives as $directive) {
             $locationsMap[$directive->name] = $directive->locations;
@@ -99,9 +99,9 @@ class KnownDirectives extends ValidationRule
                 $name      = $node->name->value;
                 $locations = $locationsMap[$name] ?? null;
 
-                if (! $locations) {
+                if ($locations === null) {
                     $context->reportError(new Error(
-                        self::unknownDirectiveMessage($name),
+                        static::unknownDirectiveMessage($name),
                         [$node]
                     ));
 
@@ -110,13 +110,13 @@ class KnownDirectives extends ValidationRule
 
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if (! $candidateLocation || in_array($candidateLocation, $locations, true)) {
+                if ($candidateLocation === '' || in_array($candidateLocation, $locations, true)) {
                     return;
                 }
 
                 $context->reportError(
                     new Error(
-                        self::misplacedDirectiveMessage($name, $candidateLocation),
+                        static::misplacedDirectiveMessage($name, $candidateLocation),
                         [$node]
                     )
                 );
@@ -134,7 +134,7 @@ class KnownDirectives extends ValidationRule
      *
      * @return string
      */
-    private function getDirectiveLocationForASTPath(array $ancestors)
+    protected function getDirectiveLocationForASTPath(array $ancestors)
     {
         $appliedTo = $ancestors[count($ancestors) - 1];
         switch (true) {

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use PHPUnit\Framework\TestCase;
-use Throwable;
 
 use function file_get_contents;
 
@@ -22,21 +22,9 @@ class SchemaPrinterTest extends TestCase
     {
         $ast = new ScalarTypeDefinitionNode([
             'name' => new NameNode(['value' => 'foo']),
+            'directives' => new NodeList([]),
         ]);
         self::assertEquals('scalar foo', Printer::doPrint($ast));
-    }
-
-    /**
-     * @see it('produces helpful error messages')
-     */
-    public function testProducesHelpfulErrorMessages(): void
-    {
-        $this->expectException(Throwable::class);
-        $this->expectExceptionMessage('Invalid AST Node: {"random":"Data"}');
-
-        // $badAst1 = { random: 'Data' };
-        $badAst = (object) ['random' => 'Data'];
-        Printer::doPrint($badAst);
     }
 
     /**

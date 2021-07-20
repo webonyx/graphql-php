@@ -21,13 +21,14 @@ This nullable field is replaced with **null** and error entry is added to the re
 If all fields up to the root are non-null - **data** entry will be removed from the result  
 and only **errors** key will be presented.
 
-When the result is converted to a serializable array using its **toArray()** method, all errors are 
-converted to arrays as well using default error formatting (see below). 
+When the result is converted to a serializable array using its **toArray()** method, all errors are
+converted to arrays as well using default error formatting (see below).
 
 Alternatively, you can apply [custom error filtering and formatting](#custom-error-handling-and-formatting)
 for your specific requirements.
 
 # Default Error formatting
+
 By default, each error entry is converted to an associative array with following structure:
 
 ```php
@@ -47,23 +48,25 @@ By default, each error entry is converted to an associative array with following
     ],
 ];
 ```
+
 Entry at key **locations** points to a character in query string which caused the error.
-In some cases (like deep fragment fields) locations will include several entries to track down 
+In some cases (like deep fragment fields) locations will include several entries to track down
 the path to field with the error in query.
 
-Entry at key **path** exists only for errors caused by exceptions thrown in resolvers. 
-It contains a path from the very root field to actual field value producing an error 
-(including indexes for list types and field names for composite types). 
+Entry at key **path** exists only for errors caused by exceptions thrown in resolvers.
+It contains a path from the very root field to actual field value producing an error
+(including indexes for list types and field names for composite types).
 
 **Internal errors**
 
 As of version **0.10.0**, all exceptions thrown in resolvers are reported with generic message **"Internal server error"**.
 This is done to avoid information leak in production environments (e.g. database connection errors, file access errors, etc).
 
-Only exceptions implementing interface [`GraphQL\Error\ClientAware`](class-reference.md#graphqlerrorclientaware) and claiming themselves as **safe** will 
+Only exceptions implementing interface [`GraphQL\Error\ClientAware`](class-reference.md#graphqlerrorclientaware) and claiming themselves as **safe** will
 be reported with a full error message.
 
 For example:
+
 ```php
 <?php
 use GraphQL\Error\ClientAware;
@@ -76,7 +79,9 @@ class MySafeException extends \Exception implements ClientAware
     }
 }
 ```
+
 When such exception is thrown it will be reported with a full error message:
+
 ```php
 <?php
 [
@@ -92,14 +97,15 @@ When such exception is thrown it will be reported with a full error message:
 ];
 ```
 
-To change default **"Internal server error"** message to something else, use: 
+To change default **"Internal server error"** message to something else, use:
+
 ```
 GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 ```
 
 # Debugging tools
 
-During development or debugging use `$result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)` to add **debugMessage** key to 
+During development or debugging use `$result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)` to add **debugMessage** key to
 each formatted error entry. If you also want to add exception trace - pass flags instead:
 
 ```php
@@ -109,6 +115,7 @@ $result = GraphQL::executeQuery(/*args*/)->toArray($debug);
 ```
 
 This will make each error entry to look like this:
+
 ```php
 [
     'message' => 'Internal server error',
@@ -130,6 +137,7 @@ This will make each error entry to look like this:
 ```
 
 If you prefer the first resolver exception to be re-thrown, use following flags:
+
 ```php
 <?php
 use GraphQL\GraphQL;
@@ -137,17 +145,18 @@ use GraphQL\Error\DebugFlag;
 $debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::RETHROW_INTERNAL_EXCEPTIONS;
 
 // Following will throw if there was an exception in resolver during execution:
-$result = GraphQL::executeQuery(/*args*/)->toArray($debug); 
+$result = GraphQL::executeQuery(/*args*/)->toArray($debug);
 ```
 
 If you only want to re-throw Exceptions that are not marked as safe through the `ClientAware` interface, use
 the flag `Debug::RETHROW_UNSAFE_EXCEPTIONS`.
 
 # Custom Error Handling and Formatting
+
 It is possible to define custom **formatter** and **handler** for result errors.
 
-**Formatter** is responsible for converting instances of [`GraphQL\Error\Error`](class-reference.md#graphqlerrorerror) 
-to an array. **Handler** is useful for error filtering and logging. 
+**Formatter** is responsible for converting instances of [`GraphQL\Error\Error`](class-reference.md#graphqlerrorerror)
+to an array. **Handler** is useful for error filtering and logging.
 
 For example, these are default formatter and handler:
 
@@ -168,17 +177,18 @@ $myErrorHandler = function(array $errors, callable $formatter) {
 $result = GraphQL::executeQuery(/* $args */)
     ->setErrorFormatter($myErrorFormatter)
     ->setErrorsHandler($myErrorHandler)
-    ->toArray(); 
+    ->toArray();
 ```
 
-Note that when you pass [debug flags](#debugging-tools) to **toArray()** your custom formatter will still be 
+Note that when you pass [debug flags](#debugging-tools) to **toArray()** your custom formatter will still be
 decorated with same debugging information mentioned above.
 
 # Schema Errors
-So far we only covered errors which occur during query execution process. Schema definition can 
+
+So far we only covered errors which occur during query execution process. Schema definition can
 also throw `GraphQL\Error\InvariantViolation` if there is an error in one of type definitions.
 
-Usually such errors mean that there is some logical error in your schema. 
+Usually such errors mean that there is some logical error in your schema.
 In this case it makes sense to return a status code `500 (Internal Server Error)` for GraphQL endpoint:
 
 ```php
@@ -191,7 +201,7 @@ try {
     $schema = new Schema([
         // ...
     ]);
-    
+
     $body = GraphQL::executeQuery($schema, $query);
     $status = 200;
 } catch(\Exception $e) {

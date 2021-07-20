@@ -1,135 +1,152 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\AppContext;
+use GraphQL\Examples\Blog\Data\Comment;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\Story;
+use GraphQL\Examples\Blog\Data\User;
+use GraphQL\Examples\Blog\Type\Field\HtmlField;
 use GraphQL\Examples\Blog\Types;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
+use function method_exists;
+use function ucfirst;
+
 class StoryType extends ObjectType
 {
-    const EDIT = 'EDIT';
-    const DELETE = 'DELETE';
-    const LIKE = 'LIKE';
-    const UNLIKE = 'UNLIKE';
-    const REPLY = 'REPLY';
-
     public function __construct()
     {
-        $config = [
+        parent::__construct([
             'name' => 'Story',
-            'fields' => function() {
-                return [
-                    'id' => Types::id(),
-                    'author' => Types::user(),
-                    'mentions' => Types::listOf(Types::mention()),
-                    'totalCommentCount' => Types::int(),
-                    'comments' => [
-                        'type' => Types::listOf(Types::comment()),
-                        'args' => [
-                            'after' => [
-                                'type' => Types::id(),
-                                'description' => 'Load all comments listed after given comment ID'
-                            ],
-                            'limit' => [
-                                'type' => Types::int(),
-                                'defaultValue' => 5
-                            ]
-                        ]
+            'fields' => static fn (): array => [
+                'id' => Types::id(),
+                'author' => Types::user(),
+                'mentions' => Types::listOf(Types::mention()),
+                'totalCommentCount' => Types::int(),
+                'comments' => [
+                    'type' => Types::listOf(Types::comment()),
+                    'args' => [
+                        'after' => [
+                            'type' => Types::id(),
+                            'description' => 'Load all comments listed after given comment ID',
+                        ],
+                        'limit' => [
+                            'type' => Types::int(),
+                            'defaultValue' => 5,
+                        ],
                     ],
-                    'likes' => [
-                        'type' => Types::listOf(Types::user()),
-                        'args' => [
-                            'limit' => [
-                                'type' => Types::int(),
-                                'description' => 'Limit the number of recent likes returned',
-                                'defaultValue' => 5
-                            ]
-                        ]
+                ],
+                'likes' => [
+                    'type' => Types::listOf(Types::user()),
+                    'args' => [
+                        'limit' => [
+                            'type' => Types::int(),
+                            'description' => 'Limit the number of recent likes returned',
+                            'defaultValue' => 5,
+                        ],
                     ],
-                    'likedBy' => [
-                        'type' => Types::listOf(Types::user()),
-                    ],
-                    'affordances' => Types::listOf(new EnumType([
-                        'name' => 'StoryAffordancesEnum',
-                        'values' => [
-                            self::EDIT,
-                            self::DELETE,
-                            self::LIKE,
-                            self::UNLIKE,
-                            self::REPLY
-                        ]
-                    ])),
-                    'hasViewerLiked' => Types::boolean(),
+                ],
+                'likedBy' => Types::listOf(Types::user()),
+                'affordances' => Types::listOf(Types::storyAffordances()),
+                'hasViewerLiked' => Types::boolean(),
 
-                    Types::htmlField('body'),
-                ];
-            },
-            'interfaces' => [
-                Types::node()
+                'body' => HtmlField::build('body'),
             ],
-            'resolveField' => function($story, $args, $context, ResolveInfo $info) {
-                $method = 'resolve' . ucfirst($info->fieldName);
+            'interfaces' => [Types::node()],
+            'resolveField' => function (Story $story, array $args, $context, ResolveInfo $info) {
+                $fieldName = $info->fieldName;
+
+                $method = 'resolve' . ucfirst($fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($story, $args, $context, $info);
-                } else {
-                    return $story->{$info->fieldName};
                 }
-            }
-        ];
-        parent::__construct($config);
+
+                return $story->{$fieldName};
+            },
+        ]);
     }
 
-    public function resolveAuthor(Story $story)
+    public function resolveAuthor(Story $story): ?User
     {
         return DataSource::findUser($story->authorId);
     }
 
-    public function resolveAffordances(Story $story, $args, AppContext $context)
+    /**
+     * @param array<never> $args
+     *
+     * @return array<int, string>
+     */
+    public function resolveAffordances(Story $story, array $args, AppContext $context): array
     {
-        $isViewer = $context->viewer === DataSource::findUser($story->authorId);
-        $isLiked = DataSource::isLikedBy($story->id, $context->viewer->id);
+        /** @var array<int, string> $affordances */
+        $affordances = [];
 
+        $isViewer = $context->viewer === DataSource::findUser($story->authorId);
         if ($isViewer) {
-            $affordances[] = self::EDIT;
-            $affordances[] = self::DELETE;
+            $affordances[] = Enum\StoryAffordancesType::EDIT;
+            $affordances[] = Enum\StoryAffordancesType::EDIT;
+            $affordances[] = Enum\StoryAffordancesType::DELETE;
         }
+
+        $isLiked = DataSource::isLikedBy($story->id, $context->viewer->id);
         if ($isLiked) {
-            $affordances[] = self::UNLIKE;
+            $affordances[] = Enum\StoryAffordancesType::UNLIKE;
         } else {
-            $affordances[] = self::LIKE;
+            $affordances[] = Enum\StoryAffordancesType::LIKE;
         }
+
         return $affordances;
     }
 
-    public function resolveHasViewerLiked(Story $story, $args, AppContext $context)
+    /**
+     * @param array<never> $args
+     */
+    public function resolveHasViewerLiked(Story $story, array $args, AppContext $context): bool
     {
         return DataSource::isLikedBy($story->id, $context->viewer->id);
     }
 
-    public function resolveTotalCommentCount(Story $story)
+    public function resolveTotalCommentCount(Story $story): int
     {
         return DataSource::countComments($story->id);
     }
 
-    public function resolveComments(Story $story, $args)
+    /**
+     * @param array{limit: int, after?: string} $args
+     *
+     * @return array<int, Comment>
+     */
+    public function resolveComments(Story $story, array $args): array
     {
-        $args += ['after' => null];
-        return DataSource::findComments($story->id, $args['limit'], $args['after']);
+        return DataSource::findComments($story->id, $args['limit'], (int) $args['after'] ?? null);
     }
-    
-    public function resolveMentions(Story $story, $args, AppContext $context){
+
+    /**
+     * @return array<int, Story|User>
+     */
+    public function resolveMentions(Story $story): array
+    {
         return DataSource::findStoryMentions($story->id);
     }
 
-    public function resolveLikedBy(Story $story, $args, AppContext $context){
-        return DataSource::findLikes($story->id,10);
+    /**
+     * @return array<int, User>
+     */
+    public function resolveLikedBy(Story $story): array
+    {
+        return DataSource::findLikes($story->id, 10);
     }
 
-    public function resolveLikes(Story $story, $args, AppContext $context){
-        return DataSource::findLikes($story->id,10);
+    /**
+     * @return array<int, User>
+     */
+    public function resolveLikes(Story $story): array
+    {
+        return DataSource::findLikes($story->id, 10);
     }
 }

@@ -17,10 +17,10 @@ use function sprintf;
 class NoUnusedFragments extends ValidationRule
 {
     /** @var OperationDefinitionNode[] */
-    public $operationDefs;
+    protected array $operationDefs;
 
     /** @var FragmentDefinitionNode[] */
-    public $fragmentDefs;
+    protected array $fragmentDefs;
 
     public function getVisitor(ValidationContext $context)
     {
@@ -55,7 +55,7 @@ class NoUnusedFragments extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            self::unusedFragMessage($fragName),
+                            static::unusedFragMessage($fragName),
                             [$fragmentDef]
                         ));
                     }

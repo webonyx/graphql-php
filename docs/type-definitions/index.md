@@ -4,16 +4,16 @@ graphql-php represents a **type** as a class instance from the `GraphQL\Type\Def
 - [`InterfaceType`](interfaces.md)
 - [`UnionType`](unions.md)
 - [`InputObjectType`](inputs.md)
-- [`ScalarType`](scalar-types.md)
+- [`ScalarType`](scalars.md)
 - [`EnumType`](enums.md)
 
 # Input vs. Output Types
 All types in GraphQL are of two categories: **input** and **output**.
 
-* **Output** types (or field types) are: [Scalar](scalar-types.md), [Enum](enums.md), [Object](object-types.md),
+* **Output** types (or field types) are: [Scalar](scalars.md), [Enum](enums.md), [Object](object-types.md),
   [Interface](interfaces.md), [Union](unions.md)
 
-* **Input** types (or argument types) are: [Scalar](scalar-types.md), [Enum](enums.md), [Inputs](inputs.md)
+* **Input** types (or argument types) are: [Scalar](scalars.md), [Enum](enums.md), [Inputs](inputs.md)
 
 Obviously, [NonNull and List](lists-and-nonnulls.md) types belong to both categories depending on their
 inner type.

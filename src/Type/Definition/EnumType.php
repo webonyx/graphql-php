@@ -80,7 +80,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     private function getNameLookup(): ArrayObject
     {
-        if (! $this->nameLookup) {
+        if (! isset($this->nameLookup)) {
             /** @var ArrayObject<string, EnumValueDefinition> $lookup */
             $lookup = new ArrayObject();
             foreach ($this->getValues() as $value) {
@@ -147,7 +147,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             return $lookup[$value]->name;
         }
 
-        throw new Error('Cannot serialize value as enum: ' . Utils::printSafe($value));
+        throw new InvariantViolation('Cannot serialize value as enum: ' . Utils::printSafe($value));
     }
 
     /**
@@ -209,7 +209,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /**
      * @throws InvariantViolation
      */
-    public function assertValid()
+    public function assertValid(): void
     {
         parent::assertValid();
 

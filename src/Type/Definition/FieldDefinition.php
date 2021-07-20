@@ -128,6 +128,17 @@ class FieldDefinition
                 $fieldDef = self::create($field);
             } elseif ($field instanceof self) {
                 $fieldDef = $field;
+            } elseif (is_callable($field)) {
+                if (! is_string($name)) {
+                    throw new InvariantViolation(
+                        sprintf(
+                            '%s lazy fields must be an associative array with field names as keys.',
+                            $type->name
+                        )
+                    );
+                }
+
+                $fieldDef = new UnresolvedFieldDefinition($type, $name, $field);
             } else {
                 if (! is_string($name) || ! $field) {
                     throw new InvariantViolation(
@@ -143,7 +154,7 @@ class FieldDefinition
                 $fieldDef = self::create(['name' => $name, 'type' => $field]);
             }
 
-            $map[$fieldDef->name] = $fieldDef;
+            $map[$fieldDef->getName()] = $fieldDef;
         }
 
         return $map;
@@ -179,6 +190,11 @@ class FieldDefinition
         }
 
         return null;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     public function getType(): Type

@@ -506,8 +506,12 @@ class SchemaExtender
     /**
      * @param array<string, bool> $options
      */
-    public static function extend(Schema $schema, DocumentNode $documentAST, array $options = []): Schema
-    {
+    public static function extend(
+        Schema $schema,
+        DocumentNode $documentAST,
+        array $options = [],
+        ?callable $typeConfigDecorator = null
+    ): Schema {
         if (! (isset($options['assumeValid']) || isset($options['assumeValidSDL']))) {
             DocumentValidator::assertValidSDLExtension($documentAST, $schema);
         }
@@ -540,7 +544,7 @@ class SchemaExtender
                     $type = null;
                 }
 
-                if ($type) {
+                if ($type !== null) {
                     throw new Error('Type "' . $typeName . '" already exists in the schema. It cannot also be defined in this type definition.', [$def]);
                 }
 
@@ -588,7 +592,8 @@ class SchemaExtender
                 }
 
                 throw new Error('Unknown type: "' . $typeName . '". Ensure that this type exists either in the original schema, or is added in a type definition.', [$typeName]);
-            }
+            },
+            $typeConfigDecorator
         );
 
         static::$extendTypeCache = [];
@@ -599,7 +604,7 @@ class SchemaExtender
             'subscription' => static::extendMaybeNamedType($schema->getSubscriptionType()),
         ];
 
-        if ($schemaDef) {
+        if ($schemaDef !== null) {
             foreach ($schemaDef->operationTypes as $operationType) {
                 $operation = $operationType->operation;
                 $type      = $operationType->type;
@@ -613,7 +618,7 @@ class SchemaExtender
         }
 
         foreach ($schemaExtensions as $schemaExtension) {
-            if ($schemaExtension->operationTypes === null) {
+            if (! isset($schemaExtension->operationTypes)) {
                 continue;
             }
 

@@ -39,7 +39,7 @@ class NoUndefinedVariables extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            self::undefinedVarMessage(
+                            static::undefinedVarMessage(
                                 $varName,
                                 $operation->name !== null
                                     ? $operation->name->value
