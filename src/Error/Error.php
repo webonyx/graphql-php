@@ -98,7 +98,9 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
         // Compute list of blame nodes.
         if ($nodes instanceof Traversable) {
             $this->nodes = iterator_to_array($nodes);
-        } elseif ($nodes !== null && ! is_array($nodes)) {
+        } elseif (is_array($nodes)) {
+            $this->nodes = $nodes;
+        } elseif ($nodes !== null) {
             $this->nodes = [$nodes];
         }
 

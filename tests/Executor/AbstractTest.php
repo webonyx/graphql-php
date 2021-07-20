@@ -428,13 +428,11 @@ class AbstractTest extends TestCase
                     'message'      => 'Internal server error',
                     'locations'    => [['line' => 1, 'column' => 3]],
                     'path'         => ['foo'],
-                    'extensions' => [
-                        'debugMessage' =>
-                            'Abstract type FooInterface must resolve to an Object type at ' .
-                            'runtime for field Query.foo with value "dummy", received "[]". ' .
-                            'Either the FooInterface type should provide a "resolveType" ' .
-                            'function or each possible type should provide an "isTypeOf" function.',
-                    ],
+                    'debugMessage' =>
+                        'Abstract type FooInterface must resolve to an Object type at ' .
+                        'runtime for field Query.foo with value "dummy", received "[]". ' .
+                        'Either the FooInterface type should provide a "resolveType" ' .
+                        'function or each possible type should provide an "isTypeOf" function.',
                 ],
             ],
         ];
