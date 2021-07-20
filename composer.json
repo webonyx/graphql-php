@@ -21,9 +21,9 @@
     "nyholm/psr7": "^1.2",
     "phpbench/phpbench": "1.0.0-beta1",
     "phpstan/extension-installer": "^1.0",
-    "phpstan/phpstan": "0.12.82",
-    "phpstan/phpstan-phpunit": "0.12.18",
-    "phpstan/phpstan-strict-rules": "0.12.9",
+    "phpstan/phpstan": "^0.12",
+    "phpstan/phpstan-phpunit": "^0.12",
+    "phpstan/phpstan-strict-rules": "^0.12",
     "phpunit/phpunit": "^9.5",
     "psr/http-message": "^1.0",
     "react/promise": "2.*"

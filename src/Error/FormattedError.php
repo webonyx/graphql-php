@@ -39,6 +39,13 @@ use function strlen;
  * This class is used for [default error formatting](error-handling.md).
  * It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io/graphql/#sec-Errors)
  * and provides tools for error debugging.
+ *
+ * @phpstan-type FormattedErrorArray array{
+ *  message: string,
+ *  locations?: array<int, array{line: int, column: int}>,
+ *  path?: array<int, int|string>,
+ *  extensions?: array<string, mixed>,
+ * }
  */
 class FormattedError
 {
@@ -164,12 +171,7 @@ class FormattedError
      *
      * For a list of available debug flags @see \GraphQL\Error\DebugFlag constants.
      *
-     * @return array{
-     *  message: string,
-     *  locations?: array<int, array{line: int, column: int}>,
-     *  path?: array<int, int|string>,
-     *  extensions?: array<string, mixed>,
-     * }
+     * @return FormattedErrorArray
      *
      * @api
      */
@@ -216,20 +218,13 @@ class FormattedError
     /**
      * Decorates spec-compliant $formattedError with debug entries according to $debug flags.
      *
-     * @param int    $debugFlag For available flags @see \GraphQL\Error\DebugFlag
-     * @param array{
-     *  message: string,
-     *  locations?: array<int, array{line: int, column: int}>,
-     *  path?: array<int, int|string>,
-     *  extensions?: array<string, mixed>,
-     * } $formattedError
+     * phpcs:disable SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectAnnotationsGroup
+     * @param int                 $debugFlag      For available flags @see \GraphQL\Error\DebugFlag
      *
-     * @return array{
-     *  message: string,
-     *  locations?: array<int, array{line: int, column: int}>,
-     *  path?: array<int, int|string>,
-     *  extensions?: array<string, mixed>,
-     * }
+     * phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification
+     * @param FormattedErrorArray $formattedError
+     *
+     * @return FormattedErrorArray
      */
     public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag): array
     {
