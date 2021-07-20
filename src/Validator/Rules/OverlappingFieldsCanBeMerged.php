@@ -256,12 +256,11 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         }
                     }
 
-                    $responseName = $selection->alias === null ? $fieldName : $selection->alias->value;
+                    $responseName = isset($selection->alias)
+                        ? $selection->alias->value
+                        : $fieldName;
 
-                    if (! isset($astAndDefs[$responseName])) {
-                        $astAndDefs[$responseName] = [];
-                    }
-
+                    $astAndDefs[$responseName] ??= [];
                     $astAndDefs[$responseName][] = [$parentType, $selection, $fieldDef];
                     break;
                 case $selection instanceof FragmentSpreadNode:

@@ -618,7 +618,7 @@ class SchemaExtender
         }
 
         foreach ($schemaExtensions as $schemaExtension) {
-            if ($schemaExtension->operationTypes === null) {
+            if (! isset($schemaExtension->operationTypes)) {
                 continue;
             }
 
