@@ -267,7 +267,7 @@ abstract class Type implements JsonSerializable
     /**
      * @api
      */
-    public static function getNullableType(?Type $type): ?Type
+    public static function getNullableType(Type $type): Type
     {
         return $type instanceof NonNull
             ? $type->getWrappedType()
