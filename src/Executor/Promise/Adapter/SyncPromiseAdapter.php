@@ -20,7 +20,7 @@ use function count;
 class SyncPromiseAdapter implements PromiseAdapter
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function isThenable($value)
     {
@@ -28,7 +28,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function convertThenable($thenable)
     {
@@ -41,7 +41,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null)
     {
@@ -52,7 +52,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function create(callable $resolver)
     {
@@ -77,7 +77,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createFulfilled($value = null)
     {
@@ -87,7 +87,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createRejected($reason)
     {
@@ -97,7 +97,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function all(array $promisesOrValues)
     {

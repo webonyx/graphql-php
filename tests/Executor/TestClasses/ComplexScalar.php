@@ -20,7 +20,7 @@ class ComplexScalar extends ScalarType
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function serialize($value)
     {
@@ -32,7 +32,7 @@ class ComplexScalar extends ScalarType
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function parseValue($value)
     {
@@ -44,7 +44,7 @@ class ComplexScalar extends ScalarType
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {

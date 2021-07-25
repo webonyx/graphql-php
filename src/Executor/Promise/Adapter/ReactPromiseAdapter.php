@@ -17,7 +17,7 @@ use function React\Promise\resolve;
 class ReactPromiseAdapter implements PromiseAdapter
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function isThenable($value)
     {
@@ -25,7 +25,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function convertThenable($thenable)
     {
@@ -33,7 +33,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null)
     {
@@ -44,7 +44,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function create(callable $resolver)
     {
@@ -54,7 +54,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createFulfilled($value = null)
     {
@@ -64,7 +64,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createRejected($reason)
     {
@@ -74,7 +74,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function all(array $promisesOrValues)
     {
