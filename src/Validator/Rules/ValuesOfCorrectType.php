@@ -74,7 +74,7 @@ class ValuesOfCorrectType extends ValidationRule
                 // Note: TypeInfo will traverse into a list's item type, so look to the
                 // parent input type to check if it is a list.
                 $parentType = $context->getParentInputType();
-                $type = $parentType === null ? null : Type::getNullableType($parentType);
+                $type       = $parentType === null ? null : Type::getNullableType($parentType);
                 if (! $type instanceof ListOfType) {
                     $this->isValidScalar($context, $node, $fieldName);
 
