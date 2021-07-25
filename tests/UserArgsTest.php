@@ -14,9 +14,9 @@ use PHPUnit\Framework\TestCase;
 class UserArgsTest extends TestCase
 {
     /**
-     * @see it('disallows non-existent scalar field on input')
+     * Returns error when a scalar value is provided for a non-existent input field.
      */
-    public function testDisallowsNonExistentScalarFieldOnInput(): void
+    public function testErrorForNonExistentScalarInputField(): void
     {
         $query  = '
         query {
@@ -31,9 +31,9 @@ class UserArgsTest extends TestCase
     }
 
     /**
-     * @see it('disallows non-existent array field on input')
+     * Returns error when an array value is provided for a non-existent input field.
      */
-    public function testDisallowsNonExistentArrayFieldOnInput(): void
+    public function testErrorForNonExistentArrayInputField(): void
     {
         $query  = '
         query {
