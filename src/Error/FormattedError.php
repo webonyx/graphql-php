@@ -199,7 +199,7 @@ class FormattedError
 
         if ($exception instanceof ProvidesExtensions) {
             $extensions = $exception->getExtensions();
-            if (count($extensions) > 0) {
+            if (is_array($extensions) && count($extensions) > 0) {
                 $formattedError['extensions'] = $extensions;
             }
         }

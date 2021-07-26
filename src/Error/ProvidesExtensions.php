@@ -12,7 +12,7 @@ interface ProvidesExtensions
     /**
      * Data to include within the "extensions" key of the formatted error.
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    public function getExtensions(): array;
+    public function getExtensions(): ?array;
 }

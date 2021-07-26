@@ -94,18 +94,20 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             $this->nodes = $nodes;
         } elseif ($nodes !== null) {
             $this->nodes = [$nodes];
+        } else {
+            $this->nodes = null;
         }
 
         $this->source    = $source;
         $this->positions = $positions;
         $this->path      = $path;
 
-        if (count($extensions) > 0) {
+        if (is_array($extensions) && count($extensions) > 0) {
             $this->extensions = $extensions;
         } elseif ($previous instanceof ProvidesExtensions) {
             $this->extensions = $previous->getExtensions();
         } else {
-            $this->extensions = [];
+            $this->extensions = null;
         }
 
         if ($previous instanceof ClientAware) {
