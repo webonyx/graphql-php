@@ -134,9 +134,7 @@ function unwrapDocblock($docBlock, $stripAnnotations = true) {
 function unpadDocblock($docBlock) {
     $lines = explode("\n", $docBlock);
     $lines = array_map(
-        static function (string $line): string {
-            return ' ' . trim($line);
-        },
+        static fn(string $line): string => ' ' . trim($line),
         $lines
     );
     return trim(implode("\n", $lines));
