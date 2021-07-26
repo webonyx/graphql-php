@@ -13,9 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 class UserArgsTest extends TestCase
 {
-    /**
-     * Returns error when a scalar value is provided for a non-existent input field.
-     */
     public function testErrorForNonExistentScalarInputField(): void
     {
         $query  = '
@@ -30,9 +27,6 @@ class UserArgsTest extends TestCase
         self::assertEquals('Field "scalar" is not defined by type InputType.', $result['errors'][0]['message']);
     }
 
-    /**
-     * Returns error when an array value is provided for a non-existent input field.
-     */
     public function testErrorForNonExistentArrayInputField(): void
     {
         $query  = '
