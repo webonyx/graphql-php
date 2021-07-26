@@ -73,7 +73,10 @@ class ValuesOfCorrectType extends ValidationRule
             NodeKind::LST          => function (ListValueNode $node) use ($context, &$fieldName): ?VisitorOperation {
                 // Note: TypeInfo will traverse into a list's item type, so look to the
                 // parent input type to check if it is a list.
-                $type = Type::getNullableType($context->getParentInputType());
+                $parentType = $context->getParentInputType();
+                $type       = $parentType === null
+                    ? null
+                    : Type::getNullableType($parentType);
                 if (! $type instanceof ListOfType) {
                     $this->isValidScalar($context, $node, $fieldName);
 
