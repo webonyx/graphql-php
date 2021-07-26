@@ -10,6 +10,7 @@ throw new \GraphQL\Error\Error('msg');
 ```
 
 Formatting before the change:
+
 ```php
 'errors' => [
     [
@@ -20,7 +21,9 @@ Formatting before the change:
     ],
 ]
 ```
+
 After the change:
+
 ```php
 'errors' => [
     [
