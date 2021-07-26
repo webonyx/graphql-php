@@ -34,11 +34,8 @@ use function iterator_to_array;
  * Class extends standard PHP `\Exception`, so all standard methods of base `\Exception` class
  * are available in addition to those listed below.
  */
-class Error extends Exception implements JsonSerializable, ClientAware
+class Error extends Exception implements JsonSerializable, ClientAware, ProvidesExtensions
 {
-    const CATEGORY_GRAPHQL  = 'graphql';
-    const CATEGORY_INTERNAL = 'internal';
-
     /**
      * Lazily initialized.
      *
@@ -74,14 +71,10 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /** @var int[] */
     private $positions;
 
-    /** @var bool */
-    private $isClientSafe;
+    private bool $isClientSafe;
 
-    /** @var string */
-    protected $category;
-
-    /** @var mixed[]|null */
-    protected $extensions;
+    /** @var array<string, mixed> */
+    protected array $extensions;
 
     /**
      * @param string                       $message
@@ -89,7 +82,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * @param mixed[]                      $positions
      * @param mixed[]|null                 $path
      * @param Throwable                    $previous
-     * @param mixed[]                      $extensions
+     * @param array<string, mixed>         $extensions
      */
     public function __construct(
         $message = '',
@@ -104,31 +97,31 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         // Compute list of blame nodes.
         if ($nodes instanceof Traversable) {
-            $nodes = iterator_to_array($nodes);
-        } elseif ($nodes !== null && ! is_array($nodes)) {
-            $nodes = [$nodes];
+            $this->nodes = iterator_to_array($nodes);
+        } elseif (is_array($nodes)) {
+            $this->nodes = $nodes;
+        } elseif ($nodes !== null) {
+            $this->nodes = [$nodes];
         }
 
-        $this->nodes      = $nodes;
-        $this->source     = $source;
-        $this->positions  = $positions;
-        $this->path       = $path;
-        $this->extensions = count($extensions) > 0 ? $extensions : (
-        $previous instanceof self
-            ? $previous->extensions
-            : []
-        );
+        $this->source    = $source;
+        $this->positions = $positions;
+        $this->path      = $path;
+
+        if (count($extensions) > 0) {
+            $this->extensions = $extensions;
+        } elseif ($previous instanceof ProvidesExtensions) {
+            $this->extensions = $previous->getExtensions();
+        } else {
+            $this->extensions = [];
+        }
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-            $cat                = $previous->getCategory();
-            $this->category     = $cat === '' || $cat === null  ? self::CATEGORY_INTERNAL : $cat;
         } elseif ($previous !== null) {
             $this->isClientSafe = false;
-            $this->category     = self::CATEGORY_INTERNAL;
         } else {
             $this->isClientSafe = true;
-            $this->category     = self::CATEGORY_GRAPHQL;
         }
     }
 
@@ -195,20 +188,9 @@ class Error extends Exception implements JsonSerializable, ClientAware
         return $error->toSerializableArray();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function isClientSafe()
+    public function isClientSafe(): bool
     {
         return $this->isClientSafe;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getCategory()
-    {
-        return $this->category;
     }
 
     public function getSource(): ?Source
@@ -320,10 +302,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         return $this->path;
     }
 
-    /**
-     * @return mixed[]
-     */
-    public function getExtensions()
+    public function getExtensions(): array
     {
         return $this->extensions;
     }

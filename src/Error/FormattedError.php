@@ -39,6 +39,13 @@ use function strlen;
  * This class is used for [default error formatting](error-handling.md).
  * It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io/graphql/#sec-Errors)
  * and provides tools for error debugging.
+ *
+ * @phpstan-type FormattedErrorArray array{
+ *  message: string,
+ *  locations?: array<int, array{line: int, column: int}>,
+ *  path?: array<int, int|string>,
+ *  extensions?: array<string, mixed>,
+ * }
  */
 class FormattedError
 {
@@ -164,33 +171,19 @@ class FormattedError
      *
      * For a list of available debug flags @see \GraphQL\Error\DebugFlag constants.
      *
-     * @param string $internalErrorMessage
-     *
-     * @return mixed[]
-     *
-     * @throws Throwable
+     * @return FormattedErrorArray
      *
      * @api
      */
-    public static function createFromException(Throwable $exception, int $debug = DebugFlag::NONE, $internalErrorMessage = null): array
+    public static function createFromException(Throwable $exception, int $debug = DebugFlag::NONE, ?string $internalErrorMessage = null): array
     {
         $internalErrorMessage ??= self::$internalErrorMessage;
 
-        if ($exception instanceof ClientAware) {
-            $formattedError = [
-                'message'  => $exception->isClientSafe() ? $exception->getMessage() : $internalErrorMessage,
-                'extensions' => [
-                    'category' => $exception->getCategory(),
-                ],
-            ];
-        } else {
-            $formattedError = [
-                'message'  => $internalErrorMessage,
-                'extensions' => [
-                    'category' => Error::CATEGORY_INTERNAL,
-                ],
-            ];
-        }
+        $message = $exception instanceof ClientAware && $exception->isClientSafe()
+            ? $exception->getMessage()
+            : $internalErrorMessage;
+
+        $formattedError = ['message' => $message];
 
         if ($exception instanceof Error) {
             $locations = Utils::map(
@@ -206,9 +199,12 @@ class FormattedError
             if (count($exception->path ?? []) > 0) {
                 $formattedError['path'] = $exception->path;
             }
+        }
 
-            if (count($exception->getExtensions() ?? []) > 0) {
-                $formattedError['extensions'] = $exception->getExtensions() + $formattedError['extensions'];
+        if ($exception instanceof ProvidesExtensions) {
+            $extensions = $exception->getExtensions();
+            if (count($extensions) > 0) {
+                $formattedError['extensions'] = $extensions;
             }
         }
 
@@ -220,14 +216,15 @@ class FormattedError
     }
 
     /**
-     * Decorates spec-compliant $formattedError with debug entries according to $debug flags
-     * (@see \GraphQL\Error\DebugFlag for available flags)
+     * Decorates spec-compliant $formattedError with debug entries according to $debug flags.
      *
-     * @param mixed[] $formattedError
+     * phpcs:disable SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectAnnotationsGroup
+     * @param int                 $debugFlag      For available flags @see \GraphQL\Error\DebugFlag
      *
-     * @return mixed[]
+     * phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification
+     * @param FormattedErrorArray $formattedError
      *
-     * @throws Throwable
+     * @return FormattedErrorArray
      */
     public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag): array
     {
