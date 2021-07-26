@@ -39,6 +39,8 @@ use function parse_str;
 use function sprintf;
 use function stripos;
 
+use const JSON_ERROR_NONE;
+
 /**
  * Contains functionality that could be re-used by various server implementations
  */
@@ -79,17 +81,17 @@ class Helper
             }
 
             if (stripos($contentType, 'application/graphql') !== false) {
-                $rawBody    = $readRawBodyFn
-                    ? $readRawBodyFn()
-                    : $this->readRawBody();
+                $rawBody    = $readRawBodyFn === null
+                    ? $this->readRawBody()
+                    : $readRawBodyFn();
                 $bodyParams = ['query' => $rawBody ?? ''];
             } elseif (stripos($contentType, 'application/json') !== false) {
-                $rawBody    = $readRawBodyFn ?
-                    $readRawBodyFn()
-                    : $this->readRawBody();
+                $rawBody    = $readRawBodyFn === null
+                    ? $this->readRawBody()
+                    : $readRawBodyFn();
                 $bodyParams = json_decode($rawBody ?? '', true);
 
-                if (json_last_error()) {
+                if (json_last_error() !== JSON_ERROR_NONE) {
                     throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
                 }
 
@@ -158,23 +160,25 @@ class Helper
      */
     public function validateOperationParams(OperationParams $params)
     {
-        $errors = [];
-        if (! $params->query && ! $params->queryId) {
+        $errors  = [];
+        $query   = $params->query ?? '';
+        $queryId = $params->queryId ?? '';
+        if ($query === '' && $queryId === '') {
             $errors[] = new RequestError('GraphQL Request must include at least one of those two parameters: "query" or "queryId"');
         }
 
-        if ($params->query && $params->queryId) {
+        if ($query !== '' && $queryId !== '') {
             $errors[] = new RequestError('GraphQL Request parameters "query" and "queryId" are mutually exclusive');
         }
 
-        if ($params->query !== null && ! is_string($params->query)) {
+        if (! is_string($query)) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "query" must be string, but got ' .
                 Utils::printSafeJson($params->query)
             );
         }
 
-        if ($params->queryId !== null && ! is_string($params->queryId)) {
+        if (! is_string($queryId)) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "queryId" must be string, but got ' .
                 Utils::printSafeJson($params->queryId)
@@ -280,9 +284,9 @@ class Helper
                 );
             }
 
-            $doc = $op->queryId
-                ? $this->loadPersistedQuery($config, $op)
-                : $op->query;
+            $doc = ($op->queryId ?? '') === ''
+                ? $op->query
+                : $this->loadPersistedQuery($config, $op);
 
             if (! $doc instanceof DocumentNode) {
                 $doc = Parser::parse($doc);
@@ -320,11 +324,11 @@ class Helper
         }
 
         $applyErrorHandling = static function (ExecutionResult $result) use ($config): ExecutionResult {
-            if ($config->getErrorsHandler()) {
+            if ($config->getErrorsHandler() !== null) {
                 $result->setErrorsHandler($config->getErrorsHandler());
             }
 
-            if ($config->getErrorFormatter() || $config->getDebugFlag() !== DebugFlag::NONE) {
+            if ($config->getErrorFormatter() !== null || $config->getDebugFlag() !== DebugFlag::NONE) {
                 $result->setErrorFormatter(
                     FormattedError::prepareFormatter(
                         $config->getErrorFormatter(),

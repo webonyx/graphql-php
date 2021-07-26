@@ -808,10 +808,9 @@ class Parser
         // Experimental support for defining variables within fragments changes
         // the grammar of FragmentDefinition:
         //   - fragment FragmentName VariableDefinitions? on TypeCondition Directives? SelectionSet
-        $variableDefinitions = null;
-        if (isset($this->lexer->options['experimentalFragmentVariables'])) {
-            $variableDefinitions = $this->parseVariableDefinitions();
-        }
+        $variableDefinitions = isset($this->lexer->options['experimentalFragmentVariables'])
+            ? $this->parseVariableDefinitions()
+            : null;
 
         $this->expectKeyword('on');
         $typeCondition = $this->parseNamedType();

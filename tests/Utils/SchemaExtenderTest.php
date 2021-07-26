@@ -576,7 +576,7 @@ class SchemaExtenderTest extends TestCase
         self::assertCount(0, $testInterface->extensionASTNodes);
 
         $restoredExtensionAST = new DocumentNode([
-            'definitions' => array_merge(
+            'definitions' => new NodeList(array_merge(
                 $query->extensionASTNodes,
                 $someScalar->extensionASTNodes,
                 $someEnum->extensionASTNodes,
@@ -591,7 +591,7 @@ class SchemaExtenderTest extends TestCase
                     $testType->astNode,
                     $testDirective->astNode,
                 ]
-            ),
+            )),
         ]);
 
         self::assertEquals(

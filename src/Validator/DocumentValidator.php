@@ -7,6 +7,7 @@ namespace GraphQL\Validator;
 use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -299,7 +300,7 @@ class DocumentValidator
     public static function isValidLiteralValue(Type $type, $valueNode)
     {
         $emptySchema = new Schema([]);
-        $emptyDoc    = new DocumentNode(['definitions' => []]);
+        $emptyDoc    = new DocumentNode(['definitions' => new NodeList([])]);
         $typeInfo    = new TypeInfo($emptySchema, $type);
         $context     = new ValidationContext($emptySchema, $emptyDoc, $typeInfo);
         $validator   = new ValuesOfCorrectType();

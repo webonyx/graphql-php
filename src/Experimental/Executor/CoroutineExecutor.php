@@ -189,7 +189,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
         [$errors, $coercedVariableValues] = Values::getVariableValues(
             $this->schema,
-            $this->collector->operation->variableDefinitions ?? [],
+            $this->collector->operation->variableDefinitions,
             $this->rawVariableValues ?? []
         );
 

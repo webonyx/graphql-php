@@ -116,7 +116,7 @@ class ValuesOfCorrectType extends ValidationRule
                 $parentType = Type::getNamedType($context->getParentInputType());
                 /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $fieldType */
                 $fieldType = $context->getInputType();
-                if ($fieldType || ! ($parentType instanceof InputObjectType)) {
+                if ($fieldType !== null || ! ($parentType instanceof InputObjectType)) {
                     return;
                 }
 
@@ -139,7 +139,7 @@ class ValuesOfCorrectType extends ValidationRule
                 $type = Type::getNamedType($context->getInputType());
                 if (! $type instanceof EnumType) {
                     $this->isValidScalar($context, $node, $fieldName);
-                } elseif (! $type->getValue($node->value)) {
+                } elseif ($type->getValue($node->value) === null) {
                     $context->reportError(
                         new Error(
                             static::getBadValueMessage(
@@ -181,10 +181,10 @@ class ValuesOfCorrectType extends ValidationRule
     protected function isValidScalar(ValidationContext $context, ValueNode $node, $fieldName)
     {
         // Report any error at the full type expected by the location.
-        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $locationType */
+        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $locationType */
         $locationType = $context->getInputType();
 
-        if (! $locationType) {
+        if ($locationType === null) {
             return;
         }
 
@@ -248,7 +248,7 @@ class ValuesOfCorrectType extends ValidationRule
                 $values
             );
 
-            return $suggestions ? 'Did you mean the enum value ' . Utils::orList($suggestions) . '?' : null;
+            return $suggestions === [] ? null : 'Did you mean the enum value ' . Utils::orList($suggestions) . '?';
         }
     }
 

@@ -183,7 +183,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($operation !== null) {
             [$coercionErrors, $coercedVariableValues] = Values::getVariableValues(
                 $schema,
-                $operation->variableDefinitions ?? [],
+                $operation->variableDefinitions,
                 $rawVariableValues ?? []
             );
             if (count($coercionErrors ?? []) === 0) {

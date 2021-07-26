@@ -447,17 +447,10 @@ class Utils
     /**
      * UTF-8 compatible ord()
      *
-     * @param string $char
-     * @param string $encoding
-     *
      * @return mixed
      */
-    public static function ord($char, $encoding = 'UTF-8')
+    public static function ord(string $char, string $encoding = 'UTF-8')
     {
-        if (! $char && $char !== '0') {
-            return 0;
-        }
-
         if (! isset($char[1])) {
             return ord($char);
         }
@@ -512,7 +505,7 @@ class Utils
     public static function assertValidName($name)
     {
         $error = self::isValidNameError($name);
-        if ($error) {
+        if ($error !== null) {
             throw $error;
         }
     }

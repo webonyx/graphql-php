@@ -122,7 +122,10 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      */
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
-        return new NodeList(array_splice($this->nodes, $offset, $length, $replacement));
+        /** @var array<T> $nodes */
+        $nodes = array_splice($this->nodes, $offset, $length, $replacement);
+
+        return new NodeList($nodes);
     }
 
     /**

@@ -157,9 +157,10 @@ abstract class QuerySecurityRule extends ValidationRule
 
                     if (! ($_visitedFragmentNames[$fragName] ?? false)) {
                         $_visitedFragmentNames[$fragName] = true;
-                        $fragment                         = $context->getFragment($fragName);
 
-                        if ($fragment) {
+                        $fragment = $context->getFragment($fragName);
+
+                        if ($fragment !== null) {
                             $_astAndDefs = $this->collectFieldASTsAndDefs(
                                 $context,
                                 TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition),
@@ -181,7 +182,7 @@ abstract class QuerySecurityRule extends ValidationRule
     {
         $fieldName = $node->name->value;
 
-        return $node->alias ? $node->alias->value : $fieldName;
+        return $node->alias === null ? $fieldName : $node->alias->value;
     }
 }
 
