@@ -20,9 +20,6 @@ jobs:
           - "8.0"
         dependencies:
           - "highest"
-        env:
-          - ''
-          - 'EXECUTOR=coroutine'
         include:
           - dependencies: "lowest"
             php-version: "7.4"

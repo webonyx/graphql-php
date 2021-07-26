@@ -18,6 +18,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 ### Added
 
 - Improve extendability of validator rules
+- Add tests for errors that occur when undeclared fields are passed in input
 
 ### Optimized
 
@@ -29,12 +30,14 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Avoid QueryPlan crash when multiple $fieldNodes are present
 - Clarify error when attempting to coerce anything but `array` or `stdClass` to an input object
 - Allow directives on variable definitions
+- Handle `null` parent of list in `ValuesOfCorrectType::getVisitor`
 
 ### Removed
 
 - Removed deprecated `Type::getInternalTypes()`
 - Remove deprecated `GraphQL::execute()`
 - Remove deprecated `GraphQL::executeAndReturnResult()`
+- Removed depreacted experimental CoroutineExecutor
 
 #### 14.9.0
 

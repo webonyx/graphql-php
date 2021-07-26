@@ -1,3 +1,59 @@
+## v14.x.x > v15.x.x
+
+### BREAKING: Removed error extension field `category`
+
+The formatting of errors that implement the `ClientAware` interface no longer
+contains the key `category`. This includes both built-in and user-defined errors.
+
+```php
+throw new \GraphQL\Error\Error('msg');
+```
+
+Formatting before the change:
+
+```php
+'errors' => [
+    [
+        'message' => 'msg',
+        'extensions' => [
+            'category' => 'graphql',
+        ],
+    ],
+]
+```
+
+After the change:
+
+```php
+'errors' => [
+    [
+        'message' => 'msg',
+    ],
+]
+```
+
+The method `ClientAware::getCategory()` was removed, you may also remove it from your implementations:
+
+```diff
+use GraphQL\Error\ClientAware;
+
+class MyException extends \Exception implements ClientAware
+{
+    public function isClientSafe(): bool
+    {
+        return true;
+    }
+
+-   public function getCategory(): string
+-   {
+-       return 'my-category';
+-   }
+}
+```
+
+You can always switch to [custom error formatting](https://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting)
+to revert to the old format.
+
 ## v0.13.x > v14.x.x
 
 ### BREAKING: Strict coercion of scalar types (#278)

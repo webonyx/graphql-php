@@ -36,16 +36,16 @@ By default, each error entry is converted to an associative array with following
 [
     'message' => 'Error message',
     'extensions' => [
-        'category' => 'graphql'
+        'key' => 'value',
     ],
     'locations' => [
-        ['line' => 1, 'column' => 2]
+        ['line' => 1, 'column' => 2],
     ],
     'path' => [
         'listField',
         0,
-        'fieldWithException'
-    ]
+        'fieldWithException',
+    ],
 ];
 ```
 
@@ -73,14 +73,9 @@ use GraphQL\Error\ClientAware;
 
 class MySafeException extends \Exception implements ClientAware
 {
-    public function isClientSafe()
+    public function isClientSafe(): bool
     {
         return true;
-    }
-
-    public function getCategory()
-    {
-        return 'businessLogic';
     }
 }
 ```
@@ -91,16 +86,13 @@ When such exception is thrown it will be reported with a full error message:
 <?php
 [
     'message' => 'My reported error',
-    'extensions' => [
-        'category' => 'businessLogic'
-    ],
     'locations' => [
-        ['line' => 10, 'column' => 2]
+        ['line' => 10, 'column' => 2],
     ],
     'path' => [
         'path',
         'to',
-        'fieldWithException'
+        'fieldWithException',
     ]
 ];
 ```
@@ -125,24 +117,20 @@ $result = GraphQL::executeQuery(/*args*/)->toArray($debug);
 This will make each error entry to look like this:
 
 ```php
-<?php
 [
     'debugMessage' => 'Actual exception message',
     'message' => 'Internal server error',
-    'extensions' => [
-        'category' => 'internal'
-    ],
     'locations' => [
-        ['line' => 10, 'column' => 2]
+        ['line' => 10, 'column' => 2],
     ],
     'path' => [
         'listField',
         0,
-        'fieldWithException'
+        'fieldWithException',
     ],
     'trace' => [
         /* Formatted original exception trace */
-    ]
+    ],
 ];
 ```
 
