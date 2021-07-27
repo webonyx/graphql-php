@@ -37,7 +37,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated `GraphQL::executeAndReturnResult()`
 - Removed depreacted experimental CoroutineExecutor
 
-#### 14.9.0
+## 14.9.0
 
 ### Added
 
