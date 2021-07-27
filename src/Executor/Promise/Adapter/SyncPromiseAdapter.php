@@ -19,17 +19,11 @@ use function count;
  */
 class SyncPromiseAdapter implements PromiseAdapter
 {
-    /**
-     * @inheritDoc
-     */
     public function isThenable($value)
     {
         return $value instanceof SyncPromise;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function convertThenable($thenable)
     {
         if (! $thenable instanceof SyncPromise) {
@@ -40,9 +34,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($thenable, $this);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null)
     {
         /** @var SyncPromise $adoptedPromise */
@@ -51,9 +42,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function create(callable $resolver)
     {
         $promise = new SyncPromise();
@@ -76,9 +64,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function createFulfilled($value = null)
     {
         $promise = new SyncPromise();
@@ -86,9 +71,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->resolve($value), $this);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function createRejected($reason)
     {
         $promise = new SyncPromise();
@@ -96,9 +78,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->reject($reason), $this);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function all(array $promisesOrValues)
     {
         $all = new SyncPromise();
