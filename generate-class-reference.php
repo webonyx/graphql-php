@@ -36,7 +36,7 @@ $entries = [
 
 function renderClassMethod(ReflectionMethod $method) {
     $args = array_map(
-        static function (ReflectionParameter $p) {
+        static function (ReflectionParameter $p): string {
             $type = ltrim($p->getType() . " ");
             $def = $type . '$' . $p->getName();
 
