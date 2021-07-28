@@ -19,7 +19,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
-use Throwable;
 
 use function array_map;
 
@@ -203,9 +202,7 @@ class SyncTest extends TestCase
         );
         $expected         = [
             'errors' => array_map(
-                static function (Throwable $e): array {
-                    return FormattedError::createFromException($e);
-                },
+                [FormattedError::class, 'createFromException'],
                 $validationErrors
             ),
         ];

@@ -11,11 +11,13 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
+use function array_map;
 use function in_array;
 use function sprintf;
 
@@ -57,12 +59,10 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         $definedDirectives = $schema !== null ? $schema->getDirectives() : Directive::getInternalDirectives();
 
         foreach ($definedDirectives as $directive) {
-            $argNames = [];
-            foreach ($directive->args as $arg) {
-                $argNames[] = $arg->name;
-            }
-
-            $directiveArgs[$directive->name] = $argNames;
+            $directiveArgs[$directive->name] = array_map(
+                static fn (FieldArgument $arg): string => $arg->name,
+                $directive->args
+            );
         }
 
         $astDefinitions = $context->getDocument()->definitions;

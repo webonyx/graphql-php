@@ -37,6 +37,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 
 use function array_keys;
+use function array_map;
 use function array_merge;
 use function count;
 
@@ -261,10 +262,10 @@ class SchemaExtender
      */
     protected static function extendPossibleTypes(UnionType $type): array
     {
-        $possibleTypes = [];
-        foreach ($type->getTypes() as $possibleType) {
-            $possibleTypes[] = static::extendNamedType($possibleType);
-        }
+        $possibleTypes = array_map(
+            [static::class, 'extendNamedType'],
+            $type->getTypes()
+        );
 
         $extensions = static::$typeExtensionsMap[$type->name] ?? null;
         if ($extensions !== null) {
@@ -285,10 +286,10 @@ class SchemaExtender
      */
     protected static function extendImplementedInterfaces(ImplementingType $type): array
     {
-        $interfaces = [];
-        foreach ($type->getInterfaces() as $interfaceType) {
-            $interfaces[] = static::extendNamedType($interfaceType);
-        }
+        $interfaces = array_map(
+            [static::class, 'extendNamedType'],
+            $type->getInterfaces()
+        );
 
         $extensions = static::$typeExtensionsMap[$type->name] ?? null;
         if ($extensions !== null) {
@@ -479,10 +480,10 @@ class SchemaExtender
      */
     protected static function getMergedDirectives(Schema $schema, array $directiveDefinitions): array
     {
-        $directives = [];
-        foreach ($schema->getDirectives() as $directive) {
-            $directives[] = static::extendDirective($directive);
-        }
+        $directives = array_map(
+            [static::class, 'extendDirective'],
+            $schema->getDirectives()
+        );
 
         Utils::invariant(count($directives) > 0, 'schema must have default directives');
 

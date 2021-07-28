@@ -148,21 +148,15 @@ class ValidationTest extends TestCase
         return array_merge(
             $types,
             array_map(
-                static function (Type $type): ListOfType {
-                    return Type::listOf($type);
-                },
+                static fn (Type $type): ListOfType => Type::listOf($type),
                 $types
             ),
             array_map(
-                static function (Type $type): NonNull {
-                    return Type::nonNull($type);
-                },
+                static fn (Type $type): NonNull => Type::nonNull($type),
                 $types
             ),
             array_map(
-                static function (Type $type): NonNull {
-                    return Type::nonNull(Type::listOf($type));
-                },
+                static fn (Type $type): NonNull => Type::nonNull(Type::listOf($type)),
                 $types
             )
         );
@@ -349,9 +343,10 @@ class ValidationTest extends TestCase
     private function formatLocations(Error $error): array
     {
         return array_map(
-            static function (SourceLocation $loc): array {
-                return ['line' => $loc->line, 'column' => $loc->column];
-            },
+            static fn (SourceLocation $loc): array => [
+                'line' => $loc->line,
+                'column' => $loc->column,
+            ],
             $error->getLocations()
         );
     }
@@ -364,16 +359,14 @@ class ValidationTest extends TestCase
     private function formatErrors(array $errors, bool $withLocation = true): array
     {
         return array_map(
-            function (Error $error) use ($withLocation): array {
-                if (! $withLocation) {
-                    return ['message' => $error->getMessage()];
-                }
-
-                return [
+            fn (Error $error): array => $withLocation
+                ? [
                     'message' => $error->getMessage(),
                     'locations' => $this->formatLocations($error),
-                ];
-            },
+                ]
+                : [
+                    'message' => $error->getMessage(),
+                ],
             $errors
         );
     }

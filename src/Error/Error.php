@@ -12,6 +12,7 @@ use JsonSerializable;
 use Throwable;
 use Traversable;
 
+use function array_map;
 use function count;
 use function is_array;
 use function iterator_to_array;
@@ -312,10 +313,10 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             'message' => $this->getMessage(),
         ];
 
-        $locations = [];
-        foreach ($this->getLocations() as $location) {
-            $locations[] = $location->toSerializableArray();
-        }
+        $locations = array_map(
+            static fn (SourceLocation $loc): array => $loc->toSerializableArray(),
+            $this->getLocations()
+        );
 
         if (count($locations) > 0) {
             $arr['locations'] = $locations;

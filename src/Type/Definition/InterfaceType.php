@@ -10,6 +10,7 @@ use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
+use function array_map;
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -103,14 +104,12 @@ class InterfaceType extends TypeWithFields implements AbstractType, OutputType, 
                 );
             }
 
-            $this->interfaces = [];
-            if (is_array($interfaces)) {
-                foreach ($interfaces as $interface) {
-                    /** @var InterfaceType $interfaceType Ensured to be true during schema validation */
-                    $interfaceType      = Schema::resolveType($interface);
-                    $this->interfaces[] = $interfaceType;
-                }
-            }
+            /** @var array<int, InterfaceType> $interfaces */
+            $interfaces = $interfaces === null
+                ? []
+                : array_map([Schema::class, 'resolveType'], $interfaces);
+
+            $this->interfaces = $interfaces;
         }
 
         return $this->interfaces;

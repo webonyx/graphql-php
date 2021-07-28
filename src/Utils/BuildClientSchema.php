@@ -27,6 +27,7 @@ use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\TypeKind;
 
 use function array_key_exists;
+use function array_map;
 use function array_merge;
 use function json_encode;
 
@@ -126,12 +127,12 @@ class BuildClientSchema
             ? $this->getObjectType($schemaIntrospection['subscriptionType'])
             : null;
 
-        $directives = [];
-        if (isset($schemaIntrospection['directives'])) {
-            foreach ($schemaIntrospection['directives'] as $directive) {
-                $directives[] = $this->buildDirective($directive);
-            }
-        }
+        $directives = isset($schemaIntrospection['directives'])
+            ? array_map(
+                [$this, 'buildDirective'],
+                $schemaIntrospection['directives']
+            )
+            : [];
 
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setQuery($queryType)
@@ -309,12 +310,10 @@ class BuildClientSchema
             throw new InvariantViolation('Introspection result missing interfaces: ' . json_encode($implementingIntrospection) . '.');
         }
 
-        $interfaces = [];
-        foreach ($implementingIntrospection['interfaces'] as $interface) {
-            $interfaces[] = $this->getInterfaceType($interface);
-        }
-
-        return $interfaces;
+        return array_map(
+            [$this, 'getInterfaceType'],
+            $implementingIntrospection['interfaces']
+        );
     }
 
     /**
@@ -363,14 +362,10 @@ class BuildClientSchema
         return new UnionType([
             'name' => $union['name'],
             'description' => $union['description'],
-            'types' => function () use ($union): array {
-                $types = [];
-                foreach ($union['possibleTypes'] as $possibleType) {
-                    $types[] = $this->getObjectType($possibleType);
-                }
-
-                return $types;
-            },
+            'types' => fn (): array => array_map(
+                [$this, 'getObjectType'],
+                $union['possibleTypes']
+            ),
         ]);
     }
 

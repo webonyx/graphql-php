@@ -744,9 +744,7 @@ class LexerTest extends TestCase
                 '<EOF>',
             ],
             array_map(
-                static function (Token $tok): string {
-                    return $tok->kind;
-                },
+                static fn (Token $tok): string => $tok->kind,
                 $tokens
             )
         );

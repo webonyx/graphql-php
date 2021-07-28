@@ -7,14 +7,8 @@ namespace GraphQL\Utils;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Language\AST\EnumTypeDefinitionNode;
-use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
-use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
-use GraphQL\Language\AST\ObjectTypeDefinitionNode;
-use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
-use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
@@ -22,6 +16,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 
+use function array_map;
 use function sprintf;
 
 /**
@@ -143,7 +138,7 @@ class BuildSchema
                 'subscription' => isset($this->nodeMap['Subscription']) ? 'Subscription' : null,
             ];
 
-        $DefinitionBuilder = new ASTDefinitionBuilder(
+        $definitionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
             $this->options,
             static function ($typeName): void {
@@ -152,10 +147,10 @@ class BuildSchema
             $this->typeConfigDecorator
         );
 
-        $directives = [];
-        foreach ($directiveDefs as $def) {
-            $directives[] = $DefinitionBuilder->buildDirective($def);
-        }
+        $directives = array_map(
+            [$definitionBuilder, 'buildDirective'],
+            $directiveDefs
+        );
 
         // If specified directives were not explicitly declared, add them.
         $directivesByName = Utils::groupBy(
@@ -182,28 +177,23 @@ class BuildSchema
 
         return new Schema([
             'query'        => isset($operationTypes['query'])
-                ? $DefinitionBuilder->buildType($operationTypes['query'])
+                ? $definitionBuilder->buildType($operationTypes['query'])
                 : null,
             'mutation'     => isset($operationTypes['mutation'])
-                ? $DefinitionBuilder->buildType($operationTypes['mutation'])
+                ? $definitionBuilder->buildType($operationTypes['mutation'])
                 : null,
             'subscription' => isset($operationTypes['subscription'])
-                ? $DefinitionBuilder->buildType($operationTypes['subscription'])
+                ? $definitionBuilder->buildType($operationTypes['subscription'])
                 : null,
-            'typeLoader'   => static function ($name) use ($DefinitionBuilder): Type {
-                return $DefinitionBuilder->buildType($name);
+            'typeLoader'   => static function ($name) use ($definitionBuilder): Type {
+                return $definitionBuilder->buildType($name);
             },
             'directives'   => $directives,
             'astNode'      => $schemaDef,
-            'types'        => function () use ($DefinitionBuilder): array {
-                $types = [];
-                /** @var ScalarTypeDefinitionNode|ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|UnionTypeDefinitionNode|EnumTypeDefinitionNode|InputObjectTypeDefinitionNode $def */
-                foreach ($this->nodeMap as $name => $def) {
-                    $types[] = $DefinitionBuilder->buildType($def->name->value);
-                }
-
-                return $types;
-            },
+            'types'        => fn (): array => array_map(
+                static fn ($def): Type => $definitionBuilder->buildType($def->name->value),
+                $this->nodeMap,
+            ),
         ]);
     }
 

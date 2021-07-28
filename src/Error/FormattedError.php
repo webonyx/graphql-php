@@ -16,6 +16,7 @@ use Throwable;
 use function addcslashes;
 use function array_filter;
 use function array_intersect_key;
+use function array_map;
 use function array_merge;
 use function array_shift;
 use function count;
@@ -183,11 +184,10 @@ class FormattedError
         $formattedError = ['message' => $message];
 
         if ($exception instanceof Error) {
-            $locations = [];
-            foreach ($exception->getLocations() as $location) {
-                $locations[] = $location->toSerializableArray();
-            }
-
+            $locations = array_map(
+                static fn (SourceLocation $loc): array => $loc->toSerializableArray(),
+                $exception->getLocations()
+            );
             if (count($locations) > 0) {
                 $formattedError['locations'] = $locations;
             }
@@ -310,29 +310,26 @@ class FormattedError
             array_shift($trace);
         }
 
-        $safeErrors = [];
-        foreach ($trace as $key => $err) {
-            $safeError = array_intersect_key($err, ['file' => true, 'line' => true]);
-            if (isset($err['function'])) {
-                $func = $err['function'];
-                $args = [];
-                foreach ($err['args'] ?? [] as $arg) {
-                    $args[] = self::printVar($arg);
+        return array_map(
+            static function (array $err): array {
+                $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
+
+                if (isset($err['function'])) {
+                    $func    = $err['function'];
+                    $args    = array_map([self::class, 'printVar'], $err['args'] ?? []);
+                    $funcStr = $func . '(' . implode(', ', $args) . ')';
+
+                    if (isset($err['class'])) {
+                        $safeErr['call'] = $err['class'] . '::' . $funcStr;
+                    } else {
+                        $safeErr['function'] = $funcStr;
+                    }
                 }
 
-                $funcStr = $func . '(' . implode(', ', $args) . ')';
-
-                if (isset($err['class'])) {
-                    $safeError['call'] = $err['class'] . '::' . $funcStr;
-                } else {
-                    $safeError['function'] = $funcStr;
-                }
-            }
-
-            $safeErrors[$key] = $safeError;
-        }
-
-        return $safeErrors;
+                return $safeErr;
+            },
+            $trace
+        );
     }
 
     /**
@@ -395,12 +392,10 @@ class FormattedError
         $formatted = ['message' => $error];
 
         if (count($locations) > 0) {
-            $formattedLocations = [];
-            foreach ($locations as $key => $loc) {
-                $formattedLocations[$key] = $loc->toArray();
-            }
-
-            $formatted['locations'] = $formattedLocations;
+            $formatted['locations'] = array_map(
+                static fn ($loc): array => $loc->toArray(),
+                $locations
+            );
         }
 
         return $formatted;

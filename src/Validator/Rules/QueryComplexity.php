@@ -22,6 +22,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\ValidationContext;
 
+use function array_map;
 use function count;
 use function implode;
 use function method_exists;
@@ -195,12 +196,13 @@ class QueryComplexity extends QuerySecurityRule
                 $this->getRawVariableValues()
             );
             if (count($errors ?? []) > 0) {
-                $messages = [];
-                foreach ($errors as $error) {
-                    $messages[] = $error->getMessage();
-                }
-
-                throw new Error(implode("\n\n", $messages));
+                throw new Error(implode(
+                    "\n\n",
+                    array_map(
+                        static fn ($error) => $error->getMessage(),
+                        $errors
+                    )
+                ));
             }
 
             if ($directiveNode->name->value === 'include') {
@@ -255,12 +257,13 @@ class QueryComplexity extends QuerySecurityRule
             );
 
             if (count($errors ?? []) > 0) {
-                $messages = [];
-                foreach ($errors as $error) {
-                    $messages[] = $error->getMessage();
-                }
-
-                throw new Error(implode("\n\n", $messages));
+                throw new Error(implode(
+                    "\n\n",
+                    array_map(
+                        static fn ($error) => $error->getMessage(),
+                        $errors
+                    )
+                ));
             }
 
             $args = Values::getArgumentValues($fieldDef, $node, $variableValues);

@@ -7,10 +7,12 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
+use function array_map;
 use function sprintf;
 
 /**
@@ -38,17 +40,18 @@ class KnownArgumentNames extends ValidationRule
                     return;
                 }
 
-                $argNames = [];
-                foreach ($fieldDef->args as $arg) {
-                    $argNames[] = $arg->name;
-                }
-
                 $context->reportError(new Error(
                     static::unknownArgMessage(
                         $node->name->value,
                         $fieldDef->name,
                         $parentType->name,
-                        Utils::suggestionList($node->name->value, $argNames)
+                        Utils::suggestionList(
+                            $node->name->value,
+                            array_map(
+                                static fn (FieldArgument $arg): string => $arg->name,
+                                $fieldDef->args
+                            )
+                        )
                     ),
                     [$node]
                 ));

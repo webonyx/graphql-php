@@ -7,6 +7,7 @@ namespace GraphQL\Utils;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
@@ -18,6 +19,7 @@ use Traversable;
 
 use function array_key_exists;
 use function array_keys;
+use function array_map;
 use function array_merge;
 use function is_array;
 use function is_string;
@@ -85,14 +87,12 @@ class Value
                 }
             }
 
-            $valueNames = [];
-            foreach ($type->getValues() as $enumValue) {
-                $valueNames[] = $enumValue->name;
-            }
-
             $suggestions = Utils::suggestionList(
                 Utils::printSafe($value),
-                $valueNames
+                array_map(
+                    static fn (EnumValueDefinition $enumValue): string => $enumValue->name,
+                    $type->getValues()
+                )
             );
 
             $didYouMean = $suggestions === []

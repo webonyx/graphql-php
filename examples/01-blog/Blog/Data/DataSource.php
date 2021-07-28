@@ -6,6 +6,7 @@ namespace GraphQL\Examples\Blog\Data;
 
 use function array_filter;
 use function array_keys;
+use function array_map;
 use function array_search;
 use function array_slice;
 use function array_values;
@@ -206,12 +207,10 @@ class DataSource
             : 0;
         $storyComments = array_slice($storyComments, $start, $limit);
 
-        $comments = [];
-        foreach ($storyComments as $commentId) {
-            $comments[] = self::$comments[$commentId];
-        }
-
-        return $comments;
+        return array_map(
+            static fn (int $commentId): Comment => self::$comments[$commentId],
+            $storyComments
+        );
     }
 
     /**
@@ -226,12 +225,10 @@ class DataSource
             : 0;
         $commentReplies = array_slice($commentReplies, $start, $limit);
 
-        $comments = [];
-        foreach ($commentReplies as $replyId) {
-            $comments[] = self::$comments[$replyId];
-        }
-
-        return $comments;
+        return array_map(
+            static fn (int $replyId): Comment => self::$comments[$replyId],
+            $commentReplies
+        );
     }
 
     public static function countComments(int $storyId): int

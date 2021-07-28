@@ -22,6 +22,7 @@ use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -32,6 +33,7 @@ use GraphQL\Validator\ValidationContext;
 use Throwable;
 
 use function array_keys;
+use function array_map;
 use function sprintf;
 
 /**
@@ -241,14 +243,12 @@ class ValuesOfCorrectType extends ValidationRule
     protected function enumTypeSuggestion($type, ValueNode $node)
     {
         if ($type instanceof EnumType) {
-            $values = [];
-            foreach ($type->getValues() as $value) {
-                $values[] = $value->name;
-            }
-
             $suggestions = Utils::suggestionList(
                 Printer::doPrint($node),
-                $values
+                array_map(
+                    static fn (EnumValueDefinition $value): string => $value->name,
+                    $type->getValues()
+                )
             );
 
             return $suggestions === [] ? null : 'Did you mean the enum value ' . Utils::orList($suggestions) . '?';

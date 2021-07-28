@@ -27,6 +27,7 @@ use GraphQL\Validator\ValidationContext;
 use SplObjectStorage;
 
 use function array_keys;
+use function array_map;
 use function array_merge;
 use function array_reduce;
 use function count;
@@ -839,15 +840,13 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             return null;
         }
 
-        $firstConflict = [];
-        foreach ($conflicts as $conflict) {
-            $firstConflict[] = $conflict[0];
-        }
-
         return [
             [
                 $responseName,
-                $firstConflict,
+                array_map(
+                    static fn (array $conflict) => $conflict[0],
+                    $conflicts
+                ),
             ],
             array_reduce(
                 $conflicts,
@@ -884,12 +883,15 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     public static function reasonMessage($reasonOrReasons)
     {
         if (is_array($reasonOrReasons)) {
-            $reasons = [];
-            foreach ($reasonOrReasons as $reason) {
-                [$responseName, $subReason] = $reason;
-                $reasonMessage              = static::reasonMessage($subReason);
-                $reasons[]                  = sprintf('subfields "%s" conflict because %s', $responseName, $reasonMessage);
-            }
+            $reasons = array_map(
+                static function (array $reason): string {
+                    [$responseName, $subReason] = $reason;
+                    $reasonMessage              = static::reasonMessage($subReason);
+
+                    return sprintf('subfields "%s" conflict because %s', $responseName, $reasonMessage);
+                },
+                $reasonOrReasons
+            );
 
             return implode(' and ', $reasons);
         }
