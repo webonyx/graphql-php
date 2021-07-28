@@ -147,17 +147,12 @@ class DataSource
     public static function findLikes(int $storyId, int $limit): array
     {
         $likes = self::$storyLikes[$storyId] ?? [];
+        $users = array_map(
+            static fn (int $userId) => self::$users[$userId],
+            $likes
+        );
 
-        $result = [];
-        foreach ($likes as $i => $userId) {
-            if ($i >= $limit) {
-                continue;
-            }
-
-            $result[] = self::$users[$userId];
-        }
-
-        return $result;
+        return array_slice($users, 0, $limit);
     }
 
     public static function isLikedBy(int $storyId, int $userId): bool
