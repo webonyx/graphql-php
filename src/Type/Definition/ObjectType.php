@@ -148,12 +148,10 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
             }
 
             $this->interfaces = [];
-            if (is_array($interfaces)) {
-                foreach ($interfaces as $interface) {
-                    /** @var InterfaceType $interfaceType Ensured to be true during schema validation */
-                    $interfaceType      = Schema::resolveType($interface);
-                    $this->interfaces[] = $interfaceType;
-                }
+            foreach ($interfaces ?? [] as $interface) {
+                /** @var InterfaceType $interfaceType Ensured to be true during schema validation */
+                $interfaceType      = Schema::resolveType($interface);
+                $this->interfaces[] = $interfaceType;
             }
         }
 
