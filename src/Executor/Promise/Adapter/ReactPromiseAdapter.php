@@ -16,25 +16,16 @@ use function React\Promise\resolve;
 
 class ReactPromiseAdapter implements PromiseAdapter
 {
-    /**
-     * @inheritdoc
-     */
     public function isThenable($value)
     {
         return $value instanceof ReactPromiseInterface;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function convertThenable($thenable)
     {
         return new Promise($thenable, $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null)
     {
         /** @var ReactPromiseInterface $adoptedPromise */
@@ -43,9 +34,6 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function create(callable $resolver)
     {
         $promise = new ReactPromise($resolver);
@@ -53,9 +41,6 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function createFulfilled($value = null)
     {
         $promise = resolve($value);
@@ -63,9 +48,6 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function createRejected($reason)
     {
         $promise = reject($reason);
@@ -73,9 +55,7 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritDoc */
     public function all(array $promisesOrValues)
     {
         // TODO: rework with generators when PHP minimum required version is changed to 5.5+

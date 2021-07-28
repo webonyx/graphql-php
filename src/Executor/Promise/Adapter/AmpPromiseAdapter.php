@@ -17,17 +17,11 @@ use function array_replace;
 
 class AmpPromiseAdapter implements PromiseAdapter
 {
-    /**
-     * @inheritdoc
-     */
     public function isThenable($value): bool
     {
         return $value instanceof AmpPromise;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function convertThenable($thenable): Promise
     {
         return new Promise($thenable, $this);
@@ -71,9 +65,6 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($deferred->promise(), $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function createFulfilled($value = null): Promise
     {
         $promise = new Success($value);
@@ -81,9 +72,6 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function createRejected($reason): Promise
     {
         $promise = new Failure($reason);
@@ -91,9 +79,7 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritDoc */
     public function all(array $promisesOrValues): Promise
     {
         /** @var AmpPromise[] $promises */
