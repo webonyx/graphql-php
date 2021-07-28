@@ -19,9 +19,6 @@ class ComplexScalar extends ScalarType
         return new self();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function serialize($value)
     {
         if ($value === 'DeserializedValue') {
@@ -31,9 +28,6 @@ class ComplexScalar extends ScalarType
         throw new Error('Cannot serialize value as ComplexScalar: ' . Utils::printSafe($value));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function parseValue($value)
     {
         if ($value === 'SerializedValue') {
@@ -43,9 +37,7 @@ class ComplexScalar extends ScalarType
         throw new Error('Cannot represent value as ComplexScalar: ' . Utils::printSafe($value));
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** @inheritDoc */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode->value === 'SerializedValue') {
