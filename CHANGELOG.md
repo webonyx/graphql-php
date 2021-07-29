@@ -41,6 +41,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated `FormattedError::create()` and `FormattedError::createFromPHPError()`
 - Remove deprecated `AST::getOperation()`
 - Remove deprecated constants from `BreakingChangesFinder`
+- Remove deprecated `DocumentValidator::isValidLiteralValue()`
+- Remove deprecated `Error::formatError()` and `Error::toSerializableArray()`
+- Remove deprecated `GraphQL::getInternalDirectives()`
+- Remove deprecated `Schema::isPossibleType()`
+- Remove deprecated methods from `TypeInfo`
+- Remove deprecated `Values::valueFromAST()` and `Values::isValidPHPValue()`
 
 ## 14.9.0
 

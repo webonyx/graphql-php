@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Introspection;
@@ -65,7 +66,7 @@ abstract class QuerySecurityTestCase extends TestCase
             [$this->getRule($max)]
         );
 
-        self::assertEquals($expectedErrors, array_map([Error::class, 'formatError'], $errors), $queryString);
+        self::assertEquals($expectedErrors, array_map([FormattedError::class, 'createFromException'], $errors), $queryString);
 
         return $errors;
     }

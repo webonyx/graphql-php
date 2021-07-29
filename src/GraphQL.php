@@ -235,18 +235,4 @@ class GraphQL
     {
         Executor::setPromiseAdapter($promiseAdapter);
     }
-
-    /**
-     * Returns directives defined in GraphQL spec
-     *
-     * @deprecated Renamed to getStandardDirectives
-     *
-     * @return Directive[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function getInternalDirectives(): array
-    {
-        return self::getStandardDirectives();
-    }
 }
