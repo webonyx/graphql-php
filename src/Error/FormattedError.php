@@ -245,8 +245,7 @@ class FormattedError
         }
 
         if (($debugFlag & DebugFlag::INCLUDE_DEBUG_MESSAGE) !== 0 && $isUnsafe) {
-            // Displaying debugMessage as a first entry:
-            $formattedError = ['debugMessage' => $e->getMessage()] + $formattedError;
+            $formattedError = $formattedError['extensions']['debugMessage'] = $e->getMessage();
         }
 
         if (($debugFlag & DebugFlag::INCLUDE_TRACE) !== 0) {
@@ -261,7 +260,7 @@ class FormattedError
 
             if (! $isTrivial) {
                 $debugging               = $e->getPrevious() ?? $e;
-                $formattedError['trace'] = static::toSafeTrace($debugging);
+                $formattedError['extensions']['trace'] = static::toSafeTrace($debugging);
             }
         }
 
