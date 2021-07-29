@@ -227,22 +227,19 @@ class FormattedError
         }
 
         if (($debugFlag & DebugFlag::INCLUDE_DEBUG_MESSAGE) !== 0 && $isUnsafe) {
-            $formattedError = $formattedError['extensions']['debugMessage'] = $e->getMessage();
+            $formattedError['extensions']['debugMessage'] = $e->getMessage();
         }
 
         if (($debugFlag & DebugFlag::INCLUDE_TRACE) !== 0) {
             if ($e instanceof ErrorException || $e instanceof \Error) {
-                $formattedError += [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                ];
+                $formattedError['extensions']['file'] = $e->getFile();
+                $formattedError['extensions']['line'] = $e->getLine();
             }
 
             $isTrivial = $e instanceof Error && $e->getPrevious() === null;
 
             if (! $isTrivial) {
-                $debugging               = $e->getPrevious() ?? $e;
-                $formattedError['extensions']['trace'] = static::toSafeTrace($debugging);
+                $formattedError['extensions']['trace'] = static::toSafeTrace($e->getPrevious() ?? $e);
             }
         }
 
