@@ -8,11 +8,11 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\DebugFlag;
-use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -188,7 +188,7 @@ class NonNullTest extends TestCase
         $expected = [
             'data'   => ['sync' => null],
             'errors' => [
-                FormattedError::create(
+                ErrorHelper::create(
                     $this->syncError->getMessage(),
                     [new SourceLocation(3, 9)]
                 ),
@@ -213,7 +213,7 @@ class NonNullTest extends TestCase
         $expected = [
             'data'   => ['promise' => null],
             'errors' => [
-                FormattedError::create(
+                ErrorHelper::create(
                     $this->promiseError->getMessage(),
                     [new SourceLocation(3, 9)]
                 ),
@@ -242,7 +242,7 @@ class NonNullTest extends TestCase
         $expected = [
             'data'   => ['syncNest' => null],
             'errors' => [
-                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)]),
+                ErrorHelper::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)]),
             ],
         ];
         self::assertArraySubset(
@@ -266,7 +266,7 @@ class NonNullTest extends TestCase
         $expected = [
             'data'   => ['syncNest' => null],
             'errors' => [
-                FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(4, 11)]),
+                ErrorHelper::create($this->promiseNonNullError->getMessage(), [new SourceLocation(4, 11)]),
             ],
         ];
 
@@ -291,7 +291,7 @@ class NonNullTest extends TestCase
         $expected = [
             'data'   => ['promiseNest' => null],
             'errors' => [
-                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)]),
+                ErrorHelper::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)]),
             ],
         ];
 
@@ -316,7 +316,7 @@ class NonNullTest extends TestCase
         $expected = [
             'data'   => ['promiseNest' => null],
             'errors' => [
-                FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(4, 11)]),
+                ErrorHelper::create($this->promiseNonNullError->getMessage(), [new SourceLocation(4, 11)]),
             ],
         ];
 
@@ -390,18 +390,18 @@ class NonNullTest extends TestCase
                 ],
             ],
             'errors' => [
-                FormattedError::create($this->syncError->getMessage(), [new SourceLocation(4, 11)]),
-                FormattedError::create($this->syncError->getMessage(), [new SourceLocation(7, 13)]),
-                FormattedError::create($this->syncError->getMessage(), [new SourceLocation(11, 13)]),
-                FormattedError::create($this->syncError->getMessage(), [new SourceLocation(16, 11)]),
-                FormattedError::create($this->syncError->getMessage(), [new SourceLocation(19, 13)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(5, 11)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(8, 13)]),
-                FormattedError::create($this->syncError->getMessage(), [new SourceLocation(23, 13)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(12, 13)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(17, 11)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(20, 13)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(24, 13)]),
+                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(4, 11)]),
+                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(7, 13)]),
+                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(11, 13)]),
+                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(16, 11)]),
+                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(19, 13)]),
+                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(5, 11)]),
+                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(8, 13)]),
+                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(23, 13)]),
+                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(12, 13)]),
+                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(17, 11)]),
+                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(20, 13)]),
+                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(24, 13)]),
             ],
         ];
 
@@ -487,10 +487,10 @@ class NonNullTest extends TestCase
                 'anotherPromiseNest' => null,
             ],
             'errors' => [
-                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(8, 19)]),
-                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(19, 19)]),
-                FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(30, 19)]),
-                FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(41, 19)]),
+                ErrorHelper::create($this->syncNonNullError->getMessage(), [new SourceLocation(8, 19)]),
+                ErrorHelper::create($this->syncNonNullError->getMessage(), [new SourceLocation(19, 19)]),
+                ErrorHelper::create($this->promiseNonNullError->getMessage(), [new SourceLocation(30, 19)]),
+                ErrorHelper::create($this->promiseNonNullError->getMessage(), [new SourceLocation(41, 19)]),
             ],
         ];
 
@@ -804,7 +804,7 @@ class NonNullTest extends TestCase
 
         $expected = [
             'errors' => [
-                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(2, 17)]),
+                ErrorHelper::create($this->syncNonNullError->getMessage(), [new SourceLocation(2, 17)]),
             ],
         ];
         $actual   = Executor::execute($this->schema, Parser::parse($doc), $this->throwingData)->toArray();
@@ -1005,7 +1005,7 @@ class NonNullTest extends TestCase
 
         $expected = [
             'errors' => [
-                FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(2, 17)]),
+                ErrorHelper::create($this->promiseNonNullError->getMessage(), [new SourceLocation(2, 17)]),
             ],
         ];
 

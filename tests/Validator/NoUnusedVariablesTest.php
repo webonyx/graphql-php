@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoUnusedVariables;
 
 class NoUnusedVariablesTest extends ValidatorTestCase
@@ -161,7 +161,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
 
     private function unusedVar($varName, $opName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             NoUnusedVariables::unusedVariableMessage($varName, $opName),
             [new SourceLocation($line, $column)]
         );

@@ -48,18 +48,15 @@ use function strlen;
  */
 class FormattedError
 {
-    /** @var string */
-    private static $internalErrorMessage = 'Internal server error';
+    private static string $internalErrorMessage = 'Internal server error';
 
     /**
      * Set default error message for internal errors formatted using createFormattedError().
      * This value can be overridden by passing 3rd argument to `createFormattedError()`.
      *
-     * @param string $msg
-     *
      * @api
      */
-    public static function setInternalErrorMessage($msg)
+    public static function setInternalErrorMessage(string $msg): void
     {
         self::$internalErrorMessage = $msg;
     }
@@ -67,10 +64,8 @@ class FormattedError
     /**
      * Prints a GraphQLError to a string, representing useful location information
      * about the error's position in the source.
-     *
-     * @return string
      */
-    public static function printError(Error $error)
+    public static function printError(Error $error): string
     {
         $printedLocations = [];
         if (count($error->nodes ?? []) !== 0) {
@@ -104,10 +99,8 @@ class FormattedError
     /**
      * Render a helpful description of the location of the error in the GraphQL
      * Source document.
-     *
-     * @return string
      */
-    private static function highlightSourceAtLocation(Source $source, SourceLocation $location)
+    private static function highlightSourceAtLocation(Source $source, SourceLocation $location): string
     {
         $line          = $location->line;
         $lineOffset    = $source->locationOffset->line - 1;
@@ -133,30 +126,19 @@ class FormattedError
         return implode("\n", array_filter($outputLines));
     }
 
-    /**
-     * @return int
-     */
-    private static function getColumnOffset(Source $source, SourceLocation $location)
+    private static function getColumnOffset(Source $source, SourceLocation $location): int
     {
-        return $location->line === 1 ? $source->locationOffset->column - 1 : 0;
+        return $location->line === 1
+            ? $source->locationOffset->column - 1
+            : 0;
     }
 
-    /**
-     * @param int $len
-     *
-     * @return string
-     */
-    private static function whitespace($len)
+    private static function whitespace(int $len): string
     {
         return str_repeat(' ', $len);
     }
 
-    /**
-     * @param int $len
-     *
-     * @return string
-     */
-    private static function lpad($len, $str)
+    private static function lpad(int $len, string $str): string
     {
         return self::whitespace($len - mb_strlen($str)) . $str;
     }
@@ -269,32 +251,35 @@ class FormattedError
 
     /**
      * Prepares final error formatter taking in account $debug flags.
-     * If initial formatter is not set, FormattedError::createFromException is used
+     *
+     * If initial formatter is not set, FormattedError::createFromException is used.
+     *
+     * @param callable(Throwable): array<string, mixed> $formatter
      */
     public static function prepareFormatter(?callable $formatter, int $debug): callable
     {
-        $formatter ??= static function ($e): array {
-            return FormattedError::createFromException($e);
-        };
+        $formatter ??= [self::class, 'createFromException'];
+
         if ($debug !== DebugFlag::NONE) {
-            $formatter = static function ($e) use ($formatter, $debug): array {
-                return FormattedError::addDebugEntries($formatter($e), $e, $debug);
-            };
+            $formatter = static fn (Throwable $e): array => self::addDebugEntries($formatter($e), $e, $debug);
         }
 
         return $formatter;
     }
 
     /**
-     * Returns error trace as serializable array
+     * Returns error trace as serializable array.
      *
-     * @param Throwable $error
-     *
-     * @return mixed[]
+     * @return array<int, array{
+     *     file: string,
+     *     line: int,
+     *     function?: string,
+     *     call?: string,
+     * }>
      *
      * @api
      */
-    public static function toSafeTrace($error)
+    public static function toSafeTrace(Throwable $error): array
     {
         $trace = $error->getTrace();
 
@@ -333,10 +318,8 @@ class FormattedError
 
     /**
      * @param mixed $var
-     *
-     * @return string
      */
-    public static function printVar($var)
+    public static function printVar($var): string
     {
         if ($var instanceof Type) {
             // FIXME: Replace with schema printer call
@@ -376,43 +359,5 @@ class FormattedError
         }
 
         return gettype($var);
-    }
-
-    /**
-     * @deprecated as of v0.8.0
-     *
-     * @param string           $error
-     * @param SourceLocation[] $locations
-     *
-     * @return mixed[]
-     */
-    public static function create($error, array $locations = [])
-    {
-        $formatted = ['message' => $error];
-
-        if (count($locations) > 0) {
-            $formatted['locations'] = array_map(
-                static fn ($loc): array => $loc->toArray(),
-                $locations
-            );
-        }
-
-        return $formatted;
-    }
-
-    /**
-     * @deprecated as of v0.10.0, use general purpose method createFromException() instead
-     *
-     * @return mixed[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function createFromPHPError(ErrorException $e)
-    {
-        return [
-            'message'  => $e->getMessage(),
-            'severity' => $e->getSeverity(),
-            'trace'    => self::toSafeTrace($e),
-        ];
     }
 }

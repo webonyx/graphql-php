@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\SingleFieldSubscription;
 
 use function array_map;
@@ -182,7 +182,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
      */
     private function multipleFieldsInOperation(?string $operationName, array ...$locations)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             SingleFieldSubscription::multipleFieldsInOperation($operationName),
             array_map(static function (array $location): SourceLocation {
                 [$line, $column] = $location;

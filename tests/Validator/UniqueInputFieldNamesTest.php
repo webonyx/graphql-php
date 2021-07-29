@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\UniqueInputFieldNames;
 
 class UniqueInputFieldNamesTest extends ValidatorTestCase
@@ -98,7 +98,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
 
     private function duplicateField($name, $l1, $c1, $l2, $c2)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             UniqueInputFieldNames::duplicateInputFieldMessage($name),
             [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)]
         );

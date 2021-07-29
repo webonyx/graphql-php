@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 
 class PossibleFragmentSpreadsTest extends ValidatorTestCase
@@ -195,7 +195,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
 
     private function error($fragName, $parentType, $fragType, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             PossibleFragmentSpreads::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
             [new SourceLocation($line, $column)]
         );
@@ -219,7 +219,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
 
     private function errorAnon($parentType, $fragType, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             PossibleFragmentSpreads::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
             [new SourceLocation($line, $column)]
         );

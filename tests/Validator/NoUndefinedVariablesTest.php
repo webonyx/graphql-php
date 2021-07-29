@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 
 class NoUndefinedVariablesTest extends ValidatorTestCase
@@ -189,7 +189,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
             $locs[] = new SourceLocation($l2, $c2);
         }
 
-        return FormattedError::create(
+        return ErrorHelper::create(
             NoUndefinedVariables::undefinedVarMessage($varName, $opName),
             $locs
         );

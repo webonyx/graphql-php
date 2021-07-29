@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 
 class ValuesOfCorrectTypeTest extends ValidatorTestCase
@@ -249,7 +249,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     private function badValue($typeName, $value, $line, $column, $message = null)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ValuesOfCorrectType::badValueMessage(
                 $typeName,
                 $value,
@@ -261,7 +261,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     private function badValueWithMessage($message, $line, $column)
     {
-        return FormattedError::create($message, [new SourceLocation($line, $column)]);
+        return ErrorHelper::create($message, [new SourceLocation($line, $column)]);
     }
 
     /**
@@ -1302,7 +1302,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     private function requiredField($typeName, $fieldName, $fieldTypeName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ValuesOfCorrectType::requiredFieldMessage(
                 $typeName,
                 $fieldName,
@@ -1398,7 +1398,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     private function unknownField($typeName, $fieldName, $line, $column, $message = null)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ValuesOfCorrectType::unknownFieldMessage(
                 $typeName,
                 $fieldName,
