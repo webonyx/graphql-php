@@ -32,11 +32,8 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 use Throwable;
 
-use function array_combine;
 use function array_keys;
 use function array_map;
-use function array_values;
-use function iterator_to_array;
 use function sprintf;
 
 /**
@@ -97,17 +94,13 @@ class ValuesOfCorrectType extends ValidationRule
 
                 unset($fieldName);
                 // Ensure every required field exists.
-                $inputFields  = $type->getFields();
-                $nodeFields   = iterator_to_array($node->fields);
-                $fieldNodeMap = array_combine(
-                    array_map(
-                        static function ($field): string {
-                            return $field->name->value;
-                        },
-                        $nodeFields
-                    ),
-                    array_values($nodeFields)
-                );
+                $inputFields = $type->getFields();
+
+                $fieldNodeMap = [];
+                foreach ($node->fields as $field) {
+                    $fieldNodeMap[$field->name->value] = $field;
+                }
+
                 foreach ($inputFields as $fieldName => $fieldDef) {
                     $fieldType = $fieldDef->getType();
                     if (isset($fieldNodeMap[$fieldName]) || ! $fieldDef->isRequired()) {
@@ -253,9 +246,7 @@ class ValuesOfCorrectType extends ValidationRule
             $suggestions = Utils::suggestionList(
                 Printer::doPrint($node),
                 array_map(
-                    static function (EnumValueDefinition $value): string {
-                        return $value->name;
-                    },
+                    static fn (EnumValueDefinition $value): string => $value->name,
                     $type->getValues()
                 )
             );

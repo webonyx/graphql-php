@@ -23,7 +23,6 @@ use GraphQL\Utils\Utils;
 use InvalidArgumentException;
 use Traversable;
 
-use function array_map;
 use function get_class;
 use function implode;
 use function is_array;
@@ -484,12 +483,9 @@ class Schema
                 }
             }
 
-            $this->implementationsMap = array_map(
-                static function (array $implementations): InterfaceImplementations {
-                    return new InterfaceImplementations($implementations['objects'], $implementations['interfaces']);
-                },
-                $foundImplementations
-            );
+            foreach ($foundImplementations as $name => $implementations) {
+                $this->implementationsMap[$name] = new InterfaceImplementations($implementations['objects'], $implementations['interfaces']);
+            }
         }
 
         return $this->implementationsMap;

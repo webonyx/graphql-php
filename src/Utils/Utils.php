@@ -162,28 +162,6 @@ class Utils
      *
      * @throws Exception
      */
-    public static function map($iterable, callable $fn): array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $map = [];
-        foreach ($iterable as $key => $value) {
-            $map[$key] = $fn($value, $key);
-        }
-
-        return $map;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     *
-     * @throws Exception
-     */
     public static function mapKeyValue($iterable, callable $fn): array
     {
         self::invariant(
@@ -594,14 +572,12 @@ class Utils
      */
     public static function quotedOrList(array $items)
     {
-        $items = array_map(
-            static function ($item): string {
-                return sprintf('"%s"', $item);
-            },
+        $quoted = array_map(
+            static fn (string $item): string => sprintf('"%s"', $item),
             $items
         );
 
-        return self::orList($items);
+        return self::orList($quoted);
     }
 
     /**

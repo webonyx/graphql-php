@@ -7,6 +7,7 @@ namespace GraphQL\Utils;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
@@ -89,9 +90,7 @@ class Value
             $suggestions = Utils::suggestionList(
                 Utils::printSafe($value),
                 array_map(
-                    static function ($enumValue): string {
-                        return $enumValue->name;
-                    },
+                    static fn (EnumValueDefinition $enumValue): string => $enumValue->name,
                     $type->getValues()
                 )
             );

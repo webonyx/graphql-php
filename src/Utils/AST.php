@@ -42,9 +42,7 @@ use stdClass;
 use Throwable;
 use Traversable;
 
-use function array_combine;
 use function array_key_exists;
-use function array_map;
 use function count;
 use function is_array;
 use function is_bool;
@@ -52,7 +50,6 @@ use function is_float;
 use function is_int;
 use function is_object;
 use function is_string;
-use function iterator_to_array;
 use function property_exists;
 
 /**
@@ -536,28 +533,20 @@ class AST
                 return $valueNode->value;
 
             case $valueNode instanceof ListValueNode:
-                return array_map(
-                    static function ($node) use ($variables) {
-                        return self::valueFromASTUntyped($node, $variables);
-                    },
-                    iterator_to_array($valueNode->values)
-                );
+                $values = [];
+                foreach ($valueNode->values as $node) {
+                    $values[] = self::valueFromASTUntyped($node, $variables);
+                }
+
+                return $values;
 
             case $valueNode instanceof ObjectValueNode:
-                return array_combine(
-                    array_map(
-                        static function ($field): string {
-                            return $field->name->value;
-                        },
-                        iterator_to_array($valueNode->fields)
-                    ),
-                    array_map(
-                        static function ($field) use ($variables) {
-                            return self::valueFromASTUntyped($field->value, $variables);
-                        },
-                        iterator_to_array($valueNode->fields)
-                    )
-                );
+                $values = [];
+                foreach ($valueNode->fields as $field) {
+                    $values[$field->name->value] = self::valueFromASTUntyped($field->value, $variables);
+                }
+
+                return $values;
 
             case $valueNode instanceof VariableNode:
                 $variableName = $valueNode->name->value;

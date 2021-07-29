@@ -844,9 +844,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             [
                 $responseName,
                 array_map(
-                    static function ($conflict) {
-                        return $conflict[0];
-                    },
+                    static fn (array $conflict) => $conflict[0],
                     $conflicts
                 ),
             ],
@@ -882,23 +880,22 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         );
     }
 
-    public static function reasonMessage($reason)
+    public static function reasonMessage($reasonOrReasons)
     {
-        if (is_array($reason)) {
-            $tmp = array_map(
-                static function ($tmp): string {
-                    [$responseName, $subReason] = $tmp;
-
-                    $reasonMessage = static::reasonMessage($subReason);
+        if (is_array($reasonOrReasons)) {
+            $reasons = array_map(
+                static function (array $reason): string {
+                    [$responseName, $subReason] = $reason;
+                    $reasonMessage              = static::reasonMessage($subReason);
 
                     return sprintf('subfields "%s" conflict because %s', $responseName, $reasonMessage);
                 },
-                $reason
+                $reasonOrReasons
             );
 
-            return implode(' and ', $tmp);
+            return implode(' and ', $reasons);
         }
 
-        return $reason;
+        return $reasonOrReasons;
     }
 }

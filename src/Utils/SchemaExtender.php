@@ -262,9 +262,10 @@ class SchemaExtender
      */
     protected static function extendPossibleTypes(UnionType $type): array
     {
-        $possibleTypes = array_map(static function ($type) {
-            return static::extendNamedType($type);
-        }, $type->getTypes());
+        $possibleTypes = array_map(
+            [static::class, 'extendNamedType'],
+            $type->getTypes()
+        );
 
         $extensions = static::$typeExtensionsMap[$type->name] ?? null;
         if ($extensions !== null) {
@@ -285,9 +286,10 @@ class SchemaExtender
      */
     protected static function extendImplementedInterfaces(ImplementingType $type): array
     {
-        $interfaces = array_map(static function (InterfaceType $interfaceType) {
-            return static::extendNamedType($interfaceType);
-        }, $type->getInterfaces());
+        $interfaces = array_map(
+            [static::class, 'extendNamedType'],
+            $type->getInterfaces()
+        );
 
         $extensions = static::$typeExtensionsMap[$type->name] ?? null;
         if ($extensions !== null) {
@@ -478,18 +480,18 @@ class SchemaExtender
      */
     protected static function getMergedDirectives(Schema $schema, array $directiveDefinitions): array
     {
-        $existingDirectives = array_map(static function (Directive $directive): Directive {
-            return static::extendDirective($directive);
-        }, $schema->getDirectives());
-
-        Utils::invariant(count($existingDirectives) > 0, 'schema must have default directives');
-
-        return array_merge(
-            $existingDirectives,
-            array_map(static function (DirectiveDefinitionNode $directive): Directive {
-                return static::$astBuilder->buildDirective($directive);
-            }, $directiveDefinitions)
+        $directives = array_map(
+            [static::class, 'extendDirective'],
+            $schema->getDirectives()
         );
+
+        Utils::invariant(count($directives) > 0, 'schema must have default directives');
+
+        foreach ($directiveDefinitions as $directive) {
+            $directives[] = static::$astBuilder->buildDirective($directive);
+        }
+
+        return $directives;
     }
 
     protected static function extendDirective(Directive $directive): Directive
@@ -634,17 +636,17 @@ class SchemaExtender
 
         $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
 
-        $types = array_merge(
-            // Iterate through all types, getting the type definition for each, ensuring
-            // that any type not directly referenced by a field will get created.
-            array_map(static function (Type $type): Type {
-                return static::extendNamedType($type);
-            }, $schema->getTypeMap()),
-            // Do the same with new types.
-            array_map(static function (TypeDefinitionNode $type): Type {
-                return static::$astBuilder->buildType($type);
-            }, $typeDefinitionMap)
-        );
+        $types = [];
+        // Iterate through all types, getting the type definition for each, ensuring
+        // that any type not directly referenced by a field will get created.
+        foreach ($schema->getTypeMap() as $type) {
+            $types[] = static::extendNamedType($type);
+        }
+
+        // Do the same with new types.
+        foreach ($typeDefinitionMap as $type) {
+            $types[] = static::$astBuilder->buildType($type);
+        }
 
         return new Schema([
             'query' => $operationTypes['query'],

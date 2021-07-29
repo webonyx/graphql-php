@@ -15,7 +15,6 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\NamedTypeNode;
-use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
@@ -81,17 +80,17 @@ class ASTDefinitionBuilder
 
     public function buildDirective(DirectiveDefinitionNode $directiveNode): Directive
     {
+        $locations = [];
+        foreach ($directiveNode->locations as $location) {
+            $locations[] = $location->value;
+        }
+
         return new Directive([
             'name'         => $directiveNode->name->value,
             'description'  => $this->getDescription($directiveNode),
             'args'         => FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)),
             'isRepeatable' => $directiveNode->repeatable,
-            'locations'    => Utils::map(
-                $directiveNode->locations,
-                static function (NameNode $node): string {
-                    return $node->value;
-                }
-            ),
+            'locations'    => $locations,
             'astNode'      => $directiveNode,
         ]);
     }
@@ -354,12 +353,13 @@ class ASTDefinitionBuilder
         // Note: While this could make early assertions to get the correctly
         // typed values, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
-        return Utils::map(
-            $def->interfaces,
-            function (NamedTypeNode $iface): Type {
-                return $this->buildType($iface);
-            }
-        );
+
+        $interfaces = [];
+        foreach ($def->interfaces as $interface) {
+            $interfaces[] = $this->buildType($interface);
+        }
+
+        return $interfaces;
     }
 
     private function makeInterfaceDef(InterfaceTypeDefinitionNode $def): InterfaceType
@@ -407,13 +407,13 @@ class ASTDefinitionBuilder
             // Note: While this could make assertions to get the correctly typed
             // values below, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
-            'types'       => function () use ($def): array {
-                return Utils::map(
-                    $def->types,
-                    function ($typeNode): Type {
-                        return $this->buildType($typeNode);
-                    }
-                );
+            'types'       =>  function () use ($def): array {
+                $types = [];
+                foreach ($def->types as $type) {
+                    $types[] = $this->buildType($type);
+                }
+
+                return $types;
             },
             'astNode'     => $def,
         ]);

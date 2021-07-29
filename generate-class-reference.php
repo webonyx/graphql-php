@@ -35,19 +35,22 @@ $entries = [
 ];
 
 function renderClassMethod(ReflectionMethod $method) {
-    $args = Utils::map($method->getParameters(), function(ReflectionParameter $p) {
-        $type = ltrim($p->getType() . " ");
-        $def = $type . '$' . $p->getName();
+    $args = array_map(
+        static function (ReflectionParameter $p): string {
+            $type = ltrim($p->getType() . " ");
+            $def = $type . '$' . $p->getName();
 
-        if ($p->isDefaultValueAvailable()) {
-            $val = $p->isDefaultValueConstant()
-                ? $p->getDefaultValueConstantName()
-                : $p->getDefaultValue();
-            $def .= " = " . Utils::printSafeJson($val);
-        }
+            if ($p->isDefaultValueAvailable()) {
+                $val = $p->isDefaultValueConstant()
+                    ? $p->getDefaultValueConstantName()
+                    : $p->getDefaultValue();
+                $def .= " = " . Utils::printSafeJson($val);
+            }
 
-        return $def;
-    });
+            return $def;
+        },
+        $method->getParameters()
+    );
     $argsStr = implode(", ", $args);
     if (strlen($argsStr) >= 80) {
         $argsStr = "\n    " . implode(",\n    ", $args) . "\n";
@@ -82,7 +85,7 @@ function renderClass(ReflectionClass $class, $options) {
 
     if (!empty($options['constants'])) {
         $constants = $class->getConstants();
-        $constants = Utils::map($constants, 'renderConstant');
+        $constants = array_map('renderConstant', $constants);
         if (!empty($constants)) {
             $constants = "```php\n" . implode("\n", $constants) . "\n```";
             $content .= "**$label Constants:** \n$constants\n\n";
@@ -93,7 +96,7 @@ function renderClass(ReflectionClass $class, $options) {
         $props = $class->getProperties(ReflectionProperty::IS_PUBLIC);
         $props = Utils::filter($props, 'isApi');
         if (!empty($props)) {
-            $props = Utils::map($props, 'renderProp');
+            $props = array_map('renderProp', $props);
             $props = "```php\n" . implode("\n\n", $props) . "\n```";
             $content .= "**$label Props:** \n$props\n\n";
         }
@@ -103,7 +106,7 @@ function renderClass(ReflectionClass $class, $options) {
         $methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
         $methods = Utils::filter($methods, 'isApi');
         if (!empty($methods)) {
-            $renderedMethods = Utils::map($methods, 'renderClassMethod');
+            $renderedMethods = array_map('renderClassMethod', $methods);
             $renderedMethods = implode("\n\n", $renderedMethods);
             $content .= "**$label Methods:** \n{$renderedMethods}\n";
         }
@@ -130,9 +133,10 @@ function unwrapDocblock($docBlock, $stripAnnotations = true) {
 
 function unpadDocblock($docBlock) {
     $lines = explode("\n", $docBlock);
-    $lines = \GraphQL\Utils\Utils::map($lines, function($line) {
-        return ' ' . trim($line);
-    });
+    $lines = array_map(
+        static fn(string $line): string => ' ' . trim($line),
+        $lines
+    );
     return trim(implode("\n", $lines));
 }
 

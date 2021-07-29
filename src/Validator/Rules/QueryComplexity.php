@@ -199,9 +199,7 @@ class QueryComplexity extends QuerySecurityRule
                 throw new Error(implode(
                     "\n\n",
                     array_map(
-                        static function ($error) {
-                            return $error->getMessage();
-                        },
+                        static fn ($error) => $error->getMessage(),
                         $errors
                     )
                 ));
@@ -262,9 +260,7 @@ class QueryComplexity extends QuerySecurityRule
                 throw new Error(implode(
                     "\n\n",
                     array_map(
-                        static function ($error) {
-                            return $error->getMessage();
-                        },
+                        static fn ($error) => $error->getMessage(),
                         $errors
                     )
                 ));

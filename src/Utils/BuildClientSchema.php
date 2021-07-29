@@ -310,7 +310,10 @@ class BuildClientSchema
             throw new InvariantViolation('Introspection result missing interfaces: ' . json_encode($implementingIntrospection) . '.');
         }
 
-        return array_map([$this, 'getInterfaceType'], $implementingIntrospection['interfaces']);
+        return array_map(
+            [$this, 'getInterfaceType'],
+            $implementingIntrospection['interfaces']
+        );
     }
 
     /**
@@ -359,12 +362,10 @@ class BuildClientSchema
         return new UnionType([
             'name' => $union['name'],
             'description' => $union['description'],
-            'types' => function () use ($union): array {
-                return array_map(
-                    [$this, 'getObjectType'],
-                    $union['possibleTypes']
-                );
-            },
+            'types' => fn (): array => array_map(
+                [$this, 'getObjectType'],
+                $union['possibleTypes']
+            ),
         ]);
     }
 

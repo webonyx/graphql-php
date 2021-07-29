@@ -24,6 +24,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 
+use function array_map;
 use function count;
 use function file_get_contents;
 use function header;
@@ -274,15 +275,13 @@ class Helper
             $errors = $this->validateOperationParams($op);
 
             if (count($errors) > 0) {
-                $errors = Utils::map(
-                    $errors,
-                    static function (RequestError $err): Error {
-                        return Error::createLocatedError($err, null, null);
-                    }
+                $locatedErrors = array_map(
+                    [Error::class, 'createLocatedError'],
+                    $errors
                 );
 
                 return $promiseAdapter->createFulfilled(
-                    new ExecutionResult(null, $errors)
+                    new ExecutionResult(null, $locatedErrors)
                 );
             }
 

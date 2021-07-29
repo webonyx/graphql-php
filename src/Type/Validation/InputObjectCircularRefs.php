@@ -78,21 +78,18 @@ class InputObjectCircularRefs
                         $cycleIndex = $this->fieldPathIndexByTypeName[$fieldType->name];
                         $cyclePath  = array_slice($this->fieldPath, $cycleIndex);
                         $fieldNames = array_map(
-                            static function (InputObjectField $field): string {
-                                return $field->name;
-                            },
+                            static fn (InputObjectField $field): string => $field->name,
+                            $cyclePath
+                        );
+                        $fieldNodes = array_map(
+                            static fn (InputObjectField $field): ?InputValueDefinitionNode => $field->astNode,
                             $cyclePath
                         );
 
                         $this->schemaValidationContext->reportError(
                             'Cannot reference Input Object "' . $fieldType->name . '" within itself '
                             . 'through a series of non-null fields: "' . implode('.', $fieldNames) . '".',
-                            array_map(
-                                static function (InputObjectField $field): ?InputValueDefinitionNode {
-                                    return $field->astNode;
-                                },
-                                $cyclePath
-                            )
+                            $fieldNodes
                         );
                     }
                 }

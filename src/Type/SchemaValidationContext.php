@@ -233,15 +233,18 @@ class SchemaValidationContext
                 continue;
             }
 
-            $nodes = Utils::map(
-                $directiveList,
-                static function (Directive $directive): ?DirectiveDefinitionNode {
-                    return $directive->astNode;
+            $nodes = [];
+            foreach ($directiveList as $dir) {
+                if ($dir->astNode === null) {
+                    continue;
                 }
-            );
+
+                $nodes[] = $dir->astNode;
+            }
+
             $this->reportError(
                 sprintf('Directive @%s defined multiple times.', $directiveName),
-                array_filter($nodes)
+                $nodes
             );
         }
     }

@@ -17,9 +17,10 @@ use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\Utils;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
+
+use function array_map;
 
 class SyncTest extends TestCase
 {
@@ -200,11 +201,9 @@ class SyncTest extends TestCase
             $doc
         );
         $expected         = [
-            'errors' => Utils::map(
-                $validationErrors,
-                static function ($e): array {
-                    return FormattedError::createFromException($e);
-                }
+            'errors' => array_map(
+                [FormattedError::class, 'createFromException'],
+                $validationErrors
             ),
         ];
         self::assertSync($expected, $result);
