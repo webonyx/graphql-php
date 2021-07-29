@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 
 class FragmentsOnCompositeTypesTest extends ValidatorTestCase
@@ -126,7 +126,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
 
     private function error($fragName, $typeName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             FragmentsOnCompositeTypes::fragmentOnNonCompositeErrorMessage($fragName, $typeName),
             [new SourceLocation($line, $column)]
         );
@@ -179,7 +179,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     FragmentsOnCompositeTypes::inlineFragmentOnNonCompositeErrorMessage('String'),
                     [new SourceLocation(3, 16)]
                 ),

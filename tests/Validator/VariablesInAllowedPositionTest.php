@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 
 class VariablesInAllowedPositionTest extends ValidatorTestCase
@@ -249,7 +249,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesInAllowedPosition::badVarPosMessage('intArg', 'Int', 'Int!'),
                     [new SourceLocation(2, 19), new SourceLocation(4, 45)]
                 ),
@@ -276,7 +276,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesInAllowedPosition::badVarPosMessage('intArg', 'Int', 'Int!'),
                     [new SourceLocation(6, 19), new SourceLocation(3, 43)]
                 ),
@@ -309,7 +309,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesInAllowedPosition::badVarPosMessage('intArg', 'Int', 'Int!'),
                     [new SourceLocation(10, 19), new SourceLocation(7, 43)]
                 ),
@@ -332,7 +332,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesInAllowedPosition::badVarPosMessage('stringVar', 'String', 'Boolean'),
                     [new SourceLocation(2, 19), new SourceLocation(4, 39)]
                 ),
@@ -355,7 +355,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesInAllowedPosition::badVarPosMessage('stringVar', 'String', '[String]'),
                     [new SourceLocation(2, 19), new SourceLocation(4, 45)]
                 ),
@@ -376,7 +376,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesInAllowedPosition::badVarPosMessage('boolVar', 'Boolean', 'Boolean!'),
                     [new SourceLocation(2, 19), new SourceLocation(3, 26)]
                 ),
@@ -398,7 +398,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesInAllowedPosition::badVarPosMessage('stringVar', 'String', 'Boolean!'),
                     [new SourceLocation(2, 19), new SourceLocation(3, 26)]
                 ),
@@ -422,7 +422,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesInAllowedPosition::badVarPosMessage('stringListVar', '[String]', '[String!]'),
                     [new SourceLocation(2, 19), new SourceLocation(5, 59)]
                 ),
@@ -447,7 +447,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
         }
             ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesInAllowedPosition::badVarPosMessage('intVar', 'Int', 'Int!'),
                     [new SourceLocation(2, 21), new SourceLocation(4, 47)]
                 ),

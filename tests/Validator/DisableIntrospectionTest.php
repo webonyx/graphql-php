@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\DisableIntrospection;
 
 class DisableIntrospectionTest extends ValidatorTestCase
@@ -34,7 +34,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
 
     private function error($line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             DisableIntrospection::introspectionDisabledMessage(),
             [new SourceLocation($line, $column)]
         );

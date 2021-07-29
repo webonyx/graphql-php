@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 
 class VariablesAreInputTypesTest extends ValidatorTestCase
@@ -40,15 +40,15 @@ class VariablesAreInputTypesTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesAreInputTypes::nonInputTypeOnVarMessage('a', 'Dog'),
                     [new SourceLocation(2, 21)]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesAreInputTypes::nonInputTypeOnVarMessage('b', '[[CatOrDog!]]!'),
                     [new SourceLocation(2, 30)]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     VariablesAreInputTypes::nonInputTypeOnVarMessage('c', 'Pet'),
                     [new SourceLocation(2, 50)]
                 ),

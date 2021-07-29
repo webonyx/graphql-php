@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QuerySecurityRule;
@@ -72,7 +72,7 @@ abstract class QuerySecurityTestCase extends TestCase
 
     protected function createFormattedError($max, $count, $locations = [])
     {
-        return FormattedError::create($this->getErrorMessage($max, $count), $locations);
+        return ErrorHelper::create($this->getErrorMessage($max, $count), $locations);
     }
 
     /**

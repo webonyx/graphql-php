@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
 
 class UniqueFragmentNamesTest extends ValidatorTestCase
@@ -134,7 +134,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
 
     private function duplicateFrag($fragName, $l1, $c1, $l2, $c2)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             UniqueFragmentNames::duplicateFragmentNameMessage($fragName),
             [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)]
         );

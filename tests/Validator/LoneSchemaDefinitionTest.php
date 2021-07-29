@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\LoneSchemaDefinition;
 
@@ -18,7 +18,7 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
 
     private function schemaDefinitionNotAlone($line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             LoneSchemaDefinition::schemaDefinitionNotAloneMessage(),
             [new SourceLocation($line, $column)]
         );
@@ -26,7 +26,7 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
 
     private function canNotDefineSchemaWithinExtension($line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             LoneSchemaDefinition::canNotDefineSchemaWithinExtensionMessage(),
             [new SourceLocation($line, $column)]
         );

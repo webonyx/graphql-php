@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoFragmentCycles;
 
 class NoFragmentCyclesTest extends ValidatorTestCase
@@ -109,7 +109,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
 
     private function cycleError($fargment, $spreadNames, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             NoFragmentCycles::cycleErrorMessage($fargment, $spreadNames),
             [new SourceLocation($line, $column)]
         );
@@ -163,7 +163,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragB on Dog { ...fragA }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragB']),
                     [new SourceLocation(2, 31), new SourceLocation(3, 31)]
                 ),
@@ -183,7 +183,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragA on Dog { ...fragB }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragB', ['fragA']),
                     [new SourceLocation(2, 31), new SourceLocation(3, 31)]
                 ),
@@ -211,7 +211,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragB']),
                     [new SourceLocation(4, 11), new SourceLocation(9, 11)]
                 ),
@@ -237,7 +237,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragP on Dog { ...fragA, ...fragX }
     ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragB', 'fragC', 'fragO', 'fragP']),
                     [
                         new SourceLocation(2, 31),
@@ -247,7 +247,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
                         new SourceLocation(9, 31),
                     ]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragO', ['fragP', 'fragX', 'fragY', 'fragZ']),
                     [
                         new SourceLocation(8, 31),
@@ -274,11 +274,11 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragC on Dog { ...fragA }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragB']),
                     [new SourceLocation(2, 31), new SourceLocation(3, 31)]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragC']),
                     [new SourceLocation(2, 41), new SourceLocation(4, 31)]
                 ),
@@ -299,11 +299,11 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragC on Dog { ...fragA, ...fragB }
     ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragC']),
                     [new SourceLocation(2, 31), new SourceLocation(4, 31)]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragC', ['fragB']),
                     [new SourceLocation(4, 41), new SourceLocation(3, 31)]
                 ),
@@ -324,11 +324,11 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragC on Dog { ...fragA, ...fragB }
     ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragB', []),
                     [new SourceLocation(3, 31)]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragB', 'fragC']),
                     [
                         new SourceLocation(2, 31),
@@ -336,7 +336,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
                         new SourceLocation(4, 31),
                     ]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragB', ['fragC']),
                     [new SourceLocation(3, 41), new SourceLocation(4, 41)]
                 ),
