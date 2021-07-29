@@ -100,7 +100,9 @@ class QueryExecutionTest extends ServerTestCase
                 [
                     'message' => 'This is the exception we want',
                     'path' => ['fieldWithSafeException'],
-                    'trace' => [],
+                    'extensions' => [
+                        'trace' => [],
+                    ],
                 ],
             ],
         ];
@@ -640,7 +642,9 @@ class QueryExecutionTest extends ServerTestCase
             'errors' => [
                 [
                     'test'  => 'formatted',
-                    'trace' => [],
+                    'extensions' => [
+                        'trace' => [],
+                    ],
                 ],
             ],
         ];
