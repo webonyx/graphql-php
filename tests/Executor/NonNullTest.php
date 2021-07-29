@@ -555,8 +555,8 @@ class NonNullTest extends TestCase
             'data'   => ['syncNest' => null],
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".',
                     'locations'    => [['line' => 4, 'column' => 11]],
+                    'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".'],
                 ],
             ],
         ];
@@ -582,8 +582,8 @@ class NonNullTest extends TestCase
             'data'   => ['syncNest' => null],
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".',
                     'locations'    => [['line' => 4, 'column' => 11]],
+                    'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".'],
                 ],
             ],
         ];
@@ -610,8 +610,8 @@ class NonNullTest extends TestCase
             'data'   => ['promiseNest' => null],
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".',
                     'locations'    => [['line' => 4, 'column' => 11]],
+                    'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".'],
                 ],
             ],
         ];
@@ -638,8 +638,8 @@ class NonNullTest extends TestCase
             'data'   => ['promiseNest' => null],
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".',
                     'locations'    => [['line' => 4, 'column' => 11]],
+                    'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".'],
                 ],
             ],
         ];
@@ -780,10 +780,22 @@ class NonNullTest extends TestCase
                 'anotherPromiseNest' => null,
             ],
             'errors' => [
-                ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".', 'locations' => [['line' => 8, 'column' => 19]]],
-                ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".', 'locations' => [['line' => 19, 'column' => 19]]],
-                ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".', 'locations' => [['line' => 30, 'column' => 19]]],
-                ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".', 'locations' => [['line' => 41, 'column' => 19]]],
+                [
+                    'locations' => [['line' => 8, 'column' => 19]],
+                    'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".'],
+                ],
+                [
+                    'locations' => [['line' => 19, 'column' => 19]],
+                    'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".'],
+                ],
+                [
+                    'locations' => [['line' => 30, 'column' => 19]],
+                    'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".'],
+                ],
+                [
+                    'locations' => [['line' => 41, 'column' => 19]],
+                    'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".'],
+                ],
             ],
         ];
 
@@ -1025,8 +1037,8 @@ class NonNullTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".',
                     'locations'    => [['line' => 2, 'column' => 17]],
+                    'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".'],
                 ],
             ],
         ];
@@ -1047,8 +1059,8 @@ class NonNullTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".',
                     'locations'    => [['line' => 2, 'column' => 17]],
+                    'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".'],
                 ],
             ],
         ];
