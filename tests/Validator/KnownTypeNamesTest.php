@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\KnownTypeNames;
 
 class KnownTypeNamesTest extends ValidatorTestCase
@@ -60,7 +60,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
 
     private function unknownType($typeName, $suggestedTypes, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownTypeNames::unknownTypeMessage($typeName, $suggestedTypes),
             [new SourceLocation($line, $column)]
         );

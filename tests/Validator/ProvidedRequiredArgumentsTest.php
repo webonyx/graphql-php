@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
@@ -243,7 +243,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
 
     private function missingFieldArg($fieldName, $argName, $typeName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ProvidedRequiredArguments::missingFieldArgMessage($fieldName, $argName, $typeName),
             [new SourceLocation($line, $column)]
         );
@@ -464,7 +464,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
 
     private function missingDirectiveArg($directiveName, $argName, $typeName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ProvidedRequiredArgumentsOnDirectives::missingDirectiveArgMessage($directiveName, $argName, $typeName),
             [new SourceLocation($line, $column)]
         );

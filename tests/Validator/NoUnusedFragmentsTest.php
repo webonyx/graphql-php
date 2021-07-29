@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoUnusedFragments;
 
 class NoUnusedFragmentsTest extends ValidatorTestCase
@@ -118,7 +118,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
 
     private function unusedFrag($fragName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             NoUnusedFragments::unusedFragMessage($fragName),
             [new SourceLocation($line, $column)]
         );

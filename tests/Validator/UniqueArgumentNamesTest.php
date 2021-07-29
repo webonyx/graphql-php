@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
 
 class UniqueArgumentNamesTest extends ValidatorTestCase
@@ -166,7 +166,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
 
     private function duplicateArg($argName, $l1, $c1, $l2, $c2)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             UniqueArgumentNames::duplicateArgMessage($argName),
             [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)]
         );

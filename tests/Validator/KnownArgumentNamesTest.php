@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownArgumentNames;
 use GraphQL\Validator\Rules\KnownArgumentNamesOnDirectives;
@@ -148,7 +148,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
 
     private function unknownDirectiveArg($argName, $directiveName, $suggestedArgs, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownArgumentNamesOnDirectives::unknownDirectiveArgMessage($argName, $directiveName, $suggestedArgs),
             [new SourceLocation($line, $column)]
         );
@@ -192,7 +192,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
 
     private function unknownArg($argName, $fieldName, $typeName, $suggestedArgs, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownArgumentNames::unknownArgMessage($argName, $fieldName, $typeName, $suggestedArgs),
             [new SourceLocation($line, $column)]
         );

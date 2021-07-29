@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownDirectives;
@@ -99,7 +99,7 @@ class KnownDirectivesTest extends ValidatorTestCase
 
     private function unknownDirective($directiveName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownDirectives::unknownDirectiveMessage($directiveName),
             [new SourceLocation($line, $column)]
         );
@@ -322,7 +322,7 @@ class KnownDirectivesTest extends ValidatorTestCase
 
     private function misplacedDirective($directiveName, $placement, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownDirectives::misplacedDirectiveMessage($directiveName, $placement),
             [new SourceLocation($line, $column)]
         );

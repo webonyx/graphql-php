@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\ScalarLeafs;
 
 class ScalarLeafsTest extends ValidatorTestCase
@@ -45,7 +45,7 @@ class ScalarLeafsTest extends ValidatorTestCase
 
     private function missingObjSubselection($field, $type, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ScalarLeafs::requiredSubselectionMessage($field, $type),
             [new SourceLocation($line, $column)]
         );
@@ -100,7 +100,7 @@ class ScalarLeafsTest extends ValidatorTestCase
 
     private function noScalarSubselection($field, $type, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ScalarLeafs::noSubselectionAllowedMessage($field, $type),
             [new SourceLocation($line, $column)]
         );

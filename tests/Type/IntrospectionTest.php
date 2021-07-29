@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use GraphQL\Error\FormattedError;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
@@ -1465,7 +1465,7 @@ class IntrospectionTest extends TestCase
     ';
         $expected = [
             'errors' => [
-                FormattedError::create(
+                ErrorHelper::create(
                     ProvidedRequiredArguments::missingFieldArgMessage('__type', 'name', 'String!'),
                     [new SourceLocation(3, 9)]
                 ),

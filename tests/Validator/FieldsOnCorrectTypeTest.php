@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\FieldsOnCorrectType;
 
 class FieldsOnCorrectTypeTest extends ValidatorTestCase
@@ -129,7 +129,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
 
     private function undefinedField($field, $type, $suggestedTypes, $suggestedFields, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             FieldsOnCorrectType::undefinedFieldMessage($field, $type, $suggestedTypes, $suggestedFields),
             [new SourceLocation($line, $column)]
         );

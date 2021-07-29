@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -145,7 +145,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'fido',
                         'name and nickname are different fields'
@@ -192,7 +192,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'name',
                         'nickname and name are different fields'
@@ -217,7 +217,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'doesKnowCommand',
                         'they have differing arguments'
@@ -242,7 +242,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'doesKnowCommand',
                         'they have differing arguments'
@@ -267,7 +267,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'doesKnowCommand',
                         'they have differing arguments'
@@ -320,7 +320,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and b are different fields'),
                     [new SourceLocation(7, 9), new SourceLocation(10, 9)]
                 ),
@@ -359,15 +359,15 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
     ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and b are different fields'),
                     [new SourceLocation(18, 9), new SourceLocation(21, 9)]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'c and a are different fields'),
                     [new SourceLocation(14, 11), new SourceLocation(18, 9)]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'c and b are different fields'),
                     [new SourceLocation(14, 11), new SourceLocation(21, 9)]
                 ),
@@ -393,7 +393,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'field',
                         [['x', 'a and b are different fields']]
@@ -429,7 +429,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'field',
                         [
@@ -472,7 +472,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'field',
                         [['deepField', [['x', 'a and b are different fields']]]]
@@ -515,7 +515,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'deepField',
                         [['x', 'a and b are different fields']]
@@ -564,7 +564,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'deeperField',
                         [['x', 'a and b are different fields']]
@@ -612,7 +612,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'field',
                         [
@@ -682,7 +682,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'scalar',
                         'they return conflicting types Int and String!'
@@ -861,7 +861,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'scalar',
                         'they return conflicting types Int and String'
@@ -928,7 +928,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'other',
                         [['scalar', 'scalar and unrelatedField are different fields']]
@@ -965,7 +965,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'scalar',
                         'they return conflicting types String! and String'
@@ -1004,7 +1004,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'box',
                         'they return conflicting types [StringBox] and StringBox'
@@ -1037,7 +1037,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'box',
                         'they return conflicting types StringBox and [StringBox]'
@@ -1075,7 +1075,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         ',
             [
 
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'val',
                         'scalar and unrelatedField are different fields'
@@ -1114,7 +1114,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'box',
                         [['scalar', 'they return conflicting types String and Int']]
@@ -1224,7 +1224,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         }
       ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'edges',
                         [['node', [['id', 'name and id are different fields']]]]
@@ -1334,7 +1334,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'fido',
                         'name and nickname are different fields'
