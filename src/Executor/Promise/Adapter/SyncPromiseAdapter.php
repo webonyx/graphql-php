@@ -78,7 +78,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->reject($reason), $this);
     }
 
-    /** @inheritDoc */
     public function all(array $promisesOrValues)
     {
         $all = new SyncPromise();
