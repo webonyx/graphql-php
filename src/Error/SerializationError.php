@@ -1,0 +1,17 @@
+<?php
+
+declare(strict_types=1);
+
+namespace GraphQL\Error;
+
+use Exception;
+
+/**
+ * Thrown when failing to serialize a scalar value.
+ *
+ * Not generally safe for clients, as the wrong given value could
+ * be something not intended to ever be seen by clients.
+ */
+class SerializationError extends Exception
+{
+}

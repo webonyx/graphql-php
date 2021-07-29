@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\SerializationError;
 use GraphQL\Tests\Type\TestClasses\CanCastToString;
 use GraphQL\Tests\Type\TestClasses\ObjectIdStub;
 use GraphQL\Type\Definition\Type;
@@ -64,7 +65,7 @@ class ScalarSerializationTest extends TestCase
         // The GraphQL specification does not allow serializing non-integer values
         // as Int to avoid accidental data loss.
         $intType = Type::int();
-        $this->expectException(Error::class);
+        $this->expectException(SerializationError::class);
         $this->expectExceptionMessage($expectedError);
         $intType->serialize($value);
     }
@@ -107,7 +108,7 @@ class ScalarSerializationTest extends TestCase
     public function testSerializesOutputFloatErrors($value, $expectedError): void
     {
         $floatType = Type::float();
-        $this->expectException(Error::class);
+        $this->expectException(SerializationError::class);
         $this->expectExceptionMessage($expectedError);
         $floatType->serialize($value);
     }
@@ -143,7 +144,7 @@ class ScalarSerializationTest extends TestCase
     public function testSerializesOutputStringErrors($value, $expectedError): void
     {
         $stringType = Type::string();
-        $this->expectException(Error::class);
+        $this->expectException(SerializationError::class);
         $this->expectExceptionMessage($expectedError);
         $stringType->serialize($value);
     }
@@ -200,7 +201,7 @@ class ScalarSerializationTest extends TestCase
     public function testSerializesOutputAsIDError($value, $expectedError)
     {
         $idType = Type::id();
-        $this->expectException(Error::class);
+        $this->expectException(SerializationError::class);
         $this->expectExceptionMessage($expectedError);
         $idType->serialize($value);
     }
