@@ -18,7 +18,7 @@ class BooleanType extends ScalarType
     public $description = 'The `Boolean` scalar type represents `true` or `false`.';
 
     /**
-     * Serialize the given value to a bool.
+     * Serialize the given value to a Boolean.
      *
      * The GraphQL spec leaves this up to the implementations, so we just do what
      * PHP does natively to make this intuitive for developers.
