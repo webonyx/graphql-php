@@ -39,6 +39,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated `GraphQL::executeAndReturnResult()`
 - Remove deprecated experimental CoroutineExecutor
 - Remove deprecated `FormattedError::create()` and `FormattedError::createFromPHPError()`
+- Remove `GraphQL::setPromiseAdapter()`
 - Remove deprecated `AST::getOperation()`
 - Remove deprecated constants from `BreakingChangesFinder`
 - Remove deprecated `DocumentValidator::isValidLiteralValue()`
