@@ -132,7 +132,7 @@ class GraphQL
                 $documentNode = Parser::parse(new Source($source ?? '', 'GraphQL'));
             }
 
-            // FIXME
+            // TODO this could be more elegant
             if (count($validationRules ?? []) === 0) {
                 /** @var QueryComplexity $queryComplexity */
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
@@ -229,24 +229,5 @@ class GraphQL
     public static function setDefaultFieldResolver(callable $fn): void
     {
         Executor::setDefaultFieldResolver($fn);
-    }
-
-    public static function setPromiseAdapter(?PromiseAdapter $promiseAdapter = null): void
-    {
-        Executor::setPromiseAdapter($promiseAdapter);
-    }
-
-    /**
-     * Returns directives defined in GraphQL spec
-     *
-     * @deprecated Renamed to getStandardDirectives
-     *
-     * @return Directive[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function getInternalDirectives(): array
-    {
-        return self::getStandardDirectives();
     }
 }

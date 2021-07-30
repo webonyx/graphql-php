@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use Exception;
+use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -303,10 +304,10 @@ abstract class ValidatorTestCase extends TestCase
                 return $value;
             },
             'parseLiteral' => static function ($node): void {
-                throw new Exception('Invalid scalar is always invalid: ' . $node->value);
+                throw new Error('Invalid scalar is always invalid: ' . $node->value);
             },
             'parseValue'   => static function ($node): void {
-                throw new Exception('Invalid scalar is always invalid: ' . $node);
+                throw new Error('Invalid scalar is always invalid: ' . $node);
             },
         ]);
 
@@ -424,7 +425,7 @@ abstract class ValidatorTestCase extends TestCase
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules);
 
         self::assertNotEmpty($errors, 'GraphQL should not validate');
-        self::assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));
+        self::assertEquals($expectedErrors, array_map([FormattedError::class, 'createFromException'], $errors));
 
         return $errors;
     }
@@ -454,7 +455,7 @@ abstract class ValidatorTestCase extends TestCase
         $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
         self::assertEquals(
             $errors,
-            array_map(['GraphQL\Error\Error', 'formatError'], $actualErrors)
+            array_map([FormattedError::class, 'createFromException'], $actualErrors)
         );
     }
 }

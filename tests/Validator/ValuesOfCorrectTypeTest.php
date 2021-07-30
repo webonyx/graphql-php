@@ -1424,8 +1424,6 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "invalidArg" argument "arg" requires type Invalid, found 123; Invalid scalar is always invalid: 123', 3, 27),
             ]
         );
-
-        self::assertFalse($errors[0]->isClientSafe());
     }
 
     /**

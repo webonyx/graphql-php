@@ -9,6 +9,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\OperationDefinitionNode;
@@ -1022,7 +1023,7 @@ class ExecutorTest extends TestCase
                 'locations' => [['line' => 1, 'column' => 3]],
                 'path'      => ['specials', 1],
             ],
-            $result->errors[0]->toSerializableArray()
+            FormattedError::createFromException($result->errors[0])
         );
     }
 

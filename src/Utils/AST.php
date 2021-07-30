@@ -592,32 +592,6 @@ class AST
     }
 
     /**
-     * @deprecated use getOperationAST instead.
-     *
-     * Returns operation type ("query", "mutation" or "subscription") given a document and operation name
-     *
-     * @return bool|string
-     *
-     * @api
-     */
-    public static function getOperation(DocumentNode $document, ?string $operationName = null)
-    {
-        if ($document->definitions !== null) {
-            foreach ($document->definitions as $def) {
-                if (! ($def instanceof OperationDefinitionNode)) {
-                    continue;
-                }
-
-                if (($operationName ?? '') === '' || (isset($def->name->value) && $def->name->value === $operationName)) {
-                    return $def->operation;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Returns the operation within a document by name.
      *
      * If a name is not provided, an operation is only returned if the document has exactly one.

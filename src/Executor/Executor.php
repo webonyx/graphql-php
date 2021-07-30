@@ -45,7 +45,7 @@ class Executor
 
     public static function getPromiseAdapter(): PromiseAdapter
     {
-        return self::$defaultPromiseAdapter ?? (self::$defaultPromiseAdapter = new SyncPromiseAdapter());
+        return self::$defaultPromiseAdapter ??= new SyncPromiseAdapter();
     }
 
     /**
@@ -93,9 +93,7 @@ class Executor
         $operationName = null,
         ?callable $fieldResolver = null
     ) {
-        // TODO: deprecate (just always use SyncAdapter here) and have `promiseToExecute()` for other cases
-
-        $promiseAdapter = static::getPromiseAdapter();
+        $promiseAdapter = new SyncPromiseAdapter();
 
         $result = static::promiseToExecute(
             $promiseAdapter,
@@ -108,11 +106,7 @@ class Executor
             $fieldResolver
         );
 
-        if ($promiseAdapter instanceof SyncPromiseAdapter) {
-            $result = $promiseAdapter->wait($result);
-        }
-
-        return $result;
+        return $promiseAdapter->wait($result);
     }
 
     /**
