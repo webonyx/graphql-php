@@ -239,15 +239,7 @@ class AST
         if ($type instanceof ScalarType || $type instanceof EnumType) {
             // Since value is an internally represented value, it must be serialized
             // to an externally represented value before converting into an AST.
-            try {
-                $serialized = $type->serialize($value);
-            } catch (Throwable $error) {
-                if ($error instanceof InvariantViolation && $type instanceof EnumType) {
-                    return null;
-                }
-
-                throw $error;
-            }
+            $serialized = $type->serialize($value);
 
             // Others serialize based on their corresponding PHP scalar types.
             if (is_bool($serialized)) {

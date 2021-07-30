@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use ArrayObject;
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
