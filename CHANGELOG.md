@@ -14,7 +14,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - PHP version required: 7.4+
 - Propagate error message and stack trace for why leaf value serialization failed
 - Do not throw client safe `Error` when failing to serialize an Enum type
-- Throw `SerializationError` over client safe `Error` when failing to serialize scalars
+- Throw `SerializationError` over client safe `Error` when failing to serialize leaf types
 
 ### Added
 
