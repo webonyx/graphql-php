@@ -106,36 +106,6 @@ class TypeInfo
     }
 
     /**
-     * @deprecated moved to GraphQL\Utils\TypeComparators
-     *
-     * @codeCoverageIgnore
-     */
-    public static function isEqualType(Type $typeA, Type $typeB): bool
-    {
-        return TypeComparators::isEqualType($typeA, $typeB);
-    }
-
-    /**
-     * @deprecated moved to GraphQL\Utils\TypeComparators
-     *
-     * @codeCoverageIgnore
-     */
-    public static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
-    {
-        return TypeComparators::isTypeSubTypeOf($schema, $maybeSubType, $superType);
-    }
-
-    /**
-     * @deprecated moved to GraphQL\Utils\TypeComparators
-     *
-     * @codeCoverageIgnore
-     */
-    public static function doTypesOverlap(Schema $schema, CompositeType $typeA, CompositeType $typeB)
-    {
-        return TypeComparators::doTypesOverlap($schema, $typeA, $typeB);
-    }
-
-    /**
      * Given root type scans through all fields to find nested types. Returns array where keys are for type name
      * and value contains corresponding type instance.
      *

@@ -293,12 +293,13 @@ class Helper
                 $doc = Parser::parse($doc);
             }
 
-            $operationType = AST::getOperation($doc, $op->operation);
+            $operationAST = AST::getOperationAST($doc, $op->operation);
 
-            if ($operationType === false) {
+            if ($operationAST === null) {
                 throw new RequestError('Failed to determine operation type');
             }
 
+            $operationType = $operationAST->operation;
             if ($operationType !== 'query' && $op->isReadOnly()) {
                 throw new RequestError('GET supports only query operation');
             }

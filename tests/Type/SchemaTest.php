@@ -119,7 +119,7 @@ class SchemaTest extends TestCase
             'Check that schema.types is defined and is an array of all possible ' .
             'types in the schema.'
         );
-        $this->schema->isPossibleType($this->interfaceType, $this->implementingType);
+        $this->schema->isSubType($this->interfaceType, $this->implementingType);
     }
 
     // Type Map

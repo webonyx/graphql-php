@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Error;
 
 use Exception;
 use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
@@ -105,7 +106,7 @@ class ErrorTest extends TestCase
     public function testSerializesToIncludeMessage(): void
     {
         $e = new Error('msg');
-        self::assertEquals(['message' => 'msg'], $e->toSerializableArray());
+        self::assertEquals(['message' => 'msg'], FormattedError::createFromException($e));
     }
 
     /**
@@ -121,7 +122,7 @@ class ErrorTest extends TestCase
 
         self::assertEquals(
             ['message' => 'msg', 'locations' => [['line' => 1, 'column' => 3]]],
-            $e->toSerializableArray()
+            FormattedError::createFromException($e)
         );
     }
 
@@ -139,7 +140,7 @@ class ErrorTest extends TestCase
         );
 
         self::assertEquals(['path', 3, 'to', 'field'], $e->path);
-        self::assertEquals(['message' => 'msg', 'path' => ['path', 3, 'to', 'field']], $e->toSerializableArray());
+        self::assertEquals(['message' => 'msg', 'path' => ['path', 3, 'to', 'field']], FormattedError::createFromException($e));
     }
 
     /**
@@ -163,7 +164,7 @@ class ErrorTest extends TestCase
                 'message'    => 'msg',
                 'extensions' => ['foo' => 'bar'],
             ],
-            $e->toSerializableArray()
+            FormattedError::createFromException($e)
         );
     }
 }

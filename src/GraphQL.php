@@ -230,18 +230,4 @@ class GraphQL
     {
         Executor::setDefaultFieldResolver($fn);
     }
-
-    /**
-     * Returns directives defined in GraphQL spec
-     *
-     * @deprecated Renamed to getStandardDirectives
-     *
-     * @return Directive[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function getInternalDirectives(): array
-    {
-        return self::getStandardDirectives();
-    }
 }

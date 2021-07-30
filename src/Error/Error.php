@@ -12,7 +12,6 @@ use JsonSerializable;
 use Throwable;
 use Traversable;
 
-use function array_map;
 use function count;
 use function is_array;
 use function iterator_to_array;
@@ -185,14 +184,6 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             && count($this->nodes) > 0;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public static function formatError(Error $error): array
-    {
-        return $error->toSerializableArray();
-    }
-
     public function isClientSafe(): bool
     {
         return $this->isClientSafe;
@@ -296,41 +287,6 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
     public function getExtensions(): ?array
     {
         return $this->extensions;
-    }
-
-    /**
-     * Returns array representation of error suitable for serialization
-     *
-     * @deprecated Use FormattedError::createFromException() instead
-     *
-     * @return array<string, mixed>
-     *
-     * @codeCoverageIgnore
-     */
-    public function toSerializableArray(): array
-    {
-        $arr = [
-            'message' => $this->getMessage(),
-        ];
-
-        $locations = array_map(
-            static fn (SourceLocation $loc): array => $loc->toSerializableArray(),
-            $this->getLocations()
-        );
-
-        if (count($locations) > 0) {
-            $arr['locations'] = $locations;
-        }
-
-        if ($this->path !== null && count($this->path) > 0) {
-            $arr['path'] = $this->path;
-        }
-
-        if (isset($this->extensions) && count($this->extensions) > 0) {
-            $arr['extensions'] = $this->extensions;
-        }
-
-        return $arr;
     }
 
     /**
