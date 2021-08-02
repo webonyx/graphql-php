@@ -28,7 +28,7 @@ class FormattedErrorTest extends TestCase
             [Type::string(), 'GraphQLType: String'],
             [
                 new NodeList([]),
-                'instance of GraphQL\Language\AST\NodeList(0)'
+                'instance of GraphQL\Language\AST\NodeList(0)',
             ],
             [[2], 'array(1)'],
             ['', '(empty string)'],
