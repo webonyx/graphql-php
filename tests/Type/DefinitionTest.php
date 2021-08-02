@@ -33,44 +33,31 @@ class DefinitionTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @var ObjectType */
-    public $blogImage;
+    public ObjectType $blogImage;
 
-    /** @var ObjectType */
-    public $blogArticle;
+    public ObjectType $blogArticle;
 
-    /** @var ObjectType */
-    public $blogAuthor;
+    public ObjectType $blogAuthor;
 
-    /** @var ObjectType */
-    public $blogMutation;
+    public ObjectType $blogMutation;
 
-    /** @var ObjectType */
-    public $blogQuery;
+    public ObjectType $blogQuery;
 
-    /** @var ObjectType */
-    public $blogSubscription;
+    public ObjectType $blogSubscription;
 
-    /** @var ObjectType */
-    public $objectType;
+    public ObjectType $objectType;
 
-    /** @var ObjectType */
-    public $objectWithIsTypeOf;
+    public ObjectType $objectWithIsTypeOf;
 
-    /** @var InterfaceType */
-    public $interfaceType;
+    public InterfaceType $interfaceType;
 
-    /** @var UnionType */
-    public $unionType;
+    public UnionType $unionType;
 
-    /** @var EnumType */
-    public $enumType;
+    public EnumType $enumType;
 
-    /** @var InputObjectType */
-    public $inputObjectType;
+    public InputObjectType $inputObjectType;
 
-    /** @var CustomScalarType */
-    public $scalarType;
+    public CustomScalarType $scalarType;
 
     public function setUp(): void
     {

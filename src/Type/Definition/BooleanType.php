@@ -13,9 +13,9 @@ use function is_bool;
 
 class BooleanType extends ScalarType
 {
-    public $name = Type::BOOLEAN;
+    public string $name = Type::BOOLEAN;
 
-    public $description = 'The `Boolean` scalar type represents `true` or `false`.';
+    public ?string $description = 'The `Boolean` scalar type represents `true` or `false`.';
 
     /**
      * Serialize the given value to a Boolean.

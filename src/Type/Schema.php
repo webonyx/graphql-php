@@ -492,20 +492,6 @@ class Schema
     }
 
     /**
-     * @deprecated as of 14.4.0 use isSubType instead, will be removed in 15.0.0.
-     *
-     * Returns true if object type is concrete type of given abstract type
-     * (implementation for interfaces and members of union type for unions)
-     *
-     * @api
-     * @codeCoverageIgnore
-     */
-    public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType): bool
-    {
-        return $this->isSubType($abstractType, $possibleType);
-    }
-
-    /**
      * Returns true if the given type is a sub type of the given abstract type.
      *
      * @param UnionType|InterfaceType  $abstractType

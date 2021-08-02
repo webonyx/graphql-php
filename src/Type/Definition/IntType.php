@@ -26,9 +26,9 @@ class IntType extends ScalarType
     private const MAX_INT = 2147483647;
     private const MIN_INT = -2147483648;
 
-    public $name = Type::INT;
+    public string $name = Type::INT;
 
-    public $description =
+    public ?string $description =
         'The `Int` scalar type represents non-fractional signed whole numeric
 values. Int can represent values between -(2^31) and 2^31 - 1. ';
 

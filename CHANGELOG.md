@@ -14,6 +14,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - PHP version required: 7.4+
 - Propagate error message and stack trace for why leaf value serialization failed
 - Do not throw client safe `Error` when failing to serialize an Enum type
+- Use native PHP types for properties of `Type` and its subclasses
 - Throw `SerializationError` over client safe `Error` when failing to serialize leaf types
 
 ### Added
@@ -41,6 +42,14 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated experimental CoroutineExecutor
 - Remove deprecated `FormattedError::create()` and `FormattedError::createFromPHPError()`
 - Remove `GraphQL::setPromiseAdapter()`
+- Remove deprecated `AST::getOperation()`
+- Remove deprecated constants from `BreakingChangesFinder`
+- Remove deprecated `DocumentValidator::isValidLiteralValue()`
+- Remove deprecated `Error::formatError()` and `Error::toSerializableArray()`
+- Remove deprecated `GraphQL::getInternalDirectives()`
+- Remove deprecated `Schema::isPossibleType()`
+- Remove deprecated methods from `TypeInfo`
+- Remove deprecated `Values::valueFromAST()` and `Values::isValidPHPValue()`
 
 ## 14.9.0
 

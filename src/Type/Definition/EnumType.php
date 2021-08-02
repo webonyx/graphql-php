@@ -12,6 +12,7 @@ use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 
@@ -23,29 +24,27 @@ use function sprintf;
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
     /** @var EnumTypeDefinitionNode|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
     /**
      * Lazily initialized.
      *
-     * @var EnumValueDefinition[]
+     * @var array<int, EnumValueDefinition>
      */
-    private $values;
+    private array $values;
 
     /**
      * Lazily initialized.
      *
      * Actually a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way.
-     *
-     * @var MixedStore
      */
-    private $valueLookup;
+    private MixedStore $valueLookup;
 
     /** @var ArrayObject<string, EnumValueDefinition> */
-    private $nameLookup;
+    private ArrayObject $nameLookup;
 
     /** @var array<int, EnumTypeExtensionNode> */
-    public $extensionASTNodes;
+    public array $extensionASTNodes;
 
     public function __construct($config)
     {

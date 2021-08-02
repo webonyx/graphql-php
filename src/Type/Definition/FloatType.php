@@ -19,9 +19,9 @@ use function is_numeric;
 
 class FloatType extends ScalarType
 {
-    public $name = Type::FLOAT;
+    public string $name = Type::FLOAT;
 
-    public $description =
+    public ?string $description =
         'The `Float` scalar type represents signed double-precision fractional
 values as specified by
 [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point). ';

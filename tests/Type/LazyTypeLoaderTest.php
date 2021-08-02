@@ -286,7 +286,7 @@ final class LazyTypeLoaderTest extends TestCase
         self::assertSame(Schema::resolveType($this->postStoryMutationInput), $input);
         self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
 
-        $result = $schema->isPossibleType(
+        $result = $schema->isSubType(
             Schema::resolveType($this->node),
             Schema::resolveType($this->blogStory)
         );

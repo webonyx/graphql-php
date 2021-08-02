@@ -12,7 +12,7 @@ use GraphQL\Utils\Utils;
 
 class ComplexScalar extends ScalarType
 {
-    public $name = 'ComplexScalar';
+    public string $name = 'ComplexScalar';
 
     public static function create(): self
     {
