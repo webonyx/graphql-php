@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
@@ -19,24 +20,24 @@ use function sprintf;
 class InterfaceType extends TypeWithFields implements AbstractType, OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
     /** @var InterfaceTypeDefinitionNode|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
     /** @var array<int, InterfaceTypeExtensionNode> */
-    public $extensionASTNodes;
+    public array $extensionASTNodes;
 
     /**
      * Lazily initialized.
      *
      * @var array<int, InterfaceType>
      */
-    private $interfaces;
+    private array $interfaces;
 
     /**
      * Lazily initialized.
      *
      * @var array<string, InterfaceType>
      */
-    private $interfaceMap;
+    private array $interfaceMap;
 
     /**
      * @param mixed[] $config

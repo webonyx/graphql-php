@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Type\Schema;
@@ -17,25 +18,25 @@ use function sprintf;
 
 class UnionType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
 {
-    /** @var UnionTypeDefinitionNode */
-    public $astNode;
+    /** @var UnionTypeDefinitionNode|null */
+    public ?TypeDefinitionNode $astNode;
 
     /**
      * Lazily initialized.
      *
-     * @var ObjectType[]
+     * @var array<ObjectType>
      */
-    private $types;
+    private array $types;
 
     /**
      * Lazily initialized.
      *
      * @var array<string, bool>
      */
-    private $possibleTypeNames;
+    private array $possibleTypeNames;
 
     /** @var array<int, UnionTypeExtensionNode> */
-    public $extensionASTNodes;
+    public array $extensionASTNodes;
 
     /**
      * @param mixed[] $config

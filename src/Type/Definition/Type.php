@@ -32,25 +32,26 @@ abstract class Type implements JsonSerializable
     public const ID      = 'ID';
 
     /** @var array<string, ScalarType> */
-    protected static $standardTypes;
+    protected static array $standardTypes;
 
     /** @var array<string, Type> */
-    private static $builtInTypes;
+    private static array $builtInTypes;
 
-    /** @var string */
-    public $name;
+    /**
+     * Not set in wrapping types.
+     */
+    public string $name;
 
-    /** @var string|null */
-    public $description;
+    public ?string $description;
 
     /** @var (Node&TypeDefinitionNode)|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
     /** @var array<string, mixed> */
-    public $config;
+    public array $config;
 
     /** @var array<Node&TypeExtensionNode> */
-    public $extensionASTNodes;
+    public array $extensionASTNodes;
 
     /**
      * @api
@@ -153,7 +154,7 @@ abstract class Type implements JsonSerializable
      */
     public static function getAllBuiltInTypes(): array
     {
-        if (self::$builtInTypes === null) {
+        if (! isset(self::$builtInTypes)) {
             self::$builtInTypes = array_merge(
                 Introspection::getTypes(),
                 self::getStandardTypes()

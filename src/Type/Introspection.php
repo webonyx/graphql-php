@@ -328,15 +328,11 @@ EOD;
                         ],
                         'name'          => [
                             'type' => Type::string(),
-                            'resolve' => static function ($obj) {
-                                return $obj->name;
-                            },
+                            'resolve' => static fn (Type $obj): ?string => $obj->name ?? null,
                         ],
                         'description'   => [
                             'type' => Type::string(),
-                            'resolve' => static function ($obj) {
-                                return $obj->description;
-                            },
+                            'resolve' => static fn (Type $obj): ?string => $obj->description,
                         ],
                         'fields'        => [
                             'type'    => Type::listOf(Type::nonNull(self::_field())),
