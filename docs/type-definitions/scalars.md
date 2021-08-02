@@ -50,7 +50,7 @@ class EmailType extends ScalarType
 {
     // Note: name can be omitted. In this case it will be inferred from class name 
     // (suffix "Type" will be dropped)
-    public $name = 'Email';
+    public string $name = 'Email';
 
     public function serialize($value)
     {
