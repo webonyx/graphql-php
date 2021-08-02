@@ -352,7 +352,7 @@ class FormattedError
         }
 
         if (is_scalar($var)) {
-            return $var;
+            return (string) $var;
         }
 
         if ($var === null) {
