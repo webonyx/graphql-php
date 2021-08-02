@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 use function count;
@@ -18,17 +19,17 @@ use function sprintf;
 class InputObjectType extends Type implements InputType, NullableType, NamedType
 {
     /** @var InputObjectTypeDefinitionNode|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
     /**
      * Lazily initialized.
      *
-     * @var InputObjectField[]
+     * @var array<string, InputObjectField>
      */
-    private $fields;
+    private array $fields;
 
     /** @var array<int, InputObjectTypeExtensionNode> */
-    public $extensionASTNodes;
+    public array $extensionASTNodes;
 
     /**
      * @param mixed[] $config

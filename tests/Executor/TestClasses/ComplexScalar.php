@@ -11,8 +11,7 @@ use GraphQL\Utils\Utils;
 
 class ComplexScalar extends ScalarType
 {
-    /** @var string */
-    public $name = 'ComplexScalar';
+    public string $name = 'ComplexScalar';
 
     public static function create(): self
     {

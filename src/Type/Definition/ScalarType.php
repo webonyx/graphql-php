@@ -6,6 +6,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 use function is_string;
@@ -31,10 +32,10 @@ use function is_string;
 abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NullableType, NamedType
 {
     /** @var ScalarTypeDefinitionNode|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
-    /** @var ScalarTypeExtensionNode[] */
-    public $extensionASTNodes;
+    /** @var array<ScalarTypeExtensionNode> */
+    public array $extensionASTNodes;
 
     /**
      * @param mixed[] $config
@@ -42,7 +43,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     public function __construct(array $config = [])
     {
         $this->name              = $config['name'] ?? $this->tryInferName();
-        $this->description       = $config['description'] ?? $this->description;
+        $this->description       = $config['description'] ?? $this->description ?? null;
         $this->astNode           = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
         $this->config            = $config;

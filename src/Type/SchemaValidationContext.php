@@ -965,6 +965,18 @@ class SchemaValidationContext
         $includedTypeNames = [];
 
         foreach ($memberTypes as $memberType) {
+            if (! $memberType instanceof ObjectType) {
+                $this->reportError(
+                    sprintf(
+                        'Union type %s can only include Object types, it cannot include %s.',
+                        $union->name,
+                        Utils::printSafe($memberType)
+                    ),
+                    $this->getUnionMemberTypeNodes($union, Utils::printSafe($memberType))
+                );
+                continue;
+            }
+
             if (isset($includedTypeNames[$memberType->name])) {
                 $this->reportError(
                     sprintf('Union type %s can only include type %s once.', $union->name, $memberType->name),
@@ -974,18 +986,6 @@ class SchemaValidationContext
             }
 
             $includedTypeNames[$memberType->name] = true;
-            if ($memberType instanceof ObjectType) {
-                continue;
-            }
-
-            $this->reportError(
-                sprintf(
-                    'Union type %s can only include Object types, it cannot include %s.',
-                    $union->name,
-                    Utils::printSafe($memberType)
-                ),
-                $this->getUnionMemberTypeNodes($union, Utils::printSafe($memberType))
-            );
         }
     }
 
