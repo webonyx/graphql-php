@@ -59,10 +59,10 @@ class ServerConfig
 
     private ?Schema $schema = null;
 
-    /** @var mixed|callable */
+    /** @var mixed|callable(self $config, OperationParams $params, DocumentNode $doc): mixed|null */
     private $context = null;
 
-    /** @var mixed|callable */
+    /** @var mixed|callable(OperationParams $params, DocumentNode $doc, string $operationType): mixed|null */
     private $rootValue = null;
 
     /** @var callable|null */
