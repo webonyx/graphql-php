@@ -43,7 +43,7 @@ use function stripos;
 use const JSON_ERROR_NONE;
 
 /**
- * Contains functionality that could be re-used by various server implementations
+ * Contains functionality that could be re-used by various server implementations.
  */
 class Helper
 {
@@ -62,7 +62,7 @@ class Helper
      *
      * For PSR-7 request parsing use `parsePsrRequest()` instead.
      *
-     * @return OperationParams|OperationParams[]
+     * @return OperationParams|array<int, OperationParams>
      *
      * @throws RequestError
      *
@@ -85,12 +85,12 @@ class Helper
                 $rawBody    = $readRawBodyFn === null
                     ? $this->readRawBody()
                     : $readRawBodyFn();
-                $bodyParams = ['query' => $rawBody ?? ''];
+                $bodyParams = ['query' => $rawBody];
             } elseif (stripos($contentType, 'application/json') !== false) {
                 $rawBody    = $readRawBodyFn === null
                     ? $this->readRawBody()
                     : $readRawBodyFn();
-                $bodyParams = json_decode($rawBody ?? '', true);
+                $bodyParams = json_decode($rawBody, true);
 
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
@@ -120,24 +120,23 @@ class Helper
      *
      * Returned value is a suitable input for `executeOperation` or `executeBatch` (if array)
      *
-     * @param string  $method
-     * @param mixed[] $bodyParams
-     * @param mixed[] $queryParams
+     * @param array<mixed> $bodyParams
+     * @param array<mixed> $queryParams
      *
-     * @return OperationParams|OperationParams[]
+     * @return OperationParams|array<int, OperationParams>
      *
      * @throws RequestError
      *
      * @api
      */
-    public function parseRequestParams($method, array $bodyParams, array $queryParams)
+    public function parseRequestParams(string $method, array $bodyParams, array $queryParams)
     {
         if ($method === 'GET') {
             $result = OperationParams::create($queryParams, true);
         } elseif ($method === 'POST') {
             if (isset($bodyParams[0])) {
                 $result = [];
-                foreach ($bodyParams as $index => $entry) {
+                foreach ($bodyParams as $entry) {
                     $op       = OperationParams::create($entry);
                     $result[] = $op;
                 }
@@ -159,7 +158,7 @@ class Helper
      *
      * @api
      */
-    public function validateOperationParams(OperationParams $params)
+    public function validateOperationParams(OperationParams $params): array
     {
         $errors  = [];
         $query   = $params->query ?? '';
@@ -227,9 +226,9 @@ class Helper
      * Executes batched GraphQL operations with shared promise queue
      * (thus, effectively batching deferreds|promises of all queries at once)
      *
-     * @param OperationParams[] $operations
+     * @param array<OperationParams> $operations
      *
-     * @return ExecutionResult|ExecutionResult[]|Promise
+     * @return ExecutionResult|array<int, ExecutionResult>|Promise
      *
      * @api
      */
@@ -252,17 +251,12 @@ class Helper
         return $result;
     }
 
-    /**
-     * @param bool $isBatch
-     *
-     * @return Promise
-     */
     private function promiseToExecuteOperation(
         PromiseAdapter $promiseAdapter,
         ServerConfig $config,
         OperationParams $op,
-        $isBatch = false
-    ) {
+        bool $isBatch = false
+    ): Promise {
         try {
             if ($config->getSchema() === null) {
                 throw new InvariantViolation('Schema is required for the server');
@@ -373,28 +367,26 @@ class Helper
     }
 
     /**
-     * @param string $operationType
-     *
-     * @return mixed[]|null
+     * @return array<mixed>|null
      */
     private function resolveValidationRules(
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
-        $operationType
-    ) {
+        string $operationType
+    ): ?array {
         // Allow customizing validation rules per operation:
         $validationRules = $config->getValidationRules();
 
         if (is_callable($validationRules)) {
             $validationRules = $validationRules($params, $doc, $operationType);
+        }
 
-            if (! is_array($validationRules)) {
-                throw new InvariantViolation(sprintf(
-                    'Expecting validation rules to be array or callable returning array, but got: %s',
-                    Utils::printSafe($validationRules)
-                ));
-            }
+        if (! is_array($validationRules) && $validationRules !== null) {
+            throw new InvariantViolation(sprintf(
+                'Expecting validation rules to be array or callable returning array, but got: %s',
+                Utils::printSafe($validationRules)
+            ));
         }
 
         return $validationRules;
@@ -414,16 +406,11 @@ class Helper
         return $rootValue;
     }
 
-    /**
-     * @param string $operationType
-     *
-     * @return mixed
-     */
     private function resolveContextValue(
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
-        $operationType
+        string $operationType
     ) {
         $context = $config->getContext();
 
@@ -437,12 +424,11 @@ class Helper
     /**
      * Send response using standard PHP `header()` and `echo`.
      *
-     * @param Promise|ExecutionResult|ExecutionResult[] $result
-     * @param bool                                      $exitWhenDone
+     * @param Promise|ExecutionResult|array<ExecutionResult> $result
      *
      * @api
      */
-    public function sendResponse($result, $exitWhenDone = false)
+    public function sendResponse($result, bool $exitWhenDone = false): void
     {
         if ($result instanceof Promise) {
             $result->then(function ($actualResult) use ($exitWhenDone): void {
@@ -453,18 +439,19 @@ class Helper
         }
     }
 
-    private function doSendResponse($result, $exitWhenDone)
+    /**
+     * @param ExecutionResult|array<ExecutionResult> $result
+     */
+    private function doSendResponse($result, bool $exitWhenDone): void
     {
         $httpStatus = $this->resolveHttpStatus($result);
         $this->emitResponse($result, $httpStatus, $exitWhenDone);
     }
 
     /**
-     * @param mixed[]|JsonSerializable $jsonSerializable
-     * @param int                      $httpStatus
-     * @param bool                     $exitWhenDone
+     * @param array<mixed>|JsonSerializable $jsonSerializable
      */
-    public function emitResponse($jsonSerializable, $httpStatus, $exitWhenDone)
+    public function emitResponse($jsonSerializable, int $httpStatus, bool $exitWhenDone): void
     {
         $body = json_encode($jsonSerializable);
         header('Content-Type: application/json', true, $httpStatus);
@@ -475,35 +462,33 @@ class Helper
         }
     }
 
-    /**
-     * @return bool|string
-     */
-    private function readRawBody()
+    private function readRawBody(): string
     {
-        return file_get_contents('php://input');
+        $body = file_get_contents('php://input');
+        if ($body === false) {
+            throw new RequestError('Could not read body.');
+        }
+
+        return $body;
     }
 
     /**
-     * @param ExecutionResult|mixed[] $result
-     *
-     * @return int
+     * @param ExecutionResult|array<ExecutionResult> $result
      */
-    private function resolveHttpStatus($result)
+    private function resolveHttpStatus($result): int
     {
         if (is_array($result) && isset($result[0])) {
-            Utils::each(
-                $result,
-                static function ($executionResult, $index): void {
-                    if (! $executionResult instanceof ExecutionResult) {
-                        throw new InvariantViolation(sprintf(
-                            'Expecting every entry of batched query result to be instance of %s but entry at position %d is %s',
-                            ExecutionResult::class,
-                            $index,
-                            Utils::printSafe($executionResult)
-                        ));
-                    }
+            foreach ($result as $index => $executionResult) {
+                if (! $executionResult instanceof ExecutionResult) {
+                    throw new InvariantViolation(sprintf(
+                        'Expecting every entry of batched query result to be instance of %s but entry at position %d is %s',
+                        ExecutionResult::class,
+                        $index,
+                        Utils::printSafe($executionResult)
+                    ));
                 }
-            );
+            }
+
             $httpStatus = 200;
         } else {
             if (! $result instanceof ExecutionResult) {
@@ -525,9 +510,9 @@ class Helper
     }
 
     /**
-     * Converts PSR-7 request to OperationParams[]
+     * Converts PSR-7 request to OperationParams or an array thereof.
      *
-     * @return OperationParams[]|OperationParams
+     * @return OperationParams|array<OperationParams>
      *
      * @throws RequestError
      *
@@ -584,9 +569,9 @@ class Helper
     }
 
     /**
-     * Converts query execution result to PSR-7 response
+     * Converts query execution result to PSR-7 response.
      *
-     * @param Promise|ExecutionResult|ExecutionResult[] $result
+     * @param Promise|ExecutionResult|array<ExecutionResult> $result
      *
      * @return Promise|ResponseInterface
      *
@@ -595,15 +580,15 @@ class Helper
     public function toPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream)
     {
         if ($result instanceof Promise) {
-            return $result->then(function ($actualResult) use ($response, $writableBodyStream) {
-                return $this->doConvertToPsrResponse($actualResult, $response, $writableBodyStream);
-            });
+            return $result->then(
+                fn ($actualResult): ResponseInterface => $this->doConvertToPsrResponse($actualResult, $response, $writableBodyStream)
+            );
         }
 
         return $this->doConvertToPsrResponse($result, $response, $writableBodyStream);
     }
 
-    private function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream)
+    private function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream): ResponseInterface
     {
         $httpStatus = $this->resolveHttpStatus($result);
 

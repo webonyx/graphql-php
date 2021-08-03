@@ -45,26 +45,25 @@ class OperationParams
 
     /**
      * @api
-     * @var mixed[]|null
+     * @var array<string, mixed>|null
      */
     public $variables;
 
     /**
      * @api
-     * @var mixed[]|null
+     * @var array<string, mixed>|null
      */
     public $extensions;
 
-    /** @var mixed[] */
+    /** @var array<string, mixed> */
     private $originalInput;
 
-    /** @var bool */
-    private $readOnly;
+    private bool $readOnly;
 
     /**
      * Creates an instance from given array
      *
-     * @param mixed[] $params
+     * @param array<string, mixed> $params
      *
      * @api
      */
@@ -119,13 +118,11 @@ class OperationParams
     }
 
     /**
-     * @param string $key
-     *
      * @return mixed
      *
      * @api
      */
-    public function getOriginalInput($key)
+    public function getOriginalInput(string $key)
     {
         return $this->originalInput[$key] ?? null;
     }
@@ -134,11 +131,9 @@ class OperationParams
      * Indicates that operation is executed in read-only context
      * (e.g. via HTTP GET request)
      *
-     * @return bool
-     *
      * @api
      */
-    public function isReadOnly()
+    public function isReadOnly(): bool
     {
         return $this->readOnly;
     }
