@@ -148,12 +148,12 @@ class MutationsTest extends TestCase
             ],
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot change the number',
                     'locations'    => [['line' => 8, 'column' => 7]],
+                    'extensions' => ['debugMessage' => 'Cannot change the number'],
                 ],
                 [
-                    'debugMessage' => 'Cannot change the number',
                     'locations'    => [['line' => 17, 'column' => 7]],
+                    'extensions' => ['debugMessage' => 'Cannot change the number'],
                 ],
             ],
         ];

@@ -379,9 +379,9 @@ class AbstractPromiseTest extends TestCase
             ],
             'errors' => [
                 [
-                    'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
                     'locations'    => [['line' => 2, 'column' => 7]],
                     'path'         => ['pets', 2],
+                    'extensions' => ['debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".'],
                 ],
             ],
         ];
@@ -482,9 +482,9 @@ class AbstractPromiseTest extends TestCase
             ],
             'errors' => [
                 [
-                    'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
                     'locations'    => [['line' => 2, 'column' => 7]],
                     'path'         => ['pets', 2],
+                    'extensions' => ['debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".'],
                 ],
             ],
         ];

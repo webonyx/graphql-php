@@ -16,6 +16,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Do not throw client safe `Error` when failing to serialize an Enum type
 - Use native PHP types for properties of `Type` and its subclasses
 - Throw `SerializationError` over client safe `Error` when failing to serialize leaf types
+- Move debug entries in errors under `extensions` key
 
 ### Added
 

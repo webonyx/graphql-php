@@ -269,9 +269,9 @@ class AbstractTest extends TestCase
             ],
             'errors' => [
                 [
-                    'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
                     'locations'    => [['line' => 2, 'column' => 11]],
                     'path'         => ['pets', 2],
+                    'extensions' => ['debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".'],
                 ],
             ],
         ];
@@ -376,9 +376,9 @@ class AbstractTest extends TestCase
             ],
             'errors' => [
                 [
-                    'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
                     'locations'    => [['line' => 2, 'column' => 11]],
                     'path'         => ['pets', 2],
+                    'extensions' => ['debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".'],
                 ],
             ],
         ];
@@ -428,11 +428,13 @@ class AbstractTest extends TestCase
                     'message'      => 'Internal server error',
                     'locations'    => [['line' => 1, 'column' => 3]],
                     'path'         => ['foo'],
-                    'debugMessage' =>
+                    'extensions' => [
+                        'debugMessage' =>
                         'Abstract type FooInterface must resolve to an Object type at ' .
                         'runtime for field Query.foo with value "dummy", received "[]". ' .
                         'Either the FooInterface type should provide a "resolveType" ' .
                         'function or each possible type should provide an "isTypeOf" function.',
+                    ],
                 ],
             ],
         ];
