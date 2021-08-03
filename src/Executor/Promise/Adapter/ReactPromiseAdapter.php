@@ -54,7 +54,6 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /** @inheritDoc */
     public function all(array $promisesOrValues): Promise
     {
         // TODO: rework with generators when PHP minimum required version is changed to 5.5+
