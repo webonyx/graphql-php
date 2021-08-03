@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FloatValueNode;
@@ -133,19 +134,29 @@ class AstFromValueTest extends TestCase
     /**
      * @see it('converts string values to Enum ASTs if possible')
      */
-    public function testConvertsStringValuesToEnumASTsIfPossible(): void
+    public function testConvertsStringValuesToEnumAST(): void
     {
-        self::assertEquals(new EnumValueNode(['value' => 'HELLO']), AST::astFromValue('HELLO', $this->myEnum()));
+        self::assertEquals(
+            new EnumValueNode(['value' => 'HELLO']),
+            AST::astFromValue('HELLO', $this->myEnum())
+        );
+
         self::assertEquals(
             new EnumValueNode(['value' => 'COMPLEX']),
             AST::astFromValue($this->complexValue(), $this->myEnum())
         );
+    }
 
-        // Note: case sensitive
-        self::assertNull(AST::astFromValue('hello', $this->myEnum()));
+    public function testEnumsAreCaseSensitive(): void
+    {
+        self::expectException(SerializationError::class);
+        AST::astFromValue('hello', $this->myEnum());
+    }
 
-        // Note: Not a valid enum value
-        self::assertNull(AST::astFromValue('VALUE', $this->myEnum()));
+    public function testRejectsInvalidEnumValues(): void
+    {
+        self::expectException(SerializationError::class);
+        self::assertNull(AST::astFromValue('some-totally-invalid-value', $this->myEnum()));
     }
 
     /**

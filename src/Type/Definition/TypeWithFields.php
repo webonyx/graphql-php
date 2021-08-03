@@ -56,7 +56,6 @@ abstract class TypeWithFields extends Type implements HasFieldsType
         return isset($this->fields[$name]);
     }
 
-    /** @inheritDoc */
     public function getFields(): array
     {
         $this->initializeFields();
@@ -72,7 +71,6 @@ abstract class TypeWithFields extends Type implements HasFieldsType
         return $this->fields;
     }
 
-    /** @inheritDoc */
     public function getFieldNames(): array
     {
         $this->initializeFields();

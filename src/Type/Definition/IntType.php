@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Exception;
 use GraphQL\Error\Error;
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
@@ -26,22 +26,13 @@ class IntType extends ScalarType
     private const MAX_INT = 2147483647;
     private const MIN_INT = -2147483648;
 
-    /** @var string */
-    public $name = Type::INT;
+    public string $name = Type::INT;
 
-    /** @var string */
-    public $description =
+    public ?string $description =
         'The `Int` scalar type represents non-fractional signed whole numeric
 values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
-    /**
-     * @param mixed $value
-     *
-     * @return int|null
-     *
-     * @throws Error
-     */
-    public function serialize($value)
+    public function serialize($value): int
     {
         // Fast path for 90+% of cases:
         if (is_int($value) && $value <= self::MAX_INT && $value >= self::MIN_INT) {
@@ -53,14 +44,14 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             : null;
 
         if ($float === null || floor($float) !== $float) {
-            throw new Error(
+            throw new SerializationError(
                 'Int cannot represent non-integer value: ' .
                 Utils::printSafe($value)
             );
         }
 
         if ($float > self::MAX_INT || $float < self::MIN_INT) {
-            throw new Error(
+            throw new SerializationError(
                 'Int cannot represent non 32-bit signed integer value: ' .
                 Utils::printSafe($value)
             );
@@ -69,11 +60,6 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         return (int) $float;
     }
 
-    /**
-     * @param mixed $value
-     *
-     * @throws Error
-     */
     public function parseValue($value): int
     {
         $isInt = is_int($value) || (is_float($value) && floor($value) === $value);
@@ -95,14 +81,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         return (int) $value;
     }
 
-    /**
-     * @param mixed[]|null $variables
-     *
-     * @return int
-     *
-     * @throws Exception
-     */
-    public function parseLiteral(Node $valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null): int
     {
         if ($valueNode instanceof IntValueNode) {
             $val = (int) $valueNode->value;

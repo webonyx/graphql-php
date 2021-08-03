@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use ArrayObject;
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 
@@ -23,29 +24,27 @@ use function sprintf;
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
     /** @var EnumTypeDefinitionNode|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
     /**
      * Lazily initialized.
      *
-     * @var EnumValueDefinition[]
+     * @var array<int, EnumValueDefinition>
      */
-    private $values;
+    private array $values;
 
     /**
      * Lazily initialized.
      *
      * Actually a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way.
-     *
-     * @var MixedStore
      */
-    private $valueLookup;
+    private MixedStore $valueLookup;
 
     /** @var ArrayObject<string, EnumValueDefinition> */
-    private $nameLookup;
+    private ArrayObject $nameLookup;
 
     /** @var array<int, EnumTypeExtensionNode> */
-    public $extensionASTNodes;
+    public array $extensionASTNodes;
 
     public function __construct($config)
     {
@@ -133,13 +132,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $this->values;
     }
 
-    /**
-     * @param mixed $value
-     *
-     * @return mixed
-     *
-     * @throws Error
-     */
     public function serialize($value)
     {
         $lookup = $this->getValueLookup();
@@ -147,7 +139,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             return $lookup[$value]->name;
         }
 
-        throw new InvariantViolation('Cannot serialize value as enum: ' . Utils::printSafe($value));
+        throw new SerializationError('Cannot serialize value as enum: ' . Utils::printSafe($value));
     }
 
     /**
@@ -166,13 +158,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $this->valueLookup;
     }
 
-    /**
-     * @param mixed $value
-     *
-     * @return mixed
-     *
-     * @throws Error
-     */
     public function parseValue($value)
     {
         $lookup = $this->getNameLookup();
@@ -183,13 +168,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         throw new Error('Cannot represent value as enum: ' . Utils::printSafe($value));
     }
 
-    /**
-     * @param mixed[]|null $variables
-     *
-     * @return null
-     *
-     * @throws Exception
-     */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof EnumValueNode) {

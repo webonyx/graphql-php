@@ -79,7 +79,6 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /** @inheritDoc */
     public function all(array $promisesOrValues): Promise
     {
         /** @var AmpPromise[] $promises */

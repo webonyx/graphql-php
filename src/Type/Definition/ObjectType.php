@@ -8,6 +8,7 @@ use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
@@ -59,12 +60,12 @@ use function sprintf;
 class ObjectType extends TypeWithFields implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
     /** @var ObjectTypeDefinitionNode|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
     /** @var array<int, ObjectTypeExtensionNode> */
-    public $extensionASTNodes;
+    public array $extensionASTNodes;
 
-    /** @var ?callable */
+    /** @var callable|null */
     public $resolveFieldFn;
 
     /**
@@ -72,14 +73,14 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
      *
      * @var array<int, InterfaceType>
      */
-    private $interfaces;
+    private array $interfaces;
 
     /**
      * Lazily initialized.
      *
      * @var array<string, InterfaceType>
      */
-    private $interfaceMap;
+    private array $interfaceMap;
 
     /**
      * @param mixed[] $config
