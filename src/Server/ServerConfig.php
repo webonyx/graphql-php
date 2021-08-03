@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace GraphQL\Server;
 
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\PromiseAdapter;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\Rules\ValidationRule;
@@ -36,13 +38,11 @@ class ServerConfig
      * Converts an array of options to instance of ServerConfig
      * (or just returns empty config when array is not passed).
      *
-     * @param mixed[] $config
-     *
-     * @return ServerConfig
+     * @param array<string, mixed> $config
      *
      * @api
      */
-    public static function create(array $config = [])
+    public static function create(array $config = []): self
     {
         $instance = new static();
         foreach ($config as $key => $value) {
@@ -57,45 +57,39 @@ class ServerConfig
         return $instance;
     }
 
-    /** @var Schema|null */
-    private $schema;
+    private ?Schema $schema = null;
 
     /** @var mixed|callable */
-    private $context;
+    private $context = null;
 
     /** @var mixed|callable */
-    private $rootValue;
+    private $rootValue = null;
 
     /** @var callable|null */
-    private $errorFormatter;
+    private $errorFormatter = null;
 
     /** @var callable|null */
-    private $errorsHandler;
+    private $errorsHandler = null;
 
-    /** @var int */
-    private $debugFlag = DebugFlag::NONE;
+    private int $debugFlag = DebugFlag::NONE;
 
-    /** @var bool */
-    private $queryBatching = false;
+    private bool $queryBatching = false;
 
-    /** @var ValidationRule[]|callable|null */
-    private $validationRules;
+    /** @var array<ValidationRule>|callable|null */
+    private $validationRules = null;
 
     /** @var callable|null */
-    private $fieldResolver;
+    private $fieldResolver = null;
 
-    /** @var PromiseAdapter|null */
-    private $promiseAdapter;
+    private ?PromiseAdapter $promiseAdapter = null;
 
     /** @var callable|null */
-    private $persistentQueryLoader;
+    private $persistentQueryLoader = null;
 
     /**
-     * @return self
-     *
      * @api
      */
-    public function setSchema(Schema $schema)
+    public function setSchema(Schema $schema): self
     {
         $this->schema = $schema;
 
@@ -105,11 +99,9 @@ class ServerConfig
     /**
      * @param mixed|callable $context
      *
-     * @return self
-     *
      * @api
      */
-    public function setContext($context)
+    public function setContext($context): self
     {
         $this->context = $context;
 
@@ -119,11 +111,9 @@ class ServerConfig
     /**
      * @param mixed|callable $rootValue
      *
-     * @return self
-     *
      * @api
      */
-    public function setRootValue($rootValue)
+    public function setRootValue($rootValue): self
     {
         $this->rootValue = $rootValue;
 
@@ -131,13 +121,11 @@ class ServerConfig
     }
 
     /**
-     * Expects function(Throwable $e) : array
-     *
-     * @return self
+     * @param callable(Error): array<string, mixed> $errorFormatter
      *
      * @api
      */
-    public function setErrorFormatter(callable $errorFormatter)
+    public function setErrorFormatter(callable $errorFormatter): self
     {
         $this->errorFormatter = $errorFormatter;
 
@@ -145,13 +133,11 @@ class ServerConfig
     }
 
     /**
-     * Expects function(array $errors, callable $formatter) : array
-     *
-     * @return self
+     * @param callable(array<int, Error> $errors, callable(Error): array<string, mixed> $formatter): array<int, array<string, mixed>> $handler
      *
      * @api
      */
-    public function setErrorsHandler(callable $handler)
+    public function setErrorsHandler(callable $handler): self
     {
         $this->errorsHandler = $handler;
 
@@ -161,13 +147,11 @@ class ServerConfig
     /**
      * Set validation rules for this server.
      *
-     * @param ValidationRule[]|callable|null $validationRules
-     *
-     * @return self
+     * @param array<ValidationRule>|callable|null $validationRules
      *
      * @api
      */
-    public function setValidationRules($validationRules)
+    public function setValidationRules($validationRules): self
     {
         if (! is_callable($validationRules) && ! is_array($validationRules) && $validationRules !== null) {
             throw new InvariantViolation(
@@ -182,11 +166,9 @@ class ServerConfig
     }
 
     /**
-     * @return self
-     *
      * @api
      */
-    public function setFieldResolver(callable $fieldResolver)
+    public function setFieldResolver(callable $fieldResolver): self
     {
         $this->fieldResolver = $fieldResolver;
 
@@ -194,15 +176,11 @@ class ServerConfig
     }
 
     /**
-     * Expects function($queryId, OperationParams $params) : string|DocumentNode
-     *
-     * This function must return query string or valid DocumentNode.
-     *
-     * @return self
+     * @param callable(string $queryId, OperationParams $params): (string|DocumentNode) $persistentQueryLoader
      *
      * @api
      */
-    public function setPersistentQueryLoader(callable $persistentQueryLoader)
+    public function setPersistentQueryLoader(callable $persistentQueryLoader): self
     {
         $this->persistentQueryLoader = $persistentQueryLoader;
 
@@ -210,7 +188,9 @@ class ServerConfig
     }
 
     /**
-     * Set response debug flags. @see \GraphQL\Error\DebugFlag class for a list of all available flags
+     * Set response debug flags.
+     *
+     * @see \GraphQL\Error\DebugFlag class for a list of all available flags
      *
      * @api
      */
@@ -222,7 +202,7 @@ class ServerConfig
     }
 
     /**
-     * Allow batching queries (disabled by default)
+     * Allow batching queries (disabled by default).
      *
      * @api
      */
@@ -234,11 +214,9 @@ class ServerConfig
     }
 
     /**
-     * @return self
-     *
      * @api
      */
-    public function setPromiseAdapter(PromiseAdapter $promiseAdapter)
+    public function setPromiseAdapter(PromiseAdapter $promiseAdapter): self
     {
         $this->promiseAdapter = $promiseAdapter;
 
@@ -261,58 +239,40 @@ class ServerConfig
         return $this->rootValue;
     }
 
-    /**
-     * @return Schema|null
-     */
-    public function getSchema()
+    public function getSchema(): ?Schema
     {
         return $this->schema;
     }
 
-    /**
-     * @return callable|null
-     */
-    public function getErrorFormatter()
+    public function getErrorFormatter(): ?callable
     {
         return $this->errorFormatter;
     }
 
-    /**
-     * @return callable|null
-     */
-    public function getErrorsHandler()
+    public function getErrorsHandler(): ?callable
     {
         return $this->errorsHandler;
     }
 
-    /**
-     * @return PromiseAdapter|null
-     */
-    public function getPromiseAdapter()
+    public function getPromiseAdapter(): ?PromiseAdapter
     {
         return $this->promiseAdapter;
     }
 
     /**
-     * @return ValidationRule[]|callable|null
+     * @return array<ValidationRule>|callable|null
      */
     public function getValidationRules()
     {
         return $this->validationRules;
     }
 
-    /**
-     * @return callable|null
-     */
-    public function getFieldResolver()
+    public function getFieldResolver(): ?callable
     {
         return $this->fieldResolver;
     }
 
-    /**
-     * @return callable|null
-     */
-    public function getPersistentQueryLoader()
+    public function getPersistentQueryLoader(): ?callable
     {
         return $this->persistentQueryLoader;
     }
@@ -322,10 +282,7 @@ class ServerConfig
         return $this->debugFlag;
     }
 
-    /**
-     * @return bool
-     */
-    public function getQueryBatching()
+    public function getQueryBatching(): bool
     {
         return $this->queryBatching;
     }
