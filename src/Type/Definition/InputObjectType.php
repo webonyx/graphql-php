@@ -32,7 +32,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     public array $extensionASTNodes;
 
     /**
-     * @param mixed[] $config
+     * @param array<string, mixed> $config
      */
     public function __construct(array $config)
     {
@@ -60,16 +60,21 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
         Utils::invariant(isset($this->fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
 
+        $this->initializeField($name);
+
         return $this->fields[$name];
     }
 
     /**
-     * @return InputObjectField[]
+     * @return array<string, InputObjectField>
      */
     public function getFields(): array
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
+            foreach ($this->fields as $name => $_) {
+                $this->initializeField($name);
+            }
         }
 
         return $this->fields;
@@ -77,8 +82,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     protected function initializeFields(): void
     {
-        $this->fields = [];
-        $fields       = $this->config['fields'] ?? [];
+        $fields = $this->config['fields'] ?? [];
         if (is_callable($fields)) {
             $fields = $fields();
         }
@@ -89,14 +93,26 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             );
         }
 
-        foreach ($fields as $name => $field) {
-            if ($field instanceof Type || is_callable($field)) {
-                $field = ['type' => $field];
-            }
+        $this->fields = $fields;
+    }
 
-            $field                      = new InputObjectField($field + ['name' => $name]);
-            $this->fields[$field->name] = $field;
+    protected function initializeField(string $name): void
+    {
+        $field = $this->fields[$name];
+        if ($field instanceof InputObjectField) {
+            return;
         }
+
+        if (is_callable($field)) {
+            $field = $field();
+        }
+
+        if ($field instanceof Type || is_callable($field)) {
+            $field = ['type' => $field];
+        }
+
+        $field               = new InputObjectField($field + ['name' => $name]);
+        $this->fields[$name] = $field;
     }
 
     /**
