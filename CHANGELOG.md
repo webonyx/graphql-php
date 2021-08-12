@@ -22,6 +22,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 - Improve extendability of validator rules
 - Add tests for errors that occur when undeclared fields are passed in input
+- Warn about orphaned object types
 
 ### Optimized
 
