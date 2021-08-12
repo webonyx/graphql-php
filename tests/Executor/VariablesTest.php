@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\ComplexScalar;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
@@ -15,6 +15,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+
 use function acos;
 use function array_key_exists;
 
@@ -26,7 +27,7 @@ class VariablesTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    public function testUsingInlineStructs() : void
+    public function testUsingInlineStructs(): void
     {
         // executes with complex input:
         $result = $this->executeQuery('
@@ -91,11 +92,12 @@ class VariablesTest extends TestCase
 
         $expected = [
             'data'   => ['fieldWithObjectInput' => null],
-            'errors' => [[
-                'message'   => 'Argument "input" has invalid value ["foo", "bar", "baz"].',
-                'path'      => ['fieldWithObjectInput'],
-                'locations' => [['line' => 3, 'column' => 39]],
-            ],
+            'errors' => [
+                [
+                    'message'   => 'Argument "input" has invalid value ["foo", "bar", "baz"].',
+                    'path'      => ['fieldWithObjectInput'],
+                    'locations' => [['line' => 3, 'column' => 39]],
+                ],
             ],
         ];
         self::assertArraySubset($expected, $result->toArray());
@@ -119,7 +121,7 @@ class VariablesTest extends TestCase
         return Executor::execute($this->schema(), $document, null, null, $variableValues);
     }
 
-    public function schema() : Schema
+    public function schema(): Schema
     {
         $ComplexScalarType = ComplexScalar::create();
 
@@ -187,10 +189,11 @@ class VariablesTest extends TestCase
         return [
             'type'    => Type::string(),
             'args'    => ['input' => $inputArg],
-            'resolve' => static function ($_, $args) : ?string {
+            'resolve' => static function ($_, $args): ?string {
                 if (isset($args['input'])) {
                     return Utils::printSafeJson($args['input']);
                 }
+
                 if (array_key_exists('input', $args) && $args['input'] === null) {
                     return 'null';
                 }
@@ -200,7 +203,7 @@ class VariablesTest extends TestCase
         ];
     }
 
-    public function testUsingVariables() : void
+    public function testUsingVariables(): void
     {
         $doc = '
             query q($input:TestInputObject) {
@@ -236,7 +239,7 @@ class VariablesTest extends TestCase
           query q($input: String) {
             fieldWithNullableStringInput(input: $input)
           }',
-            [ 'input' => null ]
+            ['input' => null]
         );
 
         $expected = [
@@ -261,7 +264,7 @@ class VariablesTest extends TestCase
             'query q($input: String = "Default value") {
             fieldWithNullableStringInput(input: $input)
           }',
-            [ 'input' => 'Variable value' ]
+            ['input' => 'Variable value']
         );
 
         $expected = [
@@ -275,7 +278,7 @@ class VariablesTest extends TestCase
           query q($input: String = "Default value") {
             fieldWithNullableStringInput(input: $input)
           }',
-            [ 'input' => null ]
+            ['input' => null]
         );
 
         $expected = [
@@ -324,7 +327,6 @@ class VariablesTest extends TestCase
                         '{"a":"foo","b":"bar","c":null}; ' .
                         'Expected non-nullable type String! not to be null at value.c.',
                     'locations' => [['line' => 2, 'column' => 21]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -341,7 +343,6 @@ class VariablesTest extends TestCase
                         'Variable "$input" got invalid value "foo bar"; ' .
                         'Expected type TestInputObject to be an object.',
                     'locations' => [['line' => 2, 'column' => 21]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -358,7 +359,6 @@ class VariablesTest extends TestCase
                         'Variable "$input" got invalid value {"a":"foo","b":"bar"}; ' .
                         'Field value.c of required type String! was not provided.',
                     'locations' => [['line' => 2, 'column' => 21]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -380,14 +380,12 @@ class VariablesTest extends TestCase
                         'Variable "$input" got invalid value {"na":{"a":"foo"}}; ' .
                         'Field value.na.c of required type String! was not provided.',
                     'locations' => [['line' => 2, 'column' => 19]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
                 [
                     'message'   =>
                         'Variable "$input" got invalid value {"na":{"a":"foo"}}; ' .
                         'Field value.nb of required type String! was not provided.',
                     'locations' => [['line' => 2, 'column' => 19]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -404,14 +402,13 @@ class VariablesTest extends TestCase
                         '{"a":"foo","b":"bar","c":"baz","extra":"dog"}; ' .
                         'Field "extra" is not defined by type TestInputObject.',
                     'locations' => [['line' => 2, 'column' => 21]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
         self::assertEquals($expected, $result->toArray());
     }
 
-    public function testUsingStdClassVariables() : void
+    public function testUsingStdClassVariables(): void
     {
         $doc = '
             query q($input:TestNestedInputObject) {
@@ -484,7 +481,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be omitted')
      */
-    public function testAllowsNullableInputsToBeOmitted() : void
+    public function testAllowsNullableInputsToBeOmitted(): void
     {
         $result   = $this->executeQuery('
       {
@@ -501,7 +498,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be omitted in a variable')
      */
-    public function testAllowsNullableInputsToBeOmittedInAVariable() : void
+    public function testAllowsNullableInputsToBeOmittedInAVariable(): void
     {
         $result   = $this->executeQuery('
       query SetsNullable($value: String) {
@@ -516,7 +513,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be omitted in an unlisted variable')
      */
-    public function testAllowsNullableInputsToBeOmittedInAnUnlistedVariable() : void
+    public function testAllowsNullableInputsToBeOmittedInAnUnlistedVariable(): void
     {
         $result   = $this->executeQuery('
       query SetsNullable {
@@ -532,7 +529,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be set to null in a variable')
      */
-    public function testAllowsNullableInputsToBeSetToNullInAVariable() : void
+    public function testAllowsNullableInputsToBeSetToNullInAVariable(): void
     {
         $result   = $this->executeQuery('
       query SetsNullable($value: String) {
@@ -547,7 +544,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be set to a value in a variable')
      */
-    public function testAllowsNullableInputsToBeSetToAValueInAVariable() : void
+    public function testAllowsNullableInputsToBeSetToAValueInAVariable(): void
     {
         $doc      = '
       query SetsNullable($value: String) {
@@ -562,7 +559,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be set to a value directly')
      */
-    public function testAllowsNullableInputsToBeSetToAValueDirectly() : void
+    public function testAllowsNullableInputsToBeSetToAValueDirectly(): void
     {
         $result   = $this->executeQuery('
       {
@@ -576,7 +573,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-nullable inputs to be omitted given a default')
      */
-    public function testAllowsNonNullableInputsToBeOmittedGivenADefault() : void
+    public function testAllowsNonNullableInputsToBeOmittedGivenADefault(): void
     {
         $result   = $this->executeQuery('
         query SetsNonNullable($value: String = "default") {
@@ -592,7 +589,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow non-nullable inputs to be omitted in a variable')
      */
-    public function testDoesntAllowNonNullableInputsToBeOmittedInAVariable() : void
+    public function testDoesntAllowNonNullableInputsToBeOmittedInAVariable(): void
     {
         $result = $this->executeQuery('
         query SetsNonNullable($value: String!) {
@@ -605,7 +602,6 @@ class VariablesTest extends TestCase
                 [
                     'message'   => 'Variable "$value" of required type "String!" was not provided.',
                     'locations' => [['line' => 2, 'column' => 31]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -615,7 +611,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow non-nullable inputs to be set to null in a variable')
      */
-    public function testDoesNotAllowNonNullableInputsToBeSetToNullInAVariable() : void
+    public function testDoesNotAllowNonNullableInputsToBeSetToNullInAVariable(): void
     {
         $doc      = '
         query SetsNonNullable($value: String!) {
@@ -628,7 +624,6 @@ class VariablesTest extends TestCase
                 [
                     'message'    => 'Variable "$value" of non-null type "String!" must not be null.',
                     'locations'  => [['line' => 2, 'column' => 31]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -638,7 +633,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-nullable inputs to be set to a value in a variable')
      */
-    public function testAllowsNonNullableInputsToBeSetToAValueInAVariable() : void
+    public function testAllowsNonNullableInputsToBeSetToAValueInAVariable(): void
     {
         $doc      = '
         query SetsNonNullable($value: String!) {
@@ -653,7 +648,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-nullable inputs to be set to a value directly')
      */
-    public function testAllowsNonNullableInputsToBeSetToAValueDirectly() : void
+    public function testAllowsNonNullableInputsToBeSetToAValueDirectly(): void
     {
         $result   = $this->executeQuery('
       {
@@ -667,7 +662,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('reports error for missing non-nullable inputs')
      */
-    public function testReportsErrorForMissingNonNullableInputs() : void
+    public function testReportsErrorForMissingNonNullableInputs(): void
     {
         $result   = $this->executeQuery('
       {
@@ -676,12 +671,12 @@ class VariablesTest extends TestCase
         ');
         $expected = [
             'data'   => ['fieldWithNonNullableStringInput' => null],
-            'errors' => [[
-                'message'   => 'Argument "input" of required type "String!" was not provided.',
-                'locations' => [['line' => 3, 'column' => 9]],
-                'path'      => ['fieldWithNonNullableStringInput'],
-                'extensions' => ['category' => 'graphql'],
-            ],
+            'errors' => [
+                [
+                    'message'   => 'Argument "input" of required type "String!" was not provided.',
+                    'locations' => [['line' => 3, 'column' => 9]],
+                    'path'      => ['fieldWithNonNullableStringInput'],
+                ],
             ],
         ];
         self::assertEquals($expected, $result->toArray());
@@ -692,7 +687,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('reports error for array passed into string input')
      */
-    public function testReportsErrorForArrayPassedIntoStringInput() : void
+    public function testReportsErrorForArrayPassedIntoStringInput(): void
     {
         $doc       = '
         query SetsNonNullable($value: String!) {
@@ -703,15 +698,14 @@ class VariablesTest extends TestCase
         $result    = $this->executeQuery($doc, $variables);
 
         $expected = [
-            'errors' => [[
-                'message'   =>
-                    'Variable "$value" got invalid value [1,2,3]; Expected type ' .
-                    'String; String cannot represent a non string value: [1,2,3]',
-                'locations' => [
-                    ['line' => 2, 'column' => 31],
+            'errors' => [
+                [
+                    'message'   => 'Variable "$value" got invalid value [1,2,3]; Expected type ' .
+                        'String; String cannot represent a non string value: [1,2,3]',
+                    'locations' => [
+                        ['line' => 2, 'column' => 31],
+                    ],
                 ],
-                'extensions' => ['category' => 'graphql'],
-            ],
             ],
         ];
         self::assertEquals($expected, $result->toArray());
@@ -720,7 +714,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('reports error for non-provided variables for non-nullable inputs')
      */
-    public function testReportsErrorForNonProvidedVariablesForNonNullableInputs() : void
+    public function testReportsErrorForNonProvidedVariablesForNonNullableInputs(): void
     {
         // Note: this test would typically fail validation before encountering
         // this execution error, however for queries which previously validated
@@ -734,14 +728,13 @@ class VariablesTest extends TestCase
         ');
         $expected = [
             'data'   => ['fieldWithNonNullableStringInput' => null],
-            'errors' => [[
-                'message'   =>
-                    'Argument "input" of required type "String!" was provided the ' .
-                    'variable "$foo" which was not provided a runtime value.',
-                'locations' => [['line' => 3, 'column' => 48]],
-                'path'      => ['fieldWithNonNullableStringInput'],
-                'extensions' => ['category' => 'graphql'],
-            ],
+            'errors' => [
+                [
+                    'message'   => 'Argument "input" of required type "String!" was provided the ' .
+                        'variable "$foo" which was not provided a runtime value.',
+                    'locations' => [['line' => 3, 'column' => 48]],
+                    'path'      => ['fieldWithNonNullableStringInput'],
+                ],
             ],
         ];
         self::assertEquals($expected, $result->toArray());
@@ -750,7 +743,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows lists to be null')
      */
-    public function testAllowsListsToBeNull() : void
+    public function testAllowsListsToBeNull(): void
     {
         $doc      = '
         query q($input:[String]) {
@@ -766,7 +759,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows lists to contain values')
      */
-    public function testAllowsListsToContainValues() : void
+    public function testAllowsListsToContainValues(): void
     {
         $doc      = '
         query q($input:[String]) {
@@ -781,7 +774,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows lists to contain null')
      */
-    public function testAllowsListsToContainNull() : void
+    public function testAllowsListsToContainNull(): void
     {
         $doc      = '
         query q($input:[String]) {
@@ -796,7 +789,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow non-null lists to be null')
      */
-    public function testDoesNotAllowNonNullListsToBeNull() : void
+    public function testDoesNotAllowNonNullListsToBeNull(): void
     {
         $doc      = '
         query q($input:[String]!) {
@@ -809,7 +802,6 @@ class VariablesTest extends TestCase
                 [
                     'message'    => 'Variable "$input" of non-null type "[String]!" must not be null.',
                     'locations'  => [['line' => 2, 'column' => 17]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -819,7 +811,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-null lists to contain values')
      */
-    public function testAllowsNonNullListsToContainValues() : void
+    public function testAllowsNonNullListsToContainValues(): void
     {
         $doc      = '
         query q($input:[String]!) {
@@ -834,7 +826,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-null lists to contain null')
      */
-    public function testAllowsNonNullListsToContainNull() : void
+    public function testAllowsNonNullListsToContainNull(): void
     {
         $doc      = '
         query q($input:[String]!) {
@@ -849,7 +841,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows lists of non-nulls to be null')
      */
-    public function testAllowsListsOfNonNullsToBeNull() : void
+    public function testAllowsListsOfNonNullsToBeNull(): void
     {
         $doc      = '
         query q($input:[String!]) {
@@ -864,7 +856,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows lists of non-nulls to contain values')
      */
-    public function testAllowsListsOfNonNullsToContainValues() : void
+    public function testAllowsListsOfNonNullsToContainValues(): void
     {
         $doc      = '
         query q($input:[String!]) {
@@ -879,7 +871,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow lists of non-nulls to contain null')
      */
-    public function testDoesNotAllowListsOfNonNullsToContainNull() : void
+    public function testDoesNotAllowListsOfNonNullsToContainNull(): void
     {
         $doc      = '
         query q($input:[String!]) {
@@ -890,11 +882,9 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" got invalid value ["A",null,"B"]; ' .
+                    'message'   => 'Variable "$input" got invalid value ["A",null,"B"]; ' .
                         'Expected non-nullable type String! not to be null at value[1].',
                     'locations' => [['line' => 2, 'column' => 17]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -904,7 +894,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow non-null lists of non-nulls to be null')
      */
-    public function testDoesNotAllowNonNullListsOfNonNullsToBeNull() : void
+    public function testDoesNotAllowNonNullListsOfNonNullsToBeNull(): void
     {
         $doc      = '
         query q($input:[String!]!) {
@@ -917,7 +907,6 @@ class VariablesTest extends TestCase
                 [
                     'message'    => 'Variable "$input" of non-null type "[String!]!" must not be null.',
                     'locations'  => [['line' => 2, 'column' => 17]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -927,7 +916,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-null lists of non-nulls to contain values')
      */
-    public function testAllowsNonNullListsOfNonNullsToContainValues() : void
+    public function testAllowsNonNullListsOfNonNullsToContainValues(): void
     {
         $doc      = '
         query q($input:[String!]!) {
@@ -944,7 +933,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow non-null lists of non-nulls to contain null')
      */
-    public function testDoesNotAllowNonNullListsOfNonNullsToContainNull() : void
+    public function testDoesNotAllowNonNullListsOfNonNullsToContainNull(): void
     {
         $doc      = '
         query q($input:[String!]!) {
@@ -955,11 +944,9 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" got invalid value ["A",null,"B"]; ' .
+                    'message'   => 'Variable "$input" got invalid value ["A",null,"B"]; ' .
                         'Expected non-nullable type String! not to be null at value[1].',
                     'locations' => [['line' => 2, 'column' => 17]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -969,7 +956,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow invalid types to be used as values')
      */
-    public function testDoesNotAllowInvalidTypesToBeUsedAsValues() : void
+    public function testDoesNotAllowInvalidTypesToBeUsedAsValues(): void
     {
         $doc      = '
         query q($input: TestType!) {
@@ -981,11 +968,9 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" expected value of type "TestType!" which cannot ' .
+                    'message'   => 'Variable "$input" expected value of type "TestType!" which cannot ' .
                         'be used as an input type.',
                     'locations' => [['line' => 2, 'column' => 25]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -995,7 +980,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow unknown types to be used as values')
      */
-    public function testDoesNotAllowUnknownTypesToBeUsedAsValues() : void
+    public function testDoesNotAllowUnknownTypesToBeUsedAsValues(): void
     {
         $doc  = '
         query q($input: UnknownType!) {
@@ -1008,11 +993,9 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" expected value of type "UnknownType!" which ' .
+                    'message'   => 'Variable "$input" expected value of type "UnknownType!" which ' .
                         'cannot be used as an input type.',
                     'locations' => [['line' => 2, 'column' => 25]],
-                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -1022,7 +1005,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('when no argument provided')
      */
-    public function testWhenNoArgumentProvided() : void
+    public function testWhenNoArgumentProvided(): void
     {
         $result = $this->executeQuery('{
         fieldWithDefaultArgumentValue
@@ -1037,7 +1020,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('when omitted variable provided')
      */
-    public function testWhenOmittedVariableProvided() : void
+    public function testWhenOmittedVariableProvided(): void
     {
         $result = $this->executeQuery('query optionalVariable($optional: String) {
             fieldWithDefaultArgumentValue(input: $optional)
@@ -1052,7 +1035,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('not when argument cannot be coerced')
      */
-    public function testNotWhenArgumentCannotBeCoerced() : void
+    public function testNotWhenArgumentCannotBeCoerced(): void
     {
         $result = $this->executeQuery('{
             fieldWithDefaultArgumentValue(input: WRONG_TYPE)
@@ -1060,13 +1043,12 @@ class VariablesTest extends TestCase
 
         $expected = [
             'data'   => ['fieldWithDefaultArgumentValue' => null],
-            'errors' => [[
-                'message'   =>
-                    'Argument "input" has invalid value WRONG_TYPE.',
-                'locations' => [['line' => 2, 'column' => 50]],
-                'path'      => ['fieldWithDefaultArgumentValue'],
-                'extensions' => ['category' => 'graphql'],
-            ],
+            'errors' => [
+                [
+                    'message'   => 'Argument "input" has invalid value WRONG_TYPE.',
+                    'locations' => [['line' => 2, 'column' => 50]],
+                    'path'      => ['fieldWithDefaultArgumentValue'],
+                ],
             ],
         ];
 

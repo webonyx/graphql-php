@@ -6,44 +6,30 @@ namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
-use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
-use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\FieldNode;
-use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
-use GraphQL\Language\AST\IntValueNode;
-use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NullValueNode;
-use GraphQL\Language\AST\ObjectValueNode;
-use GraphQL\Language\AST\StringValueNode;
-use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
-use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
-use stdClass;
-use Throwable;
+
 use function array_key_exists;
-use function array_map;
 use function count;
 use function sprintf;
 
@@ -54,12 +40,12 @@ class Values
      * variable definitions and arbitrary input. If the input cannot be coerced
      * to match the variable definitions, a Error will be thrown.
      *
-     * @param VariableDefinitionNode[] $varDefNodes
-     * @param mixed[]                  $inputs
+     * @param NodeList<VariableDefinitionNode> $varDefNodes
+     * @param mixed[]                          $inputs
      *
      * @return mixed[]
      */
-    public static function getVariableValues(Schema $schema, $varDefNodes, array $inputs)
+    public static function getVariableValues(Schema $schema, NodeList $varDefNodes, array $inputs): array
     {
         $errors        = [];
         $coercedValues = [];
@@ -161,7 +147,7 @@ class Values
         if (isset($node->directives) && $node->directives instanceof NodeList) {
             $directiveNode = Utils::find(
                 $node->directives,
-                static function (DirectiveNode $directive) use ($directiveDef) : bool {
+                static function (DirectiveNode $directive) use ($directiveDef): bool {
                     return $directive->name->value === $directiveDef->name;
                 }
             );
@@ -247,6 +233,7 @@ class Values
 
                 if ($argumentValueNode instanceof VariableNode) {
                     $variableName = $argumentValueNode->name->value;
+
                     throw new Error(
                         'Argument "' . $name . '" of required type "' . Utils::printSafe($argType) . '" was ' .
                         'provided the variable "$' . $variableName . '" which was not provided ' .
@@ -284,51 +271,12 @@ class Values
                             [$argumentValueNode]
                         );
                     }
+
                     $coercedValues[$name] = $coercedValue;
                 }
             }
         }
 
         return $coercedValues;
-    }
-
-    /**
-     * @deprecated as of 8.0 (Moved to \GraphQL\Utils\AST::valueFromAST)
-     *
-     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $valueNode
-     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull                                                                              $type
-     * @param mixed[]|null                                                                                                                        $variables
-     *
-     * @return mixed[]|stdClass|null
-     *
-     * @codeCoverageIgnore
-     */
-    public static function valueFromAST(ValueNode $valueNode, InputType $type, ?array $variables = null)
-    {
-        return AST::valueFromAST($valueNode, $type, $variables);
-    }
-
-    /**
-     * @deprecated as of 0.12 (Use coerceValue() directly for richer information)
-     *
-     * @param mixed[]                                                $value
-     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
-     *
-     * @return string[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function isValidPHPValue($value, InputType $type)
-    {
-        $errors = Value::coerceValue($value, $type)['errors'];
-
-        return $errors
-            ? array_map(
-                static function (Throwable $error) : string {
-                    return $error->getMessage();
-                },
-                $errors
-            )
-            : [];
     }
 }

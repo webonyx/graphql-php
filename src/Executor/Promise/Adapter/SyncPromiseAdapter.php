@@ -10,6 +10,7 @@ use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
 use Throwable;
+
 use function count;
 
 /**
@@ -18,17 +19,11 @@ use function count;
  */
 class SyncPromiseAdapter implements PromiseAdapter
 {
-    /**
-     * @inheritdoc
-     */
     public function isThenable($value)
     {
         return $value instanceof SyncPromise;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function convertThenable($thenable)
     {
         if (! $thenable instanceof SyncPromise) {
@@ -39,9 +34,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($thenable, $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null)
     {
         /** @var SyncPromise $adoptedPromise */
@@ -50,9 +42,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function create(callable $resolver)
     {
         $promise = new SyncPromise();
@@ -75,9 +64,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function createFulfilled($value = null)
     {
         $promise = new SyncPromise();
@@ -85,9 +71,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->resolve($value), $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function createRejected($reason)
     {
         $promise = new SyncPromise();
@@ -95,9 +78,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->reject($reason), $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function all(array $promisesOrValues)
     {
         $all = new SyncPromise();
@@ -110,7 +90,7 @@ class SyncPromiseAdapter implements PromiseAdapter
             if ($promiseOrValue instanceof Promise) {
                 $result[$index] = null;
                 $promiseOrValue->then(
-                    static function ($value) use ($index, &$count, $total, &$result, $all) : void {
+                    static function ($value) use ($index, &$count, $total, &$result, $all): void {
                         $result[$index] = $value;
                         $count++;
                         if ($count < $total) {
@@ -126,6 +106,7 @@ class SyncPromiseAdapter implements PromiseAdapter
                 $count++;
             }
         }
+
         if ($count === $total) {
             $all->resolve($result);
         }
@@ -143,7 +124,8 @@ class SyncPromiseAdapter implements PromiseAdapter
         $this->beforeWait($promise);
         $taskQueue = SyncPromise::getQueue();
 
-        while ($promise->adoptedPromise->state === SyncPromise::PENDING &&
+        while (
+            $promise->adoptedPromise->state === SyncPromise::PENDING &&
             ! $taskQueue->isEmpty()
         ) {
             SyncPromise::runQueue();

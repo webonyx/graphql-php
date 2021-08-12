@@ -25,14 +25,12 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
+
 use function array_filter;
 use function array_key_exists;
 use function array_merge;
 use function array_values;
-use function is_bool;
 use function method_exists;
-use function trigger_error;
-use const E_USER_DEPRECATED;
 
 class Introspection
 {
@@ -209,7 +207,7 @@ EOD;
      *
      * @api
      */
-    public static function fromSchema(Schema $schema, array $options = []) : ?array
+    public static function fromSchema(Schema $schema, array $options = []): ?array
     {
         $optionsWithDefaults = array_merge(['directiveIsRepeatable' => true], $options);
 
@@ -236,14 +234,14 @@ EOD;
                     'types'            => [
                         'description' => 'A list of all types supported by this server.',
                         'type'        => new NonNull(new ListOfType(new NonNull(self::_type()))),
-                        'resolve'     => static function (Schema $schema) : array {
+                        'resolve'     => static function (Schema $schema): array {
                             return array_values($schema->getTypeMap());
                         },
                     ],
                     'queryType'        => [
                         'description' => 'The type that query operations will be rooted at.',
                         'type'        => new NonNull(self::_type()),
-                        'resolve'     => static function (Schema $schema) : ?ObjectType {
+                        'resolve'     => static function (Schema $schema): ?ObjectType {
                             return $schema->getQueryType();
                         },
                     ],
@@ -252,21 +250,21 @@ EOD;
                             'If this server supports mutation, the type that ' .
                             'mutation operations will be rooted at.',
                         'type'        => self::_type(),
-                        'resolve'     => static function (Schema $schema) : ?ObjectType {
+                        'resolve'     => static function (Schema $schema): ?ObjectType {
                             return $schema->getMutationType();
                         },
                     ],
                     'subscriptionType' => [
                         'description' => 'If this server support subscription, the type that subscription operations will be rooted at.',
                         'type'        => self::_type(),
-                        'resolve'     => static function (Schema $schema) : ?ObjectType {
+                        'resolve'     => static function (Schema $schema): ?ObjectType {
                             return $schema->getSubscriptionType();
                         },
                     ],
                     'directives'       => [
                         'description' => 'A list of all directives supported by this server.',
                         'type'        => Type::nonNull(Type::listOf(Type::nonNull(self::_directive()))),
-                        'resolve'     => static function (Schema $schema) : array {
+                        'resolve'     => static function (Schema $schema): array {
                             return $schema->getDirectives();
                         },
                     ],
@@ -293,7 +291,7 @@ EOD;
                     'Object and Interface types provide the fields they describe. Abstract ' .
                     'types, Union and Interface, provide the Object types possible ' .
                     'at runtime. List and NonNull types compose other types.',
-                'fields'          => static function () {
+                'fields'          => static function (): array {
                     return [
                         'kind'          => [
                             'type'    => Type::nonNull(self::_typeKind()),
@@ -301,20 +299,28 @@ EOD;
                                 switch (true) {
                                     case $type instanceof ListOfType:
                                         return TypeKind::LIST;
+
                                     case $type instanceof NonNull:
                                         return TypeKind::NON_NULL;
+
                                     case $type instanceof ScalarType:
                                         return TypeKind::SCALAR;
+
                                     case $type instanceof ObjectType:
                                         return TypeKind::OBJECT;
+
                                     case $type instanceof EnumType:
                                         return TypeKind::ENUM;
+
                                     case $type instanceof InputObjectType:
                                         return TypeKind::INPUT_OBJECT;
+
                                     case $type instanceof InterfaceType:
                                         return TypeKind::INTERFACE;
+
                                     case $type instanceof UnionType:
                                         return TypeKind::UNION;
+
                                     default:
                                         throw new Exception('Unknown kind of type: ' . Utils::printSafe($type));
                                 }
@@ -322,30 +328,26 @@ EOD;
                         ],
                         'name'          => [
                             'type' => Type::string(),
-                            'resolve' => static function ($obj) {
-                                return $obj->name;
-                            },
+                            'resolve' => static fn (Type $obj): ?string => $obj->name ?? null,
                         ],
                         'description'   => [
                             'type' => Type::string(),
-                            'resolve' => static function ($obj) {
-                                return $obj->description;
-                            },
+                            'resolve' => static fn (Type $obj): ?string => $obj->description,
                         ],
                         'fields'        => [
                             'type'    => Type::listOf(Type::nonNull(self::_field())),
                             'args'    => [
                                 'includeDeprecated' => ['type' => Type::boolean(), 'defaultValue' => false],
                             ],
-                            'resolve' => static function (Type $type, $args) {
+                            'resolve' => static function (Type $type, $args): ?array {
                                 if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                                     $fields = $type->getFields();
 
                                     if (! ($args['includeDeprecated'] ?? false)) {
                                         $fields = array_filter(
                                             $fields,
-                                            static function (FieldDefinition $field) : bool {
-                                                return ! $field->deprecationReason;
+                                            static function (FieldDefinition $field): bool {
+                                                return ($field->deprecationReason ?? '') === '';
                                             }
                                         );
                                     }
@@ -358,7 +360,7 @@ EOD;
                         ],
                         'interfaces'    => [
                             'type'    => Type::listOf(Type::nonNull(self::_type())),
-                            'resolve' => static function ($type) : ?array {
+                            'resolve' => static function ($type): ?array {
                                 if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                                     return $type->getInterfaces();
                                 }
@@ -368,7 +370,7 @@ EOD;
                         ],
                         'possibleTypes' => [
                             'type'    => Type::listOf(Type::nonNull(self::_type())),
-                            'resolve' => static function ($type, $args, $context, ResolveInfo $info) : ?array {
+                            'resolve' => static function ($type, $args, $context, ResolveInfo $info): ?array {
                                 if ($type instanceof InterfaceType || $type instanceof UnionType) {
                                     return $info->schema->getPossibleTypes($type);
                                 }
@@ -381,15 +383,15 @@ EOD;
                             'args'    => [
                                 'includeDeprecated' => ['type' => Type::boolean(), 'defaultValue' => false],
                             ],
-                            'resolve' => static function ($type, $args) {
+                            'resolve' => static function ($type, $args): ?array {
                                 if ($type instanceof EnumType) {
                                     $values = array_values($type->getValues());
 
                                     if (! ($args['includeDeprecated'] ?? false)) {
                                         $values = array_filter(
                                             $values,
-                                            static function ($value) : bool {
-                                                return ! $value->deprecationReason;
+                                            static function ($value): bool {
+                                                return ($value->deprecationReason ?? '') === '';
                                             }
                                         );
                                     }
@@ -402,7 +404,7 @@ EOD;
                         ],
                         'inputFields'   => [
                             'type'    => Type::listOf(Type::nonNull(self::_inputValue())),
-                            'resolve' => static function ($type) : ?array {
+                            'resolve' => static function ($type): ?array {
                                 if ($type instanceof InputObjectType) {
                                     return array_values($type->getFields());
                                 }
@@ -412,7 +414,7 @@ EOD;
                         ],
                         'ofType'        => [
                             'type'    => self::_type(),
-                            'resolve' => static function ($type) : ?Type {
+                            'resolve' => static function ($type): ?Type {
                                 if ($type instanceof WrappingType) {
                                     return $type->getWrappedType();
                                 }
@@ -484,41 +486,41 @@ EOD;
                 'description'     =>
                     'Object and Interface types are described by a list of Fields, each of ' .
                     'which has a name, potentially a list of arguments, and a return type.',
-                'fields'          => static function () {
+                'fields'          => static function (): array {
                     return [
                         'name'              => [
                             'type' => Type::nonNull(Type::string()),
-                            'resolve' => static function (FieldDefinition $field) : string {
+                            'resolve' => static function (FieldDefinition $field): string {
                                 return $field->name;
                             },
                         ],
                         'description'       => [
                             'type' => Type::string(),
-                            'resolve' => static function (FieldDefinition $field) : ?string {
+                            'resolve' => static function (FieldDefinition $field): ?string {
                                 return $field->description;
                             },
                         ],
                         'args'              => [
                             'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                            'resolve' => static function (FieldDefinition $field) : array {
-                                return $field->args ?? [];
+                            'resolve' => static function (FieldDefinition $field): array {
+                                return $field->args;
                             },
                         ],
                         'type'              => [
                             'type'    => Type::nonNull(self::_type()),
-                            'resolve' => static function (FieldDefinition $field) : Type {
+                            'resolve' => static function (FieldDefinition $field): Type {
                                 return $field->getType();
                             },
                         ],
                         'isDeprecated'      => [
                             'type'    => Type::nonNull(Type::boolean()),
-                            'resolve' => static function (FieldDefinition $field) : bool {
+                            'resolve' => static function (FieldDefinition $field): bool {
                                 return (bool) $field->deprecationReason;
                             },
                         ],
                         'deprecationReason' => [
                             'type'    => Type::string(),
-                            'resolve' => static function (FieldDefinition $field) : ?string {
+                            'resolve' => static function (FieldDefinition $field): ?string {
                                 return $field->deprecationReason;
                             },
                         ],
@@ -540,11 +542,11 @@ EOD;
                     'Arguments provided to Fields or Directives and the input fields of an ' .
                     'InputObject are represented as Input Values which describe their type ' .
                     'and optionally a default value.',
-                'fields'          => static function () {
+                'fields'          => static function (): array {
                     return [
                         'name'         => [
                             'type' => Type::nonNull(Type::string()),
-                            'resolve' => static function ($inputValue) : string {
+                            'resolve' => static function ($inputValue): string {
                                 /** @var FieldArgument|InputObjectField $inputValue */
                                 $inputValue = $inputValue;
 
@@ -553,7 +555,7 @@ EOD;
                         ],
                         'description'  => [
                             'type' => Type::string(),
-                            'resolve' => static function ($inputValue) : ?string {
+                            'resolve' => static function ($inputValue): ?string {
                                 /** @var FieldArgument|InputObjectField $inputValue */
                                 $inputValue = $inputValue;
 
@@ -572,7 +574,7 @@ EOD;
                             'type'        => Type::string(),
                             'description' =>
                                 'A GraphQL-formatted string representing the default value for this input value.',
-                            'resolve'     => static function ($inputValue) : ?string {
+                            'resolve'     => static function ($inputValue): ?string {
                                 /** @var FieldArgument|InputObjectField $inputValue */
                                 $inputValue = $inputValue;
 
@@ -617,7 +619,7 @@ EOD;
                     ],
                     'isDeprecated'      => [
                         'type'    => Type::nonNull(Type::boolean()),
-                        'resolve' => static function ($enumValue) : bool {
+                        'resolve' => static function ($enumValue): bool {
                             return (bool) $enumValue->deprecationReason;
                         },
                     ],
@@ -661,13 +663,13 @@ EOD;
                     ],
                     'args'        => [
                         'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                        'resolve' => static function (Directive $directive) {
-                            return $directive->args ?? [];
+                        'resolve' => static function (Directive $directive): array {
+                            return $directive->args;
                         },
                     ],
                     'isRepeatable' => [
                         'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => static function (Directive $directive) : bool {
+                        'resolve' => static function (Directive $directive): bool {
                             return $directive->isRepeatable;
                         },
                     ],
@@ -780,7 +782,7 @@ EOD;
         return self::$map['__DirectiveLocation'];
     }
 
-    public static function schemaMetaFieldDef() : FieldDefinition
+    public static function schemaMetaFieldDef(): FieldDefinition
     {
         if (! isset(self::$map[self::SCHEMA_FIELD_NAME])) {
             self::$map[self::SCHEMA_FIELD_NAME] = FieldDefinition::create([
@@ -793,7 +795,7 @@ EOD;
                     $args,
                     $context,
                     ResolveInfo $info
-                ) : Schema {
+                ): Schema {
                     return $info->schema;
                 },
             ]);
@@ -802,7 +804,7 @@ EOD;
         return self::$map[self::SCHEMA_FIELD_NAME];
     }
 
-    public static function typeMetaFieldDef() : FieldDefinition
+    public static function typeMetaFieldDef(): FieldDefinition
     {
         if (! isset(self::$map[self::TYPE_FIELD_NAME])) {
             self::$map[self::TYPE_FIELD_NAME] = FieldDefinition::create([
@@ -812,7 +814,7 @@ EOD;
                 'args'        => [
                     ['name' => 'name', 'type' => Type::nonNull(Type::string())],
                 ],
-                'resolve'     => static function ($source, $args, $context, ResolveInfo $info) : Type {
+                'resolve'     => static function ($source, $args, $context, ResolveInfo $info): Type {
                     return $info->schema->getType($args['name']);
                 },
             ]);
@@ -821,7 +823,7 @@ EOD;
         return self::$map[self::TYPE_FIELD_NAME];
     }
 
-    public static function typeNameMetaFieldDef() : FieldDefinition
+    public static function typeNameMetaFieldDef(): FieldDefinition
     {
         if (! isset(self::$map[self::TYPE_NAME_FIELD_NAME])) {
             self::$map[self::TYPE_NAME_FIELD_NAME] = FieldDefinition::create([
@@ -834,7 +836,7 @@ EOD;
                     $args,
                     $context,
                     ResolveInfo $info
-                ) : string {
+                ): string {
                     return $info->parentType->name;
                 },
             ]);

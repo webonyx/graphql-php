@@ -16,7 +16,9 @@ class FragmentDefinitionNode extends Node implements ExecutableDefinitionNode, H
      * Note: fragment variable definitions are experimental and may be changed
      * or removed in the future.
      *
-     * @var NodeList<VariableDefinitionNode>
+     * Thus, this property is the single exception where this is not always a NodeList but may be null.
+     *
+     * @var NodeList<VariableDefinitionNode>|null
      */
     public $variableDefinitions;
 

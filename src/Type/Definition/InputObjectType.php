@@ -7,7 +7,9 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
+
 use function count;
 use function is_array;
 use function is_callable;
@@ -17,17 +19,17 @@ use function sprintf;
 class InputObjectType extends Type implements InputType, NullableType, NamedType
 {
     /** @var InputObjectTypeDefinitionNode|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
     /**
      * Lazily initialized.
      *
-     * @var InputObjectField[]
+     * @var array<string, InputObjectField>
      */
-    private $fields;
+    private array $fields;
 
-    /** @var InputObjectTypeExtensionNode[] */
-    public $extensionASTNodes;
+    /** @var array<int, InputObjectTypeExtensionNode> */
+    public array $extensionASTNodes;
 
     /**
      * @param mixed[] $config
@@ -44,17 +46,18 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         $this->name              = $config['name'];
         $this->astNode           = $config['astNode'] ?? null;
         $this->description       = $config['description'] ?? null;
-        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
     }
 
     /**
      * @throws InvariantViolation
      */
-    public function getField(string $name) : InputObjectField
+    public function getField(string $name): InputObjectField
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
         }
+
         Utils::invariant(isset($this->fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
 
         return $this->fields[$name];
@@ -63,7 +66,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     /**
      * @return InputObjectField[]
      */
-    public function getFields() : array
+    public function getFields(): array
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
@@ -72,7 +75,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $this->fields;
     }
 
-    protected function initializeFields() : void
+    protected function initializeFields(): void
     {
         $this->fields = [];
         $fields       = $this->config['fields'] ?? [];
@@ -90,6 +93,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             if ($field instanceof Type || is_callable($field)) {
                 $field = ['type' => $field];
             }
+
             $field                      = new InputObjectField($field + ['name' => $name]);
             $this->fields[$field->name] = $field;
         }
@@ -101,7 +105,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      *
      * @throws InvariantViolation
      */
-    public function assertValid() : void
+    public function assertValid(): void
     {
         parent::assertValid();
 

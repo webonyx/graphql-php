@@ -10,13 +10,14 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
+
 use function count;
 use function is_callable;
 
 /**
  * Schema configuration class.
  * Could be passed directly to schema constructor. List of options accepted by **create** method is
- * [described in docs](type-system/schema.md#configuration-options).
+ * described in the [schema definition docs](schema-definition.md#configuration-options).
  *
  * Usage example:
  *
@@ -37,7 +38,7 @@ class SchemaConfig
     /** @var ObjectType|null */
     public $subscription;
 
-    /** @var Type[]|callable */
+    /** @var array<Type>|(callable(): array<Type>) */
     public $types = [];
 
     /** @var Directive[]|null */
@@ -52,7 +53,7 @@ class SchemaConfig
     /** @var bool */
     public $assumeValid = false;
 
-    /** @var SchemaTypeExtensionNode[] */
+    /** @var array<int, SchemaTypeExtensionNode> */
     public $extensionASTNodes = [];
 
     /**
@@ -206,7 +207,7 @@ class SchemaConfig
     }
 
     /**
-     * @return Type[]|callable
+     * @return array<Type>|(callable(): array<Type>)
      *
      * @api
      */
@@ -216,13 +217,13 @@ class SchemaConfig
     }
 
     /**
-     * @param Type[]|callable $types
+     * @param array<Type>|(callable(): array<Type>) $types
      *
-     * @return SchemaConfig
+     * @return $this
      *
      * @api
      */
-    public function setTypes($types)
+    public function setTypes($types): self
     {
         $this->types = $types;
 

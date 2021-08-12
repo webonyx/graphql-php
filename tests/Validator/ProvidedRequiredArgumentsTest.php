@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
@@ -17,7 +17,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('ignores unknown arguments')
      */
-    public function testIgnoresUnknownArguments() : void
+    public function testIgnoresUnknownArguments(): void
     {
         // ignores unknown arguments
         $this->expectPassesRule(
@@ -37,7 +37,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Arg on optional arg')
      */
-    public function testArgOnOptionalArg() : void
+    public function testArgOnOptionalArg(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -54,7 +54,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('No Arg on optional arg')
      */
-    public function testNoArgOnOptionalArg() : void
+    public function testNoArgOnOptionalArg(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -88,7 +88,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Multiple args')
      */
-    public function testMultipleArgs() : void
+    public function testMultipleArgs(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -105,7 +105,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Multiple args reverse order')
      */
-    public function testMultipleArgsReverseOrder() : void
+    public function testMultipleArgsReverseOrder(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -122,7 +122,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('No args on multiple optional')
      */
-    public function testNoArgsOnMultipleOptional() : void
+    public function testNoArgsOnMultipleOptional(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -139,7 +139,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('One arg on multiple optional')
      */
-    public function testOneArgOnMultipleOptional() : void
+    public function testOneArgOnMultipleOptional(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -156,7 +156,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Second arg on multiple optional')
      */
-    public function testSecondArgOnMultipleOptional() : void
+    public function testSecondArgOnMultipleOptional(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -173,7 +173,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Multiple reqs on mixedList')
      */
-    public function testMultipleReqsOnMixedList() : void
+    public function testMultipleReqsOnMixedList(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -190,7 +190,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Multiple reqs and one opt on mixedList')
      */
-    public function testMultipleReqsAndOneOptOnMixedList() : void
+    public function testMultipleReqsAndOneOptOnMixedList(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -207,7 +207,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('All reqs and opts on mixedList')
      */
-    public function testAllReqsAndOptsOnMixedList() : void
+    public function testAllReqsAndOptsOnMixedList(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -226,7 +226,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Missing one non-nullable argument')
      */
-    public function testMissingOneNonNullableArgument() : void
+    public function testMissingOneNonNullableArgument(): void
     {
         $this->expectFailsRule(
             new ProvidedRequiredArguments(),
@@ -243,7 +243,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
 
     private function missingFieldArg($fieldName, $argName, $typeName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ProvidedRequiredArguments::missingFieldArgMessage($fieldName, $argName, $typeName),
             [new SourceLocation($line, $column)]
         );
@@ -252,7 +252,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Missing multiple non-nullable arguments')
      */
-    public function testMissingMultipleNonNullableArguments() : void
+    public function testMissingMultipleNonNullableArguments(): void
     {
         $this->expectFailsRule(
             new ProvidedRequiredArguments(),
@@ -275,7 +275,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Incorrect value and missing argument')
      */
-    public function testIncorrectValueAndMissingArgument() : void
+    public function testIncorrectValueAndMissingArgument(): void
     {
         $this->expectFailsRule(
             new ProvidedRequiredArguments(),
@@ -295,7 +295,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('ignores unknown directives')
      */
-    public function testIgnoresUnknownDirectives() : void
+    public function testIgnoresUnknownDirectives(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -310,7 +310,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('with directives of valid types')
      */
-    public function testWithDirectivesOfValidTypes() : void
+    public function testWithDirectivesOfValidTypes(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -330,7 +330,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('with directive with missing types')
      */
-    public function testWithDirectiveWithMissingTypes() : void
+    public function testWithDirectiveWithMissingTypes(): void
     {
         $this->expectFailsRule(
             new ProvidedRequiredArguments(),
@@ -464,7 +464,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
 
     private function missingDirectiveArg($directiveName, $argName, $typeName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ProvidedRequiredArgumentsOnDirectives::missingDirectiveArgMessage($directiveName, $argName, $typeName),
             [new SourceLocation($line, $column)]
         );

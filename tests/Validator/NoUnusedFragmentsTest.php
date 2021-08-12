@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoUnusedFragments;
 
 class NoUnusedFragmentsTest extends ValidatorTestCase
@@ -15,7 +15,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @see it('all fragment names are used')
      */
-    public function testAllFragmentNamesAreUsed() : void
+    public function testAllFragmentNamesAreUsed(): void
     {
         $this->expectPassesRule(
             new NoUnusedFragments(),
@@ -45,7 +45,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @see it('all fragment names are used by multiple operations')
      */
-    public function testAllFragmentNamesAreUsedByMultipleOperations() : void
+    public function testAllFragmentNamesAreUsedByMultipleOperations(): void
     {
         $this->expectPassesRule(
             new NoUnusedFragments(),
@@ -77,7 +77,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @see it('contains unknown fragments')
      */
-    public function testContainsUnknownFragments() : void
+    public function testContainsUnknownFragments(): void
     {
         $this->expectFailsRule(
             new NoUnusedFragments(),
@@ -118,7 +118,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
 
     private function unusedFrag($fragName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             NoUnusedFragments::unusedFragMessage($fragName),
             [new SourceLocation($line, $column)]
         );
@@ -127,7 +127,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @see it('contains unknown fragments with ref cycle')
      */
-    public function testContainsUnknownFragmentsWithRefCycle() : void
+    public function testContainsUnknownFragmentsWithRefCycle(): void
     {
         $this->expectFailsRule(
             new NoUnusedFragments(),
@@ -171,7 +171,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @see it('contains unknown and undef fragments')
      */
-    public function testContainsUnknownAndUndefFragments() : void
+    public function testContainsUnknownAndUndefFragments(): void
     {
         $this->expectFailsRule(
             new NoUnusedFragments(),

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -16,25 +18,25 @@ use function sprintf;
 
 class UnionType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
 {
-    /** @var UnionTypeDefinitionNode */
-    public $astNode;
+    /** @var UnionTypeDefinitionNode|null */
+    public ?TypeDefinitionNode $astNode;
 
     /**
      * Lazily initialized.
      *
-     * @var ObjectType[]
+     * @var array<ObjectType>
      */
-    private $types;
+    private array $types;
 
     /**
      * Lazily initialized.
      *
      * @var array<string, bool>
      */
-    private $possibleTypeNames;
+    private array $possibleTypeNames;
 
-    /** @var UnionTypeExtensionNode[] */
-    public $extensionASTNodes;
+    /** @var array<int, UnionTypeExtensionNode> */
+    public array $extensionASTNodes;
 
     /**
      * @param mixed[] $config
@@ -55,11 +57,11 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
-        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
         $this->config            = $config;
     }
 
-    public function isPossibleType(Type $type) : bool
+    public function isPossibleType(Type $type): bool
     {
         if (! $type instanceof ObjectType) {
             return false;
@@ -80,7 +82,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
      *
      * @throws InvariantViolation
      */
-    public function getTypes() : array
+    public function getTypes(): array
     {
         if (! isset($this->types)) {
             $types = $this->config['types'] ?? null;
@@ -130,7 +132,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     /**
      * @throws InvariantViolation
      */
-    public function assertValid() : void
+    public function assertValid(): void
     {
         parent::assertValid();
 

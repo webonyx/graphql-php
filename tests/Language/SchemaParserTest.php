@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
-use GraphQL\Error\DebugFlag;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 
 class SchemaParserTest extends TestCase
@@ -22,14 +21,14 @@ class SchemaParserTest extends TestCase
     /**
      * @see it('Simple type')
      */
-    public function testSimpleType() : void
+    public function testSimpleType(): void
     {
         $body = '
 type Hello {
   world: String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -96,7 +95,7 @@ type Hello {
     /**
      * @see it('parses type with description string')
      */
-    public function testParsesTypeWithDescriptionString() : void
+    public function testParsesTypeWithDescriptionString(): void
     {
         $body = '
 "Description"
@@ -104,7 +103,7 @@ type Hello {
   world: String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -140,7 +139,7 @@ type Hello {
     /**
      * @see it('parses type with description multi-linestring')
      */
-    public function testParsesTypeWithDescriptionMultiLineString() : void
+    public function testParsesTypeWithDescriptionMultiLineString(): void
     {
         $body = '
 """
@@ -151,7 +150,7 @@ type Hello {
   world: String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -187,7 +186,7 @@ type Hello {
     /**
      * @see it('Simple extension')
      */
-    public function testSimpleExtension() : void
+    public function testSimpleExtension(): void
     {
         $body = '
 extend type Hello {
@@ -195,7 +194,7 @@ extend type Hello {
 }
 ';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -225,11 +224,11 @@ extend type Hello {
     /**
      * @see it('Object extension without fields')
      */
-    public function testObjectExtensionWithoutFields() : void
+    public function testObjectExtensionWithoutFields(): void
     {
         $body = 'extend type Hello implements Greeting';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -255,11 +254,11 @@ extend type Hello {
     /**
      * @see it('Interface extension without fields')
      */
-    public function testInterfaceExtensionWithoutFields() : void
+    public function testInterfaceExtensionWithoutFields(): void
     {
         $body = 'extend interface Hello implements Greeting';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -285,7 +284,7 @@ extend type Hello {
     /**
      * @see it('Object extension without fields followed by extension')
      */
-    public function testObjectExtensionWithoutFieldsFollowedByExtension() : void
+    public function testObjectExtensionWithoutFieldsFollowedByExtension(): void
     {
         $body     = '
           extend type Hello implements Greeting
@@ -321,7 +320,7 @@ extend type Hello {
     /**
      * @see it('Interface extension without fields followed by extension')
      */
-    public function testInterfaceExtensionWithoutFieldsFollowedByExtension() : void
+    public function testInterfaceExtensionWithoutFieldsFollowedByExtension(): void
     {
         $body     = '
           extend interface Hello implements Greeting
@@ -357,7 +356,7 @@ extend type Hello {
     /**
      * @see it('Object extension without anything throws')
      */
-    public function testObjectExtensionWithoutAnythingThrows() : void
+    public function testObjectExtensionWithoutAnythingThrows(): void
     {
         $this->expectSyntaxError(
             'extend type Hello',
@@ -369,7 +368,7 @@ extend type Hello {
     /**
      * @see it('Interface extension without anything throws')
      */
-    public function testInterfaceExtensionWithoutAnythingThrows() : void
+    public function testInterfaceExtensionWithoutAnythingThrows(): void
     {
         $this->expectSyntaxError(
             'extend interface Hello',
@@ -386,6 +385,7 @@ extend type Hello {
             Parser::parse($text);
         } catch (SyntaxError $error) {
             self::assertEquals([$location], $error->getLocations());
+
             throw $error;
         }
     }
@@ -398,7 +398,7 @@ extend type Hello {
     /**
      * @see it('Object extension do not include descriptions')
      */
-    public function testObjectExtensionDoNotIncludeDescriptions() : void
+    public function testObjectExtensionDoNotIncludeDescriptions(): void
     {
         $body = '
       "Description"
@@ -415,7 +415,7 @@ extend type Hello {
     /**
      * @see it('Interface extension do not include descriptions')
      */
-    public function testInterfaceExtensionDoNotIncludeDescriptions() : void
+    public function testInterfaceExtensionDoNotIncludeDescriptions(): void
     {
         $body = '
       "Description"
@@ -432,7 +432,7 @@ extend type Hello {
     /**
      * @see it('Object Extension do not include descriptions')
      */
-    public function testObjectExtensionDoNotIncludeDescriptions2() : void
+    public function testObjectExtensionDoNotIncludeDescriptions2(): void
     {
         $body = '
       extend "Description" type Hello {
@@ -449,7 +449,7 @@ extend type Hello {
     /**
      * @see it('Interface Extension do not include descriptions')
      */
-    public function testInterfaceExtensionDoNotIncludeDescriptions2() : void
+    public function testInterfaceExtensionDoNotIncludeDescriptions2(): void
     {
         $body = '
       extend "Description" interface Hello {
@@ -466,7 +466,7 @@ extend type Hello {
     /**
      * @see it('Simple non-null type')
      */
-    public function testSimpleNonNullType() : void
+    public function testSimpleNonNullType(): void
     {
         $body = '
 type Hello {
@@ -474,7 +474,7 @@ type Hello {
 }';
         $doc  = Parser::parse($body);
 
-        $loc = static function ($start, $end) : array {
+        $loc = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -510,11 +510,11 @@ type Hello {
     /**
      * @see it('Simple interface inheriting interface')
      */
-    public function testSimpleInterfaceInheritingInterface() : void
+    public function testSimpleInterfaceInheritingInterface(): void
     {
         $body = 'interface Hello implements World { field: String }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -548,11 +548,11 @@ type Hello {
     /**
      * @see it('Simple type inheriting interface')
      */
-    public function testSimpleTypeInheritingInterface() : void
+    public function testSimpleTypeInheritingInterface(): void
     {
         $body = 'type Hello implements World { field: String }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -586,11 +586,11 @@ type Hello {
     /**
      * @see it('Simple type inheriting multiple interfaces')
      */
-    public function testSimpleTypeInheritingMultipleInterfaces() : void
+    public function testSimpleTypeInheritingMultipleInterfaces(): void
     {
         $body = 'type Hello implements Wo & rld { field: String }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -625,11 +625,11 @@ type Hello {
     /**
      * @see it('Simple interface inheriting multiple interfaces')
      */
-    public function testSimpleInterfaceInheritingMultipleInterfaces() : void
+    public function testSimpleInterfaceInheritingMultipleInterfaces(): void
     {
         $body = 'interface Hello implements Wo & rld { field: String }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -664,11 +664,11 @@ type Hello {
     /**
      * @see it('Simple type inheriting multiple interfaces with leading ampersand')
      */
-    public function testSimpleTypeInheritingMultipleInterfacesWithLeadingAmpersand() : void
+    public function testSimpleTypeInheritingMultipleInterfacesWithLeadingAmpersand(): void
     {
         $body = 'type Hello implements & Wo & rld { field: String }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -702,11 +702,11 @@ type Hello {
     /**
      * @see it('Simple interface inheriting multiple interfaces with leading ampersand')
      */
-    public function testSimpleInterfaceInheritingMultipleInterfacesWithLeadingAmpersand() : void
+    public function testSimpleInterfaceInheritingMultipleInterfacesWithLeadingAmpersand(): void
     {
         $body = 'interface Hello implements & Wo & rld { field: String }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -740,11 +740,11 @@ type Hello {
     /**
      * @see it('Single value enum')
      */
-    public function testSingleValueEnum() : void
+    public function testSingleValueEnum(): void
     {
         $body = 'enum Hello { WORLD }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -780,11 +780,11 @@ type Hello {
     /**
      * @see it('Double value enum')
      */
-    public function testDoubleValueEnum() : void
+    public function testDoubleValueEnum(): void
     {
         $body = 'enum Hello { WO, RLD }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -812,14 +812,14 @@ type Hello {
     /**
      * @see it('Simple interface')
      */
-    public function testSimpleInterface() : void
+    public function testSimpleInterface(): void
     {
         $body = '
 interface Hello {
   world: String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -850,14 +850,14 @@ interface Hello {
     /**
      * @see it('Simple field with arg')
      */
-    public function testSimpleFieldWithArg() : void
+    public function testSimpleFieldWithArg(): void
     {
         $body = '
 type Hello {
   world(flag: Boolean): String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -910,14 +910,14 @@ type Hello {
     /**
      * @see it('Simple field with arg with default value')
      */
-    public function testSimpleFieldWithArgWithDefaultValue() : void
+    public function testSimpleFieldWithArgWithDefaultValue(): void
     {
         $body = '
 type Hello {
   world(flag: Boolean = true): String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -956,14 +956,14 @@ type Hello {
     /**
      * @see it('Simple field with list arg')
      */
-    public function testSimpleFieldWithListArg() : void
+    public function testSimpleFieldWithListArg(): void
     {
         $body = '
 type Hello {
   world(things: [String]): String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -987,7 +987,8 @@ type Hello {
                                         'type'   => $this->typeNode(
                                             'String',
                                             $loc(31, 37)
-                                        ), 'loc' => $loc(30, 38),
+                                        ),
+                                        'loc' => $loc(30, 38),
                                     ],
                                     null,
                                     $loc(22, 38)
@@ -1009,14 +1010,14 @@ type Hello {
     /**
      * @see it('Simple field with two args')
      */
-    public function testSimpleFieldWithTwoArgs() : void
+    public function testSimpleFieldWithTwoArgs(): void
     {
         $body = '
 type Hello {
   world(argOne: Boolean, argTwo: Int): String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -1062,11 +1063,11 @@ type Hello {
     /**
      * @see it('Simple union')
      */
-    public function testSimpleUnion() : void
+    public function testSimpleUnion(): void
     {
         $body = 'union Hello = World';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -1091,11 +1092,11 @@ type Hello {
     /**
      * @see it('Union with two types')
      */
-    public function testUnionWithTwoTypes() : void
+    public function testUnionWithTwoTypes(): void
     {
         $body = 'union Hello = Wo | Rld';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -1122,7 +1123,7 @@ type Hello {
     /**
      * @see it('Union with two types and leading pipe')
      */
-    public function testUnionWithTwoTypesAndLeadingPipe() : void
+    public function testUnionWithTwoTypesAndLeadingPipe(): void
     {
         $body     = 'union Hello = | Wo | Rld';
         $doc      = Parser::parse($body);
@@ -1149,7 +1150,7 @@ type Hello {
     /**
      * @see it('Union fails with no types')
      */
-    public function testUnionFailsWithNoTypes() : void
+    public function testUnionFailsWithNoTypes(): void
     {
         $this->expectSyntaxError(
             'union Hello = |',
@@ -1161,7 +1162,7 @@ type Hello {
     /**
      * @see it('Union fails with leading douple pipe')
      */
-    public function testUnionFailsWithLeadingDoublePipe() : void
+    public function testUnionFailsWithLeadingDoublePipe(): void
     {
         $this->expectSyntaxError(
             'union Hello = || Wo | Rld',
@@ -1173,7 +1174,7 @@ type Hello {
     /**
      * @see it('Union fails with double pipe')
      */
-    public function testUnionFailsWithDoublePipe() : void
+    public function testUnionFailsWithDoublePipe(): void
     {
         $this->expectSyntaxError(
             'union Hello = Wo || Rld',
@@ -1185,7 +1186,7 @@ type Hello {
     /**
      * @see it('Union fails with trailing pipe')
      */
-    public function testUnionFailsWithTrailingPipe() : void
+    public function testUnionFailsWithTrailingPipe(): void
     {
         $this->expectSyntaxError(
             'union Hello = | Wo | Rld |',
@@ -1197,11 +1198,11 @@ type Hello {
     /**
      * @see it('Scalar')
      */
-    public function testScalar() : void
+    public function testScalar(): void
     {
         $body = 'scalar Hello';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -1224,14 +1225,14 @@ type Hello {
     /**
      * @see it('Simple input object')
      */
-    public function testSimpleInputObject() : void
+    public function testSimpleInputObject(): void
     {
         $body = '
 input Hello {
   world: String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -1262,7 +1263,7 @@ input Hello {
     /**
      * @see it('Simple input object with args should fail')
      */
-    public function testSimpleInputObjectWithArgsShouldFail() : void
+    public function testSimpleInputObjectWithArgsShouldFail(): void
     {
         $body = '
       input Hello {
@@ -1278,11 +1279,11 @@ input Hello {
     /**
      * @see it('Directive definition', () => {
      */
-    public function testDirectiveDefinition() : void
+    public function testDirectiveDefinition(): void
     {
         $body = 'directive @foo on OBJECT | INTERFACE';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -1318,11 +1319,11 @@ input Hello {
     /**
      * @see it('Repeatable directive definition', () => {
      */
-    public function testRepeatableDirectiveDefinition() : void
+    public function testRepeatableDirectiveDefinition(): void
     {
         $body = 'directive @foo repeatable on OBJECT | INTERFACE';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) : array {
+        $loc  = static function ($start, $end): array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -1358,7 +1359,7 @@ input Hello {
     /**
      * @see it('Directive with incorrect locations')
      */
-    public function testDirectiveWithIncorrectLocationShouldFail() : void
+    public function testDirectiveWithIncorrectLocationShouldFail(): void
     {
         $body = '
       directive @foo on FIELD | INCORRECT_LOCATION
@@ -1370,7 +1371,7 @@ input Hello {
         );
     }
 
-    public function testDoesNotAllowEmptyFields() : void
+    public function testDoesNotAllowEmptyFields(): void
     {
         $body = 'type Hello { }';
         $this->expectSyntaxError($body, 'Syntax Error: Expected Name, found }', new SourceLocation(1, 14));
@@ -1379,7 +1380,7 @@ input Hello {
     /**
      * @see it('Option: allowLegacySDLEmptyFields supports type with empty fields')
      */
-    public function testAllowLegacySDLEmptyFieldsOption() : void
+    public function testAllowLegacySDLEmptyFieldsOption(): void
     {
         $body     = 'type Hello { }';
         $doc      = Parser::parse($body, ['allowLegacySDLEmptyFields' => true]);
@@ -1393,7 +1394,7 @@ input Hello {
         self::assertArraySubset($expected, $doc->toArray(true));
     }
 
-    public function testDoesntAllowLegacySDLImplementsInterfacesByDefault() : void
+    public function testDoesntAllowLegacySDLImplementsInterfacesByDefault(): void
     {
         $body = 'type Hello implements Wo rld { field: String }';
         $this->expectSyntaxError($body, 'Syntax Error: Unexpected Name "rld"', new SourceLocation(1, 26));
@@ -1402,7 +1403,7 @@ input Hello {
     /**
      * @see it('Option: allowLegacySDLImplementsInterfaces')
      */
-    public function testDefaultSDLImplementsInterfaces() : void
+    public function testDefaultSDLImplementsInterfaces(): void
     {
         $body     = 'type Hello implements Wo rld { field: String }';
         $doc      = Parser::parse($body, ['allowLegacySDLImplementsInterfaces' => true]);

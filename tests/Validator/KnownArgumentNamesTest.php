@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownArgumentNames;
 use GraphQL\Validator\Rules\KnownArgumentNamesOnDirectives;
@@ -17,7 +17,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('single arg is known')
      */
-    public function testSingleArgIsKnown() : void
+    public function testSingleArgIsKnown(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -32,7 +32,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple args are known')
      */
-    public function testMultipleArgsAreKnown() : void
+    public function testMultipleArgsAreKnown(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -47,7 +47,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('ignores args of unknown fields')
      */
-    public function testIgnoresArgsOfUnknownFields() : void
+    public function testIgnoresArgsOfUnknownFields(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -62,7 +62,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple args in reverse order are known')
      */
-    public function testMultipleArgsInReverseOrderAreKnown() : void
+    public function testMultipleArgsInReverseOrderAreKnown(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -77,7 +77,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('no args on optional arg')
      */
-    public function testNoArgsOnOptionalArg() : void
+    public function testNoArgsOnOptionalArg(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -92,7 +92,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('args are known deeply')
      */
-    public function testArgsAreKnownDeeply() : void
+    public function testArgsAreKnownDeeply(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -116,7 +116,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('directive args are known')
      */
-    public function testDirectiveArgsAreKnown() : void
+    public function testDirectiveArgsAreKnown(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -131,7 +131,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('undirective args are invalid')
      */
-    public function testUndirectiveArgsAreInvalid() : void
+    public function testUndirectiveArgsAreInvalid(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -148,7 +148,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
 
     private function unknownDirectiveArg($argName, $directiveName, $suggestedArgs, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownArgumentNamesOnDirectives::unknownDirectiveArgMessage($argName, $directiveName, $suggestedArgs),
             [new SourceLocation($line, $column)]
         );
@@ -157,7 +157,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('misspelled directive args are reported')
      */
-    public function testMisspelledDirectiveArgsAreReported() : void
+    public function testMisspelledDirectiveArgsAreReported(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -175,7 +175,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('invalid arg name')
      */
-    public function testInvalidArgName() : void
+    public function testInvalidArgName(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -192,7 +192,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
 
     private function unknownArg($argName, $fieldName, $typeName, $suggestedArgs, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownArgumentNames::unknownArgMessage($argName, $fieldName, $typeName, $suggestedArgs),
             [new SourceLocation($line, $column)]
         );
@@ -201,7 +201,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('misspelled arg name is reported')
      */
-    public function testMisspelledArgNameIsReported() : void
+    public function testMisspelledArgNameIsReported(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -219,7 +219,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown args amongst known args')
      */
-    public function testUnknownArgsAmongstKnownArgs() : void
+    public function testUnknownArgsAmongstKnownArgs(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -238,7 +238,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown args deeply')
      */
-    public function testUnknownArgsDeeply() : void
+    public function testUnknownArgsDeeply(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),

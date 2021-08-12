@@ -4,30 +4,20 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
+
 use function is_callable;
 use function sprintf;
 
 class CustomScalarType extends ScalarType
 {
-    /**
-     * @param mixed $value
-     *
-     * @return mixed
-     */
     public function serialize($value)
     {
         return $this->config['serialize']($value);
     }
 
-    /**
-     * @param mixed $value
-     *
-     * @return mixed
-     */
     public function parseValue($value)
     {
         if (isset($this->config['parseValue'])) {
@@ -37,13 +27,6 @@ class CustomScalarType extends ScalarType
         return $value;
     }
 
-    /**
-     * @param mixed[]|null $variables
-     *
-     * @return mixed
-     *
-     * @throws Exception
-     */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if (isset($this->config['parseLiteral'])) {
@@ -53,7 +36,7 @@ class CustomScalarType extends ScalarType
         return AST::valueFromASTUntyped($valueNode, $variables);
     }
 
-    public function assertValid()
+    public function assertValid(): void
     {
         parent::assertValid();
 

@@ -12,10 +12,12 @@ use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class PossibleFragmentSpreads extends ValidationRule
@@ -23,42 +25,45 @@ class PossibleFragmentSpreads extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context) : void {
+            NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context): void {
                 $fragType   = $context->getType();
                 $parentType = $context->getParentType();
 
-                if (! ($fragType instanceof CompositeType) ||
+                if (
+                    ! ($fragType instanceof CompositeType) ||
                     ! ($parentType instanceof CompositeType) ||
-                    $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)) {
-                    return;
-                }
-
-                $context->reportError(new Error(
-                    self::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
-                    [$node]
-                ));
-            },
-            NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context) : void {
-                $fragName   = $node->name->value;
-                $fragType   = $this->getFragmentType($context, $fragName);
-                $parentType = $context->getParentType();
-
-                if (! $fragType ||
-                    ! $parentType ||
                     $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
                 ) {
                     return;
                 }
 
                 $context->reportError(new Error(
-                    self::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
+                    static::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
+                    [$node]
+                ));
+            },
+            NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context): void {
+                $fragName   = $node->name->value;
+                $fragType   = $this->getFragmentType($context, $fragName);
+                $parentType = $context->getParentType();
+
+                if (
+                    $fragType === null ||
+                    $parentType === null ||
+                    $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
+                ) {
+                    return;
+                }
+
+                $context->reportError(new Error(
+                    static::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
                     [$node]
                 ));
             },
         ];
     }
 
-    private function doTypesOverlap(Schema $schema, CompositeType $fragType, CompositeType $parentType)
+    protected function doTypesOverlap(Schema $schema, CompositeType $fragType, CompositeType $parentType)
     {
         // Checking in the order of the most frequently used scenarios:
         // Parent type === fragment type
@@ -135,17 +140,18 @@ class PossibleFragmentSpreads extends ValidationRule
         );
     }
 
-    private function getFragmentType(ValidationContext $context, $name)
+    protected function getFragmentType(ValidationContext $context, string $name): ?Type
     {
         $frag = $context->getFragment($name);
-        if ($frag) {
-            $type = TypeInfo::typeFromAST($context->getSchema(), $frag->typeCondition);
-            if ($type instanceof CompositeType) {
-                return $type;
-            }
+        if ($frag === null) {
+            return null;
         }
 
-        return null;
+        $type = TypeInfo::typeFromAST($context->getSchema(), $frag->typeCondition);
+
+        return $type instanceof CompositeType
+            ? $type
+            : null;
     }
 
     public static function typeIncompatibleSpreadMessage($fragName, $parentType, $fragType)

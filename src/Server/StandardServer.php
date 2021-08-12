@@ -14,6 +14,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Throwable;
+
 use function is_array;
 
 /**
@@ -26,7 +27,7 @@ use function is_array;
  *     ]);
  *     $server->handleRequest();
  *
- * Or using [ServerConfig](reference.md#graphqlserverserverconfig) instance:
+ * Or using [ServerConfig](class-reference.md#graphqlserverserverconfig) instance:
  *
  *     $config = GraphQL\Server\ServerConfig::create()
  *         ->setSchema($mySchema)
@@ -50,13 +51,9 @@ class StandardServer
      * Useful when an exception is thrown somewhere outside of server execution context
      * (e.g. during schema instantiation).
      *
-     * @param Throwable $error
-     * @param int       $debug
-     * @param bool      $exitWhenDone
-     *
      * @api
      */
-    public static function send500Error($error, $debug = DebugFlag::NONE, $exitWhenDone = false)
+    public static function send500Error(Throwable $error, int $debug = DebugFlag::NONE, bool $exitWhenDone = false): void
     {
         $response = [
             'errors' => [FormattedError::createFromException($error, $debug)],
@@ -68,7 +65,7 @@ class StandardServer
     /**
      * Creates new instance of a standard GraphQL HTTP server
      *
-     * @param ServerConfig|mixed[] $config
+     * @param ServerConfig|array<string, mixed> $config
      *
      * @api
      */
@@ -77,9 +74,11 @@ class StandardServer
         if (is_array($config)) {
             $config = ServerConfig::create($config);
         }
+
         if (! $config instanceof ServerConfig) {
             throw new InvariantViolation('Expecting valid server config, but got ' . Utils::printSafe($config));
         }
+
         $this->config = $config;
         $this->helper = new Helper();
     }
@@ -94,12 +93,11 @@ class StandardServer
      * See `executeRequest()` if you prefer to emit response yourself
      * (e.g. using Response object of some framework)
      *
-     * @param OperationParams|OperationParams[] $parsedBody
-     * @param bool                              $exitWhenDone
+     * @param OperationParams|array<OperationParams> $parsedBody
      *
      * @api
      */
-    public function handleRequest($parsedBody = null, $exitWhenDone = false)
+    public function handleRequest($parsedBody = null, bool $exitWhenDone = false): void
     {
         $result = $this->executeRequest($parsedBody);
         $this->helper->sendResponse($result, $exitWhenDone);
@@ -115,9 +113,9 @@ class StandardServer
      *
      * PSR-7 compatible method executePsrRequest() does exactly this.
      *
-     * @param OperationParams|OperationParams[] $parsedBody
+     * @param OperationParams|array<OperationParams> $parsedBody
      *
-     * @return ExecutionResult|ExecutionResult[]|Promise
+     * @return ExecutionResult|array<int, ExecutionResult>|Promise
      *
      * @throws InvariantViolation
      *
@@ -160,7 +158,7 @@ class StandardServer
      * Executes GraphQL operation and returns execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter)
      *
-     * @return ExecutionResult|ExecutionResult[]|Promise
+     * @return ExecutionResult|array<int, ExecutionResult>|Promise
      *
      * @api
      */
@@ -175,11 +173,9 @@ class StandardServer
      * Returns an instance of Server helper, which contains most of the actual logic for
      * parsing / validating / executing request (which could be re-used by other server implementations)
      *
-     * @return Helper
-     *
      * @api
      */
-    public function getHelper()
+    public function getHelper(): Helper
     {
         return $this->helper;
     }

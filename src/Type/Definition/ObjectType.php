@@ -8,8 +8,10 @@ use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function array_map;
 use function is_array;
 use function is_callable;
@@ -55,37 +57,30 @@ use function sprintf;
  *        }
  *     ]);
  */
-class ObjectType extends Type implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
+class ObjectType extends TypeWithFields implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
     /** @var ObjectTypeDefinitionNode|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
-    /** @var ObjectTypeExtensionNode[] */
-    public $extensionASTNodes;
+    /** @var array<int, ObjectTypeExtensionNode> */
+    public array $extensionASTNodes;
 
-    /** @var ?callable */
+    /** @var callable|null */
     public $resolveFieldFn;
-
-    /**
-     * Lazily initialized.
-     *
-     * @var FieldDefinition[]
-     */
-    private $fields;
 
     /**
      * Lazily initialized.
      *
      * @var array<int, InterfaceType>
      */
-    private $interfaces;
+    private array $interfaces;
 
     /**
      * Lazily initialized.
      *
      * @var array<string, InterfaceType>
      */
-    private $interfaceMap;
+    private array $interfaceMap;
 
     /**
      * @param mixed[] $config
@@ -113,7 +108,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      *
      * @throws InvariantViolation
      */
-    public static function assertObjectType($type) : self
+    public static function assertObjectType($type): self
     {
         Utils::invariant(
             $type instanceof self,
@@ -123,49 +118,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         return $type;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
-    public function getField(string $name) : FieldDefinition
-    {
-        if (! isset($this->fields)) {
-            $this->initializeFields();
-        }
-        Utils::invariant(isset($this->fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
-
-        return $this->fields[$name];
-    }
-
-    public function hasField(string $name) : bool
-    {
-        if (! isset($this->fields)) {
-            $this->initializeFields();
-        }
-
-        return isset($this->fields[$name]);
-    }
-
-    /**
-     * @return FieldDefinition[]
-     *
-     * @throws InvariantViolation
-     */
-    public function getFields() : array
-    {
-        if (! isset($this->fields)) {
-            $this->initializeFields();
-        }
-
-        return $this->fields;
-    }
-
-    protected function initializeFields() : void
-    {
-        $fields       = $this->config['fields'] ?? [];
-        $this->fields = FieldDefinition::defineFieldMap($this, $fields);
-    }
-
-    public function implementsInterface(InterfaceType $interfaceType) : bool
+    public function implementsInterface(InterfaceType $interfaceType): bool
     {
         if (! isset($this->interfaceMap)) {
             $this->interfaceMap = [];
@@ -182,7 +135,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /**
      * @return array<int, InterfaceType>
      */
-    public function getInterfaces() : array
+    public function getInterfaces(): array
     {
         if (! isset($this->interfaces)) {
             $interfaces = $this->config['interfaces'] ?? [];
@@ -196,8 +149,10 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
                 );
             }
 
-            /** @var InterfaceType[] $interfaces */
-            $interfaces = array_map([Schema::class, 'resolveType'], $interfaces ?? []);
+            /** @var array<int, InterfaceType> $interfaces */
+            $interfaces = $interfaces === null
+                ? []
+                : array_map([Schema::class, 'resolveType'], $interfaces);
 
             $this->interfaces = $interfaces;
         }
@@ -228,7 +183,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      *
      * @throws InvariantViolation
      */
-    public function assertValid() : void
+    public function assertValid(): void
     {
         parent::assertValid();
 

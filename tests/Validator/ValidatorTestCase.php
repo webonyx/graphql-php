@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use Exception;
+use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -18,16 +19,17 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
+
 use function array_map;
 
 abstract class ValidatorTestCase extends TestCase
 {
-    protected function expectPassesRule($rule, $queryString, $options = []) : void
+    protected function expectPassesRule($rule, $queryString, $options = []): void
     {
         $this->expectValid(self::getTestSchema(), [$rule], $queryString, $options);
     }
 
-    protected function expectValid($schema, $rules, $queryString, $options = []) : void
+    protected function expectValid($schema, $rules, $queryString, $options = []): void
     {
         self::assertEquals(
             [],
@@ -65,7 +67,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Canine = new InterfaceType([
             'name'   => 'Canine',
-            'fields' => static function () : array {
+            'fields' => static function (): array {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -112,7 +114,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Cat = new ObjectType([
             'name'       => 'Cat',
-            'fields'     => static function () use (&$FurColor) : array {
+            'fields'     => static function () use (&$FurColor): array {
                 return [
                     'name'       => [
                         'type' => Type::string(),
@@ -143,7 +145,7 @@ abstract class ValidatorTestCase extends TestCase
         $Human = new ObjectType([
             'name'       => 'Human',
             'interfaces' => [$Being, $Intelligent],
-            'fields'     => static function () use (&$Human, $Pet) : array {
+            'fields'     => static function () use (&$Human, $Pet): array {
                 return [
                     'name'      => [
                         'type' => Type::string(),
@@ -301,11 +303,11 @@ abstract class ValidatorTestCase extends TestCase
             'serialize'    => static function ($value) {
                 return $value;
             },
-            'parseLiteral' => static function ($node) : void {
-                throw new Exception('Invalid scalar is always invalid: ' . $node->value);
+            'parseLiteral' => static function ($node): void {
+                throw new Error('Invalid scalar is always invalid: ' . $node->value);
             },
-            'parseValue'   => static function ($node) : void {
-                throw new Exception('Invalid scalar is always invalid: ' . $node);
+            'parseValue'   => static function ($node): void {
+                throw new Error('Invalid scalar is always invalid: ' . $node);
             },
         ]);
 
@@ -423,27 +425,27 @@ abstract class ValidatorTestCase extends TestCase
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules);
 
         self::assertNotEmpty($errors, 'GraphQL should not validate');
-        self::assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));
+        self::assertEquals($expectedErrors, array_map([FormattedError::class, 'createFromException'], $errors));
 
         return $errors;
     }
 
-    protected function expectPassesRuleWithSchema($schema, $rule, $queryString) : void
+    protected function expectPassesRuleWithSchema($schema, $rule, $queryString): void
     {
         $this->expectValid($schema, [$rule], $queryString);
     }
 
-    protected function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors) : void
+    protected function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors): void
     {
         $this->expectInvalid($schema, [$rule], $queryString, $errors);
     }
 
-    protected function expectPassesCompleteValidation($queryString) : void
+    protected function expectPassesCompleteValidation($queryString): void
     {
         $this->expectValid(self::getTestSchema(), DocumentValidator::allRules(), $queryString);
     }
 
-    protected function expectFailsCompleteValidation($queryString, $errors) : void
+    protected function expectFailsCompleteValidation($queryString, $errors): void
     {
         $this->expectInvalid(self::getTestSchema(), DocumentValidator::allRules(), $queryString, $errors);
     }
@@ -453,7 +455,7 @@ abstract class ValidatorTestCase extends TestCase
         $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
         self::assertEquals(
             $errors,
-            array_map(['GraphQL\Error\Error', 'formatError'], $actualErrors)
+            array_map([FormattedError::class, 'createFromException'], $actualErrors)
         );
     }
 }

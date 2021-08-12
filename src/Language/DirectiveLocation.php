@@ -41,6 +41,7 @@ class DirectiveLocation
         self::FRAGMENT_DEFINITION => self::FRAGMENT_DEFINITION,
         self::FRAGMENT_SPREAD => self::FRAGMENT_SPREAD,
         self::INLINE_FRAGMENT => self::INLINE_FRAGMENT,
+        self::VARIABLE_DEFINITION => self::VARIABLE_DEFINITION,
         self::SCHEMA => self::SCHEMA,
         self::SCALAR => self::SCALAR,
         self::OBJECT => self::OBJECT,
@@ -54,7 +55,7 @@ class DirectiveLocation
         self::INPUT_FIELD_DEFINITION => self::INPUT_FIELD_DEFINITION,
     ];
 
-    public static function has(string $name) : bool
+    public static function has(string $name): bool
     {
         return isset(self::$locations[$name]);
     }

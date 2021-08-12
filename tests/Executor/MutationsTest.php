@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Deferred;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NumberHolder;
 use GraphQL\Tests\Executor\TestClasses\Root;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -25,7 +25,7 @@ class MutationsTest extends TestCase
     /**
      * @see it('evaluates mutations serially')
      */
-    public function testEvaluatesMutationsSerially() : void
+    public function testEvaluatesMutationsSerially(): void
     {
         $doc            = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {
@@ -58,7 +58,7 @@ class MutationsTest extends TestCase
         self::assertEquals($expected, $mutationResult->toArray());
     }
 
-    private function schema() : Schema
+    private function schema(): Schema
     {
         $numberHolderType = new ObjectType([
             'fields' => [
@@ -79,28 +79,28 @@ class MutationsTest extends TestCase
                     'immediatelyChangeTheNumber'      => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) : NumberHolder {
+                        'resolve' => static function (Root $obj, $args): NumberHolder {
                             return $obj->immediatelyChangeTheNumber($args['newNumber']);
                         },
                     ],
                     'promiseToChangeTheNumber'        => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) : Deferred {
+                        'resolve' => static function (Root $obj, $args): Deferred {
                             return $obj->promiseToChangeTheNumber($args['newNumber']);
                         },
                     ],
                     'failToChangeTheNumber'           => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) : void {
+                        'resolve' => static function (Root $obj, $args): void {
                             $obj->failToChangeTheNumber();
                         },
                     ],
                     'promiseAndFailToChangeTheNumber' => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) : Deferred {
+                        'resolve' => static function (Root $obj, $args): Deferred {
                             return $obj->promiseAndFailToChangeTheNumber();
                         },
                     ],
@@ -113,7 +113,7 @@ class MutationsTest extends TestCase
     /**
      * @see it('evaluates mutations correctly in the presense of a failed mutation')
      */
-    public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation() : void
+    public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation(): void
     {
         $doc            = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {
@@ -148,12 +148,12 @@ class MutationsTest extends TestCase
             ],
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot change the number',
                     'locations'    => [['line' => 8, 'column' => 7]],
+                    'extensions' => ['debugMessage' => 'Cannot change the number'],
                 ],
                 [
-                    'debugMessage' => 'Cannot change the number',
                     'locations'    => [['line' => 17, 'column' => 7]],
+                    'extensions' => ['debugMessage' => 'Cannot change the number'],
                 ],
             ],
         ];

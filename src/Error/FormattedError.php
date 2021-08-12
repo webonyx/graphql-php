@@ -11,8 +11,8 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
-use GraphQL\Utils\Utils;
 use Throwable;
+
 use function addcslashes;
 use function array_filter;
 use function array_intersect_key;
@@ -38,21 +38,25 @@ use function strlen;
  * This class is used for [default error formatting](error-handling.md).
  * It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io/graphql/#sec-Errors)
  * and provides tools for error debugging.
+ *
+ * @phpstan-type FormattedErrorArray array{
+ *  message: string,
+ *  locations?: array<int, array{line: int, column: int}>,
+ *  path?: array<int, int|string>,
+ *  extensions?: array<string, mixed>,
+ * }
  */
 class FormattedError
 {
-    /** @var string */
-    private static $internalErrorMessage = 'Internal server error';
+    private static string $internalErrorMessage = 'Internal server error';
 
     /**
      * Set default error message for internal errors formatted using createFormattedError().
      * This value can be overridden by passing 3rd argument to `createFormattedError()`.
      *
-     * @param string $msg
-     *
      * @api
      */
-    public static function setInternalErrorMessage($msg)
+    public static function setInternalErrorMessage(string $msg): void
     {
         self::$internalErrorMessage = $msg;
     }
@@ -60,10 +64,8 @@ class FormattedError
     /**
      * Prints a GraphQLError to a string, representing useful location information
      * about the error's position in the source.
-     *
-     * @return string
      */
-    public static function printError(Error $error)
+    public static function printError(Error $error): string
     {
         $printedLocations = [];
         if (count($error->nodes ?? []) !== 0) {
@@ -84,7 +86,7 @@ class FormattedError
             }
         } elseif ($error->getSource() !== null && count($error->getLocations()) !== 0) {
             $source = $error->getSource();
-            foreach (($error->getLocations() ?? []) as $location) {
+            foreach ($error->getLocations() as $location) {
                 $printedLocations[] = self::highlightSourceAtLocation($source, $location);
             }
         }
@@ -97,10 +99,8 @@ class FormattedError
     /**
      * Render a helpful description of the location of the error in the GraphQL
      * Source document.
-     *
-     * @return string
      */
-    private static function highlightSourceAtLocation(Source $source, SourceLocation $location)
+    private static function highlightSourceAtLocation(Source $source, SourceLocation $location): string
     {
         $line          = $location->line;
         $lineOffset    = $source->locationOffset->line - 1;
@@ -126,108 +126,85 @@ class FormattedError
         return implode("\n", array_filter($outputLines));
     }
 
-    /**
-     * @return int
-     */
-    private static function getColumnOffset(Source $source, SourceLocation $location)
+    private static function getColumnOffset(Source $source, SourceLocation $location): int
     {
-        return $location->line === 1 ? $source->locationOffset->column - 1 : 0;
+        return $location->line === 1
+            ? $source->locationOffset->column - 1
+            : 0;
     }
 
-    /**
-     * @param int $len
-     *
-     * @return string
-     */
-    private static function whitespace($len)
+    private static function whitespace(int $len): string
     {
         return str_repeat(' ', $len);
     }
 
-    /**
-     * @param int $len
-     *
-     * @return string
-     */
-    private static function lpad($len, $str)
+    private static function lpad(int $len, string $str): string
     {
         return self::whitespace($len - mb_strlen($str)) . $str;
     }
 
     /**
-     * Standard GraphQL error formatter. Converts any exception to array
-     * conforming to GraphQL spec.
+     * Convert any exception to a GraphQL spec compliant array.
      *
-     * This method only exposes exception message when exception implements ClientAware interface
-     * (or when debug flags are passed).
+     * This method only exposes the exception message when the given exception
+     * implements the ClientAware interface, or when debug flags are passed.
      *
      * For a list of available debug flags @see \GraphQL\Error\DebugFlag constants.
      *
-     * @param string $internalErrorMessage
-     *
-     * @return mixed[]
-     *
-     * @throws Throwable
+     * @return FormattedErrorArray
      *
      * @api
      */
-    public static function createFromException(Throwable $exception, int $debug = DebugFlag::NONE, $internalErrorMessage = null) : array
+    public static function createFromException(Throwable $exception, int $debugFlag = DebugFlag::NONE, ?string $internalErrorMessage = null): array
     {
-        $internalErrorMessage = $internalErrorMessage ?? self::$internalErrorMessage;
+        $internalErrorMessage ??= self::$internalErrorMessage;
 
-        if ($exception instanceof ClientAware) {
-            $formattedError = [
-                'message'  => $exception->isClientSafe() ? $exception->getMessage() : $internalErrorMessage,
-                'extensions' => [
-                    'category' => $exception->getCategory(),
-                ],
-            ];
-        } else {
-            $formattedError = [
-                'message'  => $internalErrorMessage,
-                'extensions' => [
-                    'category' => Error::CATEGORY_INTERNAL,
-                ],
-            ];
-        }
+        $message = $exception instanceof ClientAware && $exception->isClientSafe()
+            ? $exception->getMessage()
+            : $internalErrorMessage;
+
+        $formattedError = ['message' => $message];
 
         if ($exception instanceof Error) {
-            $locations = Utils::map(
-                $exception->getLocations(),
-                static function (SourceLocation $loc) : array {
-                    return $loc->toSerializableArray();
-                }
+            $locations = array_map(
+                static fn (SourceLocation $loc): array => $loc->toSerializableArray(),
+                $exception->getLocations()
             );
             if (count($locations) > 0) {
                 $formattedError['locations'] = $locations;
             }
 
-            if (count($exception->path ?? []) > 0) {
+            if ($exception->path !== null && count($exception->path) > 0) {
                 $formattedError['path'] = $exception->path;
-            }
-            if (count($exception->getExtensions() ?? []) > 0) {
-                $formattedError['extensions'] = $exception->getExtensions() + $formattedError['extensions'];
             }
         }
 
-        if ($debug !== DebugFlag::NONE) {
-            $formattedError = self::addDebugEntries($formattedError, $exception, $debug);
+        if ($exception instanceof ProvidesExtensions) {
+            $extensions = $exception->getExtensions();
+            if (is_array($extensions) && count($extensions) > 0) {
+                $formattedError['extensions'] = $extensions;
+            }
+        }
+
+        if ($debugFlag !== DebugFlag::NONE) {
+            $formattedError = self::addDebugEntries($formattedError, $exception, $debugFlag);
         }
 
         return $formattedError;
     }
 
     /**
-     * Decorates spec-compliant $formattedError with debug entries according to $debug flags
-     * (@see \GraphQL\Error\DebugFlag for available flags)
+     * Decorates spec-compliant $formattedError with debug entries according to $debug flags.
      *
-     * @param mixed[] $formattedError
+     * phpcs:disable SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectAnnotationsGroup
+     * @param int                 $debugFlag      For available flags @see \GraphQL\Error\DebugFlag
      *
-     * @return mixed[]
+     * phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification
+     * @param FormattedErrorArray $formattedError
      *
-     * @throws Throwable
+     * @return FormattedErrorArray
      */
-    public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag) : array
+    public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag): array
     {
         if ($debugFlag === DebugFlag::NONE) {
             return $formattedError;
@@ -250,23 +227,19 @@ class FormattedError
         }
 
         if (($debugFlag & DebugFlag::INCLUDE_DEBUG_MESSAGE) !== 0 && $isUnsafe) {
-            // Displaying debugMessage as a first entry:
-            $formattedError = ['debugMessage' => $e->getMessage()] + $formattedError;
+            $formattedError['extensions']['debugMessage'] = $e->getMessage();
         }
 
         if (($debugFlag & DebugFlag::INCLUDE_TRACE) !== 0) {
             if ($e instanceof ErrorException || $e instanceof \Error) {
-                $formattedError += [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                ];
+                $formattedError['extensions']['file'] = $e->getFile();
+                $formattedError['extensions']['line'] = $e->getLine();
             }
 
             $isTrivial = $e instanceof Error && $e->getPrevious() === null;
 
             if (! $isTrivial) {
-                $debugging               = $e->getPrevious() ?? $e;
-                $formattedError['trace'] = static::toSafeTrace($debugging);
+                $formattedError['extensions']['trace'] = static::toSafeTrace($e->getPrevious() ?? $e);
             }
         }
 
@@ -275,38 +248,43 @@ class FormattedError
 
     /**
      * Prepares final error formatter taking in account $debug flags.
-     * If initial formatter is not set, FormattedError::createFromException is used
+     *
+     * If initial formatter is not set, FormattedError::createFromException is used.
+     *
+     * @param callable(Throwable): array<string, mixed> $formatter
      */
-    public static function prepareFormatter(?callable $formatter, int $debug) : callable
+    public static function prepareFormatter(?callable $formatter, int $debug): callable
     {
-        $formatter = $formatter ?? static function ($e) : array {
-            return FormattedError::createFromException($e);
-        };
+        $formatter ??= [self::class, 'createFromException'];
+
         if ($debug !== DebugFlag::NONE) {
-            $formatter = static function ($e) use ($formatter, $debug) : array {
-                return FormattedError::addDebugEntries($formatter($e), $e, $debug);
-            };
+            $formatter = static fn (Throwable $e): array => self::addDebugEntries($formatter($e), $e, $debug);
         }
 
         return $formatter;
     }
 
     /**
-     * Returns error trace as serializable array
+     * Returns error trace as serializable array.
      *
-     * @param Throwable $error
-     *
-     * @return mixed[]
+     * @return array<int, array{
+     *     file: string,
+     *     line: int,
+     *     function?: string,
+     *     call?: string,
+     * }>
      *
      * @api
      */
-    public static function toSafeTrace($error)
+    public static function toSafeTrace(Throwable $error): array
     {
         $trace = $error->getTrace();
 
-        if (isset($trace[0]['function']) && isset($trace[0]['class']) &&
+        if (
+            isset($trace[0]['function']) && isset($trace[0]['class']) &&
             // Remove invariant entries as they don't provide much value:
-            ($trace[0]['class'] . '::' . $trace[0]['function'] === 'GraphQL\Utils\Utils::invariant')) {
+            ($trace[0]['class'] . '::' . $trace[0]['function'] === 'GraphQL\Utils\Utils::invariant')
+        ) {
             array_shift($trace);
         } elseif (! isset($trace[0]['file'])) {
             // Remove root call as it's likely error handler trace:
@@ -314,7 +292,7 @@ class FormattedError
         }
 
         return array_map(
-            static function ($err) : array {
+            static function (array $err): array {
                 $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
 
                 if (isset($err['function'])) {
@@ -337,10 +315,8 @@ class FormattedError
 
     /**
      * @param mixed $var
-     *
-     * @return string
      */
-    public static function printVar($var)
+    public static function printVar($var): string
     {
         if ($var instanceof Type) {
             // FIXME: Replace with schema printer call
@@ -354,65 +330,31 @@ class FormattedError
         if (is_object($var)) {
             return 'instance of ' . get_class($var) . ($var instanceof Countable ? '(' . count($var) . ')' : '');
         }
+
         if (is_array($var)) {
             return 'array(' . count($var) . ')';
         }
+
         if ($var === '') {
             return '(empty string)';
         }
+
         if (is_string($var)) {
             return "'" . addcslashes($var, "'") . "'";
         }
+
         if (is_bool($var)) {
             return $var ? 'true' : 'false';
         }
+
         if (is_scalar($var)) {
-            return $var;
+            return (string) $var;
         }
+
         if ($var === null) {
             return 'null';
         }
 
         return gettype($var);
-    }
-
-    /**
-     * @deprecated as of v0.8.0
-     *
-     * @param string           $error
-     * @param SourceLocation[] $locations
-     *
-     * @return mixed[]
-     */
-    public static function create($error, array $locations = [])
-    {
-        $formatted = ['message' => $error];
-
-        if (count($locations) > 0) {
-            $formatted['locations'] = array_map(
-                static function ($loc) : array {
-                    return $loc->toArray();
-                },
-                $locations
-            );
-        }
-
-        return $formatted;
-    }
-
-    /**
-     * @deprecated as of v0.10.0, use general purpose method createFromException() instead
-     *
-     * @return mixed[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function createFromPHPError(ErrorException $e)
-    {
-        return [
-            'message'  => $e->getMessage(),
-            'severity' => $e->getSeverity(),
-            'trace'    => self::toSafeTrace($e),
-        ];
     }
 }

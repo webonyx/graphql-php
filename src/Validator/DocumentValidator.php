@@ -8,7 +8,6 @@ use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Visitor;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\Rules\DisableIntrospection;
@@ -46,6 +45,7 @@ use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 use Throwable;
+
 use function array_filter;
 use function array_merge;
 use function count;
@@ -62,9 +62,9 @@ use function sprintf;
  * default list of rules defined by the GraphQL specification will be used.
  *
  * Each validation rule is an instance of GraphQL\Validator\Rules\ValidationRule
- * which returns a visitor (see the [GraphQL\Language\Visitor API](reference.md#graphqllanguagevisitor)).
+ * which returns a visitor (see the [GraphQL\Language\Visitor API](class-reference.md#graphqllanguagevisitor)).
  *
- * Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference.md#graphqlerrorerror),
+ * Visitor methods are expected to return an instance of [GraphQL\Error\Error](class-reference.md#graphqlerrorerror),
  * or array of such instances when invalid.
  *
  * Optionally a custom TypeInfo instance may be provided. If not provided, one
@@ -111,7 +111,7 @@ class DocumentValidator
             return [];
         }
 
-        $typeInfo = $typeInfo ?? new TypeInfo($schema);
+        $typeInfo ??= new TypeInfo($schema);
 
         return static::visitUsingRules($schema, $typeInfo, $ast, $rules);
     }
@@ -221,6 +221,7 @@ class DocumentValidator
         foreach ($rules as $rule) {
             $visitors[] = $rule->getVisitor($context);
         }
+
         Visitor::visit($documentNode, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
 
         return $context->getErrors();
@@ -266,7 +267,7 @@ class DocumentValidator
         return is_array($value)
             ? count(array_filter(
                 $value,
-                static function ($item) : bool {
+                static function ($item): bool {
                     return $item instanceof Throwable;
                 }
             )) === count($value)
@@ -282,29 +283,6 @@ class DocumentValidator
         }
 
         return $arr;
-    }
-
-    /**
-     * Utility which determines if a value literal node is valid for an input type.
-     *
-     * Deprecated. Rely on validation for documents co
-     * ntaining literal values.
-     *
-     * @deprecated
-     *
-     * @return Error[]
-     */
-    public static function isValidLiteralValue(Type $type, $valueNode)
-    {
-        $emptySchema = new Schema([]);
-        $emptyDoc    = new DocumentNode(['definitions' => []]);
-        $typeInfo    = new TypeInfo($emptySchema, $type);
-        $context     = new ValidationContext($emptySchema, $emptyDoc, $typeInfo);
-        $validator   = new ValuesOfCorrectType();
-        $visitor     = $validator->getVisitor($context);
-        Visitor::visit($valueNode, Visitor::visitWithTypeInfo($typeInfo, $visitor));
-
-        return $context->getErrors();
     }
 
     /**
@@ -325,6 +303,7 @@ class DocumentValidator
         foreach ($usedRules as $rule) {
             $visitors[] = $rule->getSDLVisitor($context);
         }
+
         Visitor::visit($documentAST, Visitor::visitInParallel($visitors));
 
         return $context->getErrors();
@@ -349,11 +328,11 @@ class DocumentValidator
     /**
      * @param Error[] $errors
      */
-    private static function combineErrorMessages(array $errors) : string
+    private static function combineErrorMessages(array $errors): string
     {
         $str = '';
         foreach ($errors as $error) {
-            $str .= ($error->getMessage() . "\n\n");
+            $str .= $error->getMessage() . "\n\n";
         }
 
         return $str;

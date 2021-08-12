@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Deferred;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -24,7 +24,7 @@ class ListsTest extends TestCase
     /**
      * [T]
      */
-    public function testHandlesNullableListsWithArray() : void
+    public function testHandlesNullableListsWithArray(): void
     {
         // Contains values
         $this->checkHandlesNullableLists(
@@ -58,12 +58,12 @@ class ListsTest extends TestCase
 
         $dataType = new ObjectType([
             'name'   => 'DataType',
-            'fields' => static function () use (&$testType, &$dataType, $data) : array {
+            'fields' => static function () use (&$testType, &$dataType, $data): array {
                 return [
                     'test' => ['type' => $testType],
                     'nest' => [
                         'type'    => $dataType,
-                        'resolve' => static function () use ($data) : array {
+                        'resolve' => static function () use ($data): array {
                             return $data;
                         },
                     ],
@@ -82,11 +82,11 @@ class ListsTest extends TestCase
     /**
      * [T]
      */
-    public function testHandlesNullableListsWithPromiseArray() : void
+    public function testHandlesNullableListsWithPromiseArray(): void
     {
         // Contains values
         $this->checkHandlesNullableLists(
-            new Deferred(static function () : array {
+            new Deferred(static function (): array {
                 return [1, 2];
             }),
             ['data' => ['nest' => ['test' => [1, 2]]]]
@@ -94,7 +94,7 @@ class ListsTest extends TestCase
 
         // Contains null
         $this->checkHandlesNullableLists(
-            new Deferred(static function () : array {
+            new Deferred(static function (): array {
                 return [1, null, 2];
             }),
             ['data' => ['nest' => ['test' => [1, null, 2]]]]
@@ -110,8 +110,8 @@ class ListsTest extends TestCase
 
         // Rejected
         $this->checkHandlesNullableLists(
-            static function () : Deferred {
-                return new Deferred(static function () : void {
+            static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('bad');
                 });
             },
@@ -131,15 +131,15 @@ class ListsTest extends TestCase
     /**
      * [T]
      */
-    public function testHandlesNullableListsWithArrayPromise() : void
+    public function testHandlesNullableListsWithArrayPromise(): void
     {
         // Contains values
         $this->checkHandlesNullableLists(
             [
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 1;
                 }),
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 2;
                 }),
             ],
@@ -149,13 +149,13 @@ class ListsTest extends TestCase
         // Contains null
         $this->checkHandlesNullableLists(
             [
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 1;
                 }),
                 new Deferred(static function () {
                     return null;
                 }),
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 2;
                 }),
             ],
@@ -172,15 +172,15 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesNullableLists(
-            static function () {
+            static function (): array {
                 return [
-                    new Deferred(static function () : int {
+                    new Deferred(static function (): int {
                         return 1;
                     }),
-                    new Deferred(static function () : void {
+                    new Deferred(static function (): void {
                         throw new UserError('bad');
                     }),
-                    new Deferred(static function () : int {
+                    new Deferred(static function (): int {
                         return 2;
                     }),
                 ];
@@ -201,7 +201,7 @@ class ListsTest extends TestCase
     /**
      * [T]!
      */
-    public function testHandlesNonNullableListsWithArray() : void
+    public function testHandlesNonNullableListsWithArray(): void
     {
         // Contains values
         $this->checkHandlesNonNullableLists(
@@ -222,8 +222,8 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
+                        'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.test".'],
                     ],
                 ],
             ],
@@ -240,11 +240,11 @@ class ListsTest extends TestCase
     /**
      * [T]!
      */
-    public function testHandlesNonNullableListsWithPromiseArray() : void
+    public function testHandlesNonNullableListsWithPromiseArray(): void
     {
         // Contains values
         $this->checkHandlesNonNullableLists(
-            new Deferred(static function () : array {
+            new Deferred(static function (): array {
                 return [1, 2];
             }),
             ['data' => ['nest' => ['test' => [1, 2]]]]
@@ -252,7 +252,7 @@ class ListsTest extends TestCase
 
         // Contains null
         $this->checkHandlesNonNullableLists(
-            new Deferred(static function () : array {
+            new Deferred(static function (): array {
                 return [1, null, 2];
             }),
             ['data' => ['nest' => ['test' => [1, null, 2]]]]
@@ -265,8 +265,8 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
+                        'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.test".'],
                     ],
                 ],
             ],
@@ -275,8 +275,8 @@ class ListsTest extends TestCase
 
         // Rejected
         $this->checkHandlesNonNullableLists(
-            static function () : Deferred {
-                return new Deferred(static function () : void {
+            static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('bad');
                 });
             },
@@ -296,15 +296,15 @@ class ListsTest extends TestCase
     /**
      * [T]!
      */
-    public function testHandlesNonNullableListsWithArrayPromise() : void
+    public function testHandlesNonNullableListsWithArrayPromise(): void
     {
         // Contains values
         $this->checkHandlesNonNullableLists(
             [
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 1;
                 }),
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 2;
                 }),
             ],
@@ -314,13 +314,13 @@ class ListsTest extends TestCase
         // Contains null
         $this->checkHandlesNonNullableLists(
             [
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 1;
                 }),
                 new Deferred(static function () {
                     return null;
                 }),
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 2;
                 }),
             ],
@@ -329,15 +329,15 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesNonNullableLists(
-            static function () {
+            static function (): array {
                 return [
-                    new Deferred(static function () : int {
+                    new Deferred(static function (): int {
                         return 1;
                     }),
-                    new Deferred(static function () : void {
+                    new Deferred(static function (): void {
                         throw new UserError('bad');
                     }),
-                    new Deferred(static function () : int {
+                    new Deferred(static function (): int {
                         return 2;
                     }),
                 ];
@@ -358,7 +358,7 @@ class ListsTest extends TestCase
     /**
      * [T!]
      */
-    public function testHandlesListOfNonNullsWithArray() : void
+    public function testHandlesListOfNonNullsWithArray(): void
     {
         // Contains values
         $this->checkHandlesListOfNonNulls(
@@ -373,8 +373,8 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => ['test' => null]],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
+                        'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.test".'],
                     ],
                 ],
             ],
@@ -397,11 +397,11 @@ class ListsTest extends TestCase
     /**
      * [T!]
      */
-    public function testHandlesListOfNonNullsWithPromiseArray() : void
+    public function testHandlesListOfNonNullsWithPromiseArray(): void
     {
         // Contains values
         $this->checkHandlesListOfNonNulls(
-            new Deferred(static function () : array {
+            new Deferred(static function (): array {
                 return [1, 2];
             }),
             ['data' => ['nest' => ['test' => [1, 2]]]]
@@ -409,15 +409,15 @@ class ListsTest extends TestCase
 
         // Contains null
         $this->checkHandlesListOfNonNulls(
-            new Deferred(static function () : array {
+            new Deferred(static function (): array {
                 return [1, null, 2];
             }),
             [
                 'data'   => ['nest' => ['test' => null]],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
+                        'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.test".'],
                     ],
                 ],
             ],
@@ -434,8 +434,8 @@ class ListsTest extends TestCase
 
         // Rejected
         $this->checkHandlesListOfNonNulls(
-            static function () : Deferred {
-                return new Deferred(static function () : void {
+            static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('bad');
                 });
             },
@@ -455,15 +455,15 @@ class ListsTest extends TestCase
     /**
      * [T]!
      */
-    public function testHandlesListOfNonNullsWithArrayPromise() : void
+    public function testHandlesListOfNonNullsWithArrayPromise(): void
     {
         // Contains values
         $this->checkHandlesListOfNonNulls(
             [
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 1;
                 }),
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 2;
                 }),
             ],
@@ -473,13 +473,13 @@ class ListsTest extends TestCase
         // Contains null
         $this->checkHandlesListOfNonNulls(
             [
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 1;
                 }),
                 new Deferred(static function () {
                     return null;
                 }),
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 2;
                 }),
             ],
@@ -488,15 +488,15 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesListOfNonNulls(
-            static function () {
+            static function (): array {
                 return [
-                    new Deferred(static function () : int {
+                    new Deferred(static function (): int {
                         return 1;
                     }),
-                    new Deferred(static function () : void {
+                    new Deferred(static function (): void {
                         throw new UserError('bad');
                     }),
-                    new Deferred(static function () : int {
+                    new Deferred(static function (): int {
                         return 2;
                     }),
                 ];
@@ -517,7 +517,7 @@ class ListsTest extends TestCase
     /**
      * [T!]!
      */
-    public function testHandlesNonNullListOfNonNullsWithArray() : void
+    public function testHandlesNonNullListOfNonNullsWithArray(): void
     {
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
@@ -532,8 +532,8 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
+                        'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.test".'],
                     ],
                 ],
             ],
@@ -547,8 +547,8 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
+                        'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.test".'],
                     ],
                 ],
             ],
@@ -565,11 +565,11 @@ class ListsTest extends TestCase
     /**
      * [T!]!
      */
-    public function testHandlesNonNullListOfNonNullsWithPromiseArray() : void
+    public function testHandlesNonNullListOfNonNullsWithPromiseArray(): void
     {
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
-            new Deferred(static function () : array {
+            new Deferred(static function (): array {
                 return [1, 2];
             }),
             ['data' => ['nest' => ['test' => [1, 2]]]]
@@ -577,15 +577,15 @@ class ListsTest extends TestCase
 
         // Contains null
         $this->checkHandlesNonNullListOfNonNulls(
-            new Deferred(static function () : array {
+            new Deferred(static function (): array {
                 return [1, null, 2];
             }),
             [
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
+                        'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.test".'],
                     ],
                 ],
             ],
@@ -601,8 +601,8 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
+                        'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.test".'],
                     ],
                 ],
             ],
@@ -611,8 +611,8 @@ class ListsTest extends TestCase
 
         // Rejected
         $this->checkHandlesNonNullListOfNonNulls(
-            static function () : Deferred {
-                return new Deferred(static function () : void {
+            static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('bad');
                 });
             },
@@ -632,15 +632,15 @@ class ListsTest extends TestCase
     /**
      * [T!]!
      */
-    public function testHandlesNonNullListOfNonNullsWithArrayPromise() : void
+    public function testHandlesNonNullListOfNonNullsWithArrayPromise(): void
     {
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
             [
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 1;
                 }),
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 2;
                 }),
 
@@ -651,13 +651,13 @@ class ListsTest extends TestCase
         // Contains null
         $this->checkHandlesNonNullListOfNonNulls(
             [
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 1;
                 }),
                 new Deferred(static function () {
                     return null;
                 }),
-                new Deferred(static function () : int {
+                new Deferred(static function (): int {
                     return 2;
                 }),
             ],
@@ -665,8 +665,8 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
+                        'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.test".'],
                     ],
                 ],
             ],
@@ -675,15 +675,15 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesNonNullListOfNonNulls(
-            static function () {
+            static function (): array {
                 return [
-                    new Deferred(static function () : int {
+                    new Deferred(static function (): int {
                         return 1;
                     }),
-                    new Deferred(static function () : void {
+                    new Deferred(static function (): void {
                         throw new UserError('bad');
                     }),
-                    new Deferred(static function () : int {
+                    new Deferred(static function (): int {
                         return 2;
                     }),
                 ];
