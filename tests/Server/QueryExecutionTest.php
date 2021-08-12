@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Server;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use Exception;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -39,7 +40,7 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testSimpleQueryExecution(): void
     {
-        $query = '{f1}';
+        $query = /** @lang GraphQL */ '{ f1 }';
 
         $expected = [
             'data' => ['f1' => 'f1'],
@@ -48,17 +49,17 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertQueryResultEquals($expected, $query);
     }
 
-    private function assertQueryResultEquals($expected, $query, $variables = null)
+    private function assertQueryResultEquals($expected, $query, $variables = null, $queryId = null)
     {
-        $result = $this->executeQuery($query, $variables);
+        $result = $this->executeQuery($query, $variables, false, $queryId);
         self::assertArraySubset($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
 
         return $result;
     }
 
-    private function executeQuery($query, $variables = null, $readonly = false)
+    private function executeQuery($query, $variables = null, $readonly = false, $queryId = null)
     {
-        $op     = OperationParams::create(['query' => $query, 'variables' => $variables], $readonly);
+        $op     = OperationParams::create(['query' => $query, 'variables' => $variables, 'queryId' => $queryId], $readonly);
         $helper = new Helper();
         $result = $helper->executeOperation($this->config, $op);
         self::assertInstanceOf(ExecutionResult::class, $result);
@@ -441,6 +442,20 @@ class QueryExecutionTest extends ServerTestCase
             ],
         ];
         self::assertEquals($expected, $result->toArray());
+    }
+
+    public function testExecutesQueryWhenQueryAndQueryIdArePassed(): void
+    {
+        $query = /** @lang GraphQL */ '{ f1 }';
+
+        $expected = [
+            'data' => ['f1' => 'f1'],
+        ];
+        $this->config->setPersistentQueryLoader(static function (): array {
+            throw new Exception('Should not be called since a query is also passed');
+        });
+
+        $this->assertQueryResultEquals($expected, $query, [], 'some-id');
     }
 
     public function testProhibitsUnexpectedValidationRules(): void

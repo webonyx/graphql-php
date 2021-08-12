@@ -34,6 +34,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Clarify error when attempting to coerce anything but `array` or `stdClass` to an input object
 - Allow directives on variable definitions
 - Handle `null` parent of list in `ValuesOfCorrectType::getVisitor`
+- Allow sending both `query` and `queryId`, ignore `queryId` in that case
 
 ### Removed
 

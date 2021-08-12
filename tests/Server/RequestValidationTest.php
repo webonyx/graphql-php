@@ -71,19 +71,6 @@ class RequestValidationTest extends TestCase
         }
     }
 
-    public function testFailsWhenBothQueryAndQueryIdArePresent(): void
-    {
-        $parsedBody = OperationParams::create([
-            'query'   => '{my query}',
-            'queryId' => 'my-query-id',
-        ]);
-
-        $this->assertInputError(
-            $parsedBody,
-            'GraphQL Request parameters "query" and "queryId" are mutually exclusive'
-        );
-    }
-
     public function testFailsWhenQueryParameterIsNotString(): void
     {
         $parsedBody = OperationParams::create([
