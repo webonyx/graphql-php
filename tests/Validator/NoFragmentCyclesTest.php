@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoFragmentCycles;
 
 class NoFragmentCyclesTest extends ValidatorTestCase
 {
     // Validate: No circular fragment spreads
+
     /**
      * @see it('single reference is valid')
      */
-    public function testSingleReferenceIsValid() : void
+    public function testSingleReferenceIsValid(): void
     {
         $this->expectPassesRule(
             new NoFragmentCycles(),
@@ -28,7 +29,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('spreading twice is not circular')
      */
-    public function testSpreadingTwiceIsNotCircular() : void
+    public function testSpreadingTwiceIsNotCircular(): void
     {
         $this->expectPassesRule(
             new NoFragmentCycles(),
@@ -42,7 +43,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('spreading twice indirectly is not circular')
      */
-    public function testSpreadingTwiceIndirectlyIsNotCircular() : void
+    public function testSpreadingTwiceIndirectlyIsNotCircular(): void
     {
         $this->expectPassesRule(
             new NoFragmentCycles(),
@@ -57,7 +58,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('double spread within abstract types')
      */
-    public function testDoubleSpreadWithinAbstractTypes() : void
+    public function testDoubleSpreadWithinAbstractTypes(): void
     {
         $this->expectPassesRule(
             new NoFragmentCycles(),
@@ -78,7 +79,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('does not false positive on unknown fragment')
      */
-    public function testDoesNotFalsePositiveOnUnknownFragment() : void
+    public function testDoesNotFalsePositiveOnUnknownFragment(): void
     {
         $this->expectPassesRule(
             new NoFragmentCycles(),
@@ -93,7 +94,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('spreading recursively within field fails')
      */
-    public function testSpreadingRecursivelyWithinFieldFails() : void
+    public function testSpreadingRecursivelyWithinFieldFails(): void
     {
         $this->expectFailsRule(
             new NoFragmentCycles(),
@@ -108,7 +109,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
 
     private function cycleError($fargment, $spreadNames, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             NoFragmentCycles::cycleErrorMessage($fargment, $spreadNames),
             [new SourceLocation($line, $column)]
         );
@@ -117,7 +118,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('no spreading itself directly')
      */
-    public function testNoSpreadingItselfDirectly() : void
+    public function testNoSpreadingItselfDirectly(): void
     {
         $this->expectFailsRule(
             new NoFragmentCycles(),
@@ -133,7 +134,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('no spreading itself directly within inline fragment')
      */
-    public function testNoSpreadingItselfDirectlyWithinInlineFragment() : void
+    public function testNoSpreadingItselfDirectlyWithinInlineFragment(): void
     {
         $this->expectFailsRule(
             new NoFragmentCycles(),
@@ -153,7 +154,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('no spreading itself indirectly')
      */
-    public function testNoSpreadingItselfIndirectly() : void
+    public function testNoSpreadingItselfIndirectly(): void
     {
         $this->expectFailsRule(
             new NoFragmentCycles(),
@@ -162,7 +163,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragB on Dog { ...fragA }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragB']),
                     [new SourceLocation(2, 31), new SourceLocation(3, 31)]
                 ),
@@ -173,7 +174,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('no spreading itself indirectly reports opposite order')
      */
-    public function testNoSpreadingItselfIndirectlyReportsOppositeOrder() : void
+    public function testNoSpreadingItselfIndirectlyReportsOppositeOrder(): void
     {
         $this->expectFailsRule(
             new NoFragmentCycles(),
@@ -182,7 +183,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragA on Dog { ...fragB }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragB', ['fragA']),
                     [new SourceLocation(2, 31), new SourceLocation(3, 31)]
                 ),
@@ -193,7 +194,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('no spreading itself indirectly within inline fragment')
      */
-    public function testNoSpreadingItselfIndirectlyWithinInlineFragment() : void
+    public function testNoSpreadingItselfIndirectlyWithinInlineFragment(): void
     {
         $this->expectFailsRule(
             new NoFragmentCycles(),
@@ -210,7 +211,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragB']),
                     [new SourceLocation(4, 11), new SourceLocation(9, 11)]
                 ),
@@ -221,7 +222,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('no spreading itself deeply')
      */
-    public function testNoSpreadingItselfDeeply() : void
+    public function testNoSpreadingItselfDeeply(): void
     {
         $this->expectFailsRule(
             new NoFragmentCycles(),
@@ -236,7 +237,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragP on Dog { ...fragA, ...fragX }
     ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragB', 'fragC', 'fragO', 'fragP']),
                     [
                         new SourceLocation(2, 31),
@@ -246,7 +247,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
                         new SourceLocation(9, 31),
                     ]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragO', ['fragP', 'fragX', 'fragY', 'fragZ']),
                     [
                         new SourceLocation(8, 31),
@@ -263,7 +264,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('no spreading itself deeply two paths')
      */
-    public function testNoSpreadingItselfDeeplyTwoPaths() : void
+    public function testNoSpreadingItselfDeeplyTwoPaths(): void
     {
         $this->expectFailsRule(
             new NoFragmentCycles(),
@@ -273,11 +274,11 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragC on Dog { ...fragA }
         ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragB']),
                     [new SourceLocation(2, 31), new SourceLocation(3, 31)]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragC']),
                     [new SourceLocation(2, 41), new SourceLocation(4, 31)]
                 ),
@@ -288,7 +289,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('no spreading itself deeply two paths -- alt traverse order')
      */
-    public function testNoSpreadingItselfDeeplyTwoPathsTraverseOrder() : void
+    public function testNoSpreadingItselfDeeplyTwoPathsTraverseOrder(): void
     {
         $this->expectFailsRule(
             new NoFragmentCycles(),
@@ -298,11 +299,11 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragC on Dog { ...fragA, ...fragB }
     ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragC']),
                     [new SourceLocation(2, 31), new SourceLocation(4, 31)]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragC', ['fragB']),
                     [new SourceLocation(4, 41), new SourceLocation(3, 31)]
                 ),
@@ -313,7 +314,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     /**
      * @see it('no spreading itself deeply and immediately')
      */
-    public function testNoSpreadingItselfDeeplyAndImmediately() : void
+    public function testNoSpreadingItselfDeeplyAndImmediately(): void
     {
         $this->expectFailsRule(
             new NoFragmentCycles(),
@@ -323,11 +324,11 @@ class NoFragmentCyclesTest extends ValidatorTestCase
       fragment fragC on Dog { ...fragA, ...fragB }
     ',
             [
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragB', []),
                     [new SourceLocation(3, 31)]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragA', ['fragB', 'fragC']),
                     [
                         new SourceLocation(2, 31),
@@ -335,7 +336,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
                         new SourceLocation(4, 31),
                     ]
                 ),
-                FormattedError::create(
+                ErrorHelper::create(
                     NoFragmentCycles::cycleErrorMessage('fragB', ['fragC']),
                     [new SourceLocation(3, 41), new SourceLocation(4, 41)]
                 ),

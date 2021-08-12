@@ -14,12 +14,12 @@ class MixedStoreTest extends TestCase
     /** @var MixedStore */
     private $mixedStore;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->mixedStore = new MixedStore();
     }
 
-    public function testAcceptsNullKeys() : void
+    public function testAcceptsNullKeys(): void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(null, $value);
@@ -38,7 +38,7 @@ class MixedStoreTest extends TestCase
             'a',
             [],
             new stdClass(),
-            static function () {
+            static function (): void {
             },
             new MixedStore(),
         ];
@@ -66,23 +66,24 @@ class MixedStoreTest extends TestCase
         self::assertFalse(isset($this->mixedStore[$key]), $err);
         $this->mixedStore[$key] = $value;
         self::assertTrue(isset($this->mixedStore[$key]), $err);
-        self::assertEquals(! empty($value), ! empty($this->mixedStore[$key]), $err);
+        self::assertEquals((bool) $value, (bool) $this->mixedStore[$key], $err);
         self::assertSame($value, $this->mixedStore[$key], $err);
         unset($this->mixedStore[$key]);
         self::assertFalse(isset($this->mixedStore[$key]), $err);
     }
 
-    public function testAcceptsBoolKeys() : void
+    public function testAcceptsBoolKeys(): void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(false, $value);
         }
+
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(true, $value);
         }
     }
 
-    public function testAcceptsIntKeys() : void
+    public function testAcceptsIntKeys(): void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(-100000, $value);
@@ -93,7 +94,7 @@ class MixedStoreTest extends TestCase
         }
     }
 
-    public function testAcceptsFloatKeys() : void
+    public function testAcceptsFloatKeys(): void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(-100000.5, $value);
@@ -106,7 +107,7 @@ class MixedStoreTest extends TestCase
         }
     }
 
-    public function testAcceptsArrayKeys() : void
+    public function testAcceptsArrayKeys(): void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue([], $value);
@@ -118,13 +119,13 @@ class MixedStoreTest extends TestCase
         }
     }
 
-    public function testAcceptsObjectKeys() : void
+    public function testAcceptsObjectKeys(): void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(new stdClass(), $value);
             $this->assertAcceptsKeyValue(new MixedStore(), $value);
             $this->assertAcceptsKeyValue(
-                static function () {
+                static function (): void {
                 },
                 $value
             );

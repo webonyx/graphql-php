@@ -1,71 +1,48 @@
 <?php
-// Test this using following command
-// php -S localhost:8080 ./graphql.php
+
+declare(strict_types=1);
+
+// Run local test server
+// php -S localhost:8080 graphql.php
+
+// Try query
+// curl -d '{"query": "query { hello }" }' -H "Content-Type: application/json" http://localhost:8080
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use \GraphQL\Examples\Blog\Types;
-use \GraphQL\Examples\Blog\AppContext;
-use \GraphQL\Examples\Blog\Data\DataSource;
-use \GraphQL\Type\Schema;
-use \GraphQL\GraphQL;
-use \GraphQL\Error\FormattedError;
-use \GraphQL\Error\Debug;
-
-// Disable default PHP error reporting - we have better one for debug mode (see bellow)
-ini_set('display_errors', 0);
-
-$debug = false;
-if (!empty($_GET['debug'])) {
-    set_error_handler(function($severity, $message, $file, $line) use (&$phpErrors) {
-        throw new ErrorException($message, 0, $severity, $file, $line);
-    });
-    $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE;
-}
+use GraphQL\Examples\Blog\AppContext;
+use GraphQL\Examples\Blog\Data\DataSource;
+use GraphQL\Examples\Blog\Type\QueryType;
+use GraphQL\Examples\Blog\Types;
+use GraphQL\Server\StandardServer;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 
 try {
     // Initialize our fake data source
     DataSource::init();
 
+    // See docs on schema options:
+    // https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options
+    $schema = new Schema([
+        'query' => new QueryType(),
+        'typeLoader' => static fn (string $name): Type => Types::byTypeName($name),
+    ]);
+
     // Prepare context that will be available in all field resolvers (as 3rd argument):
-    $appContext = new AppContext();
-    $appContext->viewer = DataSource::findUser('1'); // simulated "currently logged-in user"
+    $appContext          = new AppContext();
+    $appContext->viewer  = DataSource::findUser(1); // simulated "currently logged-in user"
     $appContext->rootUrl = 'http://localhost:8080';
     $appContext->request = $_REQUEST;
 
-    // Parse incoming query and variables
-    if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
-        $raw = file_get_contents('php://input') ?: '';
-        $data = json_decode($raw, true) ?: [];
-    } else {
-        $data = $_REQUEST;
-    }
-    
-    $data += ['query' => null, 'variables' => null];
-
-    if (null === $data['query']) {
-        $data['query'] = '{hello}';
-    }
-
-    // GraphQL schema to be passed to query executor:
-    $schema = new Schema([
-        'query' => Types::query()
+    // See docs on server options:
+    // https://webonyx.github.io/graphql-php/executing-queries/#server-configuration-options
+    $server = new StandardServer([
+        'schema' => $schema,
+        'context' => $appContext,
     ]);
 
-    $result = GraphQL::executeQuery(
-        $schema,
-        $data['query'],
-        null,
-        $appContext,
-        (array) $data['variables']
-    );
-    $output = $result->toArray($debug);
-    $httpStatus = 200;
-} catch (\Exception $error) {
-    $httpStatus = 500;
-    $output['errors'] = [
-        FormattedError::createFromException($error, $debug)
-    ];
+    $server->handleRequest();
+} catch (Throwable $error) {
+    StandardServer::send500Error($error);
 }
-
-header('Content-Type: application/json', true, $httpStatus);
-echo json_encode($output);

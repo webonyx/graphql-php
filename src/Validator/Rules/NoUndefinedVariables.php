@@ -9,6 +9,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 /**
@@ -23,31 +24,33 @@ class NoUndefinedVariables extends ValidationRule
 
         return [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => static function () use (&$variableNameDefined) {
+                'enter' => static function () use (&$variableNameDefined): void {
                     $variableNameDefined = [];
                 },
-                'leave' => static function (OperationDefinitionNode $operation) use (&$variableNameDefined, $context) {
+                'leave' => static function (OperationDefinitionNode $operation) use (&$variableNameDefined, $context): void {
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
                         $node    = $usage['node'];
                         $varName = $node->name->value;
 
-                        if (! empty($variableNameDefined[$varName])) {
+                        if ($variableNameDefined[$varName] ?? false) {
                             continue;
                         }
 
                         $context->reportError(new Error(
-                            self::undefinedVarMessage(
+                            static::undefinedVarMessage(
                                 $varName,
-                                $operation->name ? $operation->name->value : null
+                                $operation->name !== null
+                                    ? $operation->name->value
+                                    : null
                             ),
                             [$node, $operation]
                         ));
                     }
                 },
             ],
-            NodeKind::VARIABLE_DEFINITION  => static function (VariableDefinitionNode $def) use (&$variableNameDefined) {
+            NodeKind::VARIABLE_DEFINITION  => static function (VariableDefinitionNode $def) use (&$variableNameDefined): void {
                 $variableNameDefined[$def->variable->name->value] = true;
             },
         ];

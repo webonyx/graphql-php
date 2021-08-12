@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\ExecutableDefinitions;
 
 class ExecutableDefinitionsTest extends ValidatorTestCase
 {
     // Validate: Executable definitions
+
     /**
      * @see it('with only operation')
      */
-    public function testWithOnlyOperation() : void
+    public function testWithOnlyOperation(): void
     {
         $this->expectPassesRule(
             new ExecutableDefinitions(),
@@ -31,7 +32,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
     /**
      * @see it('with operation and fragment')
      */
-    public function testWithOperationAndFragment() : void
+    public function testWithOperationAndFragment(): void
     {
         $this->expectPassesRule(
             new ExecutableDefinitions(),
@@ -53,7 +54,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
     /**
      * @see it('with typeDefinition')
      */
-    public function testWithTypeDefinition() : void
+    public function testWithTypeDefinition(): void
     {
         $this->expectFailsRule(
             new ExecutableDefinitions(),
@@ -81,7 +82,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
 
     private function nonExecutableDefinition($defName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ExecutableDefinitions::nonExecutableDefinitionMessage($defName),
             [new SourceLocation($line, $column)]
         );

@@ -18,6 +18,7 @@ class StarWarsData
         if (isset($humans[$id])) {
             return $humans[$id];
         }
+
         if (isset($droids[$id])) {
             return $droids[$id];
         }

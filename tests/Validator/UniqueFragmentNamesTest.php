@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
 
 class UniqueFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique fragment names
+
     /**
      * @see it('no fragments')
      */
-    public function testNoFragments() : void
+    public function testNoFragments(): void
     {
         $this->expectPassesRule(
             new UniqueFragmentNames(),
@@ -29,7 +30,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('one fragment')
      */
-    public function testOneFragment() : void
+    public function testOneFragment(): void
     {
         $this->expectPassesRule(
             new UniqueFragmentNames(),
@@ -48,7 +49,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('many fragments')
      */
-    public function testManyFragments() : void
+    public function testManyFragments(): void
     {
         $this->expectPassesRule(
             new UniqueFragmentNames(),
@@ -74,7 +75,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('inline fragments are always unique')
      */
-    public function testInlineFragmentsAreAlwaysUnique() : void
+    public function testInlineFragmentsAreAlwaysUnique(): void
     {
         $this->expectPassesRule(
             new UniqueFragmentNames(),
@@ -94,7 +95,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('fragment and operation named the same')
      */
-    public function testFragmentAndOperationNamedTheSame() : void
+    public function testFragmentAndOperationNamedTheSame(): void
     {
         $this->expectPassesRule(
             new UniqueFragmentNames(),
@@ -112,7 +113,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('fragments named the same')
      */
-    public function testFragmentsNamedTheSame() : void
+    public function testFragmentsNamedTheSame(): void
     {
         $this->expectFailsRule(
             new UniqueFragmentNames(),
@@ -133,7 +134,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
 
     private function duplicateFrag($fragName, $l1, $c1, $l2, $c2)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             UniqueFragmentNames::duplicateFragmentNameMessage($fragName),
             [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)]
         );
@@ -142,7 +143,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('fragments named the same without being referenced')
      */
-    public function testFragmentsNamedTheSameWithoutBeingReferenced() : void
+    public function testFragmentsNamedTheSameWithoutBeingReferenced(): void
     {
         $this->expectFailsRule(
             new UniqueFragmentNames(),

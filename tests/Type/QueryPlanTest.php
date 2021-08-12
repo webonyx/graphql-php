@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\GraphQL;
+use GraphQL\Tests\Executor\TestClasses\Dog;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\QueryPlan;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
 final class QueryPlanTest extends TestCase
 {
-    public function testQueryPlan() : void
+    public function testQueryPlan(): void
     {
         $image = new ObjectType([
             'name'   => 'Image',
@@ -29,7 +32,7 @@ final class QueryPlanTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use ($image, &$article) {
+            'fields' => static function () use ($image, &$article): array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -69,6 +72,7 @@ final class QueryPlanTest extends TestCase
         $doc               = '
       query Test {
         article {
+            __typename
             author {
                 name
                 pic(width: 100, height: 200) {
@@ -295,7 +299,173 @@ final class QueryPlanTest extends TestCase
         self::assertFalse($queryPlan->hasType('Test'));
     }
 
-    public function testMergedFragmentsQueryPlan() : void
+    public function testQueryPlanForWrappedTypes(): void
+    {
+        $article = new ObjectType([
+            'name'   => 'Article',
+            'fields' => [
+                'id' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $doc               = '
+      query Test {
+        articles {
+            id
+        }
+      }
+';
+        $expectedQueryPlan = [
+            'id' => [
+                'type' => Type::string(),
+                'fields' => [],
+                'args' => [],
+            ],
+        ];
+
+        /** @var QueryPlan|null $queryPlan */
+        $queryPlan = null;
+
+        $blogQuery = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'articles' => [
+                    'type'    => Type::nonNull(Type::listOf($article)),
+                    'resolve' => static function (
+                        $value,
+                        $args,
+                        $context,
+                        ResolveInfo $info
+                    ) use (
+                        &$queryPlan
+                    ): array {
+                        $queryPlan = $info->lookAhead();
+
+                        return [];
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $blogQuery]);
+        GraphQL::executeQuery($schema, $doc);
+
+        self::assertSame($expectedQueryPlan, $queryPlan->queryPlan());
+    }
+
+    public function testQueryPlanOnInterface(): void
+    {
+        $petType = new InterfaceType([
+            'name'   => 'Pet',
+            'fields' => static function (): array {
+                return [
+                    'name' => ['type' => Type::string()],
+                ];
+            },
+        ]);
+
+        $dogType = new ObjectType([
+            'name'       => 'Dog',
+            'interfaces' => [$petType],
+            'isTypeOf'   => static function ($obj): bool {
+                return $obj instanceof Dog;
+            },
+            'fields' => static function (): array {
+                return [
+                    'name'  => ['type' => Type::string()],
+                    'woofs' => ['type' => Type::boolean()],
+                ];
+            },
+        ]);
+
+        $query = 'query Test {
+          pets {
+            name
+            ... on Dog {
+              woofs
+            }
+          }
+        }';
+
+        $expectedQueryPlan = [
+            'woofs'  => [
+                'type' => Type::boolean(),
+                'fields' => [],
+                'args' => [],
+            ],
+            'name'   => [
+                'type' => Type::string(),
+                'args' => [],
+                'fields' => [],
+            ],
+        ];
+
+        $expectedReferencedTypes = [
+            'Dog',
+            'Pet',
+        ];
+
+        $expectedReferencedFields = [
+            'woofs',
+            'name',
+        ];
+
+        /** @var QueryPlan $queryPlan */
+        $queryPlan = null;
+        $hasCalled = false;
+
+        $petsQuery = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'pets' => [
+                    'type'    => Type::listOf($petType),
+                    'resolve' => static function (
+                        $value,
+                        $args,
+                        $context,
+                        ResolveInfo $info
+                    ) use (
+                        &$hasCalled,
+                        &$queryPlan
+                    ): array {
+                        $hasCalled = true;
+                        $queryPlan = $info->lookAhead();
+
+                        return [];
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $petsQuery,
+            'types'      => [$dogType],
+            'typeLoader' => static function ($name) use ($dogType, $petType) {
+                switch ($name) {
+                    case 'Dog':
+                        return $dogType;
+
+                    case 'Pet':
+                        return $petType;
+                }
+            },
+        ]);
+        GraphQL::executeQuery($schema, $query)->toArray();
+
+        self::assertTrue($hasCalled);
+        self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
+        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertEquals(['woofs'], $queryPlan->subFields('Dog'));
+
+        self::assertTrue($queryPlan->hasField('name'));
+        self::assertFalse($queryPlan->hasField('test'));
+
+        self::assertTrue($queryPlan->hasType('Dog'));
+        self::assertFalse($queryPlan->hasType('Test'));
+    }
+
+    public function testMergedFragmentsQueryPlan(): void
     {
         $image = new ObjectType([
             'name'   => 'Image',
@@ -310,7 +480,7 @@ final class QueryPlanTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use ($image, &$article) {
+            'fields' => static function () use ($image, &$article): array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -584,5 +754,313 @@ final class QueryPlanTest extends TestCase
 
         self::assertTrue($queryPlan->hasType('Image'));
         self::assertFalse($queryPlan->hasType('Test'));
+    }
+
+    public function testQueryPlanGroupingImplementorFieldsForAbstractTypes(): void
+    {
+        $car = null;
+
+        $item = new InterfaceType([
+            'name'        => 'Item',
+            'fields'      => [
+                'id'    => Type::int(),
+                'owner' => Type::string(),
+            ],
+            'resolveType' => static function () use (&$car) {
+                return $car;
+            },
+        ]);
+
+        $manualTransmission = new ObjectType([
+            'name' => 'ManualTransmission',
+            'fields' => [
+                'speed' => Type::int(),
+                'overdrive' => Type::boolean(),
+            ],
+        ]);
+
+        $automaticTransmission = new ObjectType([
+            'name' => 'AutomaticTransmission',
+            'fields' => [
+                'speed' => Type::int(),
+                'sportMode' => Type::boolean(),
+            ],
+        ]);
+
+        $transmission = new UnionType([
+            'name' => 'Transmission',
+            'types' => [$manualTransmission, $automaticTransmission],
+            'resolveType' => static function () use ($manualTransmission): ObjectType {
+                return $manualTransmission;
+            },
+        ]);
+
+        $car = new ObjectType([
+            'name'       => 'Car',
+            'fields'    => [
+                'id'    => Type::int(),
+                'owner' => Type::string(),
+                'mark'  => Type::string(),
+                'model' => Type::string(),
+                'transmission' => $transmission,
+            ],
+            'interfaces' => [$item],
+        ]);
+
+        $building = new ObjectType([
+            'name'       => 'Building',
+            'fields'     => [
+                'id'      => Type::int(),
+                'owner'   => Type::string(),
+                'city'    => Type::string(),
+                'address' => Type::string(),
+            ],
+            'interfaces' => [$item],
+        ]);
+
+        $query = '{
+            item {
+                id
+                owner
+                ... on Car {
+                    mark
+                    model
+                    transmission {
+                        ... on ManualTransmission {
+                            speed
+                            overdrive
+                        }
+                        ... on AutomaticTransmission {
+                            speed
+                            sportMode
+                        }
+                    }
+                }
+                ... on Building {
+                    city
+                }
+                ...BuildingFragment
+            }
+        }
+        fragment BuildingFragment on Building {
+            address
+        }';
+
+        $expectedResult = [
+            'data' => ['item' => null],
+        ];
+
+        $expectedQueryPlan = [
+            'fields'       => [
+                'id'    => [
+                    'type'   => Type::int(),
+                    'fields' => [],
+                    'args'   => [],
+                ],
+                'owner' => [
+                    'type'   => Type::string(),
+                    'fields' => [],
+                    'args'   => [],
+                ],
+            ],
+            'implementors' => [
+                'Car'      => [
+                    'type'   => $car,
+                    'fields' => [
+                        'mark'  => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                        'model' => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                        'transmission' => [
+                            'type' => $transmission,
+                            'fields' => [],
+                            'args' => [],
+                            'implementors' => [
+                                'ManualTransmission' => [
+                                    'type' => $manualTransmission,
+                                    'fields' => [
+                                        'speed' => [
+                                            'type' => Type::int(),
+                                            'fields' => [],
+                                            'args' => [],
+                                        ],
+                                        'overdrive' => [
+                                            'type' => Type::boolean(),
+                                            'fields' => [],
+                                            'args' => [],
+                                        ],
+                                    ],
+                                ],
+                                'AutomaticTransmission' => [
+                                    'type' => $automaticTransmission,
+                                    'fields' => [
+                                        'speed' => [
+                                            'type' => Type::int(),
+                                            'fields' => [],
+                                            'args' => [],
+                                        ],
+                                        'sportMode' => [
+                                            'type' => Type::boolean(),
+                                            'fields' => [],
+                                            'args' => [],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'Building' => [
+                    'type'   => $building,
+                    'fields' => [
+                        'city'    => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                        'address' => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $expectedReferencedTypes = ['ManualTransmission', 'AutomaticTransmission', 'Transmission', 'Car', 'Building', 'Item'];
+
+        $expectedReferencedFields = ['speed', 'overdrive', 'sportMode', 'mark', 'model', 'transmission', 'city', 'address', 'id', 'owner'];
+
+        $expectedItemSubFields     = ['id', 'owner'];
+        $expectedBuildingSubFields = ['city', 'address'];
+
+        $hasCalled = false;
+        /** @var QueryPlan $queryPlan */
+        $queryPlan = null;
+
+        $root = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'item' => [
+                    'type'    => $item,
+                    'resolve' => static function ($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$queryPlan) {
+                        $hasCalled = true;
+                        $queryPlan = $info->lookAhead(['group-implementor-fields']);
+
+                        return null;
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $root,
+            'types' => [$car, $building],
+        ]);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
+
+        self::assertTrue($hasCalled);
+        self::assertEquals($expectedResult, $result);
+        self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
+        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertEquals($expectedItemSubFields, $queryPlan->subFields('Item'));
+        self::assertEquals($expectedBuildingSubFields, $queryPlan->subFields('Building'));
+    }
+
+    public function testQueryPlanForMultipleFieldNodes(): void
+    {
+        /** @var ObjectType|null $entity */
+        $entity = null;
+
+        $subEntity = new ObjectType([
+            'name'   => 'SubEntity',
+            'fields' => static function () use (&$entity): array {
+                return [
+                    'id'            => ['type' => Type::string()],
+                    'entity' => ['type' => $entity],
+                ];
+            },
+        ]);
+
+        $entity = new ObjectType([
+            'name'   => 'Entity',
+            'fields' => [
+                'subEntity' => ['type' => $subEntity],
+            ],
+        ]);
+
+        $doc = /** @lang GraphQL */ <<<GRAPHQL
+query Test {
+    entity {
+        subEntity {
+            id
+        }
+    }
+    entity {
+        subEntity {
+            id
+        }
+    }
+}
+GRAPHQL;
+
+        $expectedQueryPlan = [
+            'subEntity'  => [
+                'type' => $subEntity,
+                'args' => [],
+                'fields' => [
+                    'id' => [
+                        'type' => Type::string(),
+                        'args' => [],
+                        'fields' => [],
+                    ],
+                ],
+            ],
+        ];
+
+        $hasCalled = false;
+        /** @var QueryPlan|null $queryPlan */
+        $queryPlan = null;
+
+        $query = new ObjectType(
+            [
+                'name'   => 'Query',
+                'fields' => [
+                    'entity' => [
+                        'type'    => $entity,
+                        'resolve' => static function (
+                            $value,
+                            $args,
+                            $context,
+                            ResolveInfo $info
+                        ) use (
+                            &$hasCalled,
+                            &$queryPlan
+                        ) {
+                            $hasCalled = true;
+                            $queryPlan = $info->lookAhead();
+
+                            return null;
+                        },
+                    ],
+                ],
+            ]
+        );
+
+        $schema = new Schema(['query' => $query]);
+        $result = GraphQL::executeQuery($schema, $doc)->toArray();
+
+        self::assertTrue($hasCalled);
+        self::assertSame(['data' => ['entity' => null]], $result);
+        self::assertInstanceOf(QueryPlan::class, $queryPlan);
+        self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
     }
 }

@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\KnownFragmentNames;
 
 class KnownFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Known fragment names
+
     /**
      * @see it('known fragment names are valid')
      */
-    public function testKnownFragmentNamesAreValid() : void
+    public function testKnownFragmentNamesAreValid(): void
     {
         $this->expectPassesRule(
             new KnownFragmentNames(),
@@ -44,7 +45,7 @@ class KnownFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown fragment names are invalid')
      */
-    public function testUnknownFragmentNamesAreInvalid() : void
+    public function testUnknownFragmentNamesAreInvalid(): void
     {
         $this->expectFailsRule(
             new KnownFragmentNames(),
@@ -72,7 +73,7 @@ class KnownFragmentNamesTest extends ValidatorTestCase
 
     private function undefFrag($fragName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownFragmentNames::unknownFragmentMessage($fragName),
             [new SourceLocation($line, $column)]
         );

@@ -4,24 +4,29 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator;
 
-use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\HasSelectionSet;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use SplObjectStorage;
+
+use function array_merge;
 use function array_pop;
-use function call_user_func_array;
 use function count;
 
 /**
@@ -29,19 +34,10 @@ use function count;
  * allowing access to commonly useful contextual information from within a
  * validation rule.
  */
-class ValidationContext
+class ValidationContext extends ASTValidationContext
 {
-    /** @var Schema */
-    private $schema;
-
-    /** @var DocumentNode */
-    private $ast;
-
     /** @var TypeInfo */
     private $typeInfo;
-
-    /** @var Error[] */
-    private $errors;
 
     /** @var FragmentDefinitionNode[] */
     private $fragments;
@@ -60,35 +56,12 @@ class ValidationContext
 
     public function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)
     {
-        $this->schema                         = $schema;
-        $this->ast                            = $ast;
+        parent::__construct($ast, $schema);
         $this->typeInfo                       = $typeInfo;
-        $this->errors                         = [];
         $this->fragmentSpreads                = new SplObjectStorage();
         $this->recursivelyReferencedFragments = new SplObjectStorage();
         $this->variableUsages                 = new SplObjectStorage();
         $this->recursiveVariableUsages        = new SplObjectStorage();
-    }
-
-    public function reportError(Error $error)
-    {
-        $this->errors[] = $error;
-    }
-
-    /**
-     * @return Error[]
-     */
-    public function getErrors()
-    {
-        return $this->errors;
-    }
-
-    /**
-     * @return Schema
-     */
-    public function getSchema()
-    {
-        return $this->schema;
     }
 
     /**
@@ -102,11 +75,12 @@ class ValidationContext
             $usages    = $this->getVariableUsages($operation);
             $fragments = $this->getRecursivelyReferencedFragments($operation);
 
-            $tmp = [$usages];
-            foreach ($fragments as $i => $fragment) {
-                $tmp[] = $this->getVariableUsages($fragments[$i]);
+            $allUsages = [$usages];
+            foreach ($fragments as $fragment) {
+                $allUsages[] = $this->getVariableUsages($fragment);
             }
-            $usages                                    = call_user_func_array('array_merge', $tmp);
+
+            $usages                                    = array_merge(...$allUsages);
             $this->recursiveVariableUsages[$operation] = $usages;
         }
 
@@ -128,14 +102,18 @@ class ValidationContext
                 Visitor::visitWithTypeInfo(
                     $typeInfo,
                     [
-                        NodeKind::VARIABLE_DEFINITION => static function () {
+                        NodeKind::VARIABLE_DEFINITION => static function (): bool {
                             return false;
                         },
                         NodeKind::VARIABLE            => static function (VariableNode $variable) use (
                             &$newUsages,
                             $typeInfo
-                        ) {
-                            $newUsages[] = ['node' => $variable, 'type' => $typeInfo->getInputType()];
+                        ): void {
+                            $newUsages[] = [
+                                'node' => $variable,
+                                'type' => $typeInfo->getInputType(),
+                                'defaultValue' => $typeInfo->getDefaultValue(),
+                            ];
                         },
                     ]
                 )
@@ -158,19 +136,19 @@ class ValidationContext
             $fragments      = [];
             $collectedNames = [];
             $nodesToVisit   = [$operation];
-            while (! empty($nodesToVisit)) {
+            while (count($nodesToVisit) > 0) {
                 $node    = array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 foreach ($spreads as $spread) {
                     $fragName = $spread->name->value;
 
-                    if (! empty($collectedNames[$fragName])) {
+                    if ($collectedNames[$fragName] ?? false) {
                         continue;
                     }
 
                     $collectedNames[$fragName] = true;
                     $fragment                  = $this->getFragment($fragName);
-                    if (! $fragment) {
+                    if ($fragment === null) {
                         continue;
                     }
 
@@ -178,6 +156,7 @@ class ValidationContext
                     $nodesToVisit[] = $fragment;
                 }
             }
+
             $this->recursivelyReferencedFragments[$operation] = $fragments;
         }
 
@@ -185,102 +164,88 @@ class ValidationContext
     }
 
     /**
+     * @param OperationDefinitionNode|FragmentDefinitionNode $node
+     *
      * @return FragmentSpreadNode[]
      */
-    public function getFragmentSpreads(HasSelectionSet $node)
+    public function getFragmentSpreads(HasSelectionSet $node): array
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
         if ($spreads === null) {
             $spreads = [];
             /** @var SelectionSetNode[] $setsToVisit */
             $setsToVisit = [$node->selectionSet];
-            while (! empty($setsToVisit)) {
+            while (count($setsToVisit) > 0) {
                 $set = array_pop($setsToVisit);
 
                 for ($i = 0, $selectionCount = count($set->selections); $i < $selectionCount; $i++) {
                     $selection = $set->selections[$i];
-                    if ($selection->kind === NodeKind::FRAGMENT_SPREAD) {
+                    if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
-                    } elseif ($selection->selectionSet) {
-                        $setsToVisit[] = $selection->selectionSet;
+                    } elseif ($selection instanceof FieldNode || $selection instanceof InlineFragmentNode) {
+                        if ($selection->selectionSet !== null) {
+                            $setsToVisit[] = $selection->selectionSet;
+                        }
+                    } else {
+                        throw InvariantViolation::shouldNotHappen();
                     }
                 }
             }
+
             $this->fragmentSpreads[$node] = $spreads;
         }
 
         return $spreads;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return FragmentDefinitionNode|null
-     */
-    public function getFragment($name)
+    public function getFragment(string $name): ?FragmentDefinitionNode
     {
-        $fragments = $this->fragments;
-        if (! $fragments) {
+        if (! isset($this->fragments)) {
             $fragments = [];
             foreach ($this->getDocument()->definitions as $statement) {
-                if ($statement->kind !== NodeKind::FRAGMENT_DEFINITION) {
+                if (! ($statement instanceof FragmentDefinitionNode)) {
                     continue;
                 }
 
                 $fragments[$statement->name->value] = $statement;
             }
+
             $this->fragments = $fragments;
         }
 
-        return $fragments[$name] ?? null;
+        return $this->fragments[$name] ?? null;
     }
 
-    /**
-     * @return DocumentNode
-     */
-    public function getDocument()
-    {
-        return $this->ast;
-    }
-
-    /**
-     * Returns OutputType
-     *
-     * @return Type
-     */
-    public function getType()
+    public function getType(): ?OutputType
     {
         return $this->typeInfo->getType();
     }
 
     /**
-     * @return Type
+     * @return (CompositeType & Type) | null
      */
-    public function getParentType()
+    public function getParentType(): ?CompositeType
     {
         return $this->typeInfo->getParentType();
     }
 
     /**
-     * @return InputType
+     * @return (Type & InputType) | null
      */
-    public function getInputType()
+    public function getInputType(): ?InputType
     {
         return $this->typeInfo->getInputType();
     }
 
     /**
-     * @return InputType
+     * @return (Type&InputType)|null
      */
-    public function getParentInputType()
+    public function getParentInputType(): ?InputType
     {
         return $this->typeInfo->getParentInputType();
     }
 
-    /**
-     * @return FieldDefinition
-     */
-    public function getFieldDef()
+    public function getFieldDef(): ?FieldDefinition
     {
         return $this->typeInfo->getFieldDef();
     }

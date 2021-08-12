@@ -9,16 +9,16 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
     /** @var string */
     public $kind = NodeKind::OPERATION_DEFINITION;
 
-    /** @var NameNode */
+    /** @var NameNode|null */
     public $name;
 
-    /** @var string (oneOf 'query', 'mutation')) */
+    /** @var string (oneOf 'query', 'mutation', 'subscription')) */
     public $operation;
 
-    /** @var VariableDefinitionNode[] */
+    /** @var NodeList<VariableDefinitionNode> */
     public $variableDefinitions;
 
-    /** @var DirectiveNode[] */
+    /** @var NodeList<DirectiveNode> */
     public $directives;
 
     /** @var SelectionSetNode */

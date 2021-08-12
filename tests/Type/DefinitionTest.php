@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
@@ -17,57 +21,45 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use stdClass;
-use Throwable;
+
 use function count;
-use function get_class;
 use function json_encode;
 use function sprintf;
 
 class DefinitionTest extends TestCase
 {
-    /** @var ObjectType */
-    public $blogImage;
+    use ArraySubsetAsserts;
 
-    /** @var ObjectType */
-    public $blogArticle;
+    public ObjectType $blogImage;
 
-    /** @var ObjectType */
-    public $blogAuthor;
+    public ObjectType $blogArticle;
 
-    /** @var ObjectType */
-    public $blogMutation;
+    public ObjectType $blogAuthor;
 
-    /** @var ObjectType */
-    public $blogQuery;
+    public ObjectType $blogMutation;
 
-    /** @var ObjectType */
-    public $blogSubscription;
+    public ObjectType $blogQuery;
 
-    /** @var ObjectType */
-    public $objectType;
+    public ObjectType $blogSubscription;
 
-    /** @var ObjectType */
-    public $objectWithIsTypeOf;
+    public ObjectType $objectType;
 
-    /** @var InterfaceType */
-    public $interfaceType;
+    public ObjectType $objectWithIsTypeOf;
 
-    /** @var UnionType */
-    public $unionType;
+    public InterfaceType $interfaceType;
 
-    /** @var EnumType */
-    public $enumType;
+    public UnionType $unionType;
 
-    /** @var InputObjectType */
-    public $inputObjectType;
+    public EnumType $enumType;
 
-    /** @var CustomScalarType */
-    public $scalarType;
+    public InputObjectType $inputObjectType;
 
-    public function setUp()
+    public CustomScalarType $scalarType;
+
+    public function setUp(): void
     {
         $this->objectType      = new ObjectType(['name' => 'Object', 'fields' => ['tmp' => Type::string()]]);
         $this->interfaceType   = new InterfaceType(['name' => 'Interface']);
@@ -82,11 +74,11 @@ class DefinitionTest extends TestCase
 
         $this->scalarType = new CustomScalarType([
             'name'         => 'Scalar',
-            'serialize'    => static function () {
+            'serialize'    => static function (): void {
             },
-            'parseValue'   => static function () {
+            'parseValue'   => static function (): void {
             },
-            'parseLiteral' => static function () {
+            'parseLiteral' => static function (): void {
             },
         ]);
 
@@ -101,7 +93,7 @@ class DefinitionTest extends TestCase
 
         $this->blogAuthor = new ObjectType([
             'name'   => 'Author',
-            'fields' => function () {
+            'fields' => function (): array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -164,7 +156,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines a query only schema')
      */
-    public function testDefinesAQueryOnlySchema() : void
+    public function testDefinesAQueryOnlySchema(): void
     {
         $blogSchema = new Schema([
             'query' => $this->blogQuery,
@@ -205,10 +197,110 @@ class DefinitionTest extends TestCase
         self::assertSame($this->blogArticle, $feedFieldType->getWrappedType());
     }
 
+    public function testFieldDefinitionPublicTypeGetDeprecation(): void
+    {
+        $fieldDef = FieldDefinition::create([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(static function ($message): void {
+            self::assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
+        });
+
+        self::assertFalse(isset($fieldDef->nonExistentProp));
+        $fieldDef->nonExistentProp = 'someValue';
+        self::assertTrue(isset($fieldDef->nonExistentProp));
+
+        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
+        $type = $fieldDef->type;
+    }
+
+    public function testFieldDefinitionPublicTypeSetDeprecation(): void
+    {
+        $fieldDef = FieldDefinition::create([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(static function ($message): void {
+            self::assertEquals($message, 'The public setter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version.');
+        });
+
+        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
+        $fieldDef->type = Type::int();
+
+        $fieldDef->nonExistentProp = 'someValue';
+        self::assertEquals($fieldDef->nonExistentProp, 'someValue');
+    }
+
+    public function testFieldDefinitionPublicTypeIssetDeprecation(): void
+    {
+        $fieldDef = FieldDefinition::create([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(static function ($message): void {
+            self::assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
+        });
+
+        isset($fieldDef->type);
+    }
+
+    public function testInputObjectFieldPublicTypeGetDeprecation(): void
+    {
+        $fieldDef = new InputObjectField([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(static function ($message): void {
+            self::assertEquals($message, 'The public getter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
+        });
+
+        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
+        $type = $fieldDef->type;
+    }
+
+    public function testInputObjectFieldPublicTypeSetDeprecation(): void
+    {
+        $fieldDef = new InputObjectField([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(static function ($message): void {
+            self::assertEquals($message, 'The public setter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version.');
+        });
+
+        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
+        $fieldDef->type = Type::int();
+    }
+
+    public function testInputObjectFieldPublicTypeIssetDeprecation(): void
+    {
+        $fieldDef = new InputObjectField([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(static function ($message): void {
+            self::assertEquals($message, 'The public getter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
+        });
+
+        isset($fieldDef->type);
+
+        self::assertFalse(isset($fieldDef->nonExistentProp));
+        $fieldDef->nonExistentProp = 'someValue';
+        self::assertTrue(isset($fieldDef->nonExistentProp));
+        self::assertEquals($fieldDef->nonExistentProp, 'someValue');
+    }
+
     /**
      * @see it('defines a mutation schema')
      */
-    public function testDefinesAMutationSchema() : void
+    public function testDefinesAMutationSchema(): void
     {
         $schema = new Schema([
             'query'    => $this->blogQuery,
@@ -227,7 +319,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines a subscription schema')
      */
-    public function testDefinesSubscriptionSchema() : void
+    public function testDefinesSubscriptionSchema(): void
     {
         $schema = new Schema([
             'query'        => $this->blogQuery,
@@ -245,7 +337,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines an enum type with deprecated value')
      */
-    public function testDefinesEnumTypeWithDeprecatedValue() : void
+    public function testDefinesEnumTypeWithDeprecatedValue(): void
     {
         $enumTypeWithDeprecatedValue = new EnumType([
             'name'   => 'EnumWithDeprecatedValue',
@@ -273,7 +365,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines an enum type with a value of `null` and `undefined`')
      */
-    public function testDefinesAnEnumTypeWithAValueOfNullAndUndefined() : void
+    public function testDefinesAnEnumTypeWithAValueOfNullAndUndefined(): void
     {
         $EnumTypeWithNullishValue = new EnumType([
             'name'   => 'EnumWithNullishValue',
@@ -310,7 +402,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines an object type with deprecated field')
      */
-    public function testDefinesAnObjectTypeWithDeprecatedField() : void
+    public function testDefinesAnObjectTypeWithDeprecatedField(): void
     {
         $TypeWithDeprecatedField = new ObjectType([
             'name'   => 'foo',
@@ -334,7 +426,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('includes nested input objects in the map')
      */
-    public function testIncludesNestedInputObjectInTheMap() : void
+    public function testIncludesNestedInputObjectInTheMap(): void
     {
         $nestedInputObject = new InputObjectType([
             'name'   => 'NestedInputObject',
@@ -364,7 +456,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('includes interface possible types in the type map')
      */
-    public function testIncludesInterfaceSubtypesInTheTypeMap() : void
+    public function testIncludesInterfaceSubtypesInTheTypeMap(): void
     {
         $someInterface = new InterfaceType([
             'name'   => 'SomeInterface',
@@ -396,7 +488,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('includes interfaces' thunk subtypes in the type map')
      */
-    public function testIncludesInterfacesThunkSubtypesInTheTypeMap() : void
+    public function testIncludesInterfacesThunkSubtypesInTheTypeMap(): void
     {
         $someInterface = null;
 
@@ -405,7 +497,7 @@ class DefinitionTest extends TestCase
             'fields'     => [
                 'f' => ['type' => Type::int()],
             ],
-            'interfaces' => static function () use (&$someInterface) {
+            'interfaces' => static function () use (&$someInterface): array {
                 return [$someInterface];
             },
         ]);
@@ -433,7 +525,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('stringifies simple types')
      */
-    public function testStringifiesSimpleTypes() : void
+    public function testStringifiesSimpleTypes(): void
     {
         self::assertSame('Int', (string) Type::int());
         self::assertSame('Article', (string) $this->blogArticle);
@@ -454,7 +546,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('JSON stringifies simple types')
      */
-    public function testJSONStringifiesSimpleTypes() : void
+    public function testJSONStringifiesSimpleTypes(): void
     {
         self::assertEquals('"Int"', json_encode(Type::int()));
         self::assertEquals('"Article"', json_encode($this->blogArticle));
@@ -472,7 +564,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('identifies input types')
      */
-    public function testIdentifiesInputTypes() : void
+    public function testIdentifiesInputTypes(): void
     {
         $expected = [
             [Type::int(), true],
@@ -481,6 +573,16 @@ class DefinitionTest extends TestCase
             [$this->unionType, false],
             [$this->enumType, true],
             [$this->inputObjectType, true],
+
+            [Type::boolean(), true],
+            [Type::float(),true ],
+            [Type::id(), true],
+            [Type::int(), true],
+            [Type::listOf(Type::string()), true],
+            [Type::listOf($this->objectType), false],
+            [Type::nonNull(Type::string()), true],
+            [Type::nonNull($this->objectType), false],
+            [Type::string(), true],
         ];
 
         foreach ($expected as $index => $entry) {
@@ -495,7 +597,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('identifies output types')
      */
-    public function testIdentifiesOutputTypes() : void
+    public function testIdentifiesOutputTypes(): void
     {
         $expected = [
             [Type::int(), true],
@@ -504,6 +606,16 @@ class DefinitionTest extends TestCase
             [$this->unionType, true],
             [$this->enumType, true],
             [$this->inputObjectType, false],
+
+            [Type::boolean(), true],
+            [Type::float(),true ],
+            [Type::id(), true],
+            [Type::int(), true],
+            [Type::listOf(Type::string()), true],
+            [Type::listOf($this->objectType), true],
+            [Type::nonNull(Type::string()), true],
+            [Type::nonNull($this->objectType), true],
+            [Type::string(), true],
         ];
 
         foreach ($expected as $index => $entry) {
@@ -516,25 +628,13 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @see it('prohibits nesting NonNull inside NonNull')
-     */
-    public function testProhibitsNestingNonNullInsideNonNull() : void
-    {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'Expected Int! to be a GraphQL nullable type.'
-        );
-        Type::nonNull(Type::nonNull(Type::int()));
-    }
-
-    /**
      * @see it('allows a thunk for Union member types')
      */
-    public function testAllowsThunkForUnionTypes() : void
+    public function testAllowsThunkForUnionTypes(): void
     {
         $union = new UnionType([
             'name'  => 'ThunkUnion',
-            'types' => function () {
+            'types' => function (): array {
                 return [$this->objectType];
             },
         ]);
@@ -544,7 +644,7 @@ class DefinitionTest extends TestCase
         self::assertSame($this->objectType, $types[0]);
     }
 
-    public function testAllowsRecursiveDefinitions() : void
+    public function testAllowsRecursiveDefinitions(): void
     {
         // See https://github.com/webonyx/graphql-php/issues/16
         $node = new InterfaceType([
@@ -559,7 +659,7 @@ class DefinitionTest extends TestCase
 
         $user = new ObjectType([
             'name'       => 'User',
-            'fields'     => static function () use (&$blog, &$called) {
+            'fields'     => static function () use (&$blog, &$called): array {
                 self::assertNotNull($blog, 'Blog type is expected to be defined at this point, but it is null');
                 $called = true;
 
@@ -568,20 +668,20 @@ class DefinitionTest extends TestCase
                     'blogs' => ['type' => Type::nonNull(Type::listOf(Type::nonNull($blog)))],
                 ];
             },
-            'interfaces' => static function () use ($node) {
+            'interfaces' => static function () use ($node): array {
                 return [$node];
             },
         ]);
 
         $blog = new ObjectType([
             'name'       => 'Blog',
-            'fields'     => static function () use ($user) {
+            'fields'     => static function () use ($user): array {
                 return [
                     'id'    => ['type' => Type::nonNull(Type::id())],
                     'owner' => ['type' => Type::nonNull($user)],
                 ];
             },
-            'interfaces' => static function () use ($node) {
+            'interfaces' => static function () use ($node): array {
                 return [$node];
             },
         ]);
@@ -603,18 +703,22 @@ class DefinitionTest extends TestCase
         self::assertEquals([$node], $user->getInterfaces());
 
         self::assertNotNull($user->getField('blogs'));
-        self::assertSame($blog, $user->getField('blogs')->getType()->getWrappedType(true));
+        /** @var NonNull $blogFieldReturnType */
+        $blogFieldReturnType = $user->getField('blogs')->getType();
+        self::assertSame($blog, $blogFieldReturnType->getWrappedType(true));
 
         self::assertNotNull($blog->getField('owner'));
-        self::assertSame($user, $blog->getField('owner')->getType()->getWrappedType(true));
+        /** @var NonNull $ownerFieldReturnType */
+        $ownerFieldReturnType = $blog->getField('owner')->getType();
+        self::assertSame($user, $ownerFieldReturnType->getWrappedType(true));
     }
 
-    public function testInputObjectTypeAllowsRecursiveDefinitions() : void
+    public function testInputObjectTypeAllowsRecursiveDefinitions(): void
     {
         $called      = false;
         $inputObject = new InputObjectType([
             'name'   => 'InputObject',
-            'fields' => static function () use (&$inputObject, &$called) {
+            'fields' => static function () use (&$inputObject, &$called): array {
                 $called = true;
 
                 return [
@@ -646,12 +750,12 @@ class DefinitionTest extends TestCase
         self::assertSame($someMutation->getField('mutateSomething')->getArg('input')->getType(), $inputObject);
     }
 
-    public function testInterfaceTypeAllowsRecursiveDefinitions() : void
+    public function testInterfaceTypeAllowsRecursiveDefinitions(): void
     {
         $called    = false;
         $interface = new InterfaceType([
             'name'   => 'SomeInterface',
-            'fields' => static function () use (&$interface, &$called) {
+            'fields' => static function () use (&$interface, &$called): array {
                 $called = true;
 
                 return [
@@ -677,11 +781,11 @@ class DefinitionTest extends TestCase
         self::assertSame($interface->getField('value')->getType(), Type::string());
     }
 
-    public function testAllowsShorthandFieldDefinition() : void
+    public function testAllowsShorthandFieldDefinition(): void
     {
         $interface = new InterfaceType([
             'name'   => 'SomeInterface',
-            'fields' => static function () use (&$interface) {
+            'fields' => static function () use (&$interface): array {
                 return [
                     'value'   => Type::string(),
                     'nested'  => $interface,
@@ -702,24 +806,29 @@ class DefinitionTest extends TestCase
 
         $schema = new Schema(['query' => $query]);
 
-        $valueField  = $schema->getType('SomeInterface')->getField('value');
-        $nestedField = $schema->getType('SomeInterface')->getField('nested');
+        /** @var InterfaceType $SomeInterface */
+        $SomeInterface = $schema->getType('SomeInterface');
 
+        $valueField = $SomeInterface->getField('value');
         self::assertEquals(Type::string(), $valueField->getType());
+
+        $nestedField = $SomeInterface->getField('nested');
         self::assertEquals($interface, $nestedField->getType());
 
-        $withArg = $schema->getType('SomeInterface')->getField('withArg');
+        $withArg = $SomeInterface->getField('withArg');
         self::assertEquals(Type::string(), $withArg->getType());
 
         self::assertEquals('arg1', $withArg->args[0]->name);
         self::assertEquals(Type::int(), $withArg->args[0]->getType());
 
-        $testField = $schema->getType('Query')->getField('test');
+        /** @var ObjectType $Query */
+        $Query     = $schema->getType('Query');
+        $testField = $Query->getField('test');
         self::assertEquals($interface, $testField->getType());
         self::assertEquals('test', $testField->name);
     }
 
-    public function testInfersNameFromClassname() : void
+    public function testInfersNameFromClassname(): void
     {
         $myObj = new MyCustomType();
         self::assertEquals('MyCustom', $myObj->name);
@@ -728,15 +837,15 @@ class DefinitionTest extends TestCase
         self::assertEquals('OtherCustom', $otherCustom->name);
     }
 
-    public function testAllowsOverridingInternalTypes() : void
+    public function testAllowsOverridingInternalTypes(): void
     {
         $idType = new CustomScalarType([
             'name'         => 'ID',
-            'serialize'    => static function () {
+            'serialize'    => static function (): void {
             },
-            'parseValue'   => static function () {
+            'parseValue'   => static function (): void {
             },
-            'parseLiteral' => static function () {
+            'parseLiteral' => static function (): void {
             },
         ]);
 
@@ -753,24 +862,24 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Object type with a field function')
      */
-    public function testAcceptsAnObjectTypeWithAFieldFunction() : void
+    public function testAcceptsAnObjectTypeWithAFieldFunction(): void
     {
         $objType = new ObjectType([
             'name'   => 'SomeObject',
-            'fields' => static function () {
+            'fields' => static function (): array {
                 return [
                     'f' => ['type' => Type::string()],
                 ];
             },
         ]);
-        $objType->assertValid(true);
+        $objType->assertValid();
         self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 
     /**
      * @see it('rejects an Object type field with undefined config')
      */
-    public function testRejectsAnObjectTypeFieldWithUndefinedConfig() : void
+    public function testRejectsAnObjectTypeFieldWithUndefinedConfig(): void
     {
         $objType = new ObjectType([
             'name'   => 'SomeObject',
@@ -786,7 +895,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type with incorrectly typed fields')
      */
-    public function testRejectsAnObjectTypeWithIncorrectlyTypedFields() : void
+    public function testRejectsAnObjectTypeWithIncorrectlyTypedFields(): void
     {
         $objType = new ObjectType([
             'name'   => 'SomeObject',
@@ -803,11 +912,11 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type with a field function that returns incorrect type')
      */
-    public function testRejectsAnObjectTypeWithAFieldFunctionThatReturnsIncorrectType() : void
+    public function testRejectsAnObjectTypeWithAFieldFunctionThatReturnsIncorrectType(): void
     {
         $objType = new ObjectType([
             'name'   => 'SomeObject',
-            'fields' => static function () {
+            'fields' => static function (): array {
                 return [['field' => Type::string()]];
             },
         ]);
@@ -824,7 +933,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Object type with field args')
      */
-    public function testAcceptsAnObjectTypeWithFieldArgs() : void
+    public function testAcceptsAnObjectTypeWithFieldArgs(): void
     {
         $this->expectNotToPerformAssertions();
         $objType = new ObjectType([
@@ -847,7 +956,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('does not allow isDeprecated without deprecationReason on field')
      */
-    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnField() : void
+    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnField(): void
     {
         $OldObject = new ObjectType([
             'name'   => 'OldObject',
@@ -871,7 +980,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Object type with array interfaces')
      */
-    public function testAcceptsAnObjectTypeWithArrayInterfaces() : void
+    public function testAcceptsAnObjectTypeWithArrayInterfaces(): void
     {
         $objType = new ObjectType([
             'name'       => 'SomeObject',
@@ -884,11 +993,11 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Object type with interfaces as a function returning an array')
      */
-    public function testAcceptsAnObjectTypeWithInterfacesAsAFunctionReturningAnArray() : void
+    public function testAcceptsAnObjectTypeWithInterfacesAsAFunctionReturningAnArray(): void
     {
         $objType = new ObjectType([
             'name'       => 'SomeObject',
-            'interfaces' => function () {
+            'interfaces' => function (): array {
                 return [$this->interfaceType];
             },
             'fields'     => ['f' => ['type' => Type::string()]],
@@ -899,7 +1008,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type with incorrectly typed interfaces')
      */
-    public function testRejectsAnObjectTypeWithIncorrectlyTypedInterfaces() : void
+    public function testRejectsAnObjectTypeWithIncorrectlyTypedInterfaces(): void
     {
         $objType = new ObjectType([
             'name'       => 'SomeObject',
@@ -916,11 +1025,11 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type with interfaces as a function returning an incorrect type')
      */
-    public function testRejectsAnObjectTypeWithInterfacesAsAFunctionReturningAnIncorrectType() : void
+    public function testRejectsAnObjectTypeWithInterfacesAsAFunctionReturningAnIncorrectType(): void
     {
         $objType = new ObjectType([
             'name'       => 'SomeObject',
-            'interfaces' => static function () {
+            'interfaces' => static function (): stdClass {
                 return new stdClass();
             },
             'fields'     => ['f' => ['type' => Type::string()]],
@@ -937,11 +1046,11 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a lambda as an Object field resolver')
      */
-    public function testAcceptsALambdaAsAnObjectFieldResolver() : void
+    public function testAcceptsALambdaAsAnObjectFieldResolver(): void
     {
         $this->expectNotToPerformAssertions();
         // should not throw:
-        $this->schemaWithObjectWithFieldResolver(static function () {
+        $this->schemaWithObjectWithFieldResolver(static function (): void {
         });
     }
 
@@ -973,7 +1082,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an empty Object field resolver')
      */
-    public function testRejectsAnEmptyObjectFieldResolver() : void
+    public function testRejectsAnEmptyObjectFieldResolver(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -985,7 +1094,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a constant scalar value resolver')
      */
-    public function testRejectsAConstantScalarValueResolver() : void
+    public function testRejectsAConstantScalarValueResolver(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -999,7 +1108,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Interface type defining resolveType')
      */
-    public function testAcceptsAnInterfaceTypeDefiningResolveType() : void
+    public function testAcceptsAnInterfaceTypeDefiningResolveType(): void
     {
         $this->expectNotToPerformAssertions();
         $AnotherInterfaceType = new InterfaceType([
@@ -1015,6 +1124,70 @@ class DefinitionTest extends TestCase
                 'fields'     => ['f' => ['type' => Type::string()]],
             ])
         );
+    }
+
+    /**
+     * @see it('accepts an Interface type with an array of interfaces')
+     */
+    public function testAcceptsAnInterfaceTypeWithAnArrayOfInterfaces(): void
+    {
+        $interfaceType = new InterfaceType([
+            'name'   => 'AnotherInterface',
+            'fields' => [],
+            'interfaces' => [$this->interfaceType],
+        ]);
+        self::assertSame($this->interfaceType, $interfaceType->getInterfaces()[0]);
+    }
+
+    /**
+     * @see it('accepts an Interface type with interfaces as a function returning an array')
+     */
+    public function testAcceptsAnInterfaceTypeWithInterfacesAsAFunctionReturningAnArray(): void
+    {
+        $interfaceType = new InterfaceType([
+            'name'   => 'AnotherInterface',
+            'fields' => [],
+            'interfaces' => function (): array {
+                return [$this->interfaceType];
+            },
+        ]);
+        self::assertSame($this->interfaceType, $interfaceType->getInterfaces()[0]);
+    }
+
+    /**
+     * @see it('rejects an Interface type with incorrectly typed interfaces')
+     */
+    public function testRejectsAnInterfaceTypeWithIncorrectlyTypedInterfaces(): void
+    {
+        $objType = new InterfaceType([
+            'name'       => 'AnotherInterface',
+            'interfaces' => new stdClass(),
+            'fields'     => [],
+        ]);
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'AnotherInterface interfaces must be an Array or a callable which returns an Array.'
+        );
+        $objType->getInterfaces();
+    }
+
+    /**
+     * @see it('rejects an Interface type with interfaces as a function returning an incorrect type')
+     */
+    public function testRejectsAnInterfaceTypeWithInterfacesAsAFunctionReturningAnIncorrectType(): void
+    {
+        $objType = new ObjectType([
+            'name'       => 'AnotherInterface',
+            'interfaces' => static function (): stdClass {
+                return new stdClass();
+            },
+            'fields'     => [],
+        ]);
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'AnotherInterface interfaces must be an Array or a callable which returns an Array.'
+        );
+        $objType->getInterfaces();
     }
 
     private function schemaWithFieldType($type)
@@ -1034,7 +1207,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Interface with implementing type defining isTypeOf')
      */
-    public function testAcceptsAnInterfaceWithImplementingTypeDefiningIsTypeOf() : void
+    public function testAcceptsAnInterfaceWithImplementingTypeDefiningIsTypeOf(): void
     {
         $this->expectNotToPerformAssertions();
         $InterfaceTypeWithoutResolveType = new InterfaceType([
@@ -1055,7 +1228,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Interface type defining resolveType with implementing type defining isTypeOf')
      */
-    public function testAcceptsAnInterfaceTypeDefiningResolveTypeWithImplementingTypeDefiningIsTypeOf() : void
+    public function testAcceptsAnInterfaceTypeDefiningResolveTypeWithImplementingTypeDefiningIsTypeOf(): void
     {
         $this->expectNotToPerformAssertions();
         $AnotherInterfaceType = new InterfaceType([
@@ -1076,7 +1249,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Interface type with an incorrect type for resolveType')
      */
-    public function testRejectsAnInterfaceTypeWithAnIncorrectTypeForResolveType() : void
+    public function testRejectsAnInterfaceTypeWithAnIncorrectTypeForResolveType(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1096,7 +1269,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Union type defining resolveType')
      */
-    public function testAcceptsAUnionTypeDefiningResolveType() : void
+    public function testAcceptsAUnionTypeDefiningResolveType(): void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -1111,7 +1284,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Union of Object types defining isTypeOf')
      */
-    public function testAcceptsAUnionOfObjectTypesDefiningIsTypeOf() : void
+    public function testAcceptsAUnionOfObjectTypesDefiningIsTypeOf(): void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -1126,7 +1299,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Union type defining resolveType of Object types defining isTypeOf')
      */
-    public function testAcceptsAUnionTypeDefiningResolveTypeOfObjectTypesDefiningIsTypeOf() : void
+    public function testAcceptsAUnionTypeDefiningResolveTypeOfObjectTypesDefiningIsTypeOf(): void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -1141,7 +1314,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Union type with an incorrect type for resolveType')
      */
-    public function testRejectsAnUnionTypeWithAnIncorrectTypeForResolveType() : void
+    public function testRejectsAnUnionTypeWithAnIncorrectTypeForResolveType(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1159,7 +1332,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Scalar type defining serialize')
      */
-    public function testAcceptsAScalarTypeDefiningSerialize() : void
+    public function testAcceptsAScalarTypeDefiningSerialize(): void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw
@@ -1178,7 +1351,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Scalar type not defining serialize')
      */
-    public function testRejectsAScalarTypeNotDefiningSerialize() : void
+    public function testRejectsAScalarTypeNotDefiningSerialize(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1194,7 +1367,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Scalar type defining serialize with an incorrect type')
      */
-    public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType() : void
+    public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1213,18 +1386,18 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Scalar type defining parseValue and parseLiteral')
      */
-    public function testAcceptsAScalarTypeDefiningParseValueAndParseLiteral() : void
+    public function testAcceptsAScalarTypeDefiningParseValueAndParseLiteral(): void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'         => 'SomeScalar',
-                'serialize'    => static function () {
+                'serialize'    => static function (): void {
                 },
-                'parseValue'   => static function () {
+                'parseValue'   => static function (): void {
                 },
-                'parseLiteral' => static function () {
+                'parseLiteral' => static function (): void {
                 },
             ])
         );
@@ -1233,7 +1406,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Scalar type defining parseValue but not parseLiteral')
      */
-    public function testRejectsAScalarTypeDefiningParseValueButNotParseLiteral() : void
+    public function testRejectsAScalarTypeDefiningParseValueButNotParseLiteral(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1242,9 +1415,9 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'       => 'SomeScalar',
-                'serialize'  => static function () {
+                'serialize'  => static function (): void {
                 },
-                'parseValue' => static function () {
+                'parseValue' => static function (): void {
                 },
             ])
         );
@@ -1253,7 +1426,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Scalar type defining parseLiteral but not parseValue')
      */
-    public function testRejectsAScalarTypeDefiningParseLiteralButNotParseValue() : void
+    public function testRejectsAScalarTypeDefiningParseLiteralButNotParseValue(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1262,9 +1435,9 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'         => 'SomeScalar',
-                'serialize'    => static function () {
+                'serialize'    => static function (): void {
                 },
-                'parseLiteral' => static function () {
+                'parseLiteral' => static function (): void {
                 },
             ])
         );
@@ -1273,7 +1446,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Scalar type defining parseValue and parseLiteral with an incorrect type')
      */
-    public function testRejectsAScalarTypeDefiningParseValueAndParseLiteralWithAnIncorrectType() : void
+    public function testRejectsAScalarTypeDefiningParseValueAndParseLiteralWithAnIncorrectType(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1282,7 +1455,7 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'         => 'SomeScalar',
-                'serialize'    => static function () {
+                'serialize'    => static function (): void {
                 },
                 'parseValue'   => new stdClass(),
                 'parseLiteral' => new stdClass(),
@@ -1293,7 +1466,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Object type with an isTypeOf function')
      */
-    public function testAcceptsAnObjectTypeWithAnIsTypeOfFunction() : void
+    public function testAcceptsAnObjectTypeWithAnIsTypeOfFunction(): void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw
@@ -1310,7 +1483,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type with an incorrect type for isTypeOf')
      */
-    public function testRejectsAnObjectTypeWithAnIncorrectTypeForIsTypeOf() : void
+    public function testRejectsAnObjectTypeWithAnIncorrectTypeForIsTypeOf(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1328,7 +1501,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Union type with array types')
      */
-    public function testAcceptsAUnionTypeWithArrayTypes() : void
+    public function testAcceptsAUnionTypeWithArrayTypes(): void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -1345,13 +1518,13 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Union type with function returning an array of types')
      */
-    public function testAcceptsAUnionTypeWithFunctionReturningAnArrayOfTypes() : void
+    public function testAcceptsAUnionTypeWithFunctionReturningAnArrayOfTypes(): void
     {
         $this->expectNotToPerformAssertions();
         $this->schemaWithFieldType(
             new UnionType([
                 'name'  => 'SomeUnion',
-                'types' => function () {
+                'types' => function (): array {
                     return [$this->objectType];
                 },
             ])
@@ -1361,7 +1534,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Union type without types')
      */
-    public function testRejectsAUnionTypeWithoutTypes() : void
+    public function testRejectsAUnionTypeWithoutTypes(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1375,7 +1548,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Union type with incorrectly typed types')
      */
-    public function testRejectsAUnionTypeWithIncorrectlyTypedTypes() : void
+    public function testRejectsAUnionTypeWithIncorrectlyTypedTypes(): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1392,7 +1565,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Input Object type with fields')
      */
-    public function testAcceptsAnInputObjectTypeWithFields() : void
+    public function testAcceptsAnInputObjectTypeWithFields(): void
     {
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
@@ -1409,11 +1582,11 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Input Object type with a field function')
      */
-    public function testAcceptsAnInputObjectTypeWithAFieldFunction() : void
+    public function testAcceptsAnInputObjectTypeWithAFieldFunction(): void
     {
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
-            'fields' => static function () {
+            'fields' => static function (): array {
                 return [
                     'f' => ['type' => Type::string()],
                 ];
@@ -1424,9 +1597,26 @@ class DefinitionTest extends TestCase
     }
 
     /**
+     * @see it('accepts an Input Object type with a field type function')
+     */
+    public function testAcceptsAnInputObjectTypeWithAFieldTypeFunction(): void
+    {
+        $inputObjType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                'f' => static function (): Type {
+                    return Type::string();
+                },
+            ],
+        ]);
+        $inputObjType->assertValid();
+        self::assertSame(Type::string(), $inputObjType->getField('f')->getType());
+    }
+
+    /**
      * @see it('rejects an Input Object type with incorrect fields')
      */
-    public function testRejectsAnInputObjectTypeWithIncorrectFields() : void
+    public function testRejectsAnInputObjectTypeWithIncorrectFields(): void
     {
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
@@ -1443,11 +1633,11 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Input Object type with fields function that returns incorrect type')
      */
-    public function testRejectsAnInputObjectTypeWithFieldsFunctionThatReturnsIncorrectType() : void
+    public function testRejectsAnInputObjectTypeWithFieldsFunctionThatReturnsIncorrectType(): void
     {
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
-            'fields' => static function () {
+            'fields' => static function (): array {
                 return [];
             },
         ]);
@@ -1462,14 +1652,14 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Input Object type with resolvers')
      */
-    public function testRejectsAnInputObjectTypeWithResolvers() : void
+    public function testRejectsAnInputObjectTypeWithResolvers(): void
     {
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
             'fields' => [
                 'f' => [
                     'type'    => Type::string(),
-                    'resolve' => static function () {
+                    'resolve' => static function (): int {
                         return 0;
                     },
                 ],
@@ -1477,7 +1667,7 @@ class DefinitionTest extends TestCase
         ]);
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'SomeInputObject.f field type has a resolve property, ' .
+            'SomeInputObject.f field has a resolve property, ' .
             'but Input Types cannot define resolvers.'
         );
         $inputObjType->assertValid();
@@ -1488,7 +1678,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Input Object type with resolver constant')
      */
-    public function testRejectsAnInputObjectTypeWithResolverConstant() : void
+    public function testRejectsAnInputObjectTypeWithResolverConstant(): void
     {
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
@@ -1501,7 +1691,7 @@ class DefinitionTest extends TestCase
         ]);
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'SomeInputObject.f field type has a resolve property, ' .
+            'SomeInputObject.f field has a resolve property, ' .
             'but Input Types cannot define resolvers.'
         );
         $inputObjType->assertValid();
@@ -1510,7 +1700,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a well defined Enum type with empty value definition')
      */
-    public function testAcceptsAWellDefinedEnumTypeWithEmptyValueDefinition() : void
+    public function testAcceptsAWellDefinedEnumTypeWithEmptyValueDefinition(): void
     {
         $enumType = new EnumType([
             'name'   => 'SomeEnum',
@@ -1528,7 +1718,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a well defined Enum type with internal value definition')
      */
-    public function testAcceptsAWellDefinedEnumTypeWithInternalValueDefinition() : void
+    public function testAcceptsAWellDefinedEnumTypeWithInternalValueDefinition(): void
     {
         $enumType = new EnumType([
             'name'   => 'SomeEnum',
@@ -1544,7 +1734,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Enum type with incorrectly typed values')
      */
-    public function testRejectsAnEnumTypeWithIncorrectlyTypedValues() : void
+    public function testRejectsAnEnumTypeWithIncorrectlyTypedValues(): void
     {
         $enumType = new EnumType([
             'name'   => 'SomeEnum',
@@ -1560,7 +1750,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('does not allow isDeprecated without deprecationReason on enum')
      */
-    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnEnum() : void
+    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnEnum(): void
     {
         $enumType = new EnumType([
             'name'   => 'SomeEnum',
@@ -1577,91 +1767,13 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * Type System: List must accept only types
-     */
-    public function testListMustAcceptOnlyTypes() : void
-    {
-        $types = [
-            Type::string(),
-            $this->scalarType,
-            $this->objectType,
-            $this->unionType,
-            $this->interfaceType,
-            $this->enumType,
-            $this->inputObjectType,
-            Type::listOf(Type::string()),
-            Type::nonNull(Type::string()),
-        ];
-
-        $badTypes = [[], new stdClass(), '', null];
-
-        foreach ($types as $type) {
-            try {
-                Type::listOf($type);
-            } catch (Throwable $e) {
-                self::fail('List is expected to accept type: ' . get_class($type) . ', but got error: ' . $e->getMessage());
-            }
-        }
-        foreach ($badTypes as $badType) {
-            $typeStr = Utils::printSafe($badType);
-            try {
-                Type::listOf($badType);
-                self::fail(sprintf('List should not accept %s', $typeStr));
-            } catch (InvariantViolation $e) {
-                self::assertEquals(sprintf('Expected %s to be a GraphQL type.', $typeStr), $e->getMessage());
-            }
-        }
-    }
-
-    /**
-     * Type System: NonNull must only accept non-nullable types
-     */
-    public function testNonNullMustOnlyAcceptNonNullableTypes() : void
-    {
-        $nullableTypes    = [
-            Type::string(),
-            $this->scalarType,
-            $this->objectType,
-            $this->unionType,
-            $this->interfaceType,
-            $this->enumType,
-            $this->inputObjectType,
-            Type::listOf(Type::string()),
-            Type::listOf(Type::nonNull(Type::string())),
-        ];
-        $notNullableTypes = [
-            Type::nonNull(Type::string()),
-            [],
-            new stdClass(),
-            '',
-            null,
-        ];
-        foreach ($nullableTypes as $type) {
-            try {
-                Type::nonNull($type);
-            } catch (Throwable $e) {
-                self::fail('NonNull is expected to accept type: ' . get_class($type) . ', but got error: ' . $e->getMessage());
-            }
-        }
-        foreach ($notNullableTypes as $badType) {
-            $typeStr = Utils::printSafe($badType);
-            try {
-                Type::nonNull($badType);
-                self::fail(sprintf('Nulls should not accept %s', $typeStr));
-            } catch (InvariantViolation $e) {
-                self::assertEquals(sprintf('Expected %s to be a GraphQL nullable type.', $typeStr), $e->getMessage());
-            }
-        }
-    }
-
-    /**
      * @see it('rejects a Schema which redefines a built-in type')
      */
-    public function testRejectsASchemaWhichRedefinesABuiltInType() : void
+    public function testRejectsASchemaWhichRedefinesABuiltInType(): void
     {
         $FakeString = new CustomScalarType([
             'name'      => 'String',
-            'serialize' => static function () {
+            'serialize' => static function (): void {
             },
         ]);
 
@@ -1676,7 +1788,7 @@ class DefinitionTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "String" ' .
-            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
         $schema = new Schema(['query' => $QueryType]);
         $schema->assertValid();
@@ -1687,7 +1799,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Schema which defines an object type twice')
      */
-    public function testRejectsASchemaWhichDefinesAnObjectTypeTwice() : void
+    public function testRejectsASchemaWhichDefinesAnObjectTypeTwice(): void
     {
         $A = new ObjectType([
             'name'   => 'SameName',
@@ -1709,7 +1821,7 @@ class DefinitionTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "SameName" ' .
-            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
         $schema = new Schema(['query' => $QueryType]);
         $schema->assertValid();
@@ -1718,7 +1830,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Schema which have same named objects implementing an interface')
      */
-    public function testRejectsASchemaWhichHaveSameNamedObjectsImplementingAnInterface() : void
+    public function testRejectsASchemaWhichHaveSameNamedObjectsImplementingAnInterface(): void
     {
         $AnotherInterface = new InterfaceType([
             'name'   => 'AnotherInterface',
@@ -1747,7 +1859,7 @@ class DefinitionTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "BadObject" ' .
-            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
         $schema = new Schema([
             'query' => $QueryType,
@@ -1756,11 +1868,204 @@ class DefinitionTest extends TestCase
         $schema->assertValid();
     }
 
-    public function objectWithIsTypeOf() : ObjectType
+    // Lazy Fields
+
+    /**
+     * @see it('allows a type to define its fields as closure returning array field definition to be lazy loaded')
+     */
+    public function testAllowsTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsArray(): void
     {
-        return new ObjectType([
-            'name'   => 'ObjectWithIsTypeOf',
-            'fields' => ['f' => ['type' => Type::string()]],
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): array {
+                    return ['type' => Type::string()];
+                },
+            ],
         ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
+    /**
+     * @see it('allows a type to define its fields as closure returning object field definition to be lazy loaded')
+     */
+    public function testAllowsTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsObject(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): FieldDefinition {
+                    return FieldDefinition::create(['name' => 'f', 'type' => Type::string()]);
+                },
+            ],
+        ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
+    /**
+     * @see it('allows a type to define its fields as invokable class returning array field definition to be lazy loaded')
+     */
+    public function testAllowsTypeWhichDefinesItFieldsAsInvokableClassReturningFieldDefinitionAsArray(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => new class {
+                    public function __invoke(): array
+                    {
+                        return ['type' => Type::string()];
+                    }
+                },
+            ],
+        ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
+    /**
+     * @see it('does not resolve field definitions if they are not accessed')
+     */
+    public function testFieldClosureNotExecutedIfNotAccessed(): void
+    {
+        $resolvedCount = 0;
+        $fieldCallback = static function () use (&$resolvedCount): array {
+            $resolvedCount++;
+
+            return ['type' => Type::string()];
+        };
+
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => $fieldCallback,
+                'b' => static function (): void {
+                    throw new RuntimeException('Would not expect this to be called!');
+                },
+            ],
+        ]);
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+        self::assertSame(1, $resolvedCount);
+    }
+
+    /**
+     * @see it('does resolve all field definitions when validating the type')
+     */
+    public function testAllUnresolvedFieldsAreResolvedWhenValidatingType(): void
+    {
+        $resolvedCount = 0;
+        $fieldCallback = static function () use (&$resolvedCount): array {
+            $resolvedCount++;
+
+            return ['type' => Type::string()];
+        };
+
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => $fieldCallback,
+                'o' => $fieldCallback,
+            ],
+        ]);
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+        self::assertSame(2, $resolvedCount);
+    }
+
+    /**
+     * @see it('does throw when lazy loaded array field definition changes its name')
+     */
+    public function testThrowsWhenLazyLoadedArrayFieldDefinitionChangesItsName(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): array {
+                    return ['name' => 'foo', 'type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject.f should not dynamically change its name when resolved lazily.'
+        );
+
+        $objType->assertValid();
+    }
+
+    /**
+     * @see it('does throw when lazy loaded object field definition changes its name')
+     */
+    public function testThrowsWhenLazyLoadedObjectFieldDefinitionChangesItsName(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): FieldDefinition {
+                    return FieldDefinition::create(['name' => 'foo', 'type' => Type::string()]);
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject.f should not dynamically change its name when resolved lazily.'
+        );
+
+        $objType->assertValid();
+    }
+
+    /**
+     * @see it('does throw when lazy loaded field definition has no keys for field names')
+     */
+    public function testThrowsWhenLazyLoadedFieldDefinitionHasNoKeysForFieldNames(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                static function (): array {
+                    return ['type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject lazy fields must be an associative array with field names as keys.'
+        );
+
+        $objType->assertValid();
+    }
+
+    /**
+     * @see it('does throw when lazy loaded field definition has invalid args')
+     */
+    public function testThrowsWhenLazyLoadedFieldHasInvalidArgs(): void
+    {
+        $objType = new ObjectType([
+            'name'   => 'SomeObject',
+            'fields' => [
+                'f' => static function (): array {
+                    return ['args' => 'invalid', 'type' => Type::string()];
+                },
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeObject.f args must be an array.'
+        );
+
+        $objType->assertValid();
     }
 }

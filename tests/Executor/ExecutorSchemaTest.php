@@ -11,15 +11,17 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+
 use function sprintf;
 
 class ExecutorSchemaTest extends TestCase
 {
     // Execute: Handles execution with a complex schema
+
     /**
      * @see it('executes using a schema')
      */
-    public function testExecutesUsingASchema() : void
+    public function testExecutesUsingASchema(): void
     {
         $BlogSerializableValueType = new CustomScalarType([
             'name'         => 'JsonSerializableValueScalar',
@@ -40,7 +42,7 @@ class ExecutorSchemaTest extends TestCase
 
         $BlogAuthor = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use (&$BlogArticle, &$BlogImage) {
+            'fields' => static function () use (&$BlogArticle, &$BlogImage): array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -75,13 +77,13 @@ class ExecutorSchemaTest extends TestCase
                 'article' => [
                     'type'    => $BlogArticle,
                     'args'    => ['id' => ['type' => Type::id()]],
-                    'resolve' => function ($_, $args) {
+                    'resolve' => function ($rootValue, $args) {
                         return $this->article($args['id']);
                     },
                 ],
                 'feed'    => [
                     'type'    => Type::listOf($BlogArticle),
-                    'resolve' => function () {
+                    'resolve' => function (): array {
                         return [
                             $this->article(1),
                             $this->article(2),
@@ -198,7 +200,7 @@ class ExecutorSchemaTest extends TestCase
                             'isPublished' => true,
                             'title'       => 'My Article 1',
                             'body'        => 'This is a post',
-                            'keywords'    => ['foo', 'bar', '1', 'true', null],
+                            'keywords'    => ['foo', 'bar', '1', '1', null],
                         ],
                     ],
                     'meta' => [ 'title' => 'My Article 1 | My Blog' ],
@@ -212,7 +214,7 @@ class ExecutorSchemaTest extends TestCase
     private function article($id)
     {
         $johnSmith = null;
-        $article   = static function ($id) use (&$johnSmith) {
+        $article   = static function ($id) use (&$johnSmith): array {
             return [
                 'id'          => $id,
                 'isPublished' => 'true',
@@ -225,7 +227,7 @@ class ExecutorSchemaTest extends TestCase
             ];
         };
 
-        $getPic = static function ($uid, $width, $height) {
+        $getPic = static function ($uid, $width, $height): array {
             return [
                 'url'    => sprintf('cdn://%s', $uid),
                 'width'  => $width,
@@ -236,7 +238,7 @@ class ExecutorSchemaTest extends TestCase
         $johnSmith = [
             'id'            => 123,
             'name'          => 'John Smith',
-            'pic'           => static function ($width, $height) use ($getPic) {
+            'pic'           => static function ($width, $height) use ($getPic): array {
                 return $getPic(123, $width, $height);
             },
             'recentArticle' => $article(1),

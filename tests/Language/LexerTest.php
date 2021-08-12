@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Lexer;
 use GraphQL\Language\Source;
@@ -11,15 +12,19 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Language\Token;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+
+use function array_map;
 use function count;
 use function json_decode;
 
 class LexerTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * @see it('disallows uncommon control characters')
      */
-    public function testDissallowsUncommonControlCharacters() : void
+    public function testDissallowsUncommonControlCharacters(): void
     {
         $this->expectSyntaxError(
             Utils::chr(0x0007),
@@ -36,6 +41,7 @@ class LexerTest extends TestCase
             $this->lexOne($text);
         } catch (SyntaxError $error) {
             self::assertEquals([$location], $error->getLocations());
+
             throw $error;
         }
     }
@@ -60,7 +66,7 @@ class LexerTest extends TestCase
     /**
      * @see it('accepts BOM header')
      */
-    public function testAcceptsBomHeader() : void
+    public function testAcceptsBomHeader(): void
     {
         $bom      = Utils::chr(0xFEFF);
         $expected = [
@@ -76,7 +82,7 @@ class LexerTest extends TestCase
     /**
      * @see it('records line and column')
      */
-    public function testRecordsLineAndColumn() : void
+    public function testRecordsLineAndColumn(): void
     {
         $expected = [
             'kind'   => Token::NAME,
@@ -92,7 +98,7 @@ class LexerTest extends TestCase
     /**
      * @see it('skips whitespace and comments')
      */
-    public function testSkipsWhitespacesAndComments() : void
+    public function testSkipsWhitespacesAndComments(): void
     {
         $example1 = '
 
@@ -135,7 +141,7 @@ class LexerTest extends TestCase
     /**
      * @see it('errors respect whitespace')
      */
-    public function testErrorsRespectWhitespace() : void
+    public function testErrorsRespectWhitespace(): void
     {
         $str = '' .
             "\n" .
@@ -163,7 +169,7 @@ class LexerTest extends TestCase
     /**
      * @see it('updates line numbers in error for file context')
      */
-    public function testUpdatesLineNumbersInErrorForFileContext() : void
+    public function testUpdatesLineNumbersInErrorForFileContext(): void
     {
         $str    = '' .
             "\n" .
@@ -190,7 +196,7 @@ class LexerTest extends TestCase
         }
     }
 
-    public function testUpdatesColumnNumbersInErrorForFileContext() : void
+    public function testUpdatesColumnNumbersInErrorForFileContext(): void
     {
         $source = new Source('?', 'foo.js', new SourceLocation(1, 5));
 
@@ -213,7 +219,7 @@ class LexerTest extends TestCase
     /**
      * @see it('lexes strings')
      */
-    public function testLexesStrings() : void
+    public function testLexesStrings(): void
     {
         self::assertArraySubset(
             [
@@ -295,12 +301,22 @@ class LexerTest extends TestCase
             ],
             (array) $this->lexOne('"\u1234\u5678\u90AB\uCDEF"')
         );
+
+        self::assertArraySubset(
+            [
+                'kind' => Token::STRING,
+                'start' => 0,
+                'end' => 41,
+                'value' => '𝕌𝕋𝔽-16',
+            ],
+            (array) $this->lexOne('"\ud835\udd4C\ud835\udd4B\ud835\udd3d-16"')
+        );
     }
 
     /**
      * @see it('lexes block strings')
      */
-    public function testLexesBlockString() : void
+    public function testLexesBlockString(): void
     {
         self::assertArraySubset(
             [
@@ -430,6 +446,14 @@ class LexerTest extends TestCase
             ['"bad \\uXXXX esc"', "Invalid character escape sequence: \\uXXXX", $this->loc(1, 7)],
             ['"bad \\uFXXX esc"', "Invalid character escape sequence: \\uFXXX", $this->loc(1, 7)],
             ['"bad \\uXXXF esc"', "Invalid character escape sequence: \\uXXXF", $this->loc(1, 7)],
+            ['"bad \\uD835"', 'Invalid UTF-16 trailing surrogate: ', $this->loc(1, 13)],
+            ['"bad \\uD835\\u1"', "Invalid UTF-16 trailing surrogate: \\u1", $this->loc(1, 13)],
+            ['"bad \\uD835\\u1 esc"', "Invalid UTF-16 trailing surrogate: \\u1 es", $this->loc(1, 13)],
+            ['"bad \\uD835uuFFFF esc"', 'Invalid UTF-16 trailing surrogate: uuFFFF', $this->loc(1, 13)],
+            ['"bad \\uD835\\u0XX1 esc"', "Invalid UTF-16 trailing surrogate: \\u0XX1", $this->loc(1, 13)],
+            ['"bad \\uD835\\uXXXX esc"', "Invalid UTF-16 trailing surrogate: \\uXXXX", $this->loc(1, 13)],
+            ['"bad \\uD835\\uFXXX esc"', "Invalid UTF-16 trailing surrogate: \\uFXXX", $this->loc(1, 13)],
+            ['"bad \\uD835\\uXXXF esc"', "Invalid UTF-16 trailing surrogate: \\uXXXF", $this->loc(1, 13)],
         ];
     }
 
@@ -438,7 +462,7 @@ class LexerTest extends TestCase
      *
      * @dataProvider reportsUsefulStringErrors
      */
-    public function testLexReportsUsefulStringErrors($str, $expectedMessage, $location) : void
+    public function testLexReportsUsefulStringErrors($str, $expectedMessage, $location): void
     {
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
@@ -472,7 +496,7 @@ class LexerTest extends TestCase
      *
      * @dataProvider reportsUsefulBlockStringErrors
      */
-    public function testReportsUsefulBlockStringErrors($str, $expectedMessage, $location) : void
+    public function testReportsUsefulBlockStringErrors($str, $expectedMessage, $location): void
     {
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
@@ -480,7 +504,7 @@ class LexerTest extends TestCase
     /**
      * @see it('lexes numbers')
      */
-    public function testLexesNumbers() : void
+    public function testLexesNumbers(): void
     {
         self::assertArraySubset(
             ['kind' => Token::INT, 'start' => 0, 'end' => 1, 'value' => '4'],
@@ -568,7 +592,7 @@ class LexerTest extends TestCase
      *
      * @dataProvider reportsUsefulNumberErrors
      */
-    public function testReportsUsefulNumberErrors($str, $expectedMessage, $location) : void
+    public function testReportsUsefulNumberErrors($str, $expectedMessage, $location): void
     {
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
@@ -576,7 +600,7 @@ class LexerTest extends TestCase
     /**
      * @see it('lexes punctuation')
      */
-    public function testLexesPunctuation() : void
+    public function testLexesPunctuation(): void
     {
         self::assertArraySubset(
             ['kind' => Token::BANG, 'start' => 0, 'end' => 1, 'value' => null],
@@ -650,7 +674,7 @@ class LexerTest extends TestCase
      *
      * @dataProvider reportsUsefulUnknownCharErrors
      */
-    public function testReportsUsefulUnknownCharErrors($str, $expectedMessage, $location) : void
+    public function testReportsUsefulUnknownCharErrors($str, $expectedMessage, $location): void
     {
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
@@ -658,7 +682,7 @@ class LexerTest extends TestCase
     /**
      * @see it('lex reports useful information for dashes in names')
      */
-    public function testReportsUsefulDashesInfo() : void
+    public function testReportsUsefulDashesInfo(): void
     {
         $q     = 'a-b';
         $lexer = new Lexer(new Source($q));
@@ -674,6 +698,7 @@ class LexerTest extends TestCase
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
             self::assertEquals([$this->loc(1, 3)], $error->getLocations());
+
             throw $error;
         }
     }
@@ -681,7 +706,7 @@ class LexerTest extends TestCase
     /**
      * @see it('produces double linked list of tokens, including comments')
      */
-    public function testDoubleLinkedList() : void
+    public function testDoubleLinkedList(): void
     {
         $lexer = new Lexer(new Source('{
       #comment
@@ -701,10 +726,11 @@ class LexerTest extends TestCase
 
         $tokens = [];
         for ($tok = $startToken; $tok; $tok = $tok->next) {
-            if (! empty($tokens)) {
+            if (count($tokens) > 0) {
                 // Tokens are double-linked, prev should point to last seen token.
                 self::assertSame($tokens[count($tokens) - 1], $tok->prev);
             }
+
             $tokens[] = $tok;
         }
 
@@ -717,11 +743,9 @@ class LexerTest extends TestCase
                 '}',
                 '<EOF>',
             ],
-            Utils::map(
-                $tokens,
-                static function ($tok) {
-                    return $tok->kind;
-                }
+            array_map(
+                static fn (Token $tok): string => $tok->kind,
+                $tokens
             )
         );
     }

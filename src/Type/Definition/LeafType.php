@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Exception;
-use GraphQL\Error\Error;
+use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\FloatValueNode;
+use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\StringValueNode;
 
 /*
 export type GraphQLLeafType =
@@ -19,38 +22,34 @@ interface LeafType
     /**
      * Serializes an internal value to include in a response.
      *
+     * Should throw an exception on invalid values.
+     *
      * @param mixed $value
      *
      * @return mixed
-     *
-     * @throws Error
      */
     public function serialize($value);
 
     /**
-     * Parses an externally provided value (query variable) to use as an input
+     * Parses an externally provided value (query variable) to use as an input.
      *
-     * In the case of an invalid value this method must throw an Exception
+     * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
      *
      * @param mixed $value
      *
      * @return mixed
-     *
-     * @throws Error
      */
     public function parseValue($value);
 
     /**
-     * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input
+     * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
      *
-     * In the case of an invalid node or value this method must throw an Exception
+     * Should throw an exception with a client friendly message on invalid value nodes, @see ClientAware.
      *
-     * @param Node         $valueNode
-     * @param mixed[]|null $variables
+     * @param IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|NullValueNode $valueNode
+     * @param array<string, mixed>|null                                                  $variables
      *
      * @return mixed
-     *
-     * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null);
+    public function parseLiteral(Node $valueNode, ?array $variables = null);
 }

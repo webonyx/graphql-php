@@ -11,28 +11,28 @@ namespace GraphQL\Language;
 class Token
 {
     // Each kind of token.
-    const SOF          = '<SOF>';
-    const EOF          = '<EOF>';
-    const BANG         = '!';
-    const DOLLAR       = '$';
-    const AMP          = '&';
-    const PAREN_L      = '(';
-    const PAREN_R      = ')';
-    const SPREAD       = '...';
-    const COLON        = ':';
-    const EQUALS       = '=';
-    const AT           = '@';
-    const BRACKET_L    = '[';
-    const BRACKET_R    = ']';
-    const BRACE_L      = '{';
-    const PIPE         = '|';
-    const BRACE_R      = '}';
-    const NAME         = 'Name';
-    const INT          = 'Int';
-    const FLOAT        = 'Float';
-    const STRING       = 'String';
-    const BLOCK_STRING = 'BlockString';
-    const COMMENT      = 'Comment';
+    public const SOF          = '<SOF>';
+    public const EOF          = '<EOF>';
+    public const BANG         = '!';
+    public const DOLLAR       = '$';
+    public const AMP          = '&';
+    public const PAREN_L      = '(';
+    public const PAREN_R      = ')';
+    public const SPREAD       = '...';
+    public const COLON        = ':';
+    public const EQUALS       = '=';
+    public const AT           = '@';
+    public const BRACKET_L    = '[';
+    public const BRACKET_R    = ']';
+    public const BRACE_L      = '{';
+    public const PIPE         = '|';
+    public const BRACE_R      = '}';
+    public const NAME         = 'Name';
+    public const INT          = 'Int';
+    public const FLOAT        = 'Float';
+    public const STRING       = 'String';
+    public const BLOCK_STRING = 'BlockString';
+    public const COMMENT      = 'Comment';
 
     /**
      * The kind of Token (see one of constants above).
@@ -81,18 +81,13 @@ class Token
      */
     public $prev;
 
-    /** @var Token */
+    /** @var Token|null */
     public $next;
 
     /**
-     * @param string     $kind
-     * @param int        $start
-     * @param int        $end
-     * @param int        $line
-     * @param int        $column
-     * @param mixed|null $value
+     * @param mixed $value
      */
-    public function __construct($kind, $start, $end, $line, $column, ?Token $previous = null, $value = null)
+    public function __construct(string $kind, int $start, int $end, int $line, int $column, ?Token $previous = null, $value = null)
     {
         $this->kind   = $kind;
         $this->start  = $start;
@@ -104,18 +99,15 @@ class Token
         $this->value  = $value;
     }
 
-    /**
-     * @return string
-     */
-    public function getDescription()
+    public function getDescription(): string
     {
-        return $this->kind . ($this->value ? ' "' . $this->value . '"' : '');
+        return $this->kind . ($this->value === null ? '' : ' "' . $this->value . '"');
     }
 
     /**
      * @return (string|int|null)[]
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'kind'   => $this->kind,

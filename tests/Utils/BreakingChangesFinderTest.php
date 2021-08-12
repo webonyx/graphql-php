@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BreakingChangesFinder;
 use PHPUnit\Framework\TestCase;
+
 use function sprintf;
 
 class BreakingChangesFinderTest extends TestCase
@@ -23,7 +24,7 @@ class BreakingChangesFinderTest extends TestCase
     /** @var ObjectType */
     private $queryType;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->queryType = new ObjectType([
             'name'   => 'Query',
@@ -40,7 +41,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a type was removed or not')
      */
-    public function testShouldDetectIfTypeWasRemovedOrNot() : void
+    public function testShouldDetectIfTypeWasRemovedOrNot(): void
     {
         $type1     = new ObjectType([
             'name'   => 'Type1',
@@ -81,7 +82,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a type changed its type')
      */
-    public function testShouldDetectIfATypeChangedItsType() : void
+    public function testShouldDetectIfATypeChangedItsType(): void
     {
         $objectType = new ObjectType([
             'name'   => 'ObjectType',
@@ -135,7 +136,7 @@ class BreakingChangesFinderTest extends TestCase
      *
      * @see https://github.com/webonyx/graphql-php/pull/431
      */
-    public function testShouldNotMarkTypesWithInheritedClassesAsChanged() : void
+    public function testShouldNotMarkTypesWithInheritedClassesAsChanged(): void
     {
         $objectTypeConstructedFromRemoteSchema = new ObjectType([
             'name'   => 'ObjectType',
@@ -144,7 +145,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $localObjectType = new class([
+        $localObjectType = new class ([
             'name'   => 'ObjectType',
             'fields' => [
                 'field1' => ['type' => Type::string()],
@@ -169,7 +170,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a field on a type was deleted or changed type')
      */
-    public function testShouldDetectIfAFieldOnATypeWasDeletedOrChangedType() : void
+    public function testShouldDetectIfAFieldOnATypeWasDeletedOrChangedType(): void
     {
         $typeA = new ObjectType([
             'name'   => 'TypeA',
@@ -318,7 +319,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if fields on input types changed kind or were removed')
      */
-    public function testShouldDetectIfFieldsOnInputTypesChangedKindOrWereRemoved() : void
+    public function testShouldDetectIfFieldsOnInputTypesChangedKindOrWereRemoved(): void
     {
         $oldInputType = new InputObjectType([
             'name'   => 'InputType1',
@@ -486,9 +487,9 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @see it('should detect if a non-null field is added to an input type')
+     * @see it('should detect if a required field is added to an input type')
      */
-    public function testShouldDetectIfANonNullFieldIsAddedToAnInputType() : void
+    public function testShouldDetectIfANonNullFieldIsAddedToAnInputType(): void
     {
         $oldInputType = new InputObjectType([
             'name'   => 'InputType1',
@@ -500,9 +501,13 @@ class BreakingChangesFinderTest extends TestCase
         $newInputType = new InputObjectType([
             'name'   => 'InputType1',
             'fields' => [
-                'field1'        => Type::string(),
-                'requiredField' => Type::nonNull(Type::int()),
-                'optionalField' => Type::boolean(),
+                'field1'         => Type::string(),
+                'requiredField'  => Type::nonNull(Type::int()),
+                'optionalField1' => Type::boolean(),
+                'optionalField2' => [
+                    'type' => Type::nonNull(Type::boolean()),
+                    'defaultValue' => false,
+                ],
             ],
         ]);
 
@@ -518,8 +523,8 @@ class BreakingChangesFinderTest extends TestCase
 
         $expected = [
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED,
-                'description' => 'A non-null field requiredField on input type InputType1 was added.',
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED,
+                'description' => 'A required field requiredField on input type InputType1 was added.',
             ],
         ];
 
@@ -535,7 +540,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a type was removed from a union type')
      */
-    public function testShouldRetectIfATypeWasRemovedFromAUnionType() : void
+    public function testShouldRetectIfATypeWasRemovedFromAUnionType(): void
     {
         $type1 = new ObjectType([
             'name'   => 'Type1',
@@ -598,7 +603,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a value was removed from an enum type')
      */
-    public function testShouldDetectIfAValueWasRemovedFromAnEnumType() : void
+    public function testShouldDetectIfAValueWasRemovedFromAnEnumType(): void
     {
         $oldEnumType = new EnumType([
             'name'   => 'EnumType1',
@@ -643,7 +648,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a field argument was removed')
      */
-    public function testShouldDetectIfAFieldArgumentWasRemoved() : void
+    public function testShouldDetectIfAFieldArgumentWasRemoved(): void
     {
         $oldType = new ObjectType([
             'name'   => 'Type1',
@@ -728,7 +733,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a field argument has changed type')
      */
-    public function testShouldDetectIfAFieldArgumentHasChangedType() : void
+    public function testShouldDetectIfAFieldArgumentHasChangedType(): void
     {
         $oldType = new ObjectType([
             'name'   => 'Type1',
@@ -852,7 +857,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a non-null field argument was added')
      */
-    public function testShouldDetectIfANonNullFieldArgumentWasAdded() : void
+    public function testShouldDetectIfANonNullFieldArgumentWasAdded(): void
     {
         $oldType   = new ObjectType([
             'name'   => 'Type1',
@@ -889,8 +894,8 @@ class BreakingChangesFinderTest extends TestCase
 
         $expected = [
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
-                'description' => 'A non-null arg newRequiredArg on Type1.field1 was added',
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_ARG_ADDED,
+                'description' => 'A required arg newRequiredArg on Type1.field1 was added',
             ],
         ];
 
@@ -903,7 +908,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should not flag args with the same type signature as breaking')
      */
-    public function testShouldNotFlagArgsWithTheSameTypeSignatureAsBreaking() : void
+    public function testShouldNotFlagArgsWithTheSameTypeSignatureAsBreaking(): void
     {
         $inputType1a = new InputObjectType([
             'name'   => 'InputType1',
@@ -960,7 +965,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should consider args that move away from NonNull as non-breaking')
      */
-    public function testShouldConsiderArgsThatMoveAwayFromNonNullAsNonBreaking() : void
+    public function testShouldConsiderArgsThatMoveAwayFromNonNullAsNonBreaking(): void
     {
         $oldType = new ObjectType([
             'name'   => 'Type1',
@@ -1000,7 +1005,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect interfaces removed from types')
      */
-    public function testShouldDetectInterfacesRemovedFromTypes() : void
+    public function testShouldDetectInterfacesRemovedFromTypes(): void
     {
         $interface1 = new InterfaceType([
             'name'   => 'Interface1',
@@ -1033,8 +1038,56 @@ class BreakingChangesFinderTest extends TestCase
 
         $expected = [
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
                 'description' => 'Type1 no longer implements interface Interface1.',
+            ],
+        ];
+
+        self::assertEquals(
+            $expected,
+            BreakingChangesFinder::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
+        );
+    }
+
+    /**
+     * @see it('should detect interfaces removed from interfaces')
+     */
+    public function testShouldDetectInterfacesRemovedFromInterfaces(): void
+    {
+        $interface1 = new InterfaceType([
+            'name'   => 'Interface1',
+            'fields' => [
+                'field1' => Type::string(),
+            ],
+        ]);
+
+        $oldInterface2 = new InterfaceType([
+            'name'   => 'Interface2',
+            'fields' => [
+                'field1' => Type::string(),
+            ],
+            'interfaces' => [$interface1],
+        ]);
+        $newInterface2 = new InterfaceType([
+            'name'   => 'Interface2',
+            'fields' => [
+                'field1' => Type::string(),
+            ],
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$interface1, $oldInterface2],
+        ]);
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$interface1, $newInterface2],
+        ]);
+
+        $expected = [
+            [
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
+                'description' => 'Interface2 no longer implements interface Interface1.',
             ],
         ];
 
@@ -1047,7 +1100,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect all breaking changes')
      */
-    public function testShouldDetectAllBreakingChanges() : void
+    public function testShouldDetectAllBreakingChanges(): void
     {
         $typeThatGetsRemoved = new ObjectType([
             'name'   => 'TypeThatGetsRemoved',
@@ -1177,7 +1230,10 @@ class BreakingChangesFinderTest extends TestCase
             'name'      => 'DirectiveThatRemovesArg',
             'locations' => [DirectiveLocation::FIELD_DEFINITION],
             'args'      => FieldArgument::createMap([
-                'arg1' => ['name' => 'arg1'],
+                'arg1' => [
+                    'name' => 'arg1',
+                    'type' => Type::boolean(),
+                ],
             ]),
         ]);
         $directiveThatRemovesArgNew  = new Directive([
@@ -1284,7 +1340,7 @@ class BreakingChangesFinderTest extends TestCase
                 'description' => 'ArgThatChanges.field1 arg id has changed type from Int to String',
             ],
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
                 'description' => 'TypeThatLosesInterface1 no longer implements interface Interface1.',
             ],
             [
@@ -1296,8 +1352,8 @@ class BreakingChangesFinderTest extends TestCase
                 'description' => 'arg1 was removed from DirectiveThatRemovesArg',
             ],
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
-                'description' => 'A non-null arg arg1 on directive NonNullDirectiveAdded was added',
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
+                'description' => 'A required arg arg1 on directive NonNullDirectiveAdded was added',
             ],
             [
                 'type'        => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
@@ -1314,7 +1370,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a directive was explicitly removed')
      */
-    public function testShouldDetectIfADirectiveWasExplicitlyRemoved() : void
+    public function testShouldDetectIfADirectiveWasExplicitlyRemoved(): void
     {
         $oldSchema = new Schema([
             'directives' => [Directive::skipDirective(), Directive::includeDirective()],
@@ -1342,7 +1398,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a directive was implicitly removed')
      */
-    public function testShouldDetectIfADirectiveWasImplicitlyRemoved() : void
+    public function testShouldDetectIfADirectiveWasImplicitlyRemoved(): void
     {
         $oldSchema = new Schema([]);
 
@@ -1368,7 +1424,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a directive argument was removed')
      */
-    public function testShouldDetectIfADirectiveArgumentWasRemoved() : void
+    public function testShouldDetectIfADirectiveArgumentWasRemoved(): void
     {
         $oldSchema = new Schema([
             'directives' => [
@@ -1376,7 +1432,10 @@ class BreakingChangesFinderTest extends TestCase
                     'name'      => 'DirectiveWithArg',
                     'locations' => [DirectiveLocation::FIELD_DEFINITION],
                     'args'      => FieldArgument::createMap([
-                        'arg1' => ['name' => 'arg1'],
+                        'arg1' => [
+                            'name' => 'arg1',
+                            'type' => Type::string(),
+                        ],
                     ]),
                 ]),
             ],
@@ -1407,7 +1466,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a non-nullable directive argument was added')
      */
-    public function testShouldDetectIfANonNullableDirectiveArgumentWasAdded() : void
+    public function testShouldDetectIfANonNullableDirectiveArgumentWasAdded(): void
     {
         $oldSchema = new Schema([
             'directives' => [
@@ -1435,8 +1494,8 @@ class BreakingChangesFinderTest extends TestCase
 
         $expectedBreakingChanges = [
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
-                'description' => 'A non-null arg arg1 on directive DirectiveName was added',
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
+                'description' => 'A required arg arg1 on directive DirectiveName was added',
             ],
         ];
 
@@ -1449,7 +1508,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect locations removed from a directive')
      */
-    public function testShouldDetectLocationsRemovedFromADirective() : void
+    public function testShouldDetectLocationsRemovedFromADirective(): void
     {
         $d1 = new Directive([
             'name'      => 'Directive Name',
@@ -1470,7 +1529,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect locations removed directives within a schema')
      */
-    public function testShouldDetectLocationsRemovedDirectiveWithinASchema() : void
+    public function testShouldDetectLocationsRemovedDirectiveWithinASchema(): void
     {
         $oldSchema = new Schema([
             'directives' => [
@@ -1512,7 +1571,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if an argument's defaultValue has changed')
      */
-    public function testShouldDetectIfAnArgumentsDefaultValueHasChanged() : void
+    public function testShouldDetectIfAnArgumentsDefaultValueHasChanged(): void
     {
         $oldType = new ObjectType([
             'name'   => 'Type1',
@@ -1570,7 +1629,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a value was added to an enum type')
      */
-    public function testShouldDetectIfAValueWasAddedToAnEnumType() : void
+    public function testShouldDetectIfAValueWasAddedToAnEnumType(): void
     {
         $oldEnumType = new EnumType([
             'name'   => 'EnumType1',
@@ -1614,7 +1673,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect interfaces added to types')
      */
-    public function testShouldDetectInterfacesAddedToTypes() : void
+    public function testShouldDetectInterfacesAddedToTypes(): void
     {
         $interface1 = new InterfaceType([
             'name'   => 'Interface1',
@@ -1649,8 +1708,48 @@ class BreakingChangesFinderTest extends TestCase
 
         $expected = [
             [
-                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
+                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
                 'description' => 'Interface1 added to interfaces implemented by Type1.',
+            ],
+        ];
+
+        self::assertEquals(
+            $expected,
+            BreakingChangesFinder::findInterfacesAddedToObjectTypes($oldSchema, $newSchema)
+        );
+    }
+
+    /**
+     * @see it('should detect interfaces added to interfaces')
+     */
+    public function testShouldDetectInterfacesAddedToInterfaces(): void
+    {
+        $oldInterface = new InterfaceType(['name' => 'OldInterface']);
+        $newInterface = new InterfaceType(['name' => 'NewInterface']);
+
+        $oldInterface1 = new InterfaceType([
+            'name'   => 'Interface1',
+            'interfaces' => [$oldInterface],
+        ]);
+        $newInterface1 = new InterfaceType([
+            'name'   => 'Interface1',
+            'interfaces' => [$oldInterface, $newInterface],
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$oldInterface1],
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$newInterface1],
+        ]);
+
+        $expected = [
+            [
+                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
+                'description' => 'NewInterface added to interfaces implemented by Interface1.',
             ],
         ];
 
@@ -1663,7 +1762,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a type was added to a union type')
      */
-    public function testShouldDetectIfATypeWasAddedToAUnionType() : void
+    public function testShouldDetectIfATypeWasAddedToAUnionType(): void
     {
         $type1 = new ObjectType([
             'name'   => 'Type1',
@@ -1721,7 +1820,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a nullable field was added to an input')
      */
-    public function testShouldDetectIfANullableFieldWasAddedToAnInput() : void
+    public function testShouldDetectIfANullableFieldWasAddedToAnInput(): void
     {
         $oldInputType = new InputObjectType([
             'name'   => 'InputType1',
@@ -1755,8 +1854,8 @@ class BreakingChangesFinderTest extends TestCase
 
         $expectedFieldChanges = [
             [
-                'description' => 'A nullable field field2 on input type InputType1 was added.',
-                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_NULLABLE_INPUT_FIELD_ADDED,
+                'description' => 'An optional field field2 on input type InputType1 was added.',
+                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED,
             ],
         ];
 
@@ -1772,7 +1871,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should find all dangerous changes')
      */
-    public function testShouldFindAllDangerousChanges() : void
+    public function testShouldFindAllDangerousChanges(): void
     {
         $enumThatGainsAValueOld = new EnumType([
             'name'   => 'EnumType1',
@@ -1893,7 +1992,7 @@ class BreakingChangesFinderTest extends TestCase
                 'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
             ],
             [
-                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
+                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
                 'description' => 'Interface1 added to interfaces implemented by TypeThatGainsInterface1.',
             ],
             [
@@ -1911,7 +2010,7 @@ class BreakingChangesFinderTest extends TestCase
     /**
      * @see it('should detect if a nullable field argument was added')
      */
-    public function testShouldDetectIfANullableFieldArgumentWasAdded() : void
+    public function testShouldDetectIfANullableFieldArgumentWasAdded(): void
     {
         $oldType = new ObjectType([
             'name'   => 'Type1',
@@ -1956,8 +2055,8 @@ class BreakingChangesFinderTest extends TestCase
 
         $expectedFieldChanges = [
             [
-                'description' => 'A nullable arg arg2 on Type1.field1 was added',
-                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_NULLABLE_ARG_ADDED,
+                'description' => 'An optional arg arg2 on Type1.field1 was added',
+                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED,
             ],
         ];
 

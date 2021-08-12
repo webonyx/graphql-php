@@ -1,208 +1,191 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog;
 
+use Closure;
+use Exception;
 use GraphQL\Examples\Blog\Type\CommentType;
-use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
-use GraphQL\Examples\Blog\Type\Enum\ImageSizeEnumType;
-use GraphQL\Examples\Blog\Type\Field\HtmlField;
-use GraphQL\Examples\Blog\Type\SearchResultType;
-use GraphQL\Examples\Blog\Type\NodeType;
-use GraphQL\Examples\Blog\Type\QueryType;
-use GraphQL\Examples\Blog\Type\Scalar\EmailType;
-use GraphQL\Examples\Blog\Type\StoryType;
-use GraphQL\Examples\Blog\Type\Scalar\UrlType;
-use GraphQL\Examples\Blog\Type\UserType;
+use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
+use GraphQL\Examples\Blog\Type\Enum\ImageSizeType;
+use GraphQL\Examples\Blog\Type\Enum\StoryAffordancesType;
 use GraphQL\Examples\Blog\Type\ImageType;
+use GraphQL\Examples\Blog\Type\NodeType;
+use GraphQL\Examples\Blog\Type\Scalar\EmailType;
+use GraphQL\Examples\Blog\Type\Scalar\UrlType;
+use GraphQL\Examples\Blog\Type\SearchResultType;
+use GraphQL\Examples\Blog\Type\StoryType;
+use GraphQL\Examples\Blog\Type\UserType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 
+use function class_exists;
+use function count;
+use function explode;
+use function lcfirst;
+use function method_exists;
+use function preg_replace;
+use function strtolower;
+
 /**
- * Class Types
- *
  * Acts as a registry and factory for your types.
  *
  * As simplistic as possible for the sake of clarity of this example.
  * Your own may be more dynamic (or even code-generated).
- *
- * @package GraphQL\Examples\Blog
  */
 class Types
 {
-    // Object types:
-    private static $user;
-    private static $story;
-    private static $comment;
-    private static $image;
-    private static $query;
+    /** @var array<string, Type> */
+    private static array $types = [];
 
-    /**
-     * @return UserType
-     */
-    public static function user()
+    public static function user(): callable
     {
-        return self::$user ?: (self::$user = new UserType());
+        return static::get(UserType::class);
+    }
+
+    public static function story(): callable
+    {
+        return static::get(StoryType::class);
+    }
+
+    public static function comment(): callable
+    {
+        return static::get(CommentType::class);
+    }
+
+    public static function image(): callable
+    {
+        return static::get(ImageType::class);
+    }
+
+    public static function node(): callable
+    {
+        return static::get(NodeType::class);
+    }
+
+    public static function mention(): callable
+    {
+        return static::get(SearchResultType::class);
+    }
+
+    public static function imageSize(): callable
+    {
+        return static::get(ImageSizeType::class);
+    }
+
+    public static function contentFormat(): callable
+    {
+        return static::get(ContentFormatType::class);
+    }
+
+    public static function storyAffordances(): callable
+    {
+        return static::get(StoryAffordancesType::class);
+    }
+
+    public static function email(): callable
+    {
+        return static::get(EmailType::class);
+    }
+
+    public static function url(): callable
+    {
+        return static::get(UrlType::class);
     }
 
     /**
-     * @return StoryType
+     * @return Closure(): Type
      */
-    public static function story()
+    private static function get(string $classname): Closure
     {
-        return self::$story ?: (self::$story = new StoryType());
+        return static fn () => static::byClassName($classname);
     }
 
-    /**
-     * @return CommentType
-     */
-    public static function comment()
+    private static function byClassName(string $classname): Type
     {
-        return self::$comment ?: (self::$comment = new CommentType());
+        $parts = explode('\\', $classname);
+
+        $cacheName = strtolower(preg_replace('~Type$~', '', $parts[count($parts) - 1]));
+        $type      = null;
+
+        if (! isset(self::$types[$cacheName])) {
+            if (class_exists($classname)) {
+                $type = new $classname();
+            }
+
+            self::$types[$cacheName] = $type;
+        }
+
+        $type = self::$types[$cacheName];
+
+        if (! $type) {
+            throw new Exception('Unknown graphql type: ' . $classname);
+        }
+
+        return $type;
     }
 
-    /**
-     * @return ImageType
-     */
-    public static function image()
+    public static function byTypeName(string $shortName): Type
     {
-        return self::$image ?: (self::$image = new ImageType());
+        $cacheName = strtolower($shortName);
+        $type      = null;
+
+        if (isset(self::$types[$cacheName])) {
+            return self::$types[$cacheName];
+        }
+
+        $method = lcfirst($shortName);
+        if (method_exists(static::class, $method)) {
+            $type = self::{$method}();
+        }
+
+        if (! $type) {
+            throw new Exception('Unknown graphql type: ' . $shortName);
+        }
+
+        return $type;
     }
 
-    /**
-     * @return QueryType
-     */
-    public static function query()
-    {
-        return self::$query ?: (self::$query = new QueryType());
-    }
-
-
-    // Interface types
-    private static $node;
-
-    /**
-     * @return NodeType
-     */
-    public static function node()
-    {
-        return self::$node ?: (self::$node = new NodeType());
-    }
-
-
-    // Unions types:
-    private static $mention;
-
-    /**
-     * @return SearchResultType
-     */
-    public static function mention()
-    {
-        return self::$mention ?: (self::$mention = new SearchResultType());
-    }
-
-
-    // Enum types
-    private static $imageSizeEnum;
-    private static $contentFormatEnum;
-
-    /**
-     * @return ImageSizeEnumType
-     */
-    public static function imageSizeEnum()
-    {
-        return self::$imageSizeEnum ?: (self::$imageSizeEnum = new ImageSizeEnumType());
-    }
-
-    /**
-     * @return ContentFormatEnum
-     */
-    public static function contentFormatEnum()
-    {
-        return self::$contentFormatEnum ?: (self::$contentFormatEnum = new ContentFormatEnum());
-    }
-
-    // Custom Scalar types:
-    private static $urlType;
-    private static $emailType;
-
-    public static function email()
-    {
-        return self::$emailType ?: (self::$emailType = EmailType::create());
-    }
-
-    /**
-     * @return UrlType
-     */
-    public static function url()
-    {
-        return self::$urlType ?: (self::$urlType = new UrlType());
-    }
-
-    /**
-     * @param $name
-     * @param null $objectKey
-     * @return array
-     */
-    public static function htmlField($name, $objectKey = null)
-    {
-        return HtmlField::build($name, $objectKey);
-    }
-
-
-
-    // Let's add internal types as well for consistent experience
-
-    public static function boolean()
+    public static function boolean(): ScalarType
     {
         return Type::boolean();
     }
 
-    /**
-     * @return \GraphQL\Type\Definition\FloatType
-     */
-    public static function float()
+    public static function float(): ScalarType
     {
         return Type::float();
     }
 
-    /**
-     * @return \GraphQL\Type\Definition\IDType
-     */
-    public static function id()
+    public static function id(): ScalarType
     {
         return Type::id();
     }
 
-    /**
-     * @return \GraphQL\Type\Definition\IntType
-     */
-    public static function int()
+    public static function int(): ScalarType
     {
         return Type::int();
     }
 
-    /**
-     * @return \GraphQL\Type\Definition\StringType
-     */
-    public static function string()
+    public static function string(): ScalarType
     {
         return Type::string();
     }
 
     /**
-     * @param Type $type
-     * @return ListOfType
+     * @param Type|callable():Type $type
      */
-    public static function listOf($type)
+    public static function listOf($type): ListOfType
     {
         return new ListOfType($type);
     }
 
     /**
-     * @param Type $type
-     * @return NonNull
+     * @param Type|callable():Type $type
      */
-    public static function nonNull($type)
+    public static function nonNull($type): NonNull
     {
         return new NonNull($type);
     }

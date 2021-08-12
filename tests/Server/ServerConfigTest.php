@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Server;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Server\ServerConfig;
@@ -15,7 +16,7 @@ use stdClass;
 
 class ServerConfigTest extends TestCase
 {
-    public function testDefaults() : void
+    public function testDefaults(): void
     {
         $config = ServerConfig::create();
         self::assertNull($config->getSchema());
@@ -27,11 +28,11 @@ class ServerConfigTest extends TestCase
         self::assertNull($config->getValidationRules());
         self::assertNull($config->getFieldResolver());
         self::assertNull($config->getPersistentQueryLoader());
-        self::assertFalse($config->getDebug());
+        self::assertSame(DebugFlag::NONE, $config->getDebugFlag());
         self::assertFalse($config->getQueryBatching());
     }
 
-    public function testAllowsSettingSchema() : void
+    public function testAllowsSettingSchema(): void
     {
         $schema = new Schema(['query' => new ObjectType(['name' => 'a', 'fields' => []])]);
         $config = ServerConfig::create()
@@ -44,7 +45,7 @@ class ServerConfigTest extends TestCase
         self::assertSame($schema2, $config->getSchema());
     }
 
-    public function testAllowsSettingContext() : void
+    public function testAllowsSettingContext(): void
     {
         $config = ServerConfig::create();
 
@@ -57,7 +58,7 @@ class ServerConfigTest extends TestCase
         self::assertSame($context2, $config->getContext());
     }
 
-    public function testAllowsSettingRootValue() : void
+    public function testAllowsSettingRootValue(): void
     {
         $config = ServerConfig::create();
 
@@ -70,11 +71,11 @@ class ServerConfigTest extends TestCase
         self::assertSame($context2, $config->getRootValue());
     }
 
-    public function testAllowsSettingErrorFormatter() : void
+    public function testAllowsSettingErrorFormatter(): void
     {
         $config = ServerConfig::create();
 
-        $formatter = static function () {
+        $formatter = static function (): void {
         };
         $config->setErrorFormatter($formatter);
         self::assertSame($formatter, $config->getErrorFormatter());
@@ -84,11 +85,11 @@ class ServerConfigTest extends TestCase
         self::assertSame($formatter, $config->getErrorFormatter());
     }
 
-    public function testAllowsSettingErrorsHandler() : void
+    public function testAllowsSettingErrorsHandler(): void
     {
         $config = ServerConfig::create();
 
-        $handler = static function () {
+        $handler = static function (): void {
         };
         $config->setErrorsHandler($handler);
         self::assertSame($handler, $config->getErrorsHandler());
@@ -98,7 +99,7 @@ class ServerConfigTest extends TestCase
         self::assertSame($handler, $config->getErrorsHandler());
     }
 
-    public function testAllowsSettingPromiseAdapter() : void
+    public function testAllowsSettingPromiseAdapter(): void
     {
         $config = ServerConfig::create();
 
@@ -111,7 +112,7 @@ class ServerConfigTest extends TestCase
         self::assertSame($adapter2, $config->getPromiseAdapter());
     }
 
-    public function testAllowsSettingValidationRules() : void
+    public function testAllowsSettingValidationRules(): void
     {
         $config = ServerConfig::create();
 
@@ -119,26 +120,28 @@ class ServerConfigTest extends TestCase
         $config->setValidationRules($rules);
         self::assertSame($rules, $config->getValidationRules());
 
-        $rules = [static function () {
-        },
+        $rules = [
+            static function (): void {
+            },
         ];
         $config->setValidationRules($rules);
         self::assertSame($rules, $config->getValidationRules());
 
-        $rules = static function () {
-            return [static function () {
-            },
+        $rules = static function (): array {
+            return [
+                static function (): void {
+                },
             ];
         };
         $config->setValidationRules($rules);
         self::assertSame($rules, $config->getValidationRules());
     }
 
-    public function testAllowsSettingDefaultFieldResolver() : void
+    public function testAllowsSettingDefaultFieldResolver(): void
     {
         $config = ServerConfig::create();
 
-        $resolver = static function () {
+        $resolver = static function (): void {
         };
         $config->setFieldResolver($resolver);
         self::assertSame($resolver, $config->getFieldResolver());
@@ -148,11 +151,11 @@ class ServerConfigTest extends TestCase
         self::assertSame($resolver, $config->getFieldResolver());
     }
 
-    public function testAllowsSettingPersistedQueryLoader() : void
+    public function testAllowsSettingPersistedQueryLoader(): void
     {
         $config = ServerConfig::create();
 
-        $loader = static function () {
+        $loader = static function (): void {
         };
         $config->setPersistentQueryLoader($loader);
         self::assertSame($loader, $config->getPersistentQueryLoader());
@@ -162,18 +165,18 @@ class ServerConfigTest extends TestCase
         self::assertSame($loader, $config->getPersistentQueryLoader());
     }
 
-    public function testAllowsSettingCatchPhpErrors() : void
+    public function testAllowsSettingCatchPhpErrors(): void
     {
         $config = ServerConfig::create();
 
-        $config->setDebug(true);
-        self::assertTrue($config->getDebug());
+        $config->setDebugFlag(DebugFlag::INCLUDE_DEBUG_MESSAGE);
+        self::assertEquals(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
 
-        $config->setDebug(false);
-        self::assertFalse($config->getDebug());
+        $config->setDebugFlag(DebugFlag::NONE);
+        self::assertEquals(DebugFlag::NONE, $config->getDebugFlag());
     }
 
-    public function testAcceptsArray() : void
+    public function testAcceptsArray(): void
     {
         $arr = [
             'schema'                => new Schema([
@@ -181,17 +184,18 @@ class ServerConfigTest extends TestCase
             ]),
             'context'               => new stdClass(),
             'rootValue'             => new stdClass(),
-            'errorFormatter'        => static function () {
+            'errorFormatter'        => static function (): void {
             },
             'promiseAdapter'        => new SyncPromiseAdapter(),
-            'validationRules'       => [static function () {
-            },
+            'validationRules'       => [
+                static function (): void {
+                },
             ],
-            'fieldResolver'         => static function () {
+            'fieldResolver'         => static function (): void {
             },
-            'persistentQueryLoader' => static function () {
+            'persistentQueryLoader' => static function (): void {
             },
-            'debug'                 => true,
+            'debugFlag'             => DebugFlag::INCLUDE_DEBUG_MESSAGE,
             'queryBatching'         => true,
         ];
 
@@ -205,11 +209,11 @@ class ServerConfigTest extends TestCase
         self::assertSame($arr['validationRules'], $config->getValidationRules());
         self::assertSame($arr['fieldResolver'], $config->getFieldResolver());
         self::assertSame($arr['persistentQueryLoader'], $config->getPersistentQueryLoader());
-        self::assertTrue($config->getDebug());
+        self::assertSame(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
         self::assertTrue($config->getQueryBatching());
     }
 
-    public function testThrowsOnInvalidArrayKey() : void
+    public function testThrowsOnInvalidArrayKey(): void
     {
         $arr = ['missingKey' => 'value'];
 
@@ -219,7 +223,7 @@ class ServerConfigTest extends TestCase
         ServerConfig::create($arr);
     }
 
-    public function testInvalidValidationRules() : void
+    public function testInvalidValidationRules(): void
     {
         $rules  = new stdClass();
         $config = ServerConfig::create();

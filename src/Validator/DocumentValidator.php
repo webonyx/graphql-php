@@ -8,7 +8,6 @@ use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Visitor;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\Rules\DisableIntrospection;
@@ -28,12 +27,13 @@ use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
-use GraphQL\Validator\Rules\ProvidedNonNullArguments;
+use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\QueryDepth;
 use GraphQL\Validator\Rules\QuerySecurityRule;
 use GraphQL\Validator\Rules\ScalarLeafs;
+use GraphQL\Validator\Rules\SingleFieldSubscription;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
@@ -43,14 +43,12 @@ use GraphQL\Validator\Rules\UniqueVariableNames;
 use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
-use GraphQL\Validator\Rules\VariablesDefaultValueAllowed;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 use Throwable;
+
 use function array_filter;
-use function array_map;
 use function array_merge;
 use function count;
-use function implode;
 use function is_array;
 use function sprintf;
 
@@ -64,9 +62,9 @@ use function sprintf;
  * default list of rules defined by the GraphQL specification will be used.
  *
  * Each validation rule is an instance of GraphQL\Validator\Rules\ValidationRule
- * which returns a visitor (see the [GraphQL\Language\Visitor API](reference.md#graphqllanguagevisitor)).
+ * which returns a visitor (see the [GraphQL\Language\Visitor API](class-reference.md#graphqllanguagevisitor)).
  *
- * Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference.md#graphqlerrorerror),
+ * Visitor methods are expected to return an instance of [GraphQL\Error\Error](class-reference.md#graphqlerrorerror),
  * or array of such instances when invalid.
  *
  * Optionally a custom TypeInfo instance may be provided. If not provided, one
@@ -113,7 +111,7 @@ class DocumentValidator
             return [];
         }
 
-        $typeInfo = $typeInfo ?: new TypeInfo($schema);
+        $typeInfo ??= new TypeInfo($schema);
 
         return static::visitUsingRules($schema, $typeInfo, $ast, $rules);
     }
@@ -142,6 +140,7 @@ class DocumentValidator
                 ExecutableDefinitions::class        => new ExecutableDefinitions(),
                 UniqueOperationNames::class         => new UniqueOperationNames(),
                 LoneAnonymousOperation::class       => new LoneAnonymousOperation(),
+                SingleFieldSubscription::class      => new SingleFieldSubscription(),
                 KnownTypeNames::class               => new KnownTypeNames(),
                 FragmentsOnCompositeTypes::class    => new FragmentsOnCompositeTypes(),
                 VariablesAreInputTypes::class       => new VariablesAreInputTypes(),
@@ -160,8 +159,7 @@ class DocumentValidator
                 KnownArgumentNames::class           => new KnownArgumentNames(),
                 UniqueArgumentNames::class          => new UniqueArgumentNames(),
                 ValuesOfCorrectType::class          => new ValuesOfCorrectType(),
-                ProvidedNonNullArguments::class     => new ProvidedNonNullArguments(),
-                VariablesDefaultValueAllowed::class => new VariablesDefaultValueAllowed(),
+                ProvidedRequiredArguments::class    => new ProvidedRequiredArguments(),
                 VariablesInAllowedPosition::class   => new VariablesInAllowedPosition(),
                 OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
                 UniqueInputFieldNames::class        => new UniqueInputFieldNames(),
@@ -223,6 +221,7 @@ class DocumentValidator
         foreach ($rules as $rule) {
             $visitors[] = $rule->getVisitor($context);
         }
+
         Visitor::visit($documentNode, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
 
         return $context->getErrors();
@@ -268,11 +267,11 @@ class DocumentValidator
         return is_array($value)
             ? count(array_filter(
                 $value,
-                static function ($item) {
-                    return $item instanceof Exception || $item instanceof Throwable;
+                static function ($item): bool {
+                    return $item instanceof Throwable;
                 }
             )) === count($value)
-            : ($value instanceof Exception || $value instanceof Throwable);
+            : $value instanceof Throwable;
     }
 
     public static function append(&$arr, $items)
@@ -287,40 +286,55 @@ class DocumentValidator
     }
 
     /**
-     * Utility which determines if a value literal node is valid for an input type.
-     *
-     * Deprecated. Rely on validation for documents co
-     * ntaining literal values.
-     *
-     * @deprecated
+     * @param ValidationRule[]|null $rules
      *
      * @return Error[]
+     *
+     * @throws Exception
      */
-    public static function isValidLiteralValue(Type $type, $valueNode)
-    {
-        $emptySchema = new Schema([]);
-        $emptyDoc    = new DocumentNode(['definitions' => []]);
-        $typeInfo    = new TypeInfo($emptySchema, $type);
-        $context     = new ValidationContext($emptySchema, $emptyDoc, $typeInfo);
-        $validator   = new ValuesOfCorrectType();
-        $visitor     = $validator->getVisitor($context);
-        Visitor::visit($valueNode, Visitor::visitWithTypeInfo($typeInfo, $visitor));
+    public static function validateSDL(
+        DocumentNode $documentAST,
+        ?Schema $schemaToExtend = null,
+        ?array $rules = null
+    ) {
+        $usedRules = $rules ?? self::sdlRules();
+        $context   = new SDLValidationContext($documentAST, $schemaToExtend);
+        $visitors  = [];
+        foreach ($usedRules as $rule) {
+            $visitors[] = $rule->getSDLVisitor($context);
+        }
+
+        Visitor::visit($documentAST, Visitor::visitInParallel($visitors));
 
         return $context->getErrors();
     }
 
+    public static function assertValidSDL(DocumentNode $documentAST)
+    {
+        $errors = self::validateSDL($documentAST);
+        if (count($errors) > 0) {
+            throw new Error(self::combineErrorMessages($errors));
+        }
+    }
+
     public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
     {
-        $errors = self::visitUsingRules($schema, new TypeInfo($schema), $documentAST, self::sdlRules());
-        if (count($errors) !== 0) {
-            throw new Error(
-                implode(
-                    "\n\n",
-                    array_map(static function (Error $error) : string {
-                        return $error->message;
-                    }, $errors)
-                )
-            );
+        $errors = self::validateSDL($documentAST, $schema);
+        if (count($errors) > 0) {
+            throw new Error(self::combineErrorMessages($errors));
         }
+    }
+
+    /**
+     * @param Error[] $errors
+     */
+    private static function combineErrorMessages(array $errors): string
+    {
+        $str = '';
+        foreach ($errors as $error) {
+            $str .= $error->getMessage() . "\n\n";
+        }
+
+        return $str;
     }
 }

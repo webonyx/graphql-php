@@ -11,10 +11,11 @@ use PHPUnit\Framework\TestCase;
 class QuotedOrListTest extends TestCase
 {
     // DESCRIBE: quotedOrList
+
     /**
      * @see it('Does not accept an empty list')
      */
-    public function testResturnsResultsWhenInputIsEmpty() : void
+    public function testResturnsResultsWhenInputIsEmpty(): void
     {
         $this->expectException(LogicException::class);
         Utils::quotedOrList([]);
@@ -23,7 +24,7 @@ class QuotedOrListTest extends TestCase
     /**
      * @see it('Returns single quoted item')
      */
-    public function testReturnsSingleQuotedItem() : void
+    public function testReturnsSingleQuotedItem(): void
     {
         self::assertEquals(
             '"A"',
@@ -34,7 +35,7 @@ class QuotedOrListTest extends TestCase
     /**
      * @see it('Returns two item list')
      */
-    public function testReturnsTwoItemList() : void
+    public function testReturnsTwoItemList(): void
     {
         self::assertEquals(
             '"A" or "B"',
@@ -45,7 +46,7 @@ class QuotedOrListTest extends TestCase
     /**
      * @see it('Returns comma separated many item list')
      */
-    public function testReturnsCommaSeparatedManyItemList() : void
+    public function testReturnsCommaSeparatedManyItemList(): void
     {
         self::assertEquals(
             '"A", "B", or "C"',
@@ -56,7 +57,7 @@ class QuotedOrListTest extends TestCase
     /**
      * @see it('Limits to five items')
      */
-    public function testLimitsToFiveItems() : void
+    public function testLimitsToFiveItems(): void
     {
         self::assertEquals(
             '"A", "B", "C", "D", or "E"',

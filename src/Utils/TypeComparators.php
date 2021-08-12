@@ -6,9 +6,9 @@ namespace GraphQL\Utils;
 
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\CompositeType;
+use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
@@ -44,12 +44,9 @@ class TypeComparators
      * Provided a type and a super type, return true if the first type is either
      * equal or a subset of the second super type (covariant).
      *
-     * @param AbstractType $maybeSubType
-     * @param AbstractType $superType
-     *
      * @return bool
      */
-    public static function isTypeSubTypeOf(Schema $schema, $maybeSubType, $superType)
+    public static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
     {
         // Equivalent type is a valid subtype
         if ($maybeSubType === $superType) {
@@ -85,10 +82,10 @@ class TypeComparators
         }
 
         // If superType type is an abstract type, maybeSubType type may be a currently
-        // possible object type.
+        // possible object or interface type.
         return Type::isAbstractType($superType) &&
-            $maybeSubType instanceof ObjectType &&
-            $schema->isPossibleType(
+            $maybeSubType instanceof ImplementingType &&
+            $schema->isSubType(
                 $superType,
                 $maybeSubType
             );
@@ -117,7 +114,7 @@ class TypeComparators
                 // If both types are abstract, then determine if there is any intersection
                 // between possible concrete types of each.
                 foreach ($schema->getPossibleTypes($typeA) as $type) {
-                    if ($schema->isPossibleType($typeB, $type)) {
+                    if ($schema->isSubType($typeB, $type)) {
                         return true;
                     }
                 }
@@ -126,12 +123,12 @@ class TypeComparators
             }
 
             // Determine if the latter type is a possible concrete type of the former.
-            return $schema->isPossibleType($typeA, $typeB);
+            return $schema->isSubType($typeA, $typeB);
         }
 
         if ($typeB instanceof AbstractType) {
             // Determine if the former type is a possible concrete type of the latter.
-            return $schema->isPossibleType($typeB, $typeA);
+            return $schema->isSubType($typeB, $typeA);
         }
 
         // Otherwise the types do not overlap.

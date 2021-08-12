@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\KnownTypeNames;
 
 class KnownTypeNamesTest extends ValidatorTestCase
 {
     // Validate: Known type names
+
     /**
      * @see it('known type names are valid')
      */
-    public function testKnownTypeNamesAreValid() : void
+    public function testKnownTypeNamesAreValid(): void
     {
         $this->expectPassesRule(
             new KnownTypeNames(),
@@ -34,7 +35,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown type names are invalid')
      */
-    public function testUnknownTypeNamesAreInvalid() : void
+    public function testUnknownTypeNamesAreInvalid(): void
     {
         $this->expectFailsRule(
             new KnownTypeNames(),
@@ -59,7 +60,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
 
     private function unknownType($typeName, $suggestedTypes, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownTypeNames::unknownTypeMessage($typeName, $suggestedTypes),
             [new SourceLocation($line, $column)]
         );
@@ -68,7 +69,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     /**
      * @see it('ignores type definitions')
      */
-    public function testIgnoresTypeDefinitions() : void
+    public function testIgnoresTypeDefinitions(): void
     {
         $this->expectFailsRule(
             new KnownTypeNames(),

@@ -12,12 +12,15 @@ class DirectiveDefinitionNode extends Node implements TypeSystemDefinitionNode
     /** @var NameNode */
     public $name;
 
-    /** @var ArgumentNode[] */
-    public $arguments;
-
-    /** @var NameNode[] */
-    public $locations;
-
     /** @var StringValueNode|null */
     public $description;
+
+    /** @var NodeList<InputValueDefinitionNode> */
+    public $arguments;
+
+    /** @var bool */
+    public $repeatable;
+
+    /** @var NodeList<NameNode> */
+    public $locations;
 }

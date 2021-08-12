@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\ScalarLeafs;
 
 class ScalarLeafsTest extends ValidatorTestCase
 {
     // Validate: Scalar leafs
+
     /**
      * @see it('valid scalar selection')
      */
-    public function testValidScalarSelection() : void
+    public function testValidScalarSelection(): void
     {
         $this->expectPassesRule(
             new ScalarLeafs(),
@@ -29,7 +30,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('object type missing selection')
      */
-    public function testObjectTypeMissingSelection() : void
+    public function testObjectTypeMissingSelection(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -44,7 +45,7 @@ class ScalarLeafsTest extends ValidatorTestCase
 
     private function missingObjSubselection($field, $type, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ScalarLeafs::requiredSubselectionMessage($field, $type),
             [new SourceLocation($line, $column)]
         );
@@ -53,7 +54,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('interface type missing selection')
      */
-    public function testInterfaceTypeMissingSelection() : void
+    public function testInterfaceTypeMissingSelection(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -69,7 +70,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('valid scalar selection with args')
      */
-    public function testValidScalarSelectionWithArgs() : void
+    public function testValidScalarSelectionWithArgs(): void
     {
         $this->expectPassesRule(
             new ScalarLeafs(),
@@ -84,7 +85,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('scalar selection not allowed on Boolean')
      */
-    public function testScalarSelectionNotAllowedOnBoolean() : void
+    public function testScalarSelectionNotAllowedOnBoolean(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -99,7 +100,7 @@ class ScalarLeafsTest extends ValidatorTestCase
 
     private function noScalarSubselection($field, $type, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             ScalarLeafs::noSubselectionAllowedMessage($field, $type),
             [new SourceLocation($line, $column)]
         );
@@ -108,7 +109,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('scalar selection not allowed on Enum')
      */
-    public function testScalarSelectionNotAllowedOnEnum() : void
+    public function testScalarSelectionNotAllowedOnEnum(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -124,7 +125,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('scalar selection not allowed with args')
      */
-    public function testScalarSelectionNotAllowedWithArgs() : void
+    public function testScalarSelectionNotAllowedWithArgs(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -140,7 +141,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('Scalar selection not allowed with directives')
      */
-    public function testScalarSelectionNotAllowedWithDirectives() : void
+    public function testScalarSelectionNotAllowedWithDirectives(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),
@@ -156,7 +157,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     /**
      * @see it('Scalar selection not allowed with directives and args')
      */
-    public function testScalarSelectionNotAllowedWithDirectivesAndArgs() : void
+    public function testScalarSelectionNotAllowedWithDirectivesAndArgs(): void
     {
         $this->expectFailsRule(
             new ScalarLeafs(),

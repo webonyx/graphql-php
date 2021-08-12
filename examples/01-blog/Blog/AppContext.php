@@ -1,28 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog;
 
 use GraphQL\Examples\Blog\Data\User;
 
 /**
- * Class AppContext
  * Instance available in all GraphQL resolvers as 3rd argument
- *
- * @package GraphQL\Examples\Blog
  */
 class AppContext
 {
-    /**
-     * @var string
-     */
-    public $rootUrl;
+    public string $rootUrl;
 
-    /**
-     * @var User
-     */
-    public $viewer;
+    public User $viewer;
 
-    /**
-     * @var \mixed
-     */
-    public $request;
+    /** @var array<string, mixed> */
+    public array $request;
 }

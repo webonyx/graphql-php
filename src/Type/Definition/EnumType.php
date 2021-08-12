@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use ArrayObject;
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function is_int;
 use function is_string;
@@ -22,19 +24,27 @@ use function sprintf;
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
     /** @var EnumTypeDefinitionNode|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
-    /** @var EnumValueDefinition[] */
-    private $values;
+    /**
+     * Lazily initialized.
+     *
+     * @var array<int, EnumValueDefinition>
+     */
+    private array $values;
 
-    /** @var MixedStore<mixed, EnumValueDefinition> */
-    private $valueLookup;
+    /**
+     * Lazily initialized.
+     *
+     * Actually a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way.
+     */
+    private MixedStore $valueLookup;
 
     /** @var ArrayObject<string, EnumValueDefinition> */
-    private $nameLookup;
+    private ArrayObject $nameLookup;
 
-    /** @var EnumTypeExtensionNode[] */
-    public $extensionASTNodes;
+    /** @var array<int, EnumTypeExtensionNode> */
+    public array $extensionASTNodes;
 
     public function __construct($config)
     {
@@ -47,7 +57,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
-        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
         $this->config            = $config;
     }
 
@@ -67,16 +77,15 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $lookup[$name] ?? null;
     }
 
-    /**
-     * @return ArrayObject<string, EnumValueDefinition>
-     */
-    private function getNameLookup()
+    private function getNameLookup(): ArrayObject
     {
-        if (! $this->nameLookup) {
+        if (! isset($this->nameLookup)) {
+            /** @var ArrayObject<string, EnumValueDefinition> $lookup */
             $lookup = new ArrayObject();
             foreach ($this->getValues() as $value) {
                 $lookup[$value->name] = $value;
             }
+
             $this->nameLookup = $lookup;
         }
 
@@ -86,9 +95,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /**
      * @return EnumValueDefinition[]
      */
-    public function getValues()
+    public function getValues(): array
     {
-        if ($this->values === null) {
+        if (! isset($this->values)) {
             $this->values = [];
             $config       = $this->config;
 
@@ -96,6 +105,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
                 if (! is_array($config['values'])) {
                     throw new InvariantViolation(sprintf('%s values must be an array', $this->name));
                 }
+
                 foreach ($config['values'] as $name => $value) {
                     if (is_string($name)) {
                         if (is_array($value)) {
@@ -113,6 +123,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
                             )
                         );
                     }
+
                     $this->values[] = new EnumValueDefinition($value);
                 }
             }
@@ -121,13 +132,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $this->values;
     }
 
-    /**
-     * @param mixed $value
-     *
-     * @return mixed
-     *
-     * @throws Error
-     */
     public function serialize($value)
     {
         $lookup = $this->getValueLookup();
@@ -135,15 +139,15 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             return $lookup[$value]->name;
         }
 
-        throw new Error('Cannot serialize value as enum: ' . Utils::printSafe($value));
+        throw new SerializationError('Cannot serialize value as enum: ' . Utils::printSafe($value));
     }
 
     /**
-     * @return MixedStore<mixed, EnumValueDefinition>
+     * Actually returns a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way
      */
-    private function getValueLookup()
+    private function getValueLookup(): MixedStore
     {
-        if ($this->valueLookup === null) {
+        if (! isset($this->valueLookup)) {
             $this->valueLookup = new MixedStore();
 
             foreach ($this->getValues() as $valueName => $value) {
@@ -154,13 +158,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $this->valueLookup;
     }
 
-    /**
-     * @param mixed $value
-     *
-     * @return mixed
-     *
-     * @throws Error
-     */
     public function parseValue($value)
     {
         $lookup = $this->getNameLookup();
@@ -171,15 +168,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         throw new Error('Cannot represent value as enum: ' . Utils::printSafe($value));
     }
 
-    /**
-     * @param Node         $valueNode
-     * @param mixed[]|null $variables
-     *
-     * @return null
-     *
-     * @throws Exception
-     */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof EnumValueNode) {
             $lookup = $this->getNameLookup();
@@ -192,13 +181,13 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        throw new Error();
     }
 
     /**
      * @throws InvariantViolation
      */
-    public function assertValid()
+    public function assertValid(): void
     {
         parent::assertValid();
 

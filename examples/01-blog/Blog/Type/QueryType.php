@@ -1,8 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type;
 
+use Exception;
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\DataSource;
+use GraphQL\Examples\Blog\Data\Story;
+use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -12,19 +18,19 @@ class QueryType extends ObjectType
 {
     public function __construct()
     {
-        $config = [
+        parent::__construct([
             'name' => 'Query',
             'fields' => [
                 'user' => [
                     'type' => Types::user(),
                     'description' => 'Returns user by id (in range of 1-5)',
                     'args' => [
-                        'id' => Types::nonNull(Types::id())
-                    ]
+                        'id' => Types::nonNull(Types::id()),
+                    ],
                 ],
                 'viewer' => [
                     'type' => Types::user(),
-                    'description' => 'Represents currently logged-in user (for the sake of example - simply returns user with id == 1)'
+                    'description' => 'Represents currently logged-in user (for the sake of example - simply returns user with id == 1)',
                 ],
                 'stories' => [
                     'type' => Types::listOf(Types::story()),
@@ -32,65 +38,77 @@ class QueryType extends ObjectType
                     'args' => [
                         'after' => [
                             'type' => Types::id(),
-                            'description' => 'Fetch stories listed after the story with this ID'
+                            'description' => 'Fetch stories listed after the story with this ID',
                         ],
                         'limit' => [
                             'type' => Types::int(),
                             'description' => 'Number of stories to be returned',
-                            'defaultValue' => 10
-                        ]
-                    ]
+                            'defaultValue' => 10,
+                        ],
+                    ],
                 ],
                 'lastStoryPosted' => [
                     'type' => Types::story(),
-                    'description' => 'Returns last story posted for this blog'
+                    'description' => 'Returns last story posted for this blog',
                 ],
                 'deprecatedField' => [
                     'type' => Types::string(),
-                    'deprecationReason' => 'This field is deprecated!'
+                    'deprecationReason' => 'This field is deprecated!',
                 ],
                 'fieldWithException' => [
                     'type' => Types::string(),
-                    'resolve' => function() {
-                        throw new \Exception("Exception message thrown in field resolver");
-                    }
+                    'resolve' => static function (): void {
+                        throw new Exception('Exception message thrown in field resolver');
+                    },
                 ],
-                'hello' => Type::string()
+                'hello' => Type::string(),
             ],
-            'resolveField' => function($val, $args, $context, ResolveInfo $info) {
-                return $this->{$info->fieldName}($val, $args, $context, $info);
-            }
-        ];
-        parent::__construct($config);
+            'resolveField' => function ($rootValue, $args, $context, ResolveInfo $info) {
+                return $this->{$info->fieldName}($rootValue, $args, $context, $info);
+            },
+        ]);
     }
 
-    public function user($rootValue, $args)
+    /**
+     * @param null              $rootValue
+     * @param array{id: string} $args
+     */
+    public function user($rootValue, array $args): ?User
     {
-        return DataSource::findUser($args['id']);
+        return DataSource::findUser((int) $args['id']);
     }
 
-    public function viewer($rootValue, $args, AppContext $context)
+    /**
+     * @param null         $rootValue
+     * @param array<never> $args
+     */
+    public function viewer($rootValue, array $args, AppContext $context): User
     {
         return $context->viewer;
     }
 
-    public function stories($rootValue, $args)
+    /**
+     * @param null                              $rootValue
+     * @param array{limit: int, after?: string} $args
+     *
+     * @return array<int, Story>
+     */
+    public function stories($rootValue, array $args): array
     {
-        $args += ['after' => null];
-        return DataSource::findStories($args['limit'], $args['after']);
+        return DataSource::findStories($args['limit'], (int) $args['after'] ?? null);
     }
 
-    public function lastStoryPosted()
+    public function lastStoryPosted(): ?Story
     {
         return DataSource::findLatestStory();
     }
 
-    public function hello()
+    public function hello(): string
     {
-        return 'Your graphql-php endpoint is ready! Use GraphiQL to browse API';
+        return 'Your graphql-php endpoint is ready! Use a GraphQL client to explore the schema.';
     }
 
-    public function deprecatedField()
+    public function deprecatedField(): string
     {
         return 'You can request deprecated field, but it is not displayed in auto-generated documentation by default.';
     }

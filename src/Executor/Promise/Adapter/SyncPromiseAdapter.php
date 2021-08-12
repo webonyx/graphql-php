@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor\Promise\Adapter;
 
-use Exception;
-use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
 use Throwable;
+
 use function count;
 
 /**
@@ -20,29 +19,21 @@ use function count;
  */
 class SyncPromiseAdapter implements PromiseAdapter
 {
-    /**
-     * @inheritdoc
-     */
     public function isThenable($value)
     {
-        return $value instanceof Deferred;
+        return $value instanceof SyncPromise;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function convertThenable($thenable)
     {
-        if (! $thenable instanceof Deferred) {
+        if (! $thenable instanceof SyncPromise) {
+            // End-users should always use Deferred (and don't use SyncPromise directly)
             throw new InvariantViolation('Expected instance of GraphQL\Deferred, got ' . Utils::printSafe($thenable));
         }
 
-        return new Promise($thenable->promise, $this);
+        return new Promise($thenable, $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null)
     {
         /** @var SyncPromise $adoptedPromise */
@@ -51,9 +42,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function create(callable $resolver)
     {
         $promise = new SyncPromise();
@@ -69,8 +57,6 @@ class SyncPromiseAdapter implements PromiseAdapter
                     'reject',
                 ]
             );
-        } catch (Exception $e) {
-            $promise->reject($e);
         } catch (Throwable $e) {
             $promise->reject($e);
         }
@@ -78,9 +64,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function createFulfilled($value = null)
     {
         $promise = new SyncPromise();
@@ -88,9 +71,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->resolve($value), $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function createRejected($reason)
     {
         $promise = new SyncPromise();
@@ -98,9 +78,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->reject($reason), $this);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function all(array $promisesOrValues)
     {
         $all = new SyncPromise();
@@ -113,7 +90,7 @@ class SyncPromiseAdapter implements PromiseAdapter
             if ($promiseOrValue instanceof Promise) {
                 $result[$index] = null;
                 $promiseOrValue->then(
-                    static function ($value) use ($index, &$count, $total, &$result, $all) {
+                    static function ($value) use ($index, &$count, $total, &$result, $all): void {
                         $result[$index] = $value;
                         $count++;
                         if ($count < $total) {
@@ -129,6 +106,7 @@ class SyncPromiseAdapter implements PromiseAdapter
                 $count++;
             }
         }
+
         if ($count === $total) {
             $all->resolve($result);
         }
@@ -144,13 +122,12 @@ class SyncPromiseAdapter implements PromiseAdapter
     public function wait(Promise $promise)
     {
         $this->beforeWait($promise);
-        $dfdQueue     = Deferred::getQueue();
-        $promiseQueue = SyncPromise::getQueue();
+        $taskQueue = SyncPromise::getQueue();
 
-        while ($promise->adoptedPromise->state === SyncPromise::PENDING &&
-            ! ($dfdQueue->isEmpty() && $promiseQueue->isEmpty())
+        while (
+            $promise->adoptedPromise->state === SyncPromise::PENDING &&
+            ! $taskQueue->isEmpty()
         ) {
-            Deferred::runQueue();
             SyncPromise::runQueue();
             $this->onWait($promise);
         }

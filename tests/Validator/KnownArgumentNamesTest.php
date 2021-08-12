@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
+use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownArgumentNames;
+use GraphQL\Validator\Rules\KnownArgumentNamesOnDirectives;
 
 class KnownArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Known argument names:
+
     /**
      * @see it('single arg is known')
      */
-    public function testSingleArgIsKnown() : void
+    public function testSingleArgIsKnown(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -29,7 +32,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple args are known')
      */
-    public function testMultipleArgsAreKnown() : void
+    public function testMultipleArgsAreKnown(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -44,7 +47,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('ignores args of unknown fields')
      */
-    public function testIgnoresArgsOfUnknownFields() : void
+    public function testIgnoresArgsOfUnknownFields(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -59,7 +62,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple args in reverse order are known')
      */
-    public function testMultipleArgsInReverseOrderAreKnown() : void
+    public function testMultipleArgsInReverseOrderAreKnown(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -74,7 +77,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('no args on optional arg')
      */
-    public function testNoArgsOnOptionalArg() : void
+    public function testNoArgsOnOptionalArg(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -89,7 +92,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('args are known deeply')
      */
-    public function testArgsAreKnownDeeply() : void
+    public function testArgsAreKnownDeeply(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -113,7 +116,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('directive args are known')
      */
-    public function testDirectiveArgsAreKnown() : void
+    public function testDirectiveArgsAreKnown(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNames(),
@@ -128,7 +131,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('undirective args are invalid')
      */
-    public function testUndirectiveArgsAreInvalid() : void
+    public function testUndirectiveArgsAreInvalid(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -145,8 +148,8 @@ class KnownArgumentNamesTest extends ValidatorTestCase
 
     private function unknownDirectiveArg($argName, $directiveName, $suggestedArgs, $line, $column)
     {
-        return FormattedError::create(
-            KnownArgumentNames::unknownDirectiveArgMessage($argName, $directiveName, $suggestedArgs),
+        return ErrorHelper::create(
+            KnownArgumentNamesOnDirectives::unknownDirectiveArgMessage($argName, $directiveName, $suggestedArgs),
             [new SourceLocation($line, $column)]
         );
     }
@@ -154,7 +157,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('misspelled directive args are reported')
      */
-    public function testMisspelledDirectiveArgsAreReported() : void
+    public function testMisspelledDirectiveArgsAreReported(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -172,7 +175,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('invalid arg name')
      */
-    public function testInvalidArgName() : void
+    public function testInvalidArgName(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -189,7 +192,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
 
     private function unknownArg($argName, $fieldName, $typeName, $suggestedArgs, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownArgumentNames::unknownArgMessage($argName, $fieldName, $typeName, $suggestedArgs),
             [new SourceLocation($line, $column)]
         );
@@ -198,7 +201,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('misspelled arg name is reported')
      */
-    public function testMisspelledArgNameIsReported() : void
+    public function testMisspelledArgNameIsReported(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -216,7 +219,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown args amongst known args')
      */
-    public function testUnknownArgsAmongstKnownArgs() : void
+    public function testUnknownArgsAmongstKnownArgs(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -235,7 +238,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown args deeply')
      */
-    public function testUnknownArgsDeeply() : void
+    public function testUnknownArgsDeeply(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNames(),
@@ -257,6 +260,142 @@ class KnownArgumentNamesTest extends ValidatorTestCase
                 $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 4, 27),
                 $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 9, 31),
             ]
+        );
+    }
+
+    // within SDL:
+
+    /**
+     * @see it('known arg on directive defined inside SDL')
+     */
+    public function testKnownArgOnDirectiveDefinedInsideSDL()
+    {
+        $this->expectPassesRule(
+            new KnownArgumentNamesOnDirectives(),
+            '
+                type Query {
+                  foo: String @test(arg: "")
+                }
+        
+                directive @test(arg: String) on FIELD_DEFINITION
+            '
+        );
+    }
+
+    /**
+     * @see it('unknown arg on directive defined inside SDL')
+     */
+    public function testUnknownArgOnDirectiveDefinedInsideSDL()
+    {
+        $this->expectFailsRule(
+            new KnownArgumentNamesOnDirectives(),
+            '
+                type Query {
+                  foo: String @test(unknown: "")
+                }
+        
+                directive @test(arg: String) on FIELD_DEFINITION
+            ',
+            [
+                $this->unknownDirectiveArg('unknown', 'test', [], 3, 37),
+            ]
+        );
+    }
+
+    /**
+     * @see it('misspelled arg name is reported on directive defined inside SDL')
+     */
+    public function testMisspelledArgNameIsReportedOnDirectiveDefinedInsideSDL()
+    {
+        $this->expectFailsRule(
+            new KnownArgumentNamesOnDirectives(),
+            '
+                type Query {
+                  foo: String @test(agr: "")
+                }
+        
+                directive @test(arg: String) on FIELD_DEFINITION
+            ',
+            [$this->unknownDirectiveArg('agr', 'test', ['arg'], 3, 37)]
+        );
+    }
+
+    /**
+     * @see it('unknown arg on standard directive')
+     */
+    public function testUnknownArgOnStandardDirective()
+    {
+        $this->expectFailsRule(
+            new KnownArgumentNamesOnDirectives(),
+            '
+                type Query {
+                  foo: String @deprecated(unknown: "")
+                }
+            ',
+            [$this->unknownDirectiveArg('unknown', 'deprecated', [], 3, 43)]
+        );
+    }
+
+    /**
+     * @see it('unknown arg on overrided standard directive')
+     */
+    public function testUnknownArgOnOverriddenStandardDirective()
+    {
+        $this->expectFailsRule(
+            new KnownArgumentNamesOnDirectives(),
+            '
+                type Query {
+                  foo: String @deprecated(reason: "")
+                }
+                directive @deprecated(arg: String) on FIELD
+            ',
+            [$this->unknownDirectiveArg('reason', 'deprecated', [], 3, 43)]
+        );
+    }
+
+    /**
+     * @see it('unknown arg on directive defined in schema extension')
+     */
+    public function testUnknownArgOnDirectiveDefinedInSchemaExtension()
+    {
+        $schema = BuildSchema::build('
+            type Query {
+              foo: String
+            }
+        ');
+        $sdl    = '
+            directive @test(arg: String) on OBJECT
+
+            extend type Query  @test(unknown: "")
+        ';
+        $this->expectInvalid(
+            $schema,
+            [new KnownArgumentNamesOnDirectives()],
+            $sdl,
+            [$this->unknownDirectiveArg('unknown', 'test', [], 4, 38)]
+        );
+    }
+
+    /**
+     * @see it('unknown arg on directive used in schema extension')
+     */
+    public function testUnknownArgOnDirectiveUsedInSchemaExtension()
+    {
+        $schema = BuildSchema::build('
+            directive @test(arg: String) on OBJECT
+    
+            type Query {
+              foo: String
+            }
+        ');
+        $sdl    = '
+            extend type Query @test(unknown: "")
+        ';
+        $this->expectInvalid(
+            $schema,
+            [new KnownArgumentNamesOnDirectives()],
+            $sdl,
+            [$this->unknownDirectiveArg('unknown', 'test', [], 2, 37)]
         );
     }
 }

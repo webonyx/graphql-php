@@ -4,17 +4,45 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
+use GraphQL\Type\Schema;
+use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownDirectives;
 
 class KnownDirectivesTest extends ValidatorTestCase
 {
+    /** @var Schema */
+    public $schemaWithSDLDirectives;
+
+    public function setUp(): void
+    {
+        $this->schemaWithSDLDirectives = BuildSchema::build('
+          directive @onSchema on SCHEMA
+          directive @onScalar on SCALAR
+          directive @onObject on OBJECT
+          directive @onFieldDefinition on FIELD_DEFINITION
+          directive @onArgumentDefinition on ARGUMENT_DEFINITION
+          directive @onInterface on INTERFACE
+          directive @onUnion on UNION
+          directive @onEnum on ENUM
+          directive @onEnumValue on ENUM_VALUE
+          directive @onInputObject on INPUT_OBJECT
+          directive @onInputFieldDefinition on INPUT_FIELD_DEFINITION
+        ');
+    }
+
+    private function expectSDLErrors($sdlString, $schema = null, $errors = [])
+    {
+        return $this->expectSDLErrorsFromRule(new KnownDirectives(), $sdlString, $schema, $errors);
+    }
+
     // Validate: Known directives
+
     /**
      * @see it('with no directives')
      */
-    public function testWithNoDirectives() : void
+    public function testWithNoDirectives(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
@@ -34,7 +62,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with known directives')
      */
-    public function testWithKnownDirectives() : void
+    public function testWithKnownDirectives(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
@@ -54,7 +82,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with unknown directive')
      */
-    public function testWithUnknownDirective() : void
+    public function testWithUnknownDirective(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),
@@ -71,7 +99,7 @@ class KnownDirectivesTest extends ValidatorTestCase
 
     private function unknownDirective($directiveName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownDirectives::unknownDirectiveMessage($directiveName),
             [new SourceLocation($line, $column)]
         );
@@ -80,7 +108,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with many unknown directives')
      */
-    public function testWithManyUnknownDirectives() : void
+    public function testWithManyUnknownDirectives(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),
@@ -108,13 +136,13 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with well placed directives')
      */
-    public function testWithWellPlacedDirectives() : void
+    public function testWithWellPlacedDirectives(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
             '
-      query Foo @onQuery {
-        name @include(if: true)
+      query Foo($var: Boolean) @onQuery {
+        name @include(if: $var)
         ...Frag @include(if: true)
         skippedField @skip(if: true)
         ...SkippedFrag @skip(if: true)
@@ -127,18 +155,139 @@ class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    // within schema language
+    /**
+     * @see it('with well placed variable definition directive')
+     */
+    public function testWithWellPlacedVariableDefinitionDirective()
+    {
+        $this->expectPassesRule(
+            new KnownDirectives(),
+            '
+              query Foo($var: Boolean @onVariableDefinition) {
+                name
+              }
+            '
+        );
+    }
+
+    // DESCRIBE: within SDL
+
+    /**
+     * @see it('with directive defined inside SDL')
+     */
+    public function testWithDirectiveDefinedInsideSDL()
+    {
+        $this->expectSDLErrors('
+            type Query {
+              foo: String @test
+            }
+    
+            directive @test on FIELD_DEFINITION
+        ', null, []);
+    }
+
+    /**
+     * @see it('with standard directive')
+     */
+    public function testWithStandardDirective()
+    {
+        $this->expectSDLErrors(
+            '
+            type Query {
+              foo: String @deprecated
+            }',
+            null,
+            []
+        );
+    }
+
+    /**
+     * @see it('with overrided standard directive')
+     */
+    public function testWithOverridedStandardDirective()
+    {
+        $this->expectSDLErrors(
+            '
+            schema @deprecated {
+              query: Query
+            }
+            directive @deprecated on SCHEMA',
+            null,
+            []
+        );
+    }
+
+    /**
+     * @see it('with directive defined in schema extension')
+     */
+    public function testWithDirectiveDefinedInSchemaExtension()
+    {
+        $schema = BuildSchema::build('
+          type Query {
+            foo: String
+          }
+        ');
+        $this->expectSDLErrors(
+            '
+            directive @test on OBJECT
+    
+            extend type Query  @test
+            ',
+            $schema,
+            []
+        );
+    }
+
+    /**
+     * @see it('with directive used in schema extension')
+     */
+    public function testWithDirectiveUsedInSchemaExtension()
+    {
+        $schema = BuildSchema::build('
+            directive @test on OBJECT
+    
+            type Query {
+              foo: String
+            }
+        ');
+        $this->expectSDLErrors(
+            '
+            extend type Query @test
+            ',
+            $schema,
+            []
+        );
+    }
+
+    /**
+     * @see it('with unknown directive in schema extension')
+     */
+    public function testWithUnknownDirectiveInSchemaExtension()
+    {
+        $schema = BuildSchema::build('
+            type Query {
+              foo: String
+            }
+        ');
+        $this->expectSDLErrors(
+            '
+          extend type Query @unknown
+            ',
+            $schema,
+            [$this->unknownDirective('unknown', 2, 29)]
+        );
+    }
 
     /**
      * @see it('with misplaced directives')
      */
-    public function testWithMisplacedDirectives() : void
+    public function testWithMisplacedDirectives(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),
             '
-      query Foo @include(if: true) {
-        name @onQuery
+      query Foo($var: Boolean) @include(if: true) {
+        name @onQuery @include(if: $var)
         ...Frag @onQuery
       }
 
@@ -147,7 +296,7 @@ class KnownDirectivesTest extends ValidatorTestCase
       }
         ',
             [
-                $this->misplacedDirective('include', 'QUERY', 2, 17),
+                $this->misplacedDirective('include', 'QUERY', 2, 32),
                 $this->misplacedDirective('onQuery', 'FIELD', 3, 14),
                 $this->misplacedDirective('onQuery', 'FRAGMENT_SPREAD', 4, 17),
                 $this->misplacedDirective('onQuery', 'MUTATION', 7, 20),
@@ -155,9 +304,25 @@ class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
+    /**
+     * @see it('with misplaced variable definition directive')
+     */
+    public function testWithMisplacedVariableDefinitionDirective()
+    {
+        $this->expectFailsRule(
+            new KnownDirectives(),
+            '
+              query Foo($var: Boolean @onField) {
+                name
+              }
+            ',
+            [$this->misplacedDirective('onField', 'VARIABLE_DEFINITION', 2, 39)]
+        );
+    }
+
     private function misplacedDirective($directiveName, $placement, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownDirectives::misplacedDirectiveMessage($directiveName, $placement),
             [new SourceLocation($line, $column)]
         );
@@ -166,10 +331,9 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with well placed directives')
      */
-    public function testWSLWithWellPlacedDirectives() : void
+    public function testWSLWithWellPlacedDirectives(): void
     {
-        $this->expectPassesRule(
-            new KnownDirectives(),
+        $this->expectSDLErrors(
             '
         type MyObj implements MyInterface @onObject {
           myField(myArg: Int @onArgumentDefinition): String @onFieldDefinition
@@ -206,17 +370,18 @@ class KnownDirectivesTest extends ValidatorTestCase
         schema @onSchema {
           query: MyQuery
         }
-        '
+        ',
+            $this->schemaWithSDLDirectives,
+            []
         );
     }
 
     /**
      * @see it('with misplaced directives')
      */
-    public function testWSLWithMisplacedDirectives() : void
+    public function testWSLWithMisplacedDirectives(): void
     {
-        $this->expectFailsRule(
-            new KnownDirectives(),
+        $this->expectSDLErrors(
             '
         type MyObj implements MyInterface @onInterface {
           myField(myArg: Int @onInputFieldDefinition): String @onInputFieldDefinition
@@ -242,6 +407,7 @@ class KnownDirectivesTest extends ValidatorTestCase
           query: MyQuery
         }
         ',
+            $this->schemaWithSDLDirectives,
             [
                 $this->misplacedDirective('onInterface', 'OBJECT', 2, 43),
                 $this->misplacedDirective('onInputFieldDefinition', 'ARGUMENT_DEFINITION', 3, 30),

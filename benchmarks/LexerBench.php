@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Benchmarks;
 
 use GraphQL\Language\Lexer;
@@ -12,9 +15,9 @@ use GraphQL\Type\Introspection;
  */
 class LexerBench
 {
-    private $introQuery;
+    private Source $introQuery;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->introQuery = new Source(Introspection::getIntrospectionQuery());
     }
@@ -24,7 +27,7 @@ class LexerBench
      * @Revs(100)
      * @Iterations(5)
      */
-    public function benchIntrospectionQuery()
+    public function benchIntrospectionQuery(): void
     {
         $lexer = new Lexer($this->introQuery);
 

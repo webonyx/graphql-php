@@ -2,12 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * @author: Ivo Meißner
- * Date: 03.05.16
- * Time: 13:14
- */
-
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\Executor;
@@ -32,7 +26,7 @@ class LazyInterfaceTest extends TestCase
     /**
      * Handles execution of a lazily created interface
      */
-    public function testReturnsFragmentsWithLazyCreatedInterface() : void
+    public function testReturnsFragmentsWithLazyCreatedInterface(): void
     {
         $request = '
         {
@@ -56,15 +50,15 @@ class LazyInterfaceTest extends TestCase
     /**
      * Setup schema
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $query = new ObjectType([
             'name'   => 'query',
-            'fields' => function () {
+            'fields' => function (): array {
                 return [
                     'lazyInterface' => [
                         'type'    => $this->getLazyInterfaceType(),
-                        'resolve' => static function () {
+                        'resolve' => static function (): array {
                             return [];
                         },
                     ],
@@ -82,19 +76,15 @@ class LazyInterfaceTest extends TestCase
      */
     protected function getLazyInterfaceType()
     {
-        if (! $this->lazyInterface) {
-            $this->lazyInterface = new InterfaceType([
-                'name'        => 'LazyInterface',
-                'fields'      => [
-                    'a' => Type::string(),
-                ],
-                'resolveType' => function () {
-                    return $this->getTestObjectType();
-                },
-            ]);
-        }
-
-        return $this->lazyInterface;
+        return $this->lazyInterface ??= new InterfaceType([
+            'name'        => 'LazyInterface',
+            'fields'      => [
+                'a' => Type::string(),
+            ],
+            'resolveType' => function (): ObjectType {
+                return $this->getTestObjectType();
+            },
+        ]);
     }
 
     /**
@@ -104,21 +94,17 @@ class LazyInterfaceTest extends TestCase
      */
     protected function getTestObjectType()
     {
-        if (! $this->testObject) {
-            $this->testObject = new ObjectType([
-                'name'       => 'TestObject',
-                'fields'     => [
-                    'name' => [
-                        'type'    => Type::string(),
-                        'resolve' => static function () {
-                            return 'testname';
-                        },
-                    ],
+        return $this->testObject ??= new ObjectType([
+            'name'       => 'TestObject',
+            'fields'     => [
+                'name' => [
+                    'type'    => Type::string(),
+                    'resolve' => static function (): string {
+                        return 'testname';
+                    },
                 ],
-                'interfaces' => [$this->getLazyInterfaceType()],
-            ]);
-        }
-
-        return $this->testObject;
+            ],
+            'interfaces' => [$this->getLazyInterfaceType()],
+        ]);
     }
 }

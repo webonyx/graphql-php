@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class RequestValidationTest extends TestCase
 {
-    public function testSimpleRequestShouldValidate() : void
+    public function testSimpleRequestShouldValidate(): void
     {
         $query     = '{my q}';
         $variables = ['a' => 'b', 'c' => 'd'];
@@ -32,7 +32,7 @@ class RequestValidationTest extends TestCase
         self::assertEmpty($errors, isset($errors[0]) ? $errors[0]->getMessage() : '');
     }
 
-    public function testRequestWithQueryIdShouldValidate() : void
+    public function testRequestWithQueryIdShouldValidate(): void
     {
         $queryId   = 'some-query-id';
         $variables = ['a' => 'b', 'c' => 'd'];
@@ -47,7 +47,7 @@ class RequestValidationTest extends TestCase
         self::assertValid($parsedBody);
     }
 
-    public function testRequiresQueryOrQueryId() : void
+    public function testRequiresQueryOrQueryId(): void
     {
         $parsedBody = OperationParams::create([
             'variables'     => ['foo' => 'bar'],
@@ -64,27 +64,14 @@ class RequestValidationTest extends TestCase
     {
         $helper = new Helper();
         $errors = $helper->validateOperationParams($parsedRequest);
-        if (! empty($errors[0])) {
+        if (isset($errors[0])) {
             self::assertEquals($expectedMessage, $errors[0]->getMessage());
         } else {
             self::fail('Expected error not returned');
         }
     }
 
-    public function testFailsWhenBothQueryAndQueryIdArePresent() : void
-    {
-        $parsedBody = OperationParams::create([
-            'query'   => '{my query}',
-            'queryId' => 'my-query-id',
-        ]);
-
-        $this->assertInputError(
-            $parsedBody,
-            'GraphQL Request parameters "query" and "queryId" are mutually exclusive'
-        );
-    }
-
-    public function testFailsWhenQueryParameterIsNotString() : void
+    public function testFailsWhenQueryParameterIsNotString(): void
     {
         $parsedBody = OperationParams::create([
             'query' => ['t' => '{my query}'],
@@ -96,7 +83,7 @@ class RequestValidationTest extends TestCase
         );
     }
 
-    public function testFailsWhenQueryIdParameterIsNotString() : void
+    public function testFailsWhenQueryIdParameterIsNotString(): void
     {
         $parsedBody = OperationParams::create([
             'queryId' => ['t' => '{my query}'],
@@ -108,7 +95,7 @@ class RequestValidationTest extends TestCase
         );
     }
 
-    public function testFailsWhenOperationParameterIsNotString() : void
+    public function testFailsWhenOperationParameterIsNotString(): void
     {
         $parsedBody = OperationParams::create([
             'query'         => '{my query}',
@@ -124,7 +111,7 @@ class RequestValidationTest extends TestCase
     /**
      * @see https://github.com/webonyx/graphql-php/issues/156
      */
-    public function testIgnoresNullAndEmptyStringVariables() : void
+    public function testIgnoresNullAndEmptyStringVariables(): void
     {
         $query      = '{my q}';
         $parsedBody = OperationParams::create([
@@ -141,7 +128,7 @@ class RequestValidationTest extends TestCase
         self::assertValid($parsedBody);
     }
 
-    public function testFailsWhenVariablesParameterIsNotObject() : void
+    public function testFailsWhenVariablesParameterIsNotObject(): void
     {
         $parsedBody = OperationParams::create([
             'query'     => '{my query}',

@@ -12,6 +12,7 @@ use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class FragmentsOnCompositeTypes extends ValidationRule
@@ -19,13 +20,13 @@ class FragmentsOnCompositeTypes extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::INLINE_FRAGMENT     => static function (InlineFragmentNode $node) use ($context) {
-                if (! $node->typeCondition) {
+            NodeKind::INLINE_FRAGMENT     => static function (InlineFragmentNode $node) use ($context): void {
+                if ($node->typeCondition === null) {
                     return;
                 }
 
                 $type = TypeInfo::typeFromAST($context->getSchema(), $node->typeCondition);
-                if (! $type || Type::isCompositeType($type)) {
+                if ($type === null || Type::isCompositeType($type)) {
                     return;
                 }
 
@@ -34,10 +35,10 @@ class FragmentsOnCompositeTypes extends ValidationRule
                     [$node->typeCondition]
                 ));
             },
-            NodeKind::FRAGMENT_DEFINITION => static function (FragmentDefinitionNode $node) use ($context) {
+            NodeKind::FRAGMENT_DEFINITION => static function (FragmentDefinitionNode $node) use ($context): void {
                 $type = TypeInfo::typeFromAST($context->getSchema(), $node->typeCondition);
 
-                if (! $type || Type::isCompositeType($type)) {
+                if ($type === null || Type::isCompositeType($type)) {
                     return;
                 }
 

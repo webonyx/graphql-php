@@ -9,29 +9,31 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class UniqueFragmentNames extends ValidationRule
 {
     /** @var NameNode[] */
-    public $knownFragmentNames;
+    protected array $knownFragmentNames;
 
     public function getVisitor(ValidationContext $context)
     {
         $this->knownFragmentNames = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => static function () {
+            NodeKind::OPERATION_DEFINITION => static function (): VisitorOperation {
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION  => function (FragmentDefinitionNode $node) use ($context) {
+            NodeKind::FRAGMENT_DEFINITION  => function (FragmentDefinitionNode $node) use ($context): VisitorOperation {
                 $fragmentName = $node->name->value;
-                if (empty($this->knownFragmentNames[$fragmentName])) {
+                if (! isset($this->knownFragmentNames[$fragmentName])) {
                     $this->knownFragmentNames[$fragmentName] = $node->name;
                 } else {
                     $context->reportError(new Error(
-                        self::duplicateFragmentNameMessage($fragmentName),
+                        static::duplicateFragmentNameMessage($fragmentName),
                         [$this->knownFragmentNames[$fragmentName], $node->name]
                     ));
                 }

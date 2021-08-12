@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoUnusedVariables;
 
 class NoUnusedVariablesTest extends ValidatorTestCase
 {
     // Validate: No unused variables
+
     /**
      * @see it('uses all variables')
      */
-    public function testUsesAllVariables() : void
+    public function testUsesAllVariables(): void
     {
         $this->expectPassesRule(
             new NoUnusedVariables(),
@@ -29,7 +30,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('uses all variables deeply')
      */
-    public function testUsesAllVariablesDeeply() : void
+    public function testUsesAllVariablesDeeply(): void
     {
         $this->expectPassesRule(
             new NoUnusedVariables(),
@@ -48,7 +49,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('uses all variables deeply in inline fragments')
      */
-    public function testUsesAllVariablesDeeplyInInlineFragments() : void
+    public function testUsesAllVariablesDeeplyInInlineFragments(): void
     {
         $this->expectPassesRule(
             new NoUnusedVariables(),
@@ -71,7 +72,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('uses all variables in fragments')
      */
-    public function testUsesAllVariablesInFragments() : void
+    public function testUsesAllVariablesInFragments(): void
     {
         $this->expectPassesRule(
             new NoUnusedVariables(),
@@ -99,7 +100,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('variable used by fragment in multiple operations')
      */
-    public function testVariableUsedByFragmentInMultipleOperations() : void
+    public function testVariableUsedByFragmentInMultipleOperations(): void
     {
         $this->expectPassesRule(
             new NoUnusedVariables(),
@@ -123,7 +124,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('variable used by recursive fragment')
      */
-    public function testVariableUsedByRecursiveFragment() : void
+    public function testVariableUsedByRecursiveFragment(): void
     {
         $this->expectPassesRule(
             new NoUnusedVariables(),
@@ -143,7 +144,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('variable not used')
      */
-    public function testVariableNotUsed() : void
+    public function testVariableNotUsed(): void
     {
         $this->expectFailsRule(
             new NoUnusedVariables(),
@@ -160,7 +161,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
 
     private function unusedVar($varName, $opName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             NoUnusedVariables::unusedVariableMessage($varName, $opName),
             [new SourceLocation($line, $column)]
         );
@@ -169,7 +170,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('multiple variables not used')
      */
-    public function testMultipleVariablesNotUsed() : void
+    public function testMultipleVariablesNotUsed(): void
     {
         $this->expectFailsRule(
             new NoUnusedVariables(),
@@ -188,7 +189,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('variable not used in fragments')
      */
-    public function testVariableNotUsedInFragments() : void
+    public function testVariableNotUsedInFragments(): void
     {
         $this->expectFailsRule(
             new NoUnusedVariables(),
@@ -219,7 +220,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('multiple variables not used')
      */
-    public function testMultipleVariablesNotUsed2() : void
+    public function testMultipleVariablesNotUsed2(): void
     {
         $this->expectFailsRule(
             new NoUnusedVariables(),
@@ -251,7 +252,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('variable not used by unreferenced fragment')
      */
-    public function testVariableNotUsedByUnreferencedFragment() : void
+    public function testVariableNotUsedByUnreferencedFragment(): void
     {
         $this->expectFailsRule(
             new NoUnusedVariables(),
@@ -275,7 +276,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @see it('variable not used by fragment used by other operation')
      */
-    public function testVariableNotUsedByFragmentUsedByOtherOperation() : void
+    public function testVariableNotUsedByFragmentUsedByOtherOperation(): void
     {
         $this->expectFailsRule(
             new NoUnusedVariables(),

@@ -12,9 +12,9 @@ class InputObjectTypeExtensionNode extends Node implements TypeExtensionNode
     /** @var NameNode */
     public $name;
 
-    /** @var DirectiveNode[]|null */
+    /** @var NodeList<DirectiveNode> */
     public $directives;
 
-    /** @var InputValueDefinitionNode[]|null */
+    /** @var NodeList<InputValueDefinitionNode> */
     public $fields;
 }

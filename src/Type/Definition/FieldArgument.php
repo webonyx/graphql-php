@@ -6,7 +6,10 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
+use function array_key_exists;
 use function is_array;
 use function is_string;
 use function sprintf;
@@ -28,28 +31,19 @@ class FieldArgument
     /** @var mixed[] */
     public $config;
 
-    /** @var InputType */
+    /** @var Type&InputType */
     private $type;
 
-    /** @var bool */
-    private $defaultValueExists = false;
-
-    /**
-     * @param mixed[] $def
-     */
+    /** @param mixed[] $def */
     public function __construct(array $def)
     {
         foreach ($def as $key => $value) {
             switch ($key) {
-                case 'type':
-                    $this->type = $value;
-                    break;
                 case 'name':
                     $this->name = $value;
                     break;
                 case 'defaultValue':
-                    $this->defaultValue       = $value;
-                    $this->defaultValueExists = true;
+                    $this->defaultValue = $value;
                     break;
                 case 'description':
                     $this->description = $value;
@@ -59,41 +53,52 @@ class FieldArgument
                     break;
             }
         }
+
         $this->config = $def;
     }
 
     /**
-     * @param mixed[] $config
+     * @param array<mixed> $config
      *
-     * @return FieldArgument[]
+     * @return array<int, FieldArgument>
      */
-    public static function createMap(array $config)
+    public static function createMap(array $config): array
     {
         $map = [];
         foreach ($config as $name => $argConfig) {
             if (! is_array($argConfig)) {
                 $argConfig = ['type' => $argConfig];
             }
+
             $map[] = new self($argConfig + ['name' => $name]);
         }
 
         return $map;
     }
 
-    /**
-     * @return InputType
-     */
-    public function getType()
+    public function getType(): Type
     {
+        if (! isset($this->type)) {
+            /**
+             * TODO: replace this phpstan cast with native assert
+             *
+             * @var Type&InputType
+             */
+            $type       = Schema::resolveType($this->config['type']);
+            $this->type = $type;
+        }
+
         return $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function defaultValueExists()
+    public function defaultValueExists(): bool
     {
-        return $this->defaultValueExists;
+        return array_key_exists('defaultValue', $this->config);
+    }
+
+    public function isRequired(): bool
+    {
+        return $this->getType() instanceof NonNull && ! $this->defaultValueExists();
     }
 
     public function assertValid(FieldDefinition $parentField, Type $parentType)
@@ -105,10 +110,12 @@ class FieldArgument
                 sprintf('%s.%s(%s:) %s', $parentType->name, $parentField->name, $this->name, $e->getMessage())
             );
         }
-        $type = $this->type;
+
+        $type = $this->getType();
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
+
         Utils::invariant(
             $type instanceof InputType,
             sprintf(

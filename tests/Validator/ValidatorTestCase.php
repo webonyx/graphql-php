@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use Exception;
+use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
+use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -17,20 +19,21 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
+
 use function array_map;
 
 abstract class ValidatorTestCase extends TestCase
 {
-    protected function expectPassesRule($rule, $queryString) : void
+    protected function expectPassesRule($rule, $queryString, $options = []): void
     {
-        $this->expectValid(self::getTestSchema(), [$rule], $queryString);
+        $this->expectValid(self::getTestSchema(), [$rule], $queryString, $options);
     }
 
-    protected function expectValid($schema, $rules, $queryString) : void
+    protected function expectValid($schema, $rules, $queryString, $options = []): void
     {
         self::assertEquals(
             [],
-            DocumentValidator::validate($schema, Parser::parse($queryString), $rules),
+            DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules),
             'Should validate'
         );
     }
@@ -64,7 +67,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Canine = new InterfaceType([
             'name'   => 'Canine',
-            'fields' => static function () {
+            'fields' => static function (): array {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -111,7 +114,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Cat = new ObjectType([
             'name'       => 'Cat',
-            'fields'     => static function () use (&$FurColor) {
+            'fields'     => static function () use (&$FurColor): array {
                 return [
                     'name'       => [
                         'type' => Type::string(),
@@ -142,7 +145,7 @@ abstract class ValidatorTestCase extends TestCase
         $Human = new ObjectType([
             'name'       => 'Human',
             'interfaces' => [$Being, $Intelligent],
-            'fields'     => static function () use (&$Human, $Pet) {
+            'fields'     => static function () use (&$Human, $Pet): array {
                 return [
                     'name'      => [
                         'type' => Type::string(),
@@ -193,6 +196,7 @@ abstract class ValidatorTestCase extends TestCase
             'name'   => 'ComplexInput',
             'fields' => [
                 'requiredField'   => ['type' => Type::nonNull(Type::boolean())],
+                'nonNullField'    => ['type' => Type::nonNull(Type::boolean()), 'defaultValue' => false],
                 'intField'        => ['type' => Type::int()],
                 'stringField'     => ['type' => Type::string()],
                 'booleanField'    => ['type' => Type::boolean()],
@@ -257,6 +261,12 @@ abstract class ValidatorTestCase extends TestCase
                         'req2' => ['type' => Type::nonNull(Type::int())],
                     ],
                 ],
+                'nonNullFieldWithDefault' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg' => [ 'type' => Type::nonNull(Type::int()), 'defaultValue' => 0 ],
+                    ],
+                ],
                 'multipleOpts'              => [
                     'type' => Type::string(),
                     'args' => [
@@ -293,11 +303,11 @@ abstract class ValidatorTestCase extends TestCase
             'serialize'    => static function ($value) {
                 return $value;
             },
-            'parseLiteral' => static function ($node) {
-                throw new Exception('Invalid scalar is always invalid: ' . $node->value);
+            'parseLiteral' => static function ($node): void {
+                throw new Error('Invalid scalar is always invalid: ' . $node->value);
             },
-            'parseValue'   => static function ($node) {
-                throw new Exception('Invalid scalar is always invalid: ' . $node);
+            'parseValue'   => static function ($node): void {
+                throw new Error('Invalid scalar is always invalid: ' . $node);
             },
         ]);
 
@@ -342,119 +352,110 @@ abstract class ValidatorTestCase extends TestCase
             ],
         ]);
 
+        $subscriptionRoot = new ObjectType([
+            'name'   => 'SubscriptionRoot',
+            'fields' => [
+                'catSubscribe'  => ['type' => $Cat],
+                'barkSubscribe' => ['type' => $Dog],
+            ],
+        ]);
+
         return new Schema([
-            'query'      => $queryRoot,
-            'directives' => [
+            'query'        => $queryRoot,
+            'subscription' => $subscriptionRoot,
+            'directives'   => [
                 Directive::includeDirective(),
                 Directive::skipDirective(),
+                Directive::deprecatedDirective(),
+                new Directive([
+                    'name'      => 'directive',
+                    'locations' => [DirectiveLocation::FIELD],
+                ]),
+                new Directive([
+                    'name'      => 'directiveA',
+                    'locations' => [DirectiveLocation::FIELD],
+                ]),
+                new Directive([
+                    'name'      => 'directiveB',
+                    'locations' => [DirectiveLocation::FIELD],
+                ]),
                 new Directive([
                     'name'      => 'onQuery',
-                    'locations' => ['QUERY'],
+                    'locations' => [DirectiveLocation::QUERY],
                 ]),
                 new Directive([
                     'name'      => 'onMutation',
-                    'locations' => ['MUTATION'],
+                    'locations' => [DirectiveLocation::MUTATION],
                 ]),
                 new Directive([
                     'name'      => 'onSubscription',
-                    'locations' => ['SUBSCRIPTION'],
+                    'locations' => [DirectiveLocation::SUBSCRIPTION],
                 ]),
                 new Directive([
                     'name'      => 'onField',
-                    'locations' => ['FIELD'],
+                    'locations' => [DirectiveLocation::FIELD],
                 ]),
                 new Directive([
                     'name'      => 'onFragmentDefinition',
-                    'locations' => ['FRAGMENT_DEFINITION'],
+                    'locations' => [DirectiveLocation::FRAGMENT_DEFINITION],
                 ]),
                 new Directive([
                     'name'      => 'onFragmentSpread',
-                    'locations' => ['FRAGMENT_SPREAD'],
+                    'locations' => [DirectiveLocation::FRAGMENT_SPREAD],
                 ]),
                 new Directive([
                     'name'      => 'onInlineFragment',
-                    'locations' => ['INLINE_FRAGMENT'],
+                    'locations' => [DirectiveLocation::INLINE_FRAGMENT],
                 ]),
                 new Directive([
-                    'name'      => 'onSchema',
-                    'locations' => ['SCHEMA'],
-                ]),
-                new Directive([
-                    'name'      => 'onScalar',
-                    'locations' => ['SCALAR'],
-                ]),
-                new Directive([
-                    'name'      => 'onObject',
-                    'locations' => ['OBJECT'],
-                ]),
-                new Directive([
-                    'name'      => 'onFieldDefinition',
-                    'locations' => ['FIELD_DEFINITION'],
-                ]),
-                new Directive([
-                    'name'      => 'onArgumentDefinition',
-                    'locations' => ['ARGUMENT_DEFINITION'],
-                ]),
-                new Directive([
-                    'name'      => 'onInterface',
-                    'locations' => ['INTERFACE'],
-                ]),
-                new Directive([
-                    'name'      => 'onUnion',
-                    'locations' => ['UNION'],
-                ]),
-                new Directive([
-                    'name'      => 'onEnum',
-                    'locations' => ['ENUM'],
-                ]),
-                new Directive([
-                    'name'      => 'onEnumValue',
-                    'locations' => ['ENUM_VALUE'],
-                ]),
-                new Directive([
-                    'name'      => 'onInputObject',
-                    'locations' => ['INPUT_OBJECT'],
-                ]),
-                new Directive([
-                    'name'      => 'onInputFieldDefinition',
-                    'locations' => ['INPUT_FIELD_DEFINITION'],
+                    'name'      => 'onVariableDefinition',
+                    'locations' => [DirectiveLocation::VARIABLE_DEFINITION],
                 ]),
             ],
         ]);
     }
 
-    protected function expectFailsRule($rule, $queryString, $errors)
+    protected function expectFailsRule($rule, $queryString, $errors, $options = [])
     {
-        return $this->expectInvalid(self::getTestSchema(), [$rule], $queryString, $errors);
+        return $this->expectInvalid(self::getTestSchema(), [$rule], $queryString, $errors, $options);
     }
 
-    protected function expectInvalid($schema, $rules, $queryString, $expectedErrors)
+    protected function expectInvalid($schema, $rules, $queryString, $expectedErrors, $options = [])
     {
-        $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
+        $errors = DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules);
 
         self::assertNotEmpty($errors, 'GraphQL should not validate');
-        self::assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));
+        self::assertEquals($expectedErrors, array_map([FormattedError::class, 'createFromException'], $errors));
 
         return $errors;
     }
 
-    protected function expectPassesRuleWithSchema($schema, $rule, $queryString) : void
+    protected function expectPassesRuleWithSchema($schema, $rule, $queryString): void
     {
         $this->expectValid($schema, [$rule], $queryString);
     }
 
-    protected function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors) : void
+    protected function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors): void
     {
         $this->expectInvalid($schema, [$rule], $queryString, $errors);
     }
 
-    protected function expectPassesCompleteValidation($queryString) : void
+    protected function expectPassesCompleteValidation($queryString): void
     {
         $this->expectValid(self::getTestSchema(), DocumentValidator::allRules(), $queryString);
     }
 
-    protected function expectFailsCompleteValidation($queryString, $errors) : void
+    protected function expectFailsCompleteValidation($queryString, $errors): void
     {
         $this->expectInvalid(self::getTestSchema(), DocumentValidator::allRules(), $queryString, $errors);
+    }
+
+    protected function expectSDLErrorsFromRule($rule, $sdlString, ?Schema $schema = null, $errors = [])
+    {
+        $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
+        self::assertEquals(
+            $errors,
+            array_map([FormattedError::class, 'createFromException'], $actualErrors)
+        );
     }
 }

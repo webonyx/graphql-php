@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Error;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
@@ -16,7 +17,7 @@ class PrintErrorTest extends TestCase
     /**
      * @see it('prints an line numbers with correct padding')
      */
-    public function testPrintsAnLineNumbersWithCorrectPadding() : void
+    public function testPrintsAnLineNumbersWithCorrectPadding(): void
     {
         $singleDigit = new Error(
             'Single digit line number with no padding',
@@ -54,7 +55,7 @@ Test (9:1)
     /**
      * @see it('prints an error with nodes from different sources')
      */
-    public function testPrintsAnErrorWithNodesFromDifferentSources() : void
+    public function testPrintsAnErrorWithNodesFromDifferentSources(): void
     {
         $sourceA = Parser::parse(new Source(
             'type Foo {
@@ -63,7 +64,9 @@ Test (9:1)
             'SourceA'
         ));
 
-        $fieldTypeA = $sourceA->definitions[0]->fields[0]->type;
+        /** @var ObjectTypeDefinitionNode $objectDefinitionA */
+        $objectDefinitionA = $sourceA->definitions[0];
+        $fieldTypeA        = $objectDefinitionA->fields[0]->type;
 
         $sourceB = Parser::parse(new Source(
             'type Foo {
@@ -72,7 +75,9 @@ Test (9:1)
             'SourceB'
         ));
 
-        $fieldTypeB = $sourceB->definitions[0]->fields[0]->type;
+        /** @var ObjectTypeDefinitionNode $objectDefinitionB */
+        $objectDefinitionB = $sourceB->definitions[0];
+        $fieldTypeB        = $objectDefinitionB->fields[0]->type;
 
         $error = new Error(
             'Example error with two nodes',

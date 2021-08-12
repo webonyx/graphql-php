@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
-use function call_user_func;
+
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -16,19 +18,30 @@ use function sprintf;
 
 class UnionType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
 {
-    /** @var UnionTypeDefinitionNode */
-    public $astNode;
+    /** @var UnionTypeDefinitionNode|null */
+    public ?TypeDefinitionNode $astNode;
 
-    /** @var ObjectType[] */
-    private $types;
+    /**
+     * Lazily initialized.
+     *
+     * @var array<ObjectType>
+     */
+    private array $types;
 
-    /** @var ObjectType[] */
-    private $possibleTypeNames;
+    /**
+     * Lazily initialized.
+     *
+     * @var array<string, bool>
+     */
+    private array $possibleTypeNames;
 
-    /** @var UnionTypeExtensionNode[] */
-    public $extensionASTNodes;
+    /** @var array<int, UnionTypeExtensionNode> */
+    public array $extensionASTNodes;
 
-    public function __construct($config)
+    /**
+     * @param mixed[] $config
+     */
+    public function __construct(array $config)
     {
         if (! isset($config['name'])) {
             $config['name'] = $this->tryInferName();
@@ -38,23 +51,23 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
         /**
          * Optionally provide a custom type resolver function. If one is not provided,
-         * the default implemenation will call `isTypeOf` on each implementing
+         * the default implementation will call `isTypeOf` on each implementing
          * Object type.
          */
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
-        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
         $this->config            = $config;
     }
 
-    public function isPossibleType(Type $type) : bool
+    public function isPossibleType(Type $type): bool
     {
         if (! $type instanceof ObjectType) {
             return false;
         }
 
-        if ($this->possibleTypeNames === null) {
+        if (! isset($this->possibleTypeNames)) {
             $this->possibleTypeNames = [];
             foreach ($this->getTypes() as $possibleType) {
                 $this->possibleTypeNames[$possibleType->name] = true;
@@ -66,16 +79,15 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
     /**
      * @return ObjectType[]
+     *
+     * @throws InvariantViolation
      */
-    public function getTypes()
+    public function getTypes(): array
     {
-        if ($this->types === null) {
-            if (! isset($this->config['types'])) {
-                $types = null;
-            } elseif (is_callable($this->config['types'])) {
-                $types = call_user_func($this->config['types']);
-            } else {
-                $types = $this->config['types'];
+        if (! isset($this->types)) {
+            $types = $this->config['types'] ?? null;
+            if (is_callable($types)) {
+                $types = $types();
             }
 
             if (! is_array($types)) {
@@ -87,7 +99,12 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
                 );
             }
 
-            $this->types = $types;
+            $rawTypes = $types;
+            foreach ($rawTypes as $i => $rawType) {
+                $rawTypes[$i] = Schema::resolveType($rawType);
+            }
+
+            $this->types = $rawTypes;
         }
 
         return $this->types;
@@ -115,7 +132,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     /**
      * @throws InvariantViolation
      */
-    public function assertValid()
+    public function assertValid(): void
     {
         parent::assertValid();
 

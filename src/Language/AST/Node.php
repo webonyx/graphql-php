@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace GraphQL\Language\AST;
 
 use GraphQL\Utils\Utils;
+
+use function count;
 use function get_object_vars;
 use function is_array;
 use function is_scalar;
@@ -36,15 +38,18 @@ use function json_encode;
  */
 abstract class Node
 {
-    /** @var Location */
+    /** @var Location|null */
     public $loc;
+
+    /** @var string */
+    public $kind;
 
     /**
      * @param (NameNode|NodeList|SelectionSetNode|Location|string|int|bool|float|null)[] $vars
      */
     public function __construct(array $vars)
     {
-        if (empty($vars)) {
+        if (count($vars) === 0) {
             return;
         }
 
@@ -83,10 +88,7 @@ abstract class Node
         return $cloned;
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         $tmp = $this->toArray(true);
 
@@ -94,11 +96,9 @@ abstract class Node
     }
 
     /**
-     * @param bool $recursive
-     *
-     * @return mixed[]
+     * @return array<string, mixed>
      */
-    public function toArray($recursive = false)
+    public function toArray(bool $recursive = false): array
     {
         if ($recursive) {
             return $this->recursiveToArray($this);
@@ -106,7 +106,7 @@ abstract class Node
 
         $tmp = (array) $this;
 
-        if ($this->loc) {
+        if ($this->loc !== null) {
             $tmp['loc'] = [
                 'start' => $this->loc->start,
                 'end'   => $this->loc->end,
@@ -125,7 +125,7 @@ abstract class Node
             'kind' => $node->kind,
         ];
 
-        if ($node->loc) {
+        if ($node->loc !== null) {
             $result['loc'] = [
                 'start' => $node->loc->start,
                 'end'   => $node->loc->end,

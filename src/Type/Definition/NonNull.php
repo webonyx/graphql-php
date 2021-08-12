@@ -4,68 +4,46 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Utils\Utils;
+use GraphQL\Type\Schema;
 
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
-    /** @var NullableType */
+    /** @var (NullableType&Type)|callable():(NullableType&Type) */
     private $ofType;
 
     /**
-     * @param NullableType $type
+     * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
+     * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
+     * @param (NullableType&Type)|callable():(NullableType&Type) $type
      */
     public function __construct($type)
     {
-        $this->ofType = self::assertNullableType($type);
+        $this->ofType = $type;
     }
 
-    /**
-     * @param mixed $type
-     *
-     * @return NullableType
-     */
-    public static function assertNullableType($type)
-    {
-        Utils::invariant(
-            Type::isType($type) && ! $type instanceof self,
-            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL nullable type.'
-        );
-
-        return $type;
-    }
-
-    /**
-     * @param mixed $type
-     *
-     * @return self
-     */
-    public static function assertNullType($type)
-    {
-        Utils::invariant(
-            $type instanceof self,
-            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL Non-Null type.'
-        );
-
-        return $type;
-    }
-
-    /**
-     * @return string
-     */
-    public function toString()
+    public function toString(): string
     {
         return $this->getWrappedType()->toString() . '!';
     }
 
     /**
-     * @param bool $recurse
-     *
-     * @return Type
+     * @return NullableType&Type
      */
-    public function getWrappedType($recurse = false)
+    public function getOfType(): Type
     {
-        $type = $this->ofType;
+        /** @var NullableType&Type $type */
+        $type = Schema::resolveType($this->ofType);
 
-        return $recurse && $type instanceof WrappingType ? $type->getWrappedType($recurse) : $type;
+        return $type;
+    }
+
+    public function getWrappedType(bool $recurse = false): Type
+    {
+        /** @var NullableType&Type $type */
+        $type = $this->getOfType();
+
+        return $recurse && $type instanceof WrappingType
+            ? $type->getWrappedType($recurse)
+            : $type;
     }
 }

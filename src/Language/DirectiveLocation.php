@@ -17,6 +17,7 @@ class DirectiveLocation
     const FRAGMENT_DEFINITION = 'FRAGMENT_DEFINITION';
     const FRAGMENT_SPREAD     = 'FRAGMENT_SPREAD';
     const INLINE_FRAGMENT     = 'INLINE_FRAGMENT';
+    const VARIABLE_DEFINITION = 'VARIABLE_DEFINITION';
 
     // Type System Definitions
     const SCHEMA                 = 'SCHEMA';
@@ -40,6 +41,7 @@ class DirectiveLocation
         self::FRAGMENT_DEFINITION => self::FRAGMENT_DEFINITION,
         self::FRAGMENT_SPREAD => self::FRAGMENT_SPREAD,
         self::INLINE_FRAGMENT => self::INLINE_FRAGMENT,
+        self::VARIABLE_DEFINITION => self::VARIABLE_DEFINITION,
         self::SCHEMA => self::SCHEMA,
         self::SCALAR => self::SCALAR,
         self::OBJECT => self::OBJECT,
@@ -53,12 +55,7 @@ class DirectiveLocation
         self::INPUT_FIELD_DEFINITION => self::INPUT_FIELD_DEFINITION,
     ];
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
-    public static function has($name)
+    public static function has(string $name): bool
     {
         return isset(self::$locations[$name]);
     }

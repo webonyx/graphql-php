@@ -1,62 +1,71 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type;
 
-use GraphQL\Examples\Blog\AppContext;
+use Exception;
 use GraphQL\Examples\Blog\Data\DataSource;
+use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
+use function method_exists;
+use function ucfirst;
+
 class UserType extends ObjectType
 {
     public function __construct()
     {
-        $config = [
+        parent::__construct([
             'name' => 'User',
             'description' => 'Our blog authors',
-            'fields' => function() {
-                return [
-                    'id' => Types::id(),
-                    'email' => Types::email(),
-                    'photo' => [
-                        'type' => Types::image(),
-                        'description' => 'User photo URL',
-                        'args' => [
-                            'size' => Types::nonNull(Types::imageSizeEnum()),
-                        ]
+            'fields' => static fn (): array => [
+                'id' => Types::id(),
+                'email' => Types::email(),
+                'photo' => [
+                    'type' => Types::image(),
+                    'description' => 'User photo URL',
+                    'args' => [
+                        'size' => Types::nonNull(Types::imageSize()),
                     ],
-                    'firstName' => [
-                        'type' => Types::string(),
-                    ],
-                    'lastName' => [
-                        'type' => Types::string(),
-                    ],
-                    'lastStoryPosted' => Types::story(),
-                    'fieldWithError' => [
-                        'type' => Types::string(),
-                        'resolve' => function() {
-                            throw new \Exception("This is error field");
-                        }
-                    ]
-                ];
-            },
-            'interfaces' => [
-                Types::node()
+                ],
+                'firstName' => [
+                    'type' => Types::string(),
+                ],
+                'lastName' => [
+                    'type' => Types::string(),
+                ],
+                'lastStoryPosted' => Types::story(),
+                'fieldWithError' => [
+                    'type' => Types::string(),
+                    'resolve' => static function (): void {
+                        throw new Exception('This is error field');
+                    },
+                ],
             ],
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
-                $method = 'resolve' . ucfirst($info->fieldName);
+            'interfaces' => [Types::node()],
+            'resolveField' => function ($user, $args, $context, ResolveInfo $info) {
+                $fieldName = $info->fieldName;
+
+                $method = 'resolve' . ucfirst($fieldName);
                 if (method_exists($this, $method)) {
-                    return $this->{$method}($value, $args, $context, $info);
-                } else {
-                    return $value->{$info->fieldName};
+                    return $this->{$method}($user, $args, $context, $info);
                 }
-            }
-        ];
-        parent::__construct($config);
+
+                return $user->{$fieldName};
+            },
+        ]);
     }
 
-    public function resolvePhoto(User $user, $args)
+    /**
+     * @param array{size: int} $args
+     *
+     * @return Image
+     */
+    public function resolvePhoto(User $user, array $args)
     {
         return DataSource::getUserPhoto($user->id, $args['size']);
     }

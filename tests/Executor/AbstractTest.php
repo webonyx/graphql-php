@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use GraphQL\Error\DebugFlag;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
@@ -23,10 +26,12 @@ use PHPUnit\Framework\TestCase;
  */
 class AbstractTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * @see it('isTypeOf used to resolve runtime type for Interface')
      */
-    public function testIsTypeOfUsedToResolveRuntimeTypeForInterface() : void
+    public function testIsTypeOfUsedToResolveRuntimeTypeForInterface(): void
     {
         // isTypeOf used to resolve runtime type for Interface
         $petType = new InterfaceType([
@@ -40,7 +45,7 @@ class AbstractTest extends TestCase
         $dogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) {
+            'isTypeOf'   => static function ($obj): bool {
                 return $obj instanceof Dog;
             },
             'fields'     => [
@@ -52,7 +57,7 @@ class AbstractTest extends TestCase
         $catType = new ObjectType([
             'name'       => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) {
+            'isTypeOf'   => static function ($obj): bool {
                 return $obj instanceof Cat;
             },
             'fields'     => [
@@ -67,7 +72,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () {
+                        'resolve' => static function (): array {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
@@ -102,11 +107,11 @@ class AbstractTest extends TestCase
     /**
      * @see it('isTypeOf used to resolve runtime type for Union')
      */
-    public function testIsTypeOfUsedToResolveRuntimeTypeForUnion() : void
+    public function testIsTypeOfUsedToResolveRuntimeTypeForUnion(): void
     {
         $dogType = new ObjectType([
             'name'     => 'Dog',
-            'isTypeOf' => static function ($obj) {
+            'isTypeOf' => static function ($obj): bool {
                 return $obj instanceof Dog;
             },
             'fields'   => [
@@ -117,7 +122,7 @@ class AbstractTest extends TestCase
 
         $catType = new ObjectType([
             'name'     => 'Cat',
-            'isTypeOf' => static function ($obj) {
+            'isTypeOf' => static function ($obj): bool {
                 return $obj instanceof Cat;
             },
             'fields'   => [
@@ -137,7 +142,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () {
+                        'resolve' => static function (): array {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
@@ -170,7 +175,7 @@ class AbstractTest extends TestCase
     /**
      * @see it('resolveType on Interface yields useful error')
      */
-    public function testResolveTypeOnInterfaceYieldsUsefulError() : void
+    public function testResolveTypeOnInterfaceYieldsUsefulError(): void
     {
         $DogType   = null;
         $CatType   = null;
@@ -182,9 +187,11 @@ class AbstractTest extends TestCase
                 if ($obj instanceof Dog) {
                     return $DogType;
                 }
+
                 if ($obj instanceof Cat) {
                     return $CatType;
                 }
+
                 if ($obj instanceof Human) {
                     return $HumanType;
                 }
@@ -227,7 +234,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function (): array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -260,14 +267,15 @@ class AbstractTest extends TestCase
                     null,
                 ],
             ],
-            'errors' => [[
-                'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
-                'locations'    => [['line' => 2, 'column' => 11]],
-                'path'         => ['pets', 2],
-            ],
+            'errors' => [
+                [
+                    'locations'    => [['line' => 2, 'column' => 11]],
+                    'path'         => ['pets', 2],
+                    'extensions' => ['debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".'],
+                ],
             ],
         ];
-        $actual   = GraphQL::executeQuery($schema, $query)->toArray(true);
+        $actual   = GraphQL::executeQuery($schema, $query)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
 
         self::assertArraySubset($expected, $actual);
     }
@@ -275,7 +283,7 @@ class AbstractTest extends TestCase
     /**
      * @see it('resolveType on Union yields useful error')
      */
-    public function testResolveTypeOnUnionYieldsUsefulError() : void
+    public function testResolveTypeOnUnionYieldsUsefulError(): void
     {
         $HumanType = new ObjectType([
             'name'   => 'Human',
@@ -302,16 +310,20 @@ class AbstractTest extends TestCase
 
         $PetType = new UnionType([
             'name'        => 'Pet',
-            'resolveType' => static function ($obj) use ($DogType, $CatType, $HumanType) {
+            'resolveType' => static function ($obj) use ($DogType, $CatType, $HumanType): Type {
                 if ($obj instanceof Dog) {
                     return $DogType;
                 }
+
                 if ($obj instanceof Cat) {
                     return $CatType;
                 }
+
                 if ($obj instanceof Human) {
                     return $HumanType;
                 }
+
+                throw new InvariantViolation('Invalid type');
             },
             'types'       => [$DogType, $CatType],
         ]);
@@ -322,7 +334,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function (): array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -347,7 +359,7 @@ class AbstractTest extends TestCase
           }
         }';
 
-        $result   = GraphQL::executeQuery($schema, $query)->toArray(true);
+        $result   = GraphQL::executeQuery($schema, $query)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
         $expected = [
             'data'   => [
                 'pets' => [
@@ -362,11 +374,12 @@ class AbstractTest extends TestCase
                     null,
                 ],
             ],
-            'errors' => [[
-                'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
-                'locations'    => [['line' => 2, 'column' => 11]],
-                'path'         => ['pets', 2],
-            ],
+            'errors' => [
+                [
+                    'locations'    => [['line' => 2, 'column' => 11]],
+                    'path'         => ['pets', 2],
+                    'extensions' => ['debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".'],
+                ],
             ],
         ];
         self::assertArraySubset($expected, $result);
@@ -375,12 +388,12 @@ class AbstractTest extends TestCase
     /**
      * @see it('returning invalid value from resolveType yields useful error')
      */
-    public function testReturningInvalidValueFromResolveTypeYieldsUsefulError() : void
+    public function testReturningInvalidValueFromResolveTypeYieldsUsefulError(): void
     {
         $fooInterface = new InterfaceType([
             'name'        => 'FooInterface',
             'fields'      => ['bar' => ['type' => Type::string()]],
-            'resolveType' => static function () {
+            'resolveType' => static function (): array {
                 return [];
             },
         ]);
@@ -397,7 +410,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'foo' => [
                         'type'    => $fooInterface,
-                        'resolve' => static function () {
+                        'resolve' => static function (): string {
                             return 'dummy';
                         },
                     ],
@@ -413,24 +426,25 @@ class AbstractTest extends TestCase
             'errors' => [
                 [
                     'message'      => 'Internal server error',
-                    'debugMessage' =>
+                    'locations'    => [['line' => 1, 'column' => 3]],
+                    'path'         => ['foo'],
+                    'extensions' => [
+                        'debugMessage' =>
                         'Abstract type FooInterface must resolve to an Object type at ' .
                         'runtime for field Query.foo with value "dummy", received "[]". ' .
                         'Either the FooInterface type should provide a "resolveType" ' .
                         'function or each possible type should provide an "isTypeOf" function.',
-                    'locations'    => [['line' => 1, 'column' => 3]],
-                    'path'         => ['foo'],
-                    'extensions'   => ['category' => 'internal'],
+                    ],
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
     /**
      * @see it('resolveType allows resolving with type name')
      */
-    public function testResolveTypeAllowsResolvingWithTypeName() : void
+    public function testResolveTypeAllowsResolvingWithTypeName(): void
     {
         $PetType = new InterfaceType([
             'name'        => 'Pet',
@@ -438,6 +452,7 @@ class AbstractTest extends TestCase
                 if ($obj instanceof Dog) {
                     return 'Dog';
                 }
+
                 if ($obj instanceof Cat) {
                     return 'Cat';
                 }
@@ -473,7 +488,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function (): array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -512,15 +527,15 @@ class AbstractTest extends TestCase
         );
     }
 
-    public function testHintsOnConflictingTypeInstancesInResolveType() : void
+    public function testHintsOnConflictingTypeInstancesInResolveType(): void
     {
-        $createTest = static function () use (&$iface) {
+        $createTest = static function () use (&$iface): ObjectType {
             return new ObjectType([
                 'name'       => 'Test',
                 'fields'     => [
                     'a' => Type::string(),
                 ],
-                'interfaces' => static function () use ($iface) {
+                'interfaces' => static function () use ($iface): array {
                     return [$iface];
                 },
             ]);
@@ -531,7 +546,7 @@ class AbstractTest extends TestCase
             'fields'      => [
                 'a' => Type::string(),
             ],
-            'resolveType' => static function () use (&$createTest) {
+            'resolveType' => static function () use (&$createTest): ObjectType {
                 return $createTest();
             },
         ]);
@@ -561,7 +576,7 @@ class AbstractTest extends TestCase
             'Schema must contain unique named types but contains multiple types named "Test". ' .
             'Make sure that `resolveType` function of abstract type "Node" returns the same type instance ' .
             'as referenced anywhere else within the schema ' .
-            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
+            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
             $result->errors[0]->getMessage()
         );
     }

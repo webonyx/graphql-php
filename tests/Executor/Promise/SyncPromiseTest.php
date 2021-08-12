@@ -9,6 +9,7 @@ use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use PHPUnit\Framework\Error\Error;
 use PHPUnit\Framework\TestCase;
 use Throwable;
+
 use function uniqid;
 
 class SyncPromiseTest extends TestCase
@@ -23,11 +24,11 @@ class SyncPromiseTest extends TestCase
             return $value;
         };
 
-        $onFulfilledReturnsOtherValue = static function ($value) {
+        $onFulfilledReturnsOtherValue = static function ($value): string {
             return 'other-' . $value;
         };
 
-        $onFulfilledThrows = static function ($value) {
+        $onFulfilledThrows = static function ($value): void {
             throw new Exception('onFulfilled throws this!');
         };
 
@@ -101,7 +102,7 @@ class SyncPromiseTest extends TestCase
 
         $nextPromise = $promise->then(
             null,
-            static function () {
+            static function (): void {
             }
         );
         self::assertSame($promise, $nextPromise);
@@ -109,7 +110,7 @@ class SyncPromiseTest extends TestCase
         $onRejectedCalled = false;
         $nextPromise      = $promise->then(
             $onFulfilled,
-            static function () use (&$onRejectedCalled) {
+            static function () use (&$onRejectedCalled): void {
                 $onRejectedCalled = true;
             }
         );
@@ -120,6 +121,7 @@ class SyncPromiseTest extends TestCase
         } else {
             self::assertEquals(SyncPromise::FULFILLED, $nextPromise->state);
         }
+
         self::assertEquals(false, $onRejectedCalled);
 
         self::assertValidPromise($nextPromise, $expectedNextReason, $expectedNextValue, $expectedNextState);
@@ -142,18 +144,18 @@ class SyncPromiseTest extends TestCase
         $expectedNextReason,
         $expectedNextValue,
         $expectedNextState
-    ) : void {
+    ): void {
         $actualNextValue   = null;
         $actualNextReason  = null;
         $onFulfilledCalled = false;
         $onRejectedCalled  = false;
 
         $promise->then(
-            static function ($nextValue) use (&$actualNextValue, &$onFulfilledCalled) {
+            static function ($nextValue) use (&$actualNextValue, &$onFulfilledCalled): void {
                 $onFulfilledCalled = true;
                 $actualNextValue   = $nextValue;
             },
-            static function (Throwable $reason) use (&$actualNextReason, &$onRejectedCalled) {
+            static function (Throwable $reason) use (&$actualNextReason, &$onRejectedCalled): void {
                 $onRejectedCalled = true;
                 $actualNextReason = $reason->getMessage();
             }
@@ -178,15 +180,15 @@ class SyncPromiseTest extends TestCase
             return null;
         };
 
-        $onRejectedReturnsSomeValue = static function ($reason) {
+        $onRejectedReturnsSomeValue = static function ($reason): string {
             return 'some-value';
         };
 
-        $onRejectedThrowsSameReason = static function ($reason) {
+        $onRejectedThrowsSameReason = static function ($reason): void {
             throw $reason;
         };
 
-        $onRejectedThrowsOtherReason = static function ($value) {
+        $onRejectedThrowsOtherReason = static function ($value): void {
             throw new Exception('onRejected throws other!');
         };
 
@@ -273,7 +275,7 @@ class SyncPromiseTest extends TestCase
         }
 
         $nextPromise = $promise->then(
-            static function () {
+            static function (): void {
             },
             null
         );
@@ -281,7 +283,7 @@ class SyncPromiseTest extends TestCase
 
         $onFulfilledCalled = false;
         $nextPromise       = $promise->then(
-            static function () use (&$onFulfilledCalled) {
+            static function () use (&$onFulfilledCalled): void {
                 $onFulfilledCalled = true;
             },
             $onRejected
@@ -293,6 +295,7 @@ class SyncPromiseTest extends TestCase
         } else {
             self::assertEquals(SyncPromise::REJECTED, $nextPromise->state);
         }
+
         self::assertEquals(false, $onFulfilledCalled);
         self::assertValidPromise($nextPromise, $expectedNextReason, $expectedNextValue, $expectedNextState);
 
@@ -309,7 +312,7 @@ class SyncPromiseTest extends TestCase
         self::assertValidPromise($nextPromise3, $expectedNextReason, $expectedNextValue, $expectedNextState);
     }
 
-    public function testPendingPromise() : void
+    public function testPendingPromise(): void
     {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
@@ -358,7 +361,7 @@ class SyncPromiseTest extends TestCase
         $promise  = new SyncPromise();
         $promise2 = $promise->then(
             null,
-            static function () {
+            static function (): string {
                 return 'value';
             }
         );
@@ -371,7 +374,7 @@ class SyncPromiseTest extends TestCase
         self::assertValidPromise($promise2, 'Rejected Once Again', null, SyncPromise::REJECTED);
     }
 
-    public function testPendingPromiseThen() : void
+    public function testPendingPromiseThen(): void
     {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
@@ -384,14 +387,15 @@ class SyncPromiseTest extends TestCase
         // Make sure that it queues derivative promises until resolution:
         $onFulfilledCount = 0;
         $onRejectedCount  = 0;
-        $onFulfilled      = static function ($value) use (&$onFulfilledCount) {
+        $onFulfilled      = static function ($value) use (&$onFulfilledCount): int {
             $onFulfilledCount++;
 
             return $onFulfilledCount;
         };
 
-        $onRejected = static function ($reason) use (&$onRejectedCount) {
+        $onRejected = static function ($reason) use (&$onRejectedCount): void {
             $onRejectedCount++;
+
             throw $reason;
         };
 

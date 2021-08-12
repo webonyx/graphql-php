@@ -10,7 +10,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+
 use function trigger_error;
+
 use const E_USER_DEPRECATED;
 use const E_USER_NOTICE;
 use const E_USER_WARNING;
@@ -25,16 +27,20 @@ abstract class ServerTestCase extends TestCase
                 'fields' => [
                     'f1'                      => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($root, $args, $context, $info) {
+                        'resolve' => static function ($rootValue, $args, $context, $info) {
                             return $info->fieldName;
                         },
                     ],
                     'fieldWithPhpError'       => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($root, $args, $context, $info) {
+                        'resolve' => static function ($rootValue, $args, $context, $info) {
                             trigger_error('deprecated', E_USER_DEPRECATED);
                             trigger_error('notice', E_USER_NOTICE);
                             trigger_error('warning', E_USER_WARNING);
+
+                            /**
+                             * @var array<string>
+                             */
                             $a = [];
                             $a['test']; // should produce PHP notice
 
@@ -43,20 +49,20 @@ abstract class ServerTestCase extends TestCase
                     ],
                     'fieldWithSafeException' => [
                         'type' => Type::string(),
-                        'resolve' => static function () {
+                        'resolve' => static function (): void {
                             throw new UserError('This is the exception we want');
                         },
                     ],
                     'fieldWithUnsafeException' => [
                         'type' => Type::string(),
-                        'resolve' => static function () {
+                        'resolve' => static function (): void {
                             throw new Unsafe('This exception should not be shown to the user');
                         },
                     ],
                     'testContextAndRootValue' => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($root, $args, $context, $info) {
-                            $context->testedRootValue = $root;
+                        'resolve' => static function ($rootValue, $args, $context, $info) {
+                            $context->testedRootValue = $rootValue;
 
                             return $info->fieldName;
                         },
@@ -68,7 +74,7 @@ abstract class ServerTestCase extends TestCase
                                 'type' => Type::nonNull(Type::string()),
                             ],
                         ],
-                        'resolve' => static function ($root, $args) {
+                        'resolve' => static function ($rootValue, $args) {
                             return $args['arg'];
                         },
                     ],
@@ -79,7 +85,7 @@ abstract class ServerTestCase extends TestCase
                                 'type' => Type::nonNull(Type::int()),
                             ],
                         ],
-                        'resolve' => static function ($root, $args, $context) {
+                        'resolve' => static function ($rootValue, $args, $context): Deferred {
                             $context['buffer']($args['num']);
 
                             return new Deferred(static function () use ($args, $context) {

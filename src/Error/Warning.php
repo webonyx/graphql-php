@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Error;
 
+use GraphQL\Exception\InvalidArgument;
+
+use function is_int;
 use function trigger_error;
+
 use const E_USER_WARNING;
 
 /**
@@ -15,12 +19,12 @@ use const E_USER_WARNING;
  */
 final class Warning
 {
-    const WARNING_ASSIGN             = 2;
-    const WARNING_CONFIG             = 4;
-    const WARNING_FULL_SCHEMA_SCAN   = 8;
-    const WARNING_CONFIG_DEPRECATION = 16;
-    const WARNING_NOT_A_TYPE         = 32;
-    const ALL                        = 63;
+    public const WARNING_ASSIGN             = 2;
+    public const WARNING_CONFIG             = 4;
+    public const WARNING_FULL_SCHEMA_SCAN   = 8;
+    public const WARNING_CONFIG_DEPRECATION = 16;
+    public const WARNING_NOT_A_TYPE         = 32;
+    public const ALL                        = 63;
 
     /** @var int */
     private static $enableWarnings = self::ALL;
@@ -37,7 +41,7 @@ final class Warning
      *
      * @api
      */
-    public static function setWarningHandler(?callable $warningHandler = null)
+    public static function setWarningHandler(?callable $warningHandler = null): void
     {
         self::$warningHandler = $warningHandler;
     }
@@ -54,14 +58,16 @@ final class Warning
      *
      * @api
      */
-    public static function suppress($suppress = true)
+    public static function suppress($suppress = true): void
     {
         if ($suppress === true) {
             self::$enableWarnings = 0;
         } elseif ($suppress === false) {
             self::$enableWarnings = self::ALL;
-        } else {
+        } elseif (is_int($suppress)) {
             self::$enableWarnings &= ~$suppress;
+        } else {
+            throw InvalidArgument::fromExpectedTypeAndArgument('bool|int', $suppress);
         }
     }
 
@@ -77,35 +83,41 @@ final class Warning
      *
      * @api
      */
-    public static function enable($enable = true)
+    public static function enable($enable = true): void
     {
         if ($enable === true) {
             self::$enableWarnings = self::ALL;
         } elseif ($enable === false) {
             self::$enableWarnings = 0;
-        } else {
+        } elseif (is_int($enable)) {
             self::$enableWarnings |= $enable;
+        } else {
+            throw InvalidArgument::fromExpectedTypeAndArgument('bool|int', $enable);
         }
     }
 
-    public static function warnOnce($errorMessage, $warningId, $messageLevel = null)
+    public static function warnOnce(string $errorMessage, int $warningId, ?int $messageLevel = null): void
     {
-        if (self::$warningHandler) {
+        $messageLevel ??= E_USER_WARNING;
+
+        if (self::$warningHandler !== null) {
             $fn = self::$warningHandler;
-            $fn($errorMessage, $warningId);
+            $fn($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0 && ! isset(self::$warned[$warningId])) {
             self::$warned[$warningId] = true;
-            trigger_error($errorMessage, $messageLevel ?: E_USER_WARNING);
+            trigger_error($errorMessage, $messageLevel);
         }
     }
 
-    public static function warn($errorMessage, $warningId, $messageLevel = null)
+    public static function warn(string $errorMessage, int $warningId, ?int $messageLevel = null): void
     {
-        if (self::$warningHandler) {
+        $messageLevel ??= E_USER_WARNING;
+
+        if (self::$warningHandler !== null) {
             $fn = self::$warningHandler;
-            $fn($errorMessage, $warningId);
+            $fn($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0) {
-            trigger_error($errorMessage, $messageLevel ?: E_USER_WARNING);
+            trigger_error($errorMessage, $messageLevel);
         }
     }
 }

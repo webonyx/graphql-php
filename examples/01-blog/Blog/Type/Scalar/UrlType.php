@@ -1,63 +1,64 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type\Scalar;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
 
+use function filter_var;
+use function is_string;
+
+use const FILTER_VALIDATE_URL;
+
 class UrlType extends ScalarType
 {
-    /**
-     * Serializes an internal value to include in a response.
-     *
-     * @param mixed $value
-     * @return mixed
-     */
-    public function serialize($value)
+    public function serialize($value): string
     {
-        // Assuming internal representation of url is always correct:
-        return $value;
-
-        // If it might be incorrect and you want to make sure that only correct values are included in response -
-        // use following line instead:
-        // return $this->parseValue($value);
-    }
-
-    /**
-     * Parses an externally provided value (query variable) to use as an input
-     *
-     * @param mixed $value
-     * @return mixed
-     * @throws Error
-     */
-    public function parseValue($value)
-    {
-        if (!is_string($value) || !filter_var($value, FILTER_VALIDATE_URL)) { // quite naive, but after all this is example
-            throw new Error("Cannot represent value as URL: " . Utils::printSafe($value));
+        if (! $this->isUrl($value)) {
+            throw new SerializationError('Cannot represent value as URL: ' . Utils::printSafe($value));
         }
+
         return $value;
     }
 
-    /**
-     * Parses an externally provided literal value to use as an input (e.g. in Query AST)
-     *
-     * @param Node $valueNode
-     * @param array|null $variables
-     * @return null|string
-     * @throws Error
-     */
-    public function parseLiteral($valueNode, array $variables = null)
+    public function parseValue($value): string
     {
-        // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
-        // error location in query:
-        if (!($valueNode instanceof StringValueNode)) {
+        if (! $this->isUrl($value)) {
+            throw new Error('Cannot represent value as URL: ' . Utils::printSafe($value));
+        }
+
+        return $value;
+    }
+
+    public function parseLiteral(Node $valueNode, ?array $variables = null): string
+    {
+        // Throwing GraphQL\Error\Error to benefit from GraphQL error location in query
+        if (! ($valueNode instanceof StringValueNode)) {
             throw new Error('Query error: Can only parse strings got: ' . $valueNode->kind, [$valueNode]);
         }
-        if (!is_string($valueNode->value) || !filter_var($valueNode->value, FILTER_VALIDATE_URL)) {
+
+        $value = $valueNode->value;
+        if (! $this->isUrl($value)) {
             throw new Error('Query error: Not a valid URL', [$valueNode]);
         }
-        return $valueNode->value;
+
+        return $value;
+    }
+
+    /**
+     * Is the given value a valid URL?
+     *
+     * @param mixed $value
+     */
+    private function isUrl($value): bool
+    {
+        return is_string($value)
+            && filter_var($value, FILTER_VALIDATE_URL);
     }
 }

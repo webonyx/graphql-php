@@ -13,6 +13,7 @@ use React\Promise\LazyPromise;
 use React\Promise\Promise as ReactPromise;
 use React\Promise\RejectedPromise;
 use stdClass;
+
 use function class_exists;
 
 /**
@@ -20,7 +21,7 @@ use function class_exists;
  */
 class ReactPromiseAdapterTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         if (class_exists('React\Promise\Promise')) {
             return;
@@ -29,18 +30,18 @@ class ReactPromiseAdapterTest extends TestCase
         self::markTestSkipped('react/promise package must be installed to run GraphQL\Tests\Executor\Promise\ReactPromiseAdapterTest');
     }
 
-    public function testIsThenableReturnsTrueWhenAReactPromiseIsGiven() : void
+    public function testIsThenableReturnsTrueWhenAReactPromiseIsGiven(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
 
         self::assertTrue(
-            $reactAdapter->isThenable(new ReactPromise(static function () {
+            $reactAdapter->isThenable(new ReactPromise(static function (): void {
             }))
         );
         self::assertTrue($reactAdapter->isThenable(new FulfilledPromise()));
         self::assertTrue($reactAdapter->isThenable(new RejectedPromise()));
         self::assertTrue(
-            $reactAdapter->isThenable(new LazyPromise(static function () {
+            $reactAdapter->isThenable(new LazyPromise(static function (): void {
             }))
         );
         self::assertFalse($reactAdapter->isThenable(false));
@@ -53,7 +54,7 @@ class ReactPromiseAdapterTest extends TestCase
         self::assertFalse($reactAdapter->isThenable(new stdClass()));
     }
 
-    public function testConvertsReactPromisesToGraphQlOnes() : void
+    public function testConvertsReactPromisesToGraphQlOnes(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $reactPromise = new FulfilledPromise(1);
@@ -64,7 +65,7 @@ class ReactPromiseAdapterTest extends TestCase
         self::assertInstanceOf('React\Promise\FulfilledPromise', $promise->adoptedPromise);
     }
 
-    public function testThen() : void
+    public function testThen(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $reactPromise = new FulfilledPromise(1);
@@ -74,7 +75,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $resultPromise = $reactAdapter->then(
             $promise,
-            static function ($value) use (&$result) {
+            static function ($value) use (&$result): void {
                 $result = $value;
             }
         );
@@ -84,10 +85,10 @@ class ReactPromiseAdapterTest extends TestCase
         self::assertInstanceOf('React\Promise\FulfilledPromise', $resultPromise->adoptedPromise);
     }
 
-    public function testCreate() : void
+    public function testCreate(): void
     {
         $reactAdapter    = new ReactPromiseAdapter();
-        $resolvedPromise = $reactAdapter->create(static function ($resolve) {
+        $resolvedPromise = $reactAdapter->create(static function ($resolve): void {
             $resolve(1);
         });
 
@@ -96,14 +97,14 @@ class ReactPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $resolvedPromise->then(static function ($value) use (&$result) {
+        $resolvedPromise->then(static function ($value) use (&$result): void {
             $result = $value;
         });
 
         self::assertSame(1, $result);
     }
 
-    public function testCreateFulfilled() : void
+    public function testCreateFulfilled(): void
     {
         $reactAdapter     = new ReactPromiseAdapter();
         $fulfilledPromise = $reactAdapter->createFulfilled(1);
@@ -113,14 +114,14 @@ class ReactPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $fulfilledPromise->then(static function ($value) use (&$result) {
+        $fulfilledPromise->then(static function ($value) use (&$result): void {
             $result = $value;
         });
 
         self::assertSame(1, $result);
     }
 
-    public function testCreateRejected() : void
+    public function testCreateRejected(): void
     {
         $reactAdapter    = new ReactPromiseAdapter();
         $rejectedPromise = $reactAdapter->createRejected(new Exception('I am a bad promise'));
@@ -132,7 +133,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $rejectedPromise->then(
             null,
-            static function ($error) use (&$exception) {
+            static function ($error) use (&$exception): void {
                 $exception = $error;
             }
         );
@@ -141,7 +142,7 @@ class ReactPromiseAdapterTest extends TestCase
         self::assertEquals('I am a bad promise', $exception->getMessage());
     }
 
-    public function testAll() : void
+    public function testAll(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $promises     = [new FulfilledPromise(1), new FulfilledPromise(2), new FulfilledPromise(3)];
@@ -153,21 +154,21 @@ class ReactPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $allPromise->then(static function ($values) use (&$result) {
+        $allPromise->then(static function ($values) use (&$result): void {
             $result = $values;
         });
 
         self::assertSame([1, 2, 3], $result);
     }
 
-    public function testAllShouldPreserveTheOrderOfTheArrayWhenResolvingAsyncPromises() : void
+    public function testAllShouldPreserveTheOrderOfTheArrayWhenResolvingAsyncPromises(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $deferred     = new Deferred();
         $promises     = [new FulfilledPromise(1), $deferred->promise(), new FulfilledPromise(3)];
         $result       = null;
 
-        $reactAdapter->all($promises)->then(static function ($values) use (&$result) {
+        $reactAdapter->all($promises)->then(static function ($values) use (&$result): void {
             $result = $values;
         });
 

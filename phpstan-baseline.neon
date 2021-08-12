@@ -1,0 +1,102 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Variable method call on \\$this\\(GraphQL\\\\Examples\\\\Blog\\\\Type\\\\CommentType\\)\\.$#"
+			count: 1
+			path: examples/01-blog/Blog/Type/CommentType.php
+
+		-
+			message: "#^Variable property access on GraphQL\\\\Examples\\\\Blog\\\\Data\\\\Comment\\.$#"
+			count: 1
+			path: examples/01-blog/Blog/Type/CommentType.php
+
+		-
+			message: "#^Variable property access on mixed\\.$#"
+			count: 1
+			path: examples/01-blog/Blog/Type/Field/HtmlField.php
+
+		-
+			message: "#^Variable method call on \\$this\\(GraphQL\\\\Examples\\\\Blog\\\\Type\\\\QueryType\\)\\.$#"
+			count: 1
+			path: examples/01-blog/Blog/Type/QueryType.php
+
+		-
+			message: "#^Variable method call on \\$this\\(GraphQL\\\\Examples\\\\Blog\\\\Type\\\\StoryType\\)\\.$#"
+			count: 1
+			path: examples/01-blog/Blog/Type/StoryType.php
+
+		-
+			message: "#^Variable property access on GraphQL\\\\Examples\\\\Blog\\\\Data\\\\Story\\.$#"
+			count: 1
+			path: examples/01-blog/Blog/Type/StoryType.php
+
+		-
+			message: "#^Variable method call on \\$this\\(GraphQL\\\\Examples\\\\Blog\\\\Type\\\\UserType\\)\\.$#"
+			count: 1
+			path: examples/01-blog/Blog/Type/UserType.php
+
+		-
+			message: "#^Variable property access on mixed\\.$#"
+			count: 1
+			path: examples/01-blog/Blog/Type/UserType.php
+
+		-
+			message: "#^Variable static method call on GraphQL\\\\Examples\\\\Blog\\\\Types\\.$#"
+			count: 1
+			path: examples/01-blog/Blog/Types.php
+
+		-
+			message: "#^Variable property access on object\\.$#"
+			count: 2
+			path: src/Executor/Executor.php
+
+		-
+			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
+			count: 1
+			path: src/Language/AST/Node.php
+
+		-
+			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\|null\\.$#"
+			count: 1
+			path: src/Language/Visitor.php
+
+		-
+			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
+			count: 1
+			path: src/Language/Visitor.php
+
+		-
+			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\)\\.$#"
+			count: 3
+			path: src/Type/Definition/FieldDefinition.php
+
+		-
+			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\)\\.$#"
+			count: 4
+			path: src/Type/Definition/InputObjectField.php
+
+		-
+			message: "#^Variable property access on mixed\\.$#"
+			count: 2
+			path: src/Utils/AST.php
+
+		-
+			message: "#^Variable property access on object\\.$#"
+			count: 1
+			path: src/Utils/Utils.php
+
+		-
+			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:\\$nonExistentProp\\.$#"
+			count: 2
+			path: tests/Type/DefinitionTest.php
+
+		-
+			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\:\\:\\$nonExistentProp\\.$#"
+			count: 1
+			path: tests/Type/DefinitionTest.php
+
+		-
+			message: "#^Variable property access on \\$this\\(GraphQL\\\\Tests\\\\Type\\\\TypeLoaderTest\\)\\.$#"
+			count: 1
+			path: tests/Type/TypeLoaderTest.php
+

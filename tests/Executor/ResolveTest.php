@@ -10,16 +10,18 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+
 use function json_encode;
 use function uniqid;
 
 class ResolveTest extends TestCase
 {
     // Execute: resolve function
+
     /**
      * @see it('default function accesses properties')
      */
-    public function testDefaultFunctionAccessesProperties() : void
+    public function testDefaultFunctionAccessesProperties(): void
     {
         $schema = $this->buildSchema(['type' => Type::string()]);
 
@@ -44,13 +46,13 @@ class ResolveTest extends TestCase
     /**
      * @see it('default function calls methods')
      */
-    public function testDefaultFunctionCallsClosures() : void
+    public function testDefaultFunctionCallsClosures(): void
     {
         $schema  = $this->buildSchema(['type' => Type::string()]);
         $_secret = 'secretValue' . uniqid();
 
         $source = [
-            'test' => static function () use ($_secret) {
+            'test' => static function () use ($_secret): string {
                 return $_secret;
             },
         ];
@@ -63,7 +65,7 @@ class ResolveTest extends TestCase
     /**
      * @see it('default function passes args and context')
      */
-    public function testDefaultFunctionPassesArgsAndContext() : void
+    public function testDefaultFunctionPassesArgsAndContext(): void
     {
         $schema = $this->buildSchema([
             'type' => Type::int(),
@@ -81,7 +83,7 @@ class ResolveTest extends TestCase
     /**
      * @see it('uses provided resolve function')
      */
-    public function testUsesProvidedResolveFunction() : void
+    public function testUsesProvidedResolveFunction(): void
     {
         $schema = $this->buildSchema([
             'type'    => Type::string(),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use Generator;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -21,10 +22,11 @@ use PHPUnit\Framework\TestCase;
 class SchemaPrinterTest extends TestCase
 {
     // Describe: Type System Printer
+
     /**
      * @see it('Prints String Field')
      */
-    public function testPrintsStringField() : void
+    public function testPrintsStringField(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -60,7 +62,7 @@ type Query {
     /**
      * @see it('Prints [String] Field')
      */
-    public function testPrintArrayStringField() : void
+    public function testPrintArrayStringField(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::listOf(Type::string()),
@@ -78,7 +80,7 @@ type Query {
     /**
      * @see it('Prints String! Field')
      */
-    public function testPrintNonNullStringField() : void
+    public function testPrintNonNullStringField(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::string()),
@@ -96,7 +98,7 @@ type Query {
     /**
      * @see it('Prints [String]! Field')
      */
-    public function testPrintNonNullArrayStringField() : void
+    public function testPrintNonNullArrayStringField(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::listOf(Type::string())),
@@ -114,7 +116,7 @@ type Query {
     /**
      * @see it('Prints [String!] Field')
      */
-    public function testPrintArrayNonNullStringField() : void
+    public function testPrintArrayNonNullStringField(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::listOf(Type::nonNull(Type::string())),
@@ -132,7 +134,7 @@ type Query {
     /**
      * @see it('Prints [String!]! Field')
      */
-    public function testPrintNonNullArrayNonNullStringField() : void
+    public function testPrintNonNullArrayNonNullStringField(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string()))),
@@ -148,9 +150,53 @@ type Query {
     }
 
     /**
+     * @see it('Prints Field With "@deprecated" Directive')
+     *
+     * @dataProvider deprecationReasonDataProvider
+     */
+    public function testPrintDeprecatedField(?string $deprecationReason, string $expectedDeprecationDirective): void
+    {
+        $output = $this->printSingleFieldSchema([
+            'type' => Type::int(),
+            'deprecationReason' => $deprecationReason,
+        ]);
+        self::assertSame(
+            '
+type Query {
+  singleField: Int' . $expectedDeprecationDirective . '
+}
+',
+            $output
+        );
+    }
+
+    public function deprecationReasonDataProvider(): Generator
+    {
+        yield 'when deprecationReason is null' => [
+            null,
+            '',
+        ];
+
+        yield 'when deprecationReason is empty string' => [
+            '',
+            ' @deprecated',
+        ];
+
+        yield 'when deprecationReason is the default deprecation reason' => [
+            Directive::DEFAULT_DEPRECATION_REASON,
+            ' @deprecated',
+        ];
+
+        yield 'when deprecationReason is not empty string' => [
+            'this is deprecated',
+            ' @deprecated(reason: "this is deprecated")',
+        ];
+    }
+
+    /**
      * @see it('Print Object Field')
      */
-    public function testPrintObjectField() : void
+    public function testPrintObjectField(): void
     {
         $fooType = new ObjectType([
             'name'   => 'Foo',
@@ -181,7 +227,7 @@ type Query {
     /**
      * @see it('Prints String Field With Int Arg')
      */
-    public function testPrintsStringFieldWithIntArg() : void
+    public function testPrintsStringFieldWithIntArg(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -200,7 +246,7 @@ type Query {
     /**
      * @see it('Prints String Field With Int Arg With Default')
      */
-    public function testPrintsStringFieldWithIntArgWithDefault() : void
+    public function testPrintsStringFieldWithIntArgWithDefault(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -219,7 +265,7 @@ type Query {
     /**
      * @see it('Prints String Field With String Arg With Default')
      */
-    public function testPrintsStringFieldWithStringArgWithDefault() : void
+    public function testPrintsStringFieldWithStringArgWithDefault(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -238,7 +284,7 @@ type Query {
     /**
      * @see it('Prints String Field With Int Arg With Default Null')
      */
-    public function testPrintsStringFieldWithIntArgWithDefaultNull() : void
+    public function testPrintsStringFieldWithIntArgWithDefaultNull(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -257,7 +303,7 @@ type Query {
     /**
      * @see it('Prints String Field With Int! Arg')
      */
-    public function testPrintsStringFieldWithNonNullIntArg() : void
+    public function testPrintsStringFieldWithNonNullIntArg(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -276,7 +322,7 @@ type Query {
     /**
      * @see it('Prints String Field With Multiple Args')
      */
-    public function testPrintsStringFieldWithMultipleArgs() : void
+    public function testPrintsStringFieldWithMultipleArgs(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -298,7 +344,7 @@ type Query {
     /**
      * @see it('Prints String Field With Multiple Args, First is Default')
      */
-    public function testPrintsStringFieldWithMultipleArgsFirstIsDefault() : void
+    public function testPrintsStringFieldWithMultipleArgsFirstIsDefault(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -321,7 +367,7 @@ type Query {
     /**
      * @see it('Prints String Field With Multiple Args, Second is Default')
      */
-    public function testPrintsStringFieldWithMultipleArgsSecondIsDefault() : void
+    public function testPrintsStringFieldWithMultipleArgsSecondIsDefault(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -344,7 +390,7 @@ type Query {
     /**
      * @see it('Prints String Field With Multiple Args, Last is Default')
      */
-    public function testPrintsStringFieldWithMultipleArgsLastIsDefault() : void
+    public function testPrintsStringFieldWithMultipleArgsLastIsDefault(): void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -367,7 +413,7 @@ type Query {
     /**
      * @see it('Prints custom query root type')
      */
-    public function testPrintsCustomQueryRootType() : void
+    public function testPrintsCustomQueryRootType(): void
     {
         $customQueryType = new ObjectType([
             'name'   => 'CustomQueryType',
@@ -391,7 +437,7 @@ type CustomQueryType {
     /**
      * @see it('Print Interface')
      */
-    public function testPrintInterface() : void
+    public function testPrintInterface(): void
     {
         $fooType = new InterfaceType([
             'name'   => 'Foo',
@@ -435,7 +481,7 @@ type Query {
     /**
      * @see it('Print Multiple Interface')
      */
-    public function testPrintMultipleInterface() : void
+    public function testPrintMultipleInterface(): void
     {
         $fooType = new InterfaceType([
             'name'   => 'Foo',
@@ -490,9 +536,71 @@ type Query {
     }
 
     /**
+     * @see it('Print Hierarchical Interface')
+     */
+    public function testPrintHierarchicalInterface(): void
+    {
+        $FooType = new InterfaceType([
+            'name'   => 'Foo',
+            'fields' => ['str' => ['type' => Type::string()]],
+        ]);
+
+        $BaazType = new InterfaceType([
+            'name'       => 'Baaz',
+            'interfaces' => [$FooType],
+            'fields'     => [
+                'int' => ['type' => Type::int()],
+                'str' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $BarType = new ObjectType([
+            'name'       => 'Bar',
+            'fields'     => [
+                'str' => ['type' => Type::string()],
+                'int' => ['type' => Type::int()],
+            ],
+            'interfaces' => [$FooType, $BaazType],
+        ]);
+
+        $query = new ObjectType([
+            'name'   => 'Query',
+            'fields' => ['bar' => ['type' => $BarType]],
+        ]);
+
+        $schema = new Schema([
+            'query' => $query,
+            'types' => [$BarType],
+        ]);
+        $output = $this->printForTest($schema);
+        self::assertEquals(
+            '
+interface Baaz implements Foo {
+  int: Int
+  str: String
+}
+
+type Bar implements Foo & Baaz {
+  str: String
+  int: Int
+}
+
+interface Foo {
+  str: String
+}
+
+type Query {
+  bar: Bar
+}
+',
+            $output
+        );
+    }
+
+    /**
      * @see it('Print Unions')
      */
-    public function testPrintUnions() : void
+    public function testPrintUnions(): void
     {
         $fooType = new ObjectType([
             'name'   => 'Foo',
@@ -550,7 +658,7 @@ union SingleUnion = Foo
     /**
      * @see it('Print Input Type')
      */
-    public function testInputType() : void
+    public function testInputType(): void
     {
         $inputType = new InputObjectType([
             'name'   => 'InputType',
@@ -586,7 +694,7 @@ type Query {
     /**
      * @see it('Custom Scalar')
      */
-    public function testCustomScalar() : void
+    public function testCustomScalar(): void
     {
         $oddType = new CustomScalarType([
             'name'      => 'Odd',
@@ -619,7 +727,7 @@ type Query {
     /**
      * @see it('Enum')
      */
-    public function testEnum() : void
+    public function testEnum(): void
     {
         $RGBType = new EnumType([
             'name'   => 'RGB',
@@ -658,31 +766,55 @@ enum RGB {
     /**
      * @see it('Prints custom directives')
      */
-    public function testPrintsCustomDirectives() : void
+    public function testPrintsCustomDirectives(): void
     {
         $query = new ObjectType([
             'name'   => 'Query',
             'fields' => [
-                'field' => ['type' => Type::string()],
+                'field' => [
+                    'type' => Type::string(),
+                ],
             ],
         ]);
 
-        $customDirectives = new Directive([
-            'name'      => 'customDirective',
+        $simpleDirective = new Directive([
+            'name'      => 'simpleDirective',
             'locations' => [
                 DirectiveLocation::FIELD,
             ],
         ]);
 
+        $complexDirective = new Directive([
+            'name'      => 'complexDirective',
+            'description' => 'Complex Directive',
+            'args' => [
+                'stringArg' => [
+                    'type' => Type::string(),
+                ],
+                'intArg' => [
+                    'type' => Type::int(),
+                    'defaultValue' => -1,
+                ],
+            ],
+            'isRepeatable' => true,
+            'locations' => [
+                DirectiveLocation::FIELD,
+                DirectiveLocation::QUERY,
+            ],
+        ]);
+
         $schema = new Schema([
             'query'      => $query,
-            'directives' => [$customDirectives],
+            'directives' => [$simpleDirective, $complexDirective],
         ]);
 
         $output = $this->printForTest($schema);
         self::assertEquals(
             '
-directive @customDirective on FIELD
+directive @simpleDirective on FIELD
+
+"""Complex Directive"""
+directive @complexDirective(stringArg: String, intArg: Int = -1) repeatable on FIELD | QUERY
 
 type Query {
   field: String
@@ -695,7 +827,7 @@ type Query {
     /**
      * @see it('One-line prints a short description')
      */
-    public function testOneLinePrintsAShortDescription() : void
+    public function testOneLinePrintsAShortDescription(): void
     {
         $description = 'This field is awesome';
         $output      = $this->printSingleFieldSchema([
@@ -713,6 +845,7 @@ type Query {
             $output
         );
 
+        /** @var ObjectType $recreatedRoot */
         $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         self::assertEquals($description, $recreatedField->description);
@@ -721,7 +854,7 @@ type Query {
     /**
      * @see it('Does not one-line print a description that ends with a quote')
      */
-    public function testDoesNotOneLinePrintADescriptionThatEndsWithAQuote() : void
+    public function testDoesNotOneLinePrintADescriptionThatEndsWithAQuote(): void
     {
         $description = 'This field is "awesome"';
         $output      = $this->printSingleFieldSchema([
@@ -741,6 +874,7 @@ type Query {
             $output
         );
 
+        /** @var ObjectType $recreatedRoot */
         $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         self::assertEquals($description, $recreatedField->description);
@@ -749,7 +883,7 @@ type Query {
     /**
      * @see it('Preserves leading spaces when printing a description')
      */
-    public function testPReservesLeadingSpacesWhenPrintingADescription() : void
+    public function testPReservesLeadingSpacesWhenPrintingADescription(): void
     {
         $description = '    This field is "awesome"';
         $output      = $this->printSingleFieldSchema([
@@ -768,6 +902,7 @@ type Query {
             $output
         );
 
+        /** @var ObjectType $recreatedRoot */
         $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         self::assertEquals($description, $recreatedField->description);
@@ -776,7 +911,7 @@ type Query {
     /**
      * @see it('Print Introspection Schema')
      */
-    public function testPrintIntrospectionSchema() : void
+    public function testPrintIntrospectionSchema(): void
     {
         $query = new ObjectType([
             'name'   => 'Query',
@@ -808,8 +943,8 @@ directive @skip(
 directive @deprecated(
   """
   Explains why this element was deprecated, usually also including a suggestion
-  for how to access supported similar data. Formatted in
-  [Markdown](https://daringfireball.net/projects/markdown/).
+  for how to access supported similar data. Formatted using the Markdown syntax
+  (as specified by [CommonMark](https://commonmark.org/).
   """
   reason: String = "No longer supported"
 ) on FIELD_DEFINITION | ENUM_VALUE
@@ -825,11 +960,9 @@ to the executor.
 type __Directive {
   name: String!
   description: String
-  locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
-  onOperation: Boolean! @deprecated(reason: "Use `locations`.")
-  onFragment: Boolean! @deprecated(reason: "Use `locations`.")
-  onField: Boolean! @deprecated(reason: "Use `locations`.")
+  isRepeatable: Boolean!
+  locations: [__DirectiveLocation!]!
 }
 
 """
@@ -857,6 +990,9 @@ enum __DirectiveLocation {
 
   """Location adjacent to an inline fragment."""
   INLINE_FRAGMENT
+
+  """Location adjacent to a variable definition."""
+  VARIABLE_DEFINITION
 
   """Location adjacent to a schema definition."""
   SCHEMA
@@ -992,7 +1128,7 @@ enum __TypeKind {
   OBJECT
 
   """
-  Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.
+  Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.
   """
   INTERFACE
 
@@ -1021,7 +1157,7 @@ EOT;
     /**
      * @see it('Print Introspection Schema with comment descriptions')
      */
-    public function testPrintIntrospectionSchemaWithCommentDescriptions() : void
+    public function testPrintIntrospectionSchemaWithCommentDescriptions(): void
     {
         $query = new ObjectType([
             'name'   => 'Query',
@@ -1051,8 +1187,8 @@ directive @skip(
 # Marks an element of a GraphQL schema as no longer supported.
 directive @deprecated(
   # Explains why this element was deprecated, usually also including a suggestion
-  # for how to access supported similar data. Formatted in
-  # [Markdown](https://daringfireball.net/projects/markdown/).
+  # for how to access supported similar data. Formatted using the Markdown syntax
+  # (as specified by [CommonMark](https://commonmark.org/).
   reason: String = "No longer supported"
 ) on FIELD_DEFINITION | ENUM_VALUE
 
@@ -1065,11 +1201,9 @@ directive @deprecated(
 type __Directive {
   name: String!
   description: String
-  locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
-  onOperation: Boolean! @deprecated(reason: "Use `locations`.")
-  onFragment: Boolean! @deprecated(reason: "Use `locations`.")
-  onField: Boolean! @deprecated(reason: "Use `locations`.")
+  isRepeatable: Boolean!
+  locations: [__DirectiveLocation!]!
 }
 
 # A Directive can be adjacent to many parts of the GraphQL language, a
@@ -1095,6 +1229,9 @@ enum __DirectiveLocation {
 
   # Location adjacent to an inline fragment.
   INLINE_FRAGMENT
+
+  # Location adjacent to a variable definition.
+  VARIABLE_DEFINITION
 
   # Location adjacent to a schema definition.
   SCHEMA
@@ -1211,7 +1348,7 @@ enum __TypeKind {
   # Indicates this type is an object. `fields` and `interfaces` are valid fields.
   OBJECT
 
-  # Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.
+  # Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.
   INTERFACE
 
   # Indicates this type is a union. `possibleTypes` is a valid field.

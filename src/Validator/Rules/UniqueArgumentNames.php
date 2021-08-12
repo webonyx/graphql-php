@@ -9,30 +9,44 @@ use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
+use GraphQL\Validator\ASTValidationContext;
+use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class UniqueArgumentNames extends ValidationRule
 {
     /** @var NameNode[] */
-    public $knownArgNames;
+    protected array $knownArgNames;
+
+    public function getSDLVisitor(SDLValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
 
     public function getVisitor(ValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
+
+    public function getASTVisitor(ASTValidationContext $context)
     {
         $this->knownArgNames = [];
 
         return [
-            NodeKind::FIELD     => function () {
+            NodeKind::FIELD     => function (): void {
                 $this->knownArgNames = [];
             },
-            NodeKind::DIRECTIVE => function () {
+            NodeKind::DIRECTIVE => function (): void {
                 $this->knownArgNames = [];
             },
-            NodeKind::ARGUMENT  => function (ArgumentNode $node) use ($context) {
+            NodeKind::ARGUMENT  => function (ArgumentNode $node) use ($context): VisitorOperation {
                 $argName = $node->name->value;
-                if (! empty($this->knownArgNames[$argName])) {
+                if ($this->knownArgNames[$argName] ?? false) {
                     $context->reportError(new Error(
-                        self::duplicateArgMessage($argName),
+                        static::duplicateArgMessage($argName),
                         [$this->knownArgNames[$argName], $node->name]
                     ));
                 } else {
