@@ -275,9 +275,9 @@ class Helper
                 );
             }
 
-            $doc = ($op->queryId ?? '') === ''
-                ? $op->query
-                : $this->loadPersistedQuery($config, $op);
+            $doc = $op->queryId !== null && $op->query === null
+                ? $this->loadPersistedQuery($config, $op)
+                : $op->query;
 
             if (! $doc instanceof DocumentNode) {
                 $doc = Parser::parse($doc);

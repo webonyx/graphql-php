@@ -71,7 +71,7 @@ class RequestValidationTest extends TestCase
         }
     }
 
-    public function testFailsWhenQueryParameterIsNotString() : void
+    public function testFailsWhenQueryParameterIsNotString(): void
     {
         $parsedBody = OperationParams::create([
             'query' => ['t' => '{my query}'],

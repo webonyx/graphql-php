@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Server;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use Exception;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -39,24 +40,13 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testSimpleQueryExecution(): void
     {
-        $query = '{f1}';
+        $query = /** @lang GraphQL */ '{ f1 }';
 
         $expected = [
             'data' => ['f1' => 'f1'],
         ];
 
         $this->assertQueryResultEquals($expected, $query);
-    }
-
-    public function testExecutesQueryWhenQueryAndQueryIdArePassed() : void
-    {
-        $query = '{f1}';
-
-        $expected = [
-            'data' => ['f1' => 'f1'],
-        ];
-
-        $this->assertQueryResultEquals($expected, $query, [], 'some-id');
     }
 
     private function assertQueryResultEquals($expected, $query, $variables = null, $queryId = null)
@@ -452,6 +442,20 @@ class QueryExecutionTest extends ServerTestCase
             ],
         ];
         self::assertEquals($expected, $result->toArray());
+    }
+
+    public function testExecutesQueryWhenQueryAndQueryIdArePassed(): void
+    {
+        $query = /** @lang GraphQL */ '{ f1 }';
+
+        $expected = [
+            'data' => ['f1' => 'f1'],
+        ];
+        $this->config->setPersistentQueryLoader(static function (): array {
+            throw new Exception('Should not be called since a query is also passed');
+        });
+
+        $this->assertQueryResultEquals($expected, $query, [], 'some-id');
     }
 
     public function testProhibitsUnexpectedValidationRules(): void
