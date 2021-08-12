@@ -441,6 +441,66 @@ class AbstractTest extends TestCase
         self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
+    public function testWarnsAboutOrphanedTypesWhenMissingType(): void
+    {
+        $fooObject    = null;
+        $fooInterface = new InterfaceType([
+            'name'        => 'FooInterface',
+            'fields'      => [
+                'bar' => [
+                    'type' => Type::string(),
+                ],
+            ],
+            'resolveType' => static function () use (&$fooObject): ?ObjectType {
+                return $fooObject;
+            },
+        ]);
+
+        $fooObject = new ObjectType([
+            'name'       => 'FooObject',
+            'fields'     => [
+                'bar' => [
+                    'type' => Type::string(),
+                ],
+            ],
+            'interfaces' => [$fooInterface],
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name'   => 'Query',
+                'fields' => [
+                    'foo' => [
+                        'type'    => $fooInterface,
+                        'resolve' => static fn (): array => ['bar' => 'baz'],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ foo { bar } }');
+
+        $expected = [
+            'data'   => ['foo' => null],
+            'errors' => [
+                [
+                    'message'      => 'Internal server error',
+                    'locations'    => [['line' => 1, 'column' => 3]],
+                    'path'         => ['foo'],
+                    'extensions' => [
+                        'debugMessage' =>
+                            'Schema does not contain type "FooObject". ' .
+                            'This can happen when an object type is only referenced indirectly through ' .
+                            'abstract types and never directly through fields.' .
+                            'List the type in the option "types" during schema construction, ' .
+                            'see https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options.',
+                    ],
+                ],
+            ],
+        ];
+        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
+    }
+
     /**
      * @see it('resolveType allows resolving with type name')
      */
