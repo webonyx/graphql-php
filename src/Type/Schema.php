@@ -280,7 +280,7 @@ class Schema
     /**
      * Returns schema query type
      *
-     * @return ObjectType
+     * @return ObjectType|null
      *
      * @api
      */
