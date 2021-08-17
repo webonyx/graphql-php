@@ -425,7 +425,7 @@ class RequestParsingTest extends TestCase
     {
         $this->expectException(RequestError::class);
         $this->expectExceptionMessage('Expected to receive a JSON array in body for "application/json" PSR-7 request');
-        $this->parsePsrRequest('application/json', json_encode(null));
+        $this->parsePsrRequest('application/json', '');
     }
 
     /**
