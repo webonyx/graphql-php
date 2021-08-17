@@ -535,8 +535,8 @@ class Helper
                 if ($bodyParams === null) {
                     throw new RequestError(
                         $request instanceof ServerRequestInterface
-                         ? 'Expected to receive a parsed body for "application/json" PSR-7 request but got null'
-                         : 'Expected to receive a JSON array in body for "application/json" PSR-7 request'
+                         ? 'Expected to receive a parsed body for "application/json" PSR-7 request, got: null'
+                         : 'Expected to receive a JSON body for "application/json" PSR-7 request, got: null'
                     );
                 }
 

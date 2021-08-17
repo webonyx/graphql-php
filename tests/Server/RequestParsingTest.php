@@ -410,21 +410,21 @@ class RequestParsingTest extends TestCase
         $body = 'not really{} a json';
 
         $this->expectException(RequestError::class);
-        $this->expectExceptionMessage('Expected to receive a JSON array in body for "application/json" PSR-7 request');
+        $this->expectExceptionMessage('Expected to receive a JSON body for "application/json" PSR-7 request, got: null');
         $this->parsePsrRequest('application/json', $body);
     }
 
     public function testFailsParsingNonPreParsedPsrRequest(): void
     {
         $this->expectException(RequestError::class);
-        $this->expectExceptionMessage('Expected to receive a JSON array in body for "application/json" PSR-7 request');
+        $this->expectExceptionMessage('Expected to receive a JSON body for "application/json" PSR-7 request, got: null');
         $this->parsePsrRequest('application/json', json_encode(null));
     }
 
     public function testFailsParsingInvalidEmptyJsonRequestPsr(): void
     {
         $this->expectException(RequestError::class);
-        $this->expectExceptionMessage('Expected to receive a JSON array in body for "application/json" PSR-7 request');
+        $this->expectExceptionMessage('Expected to receive a JSON body for "application/json" PSR-7 request, got: null');
         $this->parsePsrRequest('application/json', '');
     }
 
