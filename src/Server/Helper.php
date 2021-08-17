@@ -533,7 +533,7 @@ class Helper
                     : json_decode((string) $request->getBody(), true);
 
                 if ($bodyParams === null) {
-                    throw new InvariantViolation(
+                    throw new RequestError(
                         $request instanceof ServerRequestInterface
                          ? 'Expected to receive a parsed body for "application/json" PSR-7 request but got null'
                          : 'Expected to receive a JSON array in body for "application/json" PSR-7 request'

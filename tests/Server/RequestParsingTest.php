@@ -409,23 +409,23 @@ class RequestParsingTest extends TestCase
     {
         $body = 'not really{} a json';
 
-        $this->expectException(InvariantViolation::class);
+        $this->expectException(RequestError::class);
         $this->expectExceptionMessage('Expected to receive a JSON array in body for "application/json" PSR-7 request');
         $this->parsePsrRequest('application/json', $body);
     }
 
     public function testFailsParsingNonPreParsedPsrRequest(): void
     {
-        try {
-            $this->parsePsrRequest('application/json', json_encode(null));
-            self::fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            // Expecting parsing exception to be thrown somewhere else:
-            self::assertSame(
-                'Expected to receive a JSON array in body for "application/json" PSR-7 request',
-                $e->getMessage()
-            );
-        }
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('Expected to receive a JSON array in body for "application/json" PSR-7 request');
+        $this->parsePsrRequest('application/json', json_encode(null));
+    }
+
+    public function testFailsParsingInvalidEmptyJsonRequestPsr(): void
+    {
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('Expected to receive a JSON array in body for "application/json" PSR-7 request');
+        $this->parsePsrRequest('application/json', json_encode(null));
     }
 
     /**
