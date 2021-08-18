@@ -56,7 +56,7 @@ class Schema
     /**
      * Contains currently resolved schema types
      *
-     * @var array<Type>
+     * @var array<string, Type>
      */
     private array $resolvedTypes = [];
 
@@ -72,7 +72,7 @@ class Schema
      */
     private bool $fullyLoaded = false;
 
-    /** @var array<Error> */
+    /** @var array<int, Error> */
     private array $validationErrors;
 
     /** @var array<int, SchemaTypeExtensionNode> */
@@ -568,7 +568,7 @@ class Schema
      *
      * This operation requires a full schema scan. Do not use in production environment.
      *
-     * @return array<int, InvariantViolation|Error>
+     * @return array<int, Error>
      *
      * @api
      */
