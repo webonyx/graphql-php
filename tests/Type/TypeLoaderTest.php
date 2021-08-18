@@ -171,7 +171,7 @@ class TypeLoaderTest extends TestCase
     public function testSchemaRejectsNonCallableTypeLoader(): void
     {
         $this->expectException(TypeError::class);
-        $this->expectExceptionMessage('Argument 1 passed to GraphQL\Type\SchemaConfig::setTypeLoader() must be callable or null, array given');
+        $this->expectExceptionMessageMatches('/callable.*, array given/');
 
         new Schema([
             'query'      => new ObjectType([
