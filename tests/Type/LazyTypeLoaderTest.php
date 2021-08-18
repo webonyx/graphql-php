@@ -15,9 +15,13 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Throwable;
+use TypeError;
 
 use function lcfirst;
 
+/**
+ * @see TypeLoaderTest
+ */
 final class LazyTypeLoaderTest extends TestCase
 {
     use ArraySubsetAsserts;
@@ -51,6 +55,69 @@ final class LazyTypeLoaderTest extends TestCase
 
     /** @var Type[] */
     private $loadedTypes = [];
+
+    public function setUp(): void
+    {
+        $this->calls = [];
+
+        $this->node                   = $this->lazyLoad('Node');
+        $this->blogStory              = $this->lazyLoad('BlogStory');
+        $this->content                = $this->lazyLoad('Content');
+        $this->postStoryMutation      = $this->lazyLoad('PostStoryMutation');
+        $this->postStoryMutationInput = $this->lazyLoad('PostStoryMutationInput');
+        $this->query                  = new ObjectType([
+            'name'   => 'Query',
+            'fields' => function (): array {
+                $this->calls[] = 'Query.fields';
+
+                return [
+                    'latestContent' => $this->lazyLoad('Content'),
+                    'node'          => $this->lazyLoad('Node'),
+                ];
+            },
+        ]);
+
+        $this->mutation = new ObjectType([
+            'name'   => 'Mutation',
+            'fields' => function (): array {
+                $this->calls[] = 'Mutation.fields';
+
+                return [
+                    'postStory' => [
+                        'type' => $this->postStoryMutation,
+                        'args' => [
+                            'input'           => Type::nonNull($this->postStoryMutationInput),
+                            'clientRequestId' => Type::string(),
+                        ],
+                    ],
+                ];
+            },
+        ]);
+
+        $this->typeLoader = function (string $name) {
+            $this->calls[] = $name;
+            $prop          = lcfirst($name);
+
+            switch ($prop) {
+                case 'node':
+                    return ($this->node)();
+
+                case 'blogStory':
+                    return ($this->blogStory)();
+
+                case 'content':
+                    return $this->content;
+
+                case 'postStoryMutation':
+                    return $this->postStoryMutation;
+
+                case 'postStoryMutationInput':
+                    return $this->postStoryMutationInput;
+            }
+
+            return null;
+        };
+    }
 
     private function lazyLoad(string $name): callable
     {
@@ -137,69 +204,6 @@ final class LazyTypeLoaderTest extends TestCase
         };
     }
 
-    public function setUp(): void
-    {
-        $this->calls = [];
-
-        $this->node                   = $this->lazyLoad('Node');
-        $this->blogStory              = $this->lazyLoad('BlogStory');
-        $this->content                = $this->lazyLoad('Content');
-        $this->postStoryMutation      = $this->lazyLoad('PostStoryMutation');
-        $this->postStoryMutationInput = $this->lazyLoad('PostStoryMutationInput');
-        $this->query                  = new ObjectType([
-            'name'   => 'Query',
-            'fields' => function (): array {
-                $this->calls[] = 'Query.fields';
-
-                return [
-                    'latestContent' => $this->lazyLoad('Content'),
-                    'node'          => $this->lazyLoad('Node'),
-                ];
-            },
-        ]);
-
-        $this->mutation = new ObjectType([
-            'name'   => 'Mutation',
-            'fields' => function (): array {
-                $this->calls[] = 'Mutation.fields';
-
-                return [
-                    'postStory' => [
-                        'type' => $this->postStoryMutation,
-                        'args' => [
-                            'input'           => Type::nonNull($this->postStoryMutationInput),
-                            'clientRequestId' => Type::string(),
-                        ],
-                    ],
-                ];
-            },
-        ]);
-
-        $this->typeLoader = function (string $name) {
-            $this->calls[] = $name;
-            $prop          = lcfirst($name);
-
-            switch ($prop) {
-                case 'node':
-                    return ($this->node)();
-
-                case 'blogStory':
-                    return ($this->blogStory)();
-
-                case 'content':
-                    return $this->content;
-
-                case 'postStoryMutation':
-                    return $this->postStoryMutation;
-
-                case 'postStoryMutationInput':
-                    return $this->postStoryMutationInput;
-            }
-
-            return null;
-        };
-    }
-
     public function testSchemaAcceptsTypeLoader(): void
     {
         $this->expectNotToPerformAssertions();
@@ -215,8 +219,8 @@ final class LazyTypeLoaderTest extends TestCase
 
     public function testSchemaRejectsNonCallableTypeLoader(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Schema type loader must be callable if provided but got: []');
+        $this->expectException(TypeError::class);
+        $this->expectExceptionMessage('Argument 1 passed to GraphQL\Type\SchemaConfig::setTypeLoader() must be callable or null, array given');
 
         new Schema([
             'query'      => new ObjectType([
@@ -340,6 +344,21 @@ final class LazyTypeLoaderTest extends TestCase
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Type loader is expected to return a callable or valid type "Node", but it returned instance of stdClass');
+
+        $schema->getType('Node');
+    }
+
+    public function testFailsOnInvalidLoad(): void
+    {
+        $schema = new Schema([
+            'query'      => $this->query,
+            'typeLoader' => function (): Type {
+                return Schema::resolveType($this->content);
+            },
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Type loader is expected to return type "Node", but it returned "Content"');
 
         $schema->getType('Node');
     }

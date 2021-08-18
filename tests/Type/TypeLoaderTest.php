@@ -15,9 +15,13 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Throwable;
+use TypeError;
 
 use function lcfirst;
 
+/**
+ * @see LazyTypeLoaderTest
+ */
 class TypeLoaderTest extends TestCase
 {
     use ArraySubsetAsserts;
@@ -166,8 +170,8 @@ class TypeLoaderTest extends TestCase
 
     public function testSchemaRejectsNonCallableTypeLoader(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Schema type loader must be callable if provided but got: []');
+        $this->expectException(TypeError::class);
+        $this->expectExceptionMessage('Argument 1 passed to GraphQL\Type\SchemaConfig::setTypeLoader() must be callable or null, array given');
 
         new Schema([
             'query'      => new ObjectType([
