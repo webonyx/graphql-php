@@ -528,16 +528,16 @@ class Helper
             if (stripos($contentType[0], 'application/graphql') !== false) {
                 $bodyParams = ['query' => (string) $request->getBody()];
             } elseif (stripos($contentType[0], 'application/json') !== false) {
-                $bodyParams = $request instanceof ServerRequestInterface
-                    ? $request->getParsedBody()
-                    : json_decode((string) $request->getBody(), true);
-
-                if ($bodyParams === null) {
-                    throw new RequestError(
-                        $request instanceof ServerRequestInterface
-                         ? 'Expected to receive a parsed body for "application/json" PSR-7 request, got: null'
-                         : 'Expected to receive a JSON body for "application/json" PSR-7 request, got: null'
-                    );
+                if ($request instanceof ServerRequestInterface) {
+                    $bodyParams = $request->getParsedBody();
+                    if ($bodyParams === null) {
+                        throw new InvariantViolation('Expected to receive a parsed body for "application/json" PSR-7 request, got: null');
+                    }
+                } else {
+                    $bodyParams = json_decode((string) $request->getBody(), true);
+                    if ($bodyParams === null) {
+                        throw new RequestError('Expected to receive a JSON body for "application/json" PSR-7 request, got: null');
+                    }
                 }
 
                 if (! is_array($bodyParams)) {
