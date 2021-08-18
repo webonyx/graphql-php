@@ -51,38 +51,35 @@ use function sprintf;
  */
 class Schema
 {
-    /** @var SchemaConfig */
-    private $config;
+    private SchemaConfig $config;
 
     /**
      * Contains currently resolved schema types
      *
-     * @var Type[]
+     * @var array<string, Type>
      */
-    private $resolvedTypes = [];
+    private array $resolvedTypes = [];
 
     /**
      * Lazily initialised.
      *
      * @var array<string, InterfaceImplementations>
      */
-    private $implementationsMap;
+    private array $implementationsMap;
 
     /**
-     * True when $resolvedTypes contain all possible schema types
-     *
-     * @var bool
+     * True when $resolvedTypes contains all possible schema types.
      */
-    private $fullyLoaded = false;
+    private bool $fullyLoaded = false;
 
-    /** @var Error[] */
-    private $validationErrors;
+    /** @var array<int, Error> */
+    private array $validationErrors;
 
     /** @var array<int, SchemaTypeExtensionNode> */
     public $extensionASTNodes = [];
 
     /**
-     * @param mixed[]|SchemaConfig $config
+     * @param SchemaConfig|array<string, mixed> $config
      *
      * @api
      */
@@ -128,23 +125,30 @@ class Schema
         $this->config            = $config;
         $this->extensionASTNodes = $config->extensionASTNodes;
 
-        if ($config->query !== null) {
-            $this->resolvedTypes[$config->query->name] = $config->query;
+        // TODO can we make the following assumption hold true?
+        // No need to check for the existence of the root query type
+        // since we already validated the schema thus it must exist.
+        $query = $config->query;
+        if ($query !== null) {
+            $this->resolvedTypes[$query->name] = $query;
         }
 
-        if ($config->mutation !== null) {
-            $this->resolvedTypes[$config->mutation->name] = $config->mutation;
+        $mutation = $config->mutation;
+        if ($mutation !== null) {
+            $this->resolvedTypes[$mutation->name] = $mutation;
         }
 
-        if ($config->subscription !== null) {
-            $this->resolvedTypes[$config->subscription->name] = $config->subscription;
+        $subscription = $config->subscription;
+        if ($subscription !== null) {
+            $this->resolvedTypes[$subscription->name] = $subscription;
         }
 
         if (is_array($this->config->types)) {
             foreach ($this->resolveAdditionalTypes() as $type) {
-                if (isset($this->resolvedTypes[$type->name])) {
+                $typeName = $type->name;
+                if (isset($this->resolvedTypes[$typeName])) {
                     Utils::invariant(
-                        $type === $this->resolvedTypes[$type->name],
+                        $type === $this->resolvedTypes[$typeName],
                         sprintf(
                             'Schema must contain unique named types but contains multiple types named "%s" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
                             $type
@@ -152,7 +156,7 @@ class Schema
                     );
                 }
 
-                $this->resolvedTypes[$type->name] = $type;
+                $this->resolvedTypes[$typeName] = $type;
             }
         }
 
@@ -196,12 +200,11 @@ class Schema
     }
 
     /**
-     * Returns array of all types in this schema. Keys of this array represent type names, values are instances
-     * of corresponding type definitions
+     * Returns all types in this schema.
      *
-     * This operation requires full schema scan. Do not use in production environment.
+     * This operation requires a full schema scan. Do not use in production environment.
      *
-     * @return array<string, Type>
+     * @return array<string, Type> Keys represent type names, values are instances of corresponding type definitions
      *
      * @api
      */
@@ -216,9 +219,9 @@ class Schema
     }
 
     /**
-     * @return Type[]
+     * @return array<Type>
      */
-    private function collectAllTypes()
+    private function collectAllTypes(): array
     {
         $typeMap = [];
         foreach ($this->resolvedTypes as $type) {
@@ -246,21 +249,16 @@ class Schema
     /**
      * Returns a list of directives supported by this schema
      *
-     * @return Directive[]
+     * @return array<Directive>
      *
      * @api
      */
-    public function getDirectives()
+    public function getDirectives(): array
     {
         return $this->config->directives ?? GraphQL::getStandardDirectives();
     }
 
-    /**
-     * @param string $operation
-     *
-     * @return ObjectType|null
-     */
-    public function getOperationType($operation)
+    public function getOperationType(string $operation): ?ObjectType
     {
         switch ($operation) {
             case 'query':
@@ -278,25 +276,21 @@ class Schema
     }
 
     /**
-     * Returns schema query type
-     *
-     * @return ObjectType|null
+     * Returns root query type.
      *
      * @api
      */
-    public function getQueryType(): ?Type
+    public function getQueryType(): ?ObjectType
     {
         return $this->config->query;
     }
 
     /**
-     * Returns schema mutation type
-     *
-     * @return ObjectType|null
+     * Returns root mutation type.
      *
      * @api
      */
-    public function getMutationType(): ?Type
+    public function getMutationType(): ?ObjectType
     {
         return $this->config->mutation;
     }
@@ -304,27 +298,23 @@ class Schema
     /**
      * Returns schema subscription
      *
-     * @return ObjectType|null
-     *
      * @api
      */
-    public function getSubscriptionType(): ?Type
+    public function getSubscriptionType(): ?ObjectType
     {
         return $this->config->subscription;
     }
 
     /**
-     * @return SchemaConfig
-     *
      * @api
      */
-    public function getConfig()
+    public function getConfig(): SchemaConfig
     {
         return $this->config;
     }
 
     /**
-     * Returns type by its name
+     * Returns a type by name.
      *
      * @api
      */
@@ -534,15 +524,15 @@ class Schema
     }
 
     /**
-     * Validates schema.
+     * Throws if the schema is not valid.
      *
-     * This operation requires full schema scan. Do not use in production environment.
+     * This operation requires a full schema scan. Do not use in production environment.
      *
      * @throws InvariantViolation
      *
      * @api
      */
-    public function assertValid()
+    public function assertValid(): void
     {
         $errors = $this->validate();
 
@@ -574,18 +564,18 @@ class Schema
     }
 
     /**
-     * Validates schema.
+     * Validate the schema and return any errors.
      *
-     * This operation requires full schema scan. Do not use in production environment.
+     * This operation requires a full schema scan. Do not use in production environment.
      *
-     * @return InvariantViolation[]|Error[]
+     * @return array<int, Error>
      *
      * @api
      */
-    public function validate()
+    public function validate(): array
     {
         // If this Schema has already been validated, return the previous results.
-        if ($this->validationErrors !== null) {
+        if (isset($this->validationErrors)) {
             return $this->validationErrors;
         }
 

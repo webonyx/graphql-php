@@ -124,9 +124,11 @@ abstract class QuerySecurityRule extends ValidationRule
                         $typeMetaFieldDef     = Introspection::typeMetaFieldDef();
                         $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
 
-                        if ($fieldName === $schemaMetaFieldDef->name && $context->getSchema()->getQueryType() === $parentType) {
+                        $queryType = $context->getSchema()->getQueryType();
+
+                        if ($fieldName === $schemaMetaFieldDef->name && $queryType === $parentType) {
                             $fieldDef = $schemaMetaFieldDef;
-                        } elseif ($fieldName === $typeMetaFieldDef->name && $context->getSchema()->getQueryType() === $parentType) {
+                        } elseif ($fieldName === $typeMetaFieldDef->name && $queryType === $parentType) {
                             $fieldDef = $typeMetaFieldDef;
                         } elseif ($fieldName === $typeNameMetaFieldDef->name) {
                             $fieldDef = $typeNameMetaFieldDef;

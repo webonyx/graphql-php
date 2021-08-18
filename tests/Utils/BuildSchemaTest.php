@@ -346,15 +346,11 @@ interface WorldInterface {
     }
 
     /**
-     * @see it('Simple interface heirarchy')
+     * @see it('Simple interface hierarchy')
      */
-    public function testSimpleInterfaceHeirarchy(): void
+    public function testSimpleInterfaceHierarchy(): void
     {
         $body   = '
-schema {
-  query: Child
-}
-
 interface Child implements Parent {
   str: String
 }
