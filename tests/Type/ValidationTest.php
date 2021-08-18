@@ -397,8 +397,7 @@ class ValidationTest extends TestCase
      */
     public function testRejectsASchemaWhoseRootTypeIsAnInputType(string $rootType): void
     {
-        self::expectException(TypeError::class);
-        self::expectExceptionMessage('Argument 1 passed to GraphQL\Type\SchemaConfig::set' . ucfirst($rootType) . '() must be an instance of GraphQL\Type\Definition\ObjectType or null, instance of GraphQL\Type\Definition\InputObjectType given');
+        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
 
         BuildSchema::build('
       input ' . ucfirst($rootType) . ' {
@@ -412,8 +411,7 @@ class ValidationTest extends TestCase
      */
     public function testRejectsASchemaWhoseNonStandardRootTypeIsAnInputType(string $rootType): void
     {
-        self::expectException(TypeError::class);
-        self::expectExceptionMessage('Argument 1 passed to GraphQL\Type\SchemaConfig::set' . ucfirst($rootType) . '() must be an instance of GraphQL\Type\Definition\ObjectType or null, instance of GraphQL\Type\Definition\InputObjectType given');
+        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
 
         BuildSchema::build('
       schema {
@@ -439,8 +437,7 @@ class ValidationTest extends TestCase
             }
         ');
 
-        self::expectException(TypeError::class);
-        self::expectExceptionMessage('Argument 1 passed to GraphQL\Type\SchemaConfig::set' . ucfirst($rootType) . '() must be an instance of GraphQL\Type\Definition\ObjectType or null, instance of GraphQL\Type\Definition\InputObjectType given');
+        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
 
         SchemaExtender::extend(
             $schema,
@@ -462,6 +459,12 @@ class ValidationTest extends TestCase
             ['mutation'],
             ['subscription'],
         ];
+    }
+
+    private function expectRootTypeMustBeObjectTypeNotInputType(string $rootType): void
+    {
+        $this->expectException(TypeError::class);
+        $this->expectExceptionMessageMatches('/.*GraphQL\\\\Type\\\\SchemaConfig::set' . ucfirst($rootType) . '.*GraphQL\\\\Type\\\\Definition\\\\ObjectType.*GraphQL\\\\Type\\\\Definition\\\\InputObjectType given.*/');
     }
 
     /**
