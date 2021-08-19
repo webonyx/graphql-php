@@ -401,7 +401,7 @@ class RequestParsingTest extends TestCase
         $body = 'not really{} a json';
 
         $this->expectException(RequestError::class);
-        $this->expectExceptionMessage('Could not parse JSON: Syntax error');
+        $this->expectExceptionMessage('Expected JSON object or array for "application/json" request, but failed to parse because: Syntax error');
         $this->parseRawRequest('application/json', $body);
     }
 
@@ -410,33 +410,30 @@ class RequestParsingTest extends TestCase
         $body = 'not really{} a json';
 
         $this->expectException(RequestError::class);
-        $this->expectExceptionMessage('Expected to receive a JSON body for "application/json" PSR-7 request, got: null');
+        $this->expectExceptionMessage('Expected JSON object or array for "application/json" request, but failed to parse because: Syntax error');
         $this->parsePsrRequest('application/json', $body);
     }
 
     public function testFailsParsingNonPreParsedPsrRequest(): void
     {
         $this->expectException(RequestError::class);
-        $this->expectExceptionMessage('Expected to receive a JSON body for "application/json" PSR-7 request, got: null');
+        $this->expectExceptionMessage('Expected JSON object or array for "application/json" request, got: null');
         $this->parsePsrRequest('application/json', json_encode(null));
     }
 
     public function testFailsParsingInvalidEmptyJsonRequestPsr(): void
     {
         $this->expectException(RequestError::class);
-        $this->expectExceptionMessage('Expected to receive a JSON body for "application/json" PSR-7 request, got: null');
+        $this->expectExceptionMessage('Expected JSON object or array for "application/json" request, but failed to parse because: Syntax error');
         $this->parsePsrRequest('application/json', '');
     }
 
-    /**
-     * There is no equivalent for psr request, because it should throw
-     */
     public function testFailsParsingNonArrayOrObjectJsonRequestRaw(): void
     {
         $body = '"str"';
 
         $this->expectException(RequestError::class);
-        $this->expectExceptionMessage('GraphQL Server expects JSON object or array, but got "str"');
+        $this->expectExceptionMessage('Expected JSON object or array for "application/json" request, got: "str"');
         $this->parseRawRequest('application/json', $body);
     }
 
@@ -445,7 +442,7 @@ class RequestParsingTest extends TestCase
         $body = '"str"';
 
         $this->expectException(RequestError::class);
-        $this->expectExceptionMessage('GraphQL Server expects JSON object or array, but got "str"');
+        $this->expectExceptionMessage('Expected JSON object or array for "application/json" request, got: "str"');
         $this->parsePsrRequest('application/json', $body);
     }
 

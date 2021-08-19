@@ -90,18 +90,9 @@ class Helper
                 $rawBody    = $readRawBodyFn === null
                     ? $this->readRawBody()
                     : $readRawBodyFn();
-                $bodyParams = json_decode($rawBody, true);
+                $bodyParams = $this->decodeJson($rawBody);
 
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
-                }
-
-                if (! is_array($bodyParams)) {
-                    throw new RequestError(
-                        'GraphQL Server expects JSON object or array, but got ' .
-                        Utils::printSafeJson($bodyParams)
-                    );
-                }
+                $this->assertJsonObjectOrArray($bodyParams);
             } elseif (stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
                 $bodyParams = $_POST;
             } elseif (stripos($contentType, 'multipart/form-data') !== false) {
@@ -528,24 +519,11 @@ class Helper
             if (stripos($contentType[0], 'application/graphql') !== false) {
                 $bodyParams = ['query' => (string) $request->getBody()];
             } elseif (stripos($contentType[0], 'application/json') !== false) {
-                if ($request instanceof ServerRequestInterface) {
-                    $bodyParams = $request->getParsedBody();
-                    if ($bodyParams === null) {
-                        throw new InvariantViolation('Expected to receive a parsed body for "application/json" PSR-7 request, got: null');
-                    }
-                } else {
-                    $bodyParams = json_decode((string) $request->getBody(), true);
-                    if ($bodyParams === null) {
-                        throw new RequestError('Expected to receive a JSON body for "application/json" PSR-7 request, got: null');
-                    }
-                }
+                $bodyParams = $request instanceof ServerRequestInterface
+                    ? $request->getParsedBody()
+                    : $this->decodeJson((string) $request->getBody());
 
-                if (! is_array($bodyParams)) {
-                    throw new RequestError(
-                        'GraphQL Server expects JSON object or array, but got ' .
-                        Utils::printSafeJson($bodyParams)
-                    );
-                }
+                $this->assertJsonObjectOrArray($bodyParams);
             } else {
                 parse_str((string) $request->getBody(), $bodyParams);
 
@@ -562,6 +540,36 @@ class Helper
             $bodyParams,
             $queryParams
         );
+    }
+
+    /**
+     * @return mixed
+     *
+     * @throws RequestError
+     */
+    protected function decodeJson(string $rawBody)
+    {
+        $bodyParams = json_decode($rawBody, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new RequestError('Expected JSON object or array for "application/json" request, but failed to parse because: ' . json_last_error_msg());
+        }
+
+        return $bodyParams;
+    }
+
+    /**
+     * @param mixed $bodyParams
+     *
+     * @throws RequestError
+     */
+    protected function assertJsonObjectOrArray($bodyParams): void
+    {
+        if (! is_array($bodyParams)) {
+            throw new RequestError(
+                'Expected JSON object or array for "application/json" request, got: ' . Utils::printSafeJson($bodyParams)
+            );
+        }
     }
 
     /**
