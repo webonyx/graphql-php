@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace GraphQL\Language;
 
 /**
- * List of available directive locations
+ * Enumeration of available directive locations.
  */
 class DirectiveLocation
 {
-    // Request Definitions
     const QUERY               = 'QUERY';
     const MUTATION            = 'MUTATION';
     const SUBSCRIPTION        = 'SUBSCRIPTION';
@@ -19,7 +18,17 @@ class DirectiveLocation
     const INLINE_FRAGMENT     = 'INLINE_FRAGMENT';
     const VARIABLE_DEFINITION = 'VARIABLE_DEFINITION';
 
-    // Type System Definitions
+    const EXECUTABLE_LOCATIONS = [
+        self::QUERY => self::QUERY,
+        self::MUTATION => self::MUTATION,
+        self::SUBSCRIPTION => self::SUBSCRIPTION,
+        self::FIELD => self::FIELD,
+        self::FRAGMENT_DEFINITION => self::FRAGMENT_DEFINITION,
+        self::FRAGMENT_SPREAD => self::FRAGMENT_SPREAD,
+        self::INLINE_FRAGMENT => self::INLINE_FRAGMENT,
+        self::VARIABLE_DEFINITION => self::VARIABLE_DEFINITION,
+    ];
+
     const SCHEMA                 = 'SCHEMA';
     const SCALAR                 = 'SCALAR';
     const OBJECT                 = 'OBJECT';
@@ -32,16 +41,7 @@ class DirectiveLocation
     const INPUT_OBJECT           = 'INPUT_OBJECT';
     const INPUT_FIELD_DEFINITION = 'INPUT_FIELD_DEFINITION';
 
-    /** @var string[] */
-    private static $locations = [
-        self::QUERY => self::QUERY,
-        self::MUTATION => self::MUTATION,
-        self::SUBSCRIPTION => self::SUBSCRIPTION,
-        self::FIELD => self::FIELD,
-        self::FRAGMENT_DEFINITION => self::FRAGMENT_DEFINITION,
-        self::FRAGMENT_SPREAD => self::FRAGMENT_SPREAD,
-        self::INLINE_FRAGMENT => self::INLINE_FRAGMENT,
-        self::VARIABLE_DEFINITION => self::VARIABLE_DEFINITION,
+    const TYPE_SYSTEM_LOCATIONS = [
         self::SCHEMA => self::SCHEMA,
         self::SCALAR => self::SCALAR,
         self::OBJECT => self::OBJECT,
@@ -55,8 +55,10 @@ class DirectiveLocation
         self::INPUT_FIELD_DEFINITION => self::INPUT_FIELD_DEFINITION,
     ];
 
+    const LOCATIONS = self::EXECUTABLE_LOCATIONS + self::TYPE_SYSTEM_LOCATIONS;
+
     public static function has(string $name): bool
     {
-        return isset(self::$locations[$name]);
+        return isset(self::LOCATIONS[$name]);
     }
 }
