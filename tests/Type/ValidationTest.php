@@ -315,7 +315,7 @@ class ValidationTest extends TestCase
 
         $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [['message' => 'Query root type must be provided.']]
+            []
         );
 
         $schemaWithDef = BuildSchema::build('
@@ -330,12 +330,7 @@ class ValidationTest extends TestCase
 
         $this->assertMatchesValidationMessage(
             $schemaWithDef->validate(),
-            [
-                [
-                    'message'   => 'Query root type must be provided.',
-                    'locations' => [['line' => 2, 'column' => 7]],
-                ],
-            ]
+            []
         );
     }
 

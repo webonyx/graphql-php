@@ -21,8 +21,8 @@ use function sprintf;
 /**
  * Object Type Definition
  *
- * Almost all of the GraphQL types you define will be object types. Object types
- * have a name, but most importantly describe their fields.
+ * Most GraphQL types you define will be object types. Object types
+ * have a name, but most importantly they describe their fields.
  *
  * Example:
  *
@@ -87,13 +87,11 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
      */
     public function __construct(array $config)
     {
-        if (! isset($config['name'])) {
-            $config['name'] = $this->tryInferName();
-        }
+        $name = $config['name'] ?? $this->tryInferName();
 
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
+        Utils::invariant(is_string($name), 'Must provide name.');
 
-        $this->name              = $config['name'];
+        $this->name              = $name;
         $this->description       = $config['description'] ?? null;
         $this->resolveFieldFn    = $config['resolveField'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;

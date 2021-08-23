@@ -15,9 +15,9 @@ abstract class TypeWithFields extends Type implements HasFieldsType
      *
      * @var array<string, FieldDefinition>
      */
-    private array $fields;
+    protected array $fields;
 
-    private function initializeFields(): void
+    protected function initializeFields(): void
     {
         if (isset($this->fields)) {
             return;

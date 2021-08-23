@@ -300,10 +300,9 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines a mutation schema')
      */
-    public function testDefinesAMutationSchema(): void
+    public function testDefinesAMutationOnlySchema(): void
     {
         $schema = new Schema([
-            'query'    => $this->blogQuery,
             'mutation' => $this->blogMutation,
         ]);
 
