@@ -17,6 +17,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Use native PHP types for properties of `Type` and its subclasses
 - Throw `SerializationError` over client safe `Error` when failing to serialize leaf types
 - Move debug entries in errors under `extensions` key
+- Always throw `RequestError` with useful message when clients provide an invalid JSON body
 
 ### Added
 
