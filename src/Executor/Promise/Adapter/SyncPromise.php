@@ -26,9 +26,9 @@ use function method_exists;
  */
 class SyncPromise
 {
-    const PENDING   = 'pending';
-    const FULFILLED = 'fulfilled';
-    const REJECTED  = 'rejected';
+    public const PENDING   = 'pending';
+    public const FULFILLED = 'fulfilled';
+    public const REJECTED  = 'rejected';
 
     /** @var SplQueue */
     public static $queue;
