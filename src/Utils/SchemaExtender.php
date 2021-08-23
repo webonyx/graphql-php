@@ -43,7 +43,7 @@ use function count;
 
 class SchemaExtender
 {
-    const SCHEMA_EXTENSION = 'SchemaExtension';
+    public const SCHEMA_EXTENSION = 'SchemaExtension';
 
     /** @var Type[] */
     protected static $extendTypeCache;

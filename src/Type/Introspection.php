@@ -34,9 +34,9 @@ use function method_exists;
 
 class Introspection
 {
-    const SCHEMA_FIELD_NAME    = '__schema';
-    const TYPE_FIELD_NAME      = '__type';
-    const TYPE_NAME_FIELD_NAME = '__typename';
+    public const SCHEMA_FIELD_NAME    = '__schema';
+    public const TYPE_FIELD_NAME      = '__type';
+    public const TYPE_NAME_FIELD_NAME = '__typename';
 
     /** @var array<string, mixed> */
     private static $map = [];
