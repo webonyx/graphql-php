@@ -207,7 +207,11 @@ class ASTDefinitionBuilder
                 $type = $this->makeSchemaDef($this->typeDefinitionsMap[$typeName]);
                 if ($this->typeConfigDecorator !== null) {
                     try {
-                        $config = ($this->typeConfigDecorator)($type->config, $this->typeDefinitionsMap[$typeName], $this->typeDefinitionsMap);
+                        $config = ($this->typeConfigDecorator)(
+                            $type->config,
+                            $this->typeDefinitionsMap[$typeName],
+                            $this->typeDefinitionsMap
+                        );
                     } catch (Throwable $e) {
                         throw new Error(
                             sprintf('Type config decorator passed to %s threw an error ', static::class) .
