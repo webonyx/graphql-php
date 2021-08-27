@@ -8,6 +8,8 @@ use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use JsonSerializable;
+// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
+use ReturnTypeWillChange;
 
 use function array_map;
 use function count;
@@ -112,6 +114,7 @@ class ExecutionResult implements JsonSerializable
     /**
      * @return mixed[]
      */
+    #[ReturnTypeWillChange]
     public function jsonSerialize(): array
     {
         return $this->toArray();

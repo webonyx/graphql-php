@@ -25,6 +25,8 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
+use ReturnTypeWillChange;
 use stdClass;
 
 use function count;
@@ -1282,6 +1284,7 @@ class ExecutorTest extends TestCase
                         'type' => $ArrayAccess,
                         'resolve' => static function (): ArrayAccess {
                             return new class implements ArrayAccess {
+                                #[ReturnTypeWillChange]
                                 public function offsetExists($offset)
                                 {
                                     switch ($offset) {
@@ -1293,6 +1296,7 @@ class ExecutorTest extends TestCase
                                     }
                                 }
 
+                                #[ReturnTypeWillChange]
                                 public function offsetGet($offset)
                                 {
                                     switch ($offset) {
@@ -1307,10 +1311,12 @@ class ExecutorTest extends TestCase
                                     }
                                 }
 
+                                #[ReturnTypeWillChange]
                                 public function offsetSet($offset, $value): void
                                 {
                                 }
 
+                                #[ReturnTypeWillChange]
                                 public function offsetUnset($offset): void
                                 {
                                 }
