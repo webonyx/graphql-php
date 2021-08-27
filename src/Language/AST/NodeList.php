@@ -8,6 +8,8 @@ use ArrayAccess;
 use Countable;
 use GraphQL\Utils\AST;
 use IteratorAggregate;
+// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
+use ReturnTypeWillChange;
 use Traversable;
 
 use function array_merge;
@@ -51,6 +53,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * @param int|string $offset
      */
+    #[ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {
         return isset($this->nodes[$offset]);
@@ -68,6 +71,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      *
      * @phpstan-return T
      */
+    #[ReturnTypeWillChange]
     public function offsetGet($offset)// : Node
     {
         $item = $this->nodes[$offset];
@@ -88,6 +92,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      * @param Node|array<string, mixed> $value
      * @phpstan-param T|array<string, mixed> $value
      */
+    #[ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
     {
         if (is_array($value)) {
@@ -108,6 +113,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * @param int|string $offset
      */
+    #[ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {
         unset($this->nodes[$offset]);

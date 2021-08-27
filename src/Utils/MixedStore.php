@@ -7,6 +7,8 @@ namespace GraphQL\Utils;
 use ArrayAccess;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use InvalidArgumentException;
+// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
+use ReturnTypeWillChange;
 use SplObjectStorage;
 
 use function array_key_exists;
@@ -91,6 +93,7 @@ class MixedStore implements ArrayAccess
      * <p>
      * The return value will be casted to boolean if non-boolean was returned.
      */
+    #[ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {
         if ($offset === false) {
@@ -142,6 +145,7 @@ class MixedStore implements ArrayAccess
      *
      * @return mixed Can return all value types.
      */
+    #[ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         if ($offset === true) {
@@ -196,6 +200,7 @@ class MixedStore implements ArrayAccess
      *  The value to set.
      *  </p>
      */
+    #[ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
     {
         if ($offset === false) {
@@ -230,6 +235,7 @@ class MixedStore implements ArrayAccess
      * The offset to unset.
      * </p>
      */
+    #[ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {
         if ($offset === true) {
