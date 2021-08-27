@@ -56,10 +56,7 @@ abstract class Node
         Utils::assign($this, $vars);
     }
 
-    /**
-     * @return self
-     */
-    public function cloneDeep()
+    public function cloneDeep(): self
     {
         return $this->cloneValue($this);
     }
@@ -119,7 +116,7 @@ abstract class Node
     /**
      * @return mixed[]
      */
-    private function recursiveToArray(Node $node)
+    private function recursiveToArray(Node $node): array
     {
         $result = [
             'kind' => $node->kind,
