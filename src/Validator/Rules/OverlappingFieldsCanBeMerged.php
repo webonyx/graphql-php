@@ -51,7 +51,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected SplObjectStorage $cachedFieldsAndFragmentNames;
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $this->comparedFragmentPairs        = new PairSet();
         $this->cachedFieldsAndFragmentNames = new SplObjectStorage();
@@ -89,7 +89,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         ValidationContext $context,
         $parentType,
         SelectionSetNode $selectionSet
-    ) {
+    ): array {
         [$fieldMap, $fragmentNames] = $this->getFieldsAndFragmentNames(
             $context,
             $parentType,
@@ -241,7 +241,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         SelectionSetNode $selectionSet,
         array &$astAndDefs,
         array &$fragmentNames
-    ) {
+    ): void {
         foreach ($selectionSet->selections as $selection) {
             switch (true) {
                 case $selection instanceof FieldNode:
@@ -294,7 +294,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         ValidationContext $context,
         array &$conflicts,
         array $fieldMap
-    ) {
+    ): void {
         // A field map is a keyed collection, where each key represents a response
         // name and the value at that key is a list of all fields which provide that
         // response name. For every response name, if there are multiple fields, they
@@ -344,7 +344,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $responseName,
         array $field1,
         array $field2
-    ) {
+    ): ?array {
         [$parentType1, $ast1, $def1] = $field1;
         [$parentType2, $ast2, $def2] = $field2;
 
@@ -454,10 +454,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         return true;
     }
 
-    /**
-     * @return bool
-     */
-    protected function sameValue(Node $value1, Node $value2)
+    protected function sameValue(Node $value1, Node $value2): bool
     {
         return ($value1 === null && $value2 === null) || (Printer::doPrint($value1) === Printer::doPrint($value2));
     }
@@ -518,7 +515,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         SelectionSetNode $selectionSet1,
         $parentType2,
         SelectionSetNode $selectionSet2
-    ) {
+    ): array {
         $conflicts = [];
 
         [$fieldMap1, $fragmentNames1] = $this->getFieldsAndFragmentNames(
@@ -611,7 +608,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $parentFieldsAreMutuallyExclusive,
         array $fieldMap1,
         array $fieldMap2
-    ) {
+    ): void {
         // A field map is a keyed collection, where each key represents a response
         // name and the value at that key is a list of all fields which provide that
         // response name. For any response name which appears in both provided field
@@ -661,7 +658,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $areMutuallyExclusive,
         array $fieldMap,
         $fragmentName
-    ) {
+    ): void {
         if (isset($comparedFragments[$fragmentName])) {
             return;
         }
@@ -746,7 +743,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $areMutuallyExclusive,
         $fragmentName1,
         $fragmentName2
-    ) {
+    ): void {
         // No need to compare a fragment to itself.
         if ($fragmentName1 === $fragmentName2) {
             return;
@@ -835,7 +832,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $responseName,
         FieldNode $ast1,
         FieldNode $ast2
-    ) {
+    ): ?array {
         if (count($conflicts) === 0) {
             return null;
         }

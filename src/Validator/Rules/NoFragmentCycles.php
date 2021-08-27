@@ -29,7 +29,7 @@ class NoFragmentCycles extends ValidationRule
     /** @var (int|null)[] */
     protected array $spreadPathIndexByName;
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         // Tracks already visited fragments to maintain O(N) and to ensure that cycles
         // are not redundantly reported.
@@ -53,7 +53,7 @@ class NoFragmentCycles extends ValidationRule
         ];
     }
 
-    protected function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context)
+    protected function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context): void
     {
         if (isset($this->visitedFrags[$fragment->name->value])) {
             return;

@@ -13,7 +13,7 @@ use function sprintf;
 
 class KnownFragmentNames extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return [
             NodeKind::FRAGMENT_SPREAD => static function (FragmentSpreadNode $node) use ($context): void {

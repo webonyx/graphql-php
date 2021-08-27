@@ -24,7 +24,7 @@ use function sprintf;
  */
 class KnownTypeNames extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $skip = static function (): VisitorOperation {
             return Visitor::skipNode();

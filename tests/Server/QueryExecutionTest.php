@@ -232,8 +232,10 @@ class QueryExecutionTest extends ServerTestCase
             $called2 = true;
 
             return [
-                new CustomValidationRule('MyRule', static function (ValidationContext $context): void {
+                new CustomValidationRule('MyRule', static function (ValidationContext $context): array {
                     $context->reportError(new Error('This is the error we are looking for!'));
+
+                    return [];
                 }),
             ];
         });

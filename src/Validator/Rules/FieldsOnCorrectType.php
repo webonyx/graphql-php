@@ -21,7 +21,7 @@ use function sprintf;
 
 class FieldsOnCorrectType extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return [
             NodeKind::FIELD => function (FieldNode $node) use ($context): void {
@@ -78,7 +78,7 @@ class FieldsOnCorrectType extends ValidationRule
      *
      * @return string[]
      */
-    protected function getSuggestedTypeNames(Schema $schema, $type, $fieldName)
+    protected function getSuggestedTypeNames(Schema $schema, $type, $fieldName): array
     {
         if (Type::isAbstractType($type)) {
             $suggestedObjectTypes = [];
@@ -125,7 +125,7 @@ class FieldsOnCorrectType extends ValidationRule
      *
      * @return array|string[]
      */
-    protected function getSuggestedFieldNames(Schema $schema, $type, $fieldName)
+    protected function getSuggestedFieldNames(Schema $schema, $type, $fieldName): array
     {
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
             $possibleFieldNames = $type->getFieldNames();
@@ -142,15 +142,13 @@ class FieldsOnCorrectType extends ValidationRule
      * @param string   $type
      * @param string[] $suggestedTypeNames
      * @param string[] $suggestedFieldNames
-     *
-     * @return string
      */
     public static function undefinedFieldMessage(
         $fieldName,
         $type,
         array $suggestedTypeNames,
         array $suggestedFieldNames
-    ) {
+    ): string {
         $message = sprintf('Cannot query field "%s" on type "%s".', $fieldName, $type);
 
         if ($suggestedTypeNames !== []) {
