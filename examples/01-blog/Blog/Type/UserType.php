@@ -62,10 +62,8 @@ class UserType extends ObjectType
 
     /**
      * @param array{size: int} $args
-     *
-     * @return Image
      */
-    public function resolvePhoto(User $user, array $args)
+    public function resolvePhoto(User $user, array $args): Image
     {
         return DataSource::getUserPhoto($user->id, $args['size']);
     }
