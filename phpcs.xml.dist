@@ -17,17 +17,19 @@
     <file>tests</file>
 
     <rule ref="Doctrine">
+        <!-- We will rely on PHPStan instead of these -->
+        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification" />
+        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingAnyTypeHint" />
+        <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingAnyTypeHint" />
+        <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingAnyTypeHint" />
+        <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification" />
+
         <!-- To fix -->
         <exclude name="PSR2.Methods.MethodDeclaration.Underscore" />
         <exclude name="SlevomatCodingStandard.PHP.RequireExplicitAssertion.RequiredExplicitAssertion" />
-        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingAnyTypeHint" />
         <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint" />
-        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification" />
-        <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingAnyTypeHint" />
         <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint" />
-        <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingAnyTypeHint" />
         <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint" />
-        <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification" />
         <exclude name="Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps" />
         <exclude name="Squiz.NamingConventions.ValidVariableName.NotCamelCaps" />
     </rule>
