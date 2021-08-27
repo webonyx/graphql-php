@@ -159,10 +159,7 @@ class AstFromValueTest extends TestCase
         self::assertNull(AST::astFromValue('some-totally-invalid-value', $this->myEnum()));
     }
 
-    /**
-     * @return EnumType
-     */
-    private function myEnum()
+    private function myEnum(): EnumType
     {
         return new EnumType([
             'name'   => 'MyEnum',
@@ -244,10 +241,8 @@ class AstFromValueTest extends TestCase
 
     /**
      * @param mixed $value
-     *
-     * @return ObjectFieldNode
      */
-    private function objectField(string $name, $value)
+    private function objectField(string $name, $value): ObjectFieldNode
     {
         return new ObjectFieldNode([
             'name'  => new NameNode(['value' => $name]),

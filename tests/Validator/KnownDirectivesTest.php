@@ -32,9 +32,9 @@ class KnownDirectivesTest extends ValidatorTestCase
         ');
     }
 
-    private function expectSDLErrors($sdlString, $schema = null, $errors = [])
+    private function expectSDLErrors($sdlString, $schema = null, $errors = []): void
     {
-        return $this->expectSDLErrorsFromRule(new KnownDirectives(), $sdlString, $schema, $errors);
+        $this->expectSDLErrorsFromRule(new KnownDirectives(), $sdlString, $schema, $errors);
     }
 
     // Validate: Known directives
@@ -158,7 +158,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with well placed variable definition directive')
      */
-    public function testWithWellPlacedVariableDefinitionDirective()
+    public function testWithWellPlacedVariableDefinitionDirective(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
@@ -175,7 +175,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with directive defined inside SDL')
      */
-    public function testWithDirectiveDefinedInsideSDL()
+    public function testWithDirectiveDefinedInsideSDL(): void
     {
         $this->expectSDLErrors('
             type Query {
@@ -189,7 +189,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with standard directive')
      */
-    public function testWithStandardDirective()
+    public function testWithStandardDirective(): void
     {
         $this->expectSDLErrors(
             '
@@ -204,7 +204,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with overrided standard directive')
      */
-    public function testWithOverridedStandardDirective()
+    public function testWithOverridedStandardDirective(): void
     {
         $this->expectSDLErrors(
             '
@@ -220,7 +220,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with directive defined in schema extension')
      */
-    public function testWithDirectiveDefinedInSchemaExtension()
+    public function testWithDirectiveDefinedInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
           type Query {
@@ -241,7 +241,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with directive used in schema extension')
      */
-    public function testWithDirectiveUsedInSchemaExtension()
+    public function testWithDirectiveUsedInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
             directive @test on OBJECT
@@ -262,7 +262,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with unknown directive in schema extension')
      */
-    public function testWithUnknownDirectiveInSchemaExtension()
+    public function testWithUnknownDirectiveInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
             type Query {
@@ -307,7 +307,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with misplaced variable definition directive')
      */
-    public function testWithMisplacedVariableDefinitionDirective()
+    public function testWithMisplacedVariableDefinitionDirective(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),

@@ -198,7 +198,7 @@ class ScalarSerializationTest extends TestCase
     /**
      * @dataProvider badIDValues
      */
-    public function testSerializesOutputAsIDError($value, $expectedError)
+    public function testSerializesOutputAsIDError($value, $expectedError): void
     {
         $idType = Type::id();
         $this->expectException(SerializationError::class);

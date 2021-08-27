@@ -469,7 +469,7 @@ type WorldTwo {
     /**
      * @see it('Can build recursive Union')
      */
-    public function testCanBuildRecursiveUnion()
+    public function testCanBuildRecursiveUnion(): void
     {
         $schema = BuildSchema::build('
           union Hello = Hello
@@ -967,7 +967,7 @@ type Query {
     /**
      * @see it('Rejects invalid SDL')
      */
-    public function testRejectsInvalidSDL()
+    public function testRejectsInvalidSDL(): void
     {
         $doc = Parser::parse('
           type Query {
@@ -982,7 +982,7 @@ type Query {
     /**
      * @see it('Allows to disable SDL validation')
      */
-    public function testAllowsToDisableSDLValidation()
+    public function testAllowsToDisableSDLValidation(): void
     {
         $body = '
           type Query {
@@ -1198,7 +1198,7 @@ type Wat {
     /**
      * @see it('Does not consider directive names')
      */
-    public function testDoesNotConsiderDirectiveNames()
+    public function testDoesNotConsiderDirectiveNames(): void
     {
         $body = '
           schema {

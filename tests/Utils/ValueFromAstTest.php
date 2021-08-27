@@ -40,7 +40,7 @@ class ValueFromAstTest extends TestCase
         $this->runTestCase(Type::id(), '"123456"', '123456');
     }
 
-    private function runTestCase($type, $valueText, $expected)
+    private function runTestCase($type, $valueText, $expected): void
     {
         self::assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type));
     }
@@ -203,7 +203,7 @@ class ValueFromAstTest extends TestCase
         $this->runTestCaseWithVars(['var' => null], Type::boolean(), '$var', null);
     }
 
-    private function runTestCaseWithVars($variables, $type, $valueText, $expected)
+    private function runTestCaseWithVars($variables, $type, $valueText, $expected): void
     {
         self::assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type, $variables));
     }

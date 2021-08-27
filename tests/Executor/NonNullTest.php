@@ -845,7 +845,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('succeeds when passed non-null variable value')
      */
-    public function succeedsWhenPassedNonNullVariableValue()
+    public function succeedsWhenPassedNonNullVariableValue(): void
     {
         $result = Executor::execute(
             $this->schemaWithNonNullArg,
@@ -866,7 +866,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('succeeds when missing variable has default value')
      */
-    public function testSucceedsWhenMissingVariableHasDefaultValue()
+    public function testSucceedsWhenMissingVariableHasDefaultValue(): void
     {
         $result = Executor::execute(
             $this->schemaWithNonNullArg,
@@ -887,7 +887,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('field error when missing non-null arg')
      */
-    public function testFieldErrorWhenMissingNonNullArg()
+    public function testFieldErrorWhenMissingNonNullArg(): void
     {
       // Note: validation should identify this issue first (missing args rule)
       // however execution should still protect against this.
@@ -916,7 +916,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('field error when non-null arg provided null')
      */
-    public function testFieldErrorWhenNonNullArgProvidedNull()
+    public function testFieldErrorWhenNonNullArgProvidedNull(): void
     {
       // Note: validation should identify this issue first (values of correct
       // type rule) however execution should still protect against this.
@@ -979,7 +979,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('field error when non-null arg provided variable with explicit null value')
      */
-    public function testFieldErrorWhenNonNullArgProvidedVariableWithExplicitNullValue()
+    public function testFieldErrorWhenNonNullArgProvidedVariableWithExplicitNullValue(): void
     {
         $result = Executor::execute(
             $this->schemaWithNonNullArg,

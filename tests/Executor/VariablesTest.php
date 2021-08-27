@@ -433,7 +433,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows custom enum values as inputs')
      */
-    public function testAllowsCustomEnumValuesAsInputs()
+    public function testAllowsCustomEnumValuesAsInputs(): void
     {
         $result = $this->executeQuery('
         {
@@ -460,7 +460,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-nullable inputs to have null as enum custom value')
      */
-    public function testAllowsNonNullableInputsToHaveNullAsEnumCustomValue()
+    public function testAllowsNonNullableInputsToHaveNullAsEnumCustomValue(): void
     {
         $result = $this->executeQuery('
         {
@@ -1058,7 +1058,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('when no runtime value is provided to a non-null argument')
      */
-    public function testWhenNoRuntimeValueIsProvidedToANonNullArgument()
+    public function testWhenNoRuntimeValueIsProvidedToANonNullArgument(): void
     {
         $result = $this->executeQuery('
         query optionalVariable($optional: String) {

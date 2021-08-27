@@ -1613,7 +1613,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('executes an introspection query without calling global fieldResolver')
      */
-    public function testExecutesAnIntrospectionQueryWithoutCallingGlobalFieldResolver()
+    public function testExecutesAnIntrospectionQueryWithoutCallingGlobalFieldResolver(): void
     {
         $QueryRoot = new ObjectType([
             'name' => 'QueryRoot',

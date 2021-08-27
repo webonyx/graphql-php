@@ -41,7 +41,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         self::assertEquals(2, $rule->getQueryComplexity(), $query);
     }
 
-    private function assertDocumentValidators($query, $queryComplexity, $startComplexity)
+    private function assertDocumentValidators($query, $queryComplexity, $startComplexity): void
     {
         for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
             $positions = [];
@@ -100,10 +100,8 @@ class QueryComplexityTest extends QuerySecurityTestCase
 
     /**
      * @param int $maxDepth
-     *
-     * @return QueryComplexity
      */
-    protected function getRule($maxDepth = null)
+    protected function getRule($maxDepth = null): QueryComplexity
     {
         if (self::$rule === null) {
             self::$rule = new QueryComplexity($maxDepth);
@@ -231,10 +229,8 @@ class QueryComplexityTest extends QuerySecurityTestCase
     /**
      * @param int $max
      * @param int $count
-     *
-     * @return string
      */
-    protected function getErrorMessage($max, $count)
+    protected function getErrorMessage($max, $count): string
     {
         return QueryComplexity::maxQueryComplexityErrorMessage($max, $count);
     }

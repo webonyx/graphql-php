@@ -150,7 +150,7 @@ class SyncTest extends TestCase
         $this->assertAsync(['data' => ['syncField' => 'rootValue', 'asyncField' => 'rootValue']], $result);
     }
 
-    private function assertAsync($expectedFinalArray, $actualResult)
+    private function assertAsync($expectedFinalArray, $actualResult): void
     {
         $message = 'Failed assertion that execution was asynchronous';
         self::assertInstanceOf(Promise::class, $actualResult, $message);

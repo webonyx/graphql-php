@@ -173,7 +173,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * Helper function to test a query with params and the expected response.
      */
-    private static function assertValidQueryWithParams($query, $params, $expected)
+    private static function assertValidQueryWithParams($query, $params, $expected): void
     {
         self::assertEquals(
             ['data' => $expected],

@@ -51,7 +51,7 @@ class SyncPromiseTest extends TestCase
         $expectedNextValue,
         $expectedNextReason,
         $expectedNextState
-    ) {
+    ): void {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
 
@@ -72,7 +72,7 @@ class SyncPromiseTest extends TestCase
         $expectedNextValue,
         $expectedNextReason,
         $expectedNextState
-    ) {
+    ): void {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
 
@@ -93,7 +93,7 @@ class SyncPromiseTest extends TestCase
         $expectedNextValue,
         $expectedNextReason,
         $expectedNextState
-    ) {
+    ): void {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
 
@@ -211,7 +211,7 @@ class SyncPromiseTest extends TestCase
         $expectedNextValue,
         $expectedNextReason,
         $expectedNextState
-    ) {
+    ): void {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
 
@@ -232,7 +232,7 @@ class SyncPromiseTest extends TestCase
         $expectedNextValue,
         $expectedNextReason,
         $expectedNextState
-    ) {
+    ): void {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
 
@@ -253,7 +253,7 @@ class SyncPromiseTest extends TestCase
         $expectedNextValue,
         $expectedNextReason,
         $expectedNextState
-    ) {
+    ): void {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
 

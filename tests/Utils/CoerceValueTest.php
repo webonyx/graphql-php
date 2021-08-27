@@ -87,7 +87,7 @@ class CoerceValueTest extends TestCase
     /**
      * Describe: for GraphQLInt
      */
-    private function expectGraphQLError($result, $expected)
+    private function expectGraphQLError($result, $expected): void
     {
         self::assertIsArray($result);
         self::assertIsArray($result['errors']);
@@ -108,13 +108,13 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns error for numeric looking string')
      */
-    public function testReturnsErrorForNumericLookingString()
+    public function testReturnsErrorForNumericLookingString(): void
     {
         $result = Value::coerceValue('1', Type::int());
         $this->expectGraphQLError($result, 'Expected type Int; Int cannot represent non-integer value: 1');
     }
 
-    private function expectValue($result, $expected)
+    private function expectValue($result, $expected): void
     {
         self::assertIsArray($result);
         self::assertEquals(null, $result['errors']);
@@ -164,7 +164,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns a single error for 2^32 input as int')
      */
-    public function testReturnsASingleErrorFor2x32InputAsInt()
+    public function testReturnsASingleErrorFor2x32InputAsInt(): void
     {
         $result = Value::coerceValue(pow(2, 32), Type::int());
         $this->expectGraphQLError(
@@ -188,7 +188,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns a single error for Infinity input as int')
      */
-    public function testReturnsASingleErrorForInfinityInputAsInt()
+    public function testReturnsASingleErrorForInfinityInputAsInt(): void
     {
         $inf    = log(0);
         $result = Value::coerceValue($inf, Type::int());
@@ -198,7 +198,7 @@ class CoerceValueTest extends TestCase
         );
     }
 
-    public function testReturnsASingleErrorForNaNInputAsInt()
+    public function testReturnsASingleErrorForNaNInputAsInt(): void
     {
         $nan    = acos(8);
         $result = Value::coerceValue($nan, Type::int());
@@ -246,7 +246,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns value for decimal')
      */
-    public function testReturnsValueForDecimal()
+    public function testReturnsValueForDecimal(): void
     {
         $result = Value::coerceValue(1.1, Type::float());
         $this->expectValue($result, 1.1);
@@ -264,7 +264,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns error for numeric looking string')
      */
-    public function testFloatReturnsErrorForNumericLookingString()
+    public function testFloatReturnsErrorForNumericLookingString(): void
     {
         $result = Value::coerceValue('1', Type::float());
         $this->expectGraphQLError(
