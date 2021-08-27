@@ -23,6 +23,9 @@ jobs:
         include:
           - dependencies: "lowest"
             php-version: "7.4"
+          - php-version: "8.1"
+            dependency-versions: "highest"
+            composer-options: "--ignore-platform-req=php"
 
     steps:
       - name: "Checkout"
@@ -41,6 +44,7 @@ jobs:
         uses: "ramsey/composer-install@v1"
         with:
           dependency-versions: "${{ matrix.dependencies }}"
+          composer-options: "${{ matrix.composer-options }}"
 
       - name: "Run PHPUnit"
         run: |
