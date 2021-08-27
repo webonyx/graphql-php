@@ -16,7 +16,7 @@
   "require-dev": {
     "amphp/amp": "^2.3",
     "dms/phpunit-arraysubset-asserts": "^0.2.1",
-    "doctrine/coding-standard": "^8.2",
+    "doctrine/coding-standard": "^9.0",
     "ergebnis/composer-normalize": "^2.13",
     "nyholm/psr7": "^1.2",
     "phpbench/phpbench": "^1",
