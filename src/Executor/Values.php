@@ -142,7 +142,7 @@ class Values
      *
      * @return mixed[]|null
      */
-    public static function getDirectiveValues(Directive $directiveDef, $node, $variableValues = null)
+    public static function getDirectiveValues(Directive $directiveDef, $node, $variableValues = null): ?array
     {
         if (isset($node->directives) && $node->directives instanceof NodeList) {
             $directiveNode = Utils::find(
@@ -172,7 +172,7 @@ class Values
      *
      * @throws Error
      */
-    public static function getArgumentValues($def, $node, $variableValues = null)
+    public static function getArgumentValues($def, $node, $variableValues = null): array
     {
         if (count($def->args) === 0) {
             return [];
@@ -197,7 +197,7 @@ class Values
      *
      * @throws Error
      */
-    public static function getArgumentValuesForMap($fieldDefinition, $argumentValueMap, $variableValues = null, $referenceNode = null)
+    public static function getArgumentValuesForMap($fieldDefinition, $argumentValueMap, $variableValues = null, $referenceNode = null): array
     {
         $argumentDefinitions = $fieldDefinition->args;
         $coercedValues       = [];

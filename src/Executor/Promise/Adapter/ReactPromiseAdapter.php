@@ -15,17 +15,17 @@ use function React\Promise\resolve;
 
 class ReactPromiseAdapter implements PromiseAdapter
 {
-    public function isThenable($value)
+    public function isThenable($value): bool
     {
         return $value instanceof ReactPromiseInterface;
     }
 
-    public function convertThenable($thenable)
+    public function convertThenable($thenable): Promise
     {
         return new Promise($thenable, $this);
     }
 
-    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null)
+    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         /** @var ReactPromiseInterface $adoptedPromise */
         $adoptedPromise = $promise->adoptedPromise;
@@ -33,21 +33,21 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
 
-    public function create(callable $resolver)
+    public function create(callable $resolver): Promise
     {
         $promise = new ReactPromise($resolver);
 
         return new Promise($promise, $this);
     }
 
-    public function createFulfilled($value = null)
+    public function createFulfilled($value = null): Promise
     {
         $promise = resolve($value);
 
         return new Promise($promise, $this);
     }
 
-    public function createRejected($reason)
+    public function createRejected($reason): Promise
     {
         $promise = reject($reason);
 

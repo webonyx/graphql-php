@@ -81,11 +81,9 @@ class ExecutionResult implements JsonSerializable
      *    // ... other keys
      * );
      *
-     * @return self
-     *
      * @api
      */
-    public function setErrorFormatter(callable $errorFormatter)
+    public function setErrorFormatter(callable $errorFormatter): self
     {
         $this->errorFormatter = $errorFormatter;
 
@@ -102,11 +100,9 @@ class ExecutionResult implements JsonSerializable
      *     return array_map($formatter, $errors);
      * }
      *
-     * @return self
-     *
      * @api
      */
-    public function setErrorsHandler(callable $handler)
+    public function setErrorsHandler(callable $handler): self
     {
         $this->errorsHandler = $handler;
 
@@ -116,7 +112,7 @@ class ExecutionResult implements JsonSerializable
     /**
      * @return mixed[]
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }
