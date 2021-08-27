@@ -25,7 +25,7 @@ class RequestValidationTest extends TestCase
         self::assertValid($parsedBody);
     }
 
-    private static function assertValid($parsedRequest)
+    private static function assertValid($parsedRequest): void
     {
         $helper = new Helper();
         $errors = $helper->validateOperationParams($parsedRequest);
@@ -60,7 +60,7 @@ class RequestValidationTest extends TestCase
         );
     }
 
-    private function assertInputError($parsedRequest, $expectedMessage)
+    private function assertInputError($parsedRequest, $expectedMessage): void
     {
         $helper = new Helper();
         $errors = $helper->validateOperationParams($parsedRequest);

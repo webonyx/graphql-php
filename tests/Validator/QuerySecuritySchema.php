@@ -31,10 +31,7 @@ class QuerySecuritySchema
     /** @var ObjectType */
     private static $queryRootType;
 
-    /**
-     * @return Schema
-     */
-    public static function buildSchema()
+    public static function buildSchema(): Schema
     {
         if (self::$schema !== null) {
             return self::$schema;

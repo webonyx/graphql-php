@@ -19,7 +19,7 @@ class UniqueFragmentNames extends ValidationRule
     /** @var NameNode[] */
     protected array $knownFragmentNames;
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $this->knownFragmentNames = [];
 

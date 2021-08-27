@@ -35,12 +35,12 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
             . '" of type "' . $type . '" is required but not provided.';
     }
 
-    public function getSDLVisitor(SDLValidationContext $context)
+    public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }

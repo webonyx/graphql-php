@@ -1307,11 +1307,11 @@ class ExecutorTest extends TestCase
                                     }
                                 }
 
-                                public function offsetSet($offset, $value)
+                                public function offsetSet($offset, $value): void
                                 {
                                 }
 
-                                public function offsetUnset($offset)
+                                public function offsetUnset($offset): void
                                 {
                                 }
                             };

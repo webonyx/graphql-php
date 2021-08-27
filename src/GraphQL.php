@@ -204,7 +204,7 @@ class GraphQL
      *
      * @api
      */
-    public static function overrideStandardTypes(array $types)
+    public static function overrideStandardTypes(array $types): void
     {
         Type::overrideStandardTypes($types);
     }

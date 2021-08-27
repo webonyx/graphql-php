@@ -33,7 +33,7 @@ class LexerTest extends TestCase
         );
     }
 
-    private function expectSyntaxError($text, $message, $location)
+    private function expectSyntaxError($text, $message, $location): void
     {
         $this->expectException(SyntaxError::class);
         $this->expectExceptionMessage($message);
@@ -48,10 +48,8 @@ class LexerTest extends TestCase
 
     /**
      * @param string $body
-     *
-     * @return Token
      */
-    private function lexOne($body)
+    private function lexOne($body): Token
     {
         $lexer = new Lexer(new Source($body));
 

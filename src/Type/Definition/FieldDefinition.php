@@ -162,10 +162,8 @@ class FieldDefinition
 
     /**
      * @param mixed[] $field
-     *
-     * @return FieldDefinition
      */
-    public static function create($field)
+    public static function create($field): FieldDefinition
     {
         return new self($field);
     }
@@ -247,7 +245,7 @@ class FieldDefinition
         return null;
     }
 
-    public function __set(string $name, $value)
+    public function __set(string $name, $value): void
     {
         switch ($name) {
             case 'type':
@@ -265,18 +263,12 @@ class FieldDefinition
         }
     }
 
-    /**
-     * @return bool
-     */
-    public function isDeprecated()
+    public function isDeprecated(): bool
     {
         return (bool) $this->deprecationReason;
     }
 
-    /**
-     * @return callable|callable
-     */
-    public function getComplexityFn()
+    public function getComplexityFn(): callable
     {
         return $this->complexityFn;
     }
@@ -284,7 +276,7 @@ class FieldDefinition
     /**
      * @throws InvariantViolation
      */
-    public function assertValid(Type $parentType)
+    public function assertValid(Type $parentType): void
     {
         try {
             Utils::assertValidName($this->name);

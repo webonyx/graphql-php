@@ -63,10 +63,8 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     /**
      * @param string|mixed[] $name
-     *
-     * @return EnumValueDefinition|null
      */
-    public function getValue($name)
+    public function getValue($name): ?EnumValueDefinition
     {
         $lookup = $this->getNameLookup();
 

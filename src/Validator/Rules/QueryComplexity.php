@@ -49,7 +49,7 @@ class QueryComplexity extends QuerySecurityRule
         $this->setMaxQueryComplexity($maxQueryComplexity);
     }
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $this->context = $context;
 
@@ -285,7 +285,7 @@ class QueryComplexity extends QuerySecurityRule
     /**
      * Set max query complexity. If equal to 0 no check is done. Must be greater or equal to 0.
      */
-    public function setMaxQueryComplexity($maxQueryComplexity)
+    public function setMaxQueryComplexity($maxQueryComplexity): void
     {
         $this->checkIfGreaterOrEqualToZero('maxQueryComplexity', $maxQueryComplexity);
 
@@ -297,7 +297,7 @@ class QueryComplexity extends QuerySecurityRule
         return sprintf('Max query complexity should be %d but got %d.', $max, $count);
     }
 
-    protected function isEnabled()
+    protected function isEnabled(): bool
     {
         return $this->getMaxQueryComplexity() !== self::DISABLED;
     }

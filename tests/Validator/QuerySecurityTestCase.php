@@ -28,19 +28,17 @@ abstract class QuerySecurityTestCase extends TestCase
 
     /**
      * @param int $max
-     *
-     * @return QuerySecurityRule
      */
-    abstract protected function getRule($max);
+    abstract protected function getRule($max): QuerySecurityRule;
 
-    protected function assertIntrospectionQuery($maxExpected)
+    protected function assertIntrospectionQuery($maxExpected): void
     {
         $query = Introspection::getIntrospectionQuery();
 
         $this->assertMaxValue($query, $maxExpected);
     }
 
-    protected function assertMaxValue($query, $maxExpected)
+    protected function assertMaxValue($query, $maxExpected): void
     {
         $this->assertDocumentValidator($query, $maxExpected);
         $newMax = $maxExpected - 1;
@@ -79,12 +77,10 @@ abstract class QuerySecurityTestCase extends TestCase
     /**
      * @param int $max
      * @param int $count
-     *
-     * @return string
      */
-    abstract protected function getErrorMessage($max, $count);
+    abstract protected function getErrorMessage($max, $count): string;
 
-    protected function assertIntrospectionTypeMetaFieldQuery($maxExpected)
+    protected function assertIntrospectionTypeMetaFieldQuery($maxExpected): void
     {
         $query = '
           {
@@ -97,7 +93,7 @@ abstract class QuerySecurityTestCase extends TestCase
         $this->assertMaxValue($query, $maxExpected);
     }
 
-    protected function assertTypeNameMetaFieldQuery($maxExpected)
+    protected function assertTypeNameMetaFieldQuery($maxExpected): void
     {
         $query = '
           {

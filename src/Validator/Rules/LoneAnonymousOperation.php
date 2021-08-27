@@ -22,7 +22,7 @@ use function count;
  */
 class LoneAnonymousOperation extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $operationCount = 0;
 

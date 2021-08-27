@@ -101,7 +101,7 @@ class FieldArgument
         return $this->getType() instanceof NonNull && ! $this->defaultValueExists();
     }
 
-    public function assertValid(FieldDefinition $parentField, Type $parentType)
+    public function assertValid(FieldDefinition $parentField, Type $parentType): void
     {
         try {
             Utils::assertValidName($this->name);

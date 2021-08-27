@@ -16,32 +16,26 @@ interface PromiseAdapter
      *
      * @param mixed $value
      *
-     * @return bool
-     *
      * @api
      */
-    public function isThenable($value);
+    public function isThenable($value): bool;
 
     /**
      * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance
      *
      * @param object $thenable
      *
-     * @return Promise
-     *
      * @api
      */
-    public function convertThenable($thenable);
+    public function convertThenable($thenable): Promise;
 
     /**
      * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described
      * in Promises/A+ specs. Then returns new wrapped instance of GraphQL\Executor\Promise\Promise.
      *
-     * @return Promise
-     *
      * @api
      */
-    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null);
+    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise;
 
     /**
      * Creates a Promise
@@ -49,22 +43,18 @@ interface PromiseAdapter
      * Expected resolver signature:
      *     function(callable $resolve, callable $reject)
      *
-     * @return Promise
-     *
      * @api
      */
-    public function create(callable $resolver);
+    public function create(callable $resolver): Promise;
 
     /**
      * Creates a fulfilled Promise for a value if the value is not a promise.
      *
      * @param mixed $value
      *
-     * @return Promise
-     *
      * @api
      */
-    public function createFulfilled($value = null);
+    public function createFulfilled($value = null): Promise;
 
     /**
      * Creates a rejected promise for a reason if the reason is not a promise. If
@@ -72,11 +62,9 @@ interface PromiseAdapter
      *
      * @param Throwable $reason
      *
-     * @return Promise
-     *
      * @api
      */
-    public function createRejected($reason);
+    public function createRejected($reason): Promise;
 
     /**
      * Given an array of promises (or values), returns a promise that is fulfilled when all the
@@ -84,9 +72,7 @@ interface PromiseAdapter
      *
      * @param Promise[]|mixed[] $promisesOrValues Promises or values.
      *
-     * @return Promise
-     *
      * @api
      */
-    public function all(array $promisesOrValues);
+    public function all(array $promisesOrValues): Promise;
 }

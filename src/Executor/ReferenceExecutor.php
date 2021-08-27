@@ -1159,14 +1159,12 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param array<mixed> $result
-     *
-     * @return Error
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
         $result,
         ArrayObject $fieldNodes
-    ) {
+    ): Error {
         return new Error(
             'Expected value of type "' . $returnType->name . '" but got: ' . Utils::printSafe($result) . '.',
             $fieldNodes

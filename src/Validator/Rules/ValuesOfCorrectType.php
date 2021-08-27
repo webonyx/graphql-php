@@ -44,7 +44,7 @@ use function sprintf;
  */
 class ValuesOfCorrectType extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $fieldName = '';
 
@@ -183,7 +183,7 @@ class ValuesOfCorrectType extends ValidationRule
     /**
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
      */
-    protected function isValidScalar(ValidationContext $context, ValueNode $node, $fieldName)
+    protected function isValidScalar(ValidationContext $context, ValueNode $node, $fieldName): void
     {
         // Report any error at the full type expected by the location.
         /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $locationType */

@@ -86,7 +86,7 @@ class RequestParsingTest extends TestCase
         $operation = null,
         $extensions = null,
         $message = ''
-    ) {
+    ): void {
         self::assertInstanceOf(OperationParams::class, $params, $message);
 
         self::assertSame($query, $params->query, $message);
@@ -179,10 +179,8 @@ class RequestParsingTest extends TestCase
 
     /**
      * @param mixed[] $getValue
-     *
-     * @return OperationParams
      */
-    private function parseRawGetRequest($getValue)
+    private function parseRawGetRequest($getValue): OperationParams
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET                      = $getValue;

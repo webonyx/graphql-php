@@ -15,7 +15,7 @@ use function sprintf;
 
 class ProvidedRequiredArguments extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $providedRequiredArgumentsOnDirectives = new ProvidedRequiredArgumentsOnDirectives();
 

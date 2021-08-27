@@ -148,13 +148,13 @@ fragment MissingOn Type
     /**
      * @see it('parses variable definition directives')
      */
-    public function testParsesVariableDefinitionDirectives()
+    public function testParsesVariableDefinitionDirectives(): void
     {
         $this->expectNotToPerformAssertions();
         Parser::parse('query Foo($x: Boolean = false @bar) { field }');
     }
 
-    private function expectSyntaxError($text, $message, $location)
+    private function expectSyntaxError($text, $message, $location): void
     {
         $this->expectException(SyntaxError::class);
         $this->expectExceptionMessage($message);

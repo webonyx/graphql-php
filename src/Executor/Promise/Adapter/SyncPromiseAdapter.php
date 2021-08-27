@@ -19,12 +19,12 @@ use function count;
  */
 class SyncPromiseAdapter implements PromiseAdapter
 {
-    public function isThenable($value)
+    public function isThenable($value): bool
     {
         return $value instanceof SyncPromise;
     }
 
-    public function convertThenable($thenable)
+    public function convertThenable($thenable): Promise
     {
         if (! $thenable instanceof SyncPromise) {
             // End-users should always use Deferred (and don't use SyncPromise directly)
@@ -34,7 +34,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($thenable, $this);
     }
 
-    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null)
+    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         /** @var SyncPromise $adoptedPromise */
         $adoptedPromise = $promise->adoptedPromise;
@@ -42,7 +42,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
 
-    public function create(callable $resolver)
+    public function create(callable $resolver): Promise
     {
         $promise = new SyncPromise();
 
@@ -64,21 +64,21 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    public function createFulfilled($value = null)
+    public function createFulfilled($value = null): Promise
     {
         $promise = new SyncPromise();
 
         return new Promise($promise->resolve($value), $this);
     }
 
-    public function createRejected($reason)
+    public function createRejected($reason): Promise
     {
         $promise = new SyncPromise();
 
         return new Promise($promise->reject($reason), $this);
     }
 
-    public function all(array $promisesOrValues)
+    public function all(array $promisesOrValues): Promise
     {
         $all = new SyncPromise();
 
@@ -117,7 +117,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * Synchronously wait when promise completes
      *
-     * @return ExecutionResult
+     * @return ExecutionResult|array<ExecutionResult>
      */
     public function wait(Promise $promise)
     {
@@ -149,14 +149,14 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * Execute just before starting to run promise completion
      */
-    protected function beforeWait(Promise $promise)
+    protected function beforeWait(Promise $promise): void
     {
     }
 
     /**
      * Execute while running promise completion
      */
-    protected function onWait(Promise $promise)
+    protected function onWait(Promise $promise): void
     {
     }
 }

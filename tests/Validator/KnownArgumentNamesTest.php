@@ -268,7 +268,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('known arg on directive defined inside SDL')
      */
-    public function testKnownArgOnDirectiveDefinedInsideSDL()
+    public function testKnownArgOnDirectiveDefinedInsideSDL(): void
     {
         $this->expectPassesRule(
             new KnownArgumentNamesOnDirectives(),
@@ -285,7 +285,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown arg on directive defined inside SDL')
      */
-    public function testUnknownArgOnDirectiveDefinedInsideSDL()
+    public function testUnknownArgOnDirectiveDefinedInsideSDL(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNamesOnDirectives(),
@@ -305,7 +305,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('misspelled arg name is reported on directive defined inside SDL')
      */
-    public function testMisspelledArgNameIsReportedOnDirectiveDefinedInsideSDL()
+    public function testMisspelledArgNameIsReportedOnDirectiveDefinedInsideSDL(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNamesOnDirectives(),
@@ -323,7 +323,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown arg on standard directive')
      */
-    public function testUnknownArgOnStandardDirective()
+    public function testUnknownArgOnStandardDirective(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNamesOnDirectives(),
@@ -339,7 +339,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown arg on overrided standard directive')
      */
-    public function testUnknownArgOnOverriddenStandardDirective()
+    public function testUnknownArgOnOverriddenStandardDirective(): void
     {
         $this->expectFailsRule(
             new KnownArgumentNamesOnDirectives(),
@@ -356,7 +356,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown arg on directive defined in schema extension')
      */
-    public function testUnknownArgOnDirectiveDefinedInSchemaExtension()
+    public function testUnknownArgOnDirectiveDefinedInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
             type Query {
@@ -379,7 +379,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown arg on directive used in schema extension')
      */
-    public function testUnknownArgOnDirectiveUsedInSchemaExtension()
+    public function testUnknownArgOnDirectiveUsedInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
             directive @test(arg: String) on OBJECT

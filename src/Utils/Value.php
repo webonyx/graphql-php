@@ -258,10 +258,8 @@ class Value
      * Build a string describing the path into the value where the error was found
      *
      * @param mixed[]|null $path
-     *
-     * @return string
      */
-    private static function printPath(?array $path = null)
+    private static function printPath(?array $path = null): string
     {
         $pathStr     = '';
         $currentPath = $path;
@@ -281,7 +279,7 @@ class Value
      *
      * @return (mixed|null)[]
      */
-    private static function ofValue($value)
+    private static function ofValue($value): array
     {
         return ['errors' => null, 'value' => $value];
     }
@@ -292,7 +290,7 @@ class Value
      *
      * @return (mixed|null)[]
      */
-    private static function atPath($prev, $key)
+    private static function atPath($prev, $key): array
     {
         return ['prev' => $prev, 'key' => $key];
     }
@@ -303,7 +301,7 @@ class Value
      *
      * @return Error[]
      */
-    private static function add($errors, $moreErrors)
+    private static function add($errors, $moreErrors): array
     {
         return array_merge($errors, is_array($moreErrors)
             ? $moreErrors

@@ -85,10 +85,7 @@ class Directive
         $this->config = $config;
     }
 
-    /**
-     * @return Directive
-     */
-    public static function includeDirective()
+    public static function includeDirective(): Directive
     {
         $internal = self::getInternalDirectives();
 
@@ -159,30 +156,21 @@ class Directive
         return self::$internalDirectives;
     }
 
-    /**
-     * @return Directive
-     */
-    public static function skipDirective()
+    public static function skipDirective(): Directive
     {
         $internal = self::getInternalDirectives();
 
         return $internal['skip'];
     }
 
-    /**
-     * @return Directive
-     */
-    public static function deprecatedDirective()
+    public static function deprecatedDirective(): Directive
     {
         $internal = self::getInternalDirectives();
 
         return $internal['deprecated'];
     }
 
-    /**
-     * @return bool
-     */
-    public static function isSpecifiedDirective(Directive $directive)
+    public static function isSpecifiedDirective(Directive $directive): bool
     {
         return array_key_exists($directive->name, self::getInternalDirectives());
     }

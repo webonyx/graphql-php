@@ -18,7 +18,7 @@ use function sprintf;
  */
 class NoUndefinedVariables extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $variableNameDefined = [];
 

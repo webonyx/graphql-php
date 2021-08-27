@@ -22,10 +22,8 @@ class PairSet
      * @param string $a
      * @param string $b
      * @param bool   $areMutuallyExclusive
-     *
-     * @return bool
      */
-    public function has($a, $b, $areMutuallyExclusive)
+    public function has($a, $b, $areMutuallyExclusive): bool
     {
         $first  = $this->data[$a] ?? null;
         $result = $first !== null && isset($first[$b]) ? $first[$b] : null;
@@ -48,7 +46,7 @@ class PairSet
      * @param string $b
      * @param bool   $areMutuallyExclusive
      */
-    public function add($a, $b, $areMutuallyExclusive)
+    public function add($a, $b, $areMutuallyExclusive): void
     {
         $this->pairSetAdd($a, $b, $areMutuallyExclusive);
         $this->pairSetAdd($b, $a, $areMutuallyExclusive);
@@ -59,7 +57,7 @@ class PairSet
      * @param string $b
      * @param bool   $areMutuallyExclusive
      */
-    private function pairSetAdd($a, $b, $areMutuallyExclusive)
+    private function pairSetAdd($a, $b, $areMutuallyExclusive): void
     {
         $this->data[$a]   ??= [];
         $this->data[$a][$b] = $areMutuallyExclusive;

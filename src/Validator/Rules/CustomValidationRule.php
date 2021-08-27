@@ -22,7 +22,7 @@ class CustomValidationRule extends ValidationRule
         $this->visitorFn = $visitorFn;
     }
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return ($this->visitorFn)($context);
     }
