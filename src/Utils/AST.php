@@ -473,10 +473,8 @@ class AST
      *
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $valueNode
      * @param mixed[]                                                                                                                             $variables
-     *
-     * @return bool
      */
-    private static function isMissingVariable(ValueNode $valueNode, $variables)
+    private static function isMissingVariable(ValueNode $valueNode, $variables): bool
     {
         return $valueNode instanceof VariableNode &&
             (count($variables) === 0 || ! array_key_exists($valueNode->name->value, $variables));
@@ -556,13 +554,11 @@ class AST
      *
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      *
-     * @return Type|null
-     *
      * @throws Exception
      *
      * @api
      */
-    public static function typeFromAST(Schema $schema, $inputTypeNode)
+    public static function typeFromAST(Schema $schema, $inputTypeNode): ?Type
     {
         if ($inputTypeNode instanceof ListTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);

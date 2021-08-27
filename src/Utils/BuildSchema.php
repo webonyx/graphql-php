@@ -54,11 +54,9 @@ class BuildSchema
      * @param DocumentNode|Source|string $source
      * @param array<string, bool>        $options
      *
-     * @return Schema
-     *
      * @api
      */
-    public static function build($source, ?callable $typeConfigDecorator = null, array $options = [])
+    public static function build($source, ?callable $typeConfigDecorator = null, array $options = []): Schema
     {
         $doc = $source instanceof DocumentNode
             ? $source
@@ -85,13 +83,11 @@ class BuildSchema
      *
      * @param array<string, bool> $options
      *
-     * @return Schema
-     *
      * @throws Error
      *
      * @api
      */
-    public static function buildAST(DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [])
+    public static function buildAST(DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = []): Schema
     {
         $builder = new self($ast, $typeConfigDecorator, $options);
 
@@ -204,7 +200,7 @@ class BuildSchema
      *
      * @throws Error
      */
-    private function getOperationTypes($schemaDef)
+    private function getOperationTypes($schemaDef): array
     {
         $opTypes = [];
 

@@ -16,10 +16,8 @@ class TypeComparators
 {
     /**
      * Provided two types, return true if the types are equal (invariant).
-     *
-     * @return bool
      */
-    public static function isEqualType(Type $typeA, Type $typeB)
+    public static function isEqualType(Type $typeA, Type $typeB): bool
     {
         // Equivalent types are equal.
         if ($typeA === $typeB) {
@@ -43,10 +41,8 @@ class TypeComparators
     /**
      * Provided a type and a super type, return true if the first type is either
      * equal or a subset of the second super type (covariant).
-     *
-     * @return bool
      */
-    public static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
+    public static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType): bool
     {
         // Equivalent type is a valid subtype
         if ($maybeSubType === $superType) {
@@ -99,10 +95,8 @@ class TypeComparators
      * be visited in a context of another type.
      *
      * This function is commutative.
-     *
-     * @return bool
      */
-    public static function doTypesOverlap(Schema $schema, CompositeType $typeA, CompositeType $typeB)
+    public static function doTypesOverlap(Schema $schema, CompositeType $typeA, CompositeType $typeB): bool
     {
         // Equivalent types overlap
         if ($typeA === $typeB) {
