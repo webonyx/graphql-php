@@ -117,7 +117,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * Synchronously wait when promise completes
      *
-     * @return ExecutionResult|ExecutionResult[]
+     * @return ExecutionResult|array<ExecutionResult>
      */
     public function wait(Promise $promise)
     {

@@ -114,7 +114,7 @@ abstract class Node
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, mixed>
      */
     private function recursiveToArray(Node $node): array
     {

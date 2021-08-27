@@ -140,7 +140,7 @@ class Values
      * @param FragmentSpreadNode|FieldNode|InlineFragmentNode|EnumValueDefinitionNode|FieldDefinitionNode $node
      * @param mixed[]|null                                                                                $variableValues
      *
-     * @return mixed[]|null
+     * @return array<mixed>|null
      */
     public static function getDirectiveValues(Directive $directiveDef, $node, $variableValues = null): ?array
     {
