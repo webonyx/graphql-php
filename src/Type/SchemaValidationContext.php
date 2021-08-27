@@ -358,7 +358,7 @@ class SchemaValidationContext
     /**
      * @param NodeList<DirectiveNode> $directives
      */
-    private function validateDirectivesAtLocation(NodeList $directives, string $location)
+    private function validateDirectivesAtLocation(NodeList $directives, string $location): void
     {
         /** @var array<string, array<int, DirectiveNode>> $potentiallyDuplicateDirectives */
         $potentiallyDuplicateDirectives = [];

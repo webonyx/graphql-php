@@ -51,11 +51,9 @@ class Introspection
      *        Whether to include `isRepeatable` flag on directives.
      *        Default: false
      *
-     * @return string
-     *
      * @api
      */
-    public static function getIntrospectionQuery(array $options = [])
+    public static function getIntrospectionQuery(array $options = []): string
     {
         $optionsWithDefaults = array_merge([
             'descriptions' => true,
@@ -163,10 +161,8 @@ EOD;
 
     /**
      * @param Type $type
-     *
-     * @return bool
      */
-    public static function isIntrospectionType($type)
+    public static function isIntrospectionType($type): bool
     {
         return array_key_exists($type->name, self::getTypes());
     }

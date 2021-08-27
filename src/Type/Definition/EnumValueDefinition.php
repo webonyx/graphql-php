@@ -40,10 +40,7 @@ class EnumValueDefinition
         $this->config = $config;
     }
 
-    /**
-     * @return bool
-     */
-    public function isDeprecated()
+    public function isDeprecated(): bool
     {
         return (bool) $this->deprecationReason;
     }

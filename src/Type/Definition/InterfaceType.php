@@ -122,7 +122,7 @@ class InterfaceType extends TypeWithFields implements AbstractType, OutputType, 
      * @param object $objectValue
      * @param mixed  $context
      *
-     * @return Type|null
+     * @return Type|mixed|null
      */
     public function resolveType($objectValue, $context, ResolveInfo $info)
     {

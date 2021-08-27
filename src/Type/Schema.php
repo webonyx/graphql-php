@@ -374,7 +374,7 @@ class Schema
         return $type;
     }
 
-    protected function throwNotAType($type, string $typeName)
+    protected function throwNotAType($type, string $typeName): void
     {
         throw new InvariantViolation(
             sprintf(
@@ -396,9 +396,9 @@ class Schema
     /**
      * @param Type|callable $type
      *
-     * @template T of Type
      * @phpstan-param T|callable():T $type
      * @phpstan-return T
+     * @template T of Type
      */
     public static function resolveType($type): Type
     {
