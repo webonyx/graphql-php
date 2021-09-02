@@ -843,11 +843,20 @@ class BuildSchemaTest extends TestCase
               OLD_VALUE @deprecated
               OTHER_VALUE @deprecated(reason: "Terrible reasons")
             }
+
+            input MyInput {
+              oldInput: String @deprecated
+              otherInput: String @deprecated(reason: "Use newInput")
+              newInput: String
+            }
             
             type Query {
               field1: String @deprecated
               field2: Int @deprecated(reason: "Because I said so")
               enum: MyEnum
+              field3(oldArg: String @deprecated, arg: String): String
+              field4(oldArg: String @deprecated(reason: "Why not?"), arg: String): String
+              field5(arg: MyInput): String
             }
         ');
 
@@ -879,6 +888,16 @@ class BuildSchemaTest extends TestCase
 
         self::assertEquals(true, $rootFields['field2']->isDeprecated());
         self::assertEquals('Because I said so', $rootFields['field2']->deprecationReason);
+
+        /** @var InputObjectType $type */
+        $type        = $schema->getType('MyInput');
+        $inputFields = $type->getFields();
+        self::assertEquals(null, $inputFields['newInput']->deprecationReason);
+        self::assertEquals('No longer supported', $inputFields['oldInput']->deprecationReason);
+        self::assertEquals('Use newInput', $inputFields['otherInput']->deprecationReason);
+
+        self::assertEquals('No longer supported', $rootFields['field3']->args[0]->deprecationReason);
+        self::assertEquals('Why not?', $rootFields['field4']->args[0]->deprecationReason);
     }
 
     /**
