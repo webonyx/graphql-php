@@ -9,8 +9,10 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
@@ -26,11 +28,39 @@ use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
-use function count;
+use function preg_match;
+use function preg_replace;
+use function trim;
 
 class BuildSchemaTest extends TestCase
 {
     use ArraySubsetAsserts;
+
+    protected function dedent(string $str): string
+    {
+        $trimmedStr = trim($str, "\n");
+        $trimmedStr = preg_replace('/[ \t]*$/', '', $trimmedStr);
+
+        preg_match('/^[ \t]*/', $trimmedStr, $indentMatch);
+        $indent = $indentMatch[0];
+
+        return preg_replace('/^' . $indent . '/m', '', $trimmedStr);
+    }
+
+    /**
+     * This function does a full cycle of going from a
+     * string with the contents of the DSL, parsed
+     * in a schema AST, materializing that schema AST
+     * into an in-memory GraphQLSchema, and then finally
+     * printing that GraphQL into the DSL
+     */
+    private function cycleOutput($body, $options = []): string
+    {
+        $ast    = Parser::parse($body);
+        $schema = BuildSchema::buildAST($ast, null, $options);
+
+        return SchemaPrinter::doPrint($schema, $options);
+    }
 
     // Describe: Schema Builder
 
@@ -79,25 +109,17 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleType(): void
     {
-        $body   = '
-type HelloScalars {
-  str: String
-  int: Int
-  float: Float
-  id: ID
-  bool: Boolean
-}
-';
+        $body   = $this->dedent('
+            type Query {
+              str: String
+              int: Int
+              float: Float
+              id: ID
+              bool: Boolean
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
-    }
-
-    private function cycleOutput($body, $options = [])
-    {
-        $ast    = Parser::parse($body);
-        $schema = BuildSchema::buildAST($ast, null, $options);
-
-        return "\n" . SchemaPrinter::doPrint($schema, $options);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -105,17 +127,17 @@ type HelloScalars {
      */
     public function testWithDirectives(): void
     {
-        $body   = '
-directive @foo(arg: Int) on FIELD
-
-directive @repeatableFoo(arg: Int) repeatable on FIELD
-
-type Query {
-  str: String
-}
-';
+        $body   = $this->dedent('
+            directive @foo(arg: Int) on FIELD
+            
+            directive @repeatableFoo(arg: Int) repeatable on FIELD
+            
+            type Query {
+              str: String
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -123,29 +145,28 @@ type Query {
      */
     public function testSupportsDescriptions(): void
     {
-        $body = '
-"""This is a directive"""
-directive @foo(
-  """It has an argument"""
-  arg: Int
-) on FIELD
-
-"""With an enum"""
-enum Color {
-  RED
-
-  """Not a creative color"""
-  GREEN
-  BLUE
-}
-
-"""What a great type"""
-type Query {
-  """And a field to boot"""
-  str: String
-}
-';
-
+        $body   = $this->dedent('
+            """This is a directive"""
+            directive @foo(
+              """It has an argument"""
+              arg: Int
+            ) on FIELD
+            
+            """With an enum"""
+            enum Color {
+              RED
+            
+              """Not a creative color"""
+              GREEN
+              BLUE
+            }
+            
+            """What a great type"""
+            type Query {
+              """And a field to boot"""
+              str: String
+            }
+        ');
         $output = $this->cycleOutput($body);
         self::assertEquals($body, $output);
     }
@@ -155,28 +176,28 @@ type Query {
      */
     public function testSupportsOptionForCommentDescriptions(): void
     {
-        $body   = '
-# This is a directive
-directive @foo(
-  # It has an argument
-  arg: Int
-) on FIELD
-
-# With an enum
-enum Color {
-  RED
-
-  # Not a creative color
-  GREEN
-  BLUE
-}
-
-# What a great type
-type Query {
-  # And a field to boot
-  str: String
-}
-';
+        $body   = $this->dedent('
+            # This is a directive
+            directive @foo(
+              # It has an argument
+              arg: Int
+            ) on FIELD
+            
+            # With an enum
+            enum Color {
+              RED
+            
+              # Not a creative color
+              GREEN
+              BLUE
+            }
+            
+            # What a great type
+            type Query {
+              # And a field to boot
+              str: String
+            }
+        ');
         $output = $this->cycleOutput($body, ['commentDescriptions' => true]);
         self::assertEquals($body, $output);
     }
@@ -186,16 +207,16 @@ type Query {
      */
     public function testMaintainsSkipAndInclude(): void
     {
-        $body   = '
-type Query {
-  str: String
-}
-';
+        $body   = $this->dedent('
+            type Query {
+              str: String
+            }
+        ');
         $schema = BuildSchema::buildAST(Parser::parse($body));
-        self::assertEquals(count($schema->getDirectives()), 3);
-        self::assertEquals($schema->getDirective('skip'), Directive::skipDirective());
-        self::assertEquals($schema->getDirective('include'), Directive::includeDirective());
-        self::assertEquals($schema->getDirective('deprecated'), Directive::deprecatedDirective());
+        self::assertCount(3, $schema->getDirectives());
+        self::assertEquals(Directive::skipDirective(), $schema->getDirective('skip'));
+        self::assertEquals(Directive::includeDirective(), $schema->getDirective('include'));
+        self::assertEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
     }
 
     /**
@@ -203,20 +224,20 @@ type Query {
      */
     public function testOverridingDirectivesExcludesSpecified(): void
     {
-        $body   = '
-directive @skip on FIELD
-directive @include on FIELD
-directive @deprecated on FIELD_DEFINITION
-
-type Query {
-  str: String
-}
-    ';
+        $body   = $this->dedent('
+            directive @skip on FIELD
+            directive @include on FIELD
+            directive @deprecated on FIELD_DEFINITION
+            
+            type Query {
+              str: String
+            }
+        ');
         $schema = BuildSchema::buildAST(Parser::parse($body));
-        self::assertEquals(count($schema->getDirectives()), 3);
-        self::assertNotEquals($schema->getDirective('skip'), Directive::skipDirective());
-        self::assertNotEquals($schema->getDirective('include'), Directive::includeDirective());
-        self::assertNotEquals($schema->getDirective('deprecated'), Directive::deprecatedDirective());
+        self::assertCount(3, $schema->getDirectives());
+        self::assertNotEquals(Directive::skipDirective(), $schema->getDirective('skip'));
+        self::assertNotEquals(Directive::includeDirective(), $schema->getDirective('include'));
+        self::assertNotEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
     }
 
     /**
@@ -224,13 +245,13 @@ type Query {
      */
     public function testAddingDirectivesMaintainsSkipAndInclude(): void
     {
-        $body   = '
-      directive @foo(arg: Int) on FIELD
-
-      type Query {
-        str: String
-      }
-    ';
+        $body   = $this->dedent('
+            directive @foo(arg: Int) on FIELD
+            
+            type Query {
+              str: String
+            }
+        ');
         $schema = BuildSchema::buildAST(Parser::parse($body));
         self::assertCount(4, $schema->getDirectives());
         self::assertNotEquals(null, $schema->getDirective('skip'));
@@ -243,17 +264,17 @@ type Query {
      */
     public function testTypeModifiers(): void
     {
-        $body   = '
-type HelloScalars {
-  nonNullStr: String!
-  listOfStrs: [String]
-  listOfNonNullStrs: [String!]
-  nonNullListOfStrs: [String]!
-  nonNullListOfNonNullStrs: [String!]!
-}
-';
+        $body   = $this->dedent('
+            type Query {
+              nonNullStr: String!
+              listOfStrs: [String]
+              listOfNonNullStrs: [String!]
+              nonNullListOfStrs: [String]!
+              nonNullListOfNonNullStrs: [String!]!
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -261,14 +282,14 @@ type HelloScalars {
      */
     public function testRecursiveType(): void
     {
-        $body   = '
-type Query {
-  str: String
-  recurse: Query
-}
-';
+        $body   = $this->dedent('
+            type Query {
+              str: String
+              recurse: Query
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -276,23 +297,23 @@ type Query {
      */
     public function testTwoTypesCircular(): void
     {
-        $body   = '
-schema {
-  query: TypeOne
-}
-
-type TypeOne {
-  str: String
-  typeTwo: TypeTwo
-}
-
-type TypeTwo {
-  str: String
-  typeOne: TypeOne
-}
-';
+        $body   = $this->dedent('
+            schema {
+              query: TypeOne
+            }
+            
+            type TypeOne {
+              str: String
+              typeTwo: TypeTwo
+            }
+            
+            type TypeTwo {
+              str: String
+              typeOne: TypeOne
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -300,17 +321,17 @@ type TypeTwo {
      */
     public function testSingleArgumentField(): void
     {
-        $body   = '
-type Query {
-  str(int: Int): String
-  floatToStr(float: Float): String
-  idToStr(id: ID): String
-  booleanToStr(bool: Boolean): String
-  strToStr(bool: String): String
-}
-';
+        $body   = $this->dedent('
+            type Query {
+              str(int: Int): String
+              floatToStr(float: Float): String
+              idToStr(id: ID): String
+              booleanToStr(bool: Boolean): String
+              strToStr(bool: String): String
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -318,13 +339,13 @@ type Query {
      */
     public function testSimpleTypeWithMultipleArguments(): void
     {
-        $body   = '
-type Query {
-  str(int: Int, bool: Boolean): String
-}
-';
+        $body   = $this->dedent('
+            type Query {
+              str(int: Int, bool: Boolean): String
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -332,17 +353,17 @@ type Query {
      */
     public function testSimpleTypeWithInterface(): void
     {
-        $body   = '
-type Query implements WorldInterface {
-  str: String
-}
-
-interface WorldInterface {
-  str: String
-}
-';
+        $body   = $this->dedent('
+            type Query implements WorldInterface {
+              str: String
+            }
+            
+            interface WorldInterface {
+              str: String
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -350,21 +371,21 @@ interface WorldInterface {
      */
     public function testSimpleInterfaceHierarchy(): void
     {
-        $body   = '
-interface Child implements Parent {
-  str: String
-}
-
-type Hello implements Parent & Child {
-  str: String
-}
-
-interface Parent {
-  str: String
-}
-';
+        $body   = $this->dedent('
+            interface Child implements Parent {
+              str: String
+            }
+            
+            type Hello implements Parent & Child {
+              str: String
+            }
+            
+            interface Parent {
+              str: String
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -372,17 +393,17 @@ interface Parent {
      */
     public function testSimpleOutputEnum(): void
     {
-        $body   = '
-enum Hello {
-  WORLD
-}
-
-type Query {
-  hello: Hello
-}
-';
+        $body   = $this->dedent('
+            enum Hello {
+              WORLD
+            }
+            
+            type Query {
+              hello: Hello
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -390,15 +411,15 @@ type Query {
      */
     public function testSimpleInputEnum(): void
     {
-        $body   = '
-enum Hello {
-  WORLD
-}
-
-type Query {
-  str(hello: Hello): String
-}
-';
+        $body   = $this->dedent('
+            enum Hello {
+              WORLD
+            }
+            
+            type Query {
+              str(hello: Hello): String
+            }
+        ');
         $output = $this->cycleOutput($body);
         self::assertEquals($body, $output);
     }
@@ -408,18 +429,18 @@ type Query {
      */
     public function testMultipleValueEnum(): void
     {
-        $body   = '
-enum Hello {
-  WO
-  RLD
-}
-
-type Query {
-  hello: Hello
-}
-';
+        $body   = $this->dedent('
+            enum Hello {
+              WO
+              RLD
+            }
+            
+            type Query {
+              hello: Hello
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -427,19 +448,19 @@ type Query {
      */
     public function testSimpleUnion(): void
     {
-        $body   = '
-union Hello = World
-
-type Query {
-  hello: Hello
-}
-
-type World {
-  str: String
-}
-';
+        $body   = $this->dedent('
+            union Hello = World
+            
+            type Query {
+              hello: Hello
+            }
+            
+            type World {
+              str: String
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -447,23 +468,23 @@ type World {
      */
     public function testMultipleUnion(): void
     {
-        $body   = '
-union Hello = WorldOne | WorldTwo
-
-type Query {
-  hello: Hello
-}
-
-type WorldOne {
-  str: String
-}
-
-type WorldTwo {
-  str: String
-}
-';
+        $body   = $this->dedent('
+            union Hello = WorldOne | WorldTwo
+            
+            type Query {
+              hello: Hello
+            }
+            
+            type WorldOne {
+              str: String
+            }
+            
+            type WorldTwo {
+              str: String
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -472,11 +493,11 @@ type WorldTwo {
     public function testCanBuildRecursiveUnion(): void
     {
         $schema = BuildSchema::build('
-          union Hello = Hello
-    
-          type Query {
-            hello: Hello
-          }
+            union Hello = Hello
+            
+            type Query {
+              hello: Hello
+            }
         ');
         $errors = $schema->validate();
         self::assertNotEmpty($errors);
@@ -487,7 +508,7 @@ type WorldTwo {
      */
     public function testSpecifyingUnionTypeUsingTypename(): void
     {
-        $schema    = BuildSchema::buildAST(Parser::parse('
+        $schema = BuildSchema::buildAST(Parser::parse('
             type Query {
               fruits: [Fruit]
             }
@@ -502,7 +523,8 @@ type WorldTwo {
               length: Int
             }
         '));
-        $query     = '
+
+        $query = '
             {
               fruits {
                 ... on Apple {
@@ -514,19 +536,21 @@ type WorldTwo {
               }
             }
         ';
+
         $rootValue = [
             'fruits' => [
                 [
-                    'color'      => 'green',
+                    'color' => 'green',
                     '__typename' => 'Apple',
                 ],
                 [
-                    'length'     => 5,
+                    'length' => 5,
                     '__typename' => 'Banana',
                 ],
             ],
         ];
-        $expected  = [
+
+        $expected = [
             'data' => [
                 'fruits' => [
                     ['color' => 'green'],
@@ -544,7 +568,7 @@ type WorldTwo {
      */
     public function testSpecifyingInterfaceUsingTypename(): void
     {
-        $schema    = BuildSchema::buildAST(Parser::parse('
+        $schema = BuildSchema::buildAST(Parser::parse('
             type Query {
               characters: [Character]
             }
@@ -563,7 +587,8 @@ type WorldTwo {
               primaryFunction: String
             }
         '));
-        $query     = '
+
+        $query = '
             {
               characters {
                 name
@@ -576,21 +601,23 @@ type WorldTwo {
               }
             }
         ';
+
         $rootValue = [
             'characters' => [
                 [
-                    'name'         => 'Han Solo',
+                    'name' => 'Han Solo',
                     'totalCredits' => 10,
-                    '__typename'   => 'Human',
+                    '__typename' => 'Human',
                 ],
                 [
-                    'name'            => 'R2-D2',
+                    'name' => 'R2-D2',
                     'primaryFunction' => 'Astromech',
-                    '__typename'      => 'Droid',
+                    '__typename' => 'Droid',
                 ],
             ],
         ];
-        $expected  = [
+
+        $expected = [
             'data' => [
                 'characters' => [
                     ['name' => 'Han Solo', 'totalCredits' => 10],
@@ -608,15 +635,15 @@ type WorldTwo {
      */
     public function testCustomScalar(): void
     {
-        $body   = '
-scalar CustomScalar
-
-type Query {
-  customScalar: CustomScalar
-}
-';
+        $body   = $this->dedent('
+            scalar CustomScalar
+            
+            type Query {
+              customScalar: CustomScalar
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -624,17 +651,17 @@ type Query {
      */
     public function testInputObject(): void
     {
-        $body   = '
-input Input {
-  int: Int
-}
-
-type Query {
-  field(in: Input): String
-}
-';
+        $body   = $this->dedent('
+            input Input {
+              int: Int
+            }
+            
+            type Query {
+              field(in: Input): String
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -642,13 +669,13 @@ type Query {
      */
     public function testSimpleArgumentFieldWithDefault(): void
     {
-        $body   = '
-type Query {
-  str(int: Int = 2): String
-}
-';
+        $body   = $this->dedent('
+            type Query {
+              str(int: Int = 2): String
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -656,15 +683,15 @@ type Query {
      */
     public function testCustomScalarArgumentFieldWithDefault(): void
     {
-        $body   = '
-scalar CustomScalar
-
-type Query {
-  str(int: CustomScalar = 2): String
-}
-';
+        $body   = $this->dedent('
+            scalar CustomScalar
+            
+            type Query {
+              str(int: CustomScalar = 2): String
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -672,24 +699,24 @@ type Query {
      */
     public function testSimpleTypeWithMutation(): void
     {
-        $body   = '
-schema {
-  query: HelloScalars
-  mutation: Mutation
-}
-
-type HelloScalars {
-  str: String
-  int: Int
-  bool: Boolean
-}
-
-type Mutation {
-  addHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
-}
-';
+        $body   = $this->dedent('
+            schema {
+              query: HelloScalars
+              mutation: Mutation
+            }
+            
+            type HelloScalars {
+              str: String
+              int: Int
+              bool: Boolean
+            }
+            
+            type Mutation {
+              addHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -697,24 +724,24 @@ type Mutation {
      */
     public function testSimpleTypeWithSubscription(): void
     {
-        $body   = '
-schema {
-  query: HelloScalars
-  subscription: Subscription
-}
-
-type HelloScalars {
-  str: String
-  int: Int
-  bool: Boolean
-}
-
-type Subscription {
-  subscribeHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
-}
-';
+        $body   = $this->dedent('
+            schema {
+              query: HelloScalars
+              subscription: Subscription
+            }
+            
+            type HelloScalars {
+              str: String
+              int: Int
+              bool: Boolean
+            }
+            
+            type Subscription {
+              subscribeHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -722,21 +749,21 @@ type Subscription {
      */
     public function testUnreferencedTypeImplementingReferencedInterface(): void
     {
-        $body   = '
-type Concrete implements Iface {
-  key: String
-}
-
-interface Iface {
-  key: String
-}
-
-type Query {
-  iface: Iface
-}
-';
+        $body   = $this->dedent('
+            type Concrete implements Iface {
+              key: String
+            }
+            
+            interface Iface {
+              key: String
+            }
+            
+            type Query {
+              iface: Iface
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -744,21 +771,21 @@ type Query {
      */
     public function testUnreferencedInterfaceImplementingReferencedInterface(): void
     {
-        $body   = '
-interface Child implements Parent {
-  key: String
-}
-
-interface Parent {
-  key: String
-}
-
-type Query {
-  iface: Parent
-}
-';
+        $body   = $this->dedent('
+            interface Child implements Parent {
+              key: String
+            }
+            
+            interface Parent {
+              key: String
+            }
+            
+            type Query {
+              iface: Parent
+            }
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -766,19 +793,19 @@ type Query {
      */
     public function testUnreferencedTypeImplementingReferencedUnion(): void
     {
-        $body   = '
-type Concrete {
-  key: String
-}
-
-type Query {
-  union: Union
-}
-
-union Union = Concrete
-';
+        $body   = $this->dedent('
+            type Concrete {
+              key: String
+            }
+            
+            type Query {
+              union: Union
+            }
+            
+            union Union = Concrete
+        ');
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -786,21 +813,22 @@ union Union = Concrete
      */
     public function testSupportsDeprecated(): void
     {
-        $body   = '
-enum MyEnum {
-  VALUE
-  OLD_VALUE @deprecated
-  OTHER_VALUE @deprecated(reason: "Terrible reasons")
-}
+        $body = $this->dedent('
+            enum MyEnum {
+              VALUE
+              OLD_VALUE @deprecated
+              OTHER_VALUE @deprecated(reason: "Terrible reasons")
+            }
+            
+            type Query {
+              field1: String @deprecated
+              field2: Int @deprecated(reason: "Because I said so")
+              enum: MyEnum
+            }
+        ');
 
-type Query {
-  field1: String @deprecated
-  field2: Int @deprecated(reason: "Because I said so")
-  enum: MyEnum
-}
-';
         $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertEquals($body, $output);
 
         $ast    = Parser::parse($body);
         $schema = BuildSchema::buildAST($ast);
@@ -822,11 +850,11 @@ type Query {
         /** @var ObjectType $queryType */
         $queryType  = $schema->getType('Query');
         $rootFields = $queryType->getFields();
-        self::assertEquals($rootFields['field1']->isDeprecated(), true);
-        self::assertEquals($rootFields['field1']->deprecationReason, 'No longer supported');
+        self::assertEquals(true, $rootFields['field1']->isDeprecated());
+        self::assertEquals('No longer supported', $rootFields['field1']->deprecationReason);
 
-        self::assertEquals($rootFields['field2']->isDeprecated(), true);
-        self::assertEquals($rootFields['field2']->deprecationReason, 'Because I said so');
+        self::assertEquals(true, $rootFields['field2']->isDeprecated());
+        self::assertEquals('Because I said so', $rootFields['field2']->deprecationReason);
     }
 
     /**
@@ -834,39 +862,41 @@ type Query {
      */
     public function testCorrectlyAssignASTNodes(): void
     {
-        $schemaAST = Parser::parse('
-      schema {
-        query: Query
-      }
+        $sdl = '
+            schema {
+              query: Query
+            }
+            
+            type Query {
+              testField(testArg: TestInput): TestUnion
+            }
+            
+            input TestInput {
+              testInputField: TestEnum
+            }
+            
+            enum TestEnum {
+              TEST_VALUE
+            }
+            
+            union TestUnion = TestType
+            
+            interface TestInterface {
+              interfaceField: String
+            }
+            
+            type TestType implements TestInterface {
+              interfaceField: String
+            }
+            
+            scalar TestScalar
+            
+            directive @test(arg: TestScalar) on FIELD
+        ';
 
-      type Query {
-        testField(testArg: TestInput): TestUnion
-      }
+        $ast = Parser::parse($sdl, ['noLocation' => true]);
 
-      input TestInput {
-        testInputField: TestEnum
-      }
-
-      enum TestEnum {
-        TEST_VALUE
-      }
-
-      union TestUnion = TestType
-
-      interface TestInterface {
-        interfaceField: String
-      }
-
-      type TestType implements TestInterface {
-        interfaceField: String
-      }
-      
-      scalar TestScalar
-
-      directive @test(arg: TestScalar) on FIELD
-    ');
-        $schema    = BuildSchema::buildAST($schemaAST);
-
+        $schema = BuildSchema::buildAST($ast);
         /** @var ObjectType $query */
         $query = $schema->getType('Query');
         /** @var InputObjectType $testInput */
@@ -883,19 +913,21 @@ type Query {
         $testScalar    = $schema->getType('TestScalar');
         $testDirective = $schema->getDirective('test');
 
-        $inner = Printer::doPrint($schema->getAstNode()) . "\n" .
-            Printer::doPrint($query->astNode) . "\n" .
-            Printer::doPrint($testInput->astNode) . "\n" .
-            Printer::doPrint($testEnum->astNode) . "\n" .
-            Printer::doPrint($testUnion->astNode) . "\n" .
-            Printer::doPrint($testInterface->astNode) . "\n" .
-            Printer::doPrint($testType->astNode) . "\n" .
-            Printer::doPrint($testScalar->astNode) . "\n" .
-            Printer::doPrint($testDirective->astNode);
+        $restoredSchemaAST = new DocumentNode([
+            'definitions' => new NodeList([
+                $schema->getAstNode(),
+                $query->astNode,
+                $testInput->astNode,
+                $testEnum->astNode,
+                $testUnion->astNode,
+                $testInterface->astNode,
+                $testType->astNode,
+                $testScalar->astNode,
+                $testDirective->astNode,
+            ]),
+        ]);
 
-        $restoredIDL = SchemaPrinter::doPrint(BuildSchema::build($inner));
-
-        self::assertEquals($restoredIDL, SchemaPrinter::doPrint($schema));
+        self::assertEquals($restoredSchemaAST, $ast);
 
         $testField = $query->getField('testField');
         self::assertEquals('testField(testArg: TestInput): TestUnion', Printer::doPrint($testField->astNode));
@@ -919,14 +951,14 @@ type Query {
     public function testRootOperationTypesWithCustomNames(): void
     {
         $schema = BuildSchema::build('
-          schema {
-            query: SomeQuery
-            mutation: SomeMutation
-            subscription: SomeSubscription
-          }
-          type SomeQuery { str: String }
-          type SomeMutation { str: String }
-          type SomeSubscription { str: String }
+            schema {
+              query: SomeQuery
+              mutation: SomeMutation
+              subscription: SomeSubscription
+            }
+            type SomeQuery { str: String }
+            type SomeMutation { str: String }
+            type SomeSubscription { str: String }
         ');
 
         self::assertEquals('SomeQuery', $schema->getQueryType()->name);
@@ -940,10 +972,11 @@ type Query {
     public function testDefaultRootOperationTypeNames(): void
     {
         $schema = BuildSchema::build('
-          type Query { str: String }
-          type Mutation { str: String }
-          type Subscription { str: String }
+            type Query { str: String }
+            type Mutation { str: String }
+            type Subscription { str: String }
         ');
+
         self::assertEquals('Query', $schema->getQueryType()->name);
         self::assertEquals('Mutation', $schema->getMutationType()->name);
         self::assertEquals('Subscription', $schema->getSubscriptionType()->name);
@@ -955,13 +988,13 @@ type Query {
     public function testCanBuildInvalidSchema(): void
     {
         $schema = BuildSchema::build('
-          # Invalid schema, because it is missing query root type
-          type Mutation {
-            str: String
-          }
+            # Invalid schema, because it is missing query root type
+            type Mutation {
+              str: String
+            }
         ');
         $errors = $schema->validate();
-        self::assertGreaterThan(0, $errors);
+        self::assertNotEmpty($errors);
     }
 
     /**
@@ -970,9 +1003,9 @@ type Query {
     public function testRejectsInvalidSDL(): void
     {
         $doc = Parser::parse('
-          type Query {
-            foo: String @unknown
-          }
+            type Query {
+              foo: String @unknown
+            }
         ');
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Unknown directive "unknown".');
@@ -985,9 +1018,9 @@ type Query {
     public function testAllowsToDisableSDLValidation(): void
     {
         $body = '
-          type Query {
-            foo: String @unknown
-          }
+            type Query {
+              foo: String @unknown
+            }
         ';
         // Should not throw:
         BuildSchema::build($body, null, ['assumeValid' => true]);
@@ -1005,19 +1038,19 @@ type Query {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Must provide only one query type in schema.');
         $body = '
-schema {
-  query: Hello
-  query: Yellow
-}
-
-type Hello {
-  bar: String
-}
-
-type Yellow {
-  isColor: Boolean
-}
-';
+            schema {
+              query: Hello
+              query: Yellow
+            }
+            
+            type Hello {
+              bar: String
+            }
+            
+            type Yellow {
+              isColor: Boolean
+            }
+        ';
         $doc  = Parser::parse($body);
         BuildSchema::buildAST($doc);
     }
@@ -1030,20 +1063,20 @@ type Yellow {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Must provide only one mutation type in schema.');
         $body = '
-schema {
-  query: Hello
-  mutation: Hello
-  mutation: Yellow
-}
-
-type Hello {
-  bar: String
-}
-
-type Yellow {
-  isColor: Boolean
-}
-';
+            schema {
+              query: Hello
+              mutation: Hello
+              mutation: Yellow
+            }
+            
+            type Hello {
+              bar: String
+            }
+            
+            type Yellow {
+              isColor: Boolean
+            }
+        ';
         $doc  = Parser::parse($body);
         BuildSchema::buildAST($doc);
     }
@@ -1056,20 +1089,20 @@ type Yellow {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Must provide only one subscription type in schema.');
         $body = '
-schema {
-  query: Hello
-  subscription: Hello
-  subscription: Yellow
-}
-
-type Hello {
-  bar: String
-}
-
-type Yellow {
-  isColor: Boolean
-}
-';
+            schema {
+              query: Hello
+              subscription: Hello
+              subscription: Yellow
+            }
+            
+            type Hello {
+              bar: String
+            }
+            
+            type Yellow {
+              isColor: Boolean
+            }
+        ';
         $doc  = Parser::parse($body);
         BuildSchema::buildAST($doc);
     }
@@ -1082,14 +1115,14 @@ type Yellow {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Type "Bar" not found in document.');
         $body   = '
-schema {
-  query: Hello
-}
-
-type Hello {
-  bar: Bar
-}
-';
+            schema {
+              query: Hello
+            }
+            
+            type Hello {
+              bar: Bar
+            }
+        ';
         $doc    = Parser::parse($body);
         $schema = BuildSchema::buildAST($doc);
         $schema->getTypeMap();
@@ -1102,11 +1135,12 @@ type Hello {
     {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Type "Bar" not found in document.');
-        $body   = '
-type Query implements Bar {
-  field: String
-}
-';
+        $body = '
+            type Query implements Bar {
+              field: String
+            }
+        ';
+
         $doc    = Parser::parse($body);
         $schema = BuildSchema::buildAST($doc);
         $schema->getTypeMap();
@@ -1119,10 +1153,11 @@ type Query implements Bar {
     {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Type "Bar" not found in document.');
-        $body   = '
-union TestUnion = Bar
-type Query { testUnion: TestUnion }
-';
+        $body = '
+            union TestUnion = Bar
+            type Query { testUnion: TestUnion }
+        ';
+
         $doc    = Parser::parse($body);
         $schema = BuildSchema::buildAST($doc);
         $schema->getTypeMap();
@@ -1136,14 +1171,14 @@ type Query { testUnion: TestUnion }
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Specified query type "Wat" not found in document.');
         $body = '
-schema {
-  query: Wat
-}
-
-type Hello {
-  str: String
-}
-';
+            schema {
+              query: Wat
+            }
+            
+            type Hello {
+              str: String
+            }
+        ';
         $doc  = Parser::parse($body);
         BuildSchema::buildAST($doc);
     }
@@ -1156,15 +1191,15 @@ type Hello {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Specified mutation type "Wat" not found in document.');
         $body = '
-schema {
-  query: Hello
-  mutation: Wat
-}
-
-type Hello {
-  str: String
-}
-';
+            schema {
+              query: Hello
+              mutation: Wat
+            }
+            
+            type Hello {
+              str: String
+            }
+        ';
         $doc  = Parser::parse($body);
         BuildSchema::buildAST($doc);
     }
@@ -1177,20 +1212,20 @@ type Hello {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Specified subscription type "Awesome" not found in document.');
         $body = '
-schema {
-  query: Hello
-  mutation: Wat
-  subscription: Awesome
-}
-
-type Hello {
-  str: String
-}
-
-type Wat {
-  str: String
-}
-';
+            schema {
+              query: Hello
+              mutation: Wat
+              subscription: Awesome
+            }
+            
+            type Hello {
+              str: String
+            }
+            
+            type Wat {
+              str: String
+            }
+        ';
         $doc  = Parser::parse($body);
         BuildSchema::buildAST($doc);
     }
@@ -1220,12 +1255,12 @@ type Wat {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
         $body = '
-schema {
-  query: Foo
-}
-
-query Foo { field }
-';
+            schema {
+              query: Foo
+            }
+            
+            query Foo { field }
+        ';
         $doc  = Parser::parse($body);
         BuildSchema::buildAST($doc);
     }
@@ -1238,12 +1273,12 @@ query Foo { field }
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
         $body = '
-schema {
-  query: Foo
-}
-
-fragment Foo on Type { field }
-';
+            schema {
+              query: Foo
+            }
+            
+            fragment Foo on Type { field }
+        ';
         $doc  = Parser::parse($body);
         BuildSchema::buildAST($doc);
     }
@@ -1254,18 +1289,18 @@ fragment Foo on Type { field }
     public function testForbidsDuplicateTypeDefinitions(): void
     {
         $body = '
-schema {
-  query: Repeated
-}
-
-type Repeated {
-  id: Int
-}
-
-type Repeated {
-  id: String
-}
-';
+            schema {
+              query: Repeated
+            }
+            
+            type Repeated {
+              id: Int
+            }
+            
+            type Repeated {
+              id: String
+            }
+        ';
         $doc  = Parser::parse($body);
 
         $this->expectException(Error::class);
@@ -1276,26 +1311,26 @@ type Repeated {
     public function testSupportsTypeConfigDecorator(): void
     {
         $body = '
-schema {
-  query: Query
-}
-
-type Query {
-  str: String
-  color: Color
-  hello: Hello
-}
-
-enum Color {
-  RED
-  GREEN
-  BLUE
-}
-
-interface Hello {
-  world: String
-}
-';
+            schema {
+              query: Query
+            }
+            
+            type Query {
+              str: String
+              color: Color
+              hello: Hello
+            }
+            
+            enum Color {
+              RED
+              GREEN
+              BLUE
+            }
+            
+            interface Hello {
+              world: String
+            }
+        ';
         $doc  = Parser::parse($body);
 
         $decorated = [];
@@ -1319,26 +1354,26 @@ interface Hello {
         self::assertInstanceOf(Closure::class, $defaultConfig['interfaces']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertCount(5, $defaultConfig);
-        self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
+        self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
         self::assertEquals('My description of Query', $schema->getType('Query')->description);
 
         [$defaultConfig, $node, $allNodesMap] = $calls[1];
         self::assertInstanceOf(EnumTypeDefinitionNode::class, $node);
         self::assertEquals('Color', $defaultConfig['name']);
         $enumValue = [
-            'description'       => '',
+            'description' => '',
             'deprecationReason' => '',
         ];
         self::assertArraySubset(
             [
-                'RED'   => $enumValue,
+                'RED' => $enumValue,
                 'GREEN' => $enumValue,
-                'BLUE'  => $enumValue,
+                'BLUE' => $enumValue,
             ],
             $defaultConfig['values']
         );
         self::assertCount(4, $defaultConfig); // 3 + astNode
-        self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
+        self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
         self::assertEquals('My description of Color', $schema->getType('Color')->description);
 
         [$defaultConfig, $node, $allNodesMap] = $calls[2];
@@ -1348,37 +1383,37 @@ interface Hello {
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertArrayHasKey('interfaces', $defaultConfig);
         self::assertCount(5, $defaultConfig);
-        self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
+        self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
         self::assertEquals('My description of Hello', $schema->getType('Hello')->description);
     }
 
     public function testCreatesTypesLazily(): void
     {
         $body    = '
-schema {
-  query: Query
-}
-
-type Query {
-  str: String
-  color: Color
-  hello: Hello
-}
-
-enum Color {
-  RED
-  GREEN
-  BLUE
-}
-
-interface Hello {
-  world: String
-}
-
-type World implements Hello {
-  world: String
-}
-';
+            schema {
+              query: Query
+            }
+            
+            type Query {
+              str: String
+              color: Color
+              hello: Hello
+            }
+            
+            enum Color {
+              RED
+              GREEN
+              BLUE
+            }
+            
+            interface Hello {
+              world: String
+            }
+            
+            type World implements Hello {
+              world: String
+            }
+        ';
         $doc     = Parser::parse($body);
         $created = [];
 
