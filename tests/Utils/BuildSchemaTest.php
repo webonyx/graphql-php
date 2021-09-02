@@ -24,6 +24,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Introspection;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Utils\Utils;
@@ -70,6 +71,18 @@ class BuildSchemaTest extends TestCase
         return Printer::doPrint($obj->astNode);
     }
 
+    private function printAllASTNodes($obj): string
+    {
+        Utils::invariant($obj !== null && property_exists($obj, 'astNode') && property_exists($obj, 'extensionASTNodes') && $obj->extensionASTNodes !== null);
+
+        return Printer::doPrint(new DocumentNode([
+            'definitions' => new NodeList([
+                $obj->astNode,
+                ...$obj->extensionASTNodes,
+            ]),
+        ]));
+    }
+
     // Describe: Schema Builder
 
     /**
@@ -110,6 +123,25 @@ class BuildSchemaTest extends TestCase
             $root
         );
         self::assertEquals(['data' => ['add' => 89]], $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
+    }
+
+    /**
+     * @see it('Ignores non-type system definitions')
+     */
+    public function testIgnoresNonTypeSystemDefinitions(): void
+    {
+        $sdl = '
+            type Query {
+              str: String
+            }
+            
+            fragment SomeFragment on Query {
+              str
+            }
+        ';
+        // Should not throw
+        BuildSchema::build($sdl);
+        self::assertTrue(true);
     }
 
     /**
@@ -182,6 +214,11 @@ class BuildSchemaTest extends TestCase
     public function testSupportsDescriptions(): void
     {
         $sdl    = $this->dedent('
+            """Do you agree that this is the most creative schema ever?"""
+            schema {
+              query: Query
+            }
+
             """This is a directive"""
             directive @foo(
               """It has an argument"""
@@ -290,10 +327,10 @@ class BuildSchemaTest extends TestCase
         $sdl    = $this->dedent('
             type Query {
               nonNullStr: String!
-              listOfStrs: [String]
-              listOfNonNullStrs: [String!]
-              nonNullListOfStrs: [String]!
-              nonNullListOfNonNullStrs: [String!]!
+              listOfStrings: [String]
+              listOfNonNullStrings: [String!]
+              nonNullListOfStrings: [String]!
+              nonNullListOfNonNullStrings: [String!]!
             }
         ');
         $output = $this->cycleSDL($sdl);
@@ -372,9 +409,14 @@ class BuildSchemaTest extends TestCase
      */
     public function testEmptyInterface(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             interface EmptyInterface
         ');
+
+        /** @var InterfaceTypeDefinitionNode $definition */
+        $definition = Parser::parse($sdl)->definitions[0];
+        self::assertCount(0, $definition->interfaces, 'The interfaces property must be an empty list.');
+
         $output = $this->cycleSDL($sdl);
         self::assertEquals($sdl, $output);
     }
@@ -402,7 +444,12 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleInterfaceHierarchy(): void
     {
+        // `graphql-js` has `query: Child` but that's incorrect as `query` has to be Object type
         $sdl    = $this->dedent('
+            schema {
+              query: Hello
+            }
+            
             interface Child implements Parent {
               str: String
             }
@@ -579,7 +626,7 @@ class BuildSchemaTest extends TestCase
             }
         '));
 
-        $query = '
+        $source = '
             {
               fruits {
                 ... on Apple {
@@ -614,7 +661,7 @@ class BuildSchemaTest extends TestCase
             ],
         ];
 
-        $result = GraphQL::executeQuery($schema, $query, $rootValue);
+        $result = GraphQL::executeQuery($schema, $source, $rootValue);
         self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
@@ -643,7 +690,7 @@ class BuildSchemaTest extends TestCase
             }
         '));
 
-        $query = '
+        $source = '
             {
               characters {
                 name
@@ -681,7 +728,7 @@ class BuildSchemaTest extends TestCase
             ],
         ];
 
-        $result = GraphQL::executeQuery($schema, $query, $rootValue);
+        $result = GraphQL::executeQuery($schema, $source, $rootValue);
         self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
@@ -817,16 +864,16 @@ class BuildSchemaTest extends TestCase
     public function testUnreferencedTypeImplementingReferencedInterface(): void
     {
         $sdl    = $this->dedent('
-            type Concrete implements Iface {
+            type Concrete implements Interface {
               key: String
             }
             
-            interface Iface {
+            interface Interface {
               key: String
             }
             
             type Query {
-              iface: Iface
+              interface: Interface
             }
         ');
         $output = $this->cycleSDL($sdl);
@@ -925,6 +972,216 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
+     * it('Correctly extend scalar type', () => {
+     */
+    public function testCorrectlyExtendScalarType(): void
+    {
+        $scalarSDL = $this->dedent('
+            scalar SomeScalar
+            
+            extend scalar SomeScalar @foo
+            
+            extend scalar SomeScalar @bar
+        ');
+
+        $schema = BuildSchema::build("
+            ${scalarSDL}
+            directive @foo on SCALAR
+            directive @bar on SCALAR
+        ");
+
+        /** @var ScalarType $someScalar */
+        $someScalar = $schema->getType('SomeScalar');
+
+        $expectedSomeScalarSDL = $this->dedent('
+            scalar SomeScalar
+        ');
+
+        self::assertEquals($expectedSomeScalarSDL, SchemaPrinter::printType($someScalar) . "\n");
+        self::assertEquals($scalarSDL, $this->printAllASTNodes($someScalar));
+    }
+
+    /**
+     * it('Correctly extend object type', () => {
+     */
+    public function testCorrectlyExtendObjectType(): void
+    {
+        $objectSDL = $this->dedent('
+            type SomeObject implements Foo {
+              first: String
+            }
+            
+            extend type SomeObject implements Bar {
+              second: Int
+            }
+            
+            extend type SomeObject implements Baz {
+              third: Float
+            }
+        ');
+
+        $schema = BuildSchema::build("
+            ${objectSDL}
+            interface Foo
+            interface Bar
+            interface Baz
+        ");
+
+        /** @var ObjectType $someObject */
+        $someObject = $schema->getType('SomeObject');
+
+        $expectedSomeObjectSDL = $this->dedent('
+            type SomeObject implements Foo & Bar & Baz {
+              first: String
+              second: Int
+              third: Float
+            }
+        ');
+
+        self::assertEquals($expectedSomeObjectSDL, SchemaPrinter::printType($someObject) . "\n");
+        self::assertEquals($objectSDL, $this->printAllASTNodes($someObject));
+    }
+
+    /**
+     * it('Correctly extend interface type', () => {
+     */
+    public function testCorrectlyExtendInterfaceType(): void
+    {
+        $interfaceSDL = $this->dedent('
+            interface SomeInterface {
+              first: String
+            }
+            
+            extend interface SomeInterface {
+              second: Int
+            }
+            
+            extend interface SomeInterface {
+              third: Float
+            }
+        ');
+
+        $schema = BuildSchema::build($interfaceSDL);
+
+        /** @var InterfaceType $someInterface */
+        $someInterface = $schema->getType('SomeInterface');
+
+        $expectedSomeInterfaceSDL = $this->dedent('
+            interface SomeInterface {
+              first: String
+              second: Int
+              third: Float
+            }
+        ');
+
+        self::assertEquals($expectedSomeInterfaceSDL, SchemaPrinter::printType($someInterface) . "\n");
+        self::assertEquals($interfaceSDL, $this->printAllASTNodes($someInterface));
+    }
+
+    /**
+     * it('Correctly extend union type', () => {
+     */
+    public function testCorrectlyExtendUnionType(): void
+    {
+        $unionSDL = $this->dedent('
+            union SomeUnion = FirstType
+            
+            extend union SomeUnion = SecondType
+            
+            extend union SomeUnion = ThirdType
+        ');
+
+        $schema = BuildSchema::build("
+            ${unionSDL}
+            type FirstType
+            type SecondType
+            type ThirdType
+        ");
+
+        /** @var UnionType $someUnion */
+        $someUnion = $schema->getType('SomeUnion');
+
+        $expectedSomeUnionSDL = $this->dedent('
+            union SomeUnion = FirstType | SecondType | ThirdType
+        ');
+
+        self::assertEquals($expectedSomeUnionSDL, SchemaPrinter::printType($someUnion) . "\n");
+        self::assertEquals($unionSDL, $this->printAllASTNodes($someUnion));
+    }
+
+    /**
+     * it('Correctly extend enum type', () => {
+     */
+    public function testCorrectlyExtendEnumType(): void
+    {
+        $enumSDL = $this->dedent('
+            enum SomeEnum {
+              FIRST
+            }
+            
+            extend enum SomeEnum {
+              SECOND
+            }
+            
+            extend enum SomeEnum {
+              THIRD
+            }
+        ');
+
+        $schema = BuildSchema::build($enumSDL);
+
+        /** @var EnumType $someEnum */
+        $someEnum = $schema->getType('SomeEnum');
+
+        $expectedSomeEnumSDL = $this->dedent('
+            enum SomeEnum {
+              FIRST
+              SECOND
+              THIRD
+            }
+        ');
+
+        self::assertEquals($expectedSomeEnumSDL, SchemaPrinter::printType($someEnum) . "\n");
+        self::assertEquals($enumSDL, $this->printAllASTNodes($someEnum));
+    }
+
+    /**
+     * it('Correctly extend input object type', () => {
+     */
+    public function testCorrectlyExtendInputObjectType(): void
+    {
+        $inputSDL = $this->dedent('
+            input SomeInput {
+              first: String
+            }
+            
+            extend input SomeInput {
+              second: Int
+            }
+            
+            extend input SomeInput {
+              third: Float
+            }
+        ');
+
+        $schema = BuildSchema::build($inputSDL);
+
+        /** @var InputObjectType $someInput */
+        $someInput = $schema->getType('SomeInput');
+
+        $expectedSomeInputSDL = $this->dedent('
+            input SomeInput {
+              first: String
+              second: Int
+              third: Float
+            }
+        ');
+
+        self::assertEquals($expectedSomeInputSDL, SchemaPrinter::printType($someInput) . "\n");
+        self::assertEquals($inputSDL, $this->printAllASTNodes($someInput));
+    }
+
+    /**
      * @see it('Correctly assign AST nodes')
      */
     public function testCorrectlyAssignASTNodes(): void
@@ -980,22 +1237,19 @@ class BuildSchemaTest extends TestCase
         $testScalar    = $schema->getType('TestScalar');
         $testDirective = $schema->getDirective('test');
 
-        $restoredSchemaAST = new DocumentNode([
-            'definitions' => new NodeList([
-                $schema->getAstNode(),
-                $query->astNode,
-                $testInput->astNode,
-                $testEnum->astNode,
-                $testUnion->astNode,
-                $testInterface->astNode,
-                $testType->astNode,
-                $testScalar->astNode,
-                $testDirective->astNode,
-            ]),
-            'loc' => null,
+        $schemaASTDefinitions = new NodeList([
+            $schema->getAstNode(),
+            $query->astNode,
+            $testInput->astNode,
+            $testEnum->astNode,
+            $testUnion->astNode,
+            $testInterface->astNode,
+            $testType->astNode,
+            $testScalar->astNode,
+            $testDirective->astNode,
         ]);
 
-        self::assertEquals($restoredSchemaAST, $ast);
+        self::assertEquals($schemaASTDefinitions, $ast->definitions);
 
         $testField = $query->getField('testField');
         self::assertEquals('testField(testArg: TestInput): TestUnion', $this->printASTNode($testField));
@@ -1062,6 +1316,24 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
+     * @see it('Do not override standard types')
+     */
+    public function testDoNotOverrideStandardTypes(): void
+    {
+        // NOTE: not sure it's desired behaviour to just silently ignore override
+        // attempts so just documenting it here.
+
+        $schema = BuildSchema::build('
+            scalar ID
+            
+            scalar __Schema
+        ');
+
+        self::assertSame(Type::id(), $schema->getType('ID'));
+        self::assertSame(Introspection::_schema(), $schema->getType('__Schema'));
+    }
+
+    /**
      * @see it('Rejects invalid SDL')
      */
     public function testRejectsInvalidSDL(): void
@@ -1072,7 +1344,7 @@ class BuildSchemaTest extends TestCase
             }
         ');
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('Unknown directive "unknown".');
+        $this->expectExceptionMessage('Unknown directive "@unknown".');
         BuildSchema::build($doc);
     }
 
@@ -1090,6 +1362,21 @@ class BuildSchemaTest extends TestCase
         BuildSchema::build($sdl, null, ['assumeValid' => true]);
         BuildSchema::build($sdl, null, ['assumeValidSDL' => true]);
         self::assertTrue(true);
+    }
+
+    /**
+     * @see it('Throws on unknown types')
+     */
+    public function testThrowsOnUnknownTypes(): void
+    {
+        $sdl = '
+            type Query {
+              unknown: UnknownType
+            }
+        ';
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Unknown type: "UnknownType".');
+        BuildSchema::build($sdl, null, ['assumeValidSDL' => true]);
     }
 
     public function testSupportsTypeConfigDecorator(): void
