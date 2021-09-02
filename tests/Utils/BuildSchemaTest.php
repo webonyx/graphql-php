@@ -22,14 +22,17 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
+use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
 use function preg_match;
 use function preg_replace;
+use function property_exists;
 use function trim;
 
 class BuildSchemaTest extends TestCase
@@ -48,18 +51,23 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * This function does a full cycle of going from a
-     * string with the contents of the DSL, parsed
-     * in a schema AST, materializing that schema AST
-     * into an in-memory GraphQLSchema, and then finally
-     * printing that GraphQL into the DSL
+     * This function does a full cycle of going from a string with the contents of
+     * the SDL, parsed in a schema AST, materializing that schema AST into an
+     * in-memory GraphQLSchema, and then finally printing that object into the SDL
      */
-    private function cycleOutput($body, $options = []): string
+    private function cycleSDL($sdl, $options = []): string
     {
-        $ast    = Parser::parse($body);
+        $ast    = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($ast, null, $options);
 
         return SchemaPrinter::doPrint($schema, $options);
+    }
+
+    private function printASTNode($obj): string
+    {
+        Utils::invariant($obj !== null && property_exists($obj, 'astNode') && $obj->astNode !== null);
+
+        return Printer::doPrint($obj->astNode);
     }
 
     // Describe: Schema Builder
@@ -105,11 +113,23 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
+     * @see it('Empty Type')
+     */
+    public function testEmptyType(): void
+    {
+        $sdl    = $this->dedent('
+            type EmptyType
+        ');
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
+    }
+
+    /**
      * @see it('Simple Type')
      */
     public function testSimpleType(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             type Query {
               str: String
               int: Int
@@ -118,8 +138,28 @@ class BuildSchemaTest extends TestCase
               bool: Boolean
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
+
+        $schema = BuildSchema::build($sdl);
+        // Built-ins are used
+        self::assertSame(Type::int(), $schema->getType('Int'));
+        self::assertSame(Type::float(), $schema->getType('Float'));
+        self::assertSame(Type::string(), $schema->getType('String'));
+        self::assertSame(Type::boolean(), $schema->getType('Boolean'));
+        self::assertSame(Type::id(), $schema->getType('ID'));
+    }
+
+    /**
+     * @see it('include standard type only if it is used')
+     */
+    public function testIncludeStandardTypeOnlyIfItIsUsed(): void
+    {
+        $schema = BuildSchema::build('type Query');
+        // String and Boolean are always included through introspection types
+        self::assertNull($schema->getType('Int'));
+        self::assertNull($schema->getType('Float'));
+        self::assertNull($schema->getType('ID'));
     }
 
     /**
@@ -127,17 +167,13 @@ class BuildSchemaTest extends TestCase
      */
     public function testWithDirectives(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             directive @foo(arg: Int) on FIELD
             
             directive @repeatableFoo(arg: Int) repeatable on FIELD
-            
-            type Query {
-              str: String
-            }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -145,7 +181,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSupportsDescriptions(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             """This is a directive"""
             directive @foo(
               """It has an argument"""
@@ -167,8 +203,8 @@ class BuildSchemaTest extends TestCase
               str: String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -176,7 +212,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSupportsOptionForCommentDescriptions(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             # This is a directive
             directive @foo(
               # It has an argument
@@ -198,8 +234,8 @@ class BuildSchemaTest extends TestCase
               str: String
             }
         ');
-        $output = $this->cycleOutput($body, ['commentDescriptions' => true]);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl, ['commentDescriptions' => true]);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -207,12 +243,8 @@ class BuildSchemaTest extends TestCase
      */
     public function testMaintainsSkipAndInclude(): void
     {
-        $body   = $this->dedent('
-            type Query {
-              str: String
-            }
-        ');
-        $schema = BuildSchema::buildAST(Parser::parse($body));
+        $schema = BuildSchema::buildAST(Parser::parse('type Query'));
+
         self::assertCount(3, $schema->getDirectives());
         self::assertEquals(Directive::skipDirective(), $schema->getDirective('skip'));
         self::assertEquals(Directive::includeDirective(), $schema->getDirective('include'));
@@ -224,16 +256,11 @@ class BuildSchemaTest extends TestCase
      */
     public function testOverridingDirectivesExcludesSpecified(): void
     {
-        $body   = $this->dedent('
+        $schema = BuildSchema::buildAST(Parser::parse('
             directive @skip on FIELD
             directive @include on FIELD
             directive @deprecated on FIELD_DEFINITION
-            
-            type Query {
-              str: String
-            }
-        ');
-        $schema = BuildSchema::buildAST(Parser::parse($body));
+        '));
         self::assertCount(3, $schema->getDirectives());
         self::assertNotEquals(Directive::skipDirective(), $schema->getDirective('skip'));
         self::assertNotEquals(Directive::includeDirective(), $schema->getDirective('include'));
@@ -245,14 +272,10 @@ class BuildSchemaTest extends TestCase
      */
     public function testAddingDirectivesMaintainsSkipAndInclude(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             directive @foo(arg: Int) on FIELD
-            
-            type Query {
-              str: String
-            }
         ');
-        $schema = BuildSchema::buildAST(Parser::parse($body));
+        $schema = BuildSchema::buildAST(Parser::parse($sdl));
         self::assertCount(4, $schema->getDirectives());
         self::assertNotEquals(null, $schema->getDirective('skip'));
         self::assertNotEquals(null, $schema->getDirective('include'));
@@ -264,7 +287,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testTypeModifiers(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             type Query {
               nonNullStr: String!
               listOfStrs: [String]
@@ -273,8 +296,8 @@ class BuildSchemaTest extends TestCase
               nonNullListOfNonNullStrs: [String!]!
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -282,14 +305,14 @@ class BuildSchemaTest extends TestCase
      */
     public function testRecursiveType(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             type Query {
               str: String
               recurse: Query
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -297,11 +320,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testTwoTypesCircular(): void
     {
-        $body   = $this->dedent('
-            schema {
-              query: TypeOne
-            }
-            
+        $sdl    = $this->dedent('
             type TypeOne {
               str: String
               typeTwo: TypeTwo
@@ -312,8 +331,8 @@ class BuildSchemaTest extends TestCase
               typeOne: TypeOne
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -321,7 +340,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSingleArgumentField(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             type Query {
               str(int: Int): String
               floatToStr(float: Float): String
@@ -330,8 +349,8 @@ class BuildSchemaTest extends TestCase
               strToStr(bool: String): String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -339,13 +358,25 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleTypeWithMultipleArguments(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             type Query {
               str(int: Int, bool: Boolean): String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
+    }
+
+    /**
+     * @see it('Empty interface')
+     */
+    public function testEmptyInterface(): void
+    {
+        $sdl    = $this->dedent('
+            interface EmptyInterface
+        ');
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -353,7 +384,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleTypeWithInterface(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             type Query implements WorldInterface {
               str: String
             }
@@ -362,8 +393,8 @@ class BuildSchemaTest extends TestCase
               str: String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -371,7 +402,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleInterfaceHierarchy(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             interface Child implements Parent {
               str: String
             }
@@ -384,8 +415,20 @@ class BuildSchemaTest extends TestCase
               str: String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
+    }
+
+    /**
+     * @see it('Empty enum')
+     */
+    public function testEmptyEnum(): void
+    {
+        $sdl    = $this->dedent('
+            enum EmptyEnum
+        ');
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -393,7 +436,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleOutputEnum(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             enum Hello {
               WORLD
             }
@@ -402,8 +445,8 @@ class BuildSchemaTest extends TestCase
               hello: Hello
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -411,7 +454,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleInputEnum(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             enum Hello {
               WORLD
             }
@@ -420,8 +463,8 @@ class BuildSchemaTest extends TestCase
               str(hello: Hello): String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -429,7 +472,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testMultipleValueEnum(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             enum Hello {
               WO
               RLD
@@ -439,8 +482,20 @@ class BuildSchemaTest extends TestCase
               hello: Hello
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
+    }
+
+    /**
+     * @see it('Empty union')
+     */
+    public function testEmptyUnion(): void
+    {
+        $sdl    = $this->dedent('
+            union EmptyUnion
+        ');
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -448,7 +503,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleUnion(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             union Hello = World
             
             type Query {
@@ -459,8 +514,8 @@ class BuildSchemaTest extends TestCase
               str: String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -468,7 +523,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testMultipleUnion(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             union Hello = WorldOne | WorldTwo
             
             type Query {
@@ -483,8 +538,8 @@ class BuildSchemaTest extends TestCase
               str: String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -635,15 +690,27 @@ class BuildSchemaTest extends TestCase
      */
     public function testCustomScalar(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             scalar CustomScalar
             
             type Query {
               customScalar: CustomScalar
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
+    }
+
+    /**
+     * @see it('Empty Input Object')
+     */
+    public function testEmptyInputObject(): void
+    {
+        $sdl    = $this->dedent('
+            input EmptyInputObject
+        ');
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -651,7 +718,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testInputObject(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             input Input {
               int: Int
             }
@@ -660,8 +727,8 @@ class BuildSchemaTest extends TestCase
               field(in: Input): String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -669,13 +736,13 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleArgumentFieldWithDefault(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             type Query {
               str(int: Int = 2): String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -683,15 +750,15 @@ class BuildSchemaTest extends TestCase
      */
     public function testCustomScalarArgumentFieldWithDefault(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             scalar CustomScalar
             
             type Query {
               str(int: CustomScalar = 2): String
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -699,7 +766,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleTypeWithMutation(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             schema {
               query: HelloScalars
               mutation: Mutation
@@ -715,8 +782,8 @@ class BuildSchemaTest extends TestCase
               addHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -724,7 +791,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleTypeWithSubscription(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             schema {
               query: HelloScalars
               subscription: Subscription
@@ -740,8 +807,8 @@ class BuildSchemaTest extends TestCase
               subscribeHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -749,7 +816,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testUnreferencedTypeImplementingReferencedInterface(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             type Concrete implements Iface {
               key: String
             }
@@ -762,8 +829,8 @@ class BuildSchemaTest extends TestCase
               iface: Iface
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -771,7 +838,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testUnreferencedInterfaceImplementingReferencedInterface(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             interface Child implements Parent {
               key: String
             }
@@ -784,8 +851,8 @@ class BuildSchemaTest extends TestCase
               iface: Parent
             }
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -793,7 +860,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testUnreferencedTypeImplementingReferencedUnion(): void
     {
-        $body   = $this->dedent('
+        $sdl    = $this->dedent('
             type Concrete {
               key: String
             }
@@ -804,8 +871,8 @@ class BuildSchemaTest extends TestCase
             
             union Union = Concrete
         ');
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
     }
 
     /**
@@ -813,7 +880,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSupportsDeprecated(): void
     {
-        $body = $this->dedent('
+        $sdl = $this->dedent('
             enum MyEnum {
               VALUE
               OLD_VALUE @deprecated
@@ -827,10 +894,10 @@ class BuildSchemaTest extends TestCase
             }
         ');
 
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
 
-        $ast    = Parser::parse($body);
+        $ast    = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($ast);
 
         /** @var EnumType $myEnum */
@@ -925,24 +992,25 @@ class BuildSchemaTest extends TestCase
                 $testScalar->astNode,
                 $testDirective->astNode,
             ]),
+            'loc' => null,
         ]);
 
         self::assertEquals($restoredSchemaAST, $ast);
 
         $testField = $query->getField('testField');
-        self::assertEquals('testField(testArg: TestInput): TestUnion', Printer::doPrint($testField->astNode));
-        self::assertEquals('testArg: TestInput', Printer::doPrint($testField->args[0]->astNode));
+        self::assertEquals('testField(testArg: TestInput): TestUnion', $this->printASTNode($testField));
+        self::assertEquals('testArg: TestInput', $this->printASTNode($testField->args[0]));
         self::assertEquals(
             'testInputField: TestEnum',
-            Printer::doPrint($testInput->getField('testInputField')->astNode)
+            $this->printASTNode($testInput->getField('testInputField'))
         );
-        self::assertEquals('TEST_VALUE', Printer::doPrint($testEnum->getValue('TEST_VALUE')->astNode));
+        self::assertEquals('TEST_VALUE', $this->printASTNode($testEnum->getValue('TEST_VALUE')));
         self::assertEquals(
             'interfaceField: String',
-            Printer::doPrint($testInterface->getField('interfaceField')->astNode)
+            $this->printASTNode($testInterface->getField('interfaceField'))
         );
-        self::assertEquals('interfaceField: String', Printer::doPrint($testType->getField('interfaceField')->astNode));
-        self::assertEquals('arg: TestScalar', Printer::doPrint($testDirective->args[0]->astNode));
+        self::assertEquals('interfaceField: String', $this->printASTNode($testType->getField('interfaceField')));
+        self::assertEquals('arg: TestScalar', $this->printASTNode($testDirective->args[0]));
     }
 
     /**
@@ -956,9 +1024,9 @@ class BuildSchemaTest extends TestCase
               mutation: SomeMutation
               subscription: SomeSubscription
             }
-            type SomeQuery { str: String }
-            type SomeMutation { str: String }
-            type SomeSubscription { str: String }
+            type SomeQuery
+            type SomeMutation
+            type SomeSubscription
         ');
 
         self::assertEquals('SomeQuery', $schema->getQueryType()->name);
@@ -972,9 +1040,9 @@ class BuildSchemaTest extends TestCase
     public function testDefaultRootOperationTypeNames(): void
     {
         $schema = BuildSchema::build('
-            type Query { str: String }
-            type Mutation { str: String }
-            type Subscription { str: String }
+            type Query
+            type Mutation
+            type Subscription
         ');
 
         self::assertEquals('Query', $schema->getQueryType()->name);
@@ -987,12 +1055,8 @@ class BuildSchemaTest extends TestCase
      */
     public function testCanBuildInvalidSchema(): void
     {
-        $schema = BuildSchema::build('
-            # Invalid schema, because it is missing query root type
-            type Mutation {
-              str: String
-            }
-        ');
+        // Invalid schema, because it is missing query root type
+        $schema = BuildSchema::build('type Mutation');
         $errors = $schema->validate();
         self::assertNotEmpty($errors);
     }
@@ -1017,300 +1081,20 @@ class BuildSchemaTest extends TestCase
      */
     public function testAllowsToDisableSDLValidation(): void
     {
-        $body = '
+        $sdl = '
             type Query {
               foo: String @unknown
             }
         ';
         // Should not throw:
-        BuildSchema::build($body, null, ['assumeValid' => true]);
-        BuildSchema::build($body, null, ['assumeValidSDL' => true]);
+        BuildSchema::build($sdl, null, ['assumeValid' => true]);
+        BuildSchema::build($sdl, null, ['assumeValidSDL' => true]);
         self::assertTrue(true);
-    }
-
-    // Describe: Failures
-
-    /**
-     * @see it('Allows only a single query type')
-     */
-    public function testAllowsOnlySingleQueryType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Must provide only one query type in schema.');
-        $body = '
-            schema {
-              query: Hello
-              query: Yellow
-            }
-            
-            type Hello {
-              bar: String
-            }
-            
-            type Yellow {
-              isColor: Boolean
-            }
-        ';
-        $doc  = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Allows only a single mutation type')
-     */
-    public function testAllowsOnlySingleMutationType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Must provide only one mutation type in schema.');
-        $body = '
-            schema {
-              query: Hello
-              mutation: Hello
-              mutation: Yellow
-            }
-            
-            type Hello {
-              bar: String
-            }
-            
-            type Yellow {
-              isColor: Boolean
-            }
-        ';
-        $doc  = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Allows only a single subscription type')
-     */
-    public function testAllowsOnlySingleSubscriptionType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Must provide only one subscription type in schema.');
-        $body = '
-            schema {
-              query: Hello
-              subscription: Hello
-              subscription: Yellow
-            }
-            
-            type Hello {
-              bar: String
-            }
-            
-            type Yellow {
-              isColor: Boolean
-            }
-        ';
-        $doc  = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Unknown type referenced')
-     */
-    public function testUnknownTypeReferenced(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Bar" not found in document.');
-        $body   = '
-            schema {
-              query: Hello
-            }
-            
-            type Hello {
-              bar: Bar
-            }
-        ';
-        $doc    = Parser::parse($body);
-        $schema = BuildSchema::buildAST($doc);
-        $schema->getTypeMap();
-    }
-
-    /**
-     * @see it('Unknown type in interface list')
-     */
-    public function testUnknownTypeInInterfaceList(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Bar" not found in document.');
-        $body = '
-            type Query implements Bar {
-              field: String
-            }
-        ';
-
-        $doc    = Parser::parse($body);
-        $schema = BuildSchema::buildAST($doc);
-        $schema->getTypeMap();
-    }
-
-    /**
-     * @see it('Unknown type in union list')
-     */
-    public function testUnknownTypeInUnionList(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Bar" not found in document.');
-        $body = '
-            union TestUnion = Bar
-            type Query { testUnion: TestUnion }
-        ';
-
-        $doc    = Parser::parse($body);
-        $schema = BuildSchema::buildAST($doc);
-        $schema->getTypeMap();
-    }
-
-    /**
-     * @see it('Unknown query type')
-     */
-    public function testUnknownQueryType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Specified query type "Wat" not found in document.');
-        $body = '
-            schema {
-              query: Wat
-            }
-            
-            type Hello {
-              str: String
-            }
-        ';
-        $doc  = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Unknown mutation type')
-     */
-    public function testUnknownMutationType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Specified mutation type "Wat" not found in document.');
-        $body = '
-            schema {
-              query: Hello
-              mutation: Wat
-            }
-            
-            type Hello {
-              str: String
-            }
-        ';
-        $doc  = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Unknown subscription type')
-     */
-    public function testUnknownSubscriptionType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Specified subscription type "Awesome" not found in document.');
-        $body = '
-            schema {
-              query: Hello
-              mutation: Wat
-              subscription: Awesome
-            }
-            
-            type Hello {
-              str: String
-            }
-            
-            type Wat {
-              str: String
-            }
-        ';
-        $doc  = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Does not consider directive names')
-     */
-    public function testDoesNotConsiderDirectiveNames(): void
-    {
-        $body = '
-          schema {
-            query: Foo
-          }
-    
-          directive @Foo on QUERY
-        ';
-        $doc  = Parser::parse($body);
-        $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
-        BuildSchema::build($doc);
-    }
-
-    /**
-     * @see it('Does not consider operation names')
-     */
-    public function testDoesNotConsiderOperationNames(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
-        $body = '
-            schema {
-              query: Foo
-            }
-            
-            query Foo { field }
-        ';
-        $doc  = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Does not consider fragment names')
-     */
-    public function testDoesNotConsiderFragmentNames(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
-        $body = '
-            schema {
-              query: Foo
-            }
-            
-            fragment Foo on Type { field }
-        ';
-        $doc  = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Forbids duplicate type definitions')
-     */
-    public function testForbidsDuplicateTypeDefinitions(): void
-    {
-        $body = '
-            schema {
-              query: Repeated
-            }
-            
-            type Repeated {
-              id: Int
-            }
-            
-            type Repeated {
-              id: String
-            }
-        ';
-        $doc  = Parser::parse($body);
-
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Repeated" was defined more than once.');
-        BuildSchema::buildAST($doc);
     }
 
     public function testSupportsTypeConfigDecorator(): void
     {
-        $body = '
+        $sdl = '
             schema {
               query: Query
             }
@@ -1331,7 +1115,7 @@ class BuildSchemaTest extends TestCase
               world: String
             }
         ';
-        $doc  = Parser::parse($body);
+        $doc = Parser::parse($sdl);
 
         $decorated = [];
         $calls     = [];
@@ -1389,7 +1173,7 @@ class BuildSchemaTest extends TestCase
 
     public function testCreatesTypesLazily(): void
     {
-        $body    = '
+        $sdl     = '
             schema {
               query: Query
             }
@@ -1414,7 +1198,7 @@ class BuildSchemaTest extends TestCase
               world: String
             }
         ';
-        $doc     = Parser::parse($body);
+        $doc     = Parser::parse($sdl);
         $created = [];
 
         $typeConfigDecorator = static function ($config, $node) use (&$created) {
