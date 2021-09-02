@@ -162,6 +162,8 @@ class ASTDefinitionBuilder
                     'astNode'     => $value,
                 ];
                 if (isset($value->defaultValue)) {
+                    // Might result in the defaultValue being Utils::undefined() if the type does not match.
+                    // Again, we do not throw immediately but rather defer this check to schema validation.
                     $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
                 }
 

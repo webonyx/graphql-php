@@ -192,6 +192,7 @@ class DocumentValidator
     public static function sdlRules()
     {
         if (self::$sdlRules === null) {
+            // TODO add rule DefaultValuesMatchArgumentType
             self::$sdlRules = [
                 LoneSchemaDefinition::class                  => new LoneSchemaDefinition(),
                 KnownDirectives::class                       => new KnownDirectives(),
