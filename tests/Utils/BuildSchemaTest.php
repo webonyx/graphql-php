@@ -313,16 +313,17 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * @see it('Maintains @skip & @include')
+     * @see it('Maintains @skip, @skip & @specifiedBy')
      */
     public function testMaintainsSkipAndInclude(): void
     {
         $schema = BuildSchema::buildAST(Parser::parse('type Query'));
 
-        self::assertCount(3, $schema->getDirectives());
+        self::assertCount(4, $schema->getDirectives());
         self::assertEquals(Directive::skipDirective(), $schema->getDirective('skip'));
         self::assertEquals(Directive::includeDirective(), $schema->getDirective('include'));
         self::assertEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
+        self::assertEquals(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
 
     /**
@@ -334,15 +335,17 @@ class BuildSchemaTest extends TestCase
             directive @skip on FIELD
             directive @include on FIELD
             directive @deprecated on FIELD_DEFINITION
+            directive @specifiedBy on FIELD_DEFINITION
         '));
-        self::assertCount(3, $schema->getDirectives());
+        self::assertCount(4, $schema->getDirectives());
         self::assertNotEquals(Directive::skipDirective(), $schema->getDirective('skip'));
         self::assertNotEquals(Directive::includeDirective(), $schema->getDirective('include'));
         self::assertNotEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
+        self::assertNotEquals(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
 
     /**
-     * @see it('Adding directives maintains @skip & @include')
+     * @see it('Adding directives maintains @skip, @skip & @specifiedBy')
      */
     public function testAddingDirectivesMaintainsSkipAndInclude(): void
     {
@@ -350,10 +353,11 @@ class BuildSchemaTest extends TestCase
             directive @foo(arg: Int) on FIELD
         ');
         $schema = BuildSchema::buildAST(Parser::parse($sdl));
-        self::assertCount(4, $schema->getDirectives());
+        self::assertCount(5, $schema->getDirectives());
         self::assertNotEquals(null, $schema->getDirective('skip'));
         self::assertNotEquals(null, $schema->getDirective('include'));
         self::assertNotEquals(null, $schema->getDirective('deprecated'));
+        self::assertNotEquals(null, $schema->getDirective('specifiedBy'));
     }
 
     /**
@@ -898,6 +902,27 @@ class BuildSchemaTest extends TestCase
 
         self::assertEquals('No longer supported', $rootFields['field3']->args[0]->deprecationReason);
         self::assertEquals('Why not?', $rootFields['field4']->args[0]->deprecationReason);
+    }
+
+    /**
+     * @see it('Supports @specifiedBy')
+     */
+    public function testSupportsSpecifiedBy(): void
+    {
+        $sdl = $this->dedent('
+            scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
+            
+            type Query {
+              foo: Foo @deprecated
+            }
+        ');
+
+        $output = $this->cycleSDL($sdl);
+        self::assertEquals($sdl, $output);
+
+        $schema = BuildSchema::build($sdl);
+
+        self::assertEquals('https://example.com/foo_spec', $schema->getType('Foo')->specifiedByURL);
     }
 
     /**
