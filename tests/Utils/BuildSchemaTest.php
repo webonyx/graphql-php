@@ -20,11 +20,13 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Utils\Utils;
@@ -56,7 +58,7 @@ class BuildSchemaTest extends TestCase
      * the SDL, parsed in a schema AST, materializing that schema AST into an
      * in-memory GraphQLSchema, and then finally printing that object into the SDL
      */
-    private function cycleSDL($sdl, $options = []): string
+    private function cycleSDL(string $sdl, $options = []): string
     {
         $ast    = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($ast, null, $options);
@@ -71,9 +73,12 @@ class BuildSchemaTest extends TestCase
         return Printer::doPrint($obj->astNode);
     }
 
-    private function printAllASTNodes($obj): string
+    /**
+     * @param ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $obj
+     */
+    private function printAllASTNodes(NamedType $obj): string
     {
-        Utils::invariant($obj !== null && property_exists($obj, 'astNode') && property_exists($obj, 'extensionASTNodes') && $obj->extensionASTNodes !== null);
+        Utils::invariant(property_exists($obj, 'astNode') && property_exists($obj, 'extensionASTNodes') && $obj->extensionASTNodes !== null);
 
         return Printer::doPrint(new DocumentNode([
             'definitions' => new NodeList([
@@ -142,6 +147,20 @@ class BuildSchemaTest extends TestCase
         // Should not throw
         BuildSchema::build($sdl);
         self::assertTrue(true);
+    }
+
+    /**
+     * @see it('Match order of default types and directives')
+     */
+    public function testMatchOrderOfDefaultTypesAndDirectives(): void
+    {
+        $schema    = new Schema([]);
+        $sdlSchema = BuildSchema::buildAST(
+            new DocumentNode(['definitions' => new NodeList([])])
+        );
+
+        self::assertEquals($schema->getDirectives(), $sdlSchema->getDirectives());
+        self::assertEquals($schema->getTypeMap(), $sdlSchema->getTypeMap());
     }
 
     /**
@@ -225,6 +244,24 @@ class BuildSchemaTest extends TestCase
               arg: Int
             ) on FIELD
             
+            """Who knows what inside this scalar?"""
+            scalar MysteryScalar
+            
+            """This is a input object type"""
+            input FooInput {
+              """It has a field"""
+              field: Int
+            }
+            
+            """This is a interface type"""
+            interface Energy {
+              """It also has a field"""
+              str: String
+            }
+            
+            """There is nothing inside!"""
+            union BlackHole
+
             """With an enum"""
             enum Color {
               RED
@@ -603,133 +640,6 @@ class BuildSchemaTest extends TestCase
         ');
         $errors = $schema->validate();
         self::assertNotEmpty($errors);
-    }
-
-    /**
-     * @see it('Specifying Union type using __typename')
-     */
-    public function testSpecifyingUnionTypeUsingTypename(): void
-    {
-        $schema = BuildSchema::buildAST(Parser::parse('
-            type Query {
-              fruits: [Fruit]
-            }
-            
-            union Fruit = Apple | Banana
-            
-            type Apple {
-              color: String
-            }
-            
-            type Banana {
-              length: Int
-            }
-        '));
-
-        $source = '
-            {
-              fruits {
-                ... on Apple {
-                  color
-                }
-                ... on Banana {
-                  length
-                }
-              }
-            }
-        ';
-
-        $rootValue = [
-            'fruits' => [
-                [
-                    'color' => 'green',
-                    '__typename' => 'Apple',
-                ],
-                [
-                    'length' => 5,
-                    '__typename' => 'Banana',
-                ],
-            ],
-        ];
-
-        $expected = [
-            'data' => [
-                'fruits' => [
-                    ['color' => 'green'],
-                    ['length' => 5],
-                ],
-            ],
-        ];
-
-        $result = GraphQL::executeQuery($schema, $source, $rootValue);
-        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
-    }
-
-    /**
-     * @see it('Specifying Interface type using __typename')
-     */
-    public function testSpecifyingInterfaceUsingTypename(): void
-    {
-        $schema = BuildSchema::buildAST(Parser::parse('
-            type Query {
-              characters: [Character]
-            }
-            
-            interface Character {
-              name: String!
-            }
-            
-            type Human implements Character {
-              name: String!
-              totalCredits: Int
-            }
-            
-            type Droid implements Character {
-              name: String!
-              primaryFunction: String
-            }
-        '));
-
-        $source = '
-            {
-              characters {
-                name
-                ... on Human {
-                  totalCredits
-                }
-                ... on Droid {
-                  primaryFunction
-                }
-              }
-            }
-        ';
-
-        $rootValue = [
-            'characters' => [
-                [
-                    'name' => 'Han Solo',
-                    'totalCredits' => 10,
-                    '__typename' => 'Human',
-                ],
-                [
-                    'name' => 'R2-D2',
-                    'primaryFunction' => 'Astromech',
-                    '__typename' => 'Droid',
-                ],
-            ],
-        ];
-
-        $expected = [
-            'data' => [
-                'characters' => [
-                    ['name' => 'Han Solo', 'totalCredits' => 10],
-                    ['name' => 'R2-D2', 'primaryFunction' => 'Astromech'],
-                ],
-            ],
-        ];
-
-        $result = GraphQL::executeQuery($schema, $source, $rootValue);
-        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
     /**
@@ -1331,6 +1241,22 @@ class BuildSchemaTest extends TestCase
 
         self::assertSame(Type::id(), $schema->getType('ID'));
         self::assertSame(Introspection::_schema(), $schema->getType('__Schema'));
+    }
+
+    /**
+     * @see it('Allows to reference introspection types')
+     */
+    public function testAllowsToReferenceIntrospectionTypes(): void
+    {
+        $schema = BuildSchema::build('
+            type Query {
+              introspectionField: __EnumValue
+            }
+        ');
+
+        $queryType = $schema->getQueryType();
+        self::assertEquals('__EnumValue', $queryType->getField('introspectionField')->getType()->name);
+        self::assertSame(Introspection::_enumValue(), $schema->getType('__EnumValue'));
     }
 
     /**
