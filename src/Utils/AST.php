@@ -617,6 +617,8 @@ class AST
      * GraphQL source files which together represent one conceptual application.
      *
      * @param array<DocumentNode> $documents
+     *
+     * @api
      */
     public static function concatAST(array $documents): DocumentNode
     {
