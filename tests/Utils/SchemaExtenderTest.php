@@ -15,6 +15,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
@@ -51,6 +52,9 @@ class SchemaExtenderTest extends TestCase
         return preg_replace('/^' . $indent . '/m', '', $trimmedStr);
     }
 
+    /**
+     * @param NamedType|Schema $obj
+     */
     private function printExtensionNodes($obj): string
     {
         Utils::invariant($obj !== null && property_exists($obj, 'extensionASTNodes') && $obj->extensionASTNodes !== null);
@@ -971,13 +975,16 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsDifferentTypesMultipleTimes(): void
     {
-        $schema         = BuildSchema::build('
+        $schema      = BuildSchema::build('
             type Query {
+              someScalar: SomeScalar
               someObject(someInput: SomeInput): SomeObject
               someInterface: SomeInterface
               someEnum: SomeEnum
               someUnion: SomeUnion
             }
+
+            scalar SomeScalar
 
             type SomeObject implements SomeInterface {
               oldField: String
@@ -997,9 +1004,13 @@ class SchemaExtenderTest extends TestCase
               oldField: String
             }
         ');
-        $newTypesSDL    = $this->dedent('
-            interface AnotherNewInterface {
-              anotherNewField: String
+        $newTypesSDL = $this->dedent('
+            scalar NewScalar
+
+            scalar AnotherNewScalar
+
+            type NewObject {
+              foo: String
             }
 
             type AnotherNewObject {
@@ -1010,12 +1021,18 @@ class SchemaExtenderTest extends TestCase
               newField: String
             }
 
-            type NewObject {
-              foo: String
+            interface AnotherNewInterface {
+              anotherNewField: String
             }
         ');
-        $extendAST      = Parser::parse("
-            ${newTypesSDL}
+
+        $schemaWithNewTypes = SchemaExtender::extend($schema, Parser::parse($newTypesSDL));
+        self::assertEquals(
+            $newTypesSDL . "\n",
+            $this->printSchemaChanges($schema, $schemaWithNewTypes)
+        );
+
+        $extendAST      = Parser::parse('
             extend type SomeObject implements NewInterface {
               newField: String
             }
@@ -1043,8 +1060,8 @@ class SchemaExtenderTest extends TestCase
             extend input SomeInput {
               anotherNewField: String
             }
-        ");
-        $extendedSchema = SchemaExtender::extend($schema, $extendAST);
+        ');
+        $extendedSchema = SchemaExtender::extend($schemaWithNewTypes, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
         self::assertEquals(
