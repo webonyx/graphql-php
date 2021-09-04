@@ -466,6 +466,36 @@ class SchemaExtenderTest extends TestCase
     }
 
     /**
+     * @see it('extends scalars by adding specifiedBy directive')
+     */
+    public function testExtendsScalarsByAddingSpecifiedByDirective(): void
+    {
+        $schema         = BuildSchema::build('
+          type Query {
+            foo: Foo
+          }
+
+          scalar Foo
+
+          directive @foo on SCALAR
+        ');
+        $extensionSDL   = $this->dedent('
+          extend scalar Foo @foo
+
+          extend scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
+        ');
+        $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
+        $foo            = $extendedSchema->getType('Foo');
+
+        self::assertEquals('https://example.com/foo_spec', $foo->specifiedByURL);
+        self::assertEmpty($extendedSchema->validate());
+        self::assertEquals(
+            $extensionSDL,
+            $this->printExtensionNodes($foo),
+        );
+    }
+
+    /**
      * @see it('correctly assign AST nodes to new and extended types')
      */
     public function testCorrectlyAssignASTNodesToNewAndExtendedTypes(): void
@@ -1033,6 +1063,8 @@ class SchemaExtenderTest extends TestCase
         );
 
         $extendAST      = Parser::parse('
+            extend scalar SomeScalar @specifiedBy(url: "http://example.com/foo_spec")
+
             extend type SomeObject implements NewInterface {
               newField: String
             }
@@ -1066,6 +1098,8 @@ class SchemaExtenderTest extends TestCase
         self::assertEmpty($extendedSchema->validate());
         self::assertEquals(
             $this->dedent("
+                scalar SomeScalar @specifiedBy(url: \"http://example.com/foo_spec\")
+
                 type SomeObject implements SomeInterface & NewInterface & AnotherNewInterface {
                   oldField: String
                   newField: String
