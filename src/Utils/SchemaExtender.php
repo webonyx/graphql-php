@@ -502,6 +502,7 @@ class SchemaExtender
             'locations' => $directive->locations,
             'args' => static::extendArgs($directive->args),
             'astNode' => $directive->astNode,
+            'isRepeatable' => $directive->isRepeatable,
         ]);
     }
 
