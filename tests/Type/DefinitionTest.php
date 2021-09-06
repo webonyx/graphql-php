@@ -750,6 +750,22 @@ class DefinitionTest extends TestCase
         self::assertSame($someMutation->getField('mutateSomething')->getArg('input')->getType(), $inputObject);
     }
 
+    public function testAllowsInputTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsArray(): void
+    {
+        $objType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                'f' => static fn (): array => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
     public function testInterfaceTypeAllowsRecursiveDefinitions(): void
     {
         $called    = false;

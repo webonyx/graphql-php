@@ -27,6 +27,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Warn about orphaned object types
 - Expose structured enumeration of directive locations
 - Add `AST::concatAST()` utility
+- Allow lazy input object fields
 
 ### Optimized
 
@@ -40,6 +41,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Allow directives on variable definitions
 - Handle `null` parent of list in `ValuesOfCorrectType::getVisitor`
 - Allow sending both `query` and `queryId`, ignore `queryId` in that case
+- Fix `extend()` to preserve `repeatable` (#931)
 
 ### Removed
 
