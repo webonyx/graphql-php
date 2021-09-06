@@ -2040,6 +2040,22 @@ extend type Query {
         static::assertEquals($this->dedent($expected), SchemaPrinter::doPrint($extendedSchema));
     }
 
+    /**
+     * @see https://github.com/webonyx/graphql-php/pull/929
+     */
+    public function testPreservesRepeatableInDirective(): void
+    {
+        $schema = BuildSchema::build('
+            directive @test(arg: Int) repeatable on FIELD | SCALAR
+        ');
+
+        self::assertTrue($schema->getDirective('test')->isRepeatable);
+
+        $extendedSchema = SchemaExtender::extend($schema, Parser::parse('scalar Foo'));
+
+        self::assertTrue($extendedSchema->getDirective('test')->isRepeatable);
+    }
+
     public function testSupportsTypeConfigDecorator(): void
     {
         $queryType = new ObjectType([
