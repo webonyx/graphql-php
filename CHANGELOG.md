@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.11.5
+
+Fixed:
+- Fix `extend()` to preserve `repeatable` (#931)
+
 #### 14.11.4
 
 Fixed:
