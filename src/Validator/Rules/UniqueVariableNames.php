@@ -17,7 +17,7 @@ class UniqueVariableNames extends ValidationRule
     /** @var NameNode[] */
     protected array $knownVariableNames;
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $this->knownVariableNames = [];
 

@@ -121,7 +121,7 @@ class TypeInfo
      *
      * @return Type[]|null
      */
-    public static function extractTypes($type, ?array $typeMap = null)
+    public static function extractTypes($type, ?array $typeMap = null): ?array
     {
         if (($typeMap ?? []) === []) {
             $typeMap = [];
@@ -202,7 +202,7 @@ class TypeInfo
      *
      * @return Type[]
      */
-    public static function extractTypesFromDirectives(Directive $directive, array $typeMap = [])
+    public static function extractTypesFromDirectives(Directive $directive, array $typeMap = []): array
     {
         if (is_array($directive->args)) {
             foreach ($directive->args as $arg) {
@@ -234,7 +234,7 @@ class TypeInfo
         return $this->enumValue;
     }
 
-    public function enter(Node $node)
+    public function enter(Node $node): void
     {
         $schema = $this->schema;
 
@@ -441,7 +441,7 @@ class TypeInfo
         return $this->inputTypeStack[count($this->inputTypeStack) - 1] ?? null;
     }
 
-    public function leave(Node $node)
+    public function leave(Node $node): void
     {
         switch (true) {
             case $node instanceof SelectionSetNode:

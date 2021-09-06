@@ -26,7 +26,7 @@ class StandardTypesTest extends TestCase
         Type::overrideStandardTypes(self::$originalStandardTypes);
     }
 
-    public function testAllowsOverridingStandardTypes()
+    public function testAllowsOverridingStandardTypes(): void
     {
         $originalTypes = Type::getStandardTypes();
         self::assertCount(5, $originalTypes);
@@ -62,7 +62,7 @@ class StandardTypesTest extends TestCase
         self::assertSame($newStringType, Type::string());
     }
 
-    public function testPreservesOriginalStandardTypes()
+    public function testPreservesOriginalStandardTypes(): void
     {
         $originalTypes = Type::getStandardTypes();
         self::assertCount(5, $originalTypes);
@@ -109,7 +109,7 @@ class StandardTypesTest extends TestCase
     /**
      * @dataProvider getInvalidStandardTypes
      */
-    public function testStandardTypesOverrideDoesSanityChecks($type, string $expectedMessage)
+    public function testStandardTypesOverrideDoesSanityChecks($type, string $expectedMessage): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage($expectedMessage);

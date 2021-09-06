@@ -6,12 +6,12 @@ namespace GraphQL\Type;
 
 class TypeKind
 {
-    const SCALAR       = 'SCALAR';
-    const OBJECT       = 'OBJECT';
-    const INTERFACE    = 'INTERFACE';
-    const UNION        = 'UNION';
-    const ENUM         = 'ENUM';
-    const INPUT_OBJECT = 'INPUT_OBJECT';
-    const LIST         = 'LIST';
-    const NON_NULL     = 'NON_NULL';
+    public const SCALAR       = 'SCALAR';
+    public const OBJECT       = 'OBJECT';
+    public const INTERFACE    = 'INTERFACE';
+    public const UNION        = 'UNION';
+    public const ENUM         = 'ENUM';
+    public const INPUT_OBJECT = 'INPUT_OBJECT';
+    public const LIST         = 'LIST';
+    public const NON_NULL     = 'NON_NULL';
 }

@@ -17,12 +17,15 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Use native PHP types for properties of `Type` and its subclasses
 - Throw `SerializationError` over client safe `Error` when failing to serialize leaf types
 - Move debug entries in errors under `extensions` key
+- Use native PHP types for `Schema` and `SchemaConfig`
+- Always throw `RequestError` with useful message when clients provide an invalid JSON body
 
 ### Added
 
 - Improve extendability of validator rules
 - Add tests for errors that occur when undeclared fields are passed in input
 - Warn about orphaned object types
+- Expose structured enumeration of directive locations
 
 ### Optimized
 

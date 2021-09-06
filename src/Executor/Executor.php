@@ -38,7 +38,7 @@ class Executor
     /**
      * Set a custom default resolve function.
      */
-    public static function setDefaultFieldResolver(callable $fieldResolver)
+    public static function setDefaultFieldResolver(callable $fieldResolver): void
     {
         self::$defaultFieldResolver = $fieldResolver;
     }
@@ -51,7 +51,7 @@ class Executor
     /**
      * Set a custom default promise adapter.
      */
-    public static function setPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null)
+    public static function setPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null): void
     {
         self::$defaultPromiseAdapter = $defaultPromiseAdapter;
     }
@@ -64,7 +64,7 @@ class Executor
     /**
      * Set a custom executor implementation factory.
      */
-    public static function setImplementationFactory(callable $implementationFactory)
+    public static function setImplementationFactory(callable $implementationFactory): void
     {
         self::$implementationFactory = $implementationFactory;
     }
@@ -120,8 +120,6 @@ class Executor
      * @param array<mixed>|null $variableValues
      * @param string|null       $operationName
      *
-     * @return Promise
-     *
      * @api
      */
     public static function promiseToExecute(
@@ -133,7 +131,7 @@ class Executor
         $variableValues = null,
         $operationName = null,
         ?callable $fieldResolver = null
-    ) {
+    ): Promise {
         $factory = self::$implementationFactory;
 
         /** @var ExecutorImplementation $executor */

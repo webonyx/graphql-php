@@ -65,10 +65,8 @@ class Utils
      * Check if the value is invalid
      *
      * @param mixed $value
-     *
-     * @return bool
      */
-    public static function isInvalid($value)
+    public static function isInvalid($value): bool
     {
         return self::undefined() === $value;
     }
@@ -77,10 +75,8 @@ class Utils
      * @param object   $obj
      * @param mixed[]  $vars
      * @param string[] $requiredKeys
-     *
-     * @return object
      */
-    public static function assign($obj, array $vars, array $requiredKeys = [])
+    public static function assign($obj, array $vars, array $requiredKeys = []): object
     {
         foreach ($requiredKeys as $key) {
             if (! isset($vars[$key])) {
@@ -301,7 +297,7 @@ class Utils
      * @param bool   $test
      * @param string $message
      */
-    public static function invariant($test, $message = '')
+    public static function invariant($test, $message = ''): void
     {
         if ($test) {
             return;
@@ -319,10 +315,8 @@ class Utils
 
     /**
      * @param Type|mixed $var
-     *
-     * @return string
      */
-    public static function getVariableType($var)
+    public static function getVariableType($var): string
     {
         if ($var instanceof Type) {
             // FIXME: Replace with schema printer call
@@ -338,10 +332,8 @@ class Utils
 
     /**
      * @param mixed $var
-     *
-     * @return string
      */
-    public static function printSafeJson($var)
+    public static function printSafeJson($var): string
     {
         if ($var instanceof stdClass) {
             $var = (array) $var;
@@ -380,10 +372,8 @@ class Utils
 
     /**
      * @param Type|mixed $var
-     *
-     * @return string
      */
-    public static function printSafe($var)
+    public static function printSafe($var): string
     {
         if ($var instanceof Type) {
             return $var->toString();
@@ -433,10 +423,8 @@ class Utils
      *
      * @param string $ord
      * @param string $encoding
-     *
-     * @return string
      */
-    public static function chr($ord, $encoding = 'UTF-8')
+    public static function chr($ord, $encoding = 'UTF-8'): string
     {
         if ($encoding === 'UCS-4BE') {
             return pack('N', $ord);
@@ -480,10 +468,8 @@ class Utils
 
     /**
      * @param int|null $code
-     *
-     * @return string
      */
-    public static function printCharCode($code)
+    public static function printCharCode($code): string
     {
         if ($code === null) {
             return '<EOF>';
@@ -503,7 +489,7 @@ class Utils
      *
      * @throws Error
      */
-    public static function assertValidName($name)
+    public static function assertValidName($name): void
     {
         $error = self::isValidNameError($name);
         if ($error !== null) {
@@ -516,10 +502,8 @@ class Utils
      *
      * @param string    $name
      * @param Node|null $node
-     *
-     * @return Error|null
      */
-    public static function isValidNameError($name, $node = null)
+    public static function isValidNameError($name, $node = null): ?Error
     {
         self::invariant(is_string($name), 'Expected string');
 
@@ -546,10 +530,8 @@ class Utils
      * Resulting callable will collect all PHP errors that occur during the call in $errors array.
      *
      * @param ErrorException[] $errors
-     *
-     * @return callable
      */
-    public static function withErrorHandling(callable $fn, array &$errors)
+    public static function withErrorHandling(callable $fn, array &$errors): callable
     {
         return static function () use ($fn, &$errors) {
             // Catch custom errors (to report them in query results)
@@ -567,10 +549,8 @@ class Utils
 
     /**
      * @param string[] $items
-     *
-     * @return string
      */
-    public static function quotedOrList(array $items)
+    public static function quotedOrList(array $items): string
     {
         $quoted = array_map(
             static fn (string $item): string => sprintf('"%s"', $item),
@@ -582,10 +562,8 @@ class Utils
 
     /**
      * @param string[] $items
-     *
-     * @return string
      */
-    public static function orList(array $items)
+    public static function orList(array $items): string
     {
         if (count($items) === 0) {
             throw new LogicException('items must not need to be empty.');
@@ -624,7 +602,7 @@ class Utils
      *
      * @return string[]
      */
-    public static function suggestionList($input, array $options)
+    public static function suggestionList($input, array $options): array
     {
         $optionsByDistance = [];
         $threshold         = mb_strlen($input) * 0.4 + 1;

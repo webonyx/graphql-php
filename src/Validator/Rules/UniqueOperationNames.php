@@ -19,7 +19,7 @@ class UniqueOperationNames extends ValidationRule
     /** @var NameNode[] */
     protected array $knownOperationNames;
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $this->knownOperationNames = [];
 

@@ -14,7 +14,7 @@ use function sprintf;
 
 class ScalarLeafs extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return [
             NodeKind::FIELD => static function (FieldNode $node) use ($context): void {

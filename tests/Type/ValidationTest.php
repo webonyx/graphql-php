@@ -27,9 +27,11 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 use function array_map;
 use function array_merge;
+use function ucfirst;
 
 class ValidationTest extends TestCase
 {
@@ -391,155 +393,43 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @see it('rejects a Schema whose query root type is not an Object type')
+     * @dataProvider rootTypes
      */
-    public function testRejectsASchemaWhoseQueryTypeIsNotAnObjectType(): void
+    public function testRejectsASchemaWhoseRootTypeIsAnInputType(string $rootType): void
     {
-        $schema = BuildSchema::build('
-      input Query {
+        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
+
+        BuildSchema::build('
+      input ' . ucfirst($rootType) . ' {
         test: String
       }
         ');
-
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [
-                [
-                    'message'   => 'Query root type must be Object type, it cannot be Query.',
-                    'locations' => [['line' => 2, 'column' => 7]],
-                ],
-            ]
-        );
-
-        $schemaWithDef = BuildSchema::build('
-      schema {
-        query: SomeInputObject
-      }
-
-      input SomeInputObject {
-        test: String
-      }
-        ');
-
-        $this->assertMatchesValidationMessage(
-            $schemaWithDef->validate(),
-            [
-                [
-                    'message'   => 'Query root type must be Object type, it cannot be SomeInputObject.',
-                    'locations' => [['line' => 3, 'column' => 16]],
-                ],
-            ]
-        );
     }
 
     /**
-     * @see it('rejects a Schema whose mutation type is an input type')
+     * @dataProvider rootTypes
      */
-    public function testRejectsASchemaWhoseMutationTypeIsAnInputType(): void
+    public function testRejectsASchemaWhoseNonStandardRootTypeIsAnInputType(string $rootType): void
     {
-        $schema = BuildSchema::build('
-      type Query {
-        field: String
-      }
+        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
 
-      input Mutation {
-        test: String
-      }
-        ');
-
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [
-                [
-                    'message'   => 'Mutation root type must be Object type if provided, it cannot be Mutation.',
-                    'locations' => [['line' => 6, 'column' => 7]],
-                ],
-            ]
-        );
-
-        $schemaWithDef = BuildSchema::build('
+        BuildSchema::build('
       schema {
-        query: Query
-        mutation: SomeInputObject
-      }
-
-      type Query {
-        field: String
+        ' . $rootType . ': SomeInputObject
       }
 
       input SomeInputObject {
         test: String
       }
         ');
-
-        $this->assertMatchesValidationMessage(
-            $schemaWithDef->validate(),
-            [
-                [
-                    'message'   => 'Mutation root type must be Object type if provided, it cannot be SomeInputObject.',
-                    'locations' => [['line' => 4, 'column' => 19]],
-                ],
-            ]
-        );
-    }
-
-    // DESCRIBE: Type System: Objects must have fields
-
-    /**
-     * @see it('rejects a Schema whose subscription type is an input type')
-     */
-    public function testRejectsASchemaWhoseSubscriptionTypeIsAnInputType(): void
-    {
-        $schema = BuildSchema::build('
-      type Query {
-        field: String
-      }
-
-      input Subscription {
-        test: String
-      }
-        ');
-
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [
-                [
-                    'message'   => 'Subscription root type must be Object type if provided, it cannot be Subscription.',
-                    'locations' => [['line' => 6, 'column' => 7]],
-                ],
-            ]
-        );
-
-        $schemaWithDef = BuildSchema::build('
-      schema {
-        query: Query
-        subscription: SomeInputObject
-      }
-
-      type Query {
-        field: String
-      }
-
-      input SomeInputObject {
-        test: String
-      }
-        ');
-
-        $this->assertMatchesValidationMessage(
-            $schemaWithDef->validate(),
-            [
-                [
-                    'message'   => 'Subscription root type must be Object type if provided, it cannot be SomeInputObject.',
-                    'locations' => [['line' => 4, 'column' => 23]],
-                ],
-            ]
-        );
     }
 
     /**
      * @see it('rejects a schema extended with invalid root types')
+     *
+     * @dataProvider rootTypes
      */
-    public function testRejectsASchemaExtendedWithInvalidRootTypes(): void
+    public function testRejectsASchemaExtendedWithInvalidRootTypes(string $rootType): void
     {
         $schema = BuildSchema::build('
             input SomeInputObject {
@@ -547,49 +437,34 @@ class ValidationTest extends TestCase
             }
         ');
 
-        $schema = SchemaExtender::extend(
+        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
+
+        SchemaExtender::extend(
             $schema,
             Parser::parse('
                 extend schema {
-                  query: SomeInputObject
+                  ' . $rootType . ': SomeInputObject
                 }
             ')
         );
+    }
 
-        $schema = SchemaExtender::extend(
-            $schema,
-            Parser::parse('
-                extend schema {
-                  mutation: SomeInputObject
-                }
-            ')
-        );
-
-        $schema = SchemaExtender::extend(
-            $schema,
-            Parser::parse('
-                extend schema {
-                  subscription: SomeInputObject
-                }
-            ')
-        );
-
-        $expected = [
-            [
-                'message' => 'Query root type must be Object type, it cannot be SomeInputObject.',
-                'locations' => [[ 'line' => 2, 'column' => 13 ]],
-            ],
-            [
-                'message' => 'Mutation root type must be Object type if provided, it cannot be SomeInputObject.',
-                'locations' => [[ 'line' => 2, 'column' => 13 ]],
-            ],
-            [
-                'message' => 'Subscription root type must be Object type if provided, it cannot be SomeInputObject.',
-                'locations' => [[ 'line' => 2, 'column' => 13 ]],
-            ],
+    /**
+     * @return array<int, array{string}>
+     */
+    public function rootTypes(): array
+    {
+        return [
+            ['query'],
+            ['mutation'],
+            ['subscription'],
         ];
+    }
 
-        $this->assertMatchesValidationMessage($schema->validate(), $expected);
+    private function expectRootTypeMustBeObjectTypeNotInputType(string $rootType): void
+    {
+        $this->expectException(TypeError::class);
+        $this->expectExceptionMessageMatches('/.*GraphQL\\\\Type\\\\SchemaConfig::set' . ucfirst($rootType) . '.*GraphQL\\\\Type\\\\Definition\\\\ObjectType.*GraphQL\\\\Type\\\\Definition\\\\InputObjectType given.*/');
     }
 
     /**

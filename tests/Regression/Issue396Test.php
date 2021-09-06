@@ -20,7 +20,7 @@ use function stristr;
  */
 class Issue396Test extends TestCase
 {
-    public function testUnionResolveType()
+    public function testUnionResolveType(): void
     {
         $a = new ObjectType(['name' => 'A', 'fields' => ['name' => Type::string()]]);
         $b = new ObjectType(['name' => 'B', 'fields' => ['name' => Type::string()]]);
@@ -93,7 +93,7 @@ class Issue396Test extends TestCase
         self::assertEquals($expected, $log);
     }
 
-    public function testInterfaceResolveType()
+    public function testInterfaceResolveType(): void
     {
         $log = [];
 

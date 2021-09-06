@@ -1342,7 +1342,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Partial object, null to non-null field')
      */
-    public function testPartialObjectNullToNonNullField()
+    public function testPartialObjectNullToNonNullField(): void
     {
         $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),

@@ -91,7 +91,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('prints query with variable directives')
      */
-    public function testPrintsQueryWithVariableDirectives()
+    public function testPrintsQueryWithVariableDirectives(): void
     {
         $queryAstWithVariableDirective = Parser::parse(
             'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) { id }'
@@ -106,7 +106,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('prints fragment with variable directives')
      */
-    public function testPrintsFragmentWithVariableDirectives()
+    public function testPrintsFragmentWithVariableDirectives(): void
     {
         $queryAstWithVariableDirective = Parser::parse(
             'fragment Foo($foo: TestType @test) on TestType @testDirective { id }',

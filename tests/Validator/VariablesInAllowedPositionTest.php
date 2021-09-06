@@ -435,7 +435,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     /**
      * @see it('Int => Int! fails when variable provides null default value')
      */
-    public function testIntXIntNonNullFailsWhenVariableProvidesNullDefaultValue()
+    public function testIntXIntNonNullFailsWhenVariableProvidesNullDefaultValue(): void
     {
         $this->expectFailsRule(
             new VariablesInAllowedPosition(),
@@ -458,7 +458,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     /**
      * @see it('Int => Int! when variable provides non-null default value')
      */
-    public function testIntXIntNonNullWhenVariableProvidesNonNullDefaultValue()
+    public function testIntXIntNonNullWhenVariableProvidesNonNullDefaultValue(): void
     {
         $this->expectPassesRule(
             new VariablesInAllowedPosition(),
@@ -474,7 +474,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     /**
      * @see it('Int => Int! when optional argument provides default value')
      */
-    public function testIntXIntNonNullWhenOptionalArgumentProvidesDefaultValue()
+    public function testIntXIntNonNullWhenOptionalArgumentProvidesDefaultValue(): void
     {
         $this->expectPassesRule(
             new VariablesInAllowedPosition(),
@@ -490,7 +490,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     /**
      * @see it('Boolean => Boolean! in directive with default value with option')
      */
-    public function testBooleanXBooleanNonNullInDirectiveWithDefaultValueWithOption()
+    public function testBooleanXBooleanNonNullInDirectiveWithDefaultValueWithOption(): void
     {
         $this->expectPassesRule(
             new VariablesInAllowedPosition(),

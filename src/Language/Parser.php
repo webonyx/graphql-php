@@ -180,13 +180,11 @@ class Parser
      * @param Source|string $source
      * @param bool[]        $options
      *
-     * @return DocumentNode
-     *
      * @throws SyntaxError
      *
      * @api
      */
-    public static function parse($source, array $options = [])
+    public static function parse($source, array $options = []): DocumentNode
     {
         $parser = new self($source, $options);
 

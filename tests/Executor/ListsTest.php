@@ -45,13 +45,13 @@ class ListsTest extends TestCase
         );
     }
 
-    private function checkHandlesNullableLists($testData, $expected)
+    private function checkHandlesNullableLists($testData, $expected): void
     {
         $testType = Type::listOf(Type::int());
         $this->check($testType, $testData, $expected);
     }
 
-    private function check($testType, $testData, $expected, int $debug = DebugFlag::NONE)
+    private function check($testType, $testData, $expected, int $debug = DebugFlag::NONE): void
     {
         $data     = ['test' => $testData];
         $dataType = null;
@@ -231,7 +231,7 @@ class ListsTest extends TestCase
         );
     }
 
-    private function checkHandlesNonNullableLists($testData, $expected, int $debug = DebugFlag::NONE)
+    private function checkHandlesNonNullableLists($testData, $expected, int $debug = DebugFlag::NONE): void
     {
         $testType = Type::nonNull(Type::listOf(Type::int()));
         $this->check($testType, $testData, $expected, $debug);
@@ -388,7 +388,7 @@ class ListsTest extends TestCase
         );
     }
 
-    private function checkHandlesListOfNonNulls($testData, $expected, int $debug = DebugFlag::NONE)
+    private function checkHandlesListOfNonNulls($testData, $expected, int $debug = DebugFlag::NONE): void
     {
         $testType = Type::listOf(Type::nonNull(Type::int()));
         $this->check($testType, $testData, $expected, $debug);
@@ -556,7 +556,7 @@ class ListsTest extends TestCase
         );
     }
 
-    public function checkHandlesNonNullListOfNonNulls($testData, $expected, int $debug = DebugFlag::NONE)
+    public function checkHandlesNonNullListOfNonNulls($testData, $expected, int $debug = DebugFlag::NONE): void
     {
         $testType = Type::nonNull(Type::listOf(Type::nonNull(Type::int())));
         $this->check($testType, $testData, $expected, $debug);

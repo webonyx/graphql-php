@@ -107,10 +107,7 @@ class Lexer
         $this->position  = $this->byteStreamPosition = 0;
     }
 
-    /**
-     * @return Token
-     */
-    public function advance()
+    public function advance(): Token
     {
         $this->lastToken = $this->token;
 
@@ -130,11 +127,9 @@ class Lexer
     }
 
     /**
-     * @return Token
-     *
      * @throws SyntaxError
      */
-    private function readToken(Token $prev)
+    private function readToken(Token $prev): Token
     {
         $bodyLength = $this->source->length;
 
@@ -323,10 +318,8 @@ class Lexer
      *
      * @param int $line
      * @param int $col
-     *
-     * @return Token
      */
-    private function readName($line, $col, Token $prev)
+    private function readName($line, $col, Token $prev): Token
     {
         $value         = '';
         $start         = $this->position;
@@ -365,11 +358,9 @@ class Lexer
      * @param int $line
      * @param int $col
      *
-     * @return Token
-     *
      * @throws SyntaxError
      */
-    private function readNumber($line, $col, Token $prev)
+    private function readNumber($line, $col, Token $prev): Token
     {
         $value         = '';
         $start         = $this->position;
@@ -465,11 +456,9 @@ class Lexer
      * @param int $line
      * @param int $col
      *
-     * @return Token
-     *
      * @throws SyntaxError
      */
-    private function readString($line, $col, Token $prev)
+    private function readString($line, $col, Token $prev): Token
     {
         $start = $this->position;
 
@@ -665,7 +654,7 @@ class Lexer
         );
     }
 
-    private function assertValidStringCharacterCode($code, $position)
+    private function assertValidStringCharacterCode($code, $position): void
     {
         // SourceCharacter
         if ($code < 0x0020 && $code !== 0x0009) {
@@ -677,7 +666,7 @@ class Lexer
         }
     }
 
-    private function assertValidBlockStringCharacterCode($code, $position)
+    private function assertValidBlockStringCharacterCode($code, $position): void
     {
         // SourceCharacter
         if ($code < 0x0020 && $code !== 0x0009 && $code !== 0x000A && $code !== 0x000D) {
@@ -693,7 +682,7 @@ class Lexer
      * Reads from body starting at startPosition until it finds a non-whitespace
      * or commented character, then places cursor to the position of that character.
      */
-    private function positionAfterWhitespace()
+    private function positionAfterWhitespace(): void
     {
         while ($this->position < $this->source->length) {
             [, $code, $bytes] = $this->readChar();
@@ -728,10 +717,8 @@ class Lexer
      *
      * @param int $line
      * @param int $col
-     *
-     * @return Token
      */
-    private function readComment($line, $col, Token $prev)
+    private function readComment($line, $col, Token $prev): Token
     {
         $start = $this->position;
         $value = '';
@@ -765,7 +752,7 @@ class Lexer
      *
      * @return (string|int)[]
      */
-    private function readChar($advance = false, $byteStreamPosition = null)
+    private function readChar($advance = false, $byteStreamPosition = null): array
     {
         if ($byteStreamPosition === null) {
             $byteStreamPosition = $this->byteStreamPosition;
@@ -814,7 +801,7 @@ class Lexer
      *
      * @return (string|int)[]
      */
-    private function readChars($charCount, $advance = false, $byteStreamPosition = null)
+    private function readChars($charCount, $advance = false, $byteStreamPosition = null): array
     {
         $result     = '';
         $totalBytes = 0;
@@ -839,10 +826,8 @@ class Lexer
      *
      * @param int $positionOffset
      * @param int $byteStreamOffset
-     *
-     * @return self
      */
-    private function moveStringCursor($positionOffset, $byteStreamOffset)
+    private function moveStringCursor($positionOffset, $byteStreamOffset): self
     {
         $this->position           += $positionOffset;
         $this->byteStreamPosition += $byteStreamOffset;

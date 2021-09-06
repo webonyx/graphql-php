@@ -25,7 +25,7 @@ abstract class ValidationRule
     /**
      * @return array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
      */
-    public function __invoke(ValidationContext $context)
+    public function __invoke(ValidationContext $context): array
     {
         return $this->getVisitor($context);
     }
@@ -37,7 +37,7 @@ abstract class ValidationRule
      *
      * @return array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
      */
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return [];
     }
@@ -49,7 +49,7 @@ abstract class ValidationRule
      *
      * @return array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
      */
-    public function getSDLVisitor(SDLValidationContext $context)
+    public function getSDLVisitor(SDLValidationContext $context): array
     {
         return [];
     }

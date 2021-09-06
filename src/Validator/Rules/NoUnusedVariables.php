@@ -17,7 +17,7 @@ class NoUnusedVariables extends ValidationRule
     /** @var VariableDefinitionNode[] */
     protected array $variableDefs;
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $this->variableDefs = [];
 

@@ -34,7 +34,7 @@ abstract class QuerySecurityRule extends ValidationRule
      * @param string $name
      * @param int    $value
      */
-    protected function checkIfGreaterOrEqualToZero($name, $value)
+    protected function checkIfGreaterOrEqualToZero($name, $value): void
     {
         if ($value < 0) {
             throw new InvalidArgumentException(sprintf('$%s argument must be greater or equal to 0.', $name));
@@ -52,7 +52,7 @@ abstract class QuerySecurityRule extends ValidationRule
     /**
      * @return FragmentDefinitionNode[]
      */
-    protected function getFragments()
+    protected function getFragments(): array
     {
         return $this->fragments;
     }
@@ -62,7 +62,7 @@ abstract class QuerySecurityRule extends ValidationRule
      *
      * @return callable[]
      */
-    protected function invokeIfNeeded(ValidationContext $context, array $validators)
+    protected function invokeIfNeeded(ValidationContext $context, array $validators): array
     {
         // is disabled?
         if (! $this->isEnabled()) {
@@ -74,9 +74,9 @@ abstract class QuerySecurityRule extends ValidationRule
         return $validators;
     }
 
-    abstract protected function isEnabled();
+    abstract protected function isEnabled(): bool;
 
-    protected function gatherFragmentDefinition(ValidationContext $context)
+    protected function gatherFragmentDefinition(ValidationContext $context): void
     {
         // Gather all the fragment definition.
         // Importantly this does not include inline fragments.
@@ -101,8 +101,6 @@ abstract class QuerySecurityRule extends ValidationRule
      * @see \GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
      *
      * @param Type|null $parentType
-     *
-     * @return ArrayObject
      */
     protected function collectFieldASTsAndDefs(
         ValidationContext $context,
@@ -110,7 +108,7 @@ abstract class QuerySecurityRule extends ValidationRule
         SelectionSetNode $selectionSet,
         ?ArrayObject $visitedFragmentNames = null,
         ?ArrayObject $astAndDefs = null
-    ) {
+    ): ArrayObject {
         $_visitedFragmentNames = $visitedFragmentNames ?? new ArrayObject();
         $_astAndDefs           = $astAndDefs ?? new ArrayObject();
 
@@ -124,9 +122,11 @@ abstract class QuerySecurityRule extends ValidationRule
                         $typeMetaFieldDef     = Introspection::typeMetaFieldDef();
                         $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
 
-                        if ($fieldName === $schemaMetaFieldDef->name && $context->getSchema()->getQueryType() === $parentType) {
+                        $queryType = $context->getSchema()->getQueryType();
+
+                        if ($fieldName === $schemaMetaFieldDef->name && $queryType === $parentType) {
                             $fieldDef = $schemaMetaFieldDef;
-                        } elseif ($fieldName === $typeMetaFieldDef->name && $context->getSchema()->getQueryType() === $parentType) {
+                        } elseif ($fieldName === $typeMetaFieldDef->name && $queryType === $parentType) {
                             $fieldDef = $typeMetaFieldDef;
                         } elseif ($fieldName === $typeNameMetaFieldDef->name) {
                             $fieldDef = $typeNameMetaFieldDef;

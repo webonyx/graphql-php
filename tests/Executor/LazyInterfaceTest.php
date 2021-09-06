@@ -71,10 +71,8 @@ class LazyInterfaceTest extends TestCase
 
     /**
      * Returns the LazyInterface
-     *
-     * @return InterfaceType
      */
-    protected function getLazyInterfaceType()
+    protected function getLazyInterfaceType(): InterfaceType
     {
         return $this->lazyInterface ??= new InterfaceType([
             'name'        => 'LazyInterface',
@@ -89,10 +87,8 @@ class LazyInterfaceTest extends TestCase
 
     /**
      * Returns the test ObjectType
-     *
-     * @return ObjectType
      */
-    protected function getTestObjectType()
+    protected function getTestObjectType(): ObjectType
     {
         return $this->testObject ??= new ObjectType([
             'name'       => 'TestObject',

@@ -140,20 +140,16 @@ class QueryDepthTest extends QuerySecurityTestCase
     /**
      * @param int $max
      * @param int $count
-     *
-     * @return string
      */
-    protected function getErrorMessage($max, $count)
+    protected function getErrorMessage($max, $count): string
     {
         return QueryDepth::maxQueryDepthErrorMessage($max, $count);
     }
 
     /**
      * @param int $maxDepth
-     *
-     * @return QueryDepth
      */
-    protected function getRule($maxDepth)
+    protected function getRule($maxDepth): QueryDepth
     {
         return new QueryDepth($maxDepth);
     }

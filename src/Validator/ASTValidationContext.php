@@ -26,7 +26,7 @@ abstract class ASTValidationContext
         $this->errors = [];
     }
 
-    public function reportError(Error $error)
+    public function reportError(Error $error): void
     {
         $this->errors[] = $error;
     }
@@ -34,15 +34,12 @@ abstract class ASTValidationContext
     /**
      * @return Error[]
      */
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }
 
-    /**
-     * @return DocumentNode
-     */
-    public function getDocument()
+    public function getDocument(): DocumentNode
     {
         return $this->ast;
     }

@@ -71,7 +71,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('No arg on non-null field with default')
      */
-    public function testNoArgOnNonNullFieldWithDefault()
+    public function testNoArgOnNonNullFieldWithDefault(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArguments(),
@@ -353,7 +353,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Missing optional args on directive defined inside SDL')
      */
-    public function testMissingOptionalArgsOnDirectiveDefinedInsideSDL()
+    public function testMissingOptionalArgsOnDirectiveDefinedInsideSDL(): void
     {
         $this->expectPassesRule(
             new ProvidedRequiredArgumentsOnDirectives(),
@@ -370,7 +370,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Missing arg on directive defined inside SDL')
      */
-    public function testMissingArgOnDirectiveDefinedInsideSDL()
+    public function testMissingArgOnDirectiveDefinedInsideSDL(): void
     {
         $this->expectFailsRule(
             new ProvidedRequiredArgumentsOnDirectives(),
@@ -388,7 +388,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Missing arg on standard directive')
      */
-    public function testMissingArgOnStandardDirective()
+    public function testMissingArgOnStandardDirective(): void
     {
         $this->expectFailsRule(
             new ProvidedRequiredArgumentsOnDirectives(),
@@ -404,7 +404,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Missing arg on overrided standard directive')
      */
-    public function testMissingArgOnOverridedStandardDirective()
+    public function testMissingArgOnOverridedStandardDirective(): void
     {
         $this->expectFailsRule(
             new ProvidedRequiredArgumentsOnDirectives(),
@@ -421,7 +421,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Missing arg on directive defined in schema extension')
      */
-    public function testMissingArgOnDirectiveDefinedInSchemaExtension()
+    public function testMissingArgOnDirectiveDefinedInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
             type Query {
@@ -443,7 +443,7 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Missing arg on directive used in schema extension')
      */
-    public function testMissingArgOnDirectiveUsedInSchemaExtension()
+    public function testMissingArgOnDirectiveUsedInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
             directive @test(arg: String!) on OBJECT

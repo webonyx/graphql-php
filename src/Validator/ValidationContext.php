@@ -67,7 +67,7 @@ class ValidationContext extends ASTValidationContext
     /**
      * @return mixed[][] List of ['node' => VariableNode, 'type' => ?InputObjectType]
      */
-    public function getRecursiveVariableUsages(OperationDefinitionNode $operation)
+    public function getRecursiveVariableUsages(OperationDefinitionNode $operation): array
     {
         $usages = $this->recursiveVariableUsages[$operation] ?? null;
 
@@ -90,7 +90,7 @@ class ValidationContext extends ASTValidationContext
     /**
      * @return mixed[][] List of ['node' => VariableNode, 'type' => ?InputObjectType]
      */
-    private function getVariableUsages(HasSelectionSet $node)
+    private function getVariableUsages(HasSelectionSet $node): array
     {
         $usages = $this->variableUsages[$node] ?? null;
 
@@ -128,7 +128,7 @@ class ValidationContext extends ASTValidationContext
     /**
      * @return FragmentDefinitionNode[]
      */
-    public function getRecursivelyReferencedFragments(OperationDefinitionNode $operation)
+    public function getRecursivelyReferencedFragments(OperationDefinitionNode $operation): array
     {
         $fragments = $this->recursivelyReferencedFragments[$operation] ?? null;
 

@@ -101,7 +101,7 @@ class DocumentValidator
         DocumentNode $ast,
         ?array $rules = null,
         ?TypeInfo $typeInfo = null
-    ) {
+    ): array {
         if ($rules === null) {
             $rules = static::allRules();
         }
@@ -123,7 +123,7 @@ class DocumentValidator
      *
      * @api
      */
-    public static function allRules()
+    public static function allRules(): array
     {
         if (! self::$initRules) {
             static::$rules     = array_merge(static::defaultRules(), self::securityRules(), self::$rules);
@@ -172,7 +172,7 @@ class DocumentValidator
     /**
      * @return QuerySecurityRule[]
      */
-    public static function securityRules()
+    public static function securityRules(): array
     {
         // This way of defining rules is deprecated
         // When custom security rule is required - it should be just added via DocumentValidator::addRule();
@@ -214,7 +214,7 @@ class DocumentValidator
      *
      * @return Error[]
      */
-    public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules)
+    public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules): array
     {
         $context  = new ValidationContext($schema, $documentNode, $typeInfo);
         $visitors = [];
@@ -235,11 +235,9 @@ class DocumentValidator
      *
      * @param string $name
      *
-     * @return ValidationRule
-     *
      * @api
      */
-    public static function getRule($name)
+    public static function getRule($name): ?ValidationRule
     {
         $rules = static::allRules();
 
@@ -257,7 +255,7 @@ class DocumentValidator
      *
      * @api
      */
-    public static function addRule(ValidationRule $rule)
+    public static function addRule(ValidationRule $rule): void
     {
         self::$rules[$rule->getName()] = $rule;
     }
@@ -296,7 +294,7 @@ class DocumentValidator
         DocumentNode $documentAST,
         ?Schema $schemaToExtend = null,
         ?array $rules = null
-    ) {
+    ): array {
         $usedRules = $rules ?? self::sdlRules();
         $context   = new SDLValidationContext($documentAST, $schemaToExtend);
         $visitors  = [];
@@ -309,7 +307,7 @@ class DocumentValidator
         return $context->getErrors();
     }
 
-    public static function assertValidSDL(DocumentNode $documentAST)
+    public static function assertValidSDL(DocumentNode $documentAST): void
     {
         $errors = self::validateSDL($documentAST);
         if (count($errors) > 0) {
@@ -317,7 +315,7 @@ class DocumentValidator
         }
     }
 
-    public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
+    public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema): void
     {
         $errors = self::validateSDL($documentAST, $schema);
         if (count($errors) > 0) {

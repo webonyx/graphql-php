@@ -348,11 +348,9 @@ class Visitor
     /**
      * Returns marker for visitor break
      *
-     * @return VisitorOperation
-     *
      * @api
      */
-    public static function stop()
+    public static function stop(): VisitorOperation
     {
         $r          = new VisitorOperation();
         $r->doBreak = true;
@@ -363,11 +361,9 @@ class Visitor
     /**
      * Returns marker for skipping current node
      *
-     * @return VisitorOperation
-     *
      * @api
      */
-    public static function skipNode()
+    public static function skipNode(): VisitorOperation
     {
         $r             = new VisitorOperation();
         $r->doContinue = true;
@@ -378,11 +374,9 @@ class Visitor
     /**
      * Returns marker for removing a node
      *
-     * @return VisitorOperation
-     *
      * @api
      */
-    public static function removeNode()
+    public static function removeNode(): VisitorOperation
     {
         $r             = new VisitorOperation();
         $r->removeNode = true;
@@ -395,7 +389,7 @@ class Visitor
      *
      * @return array<string, callable>
      */
-    public static function visitInParallel($visitors)
+    public static function visitInParallel($visitors): array
     {
         $visitorsCount = count($visitors);
         $skipping      = new SplFixedArray($visitorsCount);

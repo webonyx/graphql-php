@@ -22,7 +22,7 @@ use function sprintf;
 
 class PossibleFragmentSpreads extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return [
             NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context): void {

@@ -8,7 +8,7 @@ use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 
 class UniqueDirectivesPerLocationTest extends ValidatorTestCase
 {
-    private function expectSDLErrors($sdlString, $schema = null, $errors = [])
+    private function expectSDLErrors($sdlString, $schema = null, $errors = []): void
     {
         $this->expectSDLErrorsFromRule(new UniqueDirectivesPerLocation(), $sdlString, $schema, $errors);
     }
@@ -209,7 +209,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     /**
      * @see it('duplicate directives on SDL definitions')
      */
-    public function testDuplicateDirectivesOnSDLDefinitions()
+    public function testDuplicateDirectivesOnSDLDefinitions(): void
     {
         $this->expectSDLErrors(
             '

@@ -377,7 +377,7 @@ extend type Hello {
         );
     }
 
-    private function expectSyntaxError($text, $message, $location)
+    private function expectSyntaxError($text, $message, $location): void
     {
         $this->expectException(SyntaxError::class);
         $this->expectExceptionMessage($message);

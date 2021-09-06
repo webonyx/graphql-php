@@ -81,7 +81,7 @@ class VisitorTest extends ValidatorTestCase
     /**
      * @see it('validates ancestors argument')
      */
-    public function testValidatesAncestorsArgument()
+    public function testValidatesAncestorsArgument(): void
     {
         $ast          = Parser::parse('{ a }', ['noLocation' => true]);
         $visitedNodes = [];
@@ -112,7 +112,7 @@ class VisitorTest extends ValidatorTestCase
         ]);
     }
 
-    private function checkVisitorFnArgs($ast, $args, $isEdited = false)
+    private function checkVisitorFnArgs($ast, $args, $isEdited = false): void
     {
         /** @var Node $node */
         [$node, $key, $parent, $path, $ancestors] = $args;

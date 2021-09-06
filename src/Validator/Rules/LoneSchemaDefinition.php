@@ -26,7 +26,7 @@ class LoneSchemaDefinition extends ValidationRule
         return 'Cannot define a new schema within a schema extension.';
     }
 
-    public function getSDLVisitor(SDLValidationContext $context)
+    public function getSDLVisitor(SDLValidationContext $context): array
     {
         $oldSchema      = $context->getSchema();
         $alreadyDefined = $oldSchema !== null

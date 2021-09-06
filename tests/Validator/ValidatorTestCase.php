@@ -38,10 +38,7 @@ abstract class ValidatorTestCase extends TestCase
         );
     }
 
-    /**
-     * @return Schema
-     */
-    public static function getTestSchema()
+    public static function getTestSchema(): Schema
     {
         $FurColor = null;
 
@@ -450,7 +447,7 @@ abstract class ValidatorTestCase extends TestCase
         $this->expectInvalid(self::getTestSchema(), DocumentValidator::allRules(), $queryString, $errors);
     }
 
-    protected function expectSDLErrorsFromRule($rule, $sdlString, ?Schema $schema = null, $errors = [])
+    protected function expectSDLErrorsFromRule($rule, $sdlString, ?Schema $schema = null, $errors = []): void
     {
         $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
         self::assertEquals(

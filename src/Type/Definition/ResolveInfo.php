@@ -184,7 +184,7 @@ class ResolveInfo
      *
      * @api
      */
-    public function getFieldSelection($depth = 0)
+    public function getFieldSelection($depth = 0): array
     {
         $fields = [];
 

@@ -84,36 +84,16 @@ class SchemaValidationContext
 
     public function validateRootTypes(): void
     {
-        $queryType = $this->schema->getQueryType();
-        if ($queryType === null) {
+        if ($this->schema->getQueryType() === null) {
             $this->reportError(
                 'Query root type must be provided.',
                 $this->schema->getAstNode()
             );
-        } elseif (! $queryType instanceof ObjectType) {
-            $this->reportError(
-                'Query root type must be Object type, it cannot be ' . Utils::printSafe($queryType) . '.',
-                $this->getOperationTypeNode($queryType, 'query')
-            );
         }
 
-        $mutationType = $this->schema->getMutationType();
-        if ($mutationType !== null && ! $mutationType instanceof ObjectType) {
-            $this->reportError(
-                'Mutation root type must be Object type if provided, it cannot be ' . Utils::printSafe($mutationType) . '.',
-                $this->getOperationTypeNode($mutationType, 'mutation')
-            );
-        }
-
-        $subscriptionType = $this->schema->getSubscriptionType();
-        if ($subscriptionType === null || $subscriptionType instanceof ObjectType) {
-            return;
-        }
-
-        $this->reportError(
-            'Subscription root type must be Object type if provided, it cannot be ' . Utils::printSafe($subscriptionType) . '.',
-            $this->getOperationTypeNode($subscriptionType, 'subscription')
-        );
+        // Triggers a type error if wrong
+        $this->schema->getMutationType();
+        $this->schema->getSubscriptionType();
     }
 
     /**
@@ -378,7 +358,7 @@ class SchemaValidationContext
     /**
      * @param NodeList<DirectiveNode> $directives
      */
-    private function validateDirectivesAtLocation(NodeList $directives, string $location)
+    private function validateDirectivesAtLocation(NodeList $directives, string $location): void
     {
         /** @var array<string, array<int, DirectiveNode>> $potentiallyDuplicateDirectives */
         $potentiallyDuplicateDirectives = [];

@@ -29,7 +29,7 @@ class VariablesInAllowedPosition extends ValidationRule
      */
     protected array $varDefMap;
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return [
             NodeKind::OPERATION_DEFINITION => [

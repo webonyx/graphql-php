@@ -607,11 +607,14 @@ class ReferenceExecutor implements ExecutorImplementation
         $schemaMetaFieldDef   ??= Introspection::schemaMetaFieldDef();
         $typeMetaFieldDef     ??= Introspection::typeMetaFieldDef();
         $typeNameMetaFieldDef ??= Introspection::typeNameMetaFieldDef();
-        if ($fieldName === $schemaMetaFieldDef->name && $schema->getQueryType() === $parentType) {
+
+        $queryType = $schema->getQueryType();
+
+        if ($fieldName === $schemaMetaFieldDef->name && $queryType === $parentType) {
             return $schemaMetaFieldDef;
         }
 
-        if ($fieldName === $typeMetaFieldDef->name && $schema->getQueryType() === $parentType) {
+        if ($fieldName === $typeMetaFieldDef->name && $queryType === $parentType) {
             return $typeMetaFieldDef;
         }
 
@@ -1156,14 +1159,12 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param array<mixed> $result
-     *
-     * @return Error
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
         $result,
         ArrayObject $fieldNodes
-    ) {
+    ): Error {
         return new Error(
             'Expected value of type "' . $returnType->name . '" but got: ' . Utils::printSafe($result) . '.',
             $fieldNodes

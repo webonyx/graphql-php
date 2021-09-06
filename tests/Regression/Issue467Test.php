@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class Issue467Test extends TestCase
 {
-    public function testInputObjectValidation()
+    public function testInputObjectValidation(): void
     {
         $schemaStr = '
 input MsgInput {

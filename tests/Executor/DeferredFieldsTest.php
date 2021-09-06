@@ -548,7 +548,7 @@ class DeferredFieldsTest extends TestCase
         }
     }
 
-    public function testDeferredChaining()
+    public function testDeferredChaining(): void
     {
         $schema = new Schema([
             'query' => $this->queryType,

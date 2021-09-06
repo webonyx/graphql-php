@@ -22,7 +22,7 @@ class NoUnusedFragments extends ValidationRule
     /** @var FragmentDefinitionNode[] */
     protected array $fragmentDefs;
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         $this->operationDefs = [];
         $this->fragmentDefs  = [];

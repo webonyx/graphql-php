@@ -82,7 +82,7 @@ class SyncPromiseAdapterTest extends TestCase
         self::assertValidPromise($promise, null, 'A', SyncPromise::FULFILLED);
     }
 
-    private static function assertValidPromise($promise, $expectedNextReason, $expectedNextValue, $expectedNextState)
+    private static function assertValidPromise($promise, $expectedNextReason, $expectedNextValue, $expectedNextState): void
     {
         self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
         self::assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);

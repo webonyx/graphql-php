@@ -21,12 +21,12 @@ class UniqueArgumentNames extends ValidationRule
     /** @var NameNode[] */
     protected array $knownArgNames;
 
-    public function getSDLVisitor(SDLValidationContext $context)
+    public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
