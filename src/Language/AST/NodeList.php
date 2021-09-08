@@ -32,8 +32,8 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * @param array<Node|array<string, mixed>> $nodes
-     * @phpstan-param array<T|array<string, mixed>> $nodes
      *
+     * @phpstan-param array<T|array<string, mixed>> $nodes
      * @phpstan-return self<T>
      */
     public static function create(array $nodes): self
@@ -43,6 +43,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * @param array<Node|array> $nodes
+     *
      * @phpstan-param array<T|array<string, mixed>> $nodes
      */
     public function __construct(array $nodes)
@@ -90,6 +91,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * @param int|string|null           $offset
      * @param Node|array<string, mixed> $value
+     *
      * @phpstan-param T|array<string, mixed> $value
      */
     #[ReturnTypeWillChange]
@@ -134,8 +136,8 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * @param NodeList|array<Node|array<string, mixed>> $list
-     * @phpstan-param NodeList<T>|array<T> $list
      *
+     * @phpstan-param NodeList<T>|array<T> $list
      * @phpstan-return NodeList<T>
      */
     public function merge($list): NodeList

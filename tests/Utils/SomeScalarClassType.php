@@ -16,6 +16,7 @@ class SomeScalarClassType extends ScalarType
     {
         return $value;
     }
+
     public function parseValue($value): string
     {
         return $value;

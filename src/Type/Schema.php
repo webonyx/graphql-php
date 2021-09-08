@@ -395,10 +395,9 @@ class Schema
 
     /**
      * @param Type|callable $type
+     *
      * @phpstan-param T|callable():T $type
-     *
      * @phpstan-return T
-     *
      * @template T of Type
      */
     public static function resolveType($type): Type
