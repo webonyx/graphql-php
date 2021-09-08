@@ -44,17 +44,14 @@ use function trim;
 
 class SchemaExtenderTest extends TestCase
 {
-    /** @var Schema */
-    protected $testSchema;
+    protected Schema $testSchema;
 
-    /** @var string[] */
-    protected $testSchemaDefinitions;
+    /** @var array<int, string> */
+    protected array $testSchemaDefinitions;
 
-    /** @var ObjectType */
-    protected $FooType;
+    protected ObjectType $FooType;
 
-    /** @var Directive */
-    protected $FooDirective;
+    protected Directive $FooDirective;
 
     public function setUp(): void
     {
@@ -69,7 +66,7 @@ class SchemaExtenderTest extends TestCase
         ]);
 
         //Class definition.
-        $SomeClassScalarType = new SomeScalarClassType();
+        $SomeScalarClassType = new SomeScalarClassType();
 
         $SomeInterfaceType = new InterfaceType([
             'name' => 'SomeInterface',
@@ -171,11 +168,11 @@ class SchemaExtenderTest extends TestCase
         $this->testSchema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'fields' => static function () use ($FooType, $SomeScalarType, $SomeClassScalarType, $SomeUnionType, $SomeEnumType, $SomeInterfaceType, $SomeInputType): array {
+                'fields' => static function () use ($FooType, $SomeScalarType, $SomeScalarClassType, $SomeUnionType, $SomeEnumType, $SomeInterfaceType, $SomeInputType): array {
                     return [
                         'foo' => [ 'type' => $FooType ],
                         'someScalar' => [ 'type' => $SomeScalarType ],
-                        'SomeScalarClass' => [ 'type' => $SomeClassScalarType ],
+                        'someScalarClass' => [ 'type' => $SomeScalarClassType ],
                         'someUnion' => [ 'type' => $SomeUnionType ],
                         'someEnum' => [ 'type' => $SomeEnumType ],
                         'someInterface' => [
@@ -2114,21 +2111,21 @@ extend type Query {
 
     /**
      * Tests both custom inline and class scalar definitions.
-     * 
+     *
      * Ensures the correct instance is maintained before and after schema extension.
-     * Should probably be incorporated into testExtendsWithoutAlteringOriginalSchema(). 
+     * Should probably be incorporated into testExtendsWithoutAlteringOriginalSchema().
      */
     public function testExtendsWithoutAlteringOriginalScalarTypes(): void
     {
-        $extendedSchema = $this->extendTestSchema('
+        $extendedSchema = $this->extendTestSchema(/** @lang GraphQL */ '
           extend type Foo {
             bar: Bar
           }
         ');
 
-        $someScalar = $this->testSchema->getType('SomeScalar');
-        $someScalarClass = $this->testSchema->getType('SomeScalarClass');
-        $extendedSomeScalar = $extendedSchema->getType('SomeScalar');
+        $someScalar              = $this->testSchema->getType('SomeScalar');
+        $someScalarClass         = $this->testSchema->getType('SomeScalarClass');
+        $extendedSomeScalar      = $extendedSchema->getType('SomeScalar');
         $extendedSomeScalarClass = $extendedSchema->getType('SomeScalarClass');
 
         self::assertInstanceOf(CustomScalarType::class, $someScalar);
