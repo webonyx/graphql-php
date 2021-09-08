@@ -60,12 +60,16 @@ class SchemaExtenderTest extends TestCase
     {
         parent::setUp();
 
+        //Inline definition.
         $SomeScalarType = new CustomScalarType([
             'name' => 'SomeScalar',
             'serialize' => static function ($x) {
                 return $x;
             },
         ]);
+
+        //Class definition.
+        $SomeClassScalarType = new SomeScalarClassType();
 
         $SomeInterfaceType = new InterfaceType([
             'name' => 'SomeInterface',
@@ -167,10 +171,11 @@ class SchemaExtenderTest extends TestCase
         $this->testSchema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'fields' => static function () use ($FooType, $SomeScalarType, $SomeUnionType, $SomeEnumType, $SomeInterfaceType, $SomeInputType): array {
+                'fields' => static function () use ($FooType, $SomeScalarType, $SomeClassScalarType, $SomeUnionType, $SomeEnumType, $SomeInterfaceType, $SomeInputType): array {
                     return [
                         'foo' => [ 'type' => $FooType ],
                         'someScalar' => [ 'type' => $SomeScalarType ],
+                        'SomeScalarClass' => [ 'type' => $SomeClassScalarType ],
                         'someUnion' => [ 'type' => $SomeUnionType ],
                         'someEnum' => [ 'type' => $SomeEnumType ],
                         'someInterface' => [
@@ -2105,5 +2110,30 @@ extend type Query {
         $result = GraphQL::executeQuery($extendedSchema, $query);
 
         self::assertSame(['data' => ['hello' => 'Hello World!', 'foo' => ['value' => 'bar']]], $result->toArray());
+    }
+
+    /**
+     * Tests both custom inline and class scalar definitions.
+     * 
+     * Ensures the correct instance is maintained before and after schema extension.
+     * Should probably be incorporated into testExtendsWithoutAlteringOriginalSchema(). 
+     */
+    public function testExtendsWithoutAlteringOriginalScalarTypes(): void
+    {
+        $extendedSchema = $this->extendTestSchema('
+          extend type Foo {
+            bar: Bar
+          }
+        ');
+
+        $someScalar = $this->testSchema->getType('SomeScalar');
+        $someScalarClass = $this->testSchema->getType('SomeScalarClass');
+        $extendedSomeScalar = $extendedSchema->getType('SomeScalar');
+        $extendedSomeScalarClass = $extendedSchema->getType('SomeScalarClass');
+
+        self::assertInstanceOf(CustomScalarType::class, $someScalar);
+        self::assertInstanceOf(SomeScalarClassType::class, $someScalarClass);
+        self::assertInstanceOf(CustomScalarType::class, $extendedSomeScalar);
+        self::assertInstanceOf(SomeScalarClassType::class, $extendedSomeScalarClass);
     }
 }
