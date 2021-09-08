@@ -1545,7 +1545,7 @@ class SchemaExtenderTest extends TestCase
         $queryType      = $extendedSchema->getQueryType();
 
         self::assertEquals('Foo', $queryType->name);
-        self::assertEquals($extensionSDL, $this->printASTSchema($schema));
+        self::assertEquals($extensionSDL, $this->printASTSchema($extendedSchema));
     }
 
     /**
