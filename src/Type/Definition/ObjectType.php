@@ -161,16 +161,16 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
     }
 
     /**
-     * @param mixed $value
-     * @param mixed $context
+     * @param mixed $objectValue The resolved value for the object type
+     * @param mixed $context     The context that was passed to GraphQL::execute
      *
      * @return bool|Deferred|null
      */
-    public function isTypeOf($value, $context, ResolveInfo $info)
+    public function isTypeOf($objectValue, $context, ResolveInfo $info)
     {
         return isset($this->config['isTypeOf'])
             ? $this->config['isTypeOf'](
-                $value,
+                $objectValue,
                 $context,
                 $info
             )

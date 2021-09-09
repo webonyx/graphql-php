@@ -810,7 +810,7 @@ Starting from v0.7.0 the signature has changed to (note the new `$context` argum
 /**
  * @param mixed $object The parent resolved object
  * @param array $args Input arguments
- * @param mixed $context The context object hat was passed to GraphQL::execute
+ * @param mixed $context The context object that was passed to GraphQL::execute
  * @param ResolveInfo $info ResolveInfo object
  * @return mixed
  */

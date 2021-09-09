@@ -12,12 +12,12 @@ UnionType;
 interface AbstractType
 {
     /**
-     * Resolves concrete ObjectType for given object value
+     * Resolves the concrete ObjectType for the given value.
      *
-     * @param object  $objectValue
-     * @param mixed[] $context
+     * @param mixed $objectValue The resolved value for the object type
+     * @param mixed $context     The context that was passed to GraphQL::execute
      *
-     * @return mixed
+     * @return ObjectType|callable(): ObjectType|null
      */
     public function resolveType($objectValue, $context, ResolveInfo $info);
 }

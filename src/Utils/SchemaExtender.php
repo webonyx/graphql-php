@@ -133,10 +133,10 @@ class SchemaExtender
         return new CustomScalarType([
             'name' => $type->name,
             'description' => $type->description,
-            'astNode' => $type->astNode,
             'serialize' => [$type, 'serialize'],
             'parseValue' => [$type, 'parseValue'],
             'parseLiteral' => [$type, 'parseLiteral'],
+            'astNode' => $type->astNode,
             'extensionASTNodes' => static::getExtensionASTNodes($type),
         ]);
     }
@@ -146,9 +146,9 @@ class SchemaExtender
         return new UnionType([
             'name' => $type->name,
             'description' => $type->description,
-            'types' => static fn (): array => static::extendPossibleTypes($type),
+            'types' => static fn (): array => static::extendUnionPossibleTypes($type),
+            'resolveType' => [$type, 'resolveType'],
             'astNode' => $type->astNode,
-            'resolveType' => $type->config['resolveType'] ?? null,
             'extensionASTNodes' => static::getExtensionASTNodes($type),
         ]);
     }
@@ -158,7 +158,7 @@ class SchemaExtender
         return new EnumType([
             'name' => $type->name,
             'description' => $type->description,
-            'values' => static::extendValueMap($type),
+            'values' => static::extendEnumValueMap($type),
             'astNode' => $type->astNode,
             'extensionASTNodes' => static::getExtensionASTNodes($type),
         ]);
@@ -217,7 +217,7 @@ class SchemaExtender
     /**
      * @return array<string, array<string, mixed>>
      */
-    protected static function extendValueMap(EnumType $type): array
+    protected static function extendEnumValueMap(EnumType $type): array
     {
         $newValueMap = [];
         /** @var EnumValueDefinition[] $oldValueMap */
@@ -257,7 +257,7 @@ class SchemaExtender
     /**
      * @return array<int, Type> Should be ObjectType, will be caught in schema validation
      */
-    protected static function extendPossibleTypes(UnionType $type): array
+    protected static function extendUnionPossibleTypes(UnionType $type): array
     {
         $possibleTypes = array_map(
             [static::class, 'extendNamedType'],
@@ -369,8 +369,8 @@ class SchemaExtender
                 'deprecationReason' => $field->deprecationReason,
                 'type' => static::extendType($field->getType()),
                 'args' => static::extendArgs($field->args),
-                'astNode' => $field->astNode,
                 'resolve' => $field->resolveFn,
+                'astNode' => $field->astNode,
             ];
         }
 
@@ -399,10 +399,10 @@ class SchemaExtender
             'description' => $type->description,
             'interfaces' => static fn (): array => static::extendImplementedInterfaces($type),
             'fields' => static fn (): array => static::extendFieldMap($type),
+            'isTypeOf' => [$type, 'isTypeOf'],
+            'resolveField' => $type->resolveFieldFn ?? null,
             'astNode' => $type->astNode,
             'extensionASTNodes' => static::getExtensionASTNodes($type),
-            'isTypeOf' => $type->config['isTypeOf'] ?? null,
-            'resolveField' => $type->resolveFieldFn ?? null,
         ]);
     }
 
@@ -413,9 +413,9 @@ class SchemaExtender
             'description' => $type->description,
             'interfaces' => static fn (): array => static::extendImplementedInterfaces($type),
             'fields' => static fn (): array => static::extendFieldMap($type),
+            'resolveType' => [$type, 'resolveType'],
             'astNode' => $type->astNode,
             'extensionASTNodes' => static::getExtensionASTNodes($type),
-            'resolveType' => $type->config['resolveType'] ?? null,
         ]);
     }
 
@@ -509,8 +509,8 @@ class SchemaExtender
             'description' => $directive->description,
             'locations' => $directive->locations,
             'args' => static::extendArgs($directive->args),
-            'astNode' => $directive->astNode,
             'isRepeatable' => $directive->isRepeatable,
+            'astNode' => $directive->astNode,
         ]);
     }
 
