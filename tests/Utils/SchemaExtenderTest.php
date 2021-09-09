@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\DefinitionNode;
@@ -21,6 +22,7 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
@@ -52,13 +54,12 @@ class SchemaExtenderTest extends TestCase
     protected ObjectType $FooType;
 
     protected Directive $FooDirective;
-    
+
     /** @var CustomScalarType */
     protected $SomeScalarType;
 
     /** @var SomeScalarClassType */
-    protected $SomeClassScalarType;
-
+    protected $SomeScalarClassType;
 
     public function setUp(): void
     {
@@ -207,10 +208,10 @@ class SchemaExtenderTest extends TestCase
             return Printer::doPrint($node);
         }, iterator_to_array($testSchemaAst->definitions->getIterator()));
 
-        $this->FooDirective             = $FooDirective;
-        $this->FooType                  = $FooType;
-        $this->SomeClassScalarType      = $SomeClassScalarType;
-        $this->SomeScalarType           = $SomeScalarType;
+        $this->FooDirective        = $FooDirective;
+        $this->FooType             = $FooType;
+        $this->SomeScalarClassType = $SomeScalarClassType;
+        $this->SomeScalarType      = $SomeScalarType;
     }
 
     protected function dedent(string $str): string
@@ -2120,65 +2121,74 @@ extend type Query {
 
     /**
      * Tests both custom inline and class scalar definitions.
-     *
      */
     public function testUseOriginalScalarTypes(): void
     {
-
         $queryType = new ObjectType([
-          'name' => 'Query',
-          'fields' => [
-            'someScalar' => [ 'type' => $this->SomeScalarType ],
-            'someScalarClass' => [ 'type' => $this->SomeClassScalarType ],
-          ],
-          'resolveField' => static function (): string {
-              return '';
-          },
-      ]);
+            'name' => 'Query',
+            'fields' => [
+                'someScalar' => [ 'type' => $this->SomeScalarType ],
+                'someScalarClass' => [ 'type' => $this->SomeScalarClassType ],
+            ],
+            'resolveField' => static fn (): string => '',
+        ]);
 
-      $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema(['query' => $queryType]);
 
-        $documentNode = Parser::parse('
-        type Foo { 
-          someScalar: SomeScalar
-          someScalarClass: SomeScalarClass
+        $documentNode = Parser::parse(/** @lang GraphQL */ '
+        type Foo {
+            someScalar: SomeScalar
+            someScalarClass: SomeScalarClass
         }
-          extend type Query {
-            foo:Foo
-            }
-          
+        
+        extend type Query {
+            foo: Foo
+        }
         ');
 
-        $typeConfigDecorator = static function ($typeConfig) {
-          switch ($typeConfig['name']) {
-              case 'Foo':
-                $typeConfig['resolveField'] = function ($user, $args, $context,  $info) {
-                  switch ($info->fieldName) {
-                      case 'someScalar':
-                            return 'someScalar';
-                            break;
-                      case 'someScalarClass':
-                        return 'someScalarClass';
-                        break;
-                    }
-                };
-                  break;
-          }
+        $typeConfigDecorator = static function (array $typeConfig): array {
+            switch ($typeConfig['name']) {
+                case 'Foo':
+                    $typeConfig['resolveField'] = static function ($user, array $args, $context, ResolveInfo $info): string {
+                        switch ($info->fieldName) {
+                            case 'someScalar':
+                                return 'someScalar';
 
-          return $typeConfig;
+                            case 'someScalarClass':
+                                return 'someScalarClass';
+
+                            default:
+                                throw new Exception('Unexpected field: ' . $info->fieldName);
+                        }
+                    };
+            }
+
+            return $typeConfig;
         };
 
-        $extendedSchema = SchemaExtender::extend($schema, $documentNode, [],$typeConfigDecorator);
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode, [], $typeConfigDecorator);
 
-        $query  = '{ 
+        $query = /** @lang GraphQL */'
+        {
             foo {
               someScalar
               someScalarClass
             }
-        }';
+        }
+        ';
 
         $result = GraphQL::executeQuery($extendedSchema, $query);
 
-        self::assertSame(['data' => [ 'foo' => ['someScalar' => 'someScalar', 'someScalarClass' => 'someScalarClass']]], $result->toArray());
+        self::assertSame(
+            [
+                'data' => [
+                    'foo' => [
+                        'someScalar' => 'someScalar',
+                        'someScalarClass' => 'someScalarClass',
+                    ],
+                ],
+            ],
+            $result->toArray()
+        );
     }
 }
