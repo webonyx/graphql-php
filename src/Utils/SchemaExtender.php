@@ -134,9 +134,9 @@ class SchemaExtender
             'name' => $type->name,
             'description' => $type->description,
             'astNode' => $type->astNode,
-            'serialize' => static fn (...$args) => $type->serialize(...$args) ?? null,
-            'parseValue' => static fn (...$args) => $type->parseValue(...$args) ?? null,
-            'parseLiteral' => static fn (...$args) => $type->parseLiteral(...$args) ?? null,
+            'serialize' => [$type, 'serialize'],
+            'parseValue' => [$type, 'parseValue'],
+            'parseLiteral' => [$type, 'parseLiteral'],
             'extensionASTNodes' => static::getExtensionASTNodes($type),
         ]);
     }
