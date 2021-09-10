@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GraphQL\Tests\Utils;
+namespace GraphQL\Tests\Utils\SchemaExtenderTest;
 
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\ScalarType;
