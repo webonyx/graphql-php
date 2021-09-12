@@ -108,7 +108,7 @@ class ASTDefinitionBuilder
         if (isset($this->options['commentDescriptions'])) {
             $rawValue = $this->getLeadingCommentBlock($node);
             if ($rawValue !== null) {
-                return BlockString::value("\n" . $rawValue);
+                return BlockString::dedentValue("\n" . $rawValue);
             }
         }
 

@@ -21,7 +21,7 @@ class BlockString
      *
      * This implements the GraphQL spec's BlockStringValue() static algorithm.
      */
-    public static function value($rawString)
+    public static function dedentValue(string $rawString): string
     {
         // Expand a block string's raw value into independent lines.
         $lines = preg_split("/\\r\\n|[\\n\\r]/", $rawString);

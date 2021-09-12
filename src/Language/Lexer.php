@@ -613,7 +613,7 @@ class Lexer
                         $line,
                         $col,
                         $prev,
-                        BlockString::value($value)
+                        BlockString::dedentValue($value)
                     );
                 }
 
