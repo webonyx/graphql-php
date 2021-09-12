@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace GraphQL\Language;
 
-use function array_pop;
-use function array_shift;
+use GraphQL\Utils\Utils;
+
+use function array_slice;
 use function count;
 use function implode;
 use function mb_strlen;
 use function mb_substr;
 use function preg_split;
-use function trim;
 
 class BlockString
 {
     /**
      * Produces the value of a block string from its parsed raw value, similar to
-     * Coffeescript's block string, Python's docstring trim or Ruby's strip_heredoc.
+     * CoffeeScript's block string, Python's docstring trim or Ruby's strip_heredoc.
      *
      * This implements the GraphQL spec's BlockStringValue() static algorithm.
      */
@@ -27,27 +27,10 @@ class BlockString
         $lines = preg_split("/\\r\\n|[\\n\\r]/", $rawString);
 
         // Remove common indentation from all lines but first.
-        $commonIndent = null;
+        $commonIndent = self::getIndentation($rawString);
         $linesLength  = count($lines);
 
-        for ($i = 1; $i < $linesLength; $i++) {
-            $line   = $lines[$i];
-            $indent = self::leadingWhitespace($line);
-
-            if (
-                $indent >= mb_strlen($line) ||
-                ($commonIndent !== null && $indent >= $commonIndent)
-            ) {
-                continue;
-            }
-
-            $commonIndent = $indent;
-            if ($commonIndent === 0) {
-                break;
-            }
-        }
-
-        if ($commonIndent) {
+        if ($commonIndent > 0) {
             for ($i = 1; $i < $linesLength; $i++) {
                 $line      = $lines[$i];
                 $lines[$i] = mb_substr($line, $commonIndent);
@@ -55,25 +38,69 @@ class BlockString
         }
 
         // Remove leading and trailing blank lines.
-        while (count($lines) > 0 && trim($lines[0], " \t") === '') {
-            array_shift($lines);
+        $startLine = 0;
+        while ($startLine < $linesLength && self::isBlank($lines[$startLine])) {
+            ++$startLine;
         }
 
-        while (count($lines) > 0 && trim($lines[count($lines) - 1], " \t") === '') {
-            array_pop($lines);
+        $endLine = $linesLength;
+        while ($endLine > $startLine && self::isBlank($lines[$endLine - 1])) {
+            --$endLine;
         }
 
         // Return a string of the lines joined with U+000A.
-        return implode("\n", $lines);
+        return implode("\n", array_slice($lines, $startLine, $endLine - $startLine));
     }
 
-    private static function leadingWhitespace($str)
+    private static function isBlank(string $str): bool
     {
-        $i = 0;
-        while ($i < mb_strlen($str) && ($str[$i] === ' ' || $str[$i] === '\t')) {
-            $i++;
+        $strLength = mb_strlen($str);
+        for ($i = 0; $i < $strLength; ++$i) {
+            if ($str[$i] !== ' ' && $str[$i] !== '\t') {
+                return false;
+            }
         }
 
-        return $i;
+        return true;
+    }
+
+    public static function getIndentation(string $value): int
+    {
+        $isFirstLine  = true;
+        $isEmptyLine  = true;
+        $indent       = 0;
+        $commonIndent = null;
+        $valueLength  = mb_strlen($value);
+
+        for ($i = 0; $i < $valueLength; ++$i) {
+            switch (Utils::charCodeAt($value, $i)) {
+                case 13: //  \r
+                    if (Utils::charCodeAt($value, $i + 1) === 10) {
+                        ++$i; // skip \r\n as one symbol
+                    }
+                // falls through
+                case 10: //  \n
+                    $isFirstLine = false;
+                    $isEmptyLine = true;
+                    $indent      = 0;
+                    break;
+                case 9: //   \t
+                case 32: //  <space>
+                    ++$indent;
+                    break;
+                default:
+                    if (
+                        $isEmptyLine &&
+                        ! $isFirstLine &&
+                        ($commonIndent === null || $indent < $commonIndent)
+                    ) {
+                        $commonIndent = $indent;
+                    }
+
+                    $isEmptyLine = false;
+            }
+        }
+
+        return $commonIndent ?? 0;
     }
 }
