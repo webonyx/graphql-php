@@ -852,63 +852,6 @@ type Query {
     }
 
     /**
-     * @see it('Does not one-line print a description that ends with a quote')
-     */
-    public function testDoesNotOneLinePrintADescriptionThatEndsWithAQuote(): void
-    {
-        $description = 'This field is "awesome"';
-        $output      = $this->printSingleFieldSchema([
-            'type'        => Type::string(),
-            'description' => $description,
-        ]);
-
-        self::assertEquals(
-            '
-type Query {
-  """
-  This field is "awesome"
-  """
-  singleField: String
-}
-',
-            $output
-        );
-
-        /** @var ObjectType $recreatedRoot */
-        $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
-        $recreatedField = $recreatedRoot->getFields()['singleField'];
-        self::assertEquals($description, $recreatedField->description);
-    }
-
-    /**
-     * @see it('Preserves leading spaces when printing a description')
-     */
-    public function testPReservesLeadingSpacesWhenPrintingADescription(): void
-    {
-        $description = '    This field is "awesome"';
-        $output      = $this->printSingleFieldSchema([
-            'type'        => Type::string(),
-            'description' => $description,
-        ]);
-
-        self::assertEquals(
-            '
-type Query {
-  """    This field is "awesome"
-  """
-  singleField: String
-}
-',
-            $output
-        );
-
-        /** @var ObjectType $recreatedRoot */
-        $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
-        $recreatedField = $recreatedRoot->getFields()['singleField'];
-        self::assertEquals($description, $recreatedField->description);
-    }
-
-    /**
      * @see it('Print Introspection Schema')
      */
     public function testPrintIntrospectionSchema(): void
