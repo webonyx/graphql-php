@@ -14,7 +14,7 @@ class Str
      * Fixes indentation. Also removes leading newlines
      * and trailing spaces and tabs, but keeps trailing newlines.
      *
-     * Example usage:
+     * @example
      * $str = Str::dedent('
      *   {
      *     test
