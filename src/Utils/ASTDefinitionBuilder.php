@@ -23,6 +23,7 @@ use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\BlockString;
 use GraphQL\Language\Token;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -107,7 +108,7 @@ class ASTDefinitionBuilder
         if (isset($this->options['commentDescriptions'])) {
             $rawValue = $this->getLeadingCommentBlock($node);
             if ($rawValue !== null) {
-                return BlockString::value("\n" . $rawValue);
+                return BlockString::dedentValue("\n" . $rawValue);
             }
         }
 
