@@ -255,4 +255,12 @@ class BlockStringTest extends TestCase
             BlockString::print($str)
         );
     }
+
+    public function testCorrectlyPrintsEmptyString(): void
+    {
+        $str = '';
+
+        self::assertEquals('""""""', BlockString::print($str));
+        self::assertEquals("\"\"\"\n\n\"\"\"", BlockString::print($str, '', true));
+    }
 }
