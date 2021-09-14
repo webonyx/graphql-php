@@ -12,8 +12,8 @@ use function implode;
 use function mb_strlen;
 use function mb_substr;
 use function preg_split;
-use function str_contains;
 use function str_replace;
+use function strpos;
 
 class BlockString
 {
@@ -117,7 +117,7 @@ class BlockString
         bool $preferMultipleLines = false
     ): string {
         $valueLength          = mb_strlen($value);
-        $isSingleLine         = ! str_contains($value, "\n");
+        $isSingleLine         = strpos($value, "\n") === false;
         $hasLeadingSpace      = $value[0] === ' ' || $value[0] === '\t';
         $hasTrailingQuote     = $value[$valueLength - 1] === '"';
         $hasTrailingSlash     = $value[$valueLength - 1] === '\\';
