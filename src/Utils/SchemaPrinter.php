@@ -235,11 +235,6 @@ class SchemaPrinter
         return $description;
     }
 
-    protected static function escapeQuote(string $line): string
-    {
-        return str_replace('"""', '\\"""', $line);
-    }
-
     /**
      * @param array<string, bool>       $options
      * @param array<int, FieldArgument> $args
