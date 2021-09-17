@@ -21,23 +21,22 @@ use PHPUnit\Framework\TestCase;
 
 class SchemaPrinterTest extends TestCase
 {
-    /** @param array<string, mixed> $fieldConfig */
-    private function printSingleFieldSchema(array $fieldConfig): string
-    {
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => ['singleField' => $fieldConfig],
-        ]);
-
-        return $this->printForTest(new Schema(['query' => $query]));
-    }
-
-    private function printForTest(Schema $schema): string
+    private static function assertPrintedSchemaEquals(string $expected, Schema $schema): void
     {
         $schemaText = SchemaPrinter::doPrint($schema);
         self::assertEquals($schemaText, SchemaPrinter::doPrint(BuildSchema::build($schemaText)));
+        self::assertEquals($expected, $schemaText);
+    }
 
-        return $schemaText;
+    /** @param array<string, mixed> $fieldConfig */
+    private function buildSingleFieldSchema(array $fieldConfig): Schema
+    {
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => ['singleField' => $fieldConfig],
+        ]);
+
+        return new Schema(['query' => $query]);
     }
 
     // Describe: Type System Printer
@@ -47,17 +46,17 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsStringField(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField: String
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -66,17 +65,17 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintArrayStringField(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::listOf(Type::string()),
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField: [String]
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -85,17 +84,17 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintNonNullStringField(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::nonNull(Type::string()),
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField: String!
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -104,17 +103,17 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintNonNullArrayStringField(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::nonNull(Type::listOf(Type::string())),
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField: [String]!
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -123,17 +122,17 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintArrayNonNullStringField(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::listOf(Type::nonNull(Type::string())),
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField: [String!]
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -142,17 +141,17 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintNonNullArrayNonNullStringField(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string()))),
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField: [String!]!
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -163,18 +162,18 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintDeprecatedField(?string $deprecationReason, string $expectedDeprecationDirective): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::int(),
             'deprecationReason' => $deprecationReason,
         ]);
-        self::assertSame(
+        self::assertPrintedSchemaEquals(
             <<<GQL
             type Query {
               singleField: Int$expectedDeprecationDirective
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -210,26 +209,16 @@ class SchemaPrinterTest extends TestCase
             'name'   => 'Foo',
             'fields' => ['str' => ['type' => Type::string()]],
         ]);
+        $schema  = new Schema(['types' => [$fooType]]);
 
-        $root = new ObjectType([
-            'name'   => 'Query',
-            'fields' => ['foo' => ['type' => $fooType]],
-        ]);
-
-        $schema = new Schema(['query' => $root]);
-        $output = $this->printForTest($schema);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Foo {
               str: String
             }
 
-            type Query {
-              foo: Foo
-            }
-
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -238,18 +227,18 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsStringFieldWithIntArg(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::int()]],
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField(argOne: Int): String
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -258,18 +247,18 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsStringFieldWithIntArgWithDefault(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => 2]],
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField(argOne: Int = 2): String
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -278,18 +267,18 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsStringFieldWithStringArgWithDefault(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::string(), 'defaultValue' => "tes\t de\fault"]],
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField(argOne: String = "tes\t de\fault"): String
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -298,18 +287,18 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsStringFieldWithIntArgWithDefaultNull(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => null]],
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField(argOne: Int = null): String
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -318,18 +307,18 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsStringFieldWithNonNullIntArg(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::nonNull(Type::int())]],
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField(argOne: Int!): String
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -338,21 +327,21 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsStringFieldWithMultipleArgs(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => [
                 'argOne' => ['type' => Type::int()],
                 'argTwo' => ['type' => Type::string()],
             ],
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField(argOne: Int, argTwo: String): String
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -361,7 +350,7 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsStringFieldWithMultipleArgsFirstIsDefault(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => [
                 'argOne'   => ['type' => Type::int(), 'defaultValue' => 1],
@@ -369,14 +358,14 @@ class SchemaPrinterTest extends TestCase
                 'argThree' => ['type' => Type::boolean()],
             ],
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField(argOne: Int = 1, argTwo: String, argThree: Boolean): String
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -385,7 +374,7 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsStringFieldWithMultipleArgsSecondIsDefault(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => [
                 'argOne'   => ['type' => Type::int()],
@@ -393,14 +382,14 @@ class SchemaPrinterTest extends TestCase
                 'argThree' => ['type' => Type::boolean()],
             ],
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField(argOne: Int, argTwo: String = "foo", argThree: Boolean): String
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -409,7 +398,7 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsStringFieldWithMultipleArgsLastIsDefault(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => [
                 'argOne'   => ['type' => Type::int()],
@@ -417,40 +406,79 @@ class SchemaPrinterTest extends TestCase
                 'argThree' => ['type' => Type::boolean(), 'defaultValue' => false],
             ],
         ]);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               singleField(argOne: Int, argTwo: String, argThree: Boolean = false): String
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
     /**
-     * @see it('Prints custom query root type')
+     * @see it('Prints custom query root types')
      */
-    public function testPrintsCustomQueryRootType(): void
+    public function testPrintsCustomQueryRootTypes(): void
     {
-        $customQueryType = new ObjectType([
-            'name'   => 'CustomQueryType',
-            'fields' => ['bar' => ['type' => Type::string()]],
+        $schema = new Schema([
+            'query' => new ObjectType(['name' => 'CustomType', 'fields' => []]),
         ]);
 
-        $schema   = new Schema(['query' => $customQueryType]);
-        $output   = $this->printForTest($schema);
         $expected = <<<'GQL'
             schema {
-              query: CustomQueryType
+              query: CustomType
             }
 
-            type CustomQueryType {
-              bar: String
-            }
+            type CustomType
 
             GQL;
-        self::assertEquals($expected, $output);
+        self::assertPrintedSchemaEquals($expected, $schema);
+    }
+
+    /**
+     * @see it('Prints custom mutation root types')
+     */
+    public function testPrintsCustomMutationRootTypes(): void
+    {
+        $schema = new Schema([
+            'mutation' => new ObjectType(['name' => 'CustomType', 'fields' => []]),
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GQL'
+            schema {
+              mutation: CustomType
+            }
+
+            type CustomType
+
+            GQL,
+            $schema
+        );
+    }
+
+    /**
+     * @see it('Prints custom subscription root types')
+     */
+    public function testPrintsCustomSubscriptionRootTypes(): void
+    {
+        $schema = new Schema([
+            'subscription' => new ObjectType(['name' => 'CustomType', 'fields' => []]),
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GQL'
+            schema {
+              subscription: CustomType
+            }
+
+            type CustomType
+
+            GQL,
+            $schema
+        );
     }
 
     /**
@@ -469,17 +497,9 @@ class SchemaPrinterTest extends TestCase
             'interfaces' => [$fooType],
         ]);
 
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => ['bar' => ['type' => $barType]],
-        ]);
+        $schema = new Schema(['types' => [$barType]]);
 
-        $schema = new Schema([
-            'query' => $query,
-            'types' => [$barType],
-        ]);
-        $output = $this->printForTest($schema);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Bar implements Foo {
               str: String
@@ -489,12 +509,8 @@ class SchemaPrinterTest extends TestCase
               str: String
             }
 
-            type Query {
-              bar: Bar
-            }
-
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -522,17 +538,9 @@ class SchemaPrinterTest extends TestCase
             'interfaces' => [$fooType, $baazType],
         ]);
 
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => ['bar' => ['type' => $barType]],
-        ]);
+        $schema = new Schema(['types' => [$barType]]);
 
-        $schema = new Schema([
-            'query' => $query,
-            'types' => [$barType],
-        ]);
-        $output = $this->printForTest($schema);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             interface Baaz {
               int: Int
@@ -547,12 +555,8 @@ class SchemaPrinterTest extends TestCase
               str: String
             }
 
-            type Query {
-              bar: Bar
-            }
-
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -593,8 +597,8 @@ class SchemaPrinterTest extends TestCase
             'query' => $query,
             'types' => [$BarType],
         ]);
-        $output = $this->printForTest($schema);
-        self::assertEquals(
+
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             interface Baaz implements Foo {
               int: Int
@@ -615,7 +619,7 @@ class SchemaPrinterTest extends TestCase
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -644,17 +648,9 @@ class SchemaPrinterTest extends TestCase
             'types' => [$fooType, $barType],
         ]);
 
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => [
-                'single'   => ['type' => $singleUnion],
-                'multiple' => ['type' => $multipleUnion],
-            ],
-        ]);
+        $schema = new Schema(['types' => [$singleUnion, $multipleUnion]]);
 
-        $schema = new Schema(['query' => $query]);
-        $output = $this->printForTest($schema);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Bar {
               str: String
@@ -666,15 +662,10 @@ class SchemaPrinterTest extends TestCase
 
             union MultipleUnion = Foo | Bar
 
-            type Query {
-              single: SingleUnion
-              multiple: MultipleUnion
-            }
-
             union SingleUnion = Foo
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -688,30 +679,16 @@ class SchemaPrinterTest extends TestCase
             'fields' => ['int' => ['type' => Type::int()]],
         ]);
 
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => [
-                'str' => [
-                    'type' => Type::string(),
-                    'args' => ['argOne' => ['type' => $inputType]],
-                ],
-            ],
-        ]);
+        $schema = new Schema(['types' => [$inputType]]);
 
-        $schema = new Schema(['query' => $query]);
-        $output = $this->printForTest($schema);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             input InputType {
               int: Int
             }
 
-            type Query {
-              str(argOne: InputType): String
-            }
-
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -720,32 +697,16 @@ class SchemaPrinterTest extends TestCase
      */
     public function testCustomScalar(): void
     {
-        $oddType = new CustomScalarType([
-            'name'      => 'Odd',
-            'serialize' => static function ($value) {
-                return $value % 2 === 1 ? $value : null;
-            },
-        ]);
+        $oddType = new CustomScalarType(['name' => 'Odd']);
 
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => [
-                'odd' => ['type' => $oddType],
-            ],
-        ]);
+        $schema = new Schema(['types' => [$oddType]]);
 
-        $schema = new Schema(['query' => $query]);
-        $output = $this->printForTest($schema);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             scalar Odd
 
-            type Query {
-              odd: Odd
-            }
-
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -757,27 +718,16 @@ class SchemaPrinterTest extends TestCase
         $RGBType = new EnumType([
             'name'   => 'RGB',
             'values' => [
-                'RED'   => ['value' => 0],
-                'GREEN' => ['value' => 1],
-                'BLUE'  => ['value' => 2],
+                'RED'   => [],
+                'GREEN' => [],
+                'BLUE'  => [],
             ],
         ]);
 
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => [
-                'rgb' => ['type' => $RGBType],
-            ],
-        ]);
+        $schema = new Schema(['types' => [$RGBType]]);
 
-        $schema = new Schema(['query' => $query]);
-        $output = $this->printForTest($schema);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
-            type Query {
-              rgb: RGB
-            }
-
             enum RGB {
               RED
               GREEN
@@ -785,7 +735,7 @@ class SchemaPrinterTest extends TestCase
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -804,8 +754,7 @@ class SchemaPrinterTest extends TestCase
             ],
         ]);
 
-        $output = $this->printForTest($schema);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
             enum SomeEnum
 
@@ -818,7 +767,7 @@ class SchemaPrinterTest extends TestCase
             union SomeUnion
 
             GRAPHQL,
-            $output
+            $schema
         );
     }
 
@@ -827,33 +776,17 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsCustomDirectives(): void
     {
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                ],
-            ],
-        ]);
-
         $simpleDirective = new Directive([
             'name'      => 'simpleDirective',
-            'locations' => [
-                DirectiveLocation::FIELD,
-            ],
+            'locations' => [DirectiveLocation::FIELD],
         ]);
 
         $complexDirective = new Directive([
             'name'      => 'complexDirective',
             'description' => 'Complex Directive',
             'args' => [
-                'stringArg' => [
-                    'type' => Type::string(),
-                ],
-                'intArg' => [
-                    'type' => Type::int(),
-                    'defaultValue' => -1,
-                ],
+                'stringArg' => ['type' => Type::string()],
+                'intArg' => ['type' => Type::int(), 'defaultValue' => -1],
             ],
             'isRepeatable' => true,
             'locations' => [
@@ -863,24 +796,18 @@ class SchemaPrinterTest extends TestCase
         ]);
 
         $schema = new Schema([
-            'query'      => $query,
             'directives' => [$simpleDirective, $complexDirective],
         ]);
 
-        $output = $this->printForTest($schema);
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             directive @simpleDirective on FIELD
 
             """Complex Directive"""
             directive @complexDirective(stringArg: String, intArg: Int = -1) repeatable on FIELD | QUERY
 
-            type Query {
-              field: String
-            }
-
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -889,12 +816,12 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintsAnEmptyDescription(): void
     {
-        $output = $this->printSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type'        => Type::string(),
             'description' => '',
         ]);
 
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               """"""
@@ -902,7 +829,7 @@ class SchemaPrinterTest extends TestCase
             }
 
             GQL,
-            $output
+            $schema
         );
     }
 
@@ -912,12 +839,12 @@ class SchemaPrinterTest extends TestCase
     public function testOneLinePrintsAShortDescription(): void
     {
         $description = 'This field is awesome';
-        $output      = $this->printSingleFieldSchema([
+        $schema      = $this->buildSingleFieldSchema([
             'type'        => Type::string(),
             'description' => $description,
         ]);
 
-        self::assertEquals(
+        self::assertPrintedSchemaEquals(
             <<<'GQL'
             type Query {
               """This field is awesome"""
@@ -925,13 +852,8 @@ class SchemaPrinterTest extends TestCase
             }
 
             GQL,
-            $output
+            $schema
         );
-
-        /** @var ObjectType $recreatedRoot */
-        $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
-        $recreatedField = $recreatedRoot->getFields()['singleField'];
-        self::assertEquals($description, $recreatedField->description);
     }
 
     /**
@@ -939,16 +861,9 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintIntrospectionSchema(): void
     {
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => [
-                'onlyField' => ['type' => Type::string()],
-            ],
-        ]);
-
-        $schema              = new Schema(['query' => $query]);
-        $output              = SchemaPrinter::printIntrospectionSchema($schema);
-        $introspectionSchema = <<<'GQL'
+        $schema   = new Schema([]);
+        $output   = SchemaPrinter::printIntrospectionSchema($schema);
+        $expected = <<<'GQL'
             """
             Directs the executor to include this field or fragment only when the `if` argument is true.
             """
@@ -1159,7 +1074,7 @@ class SchemaPrinterTest extends TestCase
             }
 
             GQL;
-        self::assertEquals($introspectionSchema, $output);
+        self::assertEquals($expected, $output);
     }
 
     /**
@@ -1167,19 +1082,12 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintIntrospectionSchemaWithCommentDescriptions(): void
     {
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => [
-                'onlyField' => ['type' => Type::string()],
-            ],
-        ]);
-
-        $schema              = new Schema(['query' => $query]);
-        $output              = SchemaPrinter::printIntrospectionSchema(
+        $schema   = new Schema([]);
+        $output   = SchemaPrinter::printIntrospectionSchema(
             $schema,
             ['commentDescriptions' => true]
         );
-        $introspectionSchema = <<<'GQL'
+        $expected = <<<'GQL'
             # Directs the executor to include this field or fragment only when the `if` argument is true.
             directive @include(
               # Included when true.
@@ -1376,6 +1284,6 @@ class SchemaPrinterTest extends TestCase
             }
 
             GQL;
-        self::assertEquals($introspectionSchema, $output);
+        self::assertEquals($expected, $output);
     }
 }
