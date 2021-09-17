@@ -151,7 +151,7 @@ type Query {
     }
 
     /**
-     * @see it('Prints Field With "@deprecated" Directive')
+     * @see https://github.com/webonyx/graphql-php/pull/631
      *
      * @dataProvider deprecationReasonDataProvider
      */
