@@ -21,6 +21,25 @@ use PHPUnit\Framework\TestCase;
 
 class SchemaPrinterTest extends TestCase
 {
+    /** @param array<string, mixed> $fieldConfig */
+    private function printSingleFieldSchema(array $fieldConfig): string
+    {
+        $query = new ObjectType([
+            'name'   => 'Query',
+            'fields' => ['singleField' => $fieldConfig],
+        ]);
+
+        return $this->printForTest(new Schema(['query' => $query]));
+    }
+
+    private function printForTest(Schema $schema): string
+    {
+        $schemaText = SchemaPrinter::doPrint($schema);
+        self::assertEquals($schemaText, SchemaPrinter::doPrint(BuildSchema::build($schemaText)));
+
+        return "\n" . $schemaText;
+    }
+
     // Describe: Type System Printer
 
     /**
@@ -39,24 +58,6 @@ type Query {
 ',
             $output
         );
-    }
-
-    private function printSingleFieldSchema($fieldConfig)
-    {
-        $query = new ObjectType([
-            'name'   => 'Query',
-            'fields' => ['singleField' => $fieldConfig],
-        ]);
-
-        return $this->printForTest(new Schema(['query' => $query]));
-    }
-
-    private function printForTest($schema)
-    {
-        $schemaText = SchemaPrinter::doPrint($schema);
-        self::assertEquals($schemaText, SchemaPrinter::doPrint(BuildSchema::build($schemaText)));
-
-        return "\n" . $schemaText;
     }
 
     /**
