@@ -11,6 +11,7 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -366,21 +367,10 @@ class SchemaPrinter
      */
     protected static function printObject(ObjectType $type, array $options): string
     {
-        $interfaces            = $type->getInterfaces();
-        $implementedInterfaces = count($interfaces) > 0
-            ? ' implements ' . implode(
-                ' & ',
-                array_map(
-                    static function (InterfaceType $interface): string {
-                        return $interface->name;
-                    },
-                    $interfaces
-                )
-            )
-            : '';
-
         return static::printDescription($options, $type) .
-            sprintf("type %s%s {\n%s\n}", $type->name, $implementedInterfaces, static::printFields($options, $type));
+            sprintf('type %s', $type->name) .
+            self::printImplementedInterfaces($type) .
+            static::printFields($options, $type);
     }
 
     /**
@@ -390,19 +380,21 @@ class SchemaPrinter
     protected static function printFields(array $options, $type): string
     {
         $fields = array_values($type->getFields());
-
-        return implode(
-            "\n",
-            array_map(
-                static function (FieldDefinition $f, int $i) use ($options): string {
-                    return static::printDescription($options, $f, '  ', $i === 0) . '  ' .
-                        $f->name . static::printArgs($options, $f->args, '  ') . ': ' .
-                        (string) $f->getType() . static::printDeprecated($f);
-                },
-                $fields,
-                array_keys($fields)
-            )
+        $fields = array_map(
+            static function (FieldDefinition $f, int $i) use ($options): string {
+                return static::printDescription($options, $f, '  ', $i === 0) .
+                    '  ' .
+                    $f->name .
+                    static::printArgs($options, $f->args, '  ') .
+                    ': ' .
+                    (string) $f->getType() .
+                    static::printDeprecated($f);
+            },
+            $fields,
+            array_keys($fields)
         );
+
+        return self::printBlock($fields);
     }
 
     /**
@@ -423,26 +415,30 @@ class SchemaPrinter
             Printer::doPrint(AST::astFromValue($reason, Type::string())) . ')';
     }
 
+    protected static function printImplementedInterfaces(ImplementingType $type): string
+    {
+        $interfaces = $type->getInterfaces();
+
+        return count($interfaces) > 0
+        ? ' implements ' . implode(
+            ' & ',
+            array_map(
+                static fn (InterfaceType $interface): string => $interface->name,
+                $interfaces
+            )
+        )
+        : '';
+    }
+
     /**
      * @param array<string, bool> $options
      */
     protected static function printInterface(InterfaceType $type, array $options): string
     {
-        $interfaces            = $type->getInterfaces();
-        $implementedInterfaces = count($interfaces) > 0
-            ? ' implements ' . implode(
-                ' & ',
-                array_map(
-                    static function (InterfaceType $interface): string {
-                        return $interface->name;
-                    },
-                    $interfaces
-                )
-            )
-            : '';
-
         return static::printDescription($options, $type) .
-            sprintf("interface %s%s {\n%s\n}", $type->name, $implementedInterfaces, static::printFields($options, $type));
+            sprintf('interface %s', $type->name) .
+            self::printImplementedInterfaces($type) .
+            static::printFields($options, $type);
     }
 
     /**
@@ -450,8 +446,10 @@ class SchemaPrinter
      */
     protected static function printUnion(UnionType $type, array $options): string
     {
-        return static::printDescription($options, $type) .
-            sprintf('union %s = %s', $type->name, implode(' | ', $type->getTypes()));
+        $types = $type->getTypes();
+        $types = count($types) > 0 ? ' = ' . implode(' | ', $types) : '';
+
+        return static::printDescription($options, $type) . 'union ' . $type->name . $types;
     }
 
     /**
@@ -459,27 +457,21 @@ class SchemaPrinter
      */
     protected static function printEnum(EnumType $type, array $options): string
     {
-        return static::printDescription($options, $type) .
-            sprintf("enum %s {\n%s\n}", $type->name, static::printEnumValues($type->getValues(), $options));
-    }
-
-    /**
-     * @param array<int, EnumValueDefinition> $values
-     * @param array<string, bool>             $options
-     */
-    protected static function printEnumValues(array $values, array $options): string
-    {
-        return implode(
-            "\n",
-            array_map(
-                static function (EnumValueDefinition $value, int $i) use ($options): string {
-                    return static::printDescription($options, $value, '  ', $i === 0) . '  ' .
-                        $value->name . static::printDeprecated($value);
-                },
-                $values,
-                array_keys($values)
-            )
+        $values = $type->getValues();
+        $values = array_map(
+            static function (EnumValueDefinition $value, int $i) use ($options): string {
+                return static::printDescription($options, $value, '  ', $i === 0) .
+                    '  ' .
+                    $value->name .
+                    static::printDeprecated($value);
+            },
+            $values,
+            array_keys($values)
         );
+
+        return static::printDescription($options, $type) .
+            sprintf('enum %s', $type->name) .
+            static::printBlock($values);
     }
 
     /**
@@ -488,22 +480,17 @@ class SchemaPrinter
     protected static function printInputObject(InputObjectType $type, array $options): string
     {
         $fields = array_values($type->getFields());
+        $fields = array_map(
+            static function ($f, $i) use ($options): string {
+                return static::printDescription($options, $f, '  ', ! $i) . '  ' . static::printInputValue($f);
+            },
+            $fields,
+            array_keys($fields)
+        );
 
         return static::printDescription($options, $type) .
-            sprintf(
-                "input %s {\n%s\n}",
-                $type->name,
-                implode(
-                    "\n",
-                    array_map(
-                        static function ($f, $i) use ($options): string {
-                            return static::printDescription($options, $f, '  ', ! $i) . '  ' . static::printInputValue($f);
-                        },
-                        $fields,
-                        array_keys($fields)
-                    )
-                )
-            );
+            sprintf('input %s', $type->name) .
+            static::printBlock($fields);
     }
 
     /**
@@ -519,5 +506,13 @@ class SchemaPrinter
             [Introspection::class, 'isIntrospectionType'],
             $options
         );
+    }
+
+    /**
+     * @param array<string> $items
+     */
+    protected static function printBlock(array $items): string
+    {
+        return count($items) > 0 ? " {\n" . implode("\n", $items) . "\n}" : '';
     }
 }
