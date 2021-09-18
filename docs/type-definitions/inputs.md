@@ -2,6 +2,7 @@
 The GraphQL specification defines Input Object Type for complex inputs. It is similar to ObjectType
 except that it's fields have no **args** or **resolve** options and their **type** must be input type.
 
+## Writing Input Object Types
 In graphql-php **Input Object Type** is an instance of `GraphQL\Type\Definition\InputObjectType` 
 (or one of its subclasses) which accepts configuration array in its constructor:
 
@@ -31,7 +32,7 @@ $filters = new InputObjectType([
 
 Every field may be of other InputObjectType (thus complex hierarchies of inputs are possible)
 
-# Configuration options
+## Configuration options
 The constructor of InputObjectType accepts an array with only 3 options:
  
 Option       | Type     | Notes
@@ -49,7 +50,7 @@ type | `Type` | **Required.** Instance of one of [Input Types](inputs.md) (**Sca
 description | `string` | Plain-text description of this input field for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 defaultValue | `scalar` | Default value of this input field. Use the internal value if specifying a default for an **enum** type
 
-# Using Input Object Type
+## Using Input Object Type
 In the example above we defined our InputObjectType. Now let's use it in one of field arguments:
 
 ```php

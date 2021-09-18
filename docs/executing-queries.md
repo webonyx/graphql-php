@@ -1,5 +1,4 @@
-# Using Facade Method
-
+## Using Facade Method
 Query execution is a complex process involving multiple steps, including query **parsing**,
 **validating** and finally **executing** against your [schema](schema-definition.md).
 
@@ -34,6 +33,7 @@ Returned array contains **data** and **errors** keys, as described by the
 This array is suitable for further serialization (e.g. using **json_encode**).
 See also the section on [error handling and formatting](error-handling.md).
 
+### Method arguments
 Description of **executeQuery** method arguments:
 
 | Argument        | Type                                                          | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -47,7 +47,7 @@ Description of **executeQuery** method arguments:
 | fieldResolver   | `callable`                                                    | A resolver function to use when one is not provided by the schema. If not provided, the [default field resolver is used](data-fetching.md#default-field-resolver).                                                                                                                                                                                                                                                                       |
 | validationRules | `array`                                                       | A set of rules for query validation step. The default value is all available rules. Empty array would allow skipping query validation (may be convenient for persisted queries which are validated before persisting and assumed valid during execution)                                                                                                                                                                                 |
 
-# Using Server
+## Using Server
 
 If you are building HTTP GraphQL API, you may prefer our Standard Server
 (compatible with [express-graphql](https://github.com/graphql/express-graphql)).
@@ -94,7 +94,7 @@ PSR-7 is useful when you want to integrate the server into existing framework:
 - [Slim](https://www.slimframework.com/docs/v4/concepts/value-objects.html)
 - [Zend Expressive](http://zendframework.github.io/zend-expressive/)
 
-## Server configuration options
+### Server configuration options
 
 | Argument              | Type                                                                        | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | --------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -110,7 +110,7 @@ PSR-7 is useful when you want to integrate the server into existing framework:
 | errorsHandler         | `callable`                                                                  | Custom errors handler. See [error handling docs](error-handling.md#custom-error-handling-and-formatting).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | promiseAdapter        | [`PromiseAdapter`](class-reference.md#graphqlexecutorpromisepromiseadapter) | Required for [Async PHP](data-fetching.md#async-php) only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
-**Server config instance**
+#### Using config class
 
 If you prefer fluid interface for config with autocomplete in IDE and static time validation,
 use [`GraphQL\Server\ServerConfig`](class-reference.md#graphqlserverserverconfig) instead of an array:
@@ -162,7 +162,7 @@ $server = new StandardServer([
 ]);
 ```
 
-# Custom Validation Rules
+## Custom Validation Rules
 
 Before execution, a query is validated using a set of standard rules defined by the GraphQL spec.
 It is possible to override standard set of rules globally or per execution.

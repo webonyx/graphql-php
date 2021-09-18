@@ -1,4 +1,4 @@
-# Built-in directives
+## Built-in directives
 The directive is a way for a client to give GraphQL server additional context and hints on how to execute
 the query. The directive can be attached to a field or fragment and can affect the execution of the 
 query in any way the server desires.
@@ -23,7 +23,7 @@ Here if **$withFriends** variable is set to **false** - friends section will be 
 from the response. Important implementation detail: those fields will never be executed 
 (not just removed from response after execution).
 
-# Custom directives
+## Custom directives
 **graphql-php** supports custom directives even though their presence does not affect the execution of fields.
 You can use [`GraphQL\Type\Definition\ResolveInfo`](../class-reference.md#graphqltypedefinitionresolveinfo) 
 in field resolvers to modify the output depending on those directives or perform statistics collection.
