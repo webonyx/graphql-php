@@ -85,7 +85,7 @@ function renderClass(ReflectionClass $class, $options) {
 
     if (!empty($options['constants'])) {
         $constants = $class->getConstants();
-        $constants = array_map('renderConstant', $constants);
+        $constants = array_map('renderConstant', $constants, array_keys($constants));
         if (!empty($constants)) {
             $constants = "```php\n" . implode("\n", $constants) . "\n```";
             $content .= "**$label Constants:** \n$constants\n\n";
