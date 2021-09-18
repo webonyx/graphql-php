@@ -113,7 +113,7 @@ function renderClass(ReflectionClass $class, $options) {
     }
 
     return <<<TEMPLATE
-# {$class->getName()}
+## {$class->getName()}
 {$classDocs}
 
 $content
