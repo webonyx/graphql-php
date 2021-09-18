@@ -23,6 +23,6 @@
 ## GraphQL Clients
 
 - [GraphiQL](https://github.com/graphql/graphiql) – Graphical interactive in-browser GraphQL IDE
-- [GraphQL Playground](https://github.com/prismagraphql/graphql-playground) – GraphQL IDE for better development workflows (GraphQL Subscriptions, interactive docs & collaboration)
+- [GraphQL Playground](https://github.com/graphql/graphql-playground) – GraphQL IDE for better development workflows (GraphQL Subscriptions, interactive docs & collaboration)
 - [Altair GraphQL Client](https://altair.sirmuel.design) - Beautiful feature-rich GraphQL Client for all platforms
 - [Sailor](https://github.com/spawnia/sailor) - Typesafe GraphQL client for PHP
