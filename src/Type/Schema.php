@@ -125,9 +125,6 @@ class Schema
         $this->config            = $config;
         $this->extensionASTNodes = $config->extensionASTNodes;
 
-        // TODO can we make the following assumption hold true?
-        // No need to check for the existence of the root query type
-        // since we already validated the schema thus it must exist.
         $query = $config->query;
         if ($query !== null) {
             $this->resolvedTypes[$query->name] = $query;

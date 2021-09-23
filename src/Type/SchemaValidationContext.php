@@ -84,14 +84,8 @@ class SchemaValidationContext
 
     public function validateRootTypes(): void
     {
-        if ($this->schema->getQueryType() === null) {
-            $this->reportError(
-                'Query root type must be provided.',
-                $this->schema->getAstNode()
-            );
-        }
-
         // Triggers a type error if wrong
+        $this->schema->getQueryType();
         $this->schema->getMutationType();
         $this->schema->getSubscriptionType();
     }

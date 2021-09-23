@@ -608,16 +608,6 @@ class ReferenceExecutor implements ExecutorImplementation
         $typeMetaFieldDef     ??= Introspection::typeMetaFieldDef();
         $typeNameMetaFieldDef ??= Introspection::typeNameMetaFieldDef();
 
-        $queryType = $schema->getQueryType();
-
-        if ($fieldName === $schemaMetaFieldDef->name && $queryType === $parentType) {
-            return $schemaMetaFieldDef;
-        }
-
-        if ($fieldName === $typeMetaFieldDef->name && $queryType === $parentType) {
-            return $typeMetaFieldDef;
-        }
-
         if ($fieldName === $typeNameMetaFieldDef->name) {
             return $typeNameMetaFieldDef;
         }

@@ -29,12 +29,7 @@ class IntrospectionTest extends TestCase
      */
     public function testExecutesAnIntrospectionQuery(): void
     {
-        $emptySchema = new Schema([
-            'query' => new ObjectType([
-                'name'   => 'QueryRoot',
-                'fields' => ['a' => Type::string()],
-            ]),
-        ]);
+        $emptySchema = new Schema([]);
 
         $request  = Introspection::getIntrospectionQuery([
             'descriptions' => false,
@@ -47,32 +42,9 @@ class IntrospectionTest extends TestCase
                         [
                             'mutationType'     => null,
                             'subscriptionType' => null,
-                            'queryType'        =>
-                                ['name' => 'QueryRoot'],
+                            'queryType'        => null,
                             'types'            =>
                                 [
-                                    [
-                                        'kind'          => 'OBJECT',
-                                        'name'          => 'QueryRoot',
-                                        'inputFields'   => null,
-                                        'interfaces'    =>
-                                            [],
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                        'fields'        => [
-                                            [
-                                                'name'              => 'a',
-                                                'args'              => [],
-                                                'type'              => [
-                                                    'kind'   => 'SCALAR',
-                                                    'name'   => 'String',
-                                                    'ofType' => null,
-                                                ],
-                                                'isDeprecated'      => false,
-                                                'deprecationReason' => null,
-                                            ],
-                                        ],
-                                    ],
                                     [
                                         'kind'          => 'SCALAR',
                                         'name'          => 'String',
