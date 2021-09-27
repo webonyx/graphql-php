@@ -54,15 +54,27 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     public function getField(string $name): InputObjectField
     {
-        if (! isset($this->fields)) {
-            $this->initializeFields();
+        $field = $this->findField($name);
+
+        Utils::invariant($field !== null, 'Field "%s" is not defined for type "%s"', $name, $this->name);
+
+        return $field;
+    }
+
+    public function findField(string $name): ?InputObjectField
+    {
+        if (! $this->hasField($name)) {
+            return null;
         }
 
-        Utils::invariant(isset($this->fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
-
-        $this->initializeField($name);
-
         return $this->fields[$name];
+    }
+
+    public function hasField(string $name): bool
+    {
+        $this->initializeFields();
+
+        return isset($this->fields[$name]);
     }
 
     /**
@@ -72,9 +84,6 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
-            foreach ($this->fields as $name => $_) {
-                $this->initializeField($name);
-            }
         }
 
         return $this->fields;
@@ -82,6 +91,10 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     protected function initializeFields(): void
     {
+        if (isset($this->fields)) {
+            return;
+        }
+
         $fields = $this->config['fields'] ?? [];
         if (is_callable($fields)) {
             $fields = $fields();
@@ -93,26 +106,42 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             );
         }
 
-        $this->fields = $fields;
+        $this->fields = [];
+        foreach ($fields as $name => $field) {
+            $this->initializeField($name, $field);
+        }
     }
 
-    protected function initializeField(string $name): void
+    /**
+     * @param int|string                      $name
+     * @param InputObjectField|array|callable $field
+     */
+    protected function initializeField($name, $field): void
     {
-        $field = $this->fields[$name];
-        if ($field instanceof InputObjectField) {
-            return;
-        }
-
         if (is_callable($field)) {
             $field = $field();
         }
 
-        if ($field instanceof Type || is_callable($field)) {
+        if (is_array($field)) {
+            if (! isset($field['name'])) {
+                if (! is_string($name)) {
+                    throw new InvariantViolation(
+                        sprintf(
+                            '%s fields must be an associative array with field names as keys or a function which returns such an array.',
+                            $this->name
+                        )
+                    );
+                }
+
+                $field['name'] = $name;
+            }
+        } elseif ($field instanceof Type || is_callable($field)) {
             $field = ['type' => $field];
         }
 
-        $field               = new InputObjectField($field + ['name' => $name]);
-        $this->fields[$name] = $field;
+        $inputObjectField = new InputObjectField($field + ['name' => $name]);
+
+        $this->fields[$inputObjectField->name] = $inputObjectField;
     }
 
     /**
