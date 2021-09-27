@@ -926,6 +926,23 @@ class DefinitionTest extends TestCase
     }
 
     /**
+     * @see it('rejects an InputObject type with incorrectly typed fields')
+     */
+    public function testRejectsAnInputObjectTypeWithIncorrectlyTypedFields(): void
+    {
+        $objType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [['field' => Type::string()]],
+        ]);
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeInputObject fields must be an associative array with field names as keys or a ' .
+            'function which returns such an array.'
+        );
+        $objType->getFields();
+    }
+
+    /**
      * @see it('rejects an Object type with a field function that returns incorrect type')
      */
     public function testRejectsAnObjectTypeWithAFieldFunctionThatReturnsIncorrectType(): void
