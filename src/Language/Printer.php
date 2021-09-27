@@ -446,7 +446,7 @@ class Printer
             case $node instanceof VariableDefinitionNode:
                 return '$' . $this->p($node->variable->name)
                     . ': '
-                    . $this->p($node->type->name)
+                    . $this->p($node->type)
                     . $this->wrap(' = ', $this->p($node->defaultValue))
                     . $this->wrap(' ', $this->printList($node->directives, ' '));
 
