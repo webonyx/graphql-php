@@ -80,7 +80,7 @@ function renderClass(ReflectionClass $class, array $options): string
 
         if (count($constants) > 0) {
             $constants = "```php\n" . implode("\n", $constants) . "\n```";
-            $content  .= "## $className Constants\n\n$constants\n\n";
+            $content  .= "### $className Constants\n\n$constants\n\n";
         }
     }
 
@@ -96,7 +96,7 @@ function renderClass(ReflectionClass $class, array $options): string
 
         if (count($props) > 0) {
             $props    = "```php\n" . implode("\n\n", $props) . "\n```";
-            $content .= "## $className Props\n\n$props\n\n";
+            $content .= "### $className Props\n\n$props\n\n";
         }
     }
 
@@ -112,12 +112,12 @@ function renderClass(ReflectionClass $class, array $options): string
 
         if (count($methods) > 0) {
             $methods  = implode("\n\n", $methods);
-            $content .= "## $className Methods\n\n{$methods}\n\n";
+            $content .= "### $className Methods\n\n{$methods}\n\n";
         }
     }
 
     return <<<TEMPLATE
-    # {$className}
+    ## {$className}
     
     {$classDocs}
     
