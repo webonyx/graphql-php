@@ -63,16 +63,18 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     public function findField(string $name): ?InputObjectField
     {
-        if (! $this->hasField($name)) {
-            return null;
+        if (! isset($this->fields)) {
+            $this->initializeFields();
         }
 
-        return $this->fields[$name];
+        return $this->fields[$name] ?? null;
     }
 
     public function hasField(string $name): bool
     {
-        $this->initializeFields();
+        if (! isset($this->fields)) {
+            $this->initializeFields();
+        }
 
         return isset($this->fields[$name]);
     }
@@ -91,10 +93,6 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     protected function initializeFields(): void
     {
-        if (isset($this->fields)) {
-            return;
-        }
-
         $fields = $this->config['fields'] ?? [];
         if (is_callable($fields)) {
             $fields = $fields();
