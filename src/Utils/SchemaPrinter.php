@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -34,7 +35,6 @@ use function preg_match_all;
 use function sprintf;
 use function str_replace;
 use function strlen;
-use function substr;
 
 /**
  * Given an instance of Schema, prints it in schema definition language.
@@ -167,46 +167,17 @@ class SchemaPrinter
             return '';
         }
 
-        $lines = static::descriptionLines($def->description, 120 - strlen($indentation));
         if (isset($options['commentDescriptions'])) {
+            $lines = static::descriptionLines($def->description, 120 - strlen($indentation));
+
             return static::printDescriptionWithComments($lines, $indentation, $firstInBlock);
         }
 
-        $description = $indentation !== '' && ! $firstInBlock
-            ? "\n" . $indentation . '"""'
-            : $indentation . '"""';
+        $preferMultipleLines = mb_strlen($def->description) > 70;
+        $blockString         = BlockString::print($def->description, '', $preferMultipleLines);
+        $prefix              = $indentation !== '' && ! $firstInBlock ? "\n" . $indentation : $indentation;
 
-        // In some circumstances, a single line can be used for the description.
-        if (
-            count($lines) === 1 &&
-            mb_strlen($lines[0]) < 70 &&
-            substr($lines[0], -1) !== '"'
-        ) {
-            return $description . static::escapeQuote($lines[0]) . "\"\"\"\n";
-        }
-
-        // Format a multi-line block quote to account for leading space.
-        $hasLeadingSpace = isset($lines[0]) &&
-            (
-                substr($lines[0], 0, 1) === ' ' ||
-                substr($lines[0], 0, 1) === '\t'
-            );
-        if (! $hasLeadingSpace) {
-            $description .= "\n";
-        }
-
-        $lineLength = count($lines);
-        for ($i = 0; $i < $lineLength; $i++) {
-            if ($i !== 0 || ! $hasLeadingSpace) {
-                $description .= $indentation;
-            }
-
-            $description .= static::escapeQuote($lines[$i]) . "\n";
-        }
-
-        $description .= $indentation . "\"\"\"\n";
-
-        return $description;
+        return $prefix . str_replace("\n", "\n" . $indentation, $blockString) . "\n";
     }
 
     /**
@@ -262,11 +233,6 @@ class SchemaPrinter
         }
 
         return $description;
-    }
-
-    protected static function escapeQuote(string $line): string
-    {
-        return str_replace('"""', '\\"""', $line);
     }
 
     /**
