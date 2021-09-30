@@ -88,6 +88,22 @@ class PrinterTest extends TestCase
         self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
+    public function testCorrectlyPrintsOpsWithNonNullableVariableArgument(): void
+    {
+        $queryWithNonNullVariable = Parser::parse(
+            'query ($var: ID!) { a(arg: $var) { __typename } }
+'
+        );
+
+        $expected = 'query ($var: ID!) {
+  a(arg: $var) {
+    __typename
+  }
+}
+';
+        self::assertEquals($expected, Printer::doPrint($queryWithNonNullVariable));
+    }
+
     /**
      * @see it('prints query with variable directives')
      */
