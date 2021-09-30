@@ -780,7 +780,7 @@ enum RGB {
 
         $output = $this->printForTest($schema);
         self::assertEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
 
             enum SomeEnum
 
@@ -792,7 +792,7 @@ enum RGB {
 
             union SomeUnion
 
-            GQL,
+            GRAPHQL,
             $output
         );
     }
