@@ -105,16 +105,16 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         }
 
         $this->fields = [];
-        foreach ($fields as $name => $field) {
-            $this->initializeField($name, $field);
+        foreach ($fields as $nameOrIndex => $field) {
+            $this->initializeField($nameOrIndex, $field);
         }
     }
 
     /**
-     * @param int|string                          $name
+     * @param string|int                          $nameOrIndex
      * @param Type|array|(callable(): Type|array) $field
      */
-    protected function initializeField($name, $field): void
+    protected function initializeField($nameOrIndex, $field): void
     {
         if (is_callable($field)) {
             $field = $field();
@@ -124,15 +124,19 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             $field = ['type' => $field];
         }
 
-        $name = $field['name'] ??= $name;
+        if (is_array($field)) {
+            $name = $field['name'] ??= $nameOrIndex;
 
-        if (! is_string($name)) {
-            throw new InvariantViolation(
-                "{$this->name} fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those."
-            );
+            if (! is_string($name)) {
+                throw new InvariantViolation(
+                    "{$this->name} fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those."
+                );
+            }
+
+            $field = new InputObjectField($field);
         }
 
-        $this->fields[$name] = new InputObjectField($field);
+        $this->fields[$field->name] = $field;
     }
 
     /**

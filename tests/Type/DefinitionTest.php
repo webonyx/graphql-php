@@ -752,10 +752,11 @@ class DefinitionTest extends TestCase
 
     public function testAllowsInputTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsArray(): void
     {
-        $objType = new InputObjectType([
+        $fieldName = 'f';
+        $objType   = new InputObjectType([
             'name'   => 'SomeInputObject',
             'fields' => [
-                'f' => static fn (): array => [
+                $fieldName => static fn (): array => [
                     'type' => Type::string(),
                 ],
             ],
@@ -763,21 +764,40 @@ class DefinitionTest extends TestCase
 
         $objType->assertValid();
 
-        self::assertSame(Type::string(), $objType->getField('f')->getType());
+        self::assertSame(Type::string(), $objType->getField($fieldName)->getType());
     }
 
     public function testAllowsInputTypeWhichDefinesFieldsWithLazyTypes(): void
     {
-        $objType = new InputObjectType([
+        $fieldName = 'f';
+        $objType   = new InputObjectType([
             'name'   => 'SomeInputObject',
             'fields' => [
-                'f' => static fn (): Type => Type::string(),
+                $fieldName => static fn (): Type => Type::string(),
             ],
         ]);
 
         $objType->assertValid();
 
-        self::assertSame(Type::string(), $objType->getField('f')->getType());
+        self::assertSame(Type::string(), $objType->getField($fieldName)->getType());
+    }
+
+    public function testAllowsInputTypeWithInputObjectField(): void
+    {
+        $fieldName = 'f';
+        $objType   = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                new InputObjectField([
+                    'name' => $fieldName,
+                    'type' => Type::string(),
+                ]),
+            ],
+        ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField($fieldName)->getType());
     }
 
     public function testRejectsAnInputObjectTypeWithIncorrectlyTypedFields(): void
