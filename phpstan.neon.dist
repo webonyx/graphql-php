@@ -6,6 +6,7 @@ parameters:
     paths:
         - %currentWorkingDirectory%/benchmarks
         - %currentWorkingDirectory%/examples
+        - %currentWorkingDirectory%/generate-class-reference.php
         - %currentWorkingDirectory%/src
         - %currentWorkingDirectory%/tests
 

@@ -1,65 +1,160 @@
 <?php
+
+declare(strict_types=1);
+
 require __DIR__ . '/vendor/autoload.php';
 
-use GraphQL\Utils\Utils;
+use GraphQL\Error\ClientAware;
+use GraphQL\Error\DebugFlag;
+use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
+use GraphQL\Error\Warning;
+use GraphQL\Executor\ExecutionResult;
+use GraphQL\Executor\Executor;
+use GraphQL\Executor\Promise\PromiseAdapter;
+use GraphQL\GraphQL;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\DirectiveLocation;
+use GraphQL\Language\Parser;
+use GraphQL\Language\Printer;
+use GraphQL\Language\Visitor;
+use GraphQL\Server\Helper;
+use GraphQL\Server\OperationParams;
+use GraphQL\Server\ServerConfig;
+use GraphQL\Server\StandardServer;
+use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
+use GraphQL\Utils\AST;
+use GraphQL\Utils\BuildSchema;
+use GraphQL\Utils\SchemaPrinter;
+use GraphQL\Validator\DocumentValidator;
+use Symfony\Component\VarExporter\VarExporter;
 
 $outputFile = __DIR__ . '/docs/class-reference.md';
 
 $entries = [
-    \GraphQL\GraphQL::class,
-    \GraphQL\Type\Definition\Type::class,
-    \GraphQL\Type\Definition\ResolveInfo::class,
-    \GraphQL\Language\DirectiveLocation::class => ['constants' => true],
-    \GraphQL\Type\SchemaConfig::class,
-    \GraphQL\Type\Schema::class,
-    \GraphQL\Language\Parser::class,
-    \GraphQL\Language\Printer::class,
-    \GraphQL\Language\Visitor::class,
-    \GraphQL\Language\AST\NodeKind::class => ['constants' => true],
-    \GraphQL\Executor\Executor::class,
-    \GraphQL\Executor\ExecutionResult::class,
-    \GraphQL\Executor\Promise\PromiseAdapter::class,
-    \GraphQL\Validator\DocumentValidator::class,
-    \GraphQL\Error\Error::class           => ['constants' => true, 'methods' => true, 'props' => true],
-    \GraphQL\Error\Warning::class         => ['constants' => true, 'methods' => true],
-    \GraphQL\Error\ClientAware::class,
-    \GraphQL\Error\DebugFlag::class       => ['constants' => true],
-    \GraphQL\Error\FormattedError::class,
-    \GraphQL\Server\StandardServer::class,
-    \GraphQL\Server\ServerConfig::class,
-    \GraphQL\Server\Helper::class,
-    \GraphQL\Server\OperationParams::class,
-    \GraphQL\Utils\BuildSchema::class,
-    \GraphQL\Utils\AST::class,
-    \GraphQL\Utils\SchemaPrinter::class
+    GraphQL::class => [],
+    Type::class => [],
+    ResolveInfo::class => [],
+    DirectiveLocation::class => ['constants' => true],
+    SchemaConfig::class => [],
+    Schema::class => [],
+    Parser::class => [],
+    Printer::class => [],
+    Visitor::class => [],
+    NodeKind::class => ['constants' => true],
+    Executor::class => [],
+    ExecutionResult::class => [],
+    PromiseAdapter::class => [],
+    DocumentValidator::class => [],
+    Error::class           => ['constants' => true],
+    Warning::class         => ['constants' => true],
+    ClientAware::class => [],
+    DebugFlag::class       => ['constants' => true],
+    FormattedError::class => [],
+    StandardServer::class => [],
+    ServerConfig::class => [],
+    Helper::class => [],
+    OperationParams::class => [],
+    BuildSchema::class => [],
+    AST::class => [],
+    SchemaPrinter::class => [],
 ];
 
-function renderClassMethod(ReflectionMethod $method) {
-    $args = array_map(
+/**
+ * @param array{constants?: bool, props?: bool, methods?: bool} $options
+ */
+function renderClass(ReflectionClass $class, array $options): string
+{
+    $classDocs = unwrapDocblock(unpadDocblock($class->getDocComment()));
+    $content   = '';
+    $className = $class->getName();
+
+    if ($options['constants'] ?? false) {
+        $constants = [];
+        foreach ($class->getConstants(/* TODO enable with PHP 8 ReflectionClassConstant::IS_PUBLIC */) as $name => $value) {
+            $constants[] = "const $name = " . VarExporter::export($value) . ';';
+        }
+
+        if (count($constants) > 0) {
+            $constants = "```php\n" . implode("\n", $constants) . "\n```";
+            $content  .= "## $className Constants\n\n$constants\n\n";
+        }
+    }
+
+    if ($options['props'] ?? true) {
+        $props = [];
+        foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            if (! isApi($property)) {
+                continue;
+            }
+
+            $props[] = renderProp($property);
+        }
+
+        if (count($props) > 0) {
+            $props    = "```php\n" . implode("\n\n", $props) . "\n```";
+            $content .= "## $className Props\n\n$props\n\n";
+        }
+    }
+
+    if ($options['methods'] ?? true) {
+        $methods = [];
+        foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            if (! isApi($method)) {
+                continue;
+            }
+
+            $methods[] = renderMethod($method);
+        }
+
+        if (count($methods) > 0) {
+            $methods  = implode("\n\n", $methods);
+            $content .= "## $className Methods\n\n{$methods}\n\n";
+        }
+    }
+
+    return <<<TEMPLATE
+    # {$className}
+    
+    {$classDocs}
+    
+    $content
+    TEMPLATE;
+}
+
+function renderMethod(ReflectionMethod $method): string
+{
+    $args    = array_map(
         static function (ReflectionParameter $p): string {
-            $type = ltrim($p->getType() . " ");
-            $def = $type . '$' . $p->getName();
+            $type = ltrim($p->getType() . ' ');
+            $def  = $type . '$' . $p->getName();
 
             if ($p->isDefaultValueAvailable()) {
-                $val = $p->isDefaultValueConstant()
+                $val  = $p->isDefaultValueConstant()
                     ? $p->getDefaultValueConstantName()
                     : $p->getDefaultValue();
-                $def .= " = " . Utils::printSafeJson($val);
+                $def .= ' = ' . VarExporter::export($val);
             }
 
             return $def;
         },
         $method->getParameters()
     );
-    $argsStr = implode(", ", $args);
+    $argsStr = implode(', ', $args);
     if (strlen($argsStr) >= 80) {
         $argsStr = "\n    " . implode(",\n    ", $args) . "\n";
     }
+
     $returnType = $method->getReturnType();
-    $def = "function {$method->getName()}($argsStr)";
-    $def = $method->isStatic() ? "static $def" : $def;
-    $def = $returnType ? "$def: $returnType" : $def;
-    $docBlock = unpadDocblock($method->getDocComment());
+    $def        = "function {$method->getName()}($argsStr)";
+    $def        = $method->isStatic() ? "static $def" : $def;
+    $def        = $returnType instanceof ReflectionType
+        ? "$def: $returnType"
+        : $def;
+    $docBlock   = unpadDocblock($method->getDocComment());
 
     return <<<TEMPLATE
 ```php
@@ -69,89 +164,64 @@ function renderClassMethod(ReflectionMethod $method) {
 TEMPLATE;
 }
 
-function renderConstant($value, $name) {
-    return "const $name = " . Utils::printSafeJson($value) . ";";
-}
+function renderProp(ReflectionProperty $prop): string
+{
+    $signature = implode(' ', Reflection::getModifierNames($prop->getModifiers())) . ' $' . $prop->getName() . ';';
 
-function renderProp(ReflectionProperty $prop) {
-    $signature = implode(" ", Reflection::getModifierNames($prop->getModifiers())) . ' $' . $prop->getName() . ';';
     return unpadDocblock($prop->getDocComment()) . "\n" . $signature;
 }
 
-function renderClass(ReflectionClass $class, $options) {
-    $classDocs = unwrapDocblock(unpadDocblock($class->getDocComment()));
-    $content = '';
-    $label = $class->isInterface() ? 'Interface' : 'Class';
-
-    if (!empty($options['constants'])) {
-        $constants = $class->getConstants();
-        $constants = array_map('renderConstant', $constants, array_keys($constants));
-        if (!empty($constants)) {
-            $constants = "```php\n" . implode("\n", $constants) . "\n```";
-            $content .= "**$label Constants:** \n$constants\n\n";
-        }
+/**
+ * @param string|false $docBlock
+ */
+function unwrapDocblock($docBlock): string
+{
+    if (! $docBlock) {
+        return '';
     }
 
-    if (!empty($options['props'])) {
-        $props = $class->getProperties(ReflectionProperty::IS_PUBLIC);
-        $props = Utils::filter($props, 'isApi');
-        if (!empty($props)) {
-            $props = array_map('renderProp', $props);
-            $props = "```php\n" . implode("\n\n", $props) . "\n```";
-            $content .= "**$label Props:** \n$props\n\n";
-        }
-    }
-
-    if (!empty($options['methods'])) {
-        $methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
-        $methods = Utils::filter($methods, 'isApi');
-        if (!empty($methods)) {
-            $renderedMethods = array_map('renderClassMethod', $methods);
-            $renderedMethods = implode("\n\n", $renderedMethods);
-            $content .= "**$label Methods:** \n{$renderedMethods}\n";
-        }
-    }
-
-    return <<<TEMPLATE
-# {$class->getName()}
-{$classDocs}
-
-$content
-TEMPLATE;
-}
-
-function unwrapDocblock($docBlock, $stripAnnotations = true) {
     $content = preg_replace('~([\r\n]) \* (.*)~i', '$1$2', $docBlock); // strip *
     $content = preg_replace('~([\r\n])[\* ]+([\r\n])~i', '$1$2', $content); // strip single-liner *
     $content = substr($content, 3); // strip leading /**
     $content = substr($content, 0, -2); // strip trailing */
-    if ($stripAnnotations) {
-        $content = preg_replace('~([\r\n])@.*([\r\n])~i', '$1', $content); // strip annotations
-    }
+
     return trim($content);
 }
 
-function unpadDocblock($docBlock) {
+/**
+ * @param string|false $docBlock
+ */
+function unpadDocblock($docBlock): string
+{
+    if (! $docBlock) {
+        return '';
+    }
+
     $lines = explode("\n", $docBlock);
     $lines = array_map(
-        static fn(string $line): string => ' ' . trim($line),
+        static fn (string $line): string => ' ' . trim($line),
         $lines
     );
+
     return trim(implode("\n", $lines));
 }
 
-function isApi($entry) {
-    /** @var ReflectionProperty|ReflectionMethod $entry */
-    $isApi = preg_match('~[\r\n ]+\* @api~', $entry->getDocComment());
-    return $isApi;
+/**
+ * @param ReflectionProperty|ReflectionMethod $reflector
+ */
+function isApi(Reflector $reflector): bool
+{
+    $comment = $reflector->getDocComment();
+    if (! $comment) {
+        return false;
+    }
+
+    return preg_match('~[\r\n ]+\* @api~', $comment) === 1;
 }
 
 file_put_contents($outputFile, '');
 
 foreach ($entries as $className => $options) {
-    $className = is_int($className) ? $options : $className;
-    $options = is_array($options) ? $options : ['methods' => true, 'props' => true];
-
     $rendered = renderClass(new ReflectionClass($className), $options);
     file_put_contents($outputFile, $rendered, FILE_APPEND);
 }
