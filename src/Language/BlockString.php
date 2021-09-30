@@ -122,22 +122,29 @@ class BlockString
         $hasTrailingQuote     = $value[$valueLength - 1] === '"';
         $hasTrailingSlash     = $value[$valueLength - 1] === '\\';
         $printAsMultipleLines =
-            ! $isSingleLine ||
-            $hasTrailingQuote ||
-            $hasTrailingSlash ||
-            $preferMultipleLines;
+            ! $isSingleLine
+            || $hasTrailingQuote
+            || $hasTrailingSlash
+            || $preferMultipleLines;
 
         $result = '';
         // Format a multi-line block quote to account for leading space.
-        if ($printAsMultipleLines && ! ($isSingleLine && $hasLeadingSpace)) {
+        if (
+            $printAsMultipleLines
+            && ! ($isSingleLine && $hasLeadingSpace)
+        ) {
             $result .= "\n" . $indentation;
         }
 
-        $result .= $indentation !== '' ? str_replace("\n", "\n" . $indentation, $value) : $value;
+        $result .= $indentation !== ''
+            ? str_replace("\n", "\n" . $indentation, $value)
+            : $value;
         if ($printAsMultipleLines) {
             $result .= "\n";
         }
 
-        return '"""' . str_replace('"""', '\\"""', $result) . '"""';
+        return '"""'
+            . str_replace('"""', '\\"""', $result)
+            . '"""';
     }
 }
