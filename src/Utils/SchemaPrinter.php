@@ -41,16 +41,15 @@ use function substr;
  * Prints the contents of a Schema in schema definition language.
  *
  * @phpstan-type Options array{commentDescriptions?: bool}
+ *    Available options:
+ *    - commentDescriptions:
+ *        Provide true to use preceding comments as the description.
+ *        This option is provided to ease adoption and will be removed in v16.
  */
 class SchemaPrinter
 {
     /**
-     * @param array<string, bool> $options
-     *    Available options:
-     *    - commentDescriptions:
-     *        Provide true to use preceding comments as the description.
-     *        This option is provided to ease adoption and will be removed in v16.
-     * @phpstan-param Options $options
+     * @param Options $options
      *
      * @api
      */
@@ -66,6 +65,55 @@ class SchemaPrinter
             },
             $options
         );
+    }
+
+    /**
+     * @param Options $options
+     *
+     * @api
+     */
+    public static function printIntrospectionSchema(Schema $schema, array $options = []): string
+    {
+        return static::printFilteredSchema(
+            $schema,
+            [Directive::class, 'isSpecifiedDirective'],
+            [Introspection::class, 'isIntrospectionType'],
+            $options
+        );
+    }
+
+    /**
+     * @param Options $options
+     *
+     * @api
+     */
+    public static function printType(Type $type, array $options = []): string
+    {
+        if ($type instanceof ScalarType) {
+            return static::printScalar($type, $options);
+        }
+
+        if ($type instanceof ObjectType) {
+            return static::printObject($type, $options);
+        }
+
+        if ($type instanceof InterfaceType) {
+            return static::printInterface($type, $options);
+        }
+
+        if ($type instanceof UnionType) {
+            return static::printUnion($type, $options);
+        }
+
+        if ($type instanceof EnumType) {
+            return static::printEnum($type, $options);
+        }
+
+        if ($type instanceof InputObjectType) {
+            return static::printInputObject($type, $options);
+        }
+
+        throw new Error(sprintf('Unknown type: %s.', Utils::printSafe($type)));
     }
 
     /**
@@ -328,38 +376,6 @@ class SchemaPrinter
     /**
      * @param Options $options
      */
-    public static function printType(Type $type, array $options = []): string
-    {
-        if ($type instanceof ScalarType) {
-            return static::printScalar($type, $options);
-        }
-
-        if ($type instanceof ObjectType) {
-            return static::printObject($type, $options);
-        }
-
-        if ($type instanceof InterfaceType) {
-            return static::printInterface($type, $options);
-        }
-
-        if ($type instanceof UnionType) {
-            return static::printUnion($type, $options);
-        }
-
-        if ($type instanceof EnumType) {
-            return static::printEnum($type, $options);
-        }
-
-        if ($type instanceof InputObjectType) {
-            return static::printInputObject($type, $options);
-        }
-
-        throw new Error(sprintf('Unknown type: %s.', Utils::printSafe($type)));
-    }
-
-    /**
-     * @param Options $options
-     */
     protected static function printScalar(ScalarType $type, array $options): string
     {
         return sprintf('%sscalar %s', static::printDescription($options, $type), $type->name);
@@ -494,21 +510,6 @@ class SchemaPrinter
         return static::printDescription($options, $type) .
             sprintf('input %s', $type->name) .
             static::printBlock($fields);
-    }
-
-    /**
-     * @param Options $options
-     *
-     * @api
-     */
-    public static function printIntrospectionSchema(Schema $schema, array $options = []): string
-    {
-        return static::printFilteredSchema(
-            $schema,
-            [Directive::class, 'isSpecifiedDirective'],
-            [Introspection::class, 'isIntrospectionType'],
-            $options
-        );
     }
 
     /**
