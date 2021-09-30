@@ -1,4 +1,8 @@
-# Built-in Scalar Types
+# Scalar Type Definition
+Scalar types represent primitive leaf values in a GraphQL type system. 
+When object fields have to resolve to some concrete data, that's where the scalar types come in.
+
+## Built-in Scalar Types
 
 The GraphQL specification describes several built-in scalar types. In **graphql-php** they are 
 exposed as static methods of the class [`GraphQL\Type\Definition\Type`](../class-reference.md#graphqltypedefinitiontype):
@@ -17,7 +21,7 @@ Type::id();      // ID type
 Those methods return instances of a subclass of `GraphQL\Type\Definition\ScalarType`.
 Use them directly in type definitions or wrapped in a type registry (see [lazy loading of types](../schema-definition.md#lazy-loading-of-types)). 
 
-# Writing Custom Scalar Types
+## Writing Custom Scalar Types
 
 In addition to built-in scalars, you can define your own scalar types with additional validation. 
 Typical examples of such types are **Email**, **Date**, **Url**, etc.

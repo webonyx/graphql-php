@@ -39,7 +39,7 @@ By default, such schema is created without any resolvers.
 We have to rely on [default field resolver](data-fetching.md#default-field-resolver) and **root value** in
 order to execute a query against this schema.
 
-# Defining resolvers
+## Defining resolvers
 
 Since 0.10.0
 
@@ -64,7 +64,7 @@ $contents = file_get_contents('schema.graphql');
 $schema = BuildSchema::build($contents, $typeConfigDecorator);
 ```
 
-# Performance considerations
+## Performance considerations
 
 Since 0.10.0
 

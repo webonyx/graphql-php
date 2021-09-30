@@ -2,6 +2,7 @@
 Enumeration types are a special kind of scalar that is restricted to a particular set 
 of allowed values. 
 
+## Writing Enum Types
 In **graphql-php** enum type is an instance of `GraphQL\Type\Definition\EnumType` 
 which accepts configuration array in constructor:
 
@@ -32,7 +33,7 @@ $episodeEnum = new EnumType([
 This example uses an **inline** style for Enum Type definition, but you can also use
 [inheritance or schema definition language](index.md#definition-styles).
 
-# Configuration options
+## Configuration options
 Enum Type constructor accepts an array with following options:
 
 Option | Type | Notes
@@ -51,7 +52,7 @@ description | `string` | Plain-text description of enum value for clients (e.g. 
 deprecationReason | `string` | Text describing why this enum value is deprecated. When not empty - item will not be returned by introspection queries (unless forced)
 
 
-# Shorthand definitions
+## Shorthand definitions
 If internal representation of enumerated item is the same as item name, then you can use
 following shorthand for definition:
 
@@ -99,7 +100,7 @@ $episodeEnum = new EnumType([
 ]);
 ```
 
-# Field Resolution
+## Field Resolution
 When object field is of Enum Type, field resolver is expected to return an internal 
 representation of corresponding Enum item (**value** in config). **graphql-php** will 
 then serialize this **value** to **name** to include in response:

@@ -1,4 +1,4 @@
-# Overview
+## Overview
 
 GraphQL is data-centric. On the very top level it is built around three major concepts:
 **Schema**, **Query** and **Mutation**.
@@ -90,7 +90,7 @@ returned after mutation. In our example the mutation will return:
 }
 ```
 
-# Type System
+## Type System
 
 Conceptually a GraphQL type is a collection of fields. Each field in turn
 has its own type which allows building complex hierarchies.
@@ -146,7 +146,7 @@ $blogPostType = new ObjectType([
 ]);
 ```
 
-# Further Reading
+## Further Reading
 
 To get deeper understanding of GraphQL concepts - [read the docs on official GraphQL website](http://graphql.org/learn/)
 
