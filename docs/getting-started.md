@@ -1,9 +1,9 @@
-# Prerequisites
+## Prerequisites
 
 This documentation assumes your familiarity with GraphQL concepts. If it is not the case -
 first learn about GraphQL on [the official website](http://graphql.org/learn/).
 
-# Installation
+## Installation
 
 Using [composer](https://getcomposer.org/doc/00-intro.md), run:
 
@@ -11,12 +11,12 @@ Using [composer](https://getcomposer.org/doc/00-intro.md), run:
 composer require webonyx/graphql-php
 ```
 
-# Upgrading
+## Upgrading
 
 We try to keep library releases backwards compatible when possible.
 For breaking changes we provide [upgrade instructions](https://github.com/webonyx/graphql-php/blob/master/UPGRADE.md).
 
-# Install Tools (optional)
+## Install Tools (optional)
 
 While it is possible to communicate with GraphQL API using regular HTTP tools it is way
 more convenient for humans to use [GraphiQL](https://github.com/graphql/graphiql) - an in-browser
@@ -33,7 +33,7 @@ The easiest way to use it is to install one of the existing Google Chrome extens
 Alternatively, you can follow instructions on [the GraphiQL](https://github.com/graphql/graphiql)
 page and install it locally.
 
-# Hello World
+## Hello World
 
 Let's create a type system that will be capable to process the following simple query:
 
@@ -120,7 +120,7 @@ which also includes simple mutation.
 Check out [the blog example](https://github.com/webonyx/graphql-php/blob/master/examples/01-blog) for something
 which is closer to real-world apps or read about the details of [schema definition](schema-definition.md).
 
-# Next Steps
+## Next Steps
 
 Obviously hello world only scratches the surface of what is possible.
 

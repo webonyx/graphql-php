@@ -1,4 +1,4 @@
-# GraphQL\GraphQL
+## GraphQL\GraphQL
 
 This is the primary facade for fulfilling GraphQL operations.
 See [related documentation](executing-queries.md).
@@ -143,7 +143,7 @@ static function getStandardValidationRules(): array
 static function setDefaultFieldResolver(callable $fn): void
 ```
 
-# GraphQL\Type\Definition\Type
+## GraphQL\Type\Definition\Type
 
 Registry of standard GraphQL types
 and a base class for all other types.
@@ -262,7 +262,7 @@ static function isAbstractType($type): bool
 static function getNullableType(GraphQL\Type\Definition\Type $type): GraphQL\Type\Definition\Type
 ```
 
-# GraphQL\Type\Definition\ResolveInfo
+## GraphQL\Type\Definition\ResolveInfo
 
 Structure containing information useful for field resolution process.
 
@@ -403,7 +403,7 @@ public $variableValues;
 function getFieldSelection($depth = 0)
 ```
 
-# GraphQL\Language\DirectiveLocation
+## GraphQL\Language\DirectiveLocation
 
 List of available directive locations
 
@@ -431,7 +431,7 @@ const INPUT_OBJECT = "INPUT_OBJECT";
 const INPUT_FIELD_DEFINITION = "INPUT_FIELD_DEFINITION";
 ```
 
-# GraphQL\Type\SchemaConfig
+## GraphQL\Type\SchemaConfig
 
 Schema configuration class.
 Could be passed directly to schema constructor. List of options accepted by **create** method is
@@ -579,7 +579,7 @@ function getTypeLoader()
 function setTypeLoader(callable $typeLoader)
 ```
 
-# GraphQL\Type\Schema
+## GraphQL\Type\Schema
 
 Schema Definition (see [schema definition docs](schema-definition.md))
 
@@ -780,7 +780,7 @@ function assertValid()
 function validate()
 ```
 
-# GraphQL\Language\Parser
+## GraphQL\Language\Parser
 
 Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
 
@@ -918,7 +918,7 @@ static function parseValue($source, array $options = [])
 static function parseType($source, array $options = [])
 ```
 
-# GraphQL\Language\Printer
+## GraphQL\Language\Printer
 
 Prints AST to string. Capable of printing GraphQL queries and Type definition language.
 Useful for pretty-printing queries or printing back AST for logging, documentation, etc.
@@ -946,7 +946,7 @@ $printed = GraphQL\Language\Printer::doPrint($ast);
 static function doPrint($ast)
 ```
 
-# GraphQL\Language\Visitor
+## GraphQL\Language\Visitor
 
 Utility for efficient AST traversal and modification.
 
@@ -1086,7 +1086,7 @@ static function skipNode()
 static function removeNode()
 ```
 
-# GraphQL\Language\AST\NodeKind
+## GraphQL\Language\AST\NodeKind
 
 **Class Constants:**
 
@@ -1136,7 +1136,7 @@ const DIRECTIVE_DEFINITION = "DirectiveDefinition";
 const SCHEMA_EXTENSION = "SchemaExtension";
 ```
 
-# GraphQL\Executor\Executor
+## GraphQL\Executor\Executor
 
 Implements the "Evaluating requests" section of the GraphQL specification.
 
@@ -1197,7 +1197,7 @@ static function promiseToExecute(
 )
 ```
 
-# GraphQL\Executor\ExecutionResult
+## GraphQL\Executor\ExecutionResult
 
 Returned after [query execution](executing-queries.md).
 Represents both - result of successful execution and of a failed one
@@ -1296,7 +1296,7 @@ function setErrorsHandler(callable $handler)
 function toArray(int $debug = "GraphQL\Error\DebugFlag::NONE"): array
 ```
 
-# GraphQL\Executor\Promise\PromiseAdapter
+## GraphQL\Executor\Promise\PromiseAdapter
 
 Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php))
 
@@ -1399,7 +1399,7 @@ function createRejected($reason)
 function all(array $promisesOrValues)
 ```
 
-# GraphQL\Validator\DocumentValidator
+## GraphQL\Validator\DocumentValidator
 
 Implements the "Validation" section of the spec.
 
@@ -1474,7 +1474,7 @@ static function getRule($name)
 static function addRule(GraphQL\Validator\Rules\ValidationRule $rule)
 ```
 
-# GraphQL\Error\Error
+## GraphQL\Error\Error
 
 Describes an Error found during the parse, validate, or
 execute phases of performing a GraphQL operation. In addition to a message
@@ -1529,7 +1529,7 @@ function getLocations(): array
 function getPath()
 ```
 
-# GraphQL\Error\Warning
+## GraphQL\Error\Warning
 
 Encapsulates warnings produced by the library.
 
@@ -1591,7 +1591,7 @@ static function suppress($suppress = true): void
 static function enable($enable = true): void
 ```
 
-# GraphQL\Error\ClientAware
+## GraphQL\Error\ClientAware
 
 This interface is used for [default error formatting](error-handling.md).
 
@@ -1626,7 +1626,7 @@ function isClientSafe()
 function getCategory()
 ```
 
-# GraphQL\Error\DebugFlag
+## GraphQL\Error\DebugFlag
 
 Collection of flags for [error debugging](error-handling.md#debugging-tools).
 
@@ -1640,7 +1640,7 @@ const RETHROW_INTERNAL_EXCEPTIONS = 4;
 const RETHROW_UNSAFE_EXCEPTIONS = 8;
 ```
 
-# GraphQL\Error\FormattedError
+## GraphQL\Error\FormattedError
 
 This class is used for [default error formatting](error-handling.md).
 It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io/graphql/#sec-Errors)
@@ -1698,7 +1698,7 @@ static function createFromException(
 static function toSafeTrace($error)
 ```
 
-# GraphQL\Server\StandardServer
+## GraphQL\Server\StandardServer
 
 GraphQL server compatible with both: [express-graphql](https://github.com/graphql/express-graphql)
 and [Apollo Server](https://github.com/apollographql/graphql-server).
@@ -1831,7 +1831,7 @@ function executePsrRequest(Psr\Http\Message\RequestInterface $request)
 function getHelper()
 ```
 
-# GraphQL\Server\ServerConfig
+## GraphQL\Server\ServerConfig
 
 Server configuration class.
 Could be passed directly to server constructor. List of options accepted by **create** method is
@@ -1976,7 +1976,7 @@ function setQueryBatching(bool $enableBatching): self
 function setPromiseAdapter(GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter)
 ```
 
-# GraphQL\Server\Helper
+## GraphQL\Server\Helper
 
 Contains functionality that could be re-used by various server implementations
 
@@ -2107,7 +2107,7 @@ function toPsrResponse(
 )
 ```
 
-# GraphQL\Server\OperationParams
+## GraphQL\Server\OperationParams
 
 Structure representing parsed HTTP parameters for GraphQL operation
 
@@ -2188,7 +2188,7 @@ function getOriginalInput($key)
 function isReadOnly()
 ```
 
-# GraphQL\Utils\BuildSchema
+## GraphQL\Utils\BuildSchema
 
 Build instance of `GraphQL\Type\Schema` out of schema language definition (string or parsed AST)
 See [schema definition language docs](schema-definition-language.md) for details.
@@ -2242,7 +2242,7 @@ static function buildAST(
 )
 ```
 
-# GraphQL\Utils\AST
+## GraphQL\Utils\AST
 
 Various utilities dealing with AST
 
@@ -2409,7 +2409,7 @@ static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode)
 static function getOperation(GraphQL\Language\AST\DocumentNode $document, $operationName = null)
 ```
 
-# GraphQL\Utils\SchemaPrinter
+## GraphQL\Utils\SchemaPrinter
 
 Given an instance of Schema, prints it in schema definition language.
 

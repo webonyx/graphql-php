@@ -1,4 +1,4 @@
-# Errors in GraphQL
+## Errors in GraphQL
 
 There are 3 types of errors in GraphQL:
 
@@ -27,7 +27,7 @@ converted to arrays as well using default error formatting (see below).
 Alternatively, you can apply [custom error filtering and formatting](#custom-error-handling-and-formatting)
 for your specific requirements.
 
-# Default Error formatting
+## Default Error formatting
 
 By default, each error entry is converted to an associative array with following structure:
 
@@ -57,7 +57,7 @@ Entry at key **path** exists only for errors caused by exceptions thrown in reso
 It contains a path from the very root field to actual field value producing an error
 (including indexes for list types and field names for composite types).
 
-**Internal errors**
+### Internal errors
 
 As of version **0.10.0**, all exceptions thrown in resolvers are reported with generic message **"Internal server error"**.
 This is done to avoid information leak in production environments (e.g. database connection errors, file access errors, etc).
@@ -103,7 +103,7 @@ To change default **"Internal server error"** message to something else, use:
 GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 ```
 
-# Debugging tools
+## Debugging tools
 
 During development or debugging use `$result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)` to add **debugMessage** key to
 each formatted error entry. If you also want to add exception trace - pass flags instead:
@@ -151,7 +151,7 @@ $result = GraphQL::executeQuery(/*args*/)->toArray($debug);
 If you only want to re-throw Exceptions that are not marked as safe through the `ClientAware` interface, use
 the flag `Debug::RETHROW_UNSAFE_EXCEPTIONS`.
 
-# Custom Error Handling and Formatting
+## Custom Error Handling and Formatting
 
 It is possible to define custom **formatter** and **handler** for result errors.
 
@@ -183,7 +183,7 @@ $result = GraphQL::executeQuery(/* $args */)
 Note that when you pass [debug flags](#debugging-tools) to **toArray()** your custom formatter will still be
 decorated with same debugging information mentioned above.
 
-# Schema Errors
+## Schema Errors
 
 So far we only covered errors which occur during query execution process. Schema definition can
 also throw `GraphQL\Error\InvariantViolation` if there is an error in one of type definitions.
