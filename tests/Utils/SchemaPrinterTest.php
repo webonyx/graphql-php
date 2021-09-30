@@ -52,12 +52,12 @@ class SchemaPrinterTest extends TestCase
             'type' => Type::string(),
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField: String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -71,12 +71,12 @@ class SchemaPrinterTest extends TestCase
             'type' => Type::listOf(Type::string()),
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField: [String]
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -90,12 +90,12 @@ class SchemaPrinterTest extends TestCase
             'type' => Type::nonNull(Type::string()),
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField: String!
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -109,12 +109,12 @@ class SchemaPrinterTest extends TestCase
             'type' => Type::nonNull(Type::listOf(Type::string())),
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField: [String]!
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -128,12 +128,12 @@ class SchemaPrinterTest extends TestCase
             'type' => Type::listOf(Type::nonNull(Type::string())),
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField: [String!]
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -147,12 +147,12 @@ class SchemaPrinterTest extends TestCase
             'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string()))),
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField: [String!]!
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -169,12 +169,12 @@ class SchemaPrinterTest extends TestCase
             'deprecationReason' => $deprecationReason,
         ]);
         self::assertPrintedSchemaEquals(
-            <<<GQL
+            <<<GRAPHQL
             type Query {
               singleField: Int$expectedDeprecationDirective
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -214,12 +214,12 @@ class SchemaPrinterTest extends TestCase
         $schema  = new Schema(['types' => [$fooType]]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Foo {
               str: String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -234,12 +234,12 @@ class SchemaPrinterTest extends TestCase
             'args' => ['argOne' => ['type' => Type::int()]],
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField(argOne: Int): String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -254,12 +254,12 @@ class SchemaPrinterTest extends TestCase
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => 2]],
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField(argOne: Int = 2): String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -274,12 +274,12 @@ class SchemaPrinterTest extends TestCase
             'args' => ['argOne' => ['type' => Type::string(), 'defaultValue' => "tes\t de\fault"]],
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField(argOne: String = "tes\t de\fault"): String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -294,12 +294,12 @@ class SchemaPrinterTest extends TestCase
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => null]],
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField(argOne: Int = null): String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -314,12 +314,12 @@ class SchemaPrinterTest extends TestCase
             'args' => ['argOne' => ['type' => Type::nonNull(Type::int())]],
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField(argOne: Int!): String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -337,12 +337,12 @@ class SchemaPrinterTest extends TestCase
             ],
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField(argOne: Int, argTwo: String): String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -361,12 +361,12 @@ class SchemaPrinterTest extends TestCase
             ],
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField(argOne: Int = 1, argTwo: String, argThree: Boolean): String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -385,12 +385,12 @@ class SchemaPrinterTest extends TestCase
             ],
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField(argOne: Int, argTwo: String = "foo", argThree: Boolean): String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -409,12 +409,12 @@ class SchemaPrinterTest extends TestCase
             ],
         ]);
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               singleField(argOne: Int, argTwo: String, argThree: Boolean = false): String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -428,14 +428,14 @@ class SchemaPrinterTest extends TestCase
             'query' => new ObjectType(['name' => 'CustomType', 'fields' => []]),
         ]);
 
-        $expected = <<<'GQL'
+        $expected = <<<'GRAPHQL'
             schema {
               query: CustomType
             }
 
             type CustomType
 
-            GQL;
+            GRAPHQL;
         self::assertPrintedSchemaEquals($expected, $schema);
     }
 
@@ -449,14 +449,14 @@ class SchemaPrinterTest extends TestCase
         ]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             schema {
               mutation: CustomType
             }
 
             type CustomType
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -471,14 +471,14 @@ class SchemaPrinterTest extends TestCase
         ]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             schema {
               subscription: CustomType
             }
 
             type CustomType
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -502,7 +502,7 @@ class SchemaPrinterTest extends TestCase
         $schema = new Schema(['types' => [$barType]]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Bar implements Foo {
               str: String
             }
@@ -511,7 +511,7 @@ class SchemaPrinterTest extends TestCase
               str: String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -543,7 +543,7 @@ class SchemaPrinterTest extends TestCase
         $schema = new Schema(['types' => [$barType]]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             interface Baaz {
               int: Int
             }
@@ -557,7 +557,7 @@ class SchemaPrinterTest extends TestCase
               str: String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -601,7 +601,7 @@ class SchemaPrinterTest extends TestCase
         ]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             interface Baaz implements Foo {
               int: Int
               str: String
@@ -620,7 +620,7 @@ class SchemaPrinterTest extends TestCase
               bar: Bar
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -653,7 +653,7 @@ class SchemaPrinterTest extends TestCase
         $schema = new Schema(['types' => [$singleUnion, $multipleUnion]]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Bar {
               str: String
             }
@@ -666,7 +666,7 @@ class SchemaPrinterTest extends TestCase
 
             union SingleUnion = Foo
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -684,12 +684,12 @@ class SchemaPrinterTest extends TestCase
         $schema = new Schema(['types' => [$inputType]]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             input InputType {
               int: Int
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -704,10 +704,10 @@ class SchemaPrinterTest extends TestCase
         $schema = new Schema(['types' => [$oddType]]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             scalar Odd
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -729,14 +729,14 @@ class SchemaPrinterTest extends TestCase
         $schema = new Schema(['types' => [$RGBType]]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             enum RGB {
               RED
               GREEN
               BLUE
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -802,13 +802,13 @@ class SchemaPrinterTest extends TestCase
         ]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             directive @simpleDirective on FIELD
 
             """Complex Directive"""
             directive @complexDirective(stringArg: String, intArg: Int = -1) repeatable on FIELD | QUERY
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -847,13 +847,13 @@ class SchemaPrinterTest extends TestCase
         ]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               """This field is awesome"""
               singleField: String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
@@ -865,7 +865,7 @@ class SchemaPrinterTest extends TestCase
     {
         $schema   = new Schema([]);
         $output   = SchemaPrinter::printIntrospectionSchema($schema);
-        $expected = <<<'GQL'
+        $expected = <<<'GRAPHQL'
             """
             Directs the executor to include this field or fragment only when the `if` argument is true.
             """
@@ -1075,7 +1075,7 @@ class SchemaPrinterTest extends TestCase
               NON_NULL
             }
 
-            GQL;
+            GRAPHQL;
         self::assertEquals($expected, $output);
     }
 
@@ -1089,7 +1089,7 @@ class SchemaPrinterTest extends TestCase
             $schema,
             ['commentDescriptions' => true]
         );
-        $expected = <<<'GQL'
+        $expected = <<<'GRAPHQL'
             # Directs the executor to include this field or fragment only when the `if` argument is true.
             directive @include(
               # Included when true.
@@ -1285,7 +1285,7 @@ class SchemaPrinterTest extends TestCase
               NON_NULL
             }
 
-            GQL;
+            GRAPHQL;
         self::assertEquals($expected, $output);
     }
 }
