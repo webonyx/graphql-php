@@ -38,6 +38,19 @@ It references a matching test in the [graphql-js implementation](https://github.
 
 When porting tests that utilize [the `dedent()` test utility from `graphql-js`](https://github.com/graphql/graphql-js/blob/99d6079434/src/__testUtils__/dedent.js),
 we instead use [the PHP native `nowdoc` syntax](https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.nowdoc).
+If the string contents are in a specific grammar, use an appropriate tag such as `GRAPHQL`, `PHP` or `JSON`:
+
+```php
+        self::assertSomePrintedOutputExactlyMatches(
+            <<<'GRAPHQL'
+            type Foo {
+              bar: Baz
+            }
+
+            GRAPHQL,
+            $output
+        );
+```
 
 ## Coding Standard
 
