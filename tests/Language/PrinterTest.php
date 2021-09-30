@@ -120,67 +120,6 @@ class PrinterTest extends TestCase
     }
 
     /**
-     * @see it('correctly prints single-line with leading space')
-     */
-    public function testCorrectlyPrintsSingleLineBlockStringsWithLeadingSpace(): void
-    {
-        $mutationAstWithArtifacts = Parser::parse(
-            '{ field(arg: """    space-led value""") }'
-        );
-        $expected                 = '{
-  field(arg: """    space-led value""")
-}
-';
-        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
-    }
-
-    /**
-     * @see it('correctly prints string with a first line indentation')
-     */
-    public function testCorrectlyPrintsBlockStringsWithAFirstLineIndentation(): void
-    {
-        $mutationAstWithArtifacts = Parser::parse(
-            '{
-  field(arg: """
-        first
-      line
-    indentation
-  """)
-}'
-        );
-        $expected                 = '{
-  field(arg: """
-        first
-      line
-    indentation
-  """)
-}
-';
-        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
-    }
-
-    /**
-     * @see it('correctly prints single-line with leading space and quotation')
-     */
-    public function testCorrectlyPrintsSingleLineWithLeadingSpaceAndQuotation(): void
-    {
-        $mutationAstWithArtifacts = Parser::parse('
-            {
-              field(arg: """    space-led value "quoted string"
-              """)
-            }
-        ');
-        $expected                 = <<<END
-{
-  field(arg: """    space-led value "quoted string"
-  """)
-}
-
-END;
-        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
-    }
-
-    /**
      * @see it('Experimental: correctly prints fragment defined variables')
      */
     public function testExperimentalCorrectlyPrintsFragmentDefinedVariables(): void
@@ -201,25 +140,6 @@ END;
 }
 '
         );
-    }
-
-    /**
-     * @see it('correctly prints single-line with leading space and quotation')
-     */
-    public function testCorrectlyPrintsSingleLineStringsWithLeadingSpaceAndQuotation(): void
-    {
-        $mutationAstWithArtifacts = Parser::parse(
-            '{
-  field(arg: """    space-led value "quoted string"
-  """)
-}'
-        );
-        $expected                 = '{
-  field(arg: """    space-led value "quoted string"
-  """)
-}
-';
-        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
     /**

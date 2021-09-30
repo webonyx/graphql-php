@@ -55,7 +55,6 @@ use function array_filter;
 use function count;
 use function implode;
 use function json_encode;
-use function preg_replace;
 use function str_replace;
 use function strlen;
 use function strpos;
@@ -408,7 +407,7 @@ class Printer
 
             case $node instanceof StringValueNode:
                 if ($node->block) {
-                    return $this->printBlockString($node->value, $isDescription);
+                    return BlockString::print($node->value, $isDescription ? '' : '  ');
                 }
 
                 return json_encode($node->value);
@@ -517,28 +516,5 @@ class Printer
     protected function join(array $parts, string $separator = ''): string
     {
         return implode($separator, array_filter($parts));
-    }
-
-    /**
-     * Print a block string in the indented block form by adding a leading and
-     * trailing blank line. However, if a block string starts with whitespace and is
-     * a single-line, adding a leading blank line would strip that whitespace.
-     */
-    protected function printBlockString(string $value, bool $isDescription): string
-    {
-        $escaped = str_replace('"""', '\\"""', $value);
-
-        $startsWithWhitespace  = $value[0] === ' ' || $value[0] === "\t";
-        $doesNotEndWithNewline = strpos($value, "\n") === false;
-
-        if ($startsWithWhitespace && $doesNotEndWithNewline) {
-            return '"""' . preg_replace('/"$/', "\"\n", $escaped) . '"""';
-        }
-
-        $content = $isDescription
-            ? $escaped
-            : $this->indent($escaped);
-
-        return '"""' . "\n" . $content . "\n" . '"""';
     }
 }

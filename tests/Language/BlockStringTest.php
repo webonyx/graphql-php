@@ -174,4 +174,85 @@ class BlockStringTest extends TestCase
         self::assertEquals(1, BlockString::getIndentation("a\n\n b"));
         self::assertEquals(2, BlockString::getIndentation("a\n \n  b"));
     }
+
+    // describe('printBlockString')
+
+    /**
+     * @see it('do not escape characters')
+     */
+    public function testDoNotEscapeCharacters(): void
+    {
+        $str = "\" \\ / \u{8} \f \n \r \t"; // \u{8} === \b
+
+        self::assertEquals("\"\"\"\n" . $str . "\n\"\"\"", BlockString::print($str));
+    }
+
+    /**
+     * @see it('by default print block strings as single line')
+     */
+    public function testByDefaultPrintBlockStringsAsSingleLine(): void
+    {
+        $str = 'one liner';
+
+        self::assertEquals('"""one liner"""', BlockString::print($str));
+        self::assertEquals("\"\"\"\none liner\n\"\"\"", BlockString::print($str, '', true));
+    }
+
+    /**
+     * @see it('correctly prints single-line with leading space')
+     */
+    public function testCorrectlyPrintsSingleLineWithLeadingSpace(): void
+    {
+        $str = '    space-led string';
+
+        self::assertEquals('"""    space-led string"""', BlockString::print($str));
+        self::assertEquals("\"\"\"    space-led string\n\"\"\"", BlockString::print($str, '', true));
+    }
+
+    /**
+     * @see it('correctly prints single-line with leading space and quotation')
+     */
+    public function testCorrectlyPrintsSingleLineWithLeadingSpaceAndQuotation(): void
+    {
+        $str = '    space-led value "quoted string"';
+
+        self::assertEquals("\"\"\"    space-led value \"quoted string\"\n\"\"\"", BlockString::print($str));
+        self::assertEquals("\"\"\"    space-led value \"quoted string\"\n\"\"\"", BlockString::print($str));
+    }
+
+    /**
+     * @see it('correctly prints single-line with trailing backslash')
+     */
+    public function testCorrectlyPrintsSingleLineWithTrailingBackslash(): void
+    {
+        $str = 'backslash \\';
+
+        self::assertEquals("\"\"\"\nbackslash \\\n\"\"\"", BlockString::print($str));
+        self::assertEquals("\"\"\"\nbackslash \\\n\"\"\"", BlockString::print($str, '', true));
+    }
+
+    /**
+     * @see it('correctly prints string with a first line indentation')
+     */
+    public function testCorrectlyPrintsStringWithAFirstLineIndentation(): void
+    {
+        $str = self::joinLines(
+            '    first  ',
+            '  line     ',
+            'indentation',
+            '     string',
+        );
+
+        self::assertEquals(
+            self::joinLines(
+                '"""',
+                '    first  ',
+                '  line     ',
+                'indentation',
+                '     string',
+                '"""',
+            ),
+            BlockString::print($str)
+        );
+    }
 }
