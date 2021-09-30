@@ -37,16 +37,18 @@ use function str_replace;
 use function strlen;
 
 /**
- * Given an instance of Schema, prints it in schema definition language.
+ * Prints the contents of a Schema in schema definition language.
+ *
+ * @phpstan-type Options array{commentDescriptions?: bool}
+ *    Available options:
+ *    - commentDescriptions:
+ *        Provide true to use preceding comments as the description.
+ *        This option is provided to ease adoption and will be removed in v16.
  */
 class SchemaPrinter
 {
     /**
-     * @param array<string, bool> $options
-     *    Available options:
-     *    - commentDescriptions:
-     *        Provide true to use preceding comments as the description.
-     *        This option is provided to ease adoption and will be removed in v16.
+     * @param Options $options
      *
      * @api
      */
@@ -65,9 +67,9 @@ class SchemaPrinter
     }
 
     /**
-     * @param callable(Directive  $directive): bool $directiveFilter
-     * @param callable(Type       $type):      bool $typeFilter
-     * @param array<string, bool> $options
+     * @param callable(Directive $directive): bool $directiveFilter
+     * @param callable(Type      $type):      bool $typeFilter
+     * @param Options            $options
      */
     protected static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
     {
@@ -146,7 +148,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param Options $options
      */
     protected static function printDirective(Directive $directive, array $options): string
     {
@@ -248,7 +250,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param Options $options
      */
     public static function printType(Type $type, array $options = []): string
     {
@@ -280,7 +282,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param Options $options
      */
     protected static function printScalar(ScalarType $type, array $options): string
     {
@@ -288,7 +290,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param Options $options
      */
     protected static function printObject(ObjectType $type, array $options): string
     {
@@ -356,7 +358,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param Options $options
      */
     protected static function printInterface(InterfaceType $type, array $options): string
     {
@@ -367,7 +369,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param Options $options
      */
     protected static function printUnion(UnionType $type, array $options): string
     {
@@ -380,7 +382,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param Options $options
      */
     protected static function printEnum(EnumType $type, array $options): string
     {
@@ -402,7 +404,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param Options $options
      */
     protected static function printInputObject(InputObjectType $type, array $options): string
     {
@@ -421,7 +423,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param Options $options
      *
      * @api
      */
