@@ -12,6 +12,8 @@ use function implode;
 use function mb_strlen;
 use function mb_substr;
 use function preg_split;
+use function str_replace;
+use function strpos;
 
 class BlockString
 {
@@ -102,5 +104,47 @@ class BlockString
         }
 
         return $commonIndent ?? 0;
+    }
+
+    /**
+     * Print a block string in the indented block form by adding a leading and
+     * trailing blank line. However, if a block string starts with whitespace and is
+     * a single-line, adding a leading blank line would strip that whitespace.
+     */
+    public static function print(
+        string $value,
+        string $indentation = '',
+        bool $preferMultipleLines = false
+    ): string {
+        $valueLength          = mb_strlen($value);
+        $isSingleLine         = strpos($value, "\n") === false;
+        $hasLeadingSpace      = $value[0] === ' ' || $value[0] === '\t';
+        $hasTrailingQuote     = $value[$valueLength - 1] === '"';
+        $hasTrailingSlash     = $value[$valueLength - 1] === '\\';
+        $printAsMultipleLines =
+            ! $isSingleLine
+            || $hasTrailingQuote
+            || $hasTrailingSlash
+            || $preferMultipleLines;
+
+        $result = '';
+        // Format a multi-line block quote to account for leading space.
+        if (
+            $printAsMultipleLines
+            && ! ($isSingleLine && $hasLeadingSpace)
+        ) {
+            $result .= "\n" . $indentation;
+        }
+
+        $result .= $indentation !== ''
+            ? str_replace("\n", "\n" . $indentation, $value)
+            : $value;
+        if ($printAsMultipleLines) {
+            $result .= "\n";
+        }
+
+        return '"""'
+            . str_replace('"""', '\\"""', $result)
+            . '"""';
     }
 }

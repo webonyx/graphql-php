@@ -7,11 +7,14 @@ namespace GraphQL\Tests\Error;
 use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
+use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use PHPUnit\Framework\TestCase;
+
+use function array_merge;
 
 class ErrorTest extends TestCase
 {
@@ -166,5 +169,63 @@ class ErrorTest extends TestCase
             ],
             FormattedError::createFromException($e)
         );
+    }
+
+    public function testErrorReadsOverridenMethods(): void
+    {
+        $error = new class (
+            'msg',
+            null,
+            null,
+            [],
+            null,
+            null,
+            ['foo' => 'bar']
+        ) extends Error {
+            public function getExtensions(): ?array
+            {
+                return array_merge(parent::getExtensions(), ['subfoo' => 'subbar']);
+            }
+
+            public function getPositions(): array
+            {
+                return [1 => 2];
+            }
+
+            public function getSource(): ?Source
+            {
+                return new Source('');
+            }
+
+            public function getNodes(): ?array
+            {
+                return [];
+            }
+        };
+
+        $locatedError = Error::createLocatedError($error);
+
+        self::assertEquals(['foo' => 'bar', 'subfoo' => 'subbar'], $locatedError->getExtensions());
+        self::assertEquals([], $locatedError->getNodes());
+        self::assertEquals([1 => 2], $locatedError->getPositions());
+        self::assertNotNull($locatedError->getSource());
+
+        $error = new class (
+            'msg',
+            new NullValueNode([]),
+            null,
+            [],
+        ) extends Error{
+            public function getNodes(): ?array
+            {
+                return [new NullValueNode([])];
+            }
+
+            public function getPath(): ?array
+            {
+                return ['path'];
+            }
+        };
+        self::assertSame($error, Error::createLocatedError($error));
     }
 }

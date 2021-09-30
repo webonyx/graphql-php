@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -34,7 +36,6 @@ use function preg_match_all;
 use function sprintf;
 use function str_replace;
 use function strlen;
-use function substr;
 
 /**
  * Given an instance of Schema, prints it in schema definition language.
@@ -167,46 +168,17 @@ class SchemaPrinter
             return '';
         }
 
-        $lines = static::descriptionLines($def->description, 120 - strlen($indentation));
         if (isset($options['commentDescriptions'])) {
+            $lines = static::descriptionLines($def->description, 120 - strlen($indentation));
+
             return static::printDescriptionWithComments($lines, $indentation, $firstInBlock);
         }
 
-        $description = $indentation !== '' && ! $firstInBlock
-            ? "\n" . $indentation . '"""'
-            : $indentation . '"""';
+        $preferMultipleLines = mb_strlen($def->description) > 70;
+        $blockString         = BlockString::print($def->description, '', $preferMultipleLines);
+        $prefix              = $indentation !== '' && ! $firstInBlock ? "\n" . $indentation : $indentation;
 
-        // In some circumstances, a single line can be used for the description.
-        if (
-            count($lines) === 1 &&
-            mb_strlen($lines[0]) < 70 &&
-            substr($lines[0], -1) !== '"'
-        ) {
-            return $description . static::escapeQuote($lines[0]) . "\"\"\"\n";
-        }
-
-        // Format a multi-line block quote to account for leading space.
-        $hasLeadingSpace = isset($lines[0]) &&
-            (
-                substr($lines[0], 0, 1) === ' ' ||
-                substr($lines[0], 0, 1) === '\t'
-            );
-        if (! $hasLeadingSpace) {
-            $description .= "\n";
-        }
-
-        $lineLength = count($lines);
-        for ($i = 0; $i < $lineLength; $i++) {
-            if ($i !== 0 || ! $hasLeadingSpace) {
-                $description .= $indentation;
-            }
-
-            $description .= static::escapeQuote($lines[$i]) . "\n";
-        }
-
-        $description .= $indentation . "\"\"\"\n";
-
-        return $description;
+        return $prefix . str_replace("\n", "\n" . $indentation, $blockString) . "\n";
     }
 
     /**
@@ -262,11 +234,6 @@ class SchemaPrinter
         }
 
         return $description;
-    }
-
-    protected static function escapeQuote(string $line): string
-    {
-        return str_replace('"""', '\\"""', $line);
     }
 
     /**
@@ -366,21 +333,10 @@ class SchemaPrinter
      */
     protected static function printObject(ObjectType $type, array $options): string
     {
-        $interfaces            = $type->getInterfaces();
-        $implementedInterfaces = count($interfaces) > 0
-            ? ' implements ' . implode(
-                ' & ',
-                array_map(
-                    static function (InterfaceType $interface): string {
-                        return $interface->name;
-                    },
-                    $interfaces
-                )
-            )
-            : '';
-
         return static::printDescription($options, $type) .
-            sprintf("type %s%s {\n%s\n}", $type->name, $implementedInterfaces, static::printFields($options, $type));
+            sprintf('type %s', $type->name) .
+            self::printImplementedInterfaces($type) .
+            static::printFields($options, $type);
     }
 
     /**
@@ -390,19 +346,21 @@ class SchemaPrinter
     protected static function printFields(array $options, $type): string
     {
         $fields = array_values($type->getFields());
-
-        return implode(
-            "\n",
-            array_map(
-                static function (FieldDefinition $f, int $i) use ($options): string {
-                    return static::printDescription($options, $f, '  ', $i === 0) . '  ' .
-                        $f->name . static::printArgs($options, $f->args, '  ') . ': ' .
-                        (string) $f->getType() . static::printDeprecated($f);
-                },
-                $fields,
-                array_keys($fields)
-            )
+        $fields = array_map(
+            static function (FieldDefinition $f, int $i) use ($options): string {
+                return static::printDescription($options, $f, '  ', $i === 0) .
+                    '  ' .
+                    $f->name .
+                    static::printArgs($options, $f->args, '  ') .
+                    ': ' .
+                    (string) $f->getType() .
+                    static::printDeprecated($f);
+            },
+            $fields,
+            array_keys($fields)
         );
+
+        return self::printBlock($fields);
     }
 
     /**
@@ -423,26 +381,30 @@ class SchemaPrinter
             Printer::doPrint(AST::astFromValue($reason, Type::string())) . ')';
     }
 
+    protected static function printImplementedInterfaces(ImplementingType $type): string
+    {
+        $interfaces = $type->getInterfaces();
+
+        return count($interfaces) > 0
+        ? ' implements ' . implode(
+            ' & ',
+            array_map(
+                static fn (InterfaceType $interface): string => $interface->name,
+                $interfaces
+            )
+        )
+        : '';
+    }
+
     /**
      * @param array<string, bool> $options
      */
     protected static function printInterface(InterfaceType $type, array $options): string
     {
-        $interfaces            = $type->getInterfaces();
-        $implementedInterfaces = count($interfaces) > 0
-            ? ' implements ' . implode(
-                ' & ',
-                array_map(
-                    static function (InterfaceType $interface): string {
-                        return $interface->name;
-                    },
-                    $interfaces
-                )
-            )
-            : '';
-
         return static::printDescription($options, $type) .
-            sprintf("interface %s%s {\n%s\n}", $type->name, $implementedInterfaces, static::printFields($options, $type));
+            sprintf('interface %s', $type->name) .
+            self::printImplementedInterfaces($type) .
+            static::printFields($options, $type);
     }
 
     /**
@@ -450,8 +412,10 @@ class SchemaPrinter
      */
     protected static function printUnion(UnionType $type, array $options): string
     {
-        return static::printDescription($options, $type) .
-            sprintf('union %s = %s', $type->name, implode(' | ', $type->getTypes()));
+        $types = $type->getTypes();
+        $types = count($types) > 0 ? ' = ' . implode(' | ', $types) : '';
+
+        return static::printDescription($options, $type) . 'union ' . $type->name . $types;
     }
 
     /**
@@ -459,27 +423,21 @@ class SchemaPrinter
      */
     protected static function printEnum(EnumType $type, array $options): string
     {
-        return static::printDescription($options, $type) .
-            sprintf("enum %s {\n%s\n}", $type->name, static::printEnumValues($type->getValues(), $options));
-    }
-
-    /**
-     * @param array<int, EnumValueDefinition> $values
-     * @param array<string, bool>             $options
-     */
-    protected static function printEnumValues(array $values, array $options): string
-    {
-        return implode(
-            "\n",
-            array_map(
-                static function (EnumValueDefinition $value, int $i) use ($options): string {
-                    return static::printDescription($options, $value, '  ', $i === 0) . '  ' .
-                        $value->name . static::printDeprecated($value);
-                },
-                $values,
-                array_keys($values)
-            )
+        $values = $type->getValues();
+        $values = array_map(
+            static function (EnumValueDefinition $value, int $i) use ($options): string {
+                return static::printDescription($options, $value, '  ', $i === 0) .
+                    '  ' .
+                    $value->name .
+                    static::printDeprecated($value);
+            },
+            $values,
+            array_keys($values)
         );
+
+        return static::printDescription($options, $type) .
+            sprintf('enum %s', $type->name) .
+            static::printBlock($values);
     }
 
     /**
@@ -488,22 +446,17 @@ class SchemaPrinter
     protected static function printInputObject(InputObjectType $type, array $options): string
     {
         $fields = array_values($type->getFields());
+        $fields = array_map(
+            static function ($f, $i) use ($options): string {
+                return static::printDescription($options, $f, '  ', ! $i) . '  ' . static::printInputValue($f);
+            },
+            $fields,
+            array_keys($fields)
+        );
 
         return static::printDescription($options, $type) .
-            sprintf(
-                "input %s {\n%s\n}",
-                $type->name,
-                implode(
-                    "\n",
-                    array_map(
-                        static function ($f, $i) use ($options): string {
-                            return static::printDescription($options, $f, '  ', ! $i) . '  ' . static::printInputValue($f);
-                        },
-                        $fields,
-                        array_keys($fields)
-                    )
-                )
-            );
+            sprintf('input %s', $type->name) .
+            static::printBlock($fields);
     }
 
     /**
@@ -519,5 +472,13 @@ class SchemaPrinter
             [Introspection::class, 'isIntrospectionType'],
             $options
         );
+    }
+
+    /**
+     * @param array<string> $items
+     */
+    protected static function printBlock(array $items): string
+    {
+        return count($items) > 0 ? " {\n" . implode("\n", $items) . "\n}" : '';
     }
 }

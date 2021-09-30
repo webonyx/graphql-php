@@ -1,4 +1,4 @@
-# Overview
+## Overview
 
 GraphQL is data-storage agnostic. You can use any underlying data storage engine, including SQL or NoSQL database,
 plain files or in-memory data structures.
@@ -100,7 +100,7 @@ But then the question appears - field **title** has no **resolve** option. How i
 There is a default resolver for all fields. When you define your own **resolve** function
 for a field you simply override this default resolver.
 
-# Default Field Resolver
+## Default Field Resolver
 
 **graphql-php** provides following default field resolver:
 
@@ -132,7 +132,7 @@ If the value is not set - it returns **null**.
 
 To override the default resolver, pass it as an argument of [executeQuery](executing-queries.md) call.
 
-# Default Field Resolver per Type
+## Default Field Resolver per Type
 
 Sometimes it might be convenient to set default field resolver per type. You can do so by providing
 [resolveField option in type config](type-definitions/object-types.md#configuration-options). For example:
@@ -167,7 +167,7 @@ $userType = new ObjectType([
 Keep in mind that **field resolver** has precedence over **default field resolver per type** which in turn
 has precedence over **default field resolver**.
 
-# Solving N+1 Problem
+## Solving N+1 Problem
 
 Since: 0.9.0
 
@@ -236,7 +236,7 @@ Even though **author** field is located on different levels of the query - it ca
 In this example, only one query will be executed for all story authors comparing to 20 queries
 in a naive implementation.
 
-# Async PHP
+## Async PHP
 
 Since: 0.10.0 (version 0.9.0 had slightly different API which still works, but is deprecated)
 

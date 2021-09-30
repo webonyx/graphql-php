@@ -1,5 +1,6 @@
 # Type Definitions 
 graphql-php represents a **type** as a class instance from the `GraphQL\Type\Definition` namespace:
+
 - [`ObjectType`](object-types.md)
 - [`InterfaceType`](interfaces.md)
 - [`UnionType`](unions.md)
@@ -7,7 +8,7 @@ graphql-php represents a **type** as a class instance from the `GraphQL\Type\Def
 - [`ScalarType`](scalars.md)
 - [`EnumType`](enums.md)
 
-# Input vs. Output Types
+## Input vs. Output Types
 All types in GraphQL are of two categories: **input** and **output**.
 
 * **Output** types (or field types) are: [Scalar](scalars.md), [Enum](enums.md), [Object](object-types.md),
@@ -18,11 +19,11 @@ All types in GraphQL are of two categories: **input** and **output**.
 Obviously, [NonNull and List](lists-and-nonnulls.md) types belong to both categories depending on their
 inner type.
 
-# Definition styles
+## Definition styles
 
 Several styles of type definitions are supported depending on your preferences.
 
-## Inline definitions
+### Inline definitions
 ```php
 <?php
 namespace MyApp;
@@ -38,7 +39,7 @@ $myType = new ObjectType([
 ]);
 ```
 
-## Class per type
+### Class per type
 ```php
 <?php
 namespace MyApp;
@@ -62,7 +63,7 @@ class MyType extends ObjectType
 }
 ```
 
-## Schema definition language
+### Schema definition language
 ```graphql
 schema {
     query: Query
