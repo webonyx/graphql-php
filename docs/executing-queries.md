@@ -1,4 +1,5 @@
 ## Using Facade Method
+
 Query execution is a complex process involving multiple steps, including query **parsing**,
 **validating** and finally **executing** against your [schema](schema-definition.md).
 
@@ -34,6 +35,7 @@ This array is suitable for further serialization (e.g. using **json_encode**).
 See also the section on [error handling and formatting](error-handling.md).
 
 ### Method arguments
+
 Description of **executeQuery** method arguments:
 
 | Argument        | Type                                                          | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                    |

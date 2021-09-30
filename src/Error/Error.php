@@ -135,8 +135,8 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
                 return $error;
             }
 
-            $nodes ??= $error->nodes;
-            $path  ??= $error->path;
+            $nodes ??= $error->getNodes();
+            $path  ??= $error->getPath();
         }
 
         $source        = null;
@@ -147,10 +147,9 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
         if ($error instanceof self) {
             $message       = $error->getMessage();
             $originalError = $error;
-            $nodes         = $error->nodes ?? $nodes; // TODO why does this line change the behaviour?
-            $source        = $error->source;
-            $positions     = $error->positions;
-            $extensions    = $error->extensions;
+            $source        = $error->getSource();
+            $positions     = $error->getPositions();
+            $extensions    = $error->getExtensions();
         } elseif ($error instanceof InvariantViolation) {
             $message       = $error->getMessage();
             $originalError = $error->getPrevious() ?? $error;
@@ -178,10 +177,13 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
 
     protected function isLocated(): bool
     {
-        return $this->path !== null
-            && count($this->path) > 0
-            && $this->nodes !== null
-            && count($this->nodes) > 0;
+        $path  = $this->getPath();
+        $nodes = $this->getNodes();
+
+        return $path !== null
+            && count($path) > 0
+            && $nodes !== null
+            && count($nodes) > 0;
     }
 
     public function isClientSafe(): bool
