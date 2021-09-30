@@ -111,8 +111,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     }
 
     /**
-     * @param string|int                          $nameOrIndex
-     * @param Type|array|(callable(): Type|array) $field
+     * @param string|int                                                            $nameOrIndex
+     * @param InputObjectField|Type|array|(callable(): InputObjectField|Type|array) $field
      */
     protected function initializeField($nameOrIndex, $field): void
     {
