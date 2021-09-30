@@ -764,6 +764,40 @@ enum RGB {
     }
 
     /**
+     * @see it('Prints empty types')
+     */
+    public function testPrintsEmptyTypes(): void
+    {
+        $schema = new Schema([
+            'types' => [
+                new EnumType(['name' => 'SomeEnum', 'values' => []]),
+                new InputObjectType(['name' => 'SomeInputObject', 'fields' => []]),
+                new InterfaceType(['name' => 'SomeInterface', 'fields' => []]),
+                new ObjectType(['name' => 'SomeObject', 'fields' => []]),
+                new UnionType(['name' => 'SomeUnion', 'types' => []]),
+            ],
+        ]);
+
+        $output = $this->printForTest($schema);
+        self::assertEquals(
+            <<<'GQL'
+
+            enum SomeEnum
+
+            input SomeInputObject
+
+            interface SomeInterface
+
+            type SomeObject
+
+            union SomeUnion
+
+            GQL,
+            $output
+        );
+    }
+
+    /**
      * @see it('Prints custom directives')
      */
     public function testPrintsCustomDirectives(): void

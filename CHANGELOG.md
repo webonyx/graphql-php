@@ -43,6 +43,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Allow sending both `query` and `queryId`, ignore `queryId` in that case
 - Fix `extend()` to preserve `repeatable` (#931)
 - Preserve extended methods from class-based types in `SchemaExtender::extend()`
+- Fix printing of empty types (#940)
 
 ### Removed
 
