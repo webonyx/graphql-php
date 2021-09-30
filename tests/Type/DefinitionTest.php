@@ -766,6 +766,37 @@ class DefinitionTest extends TestCase
         self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 
+    public function testAllowsInputTypeWhichDefinesFieldsWithLazyTypes(): void
+    {
+        $objType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                'f' => static fn (): Type => Type::string(),
+            ],
+        ]);
+
+        $objType->assertValid();
+
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
+    public function testRejectsAnInputObjectTypeWithIncorrectlyTypedFields(): void
+    {
+        $objType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeInputObject fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those.'
+        );
+        $objType->getFields();
+    }
+
     public function testInterfaceTypeAllowsRecursiveDefinitions(): void
     {
         $called    = false;
@@ -920,23 +951,6 @@ class DefinitionTest extends TestCase
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'SomeObject fields must be an associative array with field names as keys or a ' .
-            'function which returns such an array.'
-        );
-        $objType->getFields();
-    }
-
-    /**
-     * @see it('rejects an InputObject type with incorrectly typed fields')
-     */
-    public function testRejectsAnInputObjectTypeWithIncorrectlyTypedFields(): void
-    {
-        $objType = new InputObjectType([
-            'name'   => 'SomeInputObject',
-            'fields' => [['field' => Type::string()]],
-        ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'SomeInputObject fields must be an associative array with field names as keys or a ' .
             'function which returns such an array.'
         );
         $objType->getFields();
