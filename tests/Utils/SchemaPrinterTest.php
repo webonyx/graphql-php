@@ -23,9 +23,11 @@ class SchemaPrinterTest extends TestCase
 {
     private static function assertPrintedSchemaEquals(string $expected, Schema $schema): void
     {
-        $schemaText = SchemaPrinter::doPrint($schema);
-        self::assertEquals($schemaText, SchemaPrinter::doPrint(BuildSchema::build($schemaText)));
-        self::assertEquals($expected, $schemaText);
+        $printedSchema = SchemaPrinter::doPrint($schema);
+        self::assertEquals($expected, $printedSchema);
+
+        $cycledSchema = SchemaPrinter::doPrint(BuildSchema::build($printedSchema));
+        self::assertEquals($printedSchema, $cycledSchema);
     }
 
     /** @param array<string, mixed> $fieldConfig */
