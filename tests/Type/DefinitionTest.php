@@ -1513,6 +1513,8 @@ class DefinitionTest extends TestCase
         );
     }
 
+    // Type System: Input Objects must have fields
+
     /**
      * @see it('accepts an Input Object type with fields')
      */
@@ -1531,8 +1533,6 @@ class DefinitionTest extends TestCase
         $inputObjType->assertValid();
         self::assertSame(Type::string(), $inputObjType->getField($fieldName)->getType());
     }
-
-    // Type System: Input Objects must have fields
 
     /**
      * @see it('accepts an Input Object type with a field function')
@@ -1635,10 +1635,10 @@ class DefinitionTest extends TestCase
         $inputObjType->assertValid();
     }
 
-    public function testAllowsInputTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsArray(): void
+    public function testAcceptsAnInputObjectTypeWithCallableReturningAConfigArray(): void
     {
-        $fieldName = 'f';
-        $objType   = new InputObjectType([
+        $fieldName    = 'f';
+        $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
             'fields' => [
                 $fieldName => static fn (): array => [
@@ -1647,11 +1647,32 @@ class DefinitionTest extends TestCase
             ],
         ]);
 
-        $objType->assertValid();
-        self::assertSame(Type::string(), $objType->getField($fieldName)->getType());
+        $inputObjType->assertValid();
+        self::assertSame(Type::string(), $inputObjType->getField($fieldName)->getType());
     }
 
-    public function testAllowsInputTypeWithInputObjectField(): void
+    public function testInputObjectKnowsItsFields(): void
+    {
+        $fieldName    = 'f';
+        $inputObjType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                $fieldName => Type::string(),
+            ],
+        ]);
+
+        self::assertTrue($inputObjType->hasField($fieldName));
+        self::assertFalse($inputObjType->hasField('unknown'));
+
+        self::assertInstanceOf(InputObjectField::class, $inputObjType->findField($fieldName));
+        self::assertNull($inputObjType->findField('unknown'));
+
+        self::assertInstanceOf(InputObjectField::class, $inputObjType->getField($fieldName));
+        self::expectExceptionObject(new InvariantViolation('Field "unknown" is not defined for type "SomeInputObject"'));
+        $inputObjType->getField('unknown');
+    }
+
+    public function testAllowsAnInputObjectTypeWithInputObjectField(): void
     {
         $fieldName = 'f';
         $objType   = new InputObjectType([
