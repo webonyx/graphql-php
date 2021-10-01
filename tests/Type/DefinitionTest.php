@@ -248,55 +248,6 @@ class DefinitionTest extends TestCase
         isset($fieldDef->type);
     }
 
-    public function testInputObjectFieldPublicTypeGetDeprecation(): void
-    {
-        $fieldDef = new InputObjectField([
-            'type' => Type::string(),
-            'name' => 'GenericField',
-        ]);
-
-        Warning::setWarningHandler(static function ($message): void {
-            self::assertEquals($message, 'The public getter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
-        });
-
-        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
-        $type = $fieldDef->type;
-    }
-
-    public function testInputObjectFieldPublicTypeSetDeprecation(): void
-    {
-        $fieldDef = new InputObjectField([
-            'type' => Type::string(),
-            'name' => 'GenericField',
-        ]);
-
-        Warning::setWarningHandler(static function ($message): void {
-            self::assertEquals($message, 'The public setter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version.');
-        });
-
-        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
-        $fieldDef->type = Type::int();
-    }
-
-    public function testInputObjectFieldPublicTypeIssetDeprecation(): void
-    {
-        $fieldDef = new InputObjectField([
-            'type' => Type::string(),
-            'name' => 'GenericField',
-        ]);
-
-        Warning::setWarningHandler(static function ($message): void {
-            self::assertEquals($message, 'The public getter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
-        });
-
-        isset($fieldDef->type);
-
-        self::assertFalse(isset($fieldDef->nonExistentProp));
-        $fieldDef->nonExistentProp = 'someValue';
-        self::assertTrue(isset($fieldDef->nonExistentProp));
-        self::assertEquals($fieldDef->nonExistentProp, 'someValue');
-    }
-
     /**
      * @see it('defines a mutation schema')
      */
