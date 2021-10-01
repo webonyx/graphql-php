@@ -9,23 +9,8 @@ use GraphQL\Language\Printer;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 
-use function preg_match;
-use function preg_replace;
-use function trim;
-
 class ConcatASTTest extends TestCase
 {
-    private function dedent(string $str): string
-    {
-        $trimmedStr = trim($str, "\n");
-        $trimmedStr = preg_replace('/[ \t]*$/', '', $trimmedStr);
-
-        preg_match('/^[ \t]*/', $trimmedStr, $indentMatch);
-        $indent = $indentMatch[0];
-
-        return preg_replace('/^' . $indent . '/m', '', $trimmedStr);
-    }
-
     /**
      * @see it('concatenates two ASTs together'
      */
@@ -46,7 +31,7 @@ class ConcatASTTest extends TestCase
         $astC = AST::concatAST([$astA, $astB]);
 
         self::assertEquals(
-            $this->dedent('
+            <<<'GRAPHQL'
               {
                 a
                 b
@@ -56,7 +41,8 @@ class ConcatASTTest extends TestCase
               fragment Frag on T {
                 c
               }
-            '),
+
+              GRAPHQL,
             Printer::doPrint($astC)
         );
     }
