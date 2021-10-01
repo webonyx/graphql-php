@@ -248,55 +248,6 @@ class DefinitionTest extends TestCase
         isset($fieldDef->type);
     }
 
-    public function testInputObjectFieldPublicTypeGetDeprecation(): void
-    {
-        $fieldDef = new InputObjectField([
-            'type' => Type::string(),
-            'name' => 'GenericField',
-        ]);
-
-        Warning::setWarningHandler(static function ($message): void {
-            self::assertEquals($message, 'The public getter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
-        });
-
-        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
-        $type = $fieldDef->type;
-    }
-
-    public function testInputObjectFieldPublicTypeSetDeprecation(): void
-    {
-        $fieldDef = new InputObjectField([
-            'type' => Type::string(),
-            'name' => 'GenericField',
-        ]);
-
-        Warning::setWarningHandler(static function ($message): void {
-            self::assertEquals($message, 'The public setter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version.');
-        });
-
-        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
-        $fieldDef->type = Type::int();
-    }
-
-    public function testInputObjectFieldPublicTypeIssetDeprecation(): void
-    {
-        $fieldDef = new InputObjectField([
-            'type' => Type::string(),
-            'name' => 'GenericField',
-        ]);
-
-        Warning::setWarningHandler(static function ($message): void {
-            self::assertEquals($message, 'The public getter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
-        });
-
-        isset($fieldDef->type);
-
-        self::assertFalse(isset($fieldDef->nonExistentProp));
-        $fieldDef->nonExistentProp = 'someValue';
-        self::assertTrue(isset($fieldDef->nonExistentProp));
-        self::assertEquals($fieldDef->nonExistentProp, 'someValue');
-    }
-
     /**
      * @see it('defines a mutation schema')
      */
@@ -748,22 +699,6 @@ class DefinitionTest extends TestCase
         self::assertEquals(count($inputObject->getFields()), 2);
         self::assertSame($inputObject->getField('nested')->getType(), $inputObject);
         self::assertSame($someMutation->getField('mutateSomething')->getArg('input')->getType(), $inputObject);
-    }
-
-    public function testAllowsInputTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsArray(): void
-    {
-        $objType = new InputObjectType([
-            'name'   => 'SomeInputObject',
-            'fields' => [
-                'f' => static fn (): array => [
-                    'type' => Type::string(),
-                ],
-            ],
-        ]);
-
-        $objType->assertValid();
-
-        self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 
     public function testInterfaceTypeAllowsRecursiveDefinitions(): void
@@ -1578,38 +1513,44 @@ class DefinitionTest extends TestCase
         );
     }
 
+    // Type System: Input Objects must have fields
+
     /**
      * @see it('accepts an Input Object type with fields')
      */
     public function testAcceptsAnInputObjectTypeWithFields(): void
     {
+        $fieldName    = 'f';
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
             'fields' => [
-                'f' => ['type' => Type::string()],
+                $fieldName => [
+                    'type' => Type::string(),
+                ],
             ],
         ]);
-        $inputObjType->assertValid();
-        self::assertSame(Type::string(), $inputObjType->getField('f')->getType());
-    }
 
-    // Type System: Input Objects must have fields
+        $inputObjType->assertValid();
+        self::assertSame(Type::string(), $inputObjType->getField($fieldName)->getType());
+    }
 
     /**
      * @see it('accepts an Input Object type with a field function')
      */
     public function testAcceptsAnInputObjectTypeWithAFieldFunction(): void
     {
+        $fieldName    = 'f';
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
-            'fields' => static function (): array {
-                return [
-                    'f' => ['type' => Type::string()],
-                ];
-            },
+            'fields' => static fn (): array => [
+                $fieldName => [
+                    'type' => Type::string(),
+                ],
+            ],
         ]);
+
         $inputObjType->assertValid();
-        self::assertSame(Type::string(), $inputObjType->getField('f')->getType());
+        self::assertSame(Type::string(), $inputObjType->getField($fieldName)->getType());
     }
 
     /**
@@ -1617,16 +1558,18 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAnInputObjectTypeWithAFieldTypeFunction(): void
     {
+        $fieldName    = 'f';
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
             'fields' => [
-                'f' => static function (): Type {
+                $fieldName => static function (): Type {
                     return Type::string();
                 },
             ],
         ]);
+
         $inputObjType->assertValid();
-        self::assertSame(Type::string(), $inputObjType->getField('f')->getType());
+        self::assertSame(Type::string(), $inputObjType->getField($fieldName)->getType());
     }
 
     /**
@@ -1638,6 +1581,7 @@ class DefinitionTest extends TestCase
             'name'   => 'SomeInputObject',
             'fields' => [],
         ]);
+
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'SomeInputObject fields must be an associative array with field names as keys or a callable ' .
@@ -1657,6 +1601,7 @@ class DefinitionTest extends TestCase
                 return [];
             },
         ]);
+
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'SomeInputObject fields must be an associative array with field names as keys or a ' .
@@ -1681,12 +1626,85 @@ class DefinitionTest extends TestCase
                 ],
             ],
         ]);
+
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
             'SomeInputObject.f field has a resolve property, ' .
             'but Input Types cannot define resolvers.'
         );
         $inputObjType->assertValid();
+    }
+
+    public function testAcceptsAnInputObjectTypeWithCallableReturningAConfigArray(): void
+    {
+        $fieldName    = 'f';
+        $inputObjType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                $fieldName => static fn (): array => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+
+        $inputObjType->assertValid();
+        self::assertSame(Type::string(), $inputObjType->getField($fieldName)->getType());
+    }
+
+    public function testInputObjectKnowsItsFields(): void
+    {
+        $fieldName    = 'f';
+        $inputObjType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                $fieldName => Type::string(),
+            ],
+        ]);
+
+        self::assertTrue($inputObjType->hasField($fieldName));
+        self::assertFalse($inputObjType->hasField('unknown'));
+
+        self::assertInstanceOf(InputObjectField::class, $inputObjType->findField($fieldName));
+        self::assertNull($inputObjType->findField('unknown'));
+
+        self::assertInstanceOf(InputObjectField::class, $inputObjType->getField($fieldName));
+        self::expectExceptionObject(new InvariantViolation('Field "unknown" is not defined for type "SomeInputObject"'));
+        $inputObjType->getField('unknown');
+    }
+
+    public function testAllowsAnInputObjectTypeWithInputObjectField(): void
+    {
+        $fieldName = 'f';
+        $objType   = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                new InputObjectField([
+                    'name' => $fieldName,
+                    'type' => Type::string(),
+                ]),
+            ],
+        ]);
+
+        $objType->assertValid();
+        self::assertSame(Type::string(), $objType->getField($fieldName)->getType());
+    }
+
+    public function testRejectsAnInputObjectTypeWithIncorrectlyTypedFields(): void
+    {
+        $objType = new InputObjectType([
+            'name'   => 'SomeInputObject',
+            'fields' => [
+                [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'SomeInputObject fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those.'
+        );
+        $objType->assertValid();
     }
 
     // Type System: Input Object fields must not have resolvers

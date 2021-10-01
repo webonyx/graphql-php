@@ -71,11 +71,6 @@ parameters:
 			path: src/Type/Definition/FieldDefinition.php
 
 		-
-			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\)\\.$#"
-			count: 4
-			path: src/Type/Definition/InputObjectField.php
-
-		-
 			message: "#^Variable property access on mixed\\.$#"
 			count: 2
 			path: src/Utils/AST.php
@@ -93,11 +88,6 @@ parameters:
 		-
 			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:\\$nonExistentProp\\.$#"
 			count: 2
-			path: tests/Type/DefinitionTest.php
-
-		-
-			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\:\\:\\$nonExistentProp\\.$#"
-			count: 1
 			path: tests/Type/DefinitionTest.php
 
 		-
