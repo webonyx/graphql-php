@@ -565,13 +565,17 @@ class AST
         if ($inputTypeNode instanceof ListTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
-            return $innerType === null ? null : new ListOfType($innerType);
+            return $innerType === null
+                ? null
+                : new ListOfType($innerType);
         }
 
         if ($inputTypeNode instanceof NonNullTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
-            return $innerType === null ? null : new NonNull($innerType);
+            return $innerType === null
+                ? null
+                : new NonNull($innerType);
         }
 
         if ($inputTypeNode instanceof NamedTypeNode) {

@@ -781,7 +781,9 @@ class Lexer
             }
 
             $positionOffset = 1;
-            $code           = $bytes === 1 ? $ord : Utils::ord($utf8char);
+            $code           = $bytes === 1
+                ? $ord
+                : Utils::ord($utf8char);
         }
 
         if ($advance) {

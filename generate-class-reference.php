@@ -150,7 +150,9 @@ function renderMethod(ReflectionMethod $method): string
 
     $returnType = $method->getReturnType();
     $def        = "function {$method->getName()}($argsStr)";
-    $def        = $method->isStatic() ? "static $def" : $def;
+    $def        = $method->isStatic()
+        ? "static $def"
+        : $def;
     $def        = $returnType instanceof ReflectionType
         ? "$def: $returnType"
         : $def;

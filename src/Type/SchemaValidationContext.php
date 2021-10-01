@@ -273,7 +273,9 @@ class SchemaValidationContext
     {
         $argNode = $this->getAllDirectiveArgNodes($directive, $argName)[0] ?? null;
 
-        return $argNode === null ? null : $argNode->type;
+        return $argNode === null
+            ? null
+            : $argNode->type;
     }
 
     public function validateTypes(): void

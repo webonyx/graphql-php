@@ -315,13 +315,17 @@ class TypeInfo
                 }
 
                 $this->argument            = $argDef;
-                $this->defaultValueStack[] = $argDef !== null && $argDef->defaultValueExists() ? $argDef->defaultValue : Utils::undefined();
+                $this->defaultValueStack[] = $argDef !== null && $argDef->defaultValueExists()
+                    ? $argDef->defaultValue
+                    : Utils::undefined();
                 $this->inputTypeStack[]    = Type::isInputType($argType) ? $argType : null;
                 break;
 
             case $node instanceof ListValueNode:
                 $type     = $this->getInputType();
-                $listType = $type === null ? null : Type::getNullableType($type);
+                $listType = $type === null
+                    ? null
+                    : Type::getNullableType($type);
                 $itemType = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
                     : $listType;
@@ -337,11 +341,17 @@ class TypeInfo
                 if ($objectType instanceof InputObjectType) {
                     $tmp            = $objectType->getFields();
                     $inputField     = $tmp[$node->name->value] ?? null;
-                    $inputFieldType = $inputField === null ? null : $inputField->getType();
+                    $inputFieldType = $inputField === null
+                        ? null
+                        : $inputField->getType();
                 }
 
-                $this->defaultValueStack[] = $inputField !== null && $inputField->defaultValueExists() ? $inputField->defaultValue : Utils::undefined();
-                $this->inputTypeStack[]    = Type::isInputType($inputFieldType) ? $inputFieldType : null;
+                $this->defaultValueStack[] = $inputField !== null && $inputField->defaultValueExists()
+                    ? $inputField->defaultValue
+                    : Utils::undefined();
+                $this->inputTypeStack[]    = Type::isInputType($inputFieldType)
+                    ? $inputFieldType
+                    : null;
                 break;
 
             case $node instanceof EnumValueNode:

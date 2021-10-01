@@ -67,7 +67,9 @@ class Values
                 );
             } else {
                 $hasValue = array_key_exists($varName, $inputs);
-                $value    = $hasValue ? $inputs[$varName] : Utils::undefined();
+                $value    = $hasValue
+                    ? $inputs[$varName]
+                    : Utils::undefined();
 
                 if (! $hasValue && ($varDefNode->defaultValue !== null)) {
                     // If no value was provided to a variable with a default value,
@@ -210,7 +212,9 @@ class Values
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
                 $hasValue     = array_key_exists($variableName, $variableValues ?? []);
-                $isNull       = $hasValue ? $variableValues[$variableName] === null : false;
+                $isNull       = $hasValue
+                    ? $variableValues[$variableName] === null
+                    : false;
             } else {
                 $hasValue = $argumentValueNode !== null;
                 $isNull   = $argumentValueNode instanceof NullValueNode;

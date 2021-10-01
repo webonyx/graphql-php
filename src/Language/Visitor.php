@@ -205,7 +205,9 @@ class Visitor
             $isEdited  = $isLeaving && count($edits) > 0;
 
             if ($isLeaving) {
-                $key    = $ancestors === [] ? $UNDEFINED : $path[count($path) - 1];
+                $key    = $ancestors === []
+                    ? $UNDEFINED
+                    : $path[count($path) - 1];
                 $node   = $parent;
                 $parent = array_pop($ancestors);
 
@@ -522,7 +524,9 @@ class Visitor
 
         $visitor += ['leave' => null, 'enter' => null];
 
-        $specificVisitor = $isLeaving ? $visitor['leave'] : $visitor['enter'];
+        $specificVisitor = $isLeaving
+            ? $visitor['leave']
+            : $visitor['enter'];
 
         if (isset($specificVisitor)) {
             if (! is_array($specificVisitor)) {

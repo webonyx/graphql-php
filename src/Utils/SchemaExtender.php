@@ -548,7 +548,9 @@ class SchemaExtender
             } elseif ($def instanceof SchemaTypeExtensionNode) {
                 $schemaExtensions[] = $def;
             } elseif ($def instanceof TypeDefinitionNode) {
-                $typeName = isset($def->name) ? $def->name->value : null;
+                $typeName = isset($def->name)
+                    ? $def->name->value
+                    : null;
 
                 try {
                     $type = $schema->getType($typeName);

@@ -450,7 +450,9 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected static function getFieldEntryKey(FieldNode $node): string
     {
-        return $node->alias === null ? $node->name->value : $node->alias->value;
+        return $node->alias === null
+            ? $node->name->value
+            : $node->alias->value;
     }
 
     /**
