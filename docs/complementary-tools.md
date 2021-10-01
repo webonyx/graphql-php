@@ -1,6 +1,6 @@
 ## Server Integrations
 
-- [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](http://slimframework.com) or [Laminas Mezzio](https://docs.mezzio.dev/mezzio/))
+- [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](https://slimframework.com) or [Laminas Mezzio](https://docs.mezzio.dev/mezzio/))
 - [Lighthouse](https://github.com/nuwave/lighthouse) – Laravel package, SDL-first
 - [Laravel GraphQL](https://github.com/rebing/graphql-laravel) - Laravel package, code-first
 - [OverblogGraphQLBundle](https://github.com/overblog/GraphQLBundle) – Symfony bundle

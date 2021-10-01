@@ -73,7 +73,7 @@ This will set the rule globally. Alternatively, you can provide validation rules
 
 ## Disabling Introspection
 
-[Introspection](http://graphql.org/learn/introspection/) is a mechanism for fetching schema structure.
+[Introspection](https://graphql.org/learn/introspection/) is a mechanism for fetching schema structure.
 It is used by tools like GraphiQL for auto-completion, query validation, etc.
 
 Introspection is enabled by default. It means that anybody can get a full description of your schema by

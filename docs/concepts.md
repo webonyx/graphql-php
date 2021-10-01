@@ -148,6 +148,6 @@ $blogPostType = new ObjectType([
 
 ## Further Reading
 
-To get deeper understanding of GraphQL concepts - [read the docs on official GraphQL website](http://graphql.org/learn/)
+To get deeper understanding of GraphQL concepts - [read the docs on official GraphQL website](https://graphql.org/learn/)
 
 To get started with **graphql-php** - continue to next section ["Getting Started"](getting-started.md)

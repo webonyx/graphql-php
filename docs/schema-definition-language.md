@@ -2,7 +2,7 @@
 
 Since 0.9.0
 
-The [schema definition language](http://graphql.org/learn/schema/#type-language) is a convenient way to define your schema,
+The [schema definition language](https://graphql.org/learn/schema/#type-language) is a convenient way to define your schema,
 especially with IDE autocompletion and syntax validation.
 
 You can define this separate from your PHP code, e.g. in a **schema.graphql** file:
