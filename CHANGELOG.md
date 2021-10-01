@@ -27,6 +27,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Add tests for errors that occur when undeclared fields are passed in input
 - Warn about orphaned object types
 - Expose structured enumeration of directive locations
+- Add `AST::concatAST()` utility
 - Allow lazy input object fields
 
 ### Optimized
