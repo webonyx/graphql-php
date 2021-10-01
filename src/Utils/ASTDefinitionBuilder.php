@@ -37,6 +37,7 @@ use GraphQL\Type\Definition\UnionType;
 use Throwable;
 
 use function array_reverse;
+use function count;
 use function implode;
 use function is_array;
 use function is_string;
@@ -137,7 +138,9 @@ class ASTDefinitionBuilder
             $token      = $token->prev;
         }
 
-        return implode("\n", array_reverse($comments));
+        return count($comments) > 0
+            ? implode("\n", array_reverse($comments))
+            : null;
     }
 
     /**

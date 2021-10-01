@@ -118,9 +118,9 @@ class BlockString
     ): string {
         $valueLength          = mb_strlen($value);
         $isSingleLine         = strpos($value, "\n") === false;
-        $hasLeadingSpace      = $value[0] === ' ' || $value[0] === '\t';
-        $hasTrailingQuote     = $value[$valueLength - 1] === '"';
-        $hasTrailingSlash     = $value[$valueLength - 1] === '\\';
+        $hasLeadingSpace      = $value !== '' && ($value[0] === ' ' || $value[0] === '\t');
+        $hasTrailingQuote     = $value !== '' && $value[$valueLength - 1] === '"';
+        $hasTrailingSlash     = $value !== '' && $value[$valueLength - 1] === '\\';
         $printAsMultipleLines =
             ! $isSingleLine
             || $hasTrailingQuote

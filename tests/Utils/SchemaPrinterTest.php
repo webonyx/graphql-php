@@ -859,6 +859,27 @@ type Query {
     }
 
     /**
+     * @see it('Prints an empty description')
+     */
+    public function testPrintsAnEmptyDescription(): void
+    {
+        $output = $this->printSingleFieldSchema([
+            'type'        => Type::string(),
+            'description' => '',
+        ]);
+
+        self::assertEquals(
+            '
+type Query {
+  """"""
+  singleField: String
+}
+',
+            $output
+        );
+    }
+
+    /**
      * @see it('One-line prints a short description')
      */
     public function testOneLinePrintsAShortDescription(): void

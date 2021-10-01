@@ -164,7 +164,7 @@ class SchemaPrinter
      */
     protected static function printDescription(array $options, $def, string $indentation = '', bool $firstInBlock = true): string
     {
-        if ($def->description === null || $def->description === '') {
+        if ($def->description === null) {
             return '';
         }
 
