@@ -30,7 +30,7 @@ $serializableResult = $result->toArray();
 ```
 
 Returned array contains **data** and **errors** keys, as described by the
-[GraphQL spec](http://facebook.github.io/graphql/#sec-Response-Format).
+[GraphQL spec](https://spec.graphql.org/June2018/#sec-Response-Format).
 This array is suitable for further serialization (e.g. using **json_encode**).
 See also the section on [error handling and formatting](error-handling.md).
 
