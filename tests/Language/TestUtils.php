@@ -32,7 +32,9 @@ class TestUtils
             if (is_array($propValue) || $propValue instanceof NodeList) {
                 $tmp = [];
                 foreach ($propValue as $tmp1) {
-                    $tmp[] = $tmp1 instanceof Node ? self::nodeToArray($tmp1) : (array) $tmp1;
+                    $tmp[] = $tmp1 instanceof Node
+                        ? self::nodeToArray($tmp1)
+                        : (array) $tmp1;
                 }
             } elseif ($propValue instanceof Node) {
                 $tmp = self::nodeToArray($propValue);

@@ -54,4 +54,10 @@
             </property>
         </properties>
     </rule>
+
+    <rule ref="SlevomatCodingStandard.ControlStructures.RequireMultiLineTernaryOperator">
+        <properties>
+            <property name="minExpressionsLength" value="20" />
+        </properties>
+    </rule>
 </ruleset>

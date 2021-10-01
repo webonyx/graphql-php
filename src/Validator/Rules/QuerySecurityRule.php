@@ -182,7 +182,9 @@ abstract class QuerySecurityRule extends ValidationRule
     {
         $fieldName = $node->name->value;
 
-        return $node->alias === null ? $fieldName : $node->alias->value;
+        return $node->alias === null
+            ? $fieldName
+            : $node->alias->value;
     }
 }
 

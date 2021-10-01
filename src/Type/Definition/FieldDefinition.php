@@ -75,7 +75,9 @@ class FieldDefinition
         $this->name      = $config['name'];
         $this->resolveFn = $config['resolve'] ?? null;
         $this->mapFn     = $config['map'] ?? null;
-        $this->args      = isset($config['args']) ? FieldArgument::createMap($config['args']) : [];
+        $this->args      = isset($config['args'])
+            ? FieldArgument::createMap($config['args'])
+            : [];
 
         $this->description       = $config['description'] ?? null;
         $this->deprecationReason = $config['deprecationReason'] ?? null;

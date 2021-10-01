@@ -148,7 +148,9 @@ class Utils
             $result[$key] = $value;
         }
 
-        return $assoc ? $result : array_values($result);
+        return $assoc
+            ? $result
+            : array_values($result);
     }
 
     /**
@@ -327,7 +329,9 @@ class Utils
             return $var->name;
         }
 
-        return is_object($var) ? get_class($var) : gettype($var);
+        return is_object($var)
+            ? get_class($var)
+            : gettype($var);
     }
 
     /**

@@ -306,7 +306,9 @@ class Parser
      */
     public function __construct($source, array $options = [])
     {
-        $sourceObj   = $source instanceof Source ? $source : new Source($source);
+        $sourceObj   = $source instanceof Source
+            ? $source
+            : new Source($source);
         $this->lexer = new Lexer($sourceObj, $options);
     }
 

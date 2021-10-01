@@ -176,7 +176,9 @@ class SchemaPrinter
 
         $preferMultipleLines = mb_strlen($def->description) > 70;
         $blockString         = BlockString::print($def->description, '', $preferMultipleLines);
-        $prefix              = $indentation !== '' && ! $firstInBlock ? "\n" . $indentation : $indentation;
+        $prefix              = $indentation !== '' && ! $firstInBlock
+            ? "\n" . $indentation
+            : $indentation;
 
         return $prefix . str_replace("\n", "\n" . $indentation, $blockString) . "\n";
     }
@@ -413,7 +415,9 @@ class SchemaPrinter
     protected static function printUnion(UnionType $type, array $options): string
     {
         $types = $type->getTypes();
-        $types = count($types) > 0 ? ' = ' . implode(' | ', $types) : '';
+        $types = count($types) > 0
+            ? ' = ' . implode(' | ', $types)
+            : '';
 
         return static::printDescription($options, $type) . 'union ' . $type->name . $types;
     }
@@ -479,6 +483,8 @@ class SchemaPrinter
      */
     protected static function printBlock(array $items): string
     {
-        return count($items) > 0 ? " {\n" . implode("\n", $items) . "\n}" : '';
+        return count($items) > 0
+            ? " {\n" . implode("\n", $items) . "\n}"
+            : '';
     }
 }

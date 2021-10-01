@@ -950,7 +950,9 @@ class ExecutorTest extends TestCase
                     'field' => [
                         'type'    => Type::string(),
                         'resolve' => static function ($data, $args) {
-                            return $args ? json_encode($args) : '';
+                            return $args
+                                ? json_encode($args)
+                                : '';
                         },
                         'args'    => [
                             'a' => ['type' => Type::boolean()],
@@ -1105,7 +1107,9 @@ class ExecutorTest extends TestCase
                     'field' => [
                         'type'    => Type::string(),
                         'resolve' => static function ($data, $args) {
-                            return $args ? json_encode($args) : '';
+                            return $args
+                                ? json_encode($args)
+                                : '';
                         },
                         'args'    => [
                             'a' => ['type' => Type::boolean(), 'defaultValue' => 1],
