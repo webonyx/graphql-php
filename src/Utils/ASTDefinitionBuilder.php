@@ -138,7 +138,9 @@ class ASTDefinitionBuilder
             $token      = $token->prev;
         }
 
-        return count($comments) > 0 ? implode("\n", array_reverse($comments)) : null;
+        return count($comments) > 0
+            ? implode("\n", array_reverse($comments))
+            : null;
     }
 
     /**
