@@ -824,13 +824,13 @@ class SchemaPrinterTest extends TestCase
         ]);
 
         self::assertPrintedSchemaEquals(
-            <<<'GQL'
+            <<<'GRAPHQL'
             type Query {
               """"""
               singleField: String
             }
 
-            GQL,
+            GRAPHQL,
             $schema
         );
     }
