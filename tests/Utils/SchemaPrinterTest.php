@@ -840,10 +840,9 @@ class SchemaPrinterTest extends TestCase
      */
     public function testOneLinePrintsAShortDescription(): void
     {
-        $description = 'This field is awesome';
-        $schema      = $this->buildSingleFieldSchema([
+        $schema = $this->buildSingleFieldSchema([
             'type'        => Type::string(),
-            'description' => $description,
+            'description' => 'This field is awesome',
         ]);
 
         self::assertPrintedSchemaEquals(
@@ -863,8 +862,9 @@ class SchemaPrinterTest extends TestCase
      */
     public function testPrintIntrospectionSchema(): void
     {
-        $schema   = new Schema([]);
-        $output   = SchemaPrinter::printIntrospectionSchema($schema);
+        $schema = new Schema([]);
+        $output = SchemaPrinter::printIntrospectionSchema($schema);
+
         $expected = <<<'GRAPHQL'
             """
             Directs the executor to include this field or fragment only when the `if` argument is true.
