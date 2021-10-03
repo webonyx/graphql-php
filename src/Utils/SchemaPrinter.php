@@ -32,7 +32,6 @@ use function explode;
 use function implode;
 use function ksort;
 use function mb_strlen;
-use function preg_match_all;
 use function sprintf;
 use function str_replace;
 use function strlen;
@@ -180,21 +179,6 @@ class SchemaPrinter
             : $indentation;
 
         return $prefix . str_replace("\n", "\n" . $indentation, $blockString) . "\n";
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    protected static function breakLine(string $line, int $maxLen): array
-    {
-        if (strlen($line) < $maxLen + 5) {
-            return [$line];
-        }
-
-        preg_match_all('/((?: |^).{15,' . ($maxLen - 40) . '}(?= |$))/', $line, $parts);
-        $parts = $parts[0];
-
-        return array_map('trim', $parts);
     }
 
     protected static function printDescriptionWithComments(string $description, string $indentation, bool $firstInBlock): string
