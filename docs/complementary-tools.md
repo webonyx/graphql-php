@@ -1,6 +1,6 @@
 ## Server Integrations
 
-- [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](http://slimframework.com) or [Zend Expressive](http://zendframework.github.io/zend-expressive/))
+- [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](https://slimframework.com) or [Laminas Mezzio](https://docs.mezzio.dev/mezzio/))
 - [Lighthouse](https://github.com/nuwave/lighthouse) – Laravel package, SDL-first
 - [Laravel GraphQL](https://github.com/rebing/graphql-laravel) - Laravel package, code-first
 - [OverblogGraphQLBundle](https://github.com/overblog/GraphQLBundle) – Symfony bundle
@@ -23,6 +23,6 @@
 ## GraphQL Clients
 
 - [GraphiQL](https://github.com/graphql/graphiql) – Graphical interactive in-browser GraphQL IDE
-- [GraphQL Playground](https://github.com/prismagraphql/graphql-playground) – GraphQL IDE for better development workflows (GraphQL Subscriptions, interactive docs & collaboration)
+- [GraphQL Playground](https://github.com/graphql/graphql-playground) – GraphQL IDE for better development workflows (GraphQL Subscriptions, interactive docs & collaboration)
 - [Altair GraphQL Client](https://altair.sirmuel.design) - Beautiful feature-rich GraphQL Client for all platforms
 - [Sailor](https://github.com/spawnia/sailor) - Typesafe GraphQL client for PHP

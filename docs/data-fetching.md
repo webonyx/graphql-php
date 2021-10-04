@@ -212,7 +212,7 @@ resolving other non-deferred fields until there are none of them left.
 After that, it calls closures wrapped by `GraphQL\Deferred` which in turn load all buffered
 ids once (using SQL IN(?), Redis MGET or other similar tools) and returns final field value.
 
-Originally this approach was advocated by Facebook in their [Dataloader](https://github.com/facebook/dataloader)
+Originally this approach was advocated by Facebook in their [Dataloader](https://github.com/graphql/dataloader)
 project. This solution enables very interesting optimizations at no cost. Consider the following query:
 
 ```graphql

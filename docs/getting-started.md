@@ -1,7 +1,7 @@
 ## Prerequisites
 
 This documentation assumes your familiarity with GraphQL concepts. If it is not the case -
-first learn about GraphQL on [the official website](http://graphql.org/learn/).
+first learn about GraphQL on [the official website](https://graphql.org/learn/).
 
 ## Installation
 

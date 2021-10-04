@@ -11,11 +11,11 @@
 GraphQL is a modern way to build HTTP APIs consumed by the web and mobile clients.
 It is intended to be an alternative to REST and SOAP APIs (even for **existing applications**).
 
-GraphQL itself is a [specification](https://github.com/facebook/graphql) designed by Facebook
+GraphQL itself is a [specification](https://github.com/graphql/graphql-spec) designed by Facebook
 engineers. Various implementations of this specification were written
-[in different languages and environments](http://graphql.org/code/).
+[in different languages and environments](https://graphql.org/code/).
 
-Great overview of GraphQL features and benefits is presented on [the official website](http://graphql.org/).
+Great overview of GraphQL features and benefits is presented on [the official website](https://graphql.org/).
 All of them equally apply to this PHP implementation.
 
 ## About graphql-php
