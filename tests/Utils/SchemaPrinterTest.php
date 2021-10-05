@@ -526,8 +526,8 @@ class SchemaPrinterTest extends TestCase
             'fields' => ['str' => ['type' => Type::string()]],
         ]);
 
-        $baazType = new InterfaceType([
-            'name'   => 'Baaz',
+        $bazType = new InterfaceType([
+            'name'   => 'Baz',
             'fields' => ['int' => ['type' => Type::int()]],
         ]);
 
@@ -537,7 +537,7 @@ class SchemaPrinterTest extends TestCase
                 'str' => ['type' => Type::string()],
                 'int' => ['type' => Type::int()],
             ],
-            'interfaces' => [$fooType, $baazType],
+            'interfaces' => [$fooType, $bazType],
         ]);
 
         $schema = new Schema(['types' => [$barType]]);
@@ -545,12 +545,12 @@ class SchemaPrinterTest extends TestCase
         // the expected SDL differs from graphql-js: https://github.com/webonyx/graphql-php/issues/954
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
-            interface Baaz {
+            type Bar implements Foo & Baz {
+              str: String
               int: Int
             }
 
-            type Bar implements Foo & Baaz {
-              str: String
+            interface Baz {
               int: Int
             }
 
@@ -573,8 +573,8 @@ class SchemaPrinterTest extends TestCase
             'fields' => ['str' => ['type' => Type::string()]],
         ]);
 
-        $BaazType = new InterfaceType([
-            'name'       => 'Baaz',
+        $BazType = new InterfaceType([
+            'name'       => 'Baz',
             'interfaces' => [$FooType],
             'fields'     => [
                 'int' => ['type' => Type::int()],
@@ -588,7 +588,7 @@ class SchemaPrinterTest extends TestCase
                 'str' => ['type' => Type::string()],
                 'int' => ['type' => Type::int()],
             ],
-            'interfaces' => [$FooType, $BaazType],
+            'interfaces' => [$FooType, $BazType],
         ]);
 
         $query = new ObjectType([
@@ -604,14 +604,14 @@ class SchemaPrinterTest extends TestCase
         // the expected SDL differs from graphql-js: https://github.com/webonyx/graphql-php/issues/954
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
-            interface Baaz implements Foo {
-              int: Int
+            type Bar implements Foo & Baz {
               str: String
+              int: Int
             }
 
-            type Bar implements Foo & Baaz {
-              str: String
+            interface Baz implements Foo {
               int: Int
+              str: String
             }
 
             interface Foo {
