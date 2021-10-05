@@ -32,7 +32,6 @@ use function explode;
 use function implode;
 use function ksort;
 use function mb_strlen;
-use function preg_match_all;
 use function sprintf;
 use function str_replace;
 use function strlen;
@@ -164,18 +163,17 @@ class SchemaPrinter
      */
     protected static function printDescription(array $options, $def, string $indentation = '', bool $firstInBlock = true): string
     {
-        if ($def->description === null) {
+        $description = $def->description;
+        if ($description === null) {
             return '';
         }
 
         if (isset($options['commentDescriptions'])) {
-            $lines = static::descriptionLines($def->description, 120 - strlen($indentation));
-
-            return static::printDescriptionWithComments($lines, $indentation, $firstInBlock);
+            return static::printDescriptionWithComments($description, $indentation, $firstInBlock);
         }
 
-        $preferMultipleLines = mb_strlen($def->description) > 70;
-        $blockString         = BlockString::print($def->description, '', $preferMultipleLines);
+        $preferMultipleLines = mb_strlen($description) > 70;
+        $blockString         = BlockString::print($description, '', $preferMultipleLines);
         $prefix              = $indentation !== '' && ! $firstInBlock
             ? "\n" . $indentation
             : $indentation;
@@ -183,59 +181,18 @@ class SchemaPrinter
         return $prefix . str_replace("\n", "\n" . $indentation, $blockString) . "\n";
     }
 
-    /**
-     * @return array<int, string>
-     */
-    protected static function descriptionLines(string $description, int $maxLen): array
+    protected static function printDescriptionWithComments(string $description, string $indentation, bool $firstInBlock): string
     {
-        $lines    = [];
-        $rawLines = explode("\n", $description);
-        foreach ($rawLines as $line) {
+        $comment = $indentation !== '' && ! $firstInBlock ? "\n" : '';
+        foreach (explode("\n", $description) as $line) {
             if ($line === '') {
-                $lines[] = $line;
+                $comment .= $indentation . "#\n";
             } else {
-                // For > 120 character long lines, cut at space boundaries into sublines
-                // of ~80 chars.
-                $sublines = static::breakLine($line, $maxLen);
-                foreach ($sublines as $subline) {
-                    $lines[] = $subline;
-                }
+                $comment .= $indentation . '# ' . $line . "\n";
             }
         }
 
-        return $lines;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    protected static function breakLine(string $line, int $maxLen): array
-    {
-        if (strlen($line) < $maxLen + 5) {
-            return [$line];
-        }
-
-        preg_match_all('/((?: |^).{15,' . ($maxLen - 40) . '}(?= |$))/', $line, $parts);
-        $parts = $parts[0];
-
-        return array_map('trim', $parts);
-    }
-
-    /**
-     * @param array<int, string> $lines
-     */
-    protected static function printDescriptionWithComments(array $lines, string $indentation, bool $firstInBlock): string
-    {
-        $description = $indentation !== '' && ! $firstInBlock ? "\n" : '';
-        foreach ($lines as $line) {
-            if ($line === '') {
-                $description .= $indentation . "#\n";
-            } else {
-                $description .= $indentation . '# ' . $line . "\n";
-            }
-        }
-
-        return $description;
+        return $comment;
     }
 
     /**
