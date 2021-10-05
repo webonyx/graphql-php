@@ -542,6 +542,7 @@ class SchemaPrinterTest extends TestCase
 
         $schema = new Schema(['types' => [$barType]]);
 
+        // the expected SDL differs from graphql-js: https://github.com/webonyx/graphql-php/issues/954
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
             interface Baaz {
@@ -600,6 +601,7 @@ class SchemaPrinterTest extends TestCase
             'types' => [$BarType],
         ]);
 
+        // the expected SDL differs from graphql-js: https://github.com/webonyx/graphql-php/issues/954
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
             interface Baaz implements Foo {
@@ -652,6 +654,7 @@ class SchemaPrinterTest extends TestCase
 
         $schema = new Schema(['types' => [$singleUnion, $multipleUnion]]);
 
+        // the expected SDL differs from graphql-js: https://github.com/webonyx/graphql-php/issues/954
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
             type Bar {
