@@ -1007,51 +1007,51 @@ visitor API:
 
 1. Named visitors triggered when entering a node a specific kind.
 
-    Visitor::visit($ast, [
+   Visitor::visit($ast, [
       'Kind' => function ($node) {
-        // enter the "Kind" node
-      }
-    ]);
+   // enter the "Kind" node
+   }
+   ]);
 
 2. Named visitors that trigger upon entering and leaving a node of
    a specific kind.
 
-    Visitor::visit($ast, [
+   Visitor::visit($ast, [
       'Kind' => [
         'enter' => function ($node) {
-          // enter the "Kind" node
-        }
-        'leave' => function ($node) {
-          // leave the "Kind" node
-        }
-      ]
-    ]);
+   // enter the "Kind" node
+   }
+   'leave' => function ($node) {
+   // leave the "Kind" node
+   }
+   ]
+   ]);
 
 3. Generic visitors that trigger upon entering and leaving any node.
 
-    Visitor::visit($ast, [
+   Visitor::visit($ast, [
       'enter' => function ($node) {
-        // enter any node
-      },
-      'leave' => function ($node) {
-        // leave any node
-      }
-    ]);
+   // enter any node
+   },
+   'leave' => function ($node) {
+   // leave any node
+   }
+   ]);
 
 4. Parallel visitors for entering and leaving nodes of a specific kind.
 
-    Visitor::visit($ast, [
+   Visitor::visit($ast, [
       'enter' => [
         'Kind' => function($node) {
-          // enter the "Kind" node
-        }
-      },
-      'leave' => [
-        'Kind' => function ($node) {
-          // leave the "Kind" node
-        }
-      ]
-    ]);
+   // enter the "Kind" node
+   }
+   },
+   'leave' => [
+   'Kind' => function ($node) {
+   // leave the "Kind" node
+   }
+   ]
+   ]);
 
 ### GraphQL\Language\Visitor Methods
 
@@ -1618,10 +1618,10 @@ It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io
 and provides tools for error debugging.
 
 @phpstan-type FormattedErrorArray array{
- message: string,
- locations?: array<int, array{line: int, column: int}>,
- path?: array<int, int|string>,
- extensions?: array<string, mixed>,
+message: string,
+locations?: array<int, array{line: int, column: int}>,
+path?: array<int, int|string>,
+extensions?: array<string, mixed>,
 }
 
 ### GraphQL\Error\FormattedError Methods
@@ -2189,7 +2189,7 @@ Various utilities dealing with AST
 
 ### GraphQL\Utils\AST Methods
 
-```php
+````php
 /**
  * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
  *
@@ -2216,7 +2216,7 @@ Various utilities dealing with AST
  * @api
  */
 static function fromArray(array $node): GraphQL\Language\AST\Node
-```
+````
 
 ```php
 /**
@@ -2364,10 +2364,11 @@ static function concatAST(array $documents): GraphQL\Language\AST\DocumentNode
 Prints the contents of a Schema in schema definition language.
 
 @phpstan-type Options array{commentDescriptions?: bool}
-   Available options:
-   - commentDescriptions:
-       Provide true to use preceding comments as the description.
-       This option is provided to ease adoption and will be removed in v16.
+Available options:
+
+- commentDescriptions:
+  Provide true to use preceding comments as the description.
+  This option is provided to ease adoption and will be removed in v16.
 
 ### GraphQL\Utils\SchemaPrinter Methods
 
@@ -2390,4 +2391,3 @@ static function doPrint(GraphQL\Type\Schema $schema, array $options = []): strin
  */
 static function printIntrospectionSchema(GraphQL\Type\Schema $schema, array $options = []): string
 ```
-
