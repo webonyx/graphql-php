@@ -995,11 +995,20 @@ type Query {
         self::assertTrue(true);
     }
 
-    // Describe: Failures
-
     /**
-     * @see it('Allows only a single query type')
+     * @see it('Throws on unknown types')
      */
+    public function testThrowsOnUnknownTypes(): void
+    {
+        $this->expectException(Error::class);
+        $this->expectExceptionObject(new Error('Unknown type: "UnknownType".'));
+        BuildSchema::build('
+      type Query {
+        unknown: UnknownType
+      }
+', null, ['assumeValidSDL' => true])->assertValid();
+    }
+
     public function testAllowsOnlySingleQueryType(): void
     {
         $this->expectException(Error::class);
@@ -1022,9 +1031,6 @@ type Yellow {
         BuildSchema::buildAST($doc);
     }
 
-    /**
-     * @see it('Allows only a single mutation type')
-     */
     public function testAllowsOnlySingleMutationType(): void
     {
         $this->expectException(Error::class);
@@ -1048,9 +1054,6 @@ type Yellow {
         BuildSchema::buildAST($doc);
     }
 
-    /**
-     * @see it('Allows only a single subscription type')
-     */
     public function testAllowsOnlySingleSubscriptionType(): void
     {
         $this->expectException(Error::class);
@@ -1074,13 +1077,9 @@ type Yellow {
         BuildSchema::buildAST($doc);
     }
 
-    /**
-     * @see it('Unknown type referenced')
-     */
     public function testUnknownTypeReferenced(): void
     {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Bar" not found in document.');
+        $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
         $body   = '
 schema {
   query: Hello
@@ -1095,13 +1094,9 @@ type Hello {
         $schema->getTypeMap();
     }
 
-    /**
-     * @see it('Unknown type in interface list')
-     */
     public function testUnknownTypeInInterfaceList(): void
     {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Bar" not found in document.');
+        $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
         $body   = '
 type Query implements Bar {
   field: String
@@ -1112,13 +1107,9 @@ type Query implements Bar {
         $schema->getTypeMap();
     }
 
-    /**
-     * @see it('Unknown type in union list')
-     */
     public function testUnknownTypeInUnionList(): void
     {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Bar" not found in document.');
+        $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
         $body   = '
 union TestUnion = Bar
 type Query { testUnion: TestUnion }
@@ -1128,9 +1119,6 @@ type Query { testUnion: TestUnion }
         $schema->getTypeMap();
     }
 
-    /**
-     * @see it('Unknown query type')
-     */
     public function testUnknownQueryType(): void
     {
         $this->expectException(Error::class);
@@ -1148,9 +1136,6 @@ type Hello {
         BuildSchema::buildAST($doc);
     }
 
-    /**
-     * @see it('Unknown mutation type')
-     */
     public function testUnknownMutationType(): void
     {
         $this->expectException(Error::class);
@@ -1169,9 +1154,6 @@ type Hello {
         BuildSchema::buildAST($doc);
     }
 
-    /**
-     * @see it('Unknown subscription type')
-     */
     public function testUnknownSubscriptionType(): void
     {
         $this->expectException(Error::class);
@@ -1195,9 +1177,6 @@ type Wat {
         BuildSchema::buildAST($doc);
     }
 
-    /**
-     * @see it('Does not consider directive names')
-     */
     public function testDoesNotConsiderDirectiveNames(): void
     {
         $body = '
@@ -1212,9 +1191,6 @@ type Wat {
         BuildSchema::build($doc);
     }
 
-    /**
-     * @see it('Does not consider operation names')
-     */
     public function testDoesNotConsiderOperationNames(): void
     {
         $this->expectException(Error::class);
@@ -1230,9 +1206,6 @@ query Foo { field }
         BuildSchema::buildAST($doc);
     }
 
-    /**
-     * @see it('Does not consider fragment names')
-     */
     public function testDoesNotConsiderFragmentNames(): void
     {
         $this->expectException(Error::class);
@@ -1248,9 +1221,6 @@ fragment Foo on Type { field }
         BuildSchema::buildAST($doc);
     }
 
-    /**
-     * @see it('Forbids duplicate type definitions')
-     */
     public function testForbidsDuplicateTypeDefinitions(): void
     {
         $body = '

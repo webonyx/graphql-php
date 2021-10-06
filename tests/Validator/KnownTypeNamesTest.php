@@ -20,9 +20,13 @@ class KnownTypeNamesTest extends ValidatorTestCase
         $this->expectPassesRule(
             new KnownTypeNames(),
             '
-      query Foo($var: String, $required: [String!]!) {
+      query Foo(
+        $var: String
+        $required: [Int!]!
+        $introspectionType: __EnumValue
+      ) {
         user(id: 4) {
-          pets { ... on Pet { name }, ...PetFields }
+          pets { ... on Pet { name }, ...PetFields, ... { name } }
         }
       }
       fragment PetFields on Pet {
@@ -40,59 +44,37 @@ class KnownTypeNamesTest extends ValidatorTestCase
         $this->expectFailsRule(
             new KnownTypeNames(),
             '
-      query Foo($var: JumbledUpLetters) {
+      query Foo($var: [JumbledUpLetters!]!) {
         user(id: 4) {
           name
           pets { ... on Badger { name }, ...PetFields }
         }
       }
-      fragment PetFields on Peettt {
+      fragment PetFields on Peat {
         name
       }
         ',
             [
-                $this->unknownType('JumbledUpLetters', [], 2, 23),
+                $this->unknownType('JumbledUpLetters', [], 2, 24),
                 $this->unknownType('Badger', [], 5, 25),
-                $this->unknownType('Peettt', ['Pet'], 8, 29),
+                $this->unknownType('Peat', ['Pet', 'Cat'], 8, 29),
             ]
-        );
-    }
-
-    private function unknownType($typeName, $suggestedTypes, $line, $column)
-    {
-        return ErrorHelper::create(
-            KnownTypeNames::unknownTypeMessage($typeName, $suggestedTypes),
-            [new SourceLocation($line, $column)]
         );
     }
 
     /**
-     * @see it('ignores type definitions')
+     * @param array<string> $suggestedTypes
+     *
+     * @return array{
+     *     message: string,
+     *     locations?: array<int, array{line: int, column: int}>
+     * }
      */
-    public function testIgnoresTypeDefinitions(): void
+    private function unknownType(string $typeName, array $suggestedTypes, int $line, int $column)
     {
-        $this->expectFailsRule(
-            new KnownTypeNames(),
-            '
-      type NotInTheSchema {
-        field: FooBar
-      }
-      interface FooBar {
-        field: NotInTheSchema
-      }
-      union U = A | B
-      input Blob {
-        field: UnknownType
-      }
-      query Foo($var: NotInTheSchema) {
-        user(id: $var) {
-          id
-        }
-      }
-    ',
-            [
-                $this->unknownType('NotInTheSchema', [], 12, 23),
-            ]
+        return ErrorHelper::create(
+            KnownTypeNames::unknownTypeMessage($typeName, $suggestedTypes),
+            [new SourceLocation($line, $column)]
         );
     }
 }

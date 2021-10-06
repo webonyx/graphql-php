@@ -31,20 +31,36 @@ use function array_map;
 use function array_merge;
 use function json_encode;
 
+/**
+ * @phpstan-type Options array{
+ *   assumeValid?: bool,
+ * }
+ *
+ *    - assumeValid:
+ *          When building a schema from a GraphQL service's introspection result, it
+ *          might be safe to assume the schema is valid. Set to true to assume the
+ *          produced schema is valid.
+ *
+ *          Default: false
+ */
 class BuildClientSchema
 {
-    /** @var array<string, mixed[]> */
-    private $introspection;
-
-    /** @var array<string, bool> */
-    private $options;
-
-    /** @var array<string, NamedType&Type> */
-    private $typeMap;
+    /** @var array<string, mixed> */
+    private array $introspection;
 
     /**
-     * @param array<string, mixed[]> $introspectionQuery
-     * @param array<string, bool>    $options
+     * @var array<string, bool>
+     * @phpstan-var Options
+     */
+    private array $options;
+
+    /** @var array<string, NamedType&Type> */
+    private array $typeMap;
+
+    /**
+     * @param array<string, mixed> $introspectionQuery
+     * @param array<string, bool>  $options
+     * @phpstan-param Options    $options
      */
     public function __construct(array $introspectionQuery, array $options = [])
     {
@@ -64,17 +80,9 @@ class BuildClientSchema
      * This function expects a complete introspection result. Don't forget to check
      * the "errors" field of a server response before calling this function.
      *
-     * Accepts options as a third argument:
-     *
-     *    - assumeValid:
-     *          When building a schema from a GraphQL service's introspection result, it
-     *          might be safe to assume the schema is valid. Set to true to assume the
-     *          produced schema is valid.
-     *
-     *          Default: false
-     *
-     * @param array<string, mixed[]> $introspectionQuery
-     * @param array<string, bool>    $options
+     * @param array<string, mixed> $introspectionQuery
+     * @param array<string, bool>  $options
+     * @phpstan-param Options    $options
      *
      * @api
      */

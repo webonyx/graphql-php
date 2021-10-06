@@ -26,11 +26,9 @@ final class LazyTypeLoaderTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @var ObjectType */
-    private $query;
+    private ObjectType $query;
 
-    /** @var ObjectType */
-    private $mutation;
+    private ObjectType $mutation;
 
     /** @var callable */
     private $node;
@@ -50,11 +48,11 @@ final class LazyTypeLoaderTest extends TestCase
     /** @var callable */
     private $typeLoader;
 
-    /** @var string[] */
-    private $calls;
+    /** @var array<int, string> */
+    private array $calls;
 
-    /** @var Type[] */
-    private $loadedTypes = [];
+    /** @var array<string, Type> */
+    private array $loadedTypes = [];
 
     public function setUp(): void
     {

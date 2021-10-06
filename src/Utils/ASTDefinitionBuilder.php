@@ -51,7 +51,7 @@ class ASTDefinitionBuilder
     /** @var array<string, bool> */
     private array $options;
 
-    /** @var callable(string $typeName, ?Node $typeNode = null): Type */
+    /** @var callable(string, ?Node): Type */
     private $resolveType;
 
     /** @var callable|null */
@@ -65,7 +65,7 @@ class ASTDefinitionBuilder
      * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
      * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
      * @param array<string, bool> $options
-     * @param callable(string, ?Node $typeNode):          Type $resolveType
+     * @param callable(string, ?Node): Type $resolveType
      */
     public function __construct(
         array $typeDefinitionsMap,
@@ -189,7 +189,7 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param string|(Node &NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+     * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
      */
     public function buildType($ref): Type
     {

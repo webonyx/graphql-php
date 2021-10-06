@@ -106,7 +106,9 @@ class TypeInfo
     }
 
     /**
-     * Given root type scans through all fields to find nested types. Returns array where keys are for type name
+     * Given root type scans through all fields to find nested types.
+     *
+     * Returns array where keys are for type name
      * and value contains corresponding type instance.
      *
      * Example output:
