@@ -48,7 +48,8 @@ use function strlen;
 class SchemaPrinter
 {
     /**
-     * @param Options $options
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
      *
      * @api
      */
@@ -67,9 +68,59 @@ class SchemaPrinter
     }
 
     /**
-     * @param callable(Directive $directive): bool $directiveFilter
-     * @param callable(Type      $type):      bool $typeFilter
-     * @param Options            $options
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     *
+     * @api
+     */
+    public static function printIntrospectionSchema(Schema $schema, array $options = []): string
+    {
+        return static::printFilteredSchema(
+            $schema,
+            [Directive::class, 'isSpecifiedDirective'],
+            [Introspection::class, 'isIntrospectionType'],
+            $options
+        );
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    public static function printType(Type $type, array $options = []): string
+    {
+        if ($type instanceof ScalarType) {
+            return static::printScalar($type, $options);
+        }
+
+        if ($type instanceof ObjectType) {
+            return static::printObject($type, $options);
+        }
+
+        if ($type instanceof InterfaceType) {
+            return static::printInterface($type, $options);
+        }
+
+        if ($type instanceof UnionType) {
+            return static::printUnion($type, $options);
+        }
+
+        if ($type instanceof EnumType) {
+            return static::printEnum($type, $options);
+        }
+
+        if ($type instanceof InputObjectType) {
+            return static::printInputObject($type, $options);
+        }
+
+        throw new Error(sprintf('Unknown type: %s.', Utils::printSafe($type)));
+    }
+
+    /**
+     * @param callable(Directive  $directive): bool $directiveFilter
+     * @param callable(Type       $type):      bool $typeFilter
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
     protected static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
     {
@@ -148,7 +199,8 @@ class SchemaPrinter
     }
 
     /**
-     * @param Options $options
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
     protected static function printDirective(Directive $directive, array $options): string
     {
@@ -200,6 +252,7 @@ class SchemaPrinter
     /**
      * @param array<string, bool>       $options
      * @param array<int, FieldArgument> $args
+     * @phpstan-param Options $options
      */
     protected static function printArgs(array $options, array $args, string $indentation = ''): string
     {
@@ -250,39 +303,8 @@ class SchemaPrinter
     }
 
     /**
-     * @param Options $options
-     */
-    public static function printType(Type $type, array $options = []): string
-    {
-        if ($type instanceof ScalarType) {
-            return static::printScalar($type, $options);
-        }
-
-        if ($type instanceof ObjectType) {
-            return static::printObject($type, $options);
-        }
-
-        if ($type instanceof InterfaceType) {
-            return static::printInterface($type, $options);
-        }
-
-        if ($type instanceof UnionType) {
-            return static::printUnion($type, $options);
-        }
-
-        if ($type instanceof EnumType) {
-            return static::printEnum($type, $options);
-        }
-
-        if ($type instanceof InputObjectType) {
-            return static::printInputObject($type, $options);
-        }
-
-        throw new Error(sprintf('Unknown type: %s.', Utils::printSafe($type)));
-    }
-
-    /**
-     * @param Options $options
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
     protected static function printScalar(ScalarType $type, array $options): string
     {
@@ -290,7 +312,8 @@ class SchemaPrinter
     }
 
     /**
-     * @param Options $options
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
     protected static function printObject(ObjectType $type, array $options): string
     {
@@ -303,6 +326,7 @@ class SchemaPrinter
     /**
      * @param array<string, bool>      $options
      * @param ObjectType|InterfaceType $type
+     * @phpstan-param Options $options
      */
     protected static function printFields(array $options, $type): string
     {
@@ -358,7 +382,8 @@ class SchemaPrinter
     }
 
     /**
-     * @param Options $options
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
     protected static function printInterface(InterfaceType $type, array $options): string
     {
@@ -369,7 +394,8 @@ class SchemaPrinter
     }
 
     /**
-     * @param Options $options
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
     protected static function printUnion(UnionType $type, array $options): string
     {
@@ -382,7 +408,8 @@ class SchemaPrinter
     }
 
     /**
-     * @param Options $options
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
     protected static function printEnum(EnumType $type, array $options): string
     {
@@ -404,7 +431,8 @@ class SchemaPrinter
     }
 
     /**
-     * @param Options $options
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
     protected static function printInputObject(InputObjectType $type, array $options): string
     {
@@ -420,21 +448,6 @@ class SchemaPrinter
         return static::printDescription($options, $type) .
             sprintf('input %s', $type->name) .
             static::printBlock($fields);
-    }
-
-    /**
-     * @param Options $options
-     *
-     * @api
-     */
-    public static function printIntrospectionSchema(Schema $schema, array $options = []): string
-    {
-        return static::printFilteredSchema(
-            $schema,
-            [Directive::class, 'isSpecifiedDirective'],
-            [Introspection::class, 'isIntrospectionType'],
-            $options
-        );
     }
 
     /**
