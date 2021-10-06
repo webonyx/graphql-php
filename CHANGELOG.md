@@ -20,6 +20,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Use native PHP types for `Schema` and `SchemaConfig`
 - Always throw `RequestError` with useful message when clients provide an invalid JSON body
 - Move class `BlockString` from namespace `GraphQL\Utils` to `GraphQL\Language`
+- Return string-keyed arrays from `GraphQL::getStandardDirectives()`, `GraphQL::getStandardTypes()` and `GraphQL::getStandardValidationRules()`
 
 ### Added
 
