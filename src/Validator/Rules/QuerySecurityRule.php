@@ -18,39 +18,27 @@ use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 use InvalidArgumentException;
 
-use function class_alias;
-use function sprintf;
-
 abstract class QuerySecurityRule extends ValidationRule
 {
     public const DISABLED = 0;
 
-    /** @var FragmentDefinitionNode[] */
+    /** @var array<string, FragmentDefinitionNode> */
     protected array $fragments = [];
 
-    /**
-     * check if equal to 0 no check is done. Must be greater or equal to 0.
-     *
-     * @param string $name
-     * @param int    $value
-     */
-    protected function checkIfGreaterOrEqualToZero($name, $value): void
+    protected function checkIfGreaterOrEqualToZero(string $name, int $value): void
     {
         if ($value < 0) {
-            throw new InvalidArgumentException(sprintf('$%s argument must be greater or equal to 0.', $name));
+            throw new InvalidArgumentException('$' . $name . ' argument must be greater or equal to 0.');
         }
     }
 
-    protected function getFragment(FragmentSpreadNode $fragmentSpread)
+    protected function getFragment(FragmentSpreadNode $fragmentSpread): ?FragmentDefinitionNode
     {
-        $spreadName = $fragmentSpread->name->value;
-        $fragments  = $this->getFragments();
-
-        return $fragments[$spreadName] ?? null;
+        return $this->fragments[$fragmentSpread->name->value] ?? null;
     }
 
     /**
-     * @return FragmentDefinitionNode[]
+     * @return array<string, FragmentDefinitionNode>
      */
     protected function getFragments(): array
     {
@@ -91,7 +79,7 @@ abstract class QuerySecurityRule extends ValidationRule
     }
 
     /**
-     * Given a selectionSet, adds all of the fields in that selection to
+     * Given a selectionSet, adds all fields in that selection to
      * the passed in map of fields, and returns it at the end.
      *
      * Note: This is not the same as execution's collectFields because at static
@@ -99,12 +87,10 @@ abstract class QuerySecurityRule extends ValidationRule
      * spread in all fragments.
      *
      * @see \GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
-     *
-     * @param Type|null $parentType
      */
     protected function collectFieldASTsAndDefs(
         ValidationContext $context,
-        $parentType,
+        ?Type $parentType,
         SelectionSetNode $selectionSet,
         ?ArrayObject $visitedFragmentNames = null,
         ?ArrayObject $astAndDefs = null
@@ -178,7 +164,7 @@ abstract class QuerySecurityRule extends ValidationRule
         return $_astAndDefs;
     }
 
-    protected function getFieldName(FieldNode $node)
+    protected function getFieldName(FieldNode $node): string
     {
         $fieldName = $node->name->value;
 
@@ -187,5 +173,3 @@ abstract class QuerySecurityRule extends ValidationRule
             : $node->alias->value;
     }
 }
-
-class_alias(QuerySecurityRule::class, 'GraphQL\Validator\Rules\AbstractQuerySecurity');

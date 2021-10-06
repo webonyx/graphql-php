@@ -9,18 +9,15 @@ class FieldNode extends Node implements SelectionNode
     /** @var string */
     public $kind = NodeKind::FIELD;
 
-    /** @var NameNode */
-    public $name;
+    public NameNode $name;
 
-    /** @var NameNode|null */
-    public $alias;
+    public ?NameNode $alias = null;
 
     /** @var NodeList<ArgumentNode> */
-    public $arguments;
+    public NodeList $arguments;
 
     /** @var NodeList<DirectiveNode> */
-    public $directives;
+    public NodeList $directives;
 
-    /** @var SelectionSetNode|null */
-    public $selectionSet;
+    public ?SelectionSetNode $selectionSet = null;
 }

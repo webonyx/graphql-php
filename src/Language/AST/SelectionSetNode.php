@@ -10,5 +10,5 @@ class SelectionSetNode extends Node
     public $kind = NodeKind::SELECTION_SET;
 
     /** @var NodeList<SelectionNode&Node> */
-    public $selections;
+    public NodeList $selections;
 }
