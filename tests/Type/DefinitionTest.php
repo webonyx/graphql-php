@@ -589,9 +589,9 @@ class DefinitionTest extends TestCase
                 return [$this->objectType];
             },
         ]);
-
         $types = $union->getTypes();
-        self::assertEquals(1, count($types));
+
+        self::assertCount(1, $types);
         self::assertSame($this->objectType, $types[0]);
     }
 

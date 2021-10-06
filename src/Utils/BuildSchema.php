@@ -94,7 +94,7 @@ class BuildSchema
         return $builder->buildSchema();
     }
 
-    public function buildSchema()
+    public function buildSchema(): Schema
     {
         $options = $this->options;
         if (! ($options['assumeValid'] ?? false) && ! ($options['assumeValidSDL'] ?? false)) {
@@ -102,7 +102,6 @@ class BuildSchema
         }
 
         $schemaDef     = null;
-        $typeDefs      = [];
         $this->nodeMap = [];
         /** @var array<int, DirectiveDefinitionNode> $directiveDefs */
         $directiveDefs = [];
@@ -117,7 +116,6 @@ class BuildSchema
                         throw new Error(sprintf('Type "%s" was defined more than once.', $typeName));
                     }
 
-                    $typeDefs[]               = $definition;
                     $this->nodeMap[$typeName] = $definition;
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
@@ -181,13 +179,11 @@ class BuildSchema
             'subscription' => isset($operationTypes['subscription'])
                 ? $definitionBuilder->buildType($operationTypes['subscription'])
                 : null,
-            'typeLoader'   => static function ($name) use ($definitionBuilder): Type {
-                return $definitionBuilder->buildType($name);
-            },
+            'typeLoader'   => static fn (string $name): Type => $definitionBuilder->buildType($name),
             'directives'   => $directives,
             'astNode'      => $schemaDef,
             'types'        => fn (): array => array_map(
-                static fn ($def): Type => $definitionBuilder->buildType($def->name->value),
+                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value),
                 $this->nodeMap,
             ),
         ]);

@@ -596,8 +596,7 @@ class SchemaExtender
         static::$astBuilder = new ASTDefinitionBuilder(
             $typeDefinitionMap,
             $options,
-            static function (string $typeName) use ($schema) {
-                /** @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $existingType */
+            static function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
                 if ($existingType !== null) {
                     return static::extendNamedType($existingType);
