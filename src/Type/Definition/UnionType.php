@@ -24,7 +24,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     /**
      * Lazily initialized.
      *
-     * @var array<ObjectType>
+     * @var array<int, ObjectType>
      */
     private array $types;
 
@@ -78,13 +78,15 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     }
 
     /**
-     * @return ObjectType[]
+     * @return array<int, ObjectType>
      *
      * @throws InvariantViolation
      */
     public function getTypes(): array
     {
         if (! isset($this->types)) {
+            $this->types = [];
+
             $types = $this->config['types'] ?? null;
             if (is_callable($types)) {
                 $types = $types();
@@ -92,19 +94,19 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
             if (! is_array($types)) {
                 throw new InvariantViolation(
-                    sprintf(
-                        'Must provide Array of types or a callable which returns such an array for Union %s',
-                        $this->name
-                    )
+                    "Must provide Array of types or a callable which returns such an array for Union {$this->name}."
                 );
             }
 
-            $rawTypes = $types;
-            foreach ($rawTypes as $i => $rawType) {
-                $rawTypes[$i] = Schema::resolveType($rawType);
+            foreach ($types as $type) {
+                /**
+                 * Might not be true, actually checked during schema validation.
+                 *
+                 * @var ObjectType $resolvedType
+                 */
+                $resolvedType  = Schema::resolveType($type);
+                $this->types[] = $resolvedType;
             }
-
-            $this->types = $rawTypes;
         }
 
         return $this->types;
