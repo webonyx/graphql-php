@@ -119,7 +119,7 @@ class DocumentValidator
     /**
      * Returns all global validation rules.
      *
-     * @return ValidationRule[]
+     * @return array<class-string<ValidationRule>, ValidationRule>
      *
      * @api
      */
@@ -133,7 +133,10 @@ class DocumentValidator
         return self::$rules;
     }
 
-    public static function defaultRules()
+    /**
+     * @return array<class-string<ValidationRule>, ValidationRule>
+     */
+    public static function defaultRules(): array
     {
         if (self::$defaultRules === null) {
             self::$defaultRules = [

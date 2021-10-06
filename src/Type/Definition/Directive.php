@@ -93,7 +93,7 @@ class Directive
     }
 
     /**
-     * @return Directive[]
+     * @return array<string, Directive>
      */
     public static function getInternalDirectives(): array
     {
