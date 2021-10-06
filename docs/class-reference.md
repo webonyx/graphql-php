@@ -6,6 +6,7 @@ See [related documentation](executing-queries.md).
 ### GraphQL\GraphQL Methods
 
 ```php
+
 /**
  * Executes graphql query.
  *
@@ -1021,7 +1022,7 @@ visitor API:
         'enter' => function ($node) {
    // enter the "Kind" node
    }
-   'leave' => function ($node) {
+   'leave' => function (\$node) {
    // leave the "Kind" node
    }
    ]
@@ -1033,7 +1034,7 @@ visitor API:
       'enter' => function ($node) {
    // enter any node
    },
-   'leave' => function ($node) {
+   'leave' => function (\$node) {
    // leave any node
    }
    ]);
@@ -2135,8 +2136,17 @@ function isReadOnly(): bool
 
 ## GraphQL\Utils\BuildSchema
 
-Build instance of `GraphQL\Type\Schema` out of schema language definition (string or parsed AST)
+Build instance of @see \GraphQL\Type\Schema out of schema language definition (string or parsed AST).
+
 See [schema definition language docs](schema-definition-language.md) for details.
+
+@phpstan-type Options array{
+commentDescriptions?: bool,
+}
+
+- commentDescriptions:
+  Provide true to use preceding comments as the description.
+  This option is provided to ease adoption and will be removed in v16.
 
 ### GraphQL\Utils\BuildSchema Methods
 
@@ -2147,6 +2157,7 @@ See [schema definition language docs](schema-definition-language.md) for details
  *
  * @param DocumentNode|Source|string $source
  * @param array<string, bool>        $options
+ * @phpstan-param Options $options
  *
  * @api
  */
@@ -2155,22 +2166,15 @@ static function build($source, callable $typeConfigDecorator = null, array $opti
 
 ```php
 /**
- * This takes the ast of a schema document produced by the parse function in
- * GraphQL\Language\Parser.
+ * This takes the AST of a schema from @see \GraphQL\Language\Parser::parse().
  *
- * If no schema definition is provided, then it will look for types named Query
- * and Mutation.
+ * If no schema definition is provided, then it will look for types named Query and Mutation.
  *
- * Given that AST it constructs a GraphQL\Type\Schema. The resulting schema
+ * Given that AST it constructs a @see \GraphQL\Type\Schema. The resulting schema
  * has no resolve methods, so execution will use default resolvers.
  *
- * Accepts options as a third argument:
- *
- *    - commentDescriptions:
- *        Provide true to use preceding comments as the description.
- *        This option is provided to ease adoption and will be removed in v16.
- *
  * @param array<string, bool> $options
+ * @phpstan-param Options $options
  *
  * @throws Error
  *
