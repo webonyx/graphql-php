@@ -16,18 +16,12 @@ use function is_callable;
 use function is_string;
 use function sprintf;
 
-/**
- * @todo Move complexity-related code to it's own place
- */
 class FieldDefinition
 {
-    public const DEFAULT_COMPLEXITY_FN = 'GraphQL\Type\Definition\FieldDefinition::defaultComplexity';
-
-    /** @var string */
-    public $name;
+    public string $name;
 
     /** @var array<int, FieldArgument> */
-    public $args;
+    public array $args;
 
     /**
      * Callback for resolving field value given parent value.
@@ -45,47 +39,42 @@ class FieldDefinition
      */
     public $mapFn;
 
-    /** @var string|null */
-    public $description;
+    public ?string $description;
 
-    /** @var string|null */
-    public $deprecationReason;
+    public ?string $deprecationReason;
 
-    /** @var FieldDefinitionNode|null */
-    public $astNode;
+    public ?FieldDefinitionNode $astNode;
 
     /**
      * Original field definition config
      *
-     * @var mixed[]
+     * @var array<string, mixed>
      */
-    public $config;
+    public array $config;
 
     /** @var OutputType&Type */
-    private $type;
+    private Type $type;
 
-    /** @var callable|string */
-    private $complexityFn;
+    /** @var callable(int, array<string, mixed>): int|null */
+    public $complexityFn;
 
     /**
-     * @param mixed[] $config
+     * @param array<string, mixed> $config
      */
     protected function __construct(array $config)
     {
-        $this->name      = $config['name'];
-        $this->resolveFn = $config['resolve'] ?? null;
-        $this->mapFn     = $config['map'] ?? null;
-        $this->args      = isset($config['args'])
+        $this->name              = $config['name'];
+        $this->resolveFn         = $config['resolve'] ?? null;
+        $this->mapFn             = $config['map'] ?? null;
+        $this->args              = isset($config['args'])
             ? FieldArgument::createMap($config['args'])
             : [];
-
         $this->description       = $config['description'] ?? null;
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
+        $this->complexityFn      = $config['complexity'] ?? null;
 
         $this->config = $config;
-
-        $this->complexityFn = $config['complexity'] ?? self::DEFAULT_COMPLEXITY_FN;
     }
 
     /**
@@ -163,21 +152,11 @@ class FieldDefinition
     }
 
     /**
-     * @param mixed[] $field
+     * @param array<string, mixed> $field
      */
-    public static function create($field): FieldDefinition
+    public static function create(array $field): FieldDefinition
     {
         return new self($field);
-    }
-
-    /**
-     * @param int $childrenComplexity
-     *
-     * @return mixed
-     */
-    public static function defaultComplexity($childrenComplexity)
-    {
-        return $childrenComplexity + 1;
     }
 
     public function getArg(string $name): ?FieldArgument
@@ -268,11 +247,6 @@ class FieldDefinition
     public function isDeprecated(): bool
     {
         return (bool) $this->deprecationReason;
-    }
-
-    public function getComplexityFn(): callable
-    {
-        return $this->complexityFn;
     }
 
     /**

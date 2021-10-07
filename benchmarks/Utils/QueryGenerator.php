@@ -58,9 +58,9 @@ class QueryGenerator
                 new OperationDefinitionNode([
                     'name' => new NameNode(['value' => 'TestQuery']),
                     'operation' => 'query',
-                    'selectionSet' => $this->buildSelectionSet($queryType->getFields()),
                     'variableDefinitions' => new NodeList([]),
                     'directives' => new NodeList([]),
+                    'selectionSet' => $this->buildSelectionSet($queryType->getFields()),
                 ]),
             ]),
         ]);

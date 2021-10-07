@@ -137,20 +137,13 @@ class QueryDepthTest extends QuerySecurityTestCase
         ];
     }
 
-    /**
-     * @param int $max
-     * @param int $count
-     */
-    protected function getErrorMessage($max, $count): string
+    protected function getErrorMessage(int $max, int $count): string
     {
         return QueryDepth::maxQueryDepthErrorMessage($max, $count);
     }
 
-    /**
-     * @param int $maxDepth
-     */
-    protected function getRule($maxDepth): QueryDepth
+    protected function getRule(int $max): QueryDepth
     {
-        return new QueryDepth($maxDepth);
+        return new QueryDepth($max);
     }
 }

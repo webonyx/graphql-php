@@ -13,11 +13,11 @@ use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\ValidationContext;
 
 use function count;
+use function is_int;
 
 class QueryComplexityTest extends QuerySecurityTestCase
 {
-    /** @var QueryComplexity */
-    private static $rule;
+    private static QueryComplexity $rule;
 
     public function testSimpleQueries(): void
     {
@@ -26,22 +26,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 2, 3);
     }
 
-    public function testGetQueryComplexity(): void
-    {
-        $query = 'query MyQuery { human { firstName } }';
-
-        $rule = $this->getRule(5);
-
-        DocumentValidator::validate(
-            QuerySecuritySchema::buildSchema(),
-            Parser::parse($query),
-            [$rule]
-        );
-
-        self::assertEquals(2, $rule->getQueryComplexity(), $query);
-    }
-
-    private function assertDocumentValidators($query, $queryComplexity, $startComplexity): void
+    private function assertDocumentValidators(string $query, int $queryComplexity, int $startComplexity): void
     {
         for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
             $positions = [];
@@ -98,15 +83,12 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 3, 4);
     }
 
-    /**
-     * @param int $maxDepth
-     */
-    protected function getRule($maxDepth = null): QueryComplexity
+    protected function getRule(int $max = 0): QueryComplexity
     {
-        if (self::$rule === null) {
-            self::$rule = new QueryComplexity($maxDepth);
-        } elseif ($maxDepth !== null) {
-            self::$rule->setMaxQueryComplexity($maxDepth);
+        if (! isset(self::$rule)) {
+            self::$rule = new QueryComplexity($max);
+        } elseif (is_int($max)) {
+            self::$rule->setMaxQueryComplexity($max);
         }
 
         return self::$rule;
@@ -217,20 +199,9 @@ class QueryComplexityTest extends QuerySecurityTestCase
 
         self::assertEquals(1, count($errors));
         self::assertSame($reportedError, $errors[0]);
-
-        $this->expectException(Error::class);
-        DocumentValidator::validate(
-            QuerySecuritySchema::buildSchema(),
-            Parser::parse($query),
-            [$this->getRule(1)]
-        );
     }
 
-    /**
-     * @param int $max
-     * @param int $count
-     */
-    protected function getErrorMessage($max, $count): string
+    protected function getErrorMessage(int $max, int $count): string
     {
         return QueryComplexity::maxQueryComplexityErrorMessage($max, $count);
     }

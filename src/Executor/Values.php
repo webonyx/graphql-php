@@ -38,12 +38,12 @@ class Values
     /**
      * Prepares an object map of variables of the correct type based on the provided
      * variable definitions and arbitrary input. If the input cannot be coerced
-     * to match the variable definitions, a Error will be thrown.
+     * to match the variable definitions, an Error will be thrown.
      *
      * @param NodeList<VariableDefinitionNode> $varDefNodes
-     * @param mixed[]                          $inputs
+     * @param array<string, mixed>             $inputs
      *
-     * @return mixed[]
+     * @return array{array<int, Error>, null}|array{null, array<string, mixed>}
      */
     public static function getVariableValues(Schema $schema, NodeList $varDefNodes, array $inputs): array
     {

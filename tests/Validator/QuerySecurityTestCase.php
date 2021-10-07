@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Validator;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
+use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
@@ -26,19 +27,16 @@ abstract class QuerySecurityTestCase extends TestCase
         $this->getRule(-1);
     }
 
-    /**
-     * @param int $max
-     */
-    abstract protected function getRule($max): QuerySecurityRule;
+    abstract protected function getRule(int $max): QuerySecurityRule;
 
-    protected function assertIntrospectionQuery($maxExpected): void
+    protected function assertIntrospectionQuery(int $maxExpected): void
     {
         $query = Introspection::getIntrospectionQuery();
 
         $this->assertMaxValue($query, $maxExpected);
     }
 
-    protected function assertMaxValue($query, $maxExpected): void
+    protected function assertMaxValue(string $query, int $maxExpected): void
     {
         $this->assertDocumentValidator($query, $maxExpected);
         $newMax = $maxExpected - 1;
@@ -50,13 +48,11 @@ abstract class QuerySecurityTestCase extends TestCase
     }
 
     /**
-     * @param string     $queryString
-     * @param int        $max
-     * @param string[][] $expectedErrors
+     * @param array<int, array<string, mixed>> $expectedErrors
      *
-     * @return Error[]
+     * @return array<int, Error>
      */
-    protected function assertDocumentValidator($queryString, $max, array $expectedErrors = []): array
+    protected function assertDocumentValidator(string $queryString, int $max, array $expectedErrors = []): array
     {
         $errors = DocumentValidator::validate(
             QuerySecuritySchema::buildSchema(),
@@ -69,16 +65,15 @@ abstract class QuerySecurityTestCase extends TestCase
         return $errors;
     }
 
-    protected function createFormattedError($max, $count, $locations = [])
+    /**
+     * @param array<SourceLocation> $locations
+     */
+    protected function createFormattedError(int $max, int $count, array $locations = [])
     {
         return ErrorHelper::create($this->getErrorMessage($max, $count), $locations);
     }
 
-    /**
-     * @param int $max
-     * @param int $count
-     */
-    abstract protected function getErrorMessage($max, $count): string;
+    abstract protected function getErrorMessage(int $max, int $count): string;
 
     protected function assertIntrospectionTypeMetaFieldQuery($maxExpected): void
     {
