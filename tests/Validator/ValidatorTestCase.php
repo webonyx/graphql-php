@@ -18,18 +18,26 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
+use GraphQL\Validator\Rules\ValidationRule;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
 
 abstract class ValidatorTestCase extends TestCase
 {
-    protected function expectPassesRule($rule, $queryString, $options = []): void
+    /**
+     * @param array<string, mixed> $options
+     */
+    protected function expectPassesRule(ValidationRule $rule, string $queryString, array $options = []): void
     {
         $this->expectValid(self::getTestSchema(), [$rule], $queryString, $options);
     }
 
-    protected function expectValid($schema, $rules, $queryString, $options = []): void
+    /**
+     * @param array<ValidationRule> $rules
+     * @param array<string, mixed>  $options
+     */
+    protected function expectValid(Schema $schema, array $rules, string $queryString, array $options = []): void
     {
         self::assertEquals(
             [],
@@ -412,12 +420,25 @@ abstract class ValidatorTestCase extends TestCase
         ]);
     }
 
-    protected function expectFailsRule($rule, $queryString, $errors, $options = [])
-    {
+    /**
+     * @param array<int, array<string, mixed>> $errors
+     * @param array<string, mixed>             $options
+     */
+    protected function expectFailsRule(
+        ValidationRule $rule,
+        string $queryString,
+        array $errors,
+        array $options = []
+    ) {
         return $this->expectInvalid(self::getTestSchema(), [$rule], $queryString, $errors, $options);
     }
 
-    protected function expectInvalid($schema, $rules, $queryString, $expectedErrors, $options = [])
+    /**
+     * @param array<ValidationRule>            $rules
+     * @param array<int, array<string, mixed>> $expectedErrors
+     * @param array<string, mixed>             $options
+     */
+    protected function expectInvalid(Schema $schema, array $rules, string $queryString, array $expectedErrors, array $options = [])
     {
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules);
 
@@ -427,32 +448,54 @@ abstract class ValidatorTestCase extends TestCase
         return $errors;
     }
 
-    protected function expectPassesRuleWithSchema($schema, $rule, $queryString): void
+    protected function expectPassesRuleWithSchema(Schema $schema, ValidationRule $rule, string $queryString): void
     {
         $this->expectValid($schema, [$rule], $queryString);
     }
 
-    protected function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors): void
-    {
+    /**
+     * @param array<int, array<string, mixed>> $errors
+     */
+    protected function expectFailsRuleWithSchema(
+        Schema $schema,
+        ValidationRule $rule,
+        string $queryString,
+        array $errors
+    ): void {
         $this->expectInvalid($schema, [$rule], $queryString, $errors);
     }
 
-    protected function expectPassesCompleteValidation($queryString): void
+    protected function expectPassesCompleteValidation(string $queryString): void
     {
         $this->expectValid(self::getTestSchema(), DocumentValidator::allRules(), $queryString);
     }
 
-    protected function expectFailsCompleteValidation($queryString, $errors): void
+    /**
+     * @param array<int, array<string, mixed>> $errors
+     */
+    protected function expectFailsCompleteValidation(string $queryString, array $errors): void
     {
         $this->expectInvalid(self::getTestSchema(), DocumentValidator::allRules(), $queryString, $errors);
     }
 
-    protected function expectSDLErrorsFromRule($rule, $sdlString, ?Schema $schema = null, $errors = []): void
-    {
+    /**
+     * @param array<int, array<string, mixed>> $errors
+     */
+    protected function expectSDLErrorsFromRule(
+        ValidationRule $rule,
+        string $sdlString,
+        ?Schema $schema = null,
+        array $errors = []
+    ): void {
         $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
         self::assertEquals(
             $errors,
             array_map([FormattedError::class, 'createFromException'], $actualErrors)
         );
+    }
+
+    protected function expectValidSDL(ValidationRule $rule, string $sdlString, ?Schema $schema = null): void
+    {
+        $this->expectSDLErrorsFromRule($rule, $sdlString, $schema, []);
     }
 }
