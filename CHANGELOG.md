@@ -21,6 +21,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Always throw `RequestError` with useful message when clients provide an invalid JSON body
 - Move class `BlockString` from namespace `GraphQL\Utils` to `GraphQL\Language`
 - Return string-keyed arrays from `GraphQL::getStandardDirectives()`, `GraphQL::getStandardTypes()` and `GraphQL::getStandardValidationRules()`
+- Move complexity related code from `FieldDefinition` to `QueryComplexity`
 
 ### Added
 
@@ -64,6 +65,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated methods from `TypeInfo`
 - Remove deprecated `Values::valueFromAST()` and `Values::isValidPHPValue()`
 - Remove deprecated public property access to `InputObjectField::$type`
+- Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
 
 ## 14.9.0
 
