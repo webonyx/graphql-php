@@ -39,26 +39,19 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     public array $extensionASTNodes;
 
     /**
-     * @param mixed[] $config
+     * @param array<string, mixed> $config
      */
     public function __construct(array $config)
     {
-        if (! isset($config['name'])) {
-            $config['name'] = $this->tryInferName();
-        }
-
+        $config['name'] ??= $this->tryInferName();
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        /**
-         * Optionally provide a custom type resolver function. If one is not provided,
-         * the default implementation will call `isTypeOf` on each implementing
-         * Object type.
-         */
         $this->name              = $config['name'];
-        $this->description       = $config['description'] ?? null;
+        $this->description       = $config['description'] ?? $this->description ?? null;
         $this->astNode           = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
-        $this->config            = $config;
+
+        $this->config = $config;
     }
 
     public function isPossibleType(Type $type): bool

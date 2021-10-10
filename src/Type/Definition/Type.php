@@ -307,10 +307,10 @@ abstract class Type implements JsonSerializable
         // If class is extended - infer name from className
         // QueryType -> Type
         // SomeOtherType -> SomeOther
-        $tmp  = new ReflectionClass($this);
-        $name = $tmp->getShortName();
+        $reflection = new ReflectionClass($this);
+        $name       = $reflection->getShortName();
 
-        if ($tmp->getNamespaceName() !== __NAMESPACE__) {
+        if ($reflection->getNamespaceName() !== __NAMESPACE__) {
             return preg_replace('~Type$~', '', $name);
         }
 

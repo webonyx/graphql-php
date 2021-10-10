@@ -36,17 +36,15 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     public function __construct(array $config)
     {
-        if (! isset($config['name'])) {
-            $config['name'] = $this->tryInferName();
-        }
-
+        $config['name'] ??= $this->tryInferName();
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        $this->config            = $config;
         $this->name              = $config['name'];
         $this->astNode           = $config['astNode'] ?? null;
         $this->description       = $config['description'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
+
+        $this->config = $config;
     }
 
     /**
