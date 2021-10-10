@@ -159,15 +159,15 @@ class Introspection
 EOD;
     }
 
-    /**
-     * @param Type $type
-     */
-    public static function isIntrospectionType($type): bool
+    public static function isIntrospectionType(Type $type): bool
     {
         return array_key_exists($type->name, self::getTypes());
     }
 
-    public static function getTypes()
+    /**
+     * @return array<string, Type>
+     */
+    public static function getTypes(): array
     {
         return [
             '__Schema'            => self::_schema(),
@@ -215,10 +215,9 @@ EOD;
         return $result->data;
     }
 
-    public static function _schema()
+    public static function _schema(): ObjectType
     {
-        if (! isset(self::$map['__Schema'])) {
-            self::$map['__Schema'] = new ObjectType([
+            return self::$map['__Schema'] ??= new ObjectType([
                 'name'            => '__Schema',
                 'isIntrospection' => true,
                 'description'     =>
@@ -266,15 +265,11 @@ EOD;
                     ],
                 ],
             ]);
-        }
-
-        return self::$map['__Schema'];
     }
 
-    public static function _type()
+    public static function _type(): ObjectType
     {
-        if (! isset(self::$map['__Type'])) {
-            self::$map['__Type'] = new ObjectType([
+            return self::$map['__Type'] ??= new ObjectType([
                 'name'            => '__Type',
                 'isIntrospection' => true,
                 'description'     =>
@@ -421,68 +416,60 @@ EOD;
                     ];
                 },
             ]);
-        }
-
-        return self::$map['__Type'];
     }
 
-    public static function _typeKind()
+    public static function _typeKind(): EnumType
     {
-        if (! isset(self::$map['__TypeKind'])) {
-            self::$map['__TypeKind'] = new EnumType([
-                'name'            => '__TypeKind',
-                'isIntrospection' => true,
-                'description'     => 'An enum describing what kind of type a given `__Type` is.',
-                'values'          => [
-                    'SCALAR'       => [
-                        'value'       => TypeKind::SCALAR,
-                        'description' => 'Indicates this type is a scalar.',
-                    ],
-                    'OBJECT'       => [
-                        'value'       => TypeKind::OBJECT,
-                        'description' => 'Indicates this type is an object. `fields` and `interfaces` are valid fields.',
-                    ],
-                    'INTERFACE'    => [
-                        'value'       => TypeKind::INTERFACE,
-                        'description' => 'Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.',
-                    ],
-                    'UNION'        => [
-                        'value'       => TypeKind::UNION,
-                        'description' => 'Indicates this type is a union. `possibleTypes` is a valid field.',
-                    ],
-                    'ENUM'         => [
-                        'value'       => TypeKind::ENUM,
-                        'description' => 'Indicates this type is an enum. `enumValues` is a valid field.',
-                    ],
-                    'INPUT_OBJECT' => [
-                        'value'       => TypeKind::INPUT_OBJECT,
-                        'description' => 'Indicates this type is an input object. `inputFields` is a valid field.',
-                    ],
-                    'LIST'         => [
-                        'value'       => TypeKind::LIST,
-                        'description' => 'Indicates this type is a list. `ofType` is a valid field.',
-                    ],
-                    'NON_NULL'     => [
-                        'value'       => TypeKind::NON_NULL,
-                        'description' => 'Indicates this type is a non-null. `ofType` is a valid field.',
-                    ],
+        return self::$map['__TypeKind'] ??= new EnumType([
+            'name'            => '__TypeKind',
+            'isIntrospection' => true,
+            'description'     => 'An enum describing what kind of type a given `__Type` is.',
+            'values'          => [
+                'SCALAR'       => [
+                    'value'       => TypeKind::SCALAR,
+                    'description' => 'Indicates this type is a scalar.',
                 ],
-            ]);
-        }
-
-        return self::$map['__TypeKind'];
+                'OBJECT'       => [
+                    'value'       => TypeKind::OBJECT,
+                    'description' => 'Indicates this type is an object. `fields` and `interfaces` are valid fields.',
+                ],
+                'INTERFACE'    => [
+                    'value'       => TypeKind::INTERFACE,
+                    'description' => 'Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.',
+                ],
+                'UNION'        => [
+                    'value'       => TypeKind::UNION,
+                    'description' => 'Indicates this type is a union. `possibleTypes` is a valid field.',
+                ],
+                'ENUM'         => [
+                    'value'       => TypeKind::ENUM,
+                    'description' => 'Indicates this type is an enum. `enumValues` is a valid field.',
+                ],
+                'INPUT_OBJECT' => [
+                    'value'       => TypeKind::INPUT_OBJECT,
+                    'description' => 'Indicates this type is an input object. `inputFields` is a valid field.',
+                ],
+                'LIST'         => [
+                    'value'       => TypeKind::LIST,
+                    'description' => 'Indicates this type is a list. `ofType` is a valid field.',
+                ],
+                'NON_NULL'     => [
+                    'value'       => TypeKind::NON_NULL,
+                    'description' => 'Indicates this type is a non-null. `ofType` is a valid field.',
+                ],
+            ],
+        ]);
     }
 
-    public static function _field()
+    public static function _field(): ObjectType
     {
-        if (! isset(self::$map['__Field'])) {
-            self::$map['__Field'] = new ObjectType([
-                'name'            => '__Field',
-                'isIntrospection' => true,
-                'description'     =>
+        return self::$map['__Field'] ??= new ObjectType([
+            'name'            => '__Field',
+            'isIntrospection' => true,
+            'description'     =>
                     'Object and Interface types are described by a list of Fields, each of ' .
                     'which has a name, potentially a list of arguments, and a return type.',
-                'fields'          => static function (): array {
+            'fields'          => static function (): array {
                     return [
                         'name'              => [
                             'type' => Type::nonNull(Type::string()),
@@ -521,24 +508,20 @@ EOD;
                             },
                         ],
                     ];
-                },
-            ]);
-        }
-
-        return self::$map['__Field'];
+            },
+        ]);
     }
 
-    public static function _inputValue()
+    public static function _inputValue(): ObjectType
     {
-        if (! isset(self::$map['__InputValue'])) {
-            self::$map['__InputValue'] = new ObjectType([
-                'name'            => '__InputValue',
-                'isIntrospection' => true,
-                'description'     =>
+        return self::$map['__InputValue'] ??= new ObjectType([
+            'name'            => '__InputValue',
+            'isIntrospection' => true,
+            'description'     =>
                     'Arguments provided to Fields or Directives and the input fields of an ' .
                     'InputObject are represented as Input Values which describe their type ' .
                     'and optionally a default value.',
-                'fields'          => static function (): array {
+            'fields'          => static function (): array {
                     return [
                         'name'         => [
                             'type' => Type::nonNull(Type::string()),
@@ -583,261 +566,234 @@ EOD;
                             },
                         ],
                     ];
-                },
-            ]);
-        }
-
-        return self::$map['__InputValue'];
+            },
+        ]);
     }
 
-    public static function _enumValue()
+    public static function _enumValue(): ObjectType
     {
-        if (! isset(self::$map['__EnumValue'])) {
-            self::$map['__EnumValue'] = new ObjectType([
-                'name'            => '__EnumValue',
-                'isIntrospection' => true,
-                'description'     =>
+        return self::$map['__EnumValue'] ??= new ObjectType([
+            'name'            => '__EnumValue',
+            'isIntrospection' => true,
+            'description'     =>
                     'One possible value for a given Enum. Enum values are unique values, not ' .
                     'a placeholder for a string or numeric value. However an Enum value is ' .
                     'returned in a JSON response as a string.',
-                'fields'          => [
-                    'name'              => [
-                        'type' => Type::nonNull(Type::string()),
-                        'resolve' => static function ($enumValue) {
+            'fields'          => [
+                'name'              => [
+                    'type' => Type::nonNull(Type::string()),
+                    'resolve' => static function ($enumValue) {
                             return $enumValue->name;
-                        },
-                    ],
-                    'description'       => [
-                        'type' => Type::string(),
-                        'resolve' => static function ($enumValue) {
-                            return $enumValue->description;
-                        },
-                    ],
-                    'isDeprecated'      => [
-                        'type'    => Type::nonNull(Type::boolean()),
-                        'resolve' => static function ($enumValue): bool {
-                            return (bool) $enumValue->deprecationReason;
-                        },
-                    ],
-                    'deprecationReason' => [
-                        'type' => Type::string(),
-                        'resolve' => static function ($enumValue) {
-                            return $enumValue->deprecationReason;
-                        },
-                    ],
+                    },
                 ],
-            ]);
-        }
-
-        return self::$map['__EnumValue'];
+                'description'       => [
+                    'type' => Type::string(),
+                    'resolve' => static function ($enumValue) {
+                            return $enumValue->description;
+                    },
+                ],
+                'isDeprecated'      => [
+                    'type'    => Type::nonNull(Type::boolean()),
+                    'resolve' => static function ($enumValue): bool {
+                            return (bool) $enumValue->deprecationReason;
+                    },
+                ],
+                'deprecationReason' => [
+                    'type' => Type::string(),
+                    'resolve' => static function ($enumValue) {
+                            return $enumValue->deprecationReason;
+                    },
+                ],
+            ],
+        ]);
     }
 
-    public static function _directive()
+    public static function _directive(): ObjectType
     {
-        if (! isset(self::$map['__Directive'])) {
-            self::$map['__Directive'] = new ObjectType([
-                'name'            => '__Directive',
-                'isIntrospection' => true,
-                'description'     => 'A Directive provides a way to describe alternate runtime execution and ' .
+        return self::$map['__Directive'] ??= new ObjectType([
+            'name'            => '__Directive',
+            'isIntrospection' => true,
+            'description'     => 'A Directive provides a way to describe alternate runtime execution and ' .
                     'type validation behavior in a GraphQL document.' .
                     "\n\nIn some cases, you need to provide options to alter GraphQL's " .
                     'execution behavior in ways field arguments will not suffice, such as ' .
                     'conditionally including or skipping a field. Directives provide this by ' .
                     'describing additional information to the executor.',
-                'fields'          => [
-                    'name'        => [
-                        'type'    => Type::nonNull(Type::string()),
-                        'resolve' => static function ($obj) {
+            'fields'          => [
+                'name'        => [
+                    'type'    => Type::nonNull(Type::string()),
+                    'resolve' => static function ($obj) {
                             return $obj->name;
-                        },
-                    ],
-                    'description' => [
-                        'type' => Type::string(),
-                        'resolve' => static function ($obj) {
-                            return $obj->description;
-                        },
-                    ],
-                    'args'        => [
-                        'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                        'resolve' => static function (Directive $directive): array {
-                            return $directive->args;
-                        },
-                    ],
-                    'isRepeatable' => [
-                        'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => static function (Directive $directive): bool {
-                            return $directive->isRepeatable;
-                        },
-                    ],
-                    'locations'   => [
-                        'type' => Type::nonNull(Type::listOf(Type::nonNull(
-                            self::_directiveLocation()
-                        ))),
-                        'resolve' => static function ($obj) {
-                            return $obj->locations;
-                        },
-                    ],
+                    },
                 ],
-            ]);
-        }
-
-        return self::$map['__Directive'];
+                'description' => [
+                    'type' => Type::string(),
+                    'resolve' => static function ($obj) {
+                            return $obj->description;
+                    },
+                ],
+                'args'        => [
+                    'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
+                    'resolve' => static function (Directive $directive): array {
+                            return $directive->args;
+                    },
+                ],
+                'isRepeatable' => [
+                    'type' => Type::nonNull(Type::boolean()),
+                    'resolve' => static function (Directive $directive): bool {
+                            return $directive->isRepeatable;
+                    },
+                ],
+                'locations'   => [
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull(
+                        self::_directiveLocation()
+                    ))),
+                    'resolve' => static function ($obj) {
+                            return $obj->locations;
+                    },
+                ],
+            ],
+        ]);
     }
 
-    public static function _directiveLocation()
+    public static function _directiveLocation(): EnumType
     {
-        if (! isset(self::$map['__DirectiveLocation'])) {
-            self::$map['__DirectiveLocation'] = new EnumType([
-                'name'            => '__DirectiveLocation',
-                'isIntrospection' => true,
-                'description'     =>
+        return self::$map['__DirectiveLocation'] ??= new EnumType([
+            'name'            => '__DirectiveLocation',
+            'isIntrospection' => true,
+            'description'     =>
                     'A Directive can be adjacent to many parts of the GraphQL language, a ' .
                     '__DirectiveLocation describes one such possible adjacencies.',
-                'values'          => [
-                    'QUERY'                  => [
-                        'value'       => DirectiveLocation::QUERY,
-                        'description' => 'Location adjacent to a query operation.',
-                    ],
-                    'MUTATION'               => [
-                        'value'       => DirectiveLocation::MUTATION,
-                        'description' => 'Location adjacent to a mutation operation.',
-                    ],
-                    'SUBSCRIPTION'           => [
-                        'value'       => DirectiveLocation::SUBSCRIPTION,
-                        'description' => 'Location adjacent to a subscription operation.',
-                    ],
-                    'FIELD'                  => [
-                        'value'       => DirectiveLocation::FIELD,
-                        'description' => 'Location adjacent to a field.',
-                    ],
-                    'FRAGMENT_DEFINITION'    => [
-                        'value'       => DirectiveLocation::FRAGMENT_DEFINITION,
-                        'description' => 'Location adjacent to a fragment definition.',
-                    ],
-                    'FRAGMENT_SPREAD'        => [
-                        'value'       => DirectiveLocation::FRAGMENT_SPREAD,
-                        'description' => 'Location adjacent to a fragment spread.',
-                    ],
-                    'INLINE_FRAGMENT'        => [
-                        'value'       => DirectiveLocation::INLINE_FRAGMENT,
-                        'description' => 'Location adjacent to an inline fragment.',
-                    ],
-                    'VARIABLE_DEFINITION'    => [
-                        'value'       => DirectiveLocation::VARIABLE_DEFINITION,
-                        'description' => 'Location adjacent to a variable definition.',
-                    ],
-                    'SCHEMA'                 => [
-                        'value'       => DirectiveLocation::SCHEMA,
-                        'description' => 'Location adjacent to a schema definition.',
-                    ],
-                    'SCALAR'                 => [
-                        'value'       => DirectiveLocation::SCALAR,
-                        'description' => 'Location adjacent to a scalar definition.',
-                    ],
-                    'OBJECT'                 => [
-                        'value'       => DirectiveLocation::OBJECT,
-                        'description' => 'Location adjacent to an object type definition.',
-                    ],
-                    'FIELD_DEFINITION'       => [
-                        'value'       => DirectiveLocation::FIELD_DEFINITION,
-                        'description' => 'Location adjacent to a field definition.',
-                    ],
-                    'ARGUMENT_DEFINITION'    => [
-                        'value'       => DirectiveLocation::ARGUMENT_DEFINITION,
-                        'description' => 'Location adjacent to an argument definition.',
-                    ],
-                    'INTERFACE'              => [
-                        'value'       => DirectiveLocation::IFACE,
-                        'description' => 'Location adjacent to an interface definition.',
-                    ],
-                    'UNION'                  => [
-                        'value'       => DirectiveLocation::UNION,
-                        'description' => 'Location adjacent to a union definition.',
-                    ],
-                    'ENUM'                   => [
-                        'value'       => DirectiveLocation::ENUM,
-                        'description' => 'Location adjacent to an enum definition.',
-                    ],
-                    'ENUM_VALUE'             => [
-                        'value'       => DirectiveLocation::ENUM_VALUE,
-                        'description' => 'Location adjacent to an enum value definition.',
-                    ],
-                    'INPUT_OBJECT'           => [
-                        'value'       => DirectiveLocation::INPUT_OBJECT,
-                        'description' => 'Location adjacent to an input object type definition.',
-                    ],
-                    'INPUT_FIELD_DEFINITION' => [
-                        'value'       => DirectiveLocation::INPUT_FIELD_DEFINITION,
-                        'description' => 'Location adjacent to an input object field definition.',
-                    ],
-
+            'values'          => [
+                'QUERY'                  => [
+                    'value'       => DirectiveLocation::QUERY,
+                    'description' => 'Location adjacent to a query operation.',
                 ],
-            ]);
-        }
+                'MUTATION'               => [
+                    'value'       => DirectiveLocation::MUTATION,
+                    'description' => 'Location adjacent to a mutation operation.',
+                ],
+                'SUBSCRIPTION'           => [
+                    'value'       => DirectiveLocation::SUBSCRIPTION,
+                    'description' => 'Location adjacent to a subscription operation.',
+                ],
+                'FIELD'                  => [
+                    'value'       => DirectiveLocation::FIELD,
+                    'description' => 'Location adjacent to a field.',
+                ],
+                'FRAGMENT_DEFINITION'    => [
+                    'value'       => DirectiveLocation::FRAGMENT_DEFINITION,
+                    'description' => 'Location adjacent to a fragment definition.',
+                ],
+                'FRAGMENT_SPREAD'        => [
+                    'value'       => DirectiveLocation::FRAGMENT_SPREAD,
+                    'description' => 'Location adjacent to a fragment spread.',
+                ],
+                'INLINE_FRAGMENT'        => [
+                    'value'       => DirectiveLocation::INLINE_FRAGMENT,
+                    'description' => 'Location adjacent to an inline fragment.',
+                ],
+                'VARIABLE_DEFINITION'    => [
+                    'value'       => DirectiveLocation::VARIABLE_DEFINITION,
+                    'description' => 'Location adjacent to a variable definition.',
+                ],
+                'SCHEMA'                 => [
+                    'value'       => DirectiveLocation::SCHEMA,
+                    'description' => 'Location adjacent to a schema definition.',
+                ],
+                'SCALAR'                 => [
+                    'value'       => DirectiveLocation::SCALAR,
+                    'description' => 'Location adjacent to a scalar definition.',
+                ],
+                'OBJECT'                 => [
+                    'value'       => DirectiveLocation::OBJECT,
+                    'description' => 'Location adjacent to an object type definition.',
+                ],
+                'FIELD_DEFINITION'       => [
+                    'value'       => DirectiveLocation::FIELD_DEFINITION,
+                    'description' => 'Location adjacent to a field definition.',
+                ],
+                'ARGUMENT_DEFINITION'    => [
+                    'value'       => DirectiveLocation::ARGUMENT_DEFINITION,
+                    'description' => 'Location adjacent to an argument definition.',
+                ],
+                'INTERFACE'              => [
+                    'value'       => DirectiveLocation::IFACE,
+                    'description' => 'Location adjacent to an interface definition.',
+                ],
+                'UNION'                  => [
+                    'value'       => DirectiveLocation::UNION,
+                    'description' => 'Location adjacent to a union definition.',
+                ],
+                'ENUM'                   => [
+                    'value'       => DirectiveLocation::ENUM,
+                    'description' => 'Location adjacent to an enum definition.',
+                ],
+                'ENUM_VALUE'             => [
+                    'value'       => DirectiveLocation::ENUM_VALUE,
+                    'description' => 'Location adjacent to an enum value definition.',
+                ],
+                'INPUT_OBJECT'           => [
+                    'value'       => DirectiveLocation::INPUT_OBJECT,
+                    'description' => 'Location adjacent to an input object type definition.',
+                ],
+                'INPUT_FIELD_DEFINITION' => [
+                    'value'       => DirectiveLocation::INPUT_FIELD_DEFINITION,
+                    'description' => 'Location adjacent to an input object field definition.',
+                ],
 
-        return self::$map['__DirectiveLocation'];
+            ],
+        ]);
     }
 
     public static function schemaMetaFieldDef(): FieldDefinition
     {
-        if (! isset(self::$map[self::SCHEMA_FIELD_NAME])) {
-            self::$map[self::SCHEMA_FIELD_NAME] = FieldDefinition::create([
-                'name'        => self::SCHEMA_FIELD_NAME,
-                'type'        => Type::nonNull(self::_schema()),
-                'description' => 'Access the current type schema of this server.',
-                'args'        => [],
-                'resolve'     => static function (
-                    $source,
-                    $args,
-                    $context,
-                    ResolveInfo $info
-                ): Schema {
+        return self::$map[self::SCHEMA_FIELD_NAME] ??= FieldDefinition::create([
+            'name'        => self::SCHEMA_FIELD_NAME,
+            'type'        => Type::nonNull(self::_schema()),
+            'description' => 'Access the current type schema of this server.',
+            'args'        => [],
+            'resolve'     => static function (
+                $source,
+                $args,
+                $context,
+                ResolveInfo $info
+            ): Schema {
                     return $info->schema;
-                },
-            ]);
-        }
-
-        return self::$map[self::SCHEMA_FIELD_NAME];
+            },
+        ]);
     }
 
     public static function typeMetaFieldDef(): FieldDefinition
     {
-        if (! isset(self::$map[self::TYPE_FIELD_NAME])) {
-            self::$map[self::TYPE_FIELD_NAME] = FieldDefinition::create([
-                'name'        => self::TYPE_FIELD_NAME,
-                'type'        => self::_type(),
-                'description' => 'Request the type information of a single type.',
-                'args'        => [
-                    ['name' => 'name', 'type' => Type::nonNull(Type::string())],
-                ],
-                'resolve'     => static function ($source, $args, $context, ResolveInfo $info): Type {
+        return self::$map[self::TYPE_FIELD_NAME] ??= FieldDefinition::create([
+            'name'        => self::TYPE_FIELD_NAME,
+            'type'        => self::_type(),
+            'description' => 'Request the type information of a single type.',
+            'args'        => [
+                ['name' => 'name', 'type' => Type::nonNull(Type::string())],
+            ],
+            'resolve'     => static function ($source, $args, $context, ResolveInfo $info): Type {
                     return $info->schema->getType($args['name']);
-                },
-            ]);
-        }
-
-        return self::$map[self::TYPE_FIELD_NAME];
+            },
+        ]);
     }
 
     public static function typeNameMetaFieldDef(): FieldDefinition
     {
-        if (! isset(self::$map[self::TYPE_NAME_FIELD_NAME])) {
-            self::$map[self::TYPE_NAME_FIELD_NAME] = FieldDefinition::create([
-                'name'        => self::TYPE_NAME_FIELD_NAME,
-                'type'        => Type::nonNull(Type::string()),
-                'description' => 'The name of the current Object type at runtime.',
-                'args'        => [],
-                'resolve'     => static function (
-                    $source,
-                    $args,
-                    $context,
-                    ResolveInfo $info
-                ): string {
+        return self::$map[self::TYPE_NAME_FIELD_NAME] ??= FieldDefinition::create([
+            'name'        => self::TYPE_NAME_FIELD_NAME,
+            'type'        => Type::nonNull(Type::string()),
+            'description' => 'The name of the current Object type at runtime.',
+            'args'        => [],
+            'resolve'     => static function (
+                $source,
+                $args,
+                $context,
+                ResolveInfo $info
+            ): string {
                     return $info->parentType->name;
-                },
-            ]);
-        }
-
-        return self::$map[self::TYPE_NAME_FIELD_NAME];
+            },
+        ]);
     }
 }
