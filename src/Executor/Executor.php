@@ -171,7 +171,9 @@ class Executor
                 $property = $objectValue[$fieldName];
             }
         } elseif (is_object($objectValue)) {
+            // @phpstan-ignore-next-line Reports "Variable property access on object"
             if (isset($objectValue->{$fieldName})) {
+                // @phpstan-ignore-next-line Reports "Variable property access on object"
                 $property = $objectValue->{$fieldName};
             }
         }
