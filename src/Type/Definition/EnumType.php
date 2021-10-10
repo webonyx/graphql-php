@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use ArrayObject;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
@@ -40,58 +39,36 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
      */
     private MixedStore $valueLookup;
 
-    /** @var ArrayObject<string, EnumValueDefinition> */
-    private ArrayObject $nameLookup;
+    /** @var array<string, EnumValueDefinition> */
+    private array $nameLookup;
 
     /** @var array<int, EnumTypeExtensionNode> */
     public array $extensionASTNodes;
 
-    public function __construct($config)
+    public function __construct(array $config)
     {
-        if (! isset($config['name'])) {
-            $config['name'] = $this->tryInferName();
-        }
-
+        $config['name'] ??= $this->tryInferName();
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
-        $this->config            = $config;
+
+        $this->config = $config;
     }
 
-    /**
-     * @param string|mixed[] $name
-     */
-    public function getValue($name): ?EnumValueDefinition
-    {
-        $lookup = $this->getNameLookup();
-
-        if (! is_string($name)) {
-            return null;
-        }
-
-        return $lookup[$name] ?? null;
-    }
-
-    private function getNameLookup(): ArrayObject
+    public function getValue(string $name): ?EnumValueDefinition
     {
         if (! isset($this->nameLookup)) {
-            /** @var ArrayObject<string, EnumValueDefinition> $lookup */
-            $lookup = new ArrayObject();
-            foreach ($this->getValues() as $value) {
-                $lookup[$value->name] = $value;
-            }
-
-            $this->nameLookup = $lookup;
+            $this->initializeNameLookup();
         }
 
-        return $this->nameLookup;
+        return $this->nameLookup[$name] ?? null;
     }
 
     /**
-     * @return EnumValueDefinition[]
+     * @return array<int, EnumValueDefinition>
      */
     public function getValues(): array
     {
@@ -158,9 +135,12 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     public function parseValue($value)
     {
-        $lookup = $this->getNameLookup();
-        if (isset($lookup[$value])) {
-            return $lookup[$value]->value;
+        if (! isset($this->nameLookup)) {
+            $this->initializeNameLookup();
+        }
+
+        if (isset($this->nameLookup[$value])) {
+            return $this->nameLookup[$value]->value;
         }
 
         throw new Error('Cannot represent value as enum: ' . Utils::printSafe($value));
@@ -169,12 +149,13 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof EnumValueNode) {
-            $lookup = $this->getNameLookup();
-            if (isset($lookup[$valueNode->value])) {
-                $enumValue = $lookup[$valueNode->value];
-                if ($enumValue !== null) {
-                    return $enumValue->value;
-                }
+            if (! isset($this->nameLookup)) {
+                $this->initializeNameLookup();
+            }
+
+            $name = $valueNode->value;
+            if (isset($this->nameLookup[$name])) {
+                return $this->nameLookup[$name]->value;
             }
         }
 
@@ -204,6 +185,14 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
                     $value->name
                 )
             );
+        }
+    }
+
+    private function initializeNameLookup(): void
+    {
+        $this->nameLookup = [];
+        foreach ($this->getValues() as $value) {
+            $this->nameLookup[$value->name] = $value;
         }
     }
 }
