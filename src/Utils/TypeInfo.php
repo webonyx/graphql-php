@@ -118,40 +118,14 @@ class TypeInfo
      *     ...
      * ]
      *
-     * @param Type|null   $type
-     * @param Type[]|null $typeMap
+     * @param array<Type> $typeMap
      *
-     * @return Type[]|null
+     * @return array<Type>
      */
-    public static function extractTypes($type, ?array $typeMap = null): ?array
+    public static function extractTypes(Type $type, array $typeMap = []): array
     {
-        if (($typeMap ?? []) === []) {
-            $typeMap = [];
-        }
-
-        if ($type === null) {
-            return $typeMap;
-        }
-
         if ($type instanceof WrappingType) {
             return self::extractTypes($type->getWrappedType(true), $typeMap);
-        }
-
-        if (! $type instanceof Type) {
-            // Preserve these invalid types in map (at numeric index) to make them
-            // detectable during $schema->validate()
-            $i            = 0;
-            $alreadyInMap = false;
-            while (isset($typeMap[$i])) {
-                $alreadyInMap = $alreadyInMap || $typeMap[$i] === $type;
-                $i++;
-            }
-
-            if (! $alreadyInMap) {
-                $typeMap[$i] = $type;
-            }
-
-            return $typeMap;
         }
 
         if (isset($typeMap[$type->name])) {
