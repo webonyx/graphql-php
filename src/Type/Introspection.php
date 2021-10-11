@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -165,7 +166,7 @@ EOD;
     }
 
     /**
-     * @return array<string, Type>
+     * @return array<string, Type&NamedType>
      */
     public static function getTypes(): array
     {
