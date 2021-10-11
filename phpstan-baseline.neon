@@ -46,11 +46,6 @@ parameters:
 			path: examples/01-blog/Blog/Types.php
 
 		-
-			message: "#^Variable property access on object\\.$#"
-			count: 2
-			path: src/Executor/Executor.php
-
-		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
@@ -66,11 +61,6 @@ parameters:
 			path: src/Language/Visitor.php
 
 		-
-			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\)\\.$#"
-			count: 3
-			path: src/Type/Definition/FieldDefinition.php
-
-		-
 			message: "#^Variable property access on mixed\\.$#"
 			count: 2
 			path: src/Utils/AST.php
@@ -84,11 +74,6 @@ parameters:
 			message: "#^Variable property access on object\\.$#"
 			count: 1
 			path: src/Utils/Utils.php
-
-		-
-			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:\\$nonExistentProp\\.$#"
-			count: 2
-			path: tests/Type/DefinitionTest.php
 
 		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Tests\\\\Type\\\\TypeLoaderTest\\)\\.$#"

@@ -18,8 +18,7 @@ use function implode;
 
 class InputObjectCircularRefs
 {
-    /** @var SchemaValidationContext */
-    private $schemaValidationContext;
+    private SchemaValidationContext $schemaValidationContext;
 
     /**
      * Tracks already visited types to maintain O(N) and to ensure that cycles
@@ -27,19 +26,17 @@ class InputObjectCircularRefs
      *
      * @var array<string, bool>
      */
-    private $visitedTypes = [];
+    private array $visitedTypes = [];
 
-    /** @var InputObjectField[] */
-    private $fieldPath = [];
+    /** @var array<int, InputObjectField> */
+    private array $fieldPath = [];
 
     /**
      * Position in the type path.
      *
-     * [string $typeName => int $index]
-     *
-     * @var int[]
+     * @var array<string, int>
      */
-    private $fieldPathIndexByTypeName = [];
+    private array $fieldPathIndexByTypeName = [];
 
     public function __construct(SchemaValidationContext $schemaValidationContext)
     {
