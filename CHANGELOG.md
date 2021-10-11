@@ -65,6 +65,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated methods from `TypeInfo`
 - Remove deprecated `Values::valueFromAST()` and `Values::isValidPHPValue()`
 - Remove deprecated public property access to `InputObjectField::$type`
+- Remove deprecated public property access to `FieldDefinition::$type`
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
 
 ## 14.9.0
