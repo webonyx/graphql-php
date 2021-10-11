@@ -167,7 +167,10 @@ EOD;
         return array_key_exists($type->name, self::getTypes());
     }
 
-    public static function getTypes()
+    /**
+     * @return array<string, ObjectType>
+     */
+    public static function getTypes(): array
     {
         return [
             '__Schema'            => self::_schema(),
