@@ -6,7 +6,6 @@ namespace GraphQL\Tests\Type;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\Warning;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -195,57 +194,6 @@ class DefinitionTest extends TestCase
         $feedFieldType = $feedField->getType();
         self::assertInstanceOf('GraphQL\Type\Definition\ListOfType', $feedFieldType);
         self::assertSame($this->blogArticle, $feedFieldType->getWrappedType());
-    }
-
-    public function testFieldDefinitionPublicTypeGetDeprecation(): void
-    {
-        $fieldDef = FieldDefinition::create([
-            'type' => Type::string(),
-            'name' => 'GenericField',
-        ]);
-
-        Warning::setWarningHandler(static function ($message): void {
-            self::assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
-        });
-
-        self::assertFalse(isset($fieldDef->nonExistentProp));
-        $fieldDef->nonExistentProp = 'someValue';
-        self::assertTrue(isset($fieldDef->nonExistentProp));
-
-        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
-        $type = $fieldDef->type;
-    }
-
-    public function testFieldDefinitionPublicTypeSetDeprecation(): void
-    {
-        $fieldDef = FieldDefinition::create([
-            'type' => Type::string(),
-            'name' => 'GenericField',
-        ]);
-
-        Warning::setWarningHandler(static function ($message): void {
-            self::assertEquals($message, 'The public setter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version.');
-        });
-
-        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
-        $fieldDef->type = Type::int();
-
-        $fieldDef->nonExistentProp = 'someValue';
-        self::assertEquals($fieldDef->nonExistentProp, 'someValue');
-    }
-
-    public function testFieldDefinitionPublicTypeIssetDeprecation(): void
-    {
-        $fieldDef = FieldDefinition::create([
-            'type' => Type::string(),
-            'name' => 'GenericField',
-        ]);
-
-        Warning::setWarningHandler(static function ($message): void {
-            self::assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
-        });
-
-        isset($fieldDef->type);
     }
 
     /**
@@ -650,8 +598,8 @@ class DefinitionTest extends TestCase
         self::assertTrue($called);
         $schema->getType('Blog');
 
-        self::assertEquals([$node], $blog->getInterfaces());
-        self::assertEquals([$node], $user->getInterfaces());
+        self::assertSame([$node], $blog->getInterfaces());
+        self::assertSame([$node], $user->getInterfaces());
 
         self::assertNotNull($user->getField('blogs'));
         /** @var NonNull $blogFieldReturnType */
@@ -938,7 +886,7 @@ class DefinitionTest extends TestCase
             'interfaces' => [$this->interfaceType],
             'fields'     => ['f' => ['type' => Type::string()]],
         ]);
-        self::assertSame($this->interfaceType, $objType->getInterfaces()[0]);
+        self::assertSame([$this->interfaceType], $objType->getInterfaces());
     }
 
     /**
@@ -948,12 +896,10 @@ class DefinitionTest extends TestCase
     {
         $objType = new ObjectType([
             'name'       => 'SomeObject',
-            'interfaces' => function (): array {
-                return [$this->interfaceType];
-            },
+            'interfaces' => fn (): array => [$this->interfaceType],
             'fields'     => ['f' => ['type' => Type::string()]],
         ]);
-        self::assertSame($this->interfaceType, $objType->getInterfaces()[0]);
+        self::assertSame([$this->interfaceType], $objType->getInterfaces());
     }
 
     /**
@@ -1087,7 +1033,7 @@ class DefinitionTest extends TestCase
             'fields' => [],
             'interfaces' => [$this->interfaceType],
         ]);
-        self::assertSame($this->interfaceType, $interfaceType->getInterfaces()[0]);
+        self::assertSame([$this->interfaceType], $interfaceType->getInterfaces());
     }
 
     /**
@@ -1098,11 +1044,9 @@ class DefinitionTest extends TestCase
         $interfaceType = new InterfaceType([
             'name'   => 'AnotherInterface',
             'fields' => [],
-            'interfaces' => function (): array {
-                return [$this->interfaceType];
-            },
+            'interfaces' => fn (): array => [$this->interfaceType],
         ]);
-        self::assertSame($this->interfaceType, $interfaceType->getInterfaces()[0]);
+        self::assertSame([$this->interfaceType], $interfaceType->getInterfaces());
     }
 
     /**
