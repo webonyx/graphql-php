@@ -46,11 +46,6 @@ parameters:
 			path: examples/01-blog/Blog/Types.php
 
 		-
-			message: "#^Variable property access on object\\.$#"
-			count: 2
-			path: src/Executor/Executor.php
-
-		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
