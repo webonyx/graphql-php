@@ -650,8 +650,8 @@ class DefinitionTest extends TestCase
         self::assertTrue($called);
         $schema->getType('Blog');
 
-        self::assertEquals([$node], $blog->getInterfaces());
-        self::assertEquals([$node], $user->getInterfaces());
+        self::assertSame([$node], $blog->getInterfaces());
+        self::assertSame([$node], $user->getInterfaces());
 
         self::assertNotNull($user->getField('blogs'));
         /** @var NonNull $blogFieldReturnType */
@@ -938,7 +938,7 @@ class DefinitionTest extends TestCase
             'interfaces' => [$this->interfaceType],
             'fields'     => ['f' => ['type' => Type::string()]],
         ]);
-        self::assertSame($this->interfaceType, $objType->getInterfaces()[0]);
+        self::assertSame([$this->interfaceType], $objType->getInterfaces());
     }
 
     /**
@@ -948,12 +948,10 @@ class DefinitionTest extends TestCase
     {
         $objType = new ObjectType([
             'name'       => 'SomeObject',
-            'interfaces' => function (): array {
-                return [$this->interfaceType];
-            },
+            'interfaces' => fn (): array => [$this->interfaceType],
             'fields'     => ['f' => ['type' => Type::string()]],
         ]);
-        self::assertSame($this->interfaceType, $objType->getInterfaces()[0]);
+        self::assertSame([$this->interfaceType], $objType->getInterfaces());
     }
 
     /**
@@ -1087,7 +1085,7 @@ class DefinitionTest extends TestCase
             'fields' => [],
             'interfaces' => [$this->interfaceType],
         ]);
-        self::assertSame($this->interfaceType, $interfaceType->getInterfaces()[0]);
+        self::assertSame([$this->interfaceType], $interfaceType->getInterfaces());
     }
 
     /**
@@ -1098,11 +1096,9 @@ class DefinitionTest extends TestCase
         $interfaceType = new InterfaceType([
             'name'   => 'AnotherInterface',
             'fields' => [],
-            'interfaces' => function (): array {
-                return [$this->interfaceType];
-            },
+            'interfaces' => fn (): array => [$this->interfaceType],
         ]);
-        self::assertSame($this->interfaceType, $interfaceType->getInterfaces()[0]);
+        self::assertSame([$this->interfaceType], $interfaceType->getInterfaces());
     }
 
     /**
