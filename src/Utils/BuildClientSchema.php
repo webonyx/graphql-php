@@ -111,7 +111,6 @@ class BuildClientSchema
             }
         );
 
-        /** @var array<string, Type&NamedType> $builtInTypes */
         $builtInTypes = array_merge(
             Type::getStandardTypes(),
             Introspection::getTypes()
