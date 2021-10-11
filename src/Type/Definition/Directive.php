@@ -21,34 +21,34 @@ class Directive
     public const DEPRECATED_NAME      = 'deprecated';
     public const REASON_ARGUMENT_NAME = 'reason';
 
-    /** @var Directive[]|null */
-    public static $internalDirectives;
+    /**
+     * Lazily initialized.
+     *
+     * @var array<string, Directive>
+     */
+    protected static array $internalDirectives;
 
     // Schema Definitions
 
-    /** @var string */
-    public $name;
+    public string $name;
 
-    /** @var string|null */
-    public $description;
+    public ?string $description;
 
     /** @var array<int, FieldArgument> */
-    public $args = [];
+    public array $args = [];
 
-    /** @var bool */
-    public $isRepeatable;
+    public bool $isRepeatable;
 
-    /** @var string[] */
-    public $locations;
+    /** @var array<string> */
+    public array $locations;
 
-    /** @var DirectiveDefinitionNode|null */
-    public $astNode;
+    public ?DirectiveDefinitionNode $astNode;
 
-    /** @var mixed[] */
-    public $config;
+    /** @var array<string, mixed> */
+    public array $config;
 
     /**
-     * @param mixed[] $config
+     * @param array<string, mixed> $config
      */
     public function __construct(array $config)
     {
@@ -61,16 +61,11 @@ class Directive
         $this->description = $config['description'] ?? null;
 
         if (isset($config['args'])) {
-            $args = [];
             foreach ($config['args'] as $name => $arg) {
-                if (is_array($arg)) {
-                    $args[] = new FieldArgument($arg + ['name' => $name]);
-                } else {
-                    $args[] = $arg;
-                }
+                $this->args[] = is_array($arg)
+                    ? new FieldArgument($arg + ['name' => $name])
+                    : $arg;
             }
-
-            $this->args = $args;
         }
 
         if (! isset($config['locations']) || ! is_array($config['locations'])) {
@@ -97,63 +92,59 @@ class Directive
      */
     public static function getInternalDirectives(): array
     {
-        if (self::$internalDirectives === null) {
-            self::$internalDirectives = [
-                'include'    => new self([
-                    'name'        => self::INCLUDE_NAME,
-                    'description' => 'Directs the executor to include this field or fragment only when the `if` argument is true.',
-                    'locations'   => [
-                        DirectiveLocation::FIELD,
-                        DirectiveLocation::FRAGMENT_SPREAD,
-                        DirectiveLocation::INLINE_FRAGMENT,
-                    ],
-                    'args'        => [
-                        new FieldArgument([
-                            'name'        => self::IF_ARGUMENT_NAME,
-                            'type'        => Type::nonNull(Type::boolean()),
-                            'description' => 'Included when true.',
-                        ]),
-                    ],
-                ]),
-                'skip'       => new self([
-                    'name'        => self::SKIP_NAME,
-                    'description' => 'Directs the executor to skip this field or fragment when the `if` argument is true.',
-                    'locations'   => [
-                        DirectiveLocation::FIELD,
-                        DirectiveLocation::FRAGMENT_SPREAD,
-                        DirectiveLocation::INLINE_FRAGMENT,
-                    ],
-                    'args'        => [
-                        new FieldArgument([
-                            'name'        => self::IF_ARGUMENT_NAME,
-                            'type'        => Type::nonNull(Type::boolean()),
-                            'description' => 'Skipped when true.',
-                        ]),
-                    ],
-                ]),
-                'deprecated' => new self([
-                    'name'        => self::DEPRECATED_NAME,
-                    'description' => 'Marks an element of a GraphQL schema as no longer supported.',
-                    'locations'   => [
-                        DirectiveLocation::FIELD_DEFINITION,
-                        DirectiveLocation::ENUM_VALUE,
-                    ],
-                    'args'        => [
-                        new FieldArgument([
-                            'name'         => self::REASON_ARGUMENT_NAME,
-                            'type'         => Type::string(),
-                            'description'  =>
-                            'Explains why this element was deprecated, usually also including a ' .
-                            'suggestion for how to access supported similar data. Formatted using ' .
-                            'the Markdown syntax (as specified by [CommonMark](https://commonmark.org/).',
-                            'defaultValue' => self::DEFAULT_DEPRECATION_REASON,
-                        ]),
-                    ],
-                ]),
-            ];
-        }
-
-        return self::$internalDirectives;
+        return self::$internalDirectives ??= [
+            'include'    => new self([
+                'name'        => self::INCLUDE_NAME,
+                'description' => 'Directs the executor to include this field or fragment only when the `if` argument is true.',
+                'locations'   => [
+                    DirectiveLocation::FIELD,
+                    DirectiveLocation::FRAGMENT_SPREAD,
+                    DirectiveLocation::INLINE_FRAGMENT,
+                ],
+                'args'        => [
+                    new FieldArgument([
+                        'name'        => self::IF_ARGUMENT_NAME,
+                        'type'        => Type::nonNull(Type::boolean()),
+                        'description' => 'Included when true.',
+                    ]),
+                ],
+            ]),
+            'skip'       => new self([
+                'name'        => self::SKIP_NAME,
+                'description' => 'Directs the executor to skip this field or fragment when the `if` argument is true.',
+                'locations'   => [
+                    DirectiveLocation::FIELD,
+                    DirectiveLocation::FRAGMENT_SPREAD,
+                    DirectiveLocation::INLINE_FRAGMENT,
+                ],
+                'args'        => [
+                    new FieldArgument([
+                        'name'        => self::IF_ARGUMENT_NAME,
+                        'type'        => Type::nonNull(Type::boolean()),
+                        'description' => 'Skipped when true.',
+                    ]),
+                ],
+            ]),
+            'deprecated' => new self([
+                'name'        => self::DEPRECATED_NAME,
+                'description' => 'Marks an element of a GraphQL schema as no longer supported.',
+                'locations'   => [
+                    DirectiveLocation::FIELD_DEFINITION,
+                    DirectiveLocation::ENUM_VALUE,
+                ],
+                'args'        => [
+                    new FieldArgument([
+                        'name'         => self::REASON_ARGUMENT_NAME,
+                        'type'         => Type::string(),
+                        'description'  =>
+                        'Explains why this element was deprecated, usually also including a ' .
+                        'suggestion for how to access supported similar data. Formatted using ' .
+                        'the Markdown syntax (as specified by [CommonMark](https://commonmark.org/).',
+                        'defaultValue' => self::DEFAULT_DEPRECATION_REASON,
+                    ]),
+                ],
+            ]),
+        ];
     }
 
     public static function skipDirective(): Directive
