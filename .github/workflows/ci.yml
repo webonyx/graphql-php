@@ -18,14 +18,12 @@ jobs:
         php-version:
           - "7.4"
           - "8.0"
+          - "8.1"
         dependencies:
           - "highest"
         include:
           - dependencies: "lowest"
             php-version: "7.4"
-          - php-version: "8.1"
-            dependency-versions: "highest"
-            composer-options: "--ignore-platform-req=php"
 
     steps:
       - name: "Checkout"
