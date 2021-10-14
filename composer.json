@@ -16,7 +16,6 @@
   "require-dev": {
     "amphp/amp": "^2.3",
     "doctrine/coding-standard": "^6.0",
-    "ergebnis/composer-normalize": "^2.15",
     "nyholm/psr7": "^1.2",
     "phpbench/phpbench": "^0.16.10",
     "phpstan/extension-installer": "^1.0",
