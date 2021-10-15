@@ -8,30 +8,26 @@ use GraphQL\Language\AST\EnumValueDefinitionNode;
 
 class EnumValueDefinition
 {
-    /** @var string */
-    public $name;
+    public string $name;
 
     /** @var mixed */
     public $value;
 
-    /** @var string|null */
-    public $deprecationReason;
+    public ?string $deprecationReason;
 
-    /** @var string|null */
-    public $description;
+    public ?string $description;
 
-    /** @var EnumValueDefinitionNode|null */
-    public $astNode;
+    public ?EnumValueDefinitionNode $astNode;
 
-    /** @var mixed[] */
+    /** @var array<string, mixed> */
     public $config;
 
     /**
-     * @param mixed[] $config
+     * @param array<string, mixed> $config
      */
     public function __construct(array $config)
     {
-        $this->name              = $config['name'] ?? null;
+        $this->name              = $config['name'];
         $this->value             = $config['value'] ?? null;
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         $this->description       = $config['description'] ?? null;
