@@ -77,7 +77,7 @@ class FieldDefinition
     }
 
     /**
-     * @param (callable():mixed[])|mixed[] $fields
+     * @param (callable(): array<mixed>)|array<mixed> $fields
      *
      * @return array<string, self>
      */
@@ -89,29 +89,26 @@ class FieldDefinition
 
         if (! is_array($fields)) {
             throw new InvariantViolation(
-                sprintf('%s fields must be an array or a callable which returns such an array.', $type->name)
+                "{$type->name} fields must be an array or a callable which returns such an array."
             );
         }
 
         $map = [];
-        foreach ($fields as $name => $field) {
+        foreach ($fields as $maybeName => $field) {
             if (is_array($field)) {
                 if (! isset($field['name'])) {
-                    if (! is_string($name)) {
+                    if (! is_string($maybeName)) {
                         throw new InvariantViolation(
-                            sprintf(
-                                '%s fields must be an associative array with field names as keys or a function which returns such an array.',
-                                $type->name
-                            )
+                            "{$type->name} fields must be an associative array with field names as keys or a function which returns such an array."
                         );
                     }
 
-                    $field['name'] = $name;
+                    $field['name'] = $maybeName;
                 }
 
                 if (isset($field['args']) && ! is_array($field['args'])) {
                     throw new InvariantViolation(
-                        sprintf('%s.%s args must be an array.', $type->name, $name)
+                        "{$type->name}.{$maybeName} args must be an array."
                     );
                 }
 
@@ -119,29 +116,23 @@ class FieldDefinition
             } elseif ($field instanceof self) {
                 $fieldDef = $field;
             } elseif (is_callable($field)) {
-                if (! is_string($name)) {
+                if (! is_string($maybeName)) {
                     throw new InvariantViolation(
-                        sprintf(
-                            '%s lazy fields must be an associative array with field names as keys.',
-                            $type->name
-                        )
+                        "{$type->name} lazy fields must be an associative array with field names as keys."
                     );
                 }
 
-                $fieldDef = new UnresolvedFieldDefinition($type, $name, $field);
+                $fieldDef = new UnresolvedFieldDefinition($type, $maybeName, $field);
             } else {
-                if (! is_string($name) || ! $field) {
+                if (! is_string($maybeName) || ! $field) {
+                    $safeField = Utils::printSafe($field);
+
                     throw new InvariantViolation(
-                        sprintf(
-                            '%s.%s field config must be an array, but got: %s',
-                            $type->name,
-                            $name,
-                            Utils::printSafe($field)
-                        )
+                        "{$type->name}.{$maybeName} field config must be an array, but got: {$safeField}"
                     );
                 }
 
-                $fieldDef = self::create(['name' => $name, 'type' => $field]);
+                $fieldDef = self::create(['name' => $maybeName, 'type' => $field]);
             }
 
             $map[$fieldDef->getName()] = $fieldDef;
