@@ -33,7 +33,6 @@ use function array_key_exists;
 use function array_merge;
 use function array_values;
 use function method_exists;
-use function var_dump;
 
 class Introspection
 {
