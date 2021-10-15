@@ -19,7 +19,8 @@ jobs:
         uses: "shivammathur/setup-php@v2"
         with:
           coverage: "none"
-          php-version: "8.0"
+          # Run on the lowest support version to ensure compatibility
+          php-version: "7.4"
           tools: "cs2pr"
 
       - name: "Install dependencies with Composer"
