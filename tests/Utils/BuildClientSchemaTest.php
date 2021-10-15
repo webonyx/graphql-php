@@ -171,7 +171,7 @@ SDL;
           }
         ');
 
-        self::assertNull($clientSchema->getType('Int'));
+        self::assertArrayNotHasKey('Int', $clientSchema->getTypeMap());
     }
 
     /**
@@ -716,6 +716,50 @@ SDL;
 
         $this->expectExceptionMessageMatches(
             '/Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: {"name":"Query",.*}\./'
+        );
+        BuildClientSchema::build($introspection);
+    }
+
+    public function testThrowsOnUnknownKind(): void
+    {
+        $introspection          = Introspection::fromSchema(self::dummySchema());
+        $queryTypeIntrospection = null;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
+            }
+
+            $queryTypeIntrospection = &$type;
+        }
+
+        self::assertArrayHasKey('kind', $queryTypeIntrospection);
+
+        $queryTypeIntrospection['kind'] = 3;
+
+        $this->expectExceptionMessageMatches(
+            '/Invalid or incomplete introspection result. Received type with unknown kind: {"kind":3,"name":"Query",.*}\./'
+        );
+        BuildClientSchema::build($introspection);
+    }
+
+    public function testThrowsWhenMissingName(): void
+    {
+        $introspection          = Introspection::fromSchema(self::dummySchema());
+        $queryTypeIntrospection = null;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
+            }
+
+            $queryTypeIntrospection = &$type;
+        }
+
+        self::assertArrayHasKey('name', $queryTypeIntrospection);
+
+        unset($queryTypeIntrospection['name']);
+
+        $this->expectExceptionMessageMatches(
+            '/Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: {"kind":"OBJECT",.*}\./'
         );
         BuildClientSchema::build($introspection);
     }

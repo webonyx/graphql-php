@@ -55,7 +55,7 @@ class BuildClientSchema
     private array $options;
 
     /** @var array<string, NamedType&Type> */
-    private array $typeMap;
+    private array $typeMap = [];
 
     /**
      * @param array<string, mixed> $introspectionQuery
@@ -101,26 +101,21 @@ class BuildClientSchema
 
         $schemaIntrospection = $this->introspection['__schema'];
 
-        $this->typeMap = Utils::keyValMap(
-            $schemaIntrospection['types'],
-            static function (array $typeIntrospection) {
-                return $typeIntrospection['name'];
-            },
-            function (array $typeIntrospection): NamedType {
-                return $this->buildType($typeIntrospection);
-            }
-        );
-
         $builtInTypes = array_merge(
             Type::getStandardTypes(),
             Introspection::getTypes()
         );
-        foreach ($builtInTypes as $name => $type) {
-            if (! isset($this->typeMap[$name])) {
-                continue;
+
+        foreach ($schemaIntrospection['types'] as $typeIntrospection) {
+            if (! isset($typeIntrospection['name'])) {
+                throw self::invalidOrIncompleteIntrospectionResult($typeIntrospection);
             }
 
-            $this->typeMap[$name] = $type;
+            $name = $typeIntrospection['name'];
+
+            // Use the built-in singleton types to avoid reconstruction
+            $this->typeMap[$name] = $builtInTypes[$name]
+                ?? $this->buildType($typeIntrospection);
         }
 
         $queryType = isset($schemaIntrospection['queryType'])
@@ -142,17 +137,13 @@ class BuildClientSchema
             )
             : [];
 
-        $schemaConfig = new SchemaConfig();
-        $schemaConfig->setQuery($queryType)
+        $schemaConfig = (new SchemaConfig())
+            ->setQuery($queryType)
             ->setMutation($mutationType)
             ->setSubscription($subscriptionType)
             ->setTypes($this->typeMap)
             ->setDirectives($directives)
-            ->setAssumeValid(
-                isset($this->options)
-                && isset($this->options['assumeValid'])
-                && $this->options['assumeValid']
-            );
+            ->setAssumeValid($this->options['assumeValid'] ?? false);
 
         return new Schema($schemaConfig);
     }
@@ -205,6 +196,16 @@ class BuildClientSchema
     }
 
     /**
+     * @param array<mixed> $type
+     */
+    public static function invalidOrIncompleteIntrospectionResult(array $type): InvariantViolation
+    {
+        return new InvariantViolation(
+            'Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: ' . json_encode($type) . '.'
+        );
+    }
+
+    /**
      * @param array<string, mixed> $typeRef
      */
     private function getInputType(array $typeRef): InputType
@@ -254,34 +255,39 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $type
+     *
+     * @return Type&NamedType
      */
     private function buildType(array $type): NamedType
     {
-        if (array_key_exists('name', $type) && array_key_exists('kind', $type)) {
-            switch ($type['kind']) {
-                case TypeKind::SCALAR:
-                    return $this->buildScalarDef($type);
-
-                case TypeKind::OBJECT:
-                    return $this->buildObjectDef($type);
-
-                case TypeKind::INTERFACE:
-                    return $this->buildInterfaceDef($type);
-
-                case TypeKind::UNION:
-                    return $this->buildUnionDef($type);
-
-                case TypeKind::ENUM:
-                    return $this->buildEnumDef($type);
-
-                case TypeKind::INPUT_OBJECT:
-                    return $this->buildInputObjectDef($type);
-            }
+        if (! array_key_exists('kind', $type)) {
+            throw self::invalidOrIncompleteIntrospectionResult($type);
         }
 
-        throw new InvariantViolation(
-            'Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: ' . json_encode($type) . '.'
-        );
+        switch ($type['kind']) {
+            case TypeKind::SCALAR:
+                return $this->buildScalarDef($type);
+
+            case TypeKind::OBJECT:
+                return $this->buildObjectDef($type);
+
+            case TypeKind::INTERFACE:
+                return $this->buildInterfaceDef($type);
+
+            case TypeKind::UNION:
+                return $this->buildUnionDef($type);
+
+            case TypeKind::ENUM:
+                return $this->buildEnumDef($type);
+
+            case TypeKind::INPUT_OBJECT:
+                return $this->buildInputObjectDef($type);
+
+            default:
+                throw new InvariantViolation(
+                    'Invalid or incomplete introspection result. Received type with unknown kind: ' . json_encode($type) . '.'
+                );
+        }
     }
 
     /**

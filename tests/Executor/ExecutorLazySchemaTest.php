@@ -363,9 +363,7 @@ class ExecutorLazySchemaTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->loadType('Query'),
-            'typeLoader' => function (string $name): Type {
-                return $this->loadType($name, true);
-            },
+            'typeLoader' => fn (string $name): Type => $this->loadType($name, true),
         ]);
 
         $query     = '{ object { object { object { string } } } }';
@@ -377,17 +375,26 @@ class ExecutorLazySchemaTest extends TestCase
             $rootValue
         );
 
-        self::assertEquals(['data' => $rootValue], $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
-        self::assertEquals([
-            'Query'       => true,
-            'SomeObject'  => true,
-            'OtherObject' => true,
-        ], $this->loadedTypes);
-        self::assertEquals([
-            'Query.fields',
-            'SomeObject',
-            'SomeObject.fields',
-        ], $this->calls);
+        self::assertEquals(
+            ['data' => $rootValue],
+            $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
+        );
+        self::assertEquals(
+            [
+                'Query'       => true,
+                'SomeObject'  => true,
+                'OtherObject' => true,
+            ],
+            $this->loadedTypes
+        );
+        self::assertEquals(
+            [
+                'Query.fields',
+                'SomeObject',
+                'SomeObject.fields',
+            ],
+            $this->calls
+        );
     }
 
     public function testResolveUnion(): void
