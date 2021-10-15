@@ -252,4 +252,55 @@ class DirectivesTest extends TestCase
             $this->executeTestQuery('{ a, b @include(if: false) @skip(if: false) }')
         );
     }
+
+    /**
+     * @dataProvider includeDirectiveProvider
+     */
+    public function testIncludeDirectiveNull(array $expectedOutput, array $variables, string $variableType) : void
+    {
+        $document = Parser::parse('query MyQuery($extra: ' . $variableType . ') {
+            a @include(if: $extra)
+            b
+        }');
+
+        $result = Executor::execute(
+            self::getSchema(),
+            $document,
+            self::getData(),
+            null,
+            $variables
+        );
+        self::assertEquals($expectedOutput, $result->toArray());
+    }
+
+    public function includeDirectiveProvider() : array
+    {
+        return [
+            [
+                ['data' => ['a' => 'a', 'b' => 'b']],
+                ['extra' => true],
+                'Boolean',
+            ],
+            [
+                ['data' => ['b' => 'b']],
+                ['extra' => false],
+                'Boolean',
+            ],
+            [
+                ['data' => ['b' => 'b']],
+                ['extra' => null],
+                'Boolean',
+            ],
+            [
+                ['data' => ['b' => 'b']],
+                [],
+                'Boolean = false',
+            ],
+            [
+                ['data' => ['a' => 'a', 'b' => 'b']],
+                [],
+                'Boolean = true',
+            ],
+        ];
+    }
 }

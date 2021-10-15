@@ -417,8 +417,11 @@ class ReferenceExecutor implements ExecutorImplementation
             $node,
             $variableValues
         );
+        if ($include === null) {
+            return true;
+        }
 
-        return ! isset($include['if']) || $include['if'] !== false;
+        return ! array_key_exists('if', $include) || $include['if'] === true;
     }
 
     /**
