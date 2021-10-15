@@ -214,9 +214,6 @@ EOD;
             $schema,
             self::getIntrospectionQuery($optionsWithDefaults)
         );
-        foreach ($result->errors as $error) {
-            var_dump($error->getMessage());
-        }
 
         return $result->data;
     }
