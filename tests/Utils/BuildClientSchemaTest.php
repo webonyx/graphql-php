@@ -165,7 +165,6 @@ SDL;
      */
     public function testIncludesStandardTypesOnlyIfTheyAreUsed(): void
     {
-        self::markTestSkipped('Introspection currently does not follow the reference implementation.');
         $clientSchema = self::clientSchemaFromSDL('
           type Query {
             foo: String
