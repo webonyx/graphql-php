@@ -303,4 +303,55 @@ class DirectivesTest extends TestCase
             ],
         ];
     }
+
+    /**
+     * @dataProvider skipDirectiveProvider
+     */
+    public function testSkipDirectiveNull(array $expectedOutput, array $variables, string $variableType) : void
+    {
+        $document = Parser::parse('query MyQuery($extra: ' . $variableType . ') {
+            a @skip(if: $extra)
+            b
+        }');
+
+        $result = Executor::execute(
+            self::getSchema(),
+            $document,
+            self::getData(),
+            null,
+            $variables
+        );
+        self::assertEquals($expectedOutput, $result->toArray());
+    }
+
+    public function skipDirectiveProvider() : array
+    {
+        return [
+            [
+                ['data' => ['b' => 'b']],
+                ['extra' => true],
+                'Boolean',
+            ],
+            [
+                ['data' => ['a' => 'a', 'b' => 'b']],
+                ['extra' => false],
+                'Boolean',
+            ],
+            [
+                ['data' => ['a' => 'a', 'b' => 'b']],
+                ['extra' => null],
+                'Boolean',
+            ],
+            [
+                ['data' => ['a' => 'a', 'b' => 'b']],
+                [],
+                'Boolean = false',
+            ],
+            [
+                ['data' => ['b' => 'b']],
+                [],
+                'Boolean = true',
+            ],
+        ];
+    }
 }
