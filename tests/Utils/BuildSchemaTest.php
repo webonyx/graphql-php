@@ -27,6 +27,7 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
@@ -1089,5 +1090,160 @@ type World implements Hello {
         self::assertArrayHasKey('Color', $types);
         self::assertArrayHasKey('Hello', $types);
         self::assertArrayHasKey('World', $types);
+    }
+
+    /**
+     * @param array<string> $sdlExts
+     * @param callable(\GraphQL\Type\Definition\Type $type):void $assert
+     *
+     * @dataProvider correctlyExtendsTypesDataProvider
+     */
+    public function testCorrectlyExtendsTypes(string $baseSdl, array $sdlExts, string $expectedSdl, callable $assert): void
+    {
+        $defaultSdl = <<<'GRAPHQL'
+            directive @foo on SCHEMA | SCALAR | OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT
+            interface Bar
+            GRAPHQL;
+
+        $sdl = \implode("\n", [$defaultSdl, $baseSdl, ...$sdlExts]);
+        $schema = BuildSchema::build($sdl);
+        $myType = $schema->getType('MyType');
+        self::assertNotNull($myType);
+        self::assertEquals($expectedSdl, SchemaPrinter::printType($myType));
+        self::assertCount(\count($sdlExts), $myType->extensionASTNodes);
+        $assert($myType);
+    }
+
+    /**
+     * @return iterable<string, array<mixed>>
+     */
+    public function correctlyExtendsTypesDataProvider(): iterable
+    {
+        yield 'scalar' => [
+            'scalar MyType',
+            [
+                <<<'GRAPHQL'
+                extend scalar MyType @foo
+                GRAPHQL,
+            ],
+            'scalar MyType',
+            function (ScalarType $type): void {
+                // nothing else to assert here, scalar extensions can add only directives
+            },
+        ];
+        yield 'object' => [
+            'type MyType',
+            [
+                <<<'GRAPHQL'
+                extend type MyType @foo
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend type MyType {
+                  field: String
+                }
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend type MyType implements Bar
+                GRAPHQL,
+            ],
+            <<<'GRAPHQL'
+            type MyType implements Bar {
+              field: String
+            }
+            GRAPHQL,
+            function (ObjectType $type): void {
+                self::assertInstanceOf(StringType::class, $type->getField('field')->getType());
+                self::assertTrue($type->implementsInterface(new InterfaceType(['name' => 'Bar', 'fields' => []])));
+            },
+        ];
+        yield 'interface' => [
+            'interface MyType',
+            [
+                <<<'GRAPHQL'
+                extend interface MyType @foo
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend interface MyType {
+                  field: String
+                }
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend interface MyType implements Bar
+                GRAPHQL,
+            ],
+            <<<'GRAPHQL'
+            interface MyType implements Bar {
+              field: String
+            }
+            GRAPHQL,
+            function (InterfaceType $type): void {
+                self::assertInstanceOf(StringType::class, $type->getField('field')->getType());
+                self::assertTrue($type->implementsInterface(new InterfaceType(['name' => 'Bar', 'fields' => []])));
+            },
+        ];
+        yield 'union' => [
+            'union MyType',
+            [
+                <<<'GRAPHQL'
+                extend union MyType @foo
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend union MyType = Bar
+                GRAPHQL,
+            ],
+            'union MyType = Bar',
+            function (UnionType $type): void {
+                self::assertCount(1, $type->getTypes());
+            },
+        ];
+        yield 'enum' => [
+            'enum MyType',
+            [
+                <<<'GRAPHQL'
+                extend enum MyType @foo
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend enum MyType {
+                  X
+                }
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend enum MyType {
+                  Y
+                }
+                GRAPHQL,
+            ],
+            <<<'GRAPHQL'
+            enum MyType {
+              X
+              Y
+            }
+            GRAPHQL,
+            function (EnumType $type): void {
+                self::assertNotNull($type->getValue('X'));
+                self::assertNotNull($type->getValue('Y'));
+            },
+        ];
+        yield 'input' => [
+            'input MyType',
+            [
+                <<<'GRAPHQL'
+                extend input MyType @foo
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend input MyType {
+                  field: String
+                }
+                GRAPHQL,
+            ],
+            <<<'GRAPHQL'
+            input MyType {
+              field: String
+            }
+            GRAPHQL,
+            function (InputObjectType $type): void {
+                self::assertInstanceOf(StringType::class, $type->getField('field')->getType());
+            },
+        ];
     }
 }
