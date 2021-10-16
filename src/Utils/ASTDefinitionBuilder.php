@@ -23,6 +23,7 @@ use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\BlockString;
 use GraphQL\Language\Token;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -36,6 +37,7 @@ use GraphQL\Type\Definition\UnionType;
 use Throwable;
 
 use function array_reverse;
+use function count;
 use function implode;
 use function is_array;
 use function is_string;
@@ -49,7 +51,7 @@ class ASTDefinitionBuilder
     /** @var array<string, bool> */
     private array $options;
 
-    /** @var callable */
+    /** @var callable(string, ?Node): Type */
     private $resolveType;
 
     /** @var callable|null */
@@ -63,6 +65,7 @@ class ASTDefinitionBuilder
      * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
      * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
      * @param array<string, bool> $options
+     * @param callable(string, ?Node): Type $resolveType
      */
     public function __construct(
         array $typeDefinitionsMap,
@@ -107,7 +110,7 @@ class ASTDefinitionBuilder
         if (isset($this->options['commentDescriptions'])) {
             $rawValue = $this->getLeadingCommentBlock($node);
             if ($rawValue !== null) {
-                return BlockString::value("\n" . $rawValue);
+                return BlockString::dedentValue("\n" . $rawValue);
             }
         }
 
@@ -136,7 +139,9 @@ class ASTDefinitionBuilder
             $token      = $token->prev;
         }
 
-        return implode("\n", array_reverse($comments));
+        return count($comments) > 0
+            ? implode("\n", array_reverse($comments))
+            : null;
     }
 
     /**
@@ -184,7 +189,7 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param string|(Node &NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+     * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
      */
     public function buildType($ref): Type
     {
@@ -200,51 +205,46 @@ class ASTDefinitionBuilder
      *
      * @throws Error
      */
-    private function internalBuildType(string $typeName, ?Node $typeNode = null): Type
+    private function internalBuildType(string $typeName, ?Node $typeNode = null): ?Type
     {
-        if (! isset($this->cache[$typeName])) {
-            if (isset($this->typeDefinitionsMap[$typeName])) {
-                $type = $this->makeSchemaDef($this->typeDefinitionsMap[$typeName]);
-                if ($this->typeConfigDecorator !== null) {
-                    try {
-                        $config = ($this->typeConfigDecorator)(
-                            $type->config,
-                            $this->typeDefinitionsMap[$typeName],
-                            $this->typeDefinitionsMap
-                        );
-                    } catch (Throwable $e) {
-                        throw new Error(
-                            sprintf('Type config decorator passed to %s threw an error ', static::class) .
-                            sprintf('when building %s type: %s', $typeName, $e->getMessage()),
-                            null,
-                            null,
-                            [],
-                            null,
-                            $e
-                        );
-                    }
-
-                    if (! is_array($config) || isset($config[0])) {
-                        throw new Error(
-                            sprintf(
-                                'Type config decorator passed to %s is expected to return an array, but got %s',
-                                static::class,
-                                Utils::getVariableType($config)
-                            )
-                        );
-                    }
-
-                    $type = $this->makeSchemaDefFromConfig($this->typeDefinitionsMap[$typeName], $config);
-                }
-
-                $this->cache[$typeName] = $type;
-            } else {
-                $fn                     = $this->resolveType;
-                $this->cache[$typeName] = $fn($typeName, $typeNode);
-            }
+        if (isset($this->cache[$typeName])) {
+            return $this->cache[$typeName];
         }
 
-        return $this->cache[$typeName];
+        if (isset($this->typeDefinitionsMap[$typeName])) {
+            $type = $this->makeSchemaDef($this->typeDefinitionsMap[$typeName]);
+
+            if (isset($this->typeConfigDecorator)) {
+                try {
+                    $config = ($this->typeConfigDecorator)(
+                        $type->config,
+                        $this->typeDefinitionsMap[$typeName],
+                        $this->typeDefinitionsMap
+                    );
+                } catch (Throwable $e) {
+                    throw new Error(
+                        'Type config decorator passed to ' . static::class . ' threw an error when building ' . $typeName . ' type: ' . $e->getMessage(),
+                        null,
+                        null,
+                        [],
+                        null,
+                        $e
+                    );
+                }
+
+                if (! is_array($config) || isset($config[0])) {
+                    throw new Error(
+                        'Type config decorator passed to ' . static::class . ' is expected to return an array, but got ' . Utils::getVariableType($config)
+                    );
+                }
+
+                $type = $this->makeSchemaDefFromConfig($this->typeDefinitionsMap[$typeName], $config);
+            }
+
+            return $this->cache[$typeName] = $type;
+        }
+
+        return $this->cache[$typeName] = ($this->resolveType)($typeName, $typeNode);
     }
 
     /**

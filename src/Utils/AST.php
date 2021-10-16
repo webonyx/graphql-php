@@ -9,6 +9,7 @@ use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FloatValueNode;
@@ -43,6 +44,7 @@ use Throwable;
 use Traversable;
 
 use function array_key_exists;
+use function array_push;
 use function count;
 use function is_array;
 use function is_bool;
@@ -563,13 +565,17 @@ class AST
         if ($inputTypeNode instanceof ListTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
-            return $innerType === null ? null : new ListOfType($innerType);
+            return $innerType === null
+                ? null
+                : new ListOfType($innerType);
         }
 
         if ($inputTypeNode instanceof NonNullTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
-            return $innerType === null ? null : new NonNull($innerType);
+            return $innerType === null
+                ? null
+                : new NonNull($innerType);
         }
 
         if ($inputTypeNode instanceof NamedTypeNode) {
@@ -607,5 +613,25 @@ class AST
         }
 
         return $operation;
+    }
+
+    /**
+     * Provided a collection of ASTs, presumably each from different files,
+     * concatenate the ASTs together into batched AST, useful for validating many
+     * GraphQL source files which together represent one conceptual application.
+     *
+     * @param array<DocumentNode> $documents
+     *
+     * @api
+     */
+    public static function concatAST(array $documents): DocumentNode
+    {
+        /** @var array<DefinitionNode> $definitions */
+        $definitions = [];
+        foreach ($documents as $document) {
+            array_push($definitions, ...$document->definitions);
+        }
+
+        return new DocumentNode(['definitions' => new NodeList($definitions)]);
     }
 }

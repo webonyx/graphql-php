@@ -15,6 +15,11 @@ use PHPUnit\Framework\TestCase;
  * Contains tests originating from `graphql-js` that previously were in BuildSchemaTest.
  * Their counterparts have been removed from `buildASTSchema-test.js` and moved elsewhere,
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
+ * TODO align with:
+ *   - https://github.com/graphql/graphql-js/commit/257797a0ebdddd3da6e75b7c237fdc12a1a7c75a
+ *   - https://github.com/graphql/graphql-js/commit/9b7a8af43fc0865a01df5b5a084f37bbb8680ef8
+ *   - https://github.com/graphql/graphql-js/commit/3b9ea61f2348215dee755f779caef83df749d2bb
+ *   - https://github.com/graphql/graphql-js/commit/64a5c3448a201737f9218856786c51d66f2deabd
  */
 class BuildSchemaLegacyTest extends TestCase
 {
@@ -229,8 +234,7 @@ class BuildSchemaLegacyTest extends TestCase
      */
     public function testUnknownTypeReferenced(): void
     {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Bar" not found in document.');
+        $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
         $sdl    = '
             schema {
               query: Hello
@@ -250,8 +254,7 @@ class BuildSchemaLegacyTest extends TestCase
      */
     public function testUnknownTypeInInterfaceList(): void
     {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Bar" not found in document.');
+        $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
         $sdl    = '
             type Query implements Bar {
               field: String
@@ -267,8 +270,7 @@ class BuildSchemaLegacyTest extends TestCase
      */
     public function testUnknownTypeInUnionList(): void
     {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Bar" not found in document.');
+        $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
         $sdl    = '
             union TestUnion = Bar
             type Query { testUnion: TestUnion }

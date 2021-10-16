@@ -1339,14 +1339,14 @@ class BuildSchemaTest extends TestCase
      */
     public function testThrowsOnUnknownTypes(): void
     {
+        $this->expectException(Error::class);
+        $this->expectExceptionObject(new Error('Unknown type: "UnknownType".'));
         $sdl = '
             type Query {
               unknown: UnknownType
             }
         ';
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Unknown type: "UnknownType".');
-        BuildSchema::build($sdl, null, ['assumeValidSDL' => true]);
+        BuildSchema::build($sdl, null, ['assumeValidSDL' => true])->assertValid();
     }
 
     public function testSupportsTypeConfigDecorator(): void

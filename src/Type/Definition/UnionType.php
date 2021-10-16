@@ -24,7 +24,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     /**
      * Lazily initialized.
      *
-     * @var array<ObjectType>
+     * @var array<int, ObjectType>
      */
     private array $types;
 
@@ -39,26 +39,19 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     public array $extensionASTNodes;
 
     /**
-     * @param mixed[] $config
+     * @param array<string, mixed> $config
      */
     public function __construct(array $config)
     {
-        if (! isset($config['name'])) {
-            $config['name'] = $this->tryInferName();
-        }
-
+        $config['name'] ??= $this->tryInferName();
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        /**
-         * Optionally provide a custom type resolver function. If one is not provided,
-         * the default implementation will call `isTypeOf` on each implementing
-         * Object type.
-         */
         $this->name              = $config['name'];
-        $this->description       = $config['description'] ?? null;
+        $this->description       = $config['description'] ?? $this->description ?? null;
         $this->astNode           = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
-        $this->config            = $config;
+
+        $this->config = $config;
     }
 
     public function isPossibleType(Type $type): bool
@@ -78,13 +71,15 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     }
 
     /**
-     * @return ObjectType[]
+     * @return array<int, ObjectType>
      *
      * @throws InvariantViolation
      */
     public function getTypes(): array
     {
         if (! isset($this->types)) {
+            $this->types = [];
+
             $types = $this->config['types'] ?? null;
             if (is_callable($types)) {
                 $types = $types();
@@ -92,32 +87,24 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
             if (! is_array($types)) {
                 throw new InvariantViolation(
-                    sprintf(
-                        'Must provide Array of types or a callable which returns such an array for Union %s',
-                        $this->name
-                    )
+                    "Must provide Array of types or a callable which returns such an array for Union {$this->name}."
                 );
             }
 
-            $rawTypes = $types;
-            foreach ($rawTypes as $i => $rawType) {
-                $rawTypes[$i] = Schema::resolveType($rawType);
+            foreach ($types as $type) {
+                /**
+                 * Might not be true, actually checked during schema validation.
+                 *
+                 * @var ObjectType $resolvedType
+                 */
+                $resolvedType  = Schema::resolveType($type);
+                $this->types[] = $resolvedType;
             }
-
-            $this->types = $rawTypes;
         }
 
         return $this->types;
     }
 
-    /**
-     * Resolves concrete ObjectType for given object value
-     *
-     * @param object $objectValue
-     * @param mixed  $context
-     *
-     * @return callable|mixed|null
-     */
     public function resolveType($objectValue, $context, ResolveInfo $info)
     {
         if (isset($this->config['resolveType'])) {

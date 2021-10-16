@@ -25,7 +25,7 @@ class ErrorHelper
 
         if (count($locations) > 0) {
             $formatted['locations'] = array_map(
-                static fn ($loc): array => $loc->toArray(),
+                static fn (SourceLocation $loc): array => $loc->toArray(),
                 $locations
             );
         }

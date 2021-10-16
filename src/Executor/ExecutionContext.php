@@ -20,11 +20,10 @@ use GraphQL\Type\Schema;
  */
 class ExecutionContext
 {
-    /** @var Schema */
-    public $schema;
+    public Schema $schema;
 
-    /** @var FragmentDefinitionNode[] */
-    public $fragments;
+    /** @var array<string, FragmentDefinitionNode> */
+    public array $fragments;
 
     /** @var mixed */
     public $rootValue;
@@ -32,31 +31,32 @@ class ExecutionContext
     /** @var mixed */
     public $contextValue;
 
-    /** @var OperationDefinitionNode */
-    public $operation;
+    public OperationDefinitionNode $operation;
 
-    /** @var mixed[] */
-    public $variableValues;
+    /** @var array<string, mixed> */
+    public array $variableValues;
 
     /** @var callable */
     public $fieldResolver;
 
-    /** @var Error[] */
-    public $errors;
+    /** @var array<int, Error> */
+    public array $errors;
 
-    /** @var PromiseAdapter */
-    public $promiseAdapter;
+    public PromiseAdapter $promiseAdapter;
 
+    /**
+     * @param array<string, FragmentDefinitionNode> $fragments
+     */
     public function __construct(
-        $schema,
-        $fragments,
+        Schema $schema,
+        array $fragments,
         $rootValue,
         $contextValue,
-        $operation,
-        $variableValues,
-        $errors,
-        $fieldResolver,
-        $promiseAdapter
+        OperationDefinitionNode $operation,
+        array $variableValues,
+        array $errors,
+        callable $fieldResolver,
+        PromiseAdapter $promiseAdapter
     ) {
         $this->schema         = $schema;
         $this->fragments      = $fragments;
@@ -64,15 +64,13 @@ class ExecutionContext
         $this->contextValue   = $contextValue;
         $this->operation      = $operation;
         $this->variableValues = $variableValues;
-        $this->errors         = $errors ?? [];
+        $this->errors         = $errors;
         $this->fieldResolver  = $fieldResolver;
         $this->promiseAdapter = $promiseAdapter;
     }
 
-    public function addError(Error $error)
+    public function addError(Error $error): void
     {
         $this->errors[] = $error;
-
-        return $this;
     }
 }

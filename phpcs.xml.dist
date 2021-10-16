@@ -13,6 +13,7 @@
 
     <file>benchmarks</file>
     <file>examples</file>
+    <file>generate-class-reference.php</file>
     <file>src</file>
     <file>tests</file>
 
@@ -32,6 +33,9 @@
         <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint" />
         <exclude name="Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps" />
         <exclude name="Squiz.NamingConventions.ValidVariableName.NotCamelCaps" />
+
+        <!-- Interpolation is more performant and more readable -->
+        <exclude name="Squiz.Strings.DoubleQuoteUsage.ContainsVar" />
     </rule>
 
     <!-- Forbid useless annotations -->
@@ -48,6 +52,12 @@
                 <element value="@subpackage"/>
                 <element value="@version"/>
             </property>
+        </properties>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.ControlStructures.RequireMultiLineTernaryOperator">
+        <properties>
+            <property name="minExpressionsLength" value="20" />
         </properties>
     </rule>
 </ruleset>

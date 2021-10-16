@@ -236,7 +236,10 @@ class SchemaValidationContext
     {
         // Ensure names are valid, however introspection types opt out.
         $error = Utils::isValidNameError($object->name, $object->astNode);
-        if ($error === null || Introspection::isIntrospectionType($object)) {
+        if (
+            $error === null
+            || ($object instanceof Type && Introspection::isIntrospectionType($object))
+        ) {
             return;
         }
 
@@ -273,7 +276,9 @@ class SchemaValidationContext
     {
         $argNode = $this->getAllDirectiveArgNodes($directive, $argName)[0] ?? null;
 
-        return $argNode === null ? null : $argNode->type;
+        return $argNode === null
+            ? null
+            : $argNode->type;
     }
 
     public function validateTypes(): void
@@ -661,12 +666,9 @@ class SchemaValidationContext
         $ifaceTypeNames = [];
         foreach ($type->getInterfaces() as $iface) {
             if (! $iface instanceof InterfaceType) {
+                $safeIface = Utils::printSafe($iface);
                 $this->reportError(
-                    sprintf(
-                        'Type %s must only implement Interface types, it cannot implement %s.',
-                        $type->name,
-                        Utils::printSafe($iface)
-                    ),
+                    "Type {$type->name} must only implement Interface types, it cannot implement {$safeIface}.",
                     $this->getImplementsInterfaceNode($type, $iface)
                 );
                 continue;
@@ -674,10 +676,7 @@ class SchemaValidationContext
 
             if ($type === $iface) {
                 $this->reportError(
-                    sprintf(
-                        'Type %s cannot implement itself because it would create a circular reference.',
-                        $type->name
-                    ),
+                    "Type {$type->name} cannot implement itself because it would create a circular reference.",
                     $this->getImplementsInterfaceNode($type, $iface)
                 );
                 continue;
@@ -685,7 +684,7 @@ class SchemaValidationContext
 
             if (isset($ifaceTypeNames[$iface->name])) {
                 $this->reportError(
-                    sprintf('Type %s can only implement %s once.', $type->name, $iface->name),
+                    "Type {$type->name} can only implement {$iface->name} once.",
                     $this->getAllImplementsInterfaceNodes($type, $iface)
                 );
                 continue;

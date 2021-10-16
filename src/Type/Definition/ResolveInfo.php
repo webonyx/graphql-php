@@ -25,47 +25,43 @@ class ResolveInfo
      * The definition of the field being resolved.
      *
      * @api
-     * @var FieldDefinition
      */
-    public $fieldDefinition;
+    public FieldDefinition $fieldDefinition;
 
     /**
      * The name of the field being resolved.
      *
      * @api
-     * @var string
      */
-    public $fieldName;
+    public string $fieldName;
 
     /**
      * Expected return type of the field being resolved.
      *
      * @api
-     * @var Type
      */
-    public $returnType;
+    public Type $returnType;
 
     /**
      * AST of all nodes referencing this field in the query.
      *
      * @api
-     * @var FieldNode[]
+     * @var iterable<int, FieldNode>
      */
-    public $fieldNodes = [];
+    public iterable $fieldNodes = [];
 
     /**
      * Parent type of the field being resolved.
      *
      * @api
-     * @var ObjectType
      */
-    public $parentType;
+    public ObjectType $parentType;
 
     /**
      * Path to this field from the very root value.
      *
      * @api
-     * @var string[]
+     * @var array<int, string|int>
      */
     public $path;
 
@@ -81,9 +77,9 @@ class ResolveInfo
      * AST of all fragments defined in query.
      *
      * @api
-     * @var FragmentDefinitionNode[]
+     * @var array<string, FragmentDefinitionNode>
      */
-    public $fragments = [];
+    public array $fragments = [];
 
     /**
      * Root value passed to query execution.
@@ -97,31 +93,28 @@ class ResolveInfo
      * AST of operation definition node (query, mutation).
      *
      * @api
-     * @var OperationDefinitionNode|null
      */
-    public $operation;
+    public ?OperationDefinitionNode $operation;
 
     /**
      * Array of variables passed to query execution.
      *
      * @api
-     * @var mixed[]
+     * @var array<string, mixed>
      */
-    public $variableValues = [];
+    public array $variableValues = [];
 
     /**
      * Lazily initialized.
-     *
-     * @var QueryPlan
      */
-    private $queryPlan;
+    private QueryPlan $queryPlan;
 
     /**
-     * @param FieldNode[]              $fieldNodes
-     * @param string[]                 $path
-     * @param FragmentDefinitionNode[] $fragments
-     * @param mixed|null               $rootValue
-     * @param mixed[]                  $variableValues
+     * @param iterable<int, FieldNode>              $fieldNodes
+     * @param array<int, string|int>                $path
+     * @param array<string, FragmentDefinitionNode> $fragments
+     * @param mixed|null                            $rootValue
+     * @param array<string, mixed>                  $variableValues
      */
     public function __construct(
         FieldDefinition $fieldDefinition,
@@ -184,7 +177,7 @@ class ResolveInfo
      *
      * @api
      */
-    public function getFieldSelection($depth = 0): array
+    public function getFieldSelection(int $depth = 0): array
     {
         $fields = [];
 

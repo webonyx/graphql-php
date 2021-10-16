@@ -32,21 +32,19 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     public array $extensionASTNodes;
 
     /**
-     * @param mixed[] $config
+     * @param array<string, mixed> $config
      */
     public function __construct(array $config)
     {
-        if (! isset($config['name'])) {
-            $config['name'] = $this->tryInferName();
-        }
-
+        $config['name'] ??= $this->tryInferName();
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        $this->config            = $config;
         $this->name              = $config['name'];
         $this->astNode           = $config['astNode'] ?? null;
         $this->description       = $config['description'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
+
+        $this->config = $config;
     }
 
     /**
@@ -54,17 +52,33 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     public function getField(string $name): InputObjectField
     {
+        $field = $this->findField($name);
+
+        Utils::invariant($field !== null, 'Field "%s" is not defined for type "%s"', $name, $this->name);
+
+        return $field;
+    }
+
+    public function findField(string $name): ?InputObjectField
+    {
         if (! isset($this->fields)) {
             $this->initializeFields();
         }
 
-        Utils::invariant(isset($this->fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
+        return $this->fields[$name] ?? null;
+    }
 
-        return $this->fields[$name];
+    public function hasField(string $name): bool
+    {
+        if (! isset($this->fields)) {
+            $this->initializeFields();
+        }
+
+        return isset($this->fields[$name]);
     }
 
     /**
-     * @return InputObjectField[]
+     * @return array<string, InputObjectField>
      */
     public function getFields(): array
     {
@@ -77,8 +91,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     protected function initializeFields(): void
     {
-        $this->fields = [];
-        $fields       = $this->config['fields'] ?? [];
+        $fields = $this->config['fields'] ?? [];
         if (is_callable($fields)) {
             $fields = $fields();
         }
@@ -89,14 +102,39 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             );
         }
 
-        foreach ($fields as $name => $field) {
-            if ($field instanceof Type || is_callable($field)) {
-                $field = ['type' => $field];
+        $this->fields = [];
+        foreach ($fields as $nameOrIndex => $field) {
+            $this->initializeField($nameOrIndex, $field);
+        }
+    }
+
+    /**
+     * @param string|int                                                            $nameOrIndex
+     * @param InputObjectField|Type|array|(callable(): InputObjectField|Type|array) $field
+     */
+    protected function initializeField($nameOrIndex, $field): void
+    {
+        if (is_callable($field)) {
+            $field = $field();
+        }
+
+        if ($field instanceof Type) {
+            $field = ['type' => $field];
+        }
+
+        if (is_array($field)) {
+            $name = $field['name'] ??= $nameOrIndex;
+
+            if (! is_string($name)) {
+                throw new InvariantViolation(
+                    "{$this->name} fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those."
+                );
             }
 
-            $field                      = new InputObjectField($field + ['name' => $name]);
-            $this->fields[$field->name] = $field;
+            $field = new InputObjectField($field);
         }
+
+        $this->fields[$field->name] = $field;
     }
 
     /**

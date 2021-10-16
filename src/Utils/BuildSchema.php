@@ -17,31 +17,45 @@ use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 
 use function array_map;
-use function sprintf;
 
 /**
- * Build instance of `GraphQL\Type\Schema` out of schema language definition (string or parsed AST)
+ * Build instance of @see \GraphQL\Type\Schema out of schema language definition (string or parsed AST).
+ *
  * See [schema definition language docs](schema-definition-language.md) for details.
+ *
+ * @phpstan-type Options array{
+ *   commentDescriptions?: bool,
+ * }
+ *
+ *    - commentDescriptions:
+ *        Provide true to use preceding comments as the description.
+ *        This option is provided to ease adoption and will be removed in v16.
  */
 class BuildSchema
 {
-    /** @var DocumentNode */
-    private $ast;
+    private DocumentNode $ast;
 
     /** @var array<string, TypeDefinitionNode> */
-    private $nodeMap;
+    private array $nodeMap;
 
     /** @var callable|null */
     private $typeConfigDecorator;
 
-    /** @var array<string, bool> */
-    private $options;
+    /**
+     * @var array<string, bool>
+     * @phpstan-var Options
+     */
+    private array $options;
 
     /**
      * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
-    public function __construct(DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [])
-    {
+    public function __construct(
+        DocumentNode $ast,
+        ?callable $typeConfigDecorator = null,
+        array $options = []
+    ) {
         $this->ast                 = $ast;
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->options             = $options;
@@ -53,11 +67,15 @@ class BuildSchema
      *
      * @param DocumentNode|Source|string $source
      * @param array<string, bool>        $options
+     * @phpstan-param Options $options
      *
      * @api
      */
-    public static function build($source, ?callable $typeConfigDecorator = null, array $options = []): Schema
-    {
+    public static function build(
+        $source,
+        ?callable $typeConfigDecorator = null,
+        array $options = []
+    ): Schema {
         $doc = $source instanceof DocumentNode
             ? $source
             : Parser::parse($source);
@@ -66,35 +84,31 @@ class BuildSchema
     }
 
     /**
-     * This takes the ast of a schema document produced by the parse function in
-     * GraphQL\Language\Parser.
+     * This takes the AST of a schema from @see \GraphQL\Language\Parser::parse().
      *
-     * If no schema definition is provided, then it will look for types named Query
-     * and Mutation.
+     * If no schema definition is provided, then it will look for types named Query and Mutation.
      *
-     * Given that AST it constructs a GraphQL\Type\Schema. The resulting schema
+     * Given that AST it constructs a @see \GraphQL\Type\Schema. The resulting schema
      * has no resolve methods, so execution will use default resolvers.
      *
-     * Accepts options as a third argument:
-     *
-     *    - commentDescriptions:
-     *        Provide true to use preceding comments as the description.
-     *        This option is provided to ease adoption and will be removed in v16.
-     *
      * @param array<string, bool> $options
+     * @phpstan-param Options $options
      *
      * @throws Error
      *
      * @api
      */
-    public static function buildAST(DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = []): Schema
-    {
+    public static function buildAST(
+        DocumentNode $ast,
+        ?callable $typeConfigDecorator = null,
+        array $options = []
+    ): Schema {
         $builder = new self($ast, $typeConfigDecorator, $options);
 
         return $builder->buildSchema();
     }
 
-    public function buildSchema()
+    public function buildSchema(): Schema
     {
         $options = $this->options;
         if (! ($options['assumeValid'] ?? false) && ! ($options['assumeValidSDL'] ?? false)) {
@@ -102,7 +116,6 @@ class BuildSchema
         }
 
         $schemaDef     = null;
-        $typeDefs      = [];
         $this->nodeMap = [];
         /** @var array<int, DirectiveDefinitionNode> $directiveDefs */
         $directiveDefs = [];
@@ -114,10 +127,9 @@ class BuildSchema
                 case $definition instanceof TypeDefinitionNode:
                     $typeName = $definition->name->value;
                     if (isset($this->nodeMap[$typeName])) {
-                        throw new Error(sprintf('Type "%s" was defined more than once.', $typeName));
+                        throw new Error('Type "' . $typeName . '" was defined more than once.');
                     }
 
-                    $typeDefs[]               = $definition;
                     $this->nodeMap[$typeName] = $definition;
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
@@ -137,8 +149,8 @@ class BuildSchema
         $definitionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
             $this->options,
-            static function ($typeName): void {
-                throw new Error('Type "' . $typeName . '" not found in document.');
+            static function (string $typeName): void {
+                throw self::unknownType($typeName);
             },
             $this->typeConfigDecorator
         );
@@ -181,26 +193,22 @@ class BuildSchema
             'subscription' => isset($operationTypes['subscription'])
                 ? $definitionBuilder->buildType($operationTypes['subscription'])
                 : null,
-            'typeLoader'   => static function ($name) use ($definitionBuilder): Type {
-                return $definitionBuilder->buildType($name);
-            },
+            'typeLoader'   => static fn (string $name): Type => $definitionBuilder->buildType($name),
             'directives'   => $directives,
             'astNode'      => $schemaDef,
             'types'        => fn (): array => array_map(
-                static fn ($def): Type => $definitionBuilder->buildType($def->name->value),
+                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value),
                 $this->nodeMap,
             ),
         ]);
     }
 
     /**
-     * @param SchemaDefinitionNode $schemaDef
-     *
-     * @return string[]
+     * @return array<string, string>
      *
      * @throws Error
      */
-    private function getOperationTypes($schemaDef): array
+    private function getOperationTypes(SchemaDefinitionNode $schemaDef): array
     {
         $opTypes = [];
 
@@ -209,16 +217,21 @@ class BuildSchema
             $operation = $operationType->operation;
 
             if (isset($opTypes[$operation])) {
-                throw new Error(sprintf('Must provide only one %s type in schema.', $operation));
+                throw new Error('Must provide only one ' . $operation . ' type in schema.');
             }
 
             if (! isset($this->nodeMap[$typeName])) {
-                throw new Error(sprintf('Specified %s type "%s" not found in document.', $operation, $typeName));
+                throw new Error('Specified ' . $operation . ' type "' . $typeName . '" not found in document.');
             }
 
             $opTypes[$operation] = $typeName;
         }
 
         return $opTypes;
+    }
+
+    public static function unknownType(string $typeName): Error
+    {
+        return new Error('Unknown type: "' . $typeName . '".');
     }
 }

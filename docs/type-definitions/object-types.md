@@ -4,6 +4,7 @@ Object Type is the most frequently used primitive in a typical GraphQL applicati
 Conceptually Object Type is a collection of Fields. Each field, in turn,
 has its own type which allows building complex hierarchies.
 
+## Writing Object Types
 In **graphql-php** object type is an instance of `GraphQL\Type\Definition\ObjectType` 
 (or one of its subclasses) which accepts a configuration array in its constructor:
 
@@ -59,7 +60,7 @@ $blogStory = new ObjectType([
 This example uses **inline** style for Object Type definitions, but you can also use  
 [inheritance or schema definition language](index.md#definition-styles).
 
-# Configuration options
+## Configuration options
 
 Option       | Type     | Notes
 ------------ | -------- | -----
@@ -70,7 +71,7 @@ interfaces   | `array` or `callable` | List of interfaces implemented by this ty
 isTypeOf     | `callable` | **function($value, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Expected to return **true** if **$value** qualifies for this type (see section about [Abstract Type Resolution](interfaces.md#interface-role-in-data-fetching) for explanation).
 resolveField | `callable` | **function($value, $args, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Given the **$value** of this type, it is expected to return value for a field defined in **$info->fieldName**. A good place to define a type-specific strategy for field resolution. See section on [Data Fetching](../data-fetching.md) for details.
 
-## Field configuration options
+### Field configuration options
 
 Option | Type | Notes
 ------ | ---- | -----
@@ -82,7 +83,7 @@ complexity | `callable` | **function($childrenComplexity, $args)**<br> Used to r
 description | `string` | Plain-text description of this field for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 deprecationReason | `string` | Text describing why this field is deprecated. When not empty - field will not be returned by introspection queries (unless forced)
 
-## Field argument configuration options
+### Field argument configuration options
 
 Option | Type | Notes
 ------ | ---- | -----
@@ -91,7 +92,7 @@ type | `Type` | **Required.** Instance of one of [Input Types](inputs.md) (**sca
 description | `string` | Plain-text description of this argument for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 defaultValue | `scalar` | Default value for this argument. Use the internal value if specifying a default for an **enum** type
 
-# Shorthand field definitions
+## Shorthand field definitions
 Fields can be also defined in **shorthand** notation (with only **name** and **type** options):
 ```php
 'fields' => [
@@ -115,7 +116,7 @@ which is in turn equivalent of the full form:
 ```
 Same shorthand notation applies to field arguments as well.
 
-# Recurring and circular types
+## Recurring and circular types
 Almost all real-world applications contain recurring or circular types. 
 Think user friends or nested comments for example. 
 
@@ -192,14 +193,14 @@ class MyTypes
 }
 ```
 
-# Field Resolution
+## Field Resolution
 Field resolution is the primary mechanism in **graphql-php** for returning actual data for your fields.
 It is implemented using **resolveField** callable in type definition or **resolve**
 callable in field definition (which has precedence).
 
 Read the section on [Data Fetching](../data-fetching.md) for a complete description of this process.
 
-# Custom Metadata
+## Custom Metadata
 All types in **graphql-php** accept configuration array. In some cases, you may be interested in 
 passing your own metadata for type or field definition.
 

@@ -90,9 +90,9 @@ class DocumentValidator
     /**
      * Primary method for query validation. See class description for details.
      *
-     * @param ValidationRule[]|null $rules
+     * @param array<ValidationRule>|null $rules
      *
-     * @return Error[]
+     * @return array<int, Error>
      *
      * @api
      */
@@ -119,7 +119,7 @@ class DocumentValidator
     /**
      * Returns all global validation rules.
      *
-     * @return ValidationRule[]
+     * @return array<class-string<ValidationRule>, ValidationRule>
      *
      * @api
      */
@@ -133,7 +133,10 @@ class DocumentValidator
         return self::$rules;
     }
 
-    public static function defaultRules()
+    /**
+     * @return array<class-string<ValidationRule>, ValidationRule>
+     */
+    public static function defaultRules(): array
     {
         if (self::$defaultRules === null) {
             self::$defaultRules = [
@@ -210,9 +213,9 @@ class DocumentValidator
      * This uses a specialized visitor which runs multiple visitors in parallel,
      * while maintaining the visitor skip and break API.
      *
-     * @param ValidationRule[] $rules
+     * @param array<ValidationRule> $rules
      *
-     * @return Error[]
+     * @return array<int, Error>
      */
     public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules): array
     {

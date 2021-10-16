@@ -1,22 +1,24 @@
+# graphql-php
+
 [![GitHub stars](https://img.shields.io/github/stars/webonyx/graphql-php.svg?style=social&label=Star)](https://github.com/webonyx/graphql-php)
 [![Build Status](https://travis-ci.org/webonyx/graphql-php.svg?branch=master)](https://travis-ci.org/webonyx/graphql-php)
 [![Coverage Status](https://coveralls.io/repos/github/webonyx/graphql-php/badge.svg)](https://coveralls.io/github/webonyx/graphql-php)
 [![Latest Stable Version](https://poser.pugx.org/webonyx/graphql-php/version)](https://packagist.org/packages/webonyx/graphql-php)
 [![License](https://poser.pugx.org/webonyx/graphql-php/license)](https://packagist.org/packages/webonyx/graphql-php)
 
-# About GraphQL
+## About GraphQL
 
 GraphQL is a modern way to build HTTP APIs consumed by the web and mobile clients.
 It is intended to be an alternative to REST and SOAP APIs (even for **existing applications**).
 
-GraphQL itself is a [specification](https://github.com/facebook/graphql) designed by Facebook
+GraphQL itself is a [specification](https://github.com/graphql/graphql-spec) designed by Facebook
 engineers. Various implementations of this specification were written
-[in different languages and environments](http://graphql.org/code/).
+[in different languages and environments](https://graphql.org/code/).
 
-Great overview of GraphQL features and benefits is presented on [the official website](http://graphql.org/).
+Great overview of GraphQL features and benefits is presented on [the official website](https://graphql.org/).
 All of them equally apply to this PHP implementation.
 
-# About graphql-php
+## About graphql-php
 
 **graphql-php** is a feature-complete implementation of GraphQL specification in PHP.
 It was originally inspired by [reference JavaScript implementation](https://github.com/graphql/graphql-js)
@@ -40,7 +42,7 @@ Library features include:
 Also, several [complementary tools](complementary-tools.md) are available which provide integrations with
 existing PHP frameworks, add support for Relay, etc.
 
-## Current Status
+### Current Status
 
 The first version of this library (v0.1) was released on August 10th 2015.
 
@@ -51,6 +53,6 @@ as well as some experimental features like
 
 Ready for real-world usage.
 
-## GitHub
+### GitHub
 
 Project source code is [hosted on GitHub](https://github.com/webonyx/graphql-php).

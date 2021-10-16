@@ -191,7 +191,7 @@ class VisitorTest extends ValidatorTestCase
                         $selectionSet = $node->selectionSet;
 
                         $newNode               = clone $node;
-                        $newNode->selectionSet = new SelectionSetNode(['selections' => null]);
+                        $newNode->selectionSet = new SelectionSetNode(['selections' => new NodeList([])]);
                         $newNode->didEnter     = true;
 
                         return $newNode;
@@ -329,11 +329,12 @@ class VisitorTest extends ValidatorTestCase
                     $this->checkVisitorFnArgs($ast, func_get_args(), true);
                     if ($node instanceof FieldNode && $node->name->value === 'a') {
                         return new FieldNode([
+                            'name' => $node->name,
+                            'arguments' => new NodeList([]),
+                            'directives' => new NodeList([]),
                             'selectionSet' => new SelectionSetNode([
                                 'selections' => NodeList::create([$addedField])->merge($node->selectionSet->selections),
                             ]),
-                            'arguments' => new NodeList([]),
-                            'directives' => new NodeList([]),
                         ]);
                     }
 
@@ -1587,12 +1588,11 @@ class VisitorTest extends ValidatorTestCase
                             Type::isCompositeType(Type::getNamedType($type))
                         ) {
                             return new FieldNode([
-                                'alias'        => $node->alias,
                                 'name'         => $node->name,
+                                'alias'        => $node->alias,
                                 'arguments'    => $node->arguments,
                                 'directives'   => $node->directives,
                                 'selectionSet' => new SelectionSetNode([
-                                    'kind'       => 'SelectionSet',
                                     'selections' =>
                                         new NodeList([
                                             new FieldNode([

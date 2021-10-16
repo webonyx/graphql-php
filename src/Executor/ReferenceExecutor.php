@@ -450,7 +450,9 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected static function getFieldEntryKey(FieldNode $node): string
     {
-        return $node->alias === null ? $node->name->value : $node->alias->value;
+        return $node->alias === null
+            ? $node->name->value
+            : $node->alias->value;
     }
 
     /**
@@ -531,8 +533,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * by calling its resolve function, then calls completeValue to complete promises,
      * serialize scalars, or execute the sub-selection-set for objects.
      *
-     * @param mixed             $rootValue
-     * @param array<string|int> $path
+     * @param mixed                  $rootValue
+     * @param array<int, string|int> $path
      *
      * @return array<mixed>|Throwable|mixed|null
      */

@@ -128,7 +128,9 @@ class Value
                     }
                 }
 
-                return $errors === [] ? self::ofValue($coercedValue) : self::ofErrors($errors);
+                return $errors === []
+                    ? self::ofValue($coercedValue)
+                    : self::ofErrors($errors);
             }
 
             // Lists accept a non-list value as a list of one.
@@ -213,7 +215,9 @@ class Value
                 );
             }
 
-            return $errors === [] ? self::ofValue($coercedValue) : self::ofErrors($errors);
+            return $errors === []
+                ? self::ofValue($coercedValue)
+                : self::ofErrors($errors);
         }
 
         throw new Error(sprintf('Unexpected type %s', $type->name));
@@ -271,7 +275,9 @@ class Value
             $currentPath = $currentPath['prev'];
         }
 
-        return $pathStr === '' ? '' : 'value' . $pathStr;
+        return $pathStr === ''
+            ? ''
+            : 'value' . $pathStr;
     }
 
     /**
