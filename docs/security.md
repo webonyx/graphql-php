@@ -1,6 +1,6 @@
-# Query Complexity Analysis
+## Query Complexity Analysis
 
-This is a PHP port of [Query Complexity Analysis](http://sangria-graphql.org/learn/#query-complexity-analysis) in Sangria implementation.
+This is a PHP port of [Query Complexity Analysis](https://sangria-graphql.github.io/learn/#query-complexity-analysis) in Sangria implementation.
 
 Complexity analysis is a separate validation rule which calculates query complexity score before execution.
 Every field in the query gets a default score 1 (including ObjectType nodes). Total complexity of the
@@ -50,9 +50,9 @@ $type = new ObjectType([
 ]);
 ```
 
-# Limiting Query Depth
+## Limiting Query Depth
 
-This is a PHP port of [Limiting Query Depth](http://sangria-graphql.org/learn/#limiting-query-depth) in Sangria implementation.
+This is a PHP port of [Limiting Query Depth](https://sangria-graphql.github.io/learn/#limiting-query-depth) in Sangria implementation.
 For example, max depth of the introspection query is **7**.
 
 It is disabled by default. To enable it, add following validation rule:
@@ -71,9 +71,9 @@ GraphQL::executeQuery(/*...*/);
 
 This will set the rule globally. Alternatively, you can provide validation rules [per execution](executing-queries.md#custom-validation-rules).
 
-# Disabling Introspection
+## Disabling Introspection
 
-[Introspection](http://graphql.org/learn/introspection/) is a mechanism for fetching schema structure.
+[Introspection](https://graphql.org/learn/introspection/) is a mechanism for fetching schema structure.
 It is used by tools like GraphiQL for auto-completion, query validation, etc.
 
 Introspection is enabled by default. It means that anybody can get a full description of your schema by

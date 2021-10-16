@@ -17,7 +17,7 @@ $schema = new Schema([
 
 See possible constructor options [below](#configuration-options).
 
-# Query and Mutation types
+## Query and Mutation types
 
 The schema consists of two root types:
 
@@ -80,7 +80,7 @@ exactly the same way.
 Field names of Mutation type are usually verbs and they almost always have arguments - quite often
 with complex input values (see [Mutations and Input Types](type-definitions/inputs.md) for details).
 
-# Configuration Options
+## Configuration Options
 
 The schema constructor expects an instance of [`GraphQL\Type\SchemaConfig`](class-reference.md#graphqltypeschemaconfig)
 or an array with the following options:
@@ -94,7 +94,7 @@ or an array with the following options:
 | types        | `array<ObjectType>`            | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often this happens when the object type is never referenced in fields directly but is still a part of a schema because it implements an interface which resolves to this object type in its **resolveType** callable. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for concrete a use-case. |
 | typeLoader   | `callable(string $name): Type` | Expected to return a type instance given the name. Must always return the same instance if called multiple times, see [lazy loading](#lazy-loading-of-types). See section below on lazy type loading.                                                                                                                                                                                                                                                         |
 
-# Using config class
+### Using config class
 
 If you prefer a fluid interface for the config with auto-completion in IDE and static time validation,
 use [`GraphQL\Type\SchemaConfig`](class-reference.md#graphqltypeschemaconfig) instead of an array:
@@ -111,7 +111,7 @@ $config = SchemaConfig::create()
 $schema = new Schema($config);
 ```
 
-# Lazy loading of types
+## Lazy loading of types
 
 By default, the schema will scan all of your type, field and argument definitions to serve GraphQL queries.
 It may cause performance overhead when there are many types in the schema.
@@ -172,7 +172,7 @@ introduce a Dependency Injection Container if your types have other dependencies
 Alternatively, all methods of the registry could be static - then there is no need
 to pass it in the constructor - instead use **TypeRegistry::myAType()** in your type definitions.
 
-# Schema Validation
+## Schema Validation
 
 By default, the schema is created with only shallow validation of type and field definitions  
 (because validation requires a full schema scan and is very costly on bigger schemas).

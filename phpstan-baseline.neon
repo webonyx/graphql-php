@@ -46,14 +46,14 @@ parameters:
 			path: examples/01-blog/Blog/Types.php
 
 		-
-			message: "#^Variable property access on object\\.$#"
-			count: 2
-			path: src/Executor/Executor.php
+			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
+			count: 1
+			path: src/Language/AST/Node.php
 
 		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
-			path: src/Language/AST/Node.php
+			path: src/Language/Visitor.php
 
 		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\|null\\.$#"
@@ -61,39 +61,19 @@ parameters:
 			path: src/Language/Visitor.php
 
 		-
-			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
-			count: 1
-			path: src/Language/Visitor.php
-
-		-
-			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\)\\.$#"
-			count: 3
-			path: src/Type/Definition/FieldDefinition.php
-
-		-
-			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\)\\.$#"
-			count: 4
-			path: src/Type/Definition/InputObjectField.php
-
-		-
 			message: "#^Variable property access on mixed\\.$#"
 			count: 2
 			path: src/Utils/AST.php
 
 		-
+			message: "#^Method GraphQL\\\\Utils\\\\SchemaExtender\\:\\:extendType\\(\\) should return GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|\\(GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|GraphQL\\\\Type\\\\Definition\\\\NonNull but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			count: 1
+			path: src/Utils/SchemaExtender.php
+
+		-
 			message: "#^Variable property access on object\\.$#"
 			count: 1
 			path: src/Utils/Utils.php
-
-		-
-			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:\\$nonExistentProp\\.$#"
-			count: 2
-			path: tests/Type/DefinitionTest.php
-
-		-
-			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\:\\:\\$nonExistentProp\\.$#"
-			count: 1
-			path: tests/Type/DefinitionTest.php
 
 		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Tests\\\\Type\\\\TypeLoaderTest\\)\\.$#"

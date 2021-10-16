@@ -18,23 +18,17 @@ use PHPUnit\Framework\TestCase;
 
 class SchemaTest extends TestCase
 {
-    /** @var InterfaceType */
-    private $interfaceType;
+    private InterfaceType $interfaceType;
 
-    /** @var ObjectType */
-    private $implementingType;
+    private ObjectType $implementingType;
 
-    /** @var InputObjectType */
-    private $directiveInputType;
+    private InputObjectType $directiveInputType;
 
-    /** @var InputObjectType */
-    private $wrappedDirectiveInputType;
+    private InputObjectType $wrappedDirectiveInputType;
 
-    /** @var Directive */
-    private $directive;
+    private Directive $directive;
 
-    /** @var Schema */
-    private $schema;
+    private Schema $schema;
 
     public function setUp(): void
     {

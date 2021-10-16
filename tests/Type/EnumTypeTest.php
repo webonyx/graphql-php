@@ -522,9 +522,6 @@ class EnumTypeTest extends TestCase
         $oneValue = $this->ComplexEnum->getValue('ONE');
         self::assertEquals('ONE', $oneValue->name);
         self::assertEquals($this->Complex1, $oneValue->value);
-
-        $badUsage = $this->ComplexEnum->getValue($this->Complex1);
-        self::assertEquals(null, $badUsage);
     }
 
     /**

@@ -2,6 +2,7 @@
 A Union is an abstract type that simply enumerates other Object Types. 
 The value of Union Type is actually a value of one of included Object Types.
 
+## Writing Union Types
 In **graphql-php** union type is an instance of `GraphQL\Type\Definition\UnionType` 
 (or one of its subclasses) which accepts configuration array in a constructor:
 
@@ -28,7 +29,7 @@ $searchResultType = new UnionType([
 This example uses **inline** style for Union definition, but you can also use  
 [inheritance or schema definition language](index.md#definition-styles).
 
-# Configuration options
+## Configuration options
 The constructor of UnionType accepts an array. Below is a full list of allowed options:
 
 Option | Type | Notes

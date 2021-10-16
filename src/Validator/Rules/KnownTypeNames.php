@@ -14,7 +14,6 @@ use GraphQL\Validator\ValidationContext;
 
 use function array_keys;
 use function count;
-use function sprintf;
 
 /**
  * Known type names
@@ -58,16 +57,13 @@ class KnownTypeNames extends ValidationRule
     }
 
     /**
-     * @param string   $type
-     * @param string[] $suggestedTypes
+     * @param array<string> $suggestedTypes
      */
-    public static function unknownTypeMessage($type, array $suggestedTypes)
+    public static function unknownTypeMessage(string $type, array $suggestedTypes): string
     {
-        $message = sprintf('Unknown type "%s".', $type);
+        $message = 'Unknown type "' . $type . '".';
         if (count($suggestedTypes) > 0) {
-            $suggestions = Utils::quotedOrList($suggestedTypes);
-
-            $message .= sprintf(' Did you mean %s?', $suggestions);
+            $message .= ' Did you mean ' . Utils::quotedOrList($suggestedTypes) . '?';
         }
 
         return $message;

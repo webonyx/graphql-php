@@ -251,7 +251,9 @@ class ValuesOfCorrectType extends ValidationRule
                 )
             );
 
-            return $suggestions === [] ? null : 'Did you mean the enum value ' . Utils::orList($suggestions) . '?';
+            return $suggestions === []
+                ? null
+                : 'Did you mean the enum value ' . Utils::orList($suggestions) . '?';
         }
     }
 

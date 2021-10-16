@@ -6,7 +6,6 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\Warning;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
@@ -16,98 +15,33 @@ use function sprintf;
 
 class InputObjectField
 {
-    /** @var string */
-    public $name;
+    public string $name;
 
     /** @var mixed|null */
     public $defaultValue;
 
-    /** @var string|null */
-    public $description;
+    public ?string $description;
 
     /** @var Type&InputType */
-    private $type;
+    private Type $type;
 
-    /** @var InputValueDefinitionNode|null */
-    public $astNode;
+    public ?InputValueDefinitionNode $astNode;
 
-    /** @var mixed[] */
-    public $config;
+    /** @var array<string, mixed> */
+    public array $config;
 
     /**
-     * @param mixed[] $opts
+     * @param array<string, mixed> $config
      */
-    public function __construct(array $opts)
+    public function __construct(array $config)
     {
-        foreach ($opts as $k => $v) {
-            switch ($k) {
-                case 'defaultValue':
-                    $this->defaultValue = $v;
-                    break;
-                case 'defaultValueExists':
-                    break;
-                case 'type':
-                    // do nothing; type is lazy loaded in getType
-                    break;
-                default:
-                    $this->{$k} = $v;
-            }
-        }
+        $this->name         = $config['name'];
+        $this->defaultValue = $config['defaultValue'] ?? null;
+        $this->description  = $config['description'] ?? null;
+        // Do nothing for type, it is lazy loaded in getType()
+        $this->astNode = $config['astNode'] ?? null;
 
-        $this->config = $opts;
-    }
-
-    public function __isset(string $name): bool
-    {
-        switch ($name) {
-            case 'type':
-                Warning::warnOnce(
-                    "The public getter for 'type' on InputObjectField has been deprecated and will be removed" .
-                    " in the next major version. Please update your code to use the 'getType' method.",
-                    Warning::WARNING_CONFIG_DEPRECATION
-                );
-
-                return isset($this->type);
-        }
-
-        return isset($this->$name);
-    }
-
-    public function __get(string $name)
-    {
-        switch ($name) {
-            case 'type':
-                Warning::warnOnce(
-                    "The public getter for 'type' on InputObjectField has been deprecated and will be removed" .
-                    " in the next major version. Please update your code to use the 'getType' method.",
-                    Warning::WARNING_CONFIG_DEPRECATION
-                );
-
-                return $this->getType();
-
-            default:
-                return $this->$name;
-        }
-
-        return null;
-    }
-
-    public function __set(string $name, $value): void
-    {
-        switch ($name) {
-            case 'type':
-                Warning::warnOnce(
-                    "The public setter for 'type' on InputObjectField has been deprecated and will be removed" .
-                    ' in the next major version.',
-                    Warning::WARNING_CONFIG_DEPRECATION
-                );
-                $this->type = $value;
-                break;
-
-            default:
-                $this->$name = $value;
-                break;
-        }
+        $this->config = $config;
     }
 
     /**
@@ -135,7 +69,8 @@ class InputObjectField
 
     public function isRequired(): bool
     {
-        return $this->getType() instanceof NonNull && ! $this->defaultValueExists();
+        return $this->getType() instanceof NonNull
+            && ! $this->defaultValueExists();
     }
 
     /**

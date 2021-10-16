@@ -2,7 +2,7 @@
 
 Since 0.9.0
 
-The [schema definition language](http://graphql.org/learn/schema/#type-language) is a convenient way to define your schema,
+The [schema definition language](https://graphql.org/learn/schema/#type-language) is a convenient way to define your schema,
 especially with IDE autocompletion and syntax validation.
 
 You can define this separate from your PHP code, e.g. in a **schema.graphql** file:
@@ -39,7 +39,7 @@ By default, such schema is created without any resolvers.
 We have to rely on [default field resolver](data-fetching.md#default-field-resolver) and **root value** in
 order to execute a query against this schema.
 
-# Defining resolvers
+## Defining resolvers
 
 Since 0.10.0
 
@@ -64,7 +64,7 @@ $contents = file_get_contents('schema.graphql');
 $schema = BuildSchema::build($contents, $typeConfigDecorator);
 ```
 
-# Performance considerations
+## Performance considerations
 
 Since 0.10.0
 

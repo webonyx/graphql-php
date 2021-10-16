@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\DocumentNode;
@@ -11,6 +12,11 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use GraphQL\Tests\Utils\SchemaExtenderTest\SomeInterfaceClassType;
+use GraphQL\Tests\Utils\SchemaExtenderTest\SomeObjectClassType;
+use GraphQL\Tests\Utils\SchemaExtenderTest\SomeScalarClassType;
+use GraphQL\Tests\Utils\SchemaExtenderTest\SomeUnionClassType;
+use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -27,6 +33,7 @@ use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 use function array_filter;
 use function array_map;
@@ -1695,16 +1702,14 @@ class SchemaExtenderTest extends TestCase
             'fields' => [
                 'hello' => [
                     'type' => Type::string(),
-                    'resolve' => static function (): string {
-                        return 'Hello World!';
-                    },
+                    'resolve' => static fn (): string => 'Hello World!',
                 ],
             ],
         ]);
 
         $schema = new Schema(['query' => $queryType]);
 
-        $documentNode = Parser::parse('
+        $documentNode = Parser::parse(/** @lang GraphQL */ '
             extend type Query {
                 misc: String
             }
@@ -1715,7 +1720,7 @@ class SchemaExtenderTest extends TestCase
 
         self::assertIsCallable($helloResolveFn);
 
-        $query  = '{ hello }';
+        $query  = /** @lang GraphQL */ '{ hello }';
         $result = GraphQL::executeQuery($extendedSchema, $query);
         self::assertSame(['data' => ['hello' => 'Hello World!']], $result->toArray());
     }
@@ -1729,14 +1734,12 @@ class SchemaExtenderTest extends TestCase
                     'type' => Type::string(),
                 ],
             ],
-            'resolveField' => static function (): string {
-                return 'Hello World!';
-            },
+            'resolveField' => static fn (): string => 'Hello World!',
         ]);
 
         $schema = new Schema(['query' => $queryType]);
 
-        $documentNode = Parser::parse('
+        $documentNode = Parser::parse(/** @lang GraphQL */ '
             extend type Query {
                 misc: String
             }
@@ -1747,7 +1750,7 @@ class SchemaExtenderTest extends TestCase
 
         self::assertIsCallable($queryResolveFieldFn);
 
-        $query  = '{ hello }';
+        $query  = /** @lang GraphQL */ '{ hello }';
         $result = GraphQL::executeQuery($extendedSchema, $query);
         self::assertSame(['data' => ['hello' => 'Hello World!']], $result->toArray());
     }
@@ -1757,10 +1760,11 @@ class SchemaExtenderTest extends TestCase
      */
     public function testShouldBeAbleToIntroduceNewTypesThroughExtension(): void
     {
-        $sdl = '
+        $sdl = /** @lang GraphQL */'
           type Query {
             defaultValue: String
           }
+
           type Foo {
             value: Int
           }
@@ -1769,7 +1773,7 @@ class SchemaExtenderTest extends TestCase
         $documentNode = Parser::parse($sdl);
         $schema       = BuildSchema::build($documentNode);
 
-        $extensionSdl = '
+        $extensionSdl = /** @lang GraphQL */ '
           type Bar {
             foo: Foo
           }
@@ -1778,7 +1782,7 @@ class SchemaExtenderTest extends TestCase
         $extendedDocumentNode = Parser::parse($extensionSdl);
         $extendedSchema       = SchemaExtender::extend($schema, $extendedDocumentNode);
 
-        $expected = '
+        $expected = /** @lang GraphQL */'
             type Bar {
               foo: Foo
             }
@@ -1795,6 +1799,22 @@ class SchemaExtenderTest extends TestCase
         static::assertEquals($this->dedent($expected), SchemaPrinter::doPrint($extendedSchema));
     }
 
+    /**
+     * @see https://github.com/webonyx/graphql-php/pull/929
+     */
+    public function testPreservesRepeatableInDirective(): void
+    {
+        $schema = BuildSchema::build(/** @lang GraphQL */ '
+            directive @test(arg: Int) repeatable on FIELD | SCALAR
+        ');
+
+        self::assertTrue($schema->getDirective('test')->isRepeatable);
+
+        $extendedSchema = SchemaExtender::extend($schema, Parser::parse('scalar Foo'));
+
+        self::assertTrue($extendedSchema->getDirective('test')->isRepeatable);
+    }
+
     public function testSupportsTypeConfigDecorator(): void
     {
         $queryType = new ObjectType([
@@ -1804,17 +1824,16 @@ class SchemaExtenderTest extends TestCase
                     'type' => Type::string(),
                 ],
             ],
-            'resolveField' => static function (): string {
-                return 'Hello World!';
-            },
+            'resolveField' => static fn (): string => 'Hello World!',
         ]);
 
         $schema = new Schema(['query' => $queryType]);
 
-        $documentNode = Parser::parse('
+        $documentNode = Parser::parse(/** @lang GraphQL */ '
               type Foo {
                 value: String
               }
+
               extend type Query {
                 defaultValue: String
                 foo: Foo
@@ -1835,14 +1854,172 @@ class SchemaExtenderTest extends TestCase
 
         $extendedSchema = SchemaExtender::extend($schema, $documentNode, [], $typeConfigDecorator);
 
-        $query  = '{ 
+        $query  = /** @lang GraphQL */'
+        {
             hello
             foo {
               value
             }
-        }';
+        }
+        ';
         $result = GraphQL::executeQuery($extendedSchema, $query);
 
         self::assertSame(['data' => ['hello' => 'Hello World!', 'foo' => ['value' => 'bar']]], $result->toArray());
+    }
+
+    public function testPreservesScalarClassMethods(): void
+    {
+        $SomeScalarClassType = new SomeScalarClassType();
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'someScalarClass' => ['type' => $SomeScalarClassType],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $queryType]);
+
+        $documentNode = Parser::parse(/** @lang GraphQL */ '
+        extend type Query {
+            foo: ID
+        }
+        ');
+
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode);
+        $extendedScalar = $extendedSchema->getType('SomeScalarClass');
+
+        self::assertInstanceOf(CustomScalarType::class, $extendedScalar);
+        self::assertSame(SomeScalarClassType::SERIALIZE_RETURN, $extendedScalar->serialize(null));
+        self::assertSame(SomeScalarClassType::PARSE_VALUE_RETURN, $extendedScalar->parseValue(null));
+        self::assertSame(SomeScalarClassType::PARSE_LITERAL_RETURN, $extendedScalar->parseLiteral($documentNode));
+    }
+
+    public function testPreservesResolveTypeMethod(): void
+    {
+        $SomeInterfaceClassType = new SomeInterfaceClassType([
+            'name' => 'SomeInterface',
+            'fields' => [
+                'foo' => [ 'type' => Type::string() ],
+            ],
+        ]);
+
+        $FooType = new ObjectType([
+            'name' => 'Foo',
+            'interfaces' => [$SomeInterfaceClassType],
+            'fields' => [
+                'foo' => [ 'type' => Type::string() ],
+            ],
+        ]);
+
+        $BarType = new ObjectType([
+            'name' => 'Bar',
+            'fields' => [
+                'bar' => [ 'type' => Type::string() ],
+            ],
+        ]);
+
+        $SomeUnionClassType = new SomeUnionClassType([
+            'name' => 'SomeUnion',
+            'types' => [$FooType, $BarType],
+        ]);
+
+        $QueryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'someUnion' => ['type' => $SomeUnionClassType],
+                'someInterface' => ['type' => $SomeInterfaceClassType],
+            ],
+            'resolveField' => static fn (): stdClass => new stdClass(),
+        ]);
+
+        $schema = new Schema(['query' => $QueryType]);
+
+        $documentNode = Parser::parse(/** @lang GraphQL */ '
+        extend type Query {
+            foo: ID
+        }
+        ');
+
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode);
+
+        $ExtendedFooType = $extendedSchema->getType('Foo');
+        self::assertInstanceOf(ObjectType::class, $ExtendedFooType);
+
+        $SomeInterfaceClassType->concrete = $ExtendedFooType;
+        $SomeUnionClassType->concrete     = $ExtendedFooType;
+
+        $query  = /** @lang GraphQL */'
+        {
+            someUnion {
+                __typename
+            }
+            someInterface {
+                __typename
+            }
+        }
+        ';
+        $result = GraphQL::executeQuery($extendedSchema, $query);
+
+        self::assertSame([
+            'data' => [
+                'someUnion' => ['__typename' => 'Foo'],
+                'someInterface' => ['__typename' => 'Foo'],
+            ],
+        ], $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS));
+    }
+
+    public function testPreservesIsTypeOfMethod(): void
+    {
+        $SomeInterfaceType = new InterfaceType([
+            'name' => 'SomeInterface',
+            'fields' => [
+                'foo' => [ 'type' => Type::string() ],
+            ],
+        ]);
+
+        $FooClassType = new SomeObjectClassType([
+            'name' => 'Foo',
+            'interfaces' => [$SomeInterfaceType],
+            'fields' => [
+                'foo' => [ 'type' => Type::string() ],
+            ],
+        ]);
+
+        $QueryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'someInterface' => ['type' => $SomeInterfaceType],
+            ],
+            'resolveField' => static fn (): stdClass => new stdClass(),
+        ]);
+
+        $schema = new Schema([
+            'query' => $QueryType,
+            'types' => [$FooClassType],
+        ]);
+
+        $documentNode = Parser::parse(/** @lang GraphQL */ '
+        extend type Query {
+            foo: ID
+        }
+        ');
+
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode);
+
+        $query  = /** @lang GraphQL */'
+        {
+            someInterface {
+                __typename
+            }
+        }
+        ';
+        $result = GraphQL::executeQuery($extendedSchema, $query);
+
+        self::assertSame([
+            'data' => [
+                'someInterface' => ['__typename' => 'Foo'],
+            ],
+        ], $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS));
     }
 }

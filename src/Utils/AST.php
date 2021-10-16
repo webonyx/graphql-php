@@ -565,13 +565,17 @@ class AST
         if ($inputTypeNode instanceof ListTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
-            return $innerType === null ? null : new ListOfType($innerType);
+            return $innerType === null
+                ? null
+                : new ListOfType($innerType);
         }
 
         if ($inputTypeNode instanceof NonNullTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
-            return $innerType === null ? null : new NonNull($innerType);
+            return $innerType === null
+                ? null
+                : new NonNull($innerType);
         }
 
         if ($inputTypeNode instanceof NamedTypeNode) {
@@ -617,6 +621,8 @@ class AST
      * GraphQL source files which together represent one conceptual application.
      *
      * @param array<DocumentNode> $documents
+     *
+     * @api
      */
     public static function concatAST(array $documents): DocumentNode
     {

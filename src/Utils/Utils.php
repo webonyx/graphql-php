@@ -13,7 +13,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use InvalidArgumentException;
-use LogicException;
 use stdClass;
 use Traversable;
 
@@ -148,7 +147,9 @@ class Utils
             $result[$key] = $value;
         }
 
-        return $assoc ? $result : array_values($result);
+        return $assoc
+            ? $result
+            : array_values($result);
     }
 
     /**
@@ -327,7 +328,9 @@ class Utils
             return $var->name;
         }
 
-        return is_object($var) ? get_class($var) : gettype($var);
+        return is_object($var)
+            ? get_class($var)
+            : gettype($var);
     }
 
     /**
@@ -548,12 +551,12 @@ class Utils
     }
 
     /**
-     * @param string[] $items
+     * @param array<string> $items
      */
     public static function quotedOrList(array $items): string
     {
         $quoted = array_map(
-            static fn (string $item): string => sprintf('"%s"', $item),
+            static fn (string $item): string => "\"{$item}\"",
             $items
         );
 
@@ -561,12 +564,12 @@ class Utils
     }
 
     /**
-     * @param string[] $items
+     * @param array<string> $items
      */
     public static function orList(array $items): string
     {
         if (count($items) === 0) {
-            throw new LogicException('items must not need to be empty.');
+            return '';
         }
 
         $selected       = array_slice($items, 0, 5);
@@ -597,12 +600,11 @@ class Utils
      * as a single edit which helps identify mis-cased values with an edit distance
      * of 1
      *
-     * @param string   $input
-     * @param string[] $options
+     * @param array<string> $options
      *
-     * @return string[]
+     * @return array<int, string>
      */
-    public static function suggestionList($input, array $options): array
+    public static function suggestionList(string $input, array $options): array
     {
         $optionsByDistance = [];
         $threshold         = mb_strlen($input) * 0.4 + 1;

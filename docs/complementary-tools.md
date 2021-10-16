@@ -1,6 +1,6 @@
-# Server Integrations
+## Server Integrations
 
-- [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](http://slimframework.com) or [Zend Expressive](http://zendframework.github.io/zend-expressive/))
+- [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](https://slimframework.com) or [Laminas Mezzio](https://docs.mezzio.dev/mezzio/))
 - [Lighthouse](https://github.com/nuwave/lighthouse) – Laravel package, SDL-first
 - [Laravel GraphQL](https://github.com/rebing/graphql-laravel) - Laravel package, code-first
 - [OverblogGraphQLBundle](https://github.com/overblog/GraphQLBundle) – Symfony bundle
@@ -8,7 +8,7 @@
 - [Siler](https://github.com/leocavalcante/siler) - Flat files and plain-old PHP functions, supports Swoole
 - [API Platform](https://api-platform.com/docs/core/graphql) - Creates a GraphQL API from PHP models
 
-# Server Utilities
+## Server Utilities
 
 - [GraphQLite](https://graphqlite.thecodingmachine.io) – Use PHP Annotations to define your schema
 - [GraphQL Doctrine](https://github.com/Ecodev/graphql-doctrine) – Define types with Doctrine ORM annotations
@@ -20,9 +20,9 @@
 
 * [MLL Scalars](https://github.com/mll-lab/graphql-php-scalars) - Collection of custom scalar types
 
-# GraphQL Clients
+## GraphQL Clients
 
 - [GraphiQL](https://github.com/graphql/graphiql) – Graphical interactive in-browser GraphQL IDE
-- [GraphQL Playground](https://github.com/prismagraphql/graphql-playground) – GraphQL IDE for better development workflows (GraphQL Subscriptions, interactive docs & collaboration)
+- [GraphQL Playground](https://github.com/graphql/graphql-playground) – GraphQL IDE for better development workflows (GraphQL Subscriptions, interactive docs & collaboration)
 - [Altair GraphQL Client](https://altair.sirmuel.design) - Beautiful feature-rich GraphQL Client for all platforms
 - [Sailor](https://github.com/spawnia/sailor) - Typesafe GraphQL client for PHP

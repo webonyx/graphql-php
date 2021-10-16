@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Language;
 
 use GraphQL\Error\SyntaxError;
-use GraphQL\Utils\BlockString;
 use GraphQL\Utils\Utils;
 
 use function chr;
@@ -614,7 +613,7 @@ class Lexer
                         $line,
                         $col,
                         $prev,
-                        BlockString::value($value)
+                        BlockString::dedentValue($value)
                     );
                 }
 
@@ -782,7 +781,9 @@ class Lexer
             }
 
             $positionOffset = 1;
-            $code           = $bytes === 1 ? $ord : Utils::ord($utf8char);
+            $code           = $bytes === 1
+                ? $ord
+                : Utils::ord($utf8char);
         }
 
         if ($advance) {

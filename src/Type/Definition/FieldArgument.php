@@ -16,49 +16,36 @@ use function sprintf;
 
 class FieldArgument
 {
-    /** @var string */
-    public $name;
+    public string $name;
 
     /** @var mixed */
     public $defaultValue;
 
-    /** @var string|null */
-    public $description;
+    public ?string $description;
 
-    /** @var InputValueDefinitionNode|null */
-    public $astNode;
+    public ?InputValueDefinitionNode $astNode;
 
-    /** @var mixed[] */
-    public $config;
+    /** @var array<string, mixed> */
+    public array $config;
 
     /** @var Type&InputType */
-    private $type;
+    private Type $type;
 
-    /** @param mixed[] $def */
-    public function __construct(array $def)
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function __construct(array $config)
     {
-        foreach ($def as $key => $value) {
-            switch ($key) {
-                case 'name':
-                    $this->name = $value;
-                    break;
-                case 'defaultValue':
-                    $this->defaultValue = $value;
-                    break;
-                case 'description':
-                    $this->description = $value;
-                    break;
-                case 'astNode':
-                    $this->astNode = $value;
-                    break;
-            }
-        }
+        $this->name         = $config['name'];
+        $this->defaultValue = $config['defaultValue'] ?? null;
+        $this->description  = $config['description'] ?? null;
+        $this->astNode      = $config['astNode'] ?? null;
 
-        $this->config = $def;
+        $this->config = $config;
     }
 
     /**
-     * @param array<mixed> $config
+     * @param array<string, mixed> $config
      *
      * @return array<int, FieldArgument>
      */
@@ -98,7 +85,8 @@ class FieldArgument
 
     public function isRequired(): bool
     {
-        return $this->getType() instanceof NonNull && ! $this->defaultValueExists();
+        return $this->getType() instanceof NonNull
+            && ! $this->defaultValueExists();
     }
 
     public function assertValid(FieldDefinition $parentField, Type $parentType): void

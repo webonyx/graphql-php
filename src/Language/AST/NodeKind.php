@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace GraphQL\Language\AST;
 
+/**
+ * Holds constants of possible AST nodes.
+ */
 class NodeKind
 {
     // constants from language/kinds.js:
 
     public const NAME = 'Name';
-    // Document
 
+    // Document
     public const DOCUMENT             = 'Document';
     public const OPERATION_DEFINITION = 'OperationDefinition';
     public const VARIABLE_DEFINITION  = 'VariableDefinition';
@@ -18,13 +21,13 @@ class NodeKind
     public const SELECTION_SET        = 'SelectionSet';
     public const FIELD                = 'Field';
     public const ARGUMENT             = 'Argument';
-    // Fragments
 
+    // Fragments
     public const FRAGMENT_SPREAD     = 'FragmentSpread';
     public const INLINE_FRAGMENT     = 'InlineFragment';
     public const FRAGMENT_DEFINITION = 'FragmentDefinition';
-    // Values
 
+    // Values
     public const INT          = 'IntValue';
     public const FLOAT        = 'FloatValue';
     public const STRING       = 'StringValue';
@@ -34,20 +37,20 @@ class NodeKind
     public const LST          = 'ListValue';
     public const OBJECT       = 'ObjectValue';
     public const OBJECT_FIELD = 'ObjectField';
+
     // Directives
-
     public const DIRECTIVE = 'Directive';
-    // Types
 
+    // Types
     public const NAMED_TYPE    = 'NamedType';
     public const LIST_TYPE     = 'ListType';
     public const NON_NULL_TYPE = 'NonNullType';
-    // Type System Definitions
 
+    // Type System Definitions
     public const SCHEMA_DEFINITION         = 'SchemaDefinition';
     public const OPERATION_TYPE_DEFINITION = 'OperationTypeDefinition';
-    // Type Definitions
 
+    // Type Definitions
     public const SCALAR_TYPE_DEFINITION       = 'ScalarTypeDefinition';
     public const OBJECT_TYPE_DEFINITION       = 'ObjectTypeDefinition';
     public const FIELD_DEFINITION             = 'FieldDefinition';
@@ -57,16 +60,16 @@ class NodeKind
     public const ENUM_TYPE_DEFINITION         = 'EnumTypeDefinition';
     public const ENUM_VALUE_DEFINITION        = 'EnumValueDefinition';
     public const INPUT_OBJECT_TYPE_DEFINITION = 'InputObjectTypeDefinition';
-    // Type Extensions
 
+    // Type Extensions
     public const SCALAR_TYPE_EXTENSION       = 'ScalarTypeExtension';
     public const OBJECT_TYPE_EXTENSION       = 'ObjectTypeExtension';
     public const INTERFACE_TYPE_EXTENSION    = 'InterfaceTypeExtension';
     public const UNION_TYPE_EXTENSION        = 'UnionTypeExtension';
     public const ENUM_TYPE_EXTENSION         = 'EnumTypeExtension';
     public const INPUT_OBJECT_TYPE_EXTENSION = 'InputObjectTypeExtension';
-    // Directive Definitions
 
+    // Directive Definitions
     public const DIRECTIVE_DEFINITION = 'DirectiveDefinition';
 
     // Type System Extensions

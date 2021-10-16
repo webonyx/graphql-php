@@ -106,7 +106,9 @@ class TypeInfo
     }
 
     /**
-     * Given root type scans through all fields to find nested types. Returns array where keys are for type name
+     * Given root type scans through all fields to find nested types.
+     *
+     * Returns array where keys are for type name
      * and value contains corresponding type instance.
      *
      * Example output:
@@ -116,40 +118,14 @@ class TypeInfo
      *     ...
      * ]
      *
-     * @param Type|null   $type
-     * @param Type[]|null $typeMap
+     * @param array<Type> $typeMap
      *
-     * @return Type[]|null
+     * @return array<Type>
      */
-    public static function extractTypes($type, ?array $typeMap = null): ?array
+    public static function extractTypes(Type $type, array $typeMap = []): array
     {
-        if (($typeMap ?? []) === []) {
-            $typeMap = [];
-        }
-
-        if ($type === null) {
-            return $typeMap;
-        }
-
         if ($type instanceof WrappingType) {
             return self::extractTypes($type->getWrappedType(true), $typeMap);
-        }
-
-        if (! $type instanceof Type) {
-            // Preserve these invalid types in map (at numeric index) to make them
-            // detectable during $schema->validate()
-            $i            = 0;
-            $alreadyInMap = false;
-            while (isset($typeMap[$i])) {
-                $alreadyInMap = $alreadyInMap || $typeMap[$i] === $type;
-                $i++;
-            }
-
-            if (! $alreadyInMap) {
-                $typeMap[$i] = $type;
-            }
-
-            return $typeMap;
         }
 
         if (isset($typeMap[$type->name])) {
@@ -315,13 +291,17 @@ class TypeInfo
                 }
 
                 $this->argument            = $argDef;
-                $this->defaultValueStack[] = $argDef !== null && $argDef->defaultValueExists() ? $argDef->defaultValue : Utils::undefined();
+                $this->defaultValueStack[] = $argDef !== null && $argDef->defaultValueExists()
+                    ? $argDef->defaultValue
+                    : Utils::undefined();
                 $this->inputTypeStack[]    = Type::isInputType($argType) ? $argType : null;
                 break;
 
             case $node instanceof ListValueNode:
                 $type     = $this->getInputType();
-                $listType = $type === null ? null : Type::getNullableType($type);
+                $listType = $type === null
+                    ? null
+                    : Type::getNullableType($type);
                 $itemType = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
                     : $listType;
@@ -337,11 +317,17 @@ class TypeInfo
                 if ($objectType instanceof InputObjectType) {
                     $tmp            = $objectType->getFields();
                     $inputField     = $tmp[$node->name->value] ?? null;
-                    $inputFieldType = $inputField === null ? null : $inputField->getType();
+                    $inputFieldType = $inputField === null
+                        ? null
+                        : $inputField->getType();
                 }
 
-                $this->defaultValueStack[] = $inputField !== null && $inputField->defaultValueExists() ? $inputField->defaultValue : Utils::undefined();
-                $this->inputTypeStack[]    = Type::isInputType($inputFieldType) ? $inputFieldType : null;
+                $this->defaultValueStack[] = $inputField !== null && $inputField->defaultValueExists()
+                    ? $inputField->defaultValue
+                    : Utils::undefined();
+                $this->inputTypeStack[]    = Type::isInputType($inputFieldType)
+                    ? $inputFieldType
+                    : null;
                 break;
 
             case $node instanceof EnumValueNode:

@@ -41,7 +41,7 @@ class SchemaConfig
     public ?array $directives = null;
 
     /** @var (callable(string $typeName): Type|(callable(): Type)|null)|null */
-    public $typeLoader;
+    public $typeLoader = null;
 
     public bool $assumeValid = false;
 

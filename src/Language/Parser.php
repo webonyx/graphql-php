@@ -306,7 +306,9 @@ class Parser
      */
     public function __construct($source, array $options = [])
     {
-        $sourceObj   = $source instanceof Source ? $source : new Source($source);
+        $sourceObj   = $source instanceof Source
+            ? $source
+            : new Source($source);
         $this->lexer = new Lexer($sourceObj, $options);
     }
 
@@ -558,8 +560,8 @@ class Parser
         $start = $this->lexer->token;
         if ($this->peek(Token::BRACE_L)) {
             return new OperationDefinitionNode([
-                'operation'           => 'query',
                 'name'                => null,
+                'operation'           => 'query',
                 'variableDefinitions' => new NodeList([]),
                 'directives'          => new NodeList([]),
                 'selectionSet'        => $this->parseSelectionSet(),
@@ -575,8 +577,8 @@ class Parser
         }
 
         return new OperationDefinitionNode([
-            'operation'           => $operation,
             'name'                => $name,
+            'operation'           => $operation,
             'variableDefinitions' => $this->parseVariableDefinitions(),
             'directives'          => $this->parseDirectives(false),
             'selectionSet'        => $this->parseSelectionSet(),
@@ -701,8 +703,8 @@ class Parser
         }
 
         return new FieldNode([
-            'alias'        => $alias,
             'name'         => $name,
+            'alias'        => $alias,
             'arguments'    => $this->parseArguments(false),
             'directives'   => $this->parseDirectives(false),
             'selectionSet' => $this->peek(Token::BRACE_L) ? $this->parseSelectionSet() : null,
