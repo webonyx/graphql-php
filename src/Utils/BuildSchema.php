@@ -8,6 +8,7 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
@@ -135,6 +136,8 @@ class BuildSchema
         $schemaDef = null;
         $this->nodeMap = [];
 
+        /** @var array<string, array<int, TypeExtensionNode>> $typeExtensionsMap */
+        $typeExtensionsMap = [];
         /** @var array<int, DirectiveDefinitionNode> $directiveDefs */
         $directiveDefs = [];
 
@@ -145,6 +148,11 @@ class BuildSchema
                     break;
                 case $definition instanceof TypeDefinitionNode:
                     $this->nodeMap[$definition->name->value] = $definition;
+                    break;
+                case $definition instanceof TypeExtensionNode:
+                    $extendedTypeName = $definition->name->value;
+                    $existingTypeExtensions = $typeExtensionsMap[$extendedTypeName] ?? [];
+                    $typeExtensionsMap[$extendedTypeName] = [...$existingTypeExtensions, $definition];
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
                     $directiveDefs[] = $definition;
