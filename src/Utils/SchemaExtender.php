@@ -620,14 +620,7 @@ class SchemaExtender
 
         if ($schemaDef !== null) {
             foreach ($schemaDef->operationTypes as $operationType) {
-                $operation = $operationType->operation;
-                $type      = $operationType->type;
-
-                if (isset($operationTypes[$operation])) {
-                    throw new Error('Must provide only one ' . $operation . ' type in schema.');
-                }
-
-                $operationTypes[$operation] = static::$astBuilder->buildType($type);
+                $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
             }
         }
 
@@ -637,12 +630,7 @@ class SchemaExtender
             }
 
             foreach ($schemaExtension->operationTypes as $operationType) {
-                $operation = $operationType->operation;
-                if (isset($operationTypes[$operation])) {
-                    throw new Error('Must provide only one ' . $operation . ' type in schema.');
-                }
-
-                $operationTypes[$operation] = static::$astBuilder->buildType($operationType->type);
+                $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
             }
         }
 

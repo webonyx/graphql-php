@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
  * TODO align with:
  *   - https://github.com/graphql/graphql-js/commit/257797a0ebdddd3da6e75b7c237fdc12a1a7c75a
- *   - https://github.com/graphql/graphql-js/commit/9b7a8af43fc0865a01df5b5a084f37bbb8680ef8
  *   - https://github.com/graphql/graphql-js/commit/3b9ea61f2348215dee755f779caef83df749d2bb
  *   - https://github.com/graphql/graphql-js/commit/64a5c3448a201737f9218856786c51d66f2deabd
  */
@@ -151,83 +150,6 @@ class BuildSchemaLegacyTest extends TestCase
     }
 
     // Describe: Failures
-
-    /**
-     * @see it('Allows only a single query type')
-     */
-    public function testAllowsOnlySingleQueryType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Must provide only one query type in schema.');
-        $sdl = '
-            schema {
-              query: Hello
-              query: Yellow
-            }
-            
-            type Hello {
-              bar: String
-            }
-            
-            type Yellow {
-              isColor: Boolean
-            }
-        ';
-        $doc = Parser::parse($sdl);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Allows only a single mutation type')
-     */
-    public function testAllowsOnlySingleMutationType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Must provide only one mutation type in schema.');
-        $sdl = '
-            schema {
-              query: Hello
-              mutation: Hello
-              mutation: Yellow
-            }
-            
-            type Hello {
-              bar: String
-            }
-            
-            type Yellow {
-              isColor: Boolean
-            }
-        ';
-        $doc = Parser::parse($sdl);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Allows only a single subscription type')
-     */
-    public function testAllowsOnlySingleSubscriptionType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Must provide only one subscription type in schema.');
-        $sdl = '
-            schema {
-              query: Hello
-              subscription: Hello
-              subscription: Yellow
-            }
-            
-            type Hello {
-              bar: String
-            }
-            
-            type Yellow {
-              isColor: Boolean
-            }
-        ';
-        $doc = Parser::parse($sdl);
-        BuildSchema::buildAST($doc);
-    }
 
     /**
      * @see it('Unknown type referenced')
