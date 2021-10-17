@@ -225,6 +225,7 @@ class QueryComplexity extends QuerySecurityRule
         $rawVariableValues = $this->getRawVariableValues();
         $fieldDef          = $this->fieldDefinition($node);
 
+        /** @var array<string, mixed> $args */
         $args = [];
 
         if ($fieldDef instanceof FieldDefinition) {
