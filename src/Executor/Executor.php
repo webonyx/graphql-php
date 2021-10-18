@@ -24,8 +24,7 @@ class Executor
     /** @var callable */
     private static $defaultFieldResolver = [self::class, 'defaultFieldResolver'];
 
-    /** @var PromiseAdapter */
-    private static $defaultPromiseAdapter;
+    private static PromiseAdapter $defaultPromiseAdapter;
 
     /** @var callable */
     private static $implementationFactory = [ReferenceExecutor::class, 'create'];

@@ -55,18 +55,15 @@ use function sprintf;
 
 class ReferenceExecutor implements ExecutorImplementation
 {
-    /** @var object */
-    protected static $UNDEFINED;
+    protected static object $UNDEFINED;
 
-    /** @var ExecutionContext */
-    protected $exeContext;
+    protected ExecutionContext $exeContext;
 
-    /** @var SplObjectStorage */
-    protected $subFieldCache;
+    protected SplObjectStorage $subFieldCache;
 
     protected function __construct(ExecutionContext $context)
     {
-        if (! static::$UNDEFINED) {
+        if (! isset(static::$UNDEFINED)) {
             static::$UNDEFINED = Utils::undefined();
         }
 
@@ -103,8 +100,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if (is_array($exeContext)) {
             return new class ($promiseAdapter->createFulfilled(new ExecutionResult(null, $exeContext))) implements ExecutorImplementation
             {
-                /** @var Promise */
-                private $result;
+                private Promise $result;
 
                 public function __construct(Promise $result)
                 {
@@ -154,8 +150,8 @@ class ReferenceExecutor implements ExecutorImplementation
                     }
 
                     if (
-                        $operationName === null ||
-                        (isset($definition->name) && $definition->name->value === $operationName)
+                        $operationName === null
+                        || (isset($definition->name) && $definition->name->value === $operationName)
                     ) {
                         $operation = $definition;
                     }
@@ -186,7 +182,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 $operation->variableDefinitions,
                 $rawVariableValues ?? []
             );
-            if (count($coercionErrors ?? []) === 0) {
+            if (null === $coercionErrors) {
                 $variableValues = $coercedVariableValues;
             } else {
                 $errors = array_merge($errors, $coercionErrors);
@@ -346,7 +342,7 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * Given a selectionSet, adds all of the fields in that selection to
+     * Given a selectionSet, adds all fields in that selection to
      * the passed in map of fields, and returns it at the end.
      *
      * CollectFields requires the "runtime type" of an object. For a field which
@@ -392,14 +388,17 @@ class ReferenceExecutor implements ExecutorImplementation
                 case $selection instanceof FragmentSpreadNode:
                     $fragName = $selection->name->value;
 
-                    if (($visitedFragmentNames[$fragName] ?? false) === true || ! $this->shouldIncludeNode($selection)) {
+                    if (isset($visitedFragmentNames[$fragName]) || ! $this->shouldIncludeNode($selection)) {
+                        break;
+                    }
+                    $visitedFragmentNames[$fragName] = true;
+
+                    if (! isset($exeContext->fragments[$fragName])) {
                         break;
                     }
 
-                    $visitedFragmentNames[$fragName] = true;
-                    /** @var FragmentDefinitionNode|null $fragment */
-                    $fragment = $exeContext->fragments[$fragName] ?? null;
-                    if ($fragment === null || ! $this->doesFragmentConditionMatch($fragment, $runtimeType)) {
+                    $fragment = $exeContext->fragments[$fragName];
+                    if (! $this->doesFragmentConditionMatch($fragment, $runtimeType)) {
                         break;
                     }
 
@@ -450,9 +449,8 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected static function getFieldEntryKey(FieldNode $node): string
     {
-        return $node->alias === null
-            ? $node->name->value
-            : $node->alias->value;
+        return $node->alias->value
+            ?? $node->name->value;
     }
 
     /**
@@ -480,8 +478,7 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * Implements the "Evaluating selection sets" section of the spec
-     * for "write" mode.
+     * Implements the "Evaluating selection sets" section of the spec for "write" mode.
      *
      * @param mixed             $rootValue
      * @param array<string|int> $path
@@ -582,15 +579,14 @@ class ReferenceExecutor implements ExecutorImplementation
             $rootValue,
             $info
         );
-        $result = $this->completeValueCatchingError(
+
+        return $this->completeValueCatchingError(
             $returnType,
             $fieldNodes,
             $info,
             $path,
             $result
         );
-
-        return $result;
     }
 
     /**
@@ -841,7 +837,8 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function isPromise($value): bool
     {
-        return $value instanceof Promise || $this->exeContext->promiseAdapter->isThenable($value);
+        return $value instanceof Promise
+            || $this->exeContext->promiseAdapter->isThenable($value);
     }
 
     /**
@@ -1199,9 +1196,7 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function collectSubFields(ObjectType $returnType, ArrayObject $fieldNodes): ArrayObject
     {
-        if (! isset($this->subFieldCache[$returnType])) {
-            $this->subFieldCache[$returnType] = new SplObjectStorage();
-        }
+        $this->subFieldCache[$returnType] ??= new SplObjectStorage();
 
         if (! isset($this->subFieldCache[$returnType][$fieldNodes])) {
             // Collect sub-fields to execute to complete this value.
