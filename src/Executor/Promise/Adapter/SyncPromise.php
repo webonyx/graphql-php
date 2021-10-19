@@ -30,21 +30,26 @@ class SyncPromise
     public const FULFILLED = 'fulfilled';
     public const REJECTED  = 'rejected';
 
-    /** @var SplQueue */
-    public static $queue;
+    public static SplQueue $queue;
 
-    /** @var string */
-    public $state = self::PENDING;
+    public string $state = self::PENDING;
 
     /** @var mixed */
     public $result;
 
     /**
-     * Promises created in `then` method of this promise and awaiting for resolution of this promise
+     * Promises created in `then` method of this promise and awaiting resolution of this promise
      *
-     * @var mixed[][]
+     * @var array<
+     *     int,
+     *     array{
+     *         self,
+     *         (callable(mixed): mixed)|null,
+     *         (callable(Throwable): mixed)|null
+     *     }
+     * >
      */
-    private $waiting = [];
+    private array $waiting = [];
 
     public static function runQueue(): void
     {
@@ -177,8 +182,8 @@ class SyncPromise
     }
 
     /**
-     * @param callable(mixed) : mixed     $onFulfilled
-     * @param callable(Throwable) : mixed $onRejected
+     * @param (callable(mixed): mixed)|null     $onFulfilled
+     * @param (callable(Throwable): mixed)|null $onRejected
      */
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
     {

@@ -72,9 +72,9 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param mixed                     $rootValue
-     * @param mixed                     $contextValue
-     * @param array<string, mixed>|null $variableValues
+     * @param mixed                $rootValue
+     * @param mixed                $contextValue
+     * @param array<string, mixed> $variableValues
      */
     public static function create(
         PromiseAdapter $promiseAdapter,
