@@ -1309,12 +1309,10 @@ class BreakingChangesFinderTest extends TestCase
                 'type'        => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
                 'description' => 'TypeInUnion2 was removed.',
             ],
-            /* This is reported in the js version because builtin sclar types are added on demand
-               and not like here always
-             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED,
-                'description' => 'Int was removed.'
-            ],*/
+            [
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
+                'description' => 'Int was removed.',
+            ],
             [
                 'type'        => BreakingChangesFinder::BREAKING_CHANGE_TYPE_CHANGED_KIND,
                 'description' => 'TypeThatChangesType changed from an Object type to an Interface type.',

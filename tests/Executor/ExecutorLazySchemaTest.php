@@ -28,38 +28,29 @@ use function count;
 
 class ExecutorLazySchemaTest extends TestCase
 {
-    /** @var ScalarType */
-    public $someScalarType;
+    public ScalarType $someScalarType;
 
-    /** @var ObjectType */
-    public $someObjectType;
+    public ObjectType $someObjectType;
 
-    /** @var ObjectType */
-    public $otherObjectType;
+    public ObjectType $otherObjectType;
 
-    /** @var ObjectType */
-    public $deeperObjectType;
+    public ObjectType $deeperObjectType;
 
-    /** @var UnionType */
-    public $someUnionType;
+    public UnionType $someUnionType;
 
-    /** @var InterfaceType */
-    public $someInterfaceType;
+    public InterfaceType $someInterfaceType;
 
-    /** @var EnumType */
-    public $someEnumType;
+    public EnumType $someEnumType;
 
-    /** @var InputObjectType */
-    public $someInputObjectType;
+    public InputObjectType $someInputObjectType;
 
-    /** @var ObjectType */
-    public $queryType;
+    public ObjectType $queryType;
 
-    /** @var string[] */
-    public $calls = [];
+    /** @var array<int, string> */
+    public array $calls = [];
 
-    /** @var bool[] */
-    public $loadedTypes = [];
+    /** @var array<string, true> */
+    public array $loadedTypes = [];
 
     public function testWarnsAboutSlowIsTypeOfForLazySchema(): void
     {
@@ -372,36 +363,38 @@ class ExecutorLazySchemaTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->loadType('Query'),
-            'typeLoader' => function ($name) {
-                return $this->loadType($name, true);
-            },
+            'typeLoader' => fn (string $name): Type => $this->loadType($name, true),
         ]);
 
-        $query  = '{ object { object { object { string } } } }';
+        $query     = '{ object { object { object { string } } } }';
+        $rootValue = ['object' => ['object' => ['object' => ['string' => 'test']]]];
+
         $result = Executor::execute(
             $schema,
             Parser::parse($query),
-            ['object' => ['object' => ['object' => ['string' => 'test']]]]
+            $rootValue
         );
 
-        $expected            = [
-            'data' => ['object' => ['object' => ['object' => ['string' => 'test']]]],
-        ];
-        $expectedLoadedTypes = [
-            'Query'       => true,
-            'SomeObject'  => true,
-            'OtherObject' => true,
-        ];
-
-        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
-        self::assertEquals($expectedLoadedTypes, $this->loadedTypes);
-
-        $expectedExecutorCalls = [
-            'Query.fields',
-            'SomeObject',
-            'SomeObject.fields',
-        ];
-        self::assertEquals($expectedExecutorCalls, $this->calls);
+        self::assertEquals(
+            ['data' => $rootValue],
+            $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
+        );
+        self::assertEquals(
+            [
+                'Query'       => true,
+                'SomeObject'  => true,
+                'OtherObject' => true,
+            ],
+            $this->loadedTypes
+        );
+        self::assertEquals(
+            [
+                'Query.fields',
+                'SomeObject',
+                'SomeObject.fields',
+            ],
+            $this->calls
+        );
     }
 
     public function testResolveUnion(): void
