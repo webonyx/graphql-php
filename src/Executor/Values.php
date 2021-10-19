@@ -46,11 +46,11 @@ class Values
      * to match the variable definitions, an Error will be thrown.
      *
      * @param NodeList<VariableDefinitionNode> $varDefNodes
-     * @param array<string, mixed>             $inputs
+     * @param array<string, mixed>             $rawVariableValues
      *
      * @return array{array<int, Error>, null}|array{null, array<string, mixed>}
      */
-    public static function getVariableValues(Schema $schema, NodeList $varDefNodes, array $inputs): array
+    public static function getVariableValues(Schema $schema, NodeList $varDefNodes, array $rawVariableValues): array
     {
         $errors        = [];
         $coercedValues = [];
@@ -71,9 +71,9 @@ class Values
                     [$varDefNode->type]
                 );
             } else {
-                $hasValue = array_key_exists($varName, $inputs);
+                $hasValue = array_key_exists($varName, $rawVariableValues);
                 $value    = $hasValue
-                    ? $inputs[$varName]
+                    ? $rawVariableValues[$varName]
                     : Utils::undefined();
 
                 if (! $hasValue && ($varDefNode->defaultValue !== null)) {

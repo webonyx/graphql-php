@@ -72,9 +72,9 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param mixed                    $rootValue
-     * @param mixed                    $contextValue
-     * @param array<mixed>|Traversable $variableValues
+     * @param mixed                     $rootValue
+     * @param mixed                     $contextValue
+     * @param array<string, mixed>|null $variableValues
      */
     public static function create(
         PromiseAdapter $promiseAdapter,
@@ -82,7 +82,7 @@ class ReferenceExecutor implements ExecutorImplementation
         DocumentNode $documentNode,
         $rootValue,
         $contextValue,
-        $variableValues,
+        array $variableValues,
         ?string $operationName,
         callable $fieldResolver
     ): ExecutorImplementation {
@@ -121,9 +121,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * Constructs an ExecutionContext object from the arguments passed to
      * execute, which we will pass throughout the other execution methods.
      *
-     * @param mixed                    $rootValue
-     * @param mixed                    $contextValue
-     * @param array<mixed>|Traversable $rawVariableValues
+     * @param mixed                $rootValue
+     * @param mixed                $contextValue
+     * @param array<string, mixed> $rawVariableValues
      *
      * @return ExecutionContext|array<Error>
      */
@@ -132,10 +132,10 @@ class ReferenceExecutor implements ExecutorImplementation
         DocumentNode $documentNode,
         $rootValue,
         $contextValue,
-        $rawVariableValues,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null,
-        ?PromiseAdapter $promiseAdapter = null
+        array $rawVariableValues,
+        ?string $operationName,
+        ?callable $fieldResolver,
+        ?PromiseAdapter $promiseAdapter
     ) {
         $errors    = [];
         $fragments = [];
@@ -180,9 +180,9 @@ class ReferenceExecutor implements ExecutorImplementation
             [$coercionErrors, $coercedVariableValues] = Values::getVariableValues(
                 $schema,
                 $operation->variableDefinitions,
-                $rawVariableValues ?? []
+                $rawVariableValues
             );
-            if (null === $coercionErrors) {
+            if ($coercionErrors === null) {
                 $variableValues = $coercedVariableValues;
             } else {
                 $errors = array_merge($errors, $coercionErrors);
@@ -391,6 +391,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     if (isset($visitedFragmentNames[$fragName]) || ! $this->shouldIncludeNode($selection)) {
                         break;
                     }
+
                     $visitedFragmentNames[$fragName] = true;
 
                     if (! isset($exeContext->fragments[$fragName])) {

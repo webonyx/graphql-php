@@ -18,15 +18,17 @@ use function is_object;
 
 /**
  * Implements the "Evaluating requests" section of the GraphQL specification.
+ *
+ * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed=, mixed=, ?array<mixed>=, ?string=, ?callable=): ExecutorImplementation
  */
 class Executor
 {
     /** @var callable */
     private static $defaultFieldResolver = [self::class, 'defaultFieldResolver'];
 
-    private static PromiseAdapter $defaultPromiseAdapter;
+    private static ?PromiseAdapter $defaultPromiseAdapter;
 
-    /** @var callable */
+    /** @var ImplementationFactory */
     private static $implementationFactory = [ReferenceExecutor::class, 'create'];
 
     public static function getDefaultFieldResolver(): callable
@@ -55,6 +57,9 @@ class Executor
         self::$defaultPromiseAdapter = $defaultPromiseAdapter;
     }
 
+    /**
+     * @phpstan-return ImplementationFactory
+     */
     public static function getImplementationFactory(): callable
     {
         return self::$implementationFactory;
@@ -62,6 +67,8 @@ class Executor
 
     /**
      * Set a custom executor implementation factory.
+     *
+     * @phpstan-param ImplementationFactory $implementationFactory
      */
     public static function setImplementationFactory(callable $implementationFactory): void
     {
@@ -74,10 +81,9 @@ class Executor
      * Always returns ExecutionResult and never throws.
      * All errors which occur during operation execution are collected in `$result->errors`.
      *
-     * @param mixed|null                    $rootValue
-     * @param mixed|null                    $contextValue
-     * @param array<mixed>|ArrayAccess|null $variableValues
-     * @param string|null                   $operationName
+     * @param mixed                     $rootValue
+     * @param mixed                     $contextValue
+     * @param array<string, mixed>|null $variableValues
      *
      * @return ExecutionResult|Promise
      *
@@ -88,8 +94,8 @@ class Executor
         DocumentNode $documentNode,
         $rootValue = null,
         $contextValue = null,
-        $variableValues = null,
-        $operationName = null,
+        ?array $variableValues = null,
+        ?string $operationName = null,
         ?callable $fieldResolver = null
     ) {
         $promiseAdapter = new SyncPromiseAdapter();
@@ -114,10 +120,9 @@ class Executor
      *
      * Useful for async PHP platforms.
      *
-     * @param mixed|null        $rootValue
-     * @param mixed|null        $contextValue
-     * @param array<mixed>|null $variableValues
-     * @param string|null       $operationName
+     * @param mixed                     $rootValue
+     * @param mixed                     $contextValue
+     * @param array<string, mixed>|null $variableValues
      *
      * @api
      */
@@ -127,20 +132,18 @@ class Executor
         DocumentNode $documentNode,
         $rootValue = null,
         $contextValue = null,
-        $variableValues = null,
-        $operationName = null,
+        ?array $variableValues = null,
+        ?string $operationName = null,
         ?callable $fieldResolver = null
     ): Promise {
-        $factory = self::$implementationFactory;
-
         /** @var ExecutorImplementation $executor */
-        $executor = $factory(
+        $executor = (self::$implementationFactory)(
             $promiseAdapter,
             $schema,
             $documentNode,
             $rootValue,
             $contextValue,
-            $variableValues,
+            $variableValues ?? [],
             $operationName,
             $fieldResolver ?? self::$defaultFieldResolver
         );
