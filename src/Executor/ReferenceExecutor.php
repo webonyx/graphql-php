@@ -360,6 +360,11 @@ class ReferenceExecutor implements ExecutorImplementation
      * CollectFields requires the "runtime type" of an object. For a field which
      * returns an Interface or Union type, the "runtime type" will be the actual
      * Object type returned by that field.
+     *
+     * @param ArrayObject<string, ArrayObject<int, FieldNode>> $fields
+     * @param ArrayObject<string, true>                        $visitedFragmentNames
+     *
+     * @return ArrayObject<string, ArrayObject<int, FieldNode>>
      */
     protected function collectFields(
         ObjectType $runtimeType,
@@ -375,11 +380,8 @@ class ReferenceExecutor implements ExecutorImplementation
                         break;
                     }
 
-                    $name = static::getFieldEntryKey($selection);
-                    if (! isset($fields[$name])) {
-                        $fields[$name] = new ArrayObject();
-                    }
-
+                    $name            = static::getFieldEntryKey($selection);
+                    $fields[$name] ??= new ArrayObject();
                     $fields[$name][] = $selection;
                     break;
                 case $selection instanceof InlineFragmentNode:
@@ -493,8 +495,9 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Implements the "Evaluating selection sets" section of the spec for "write" mode.
      *
-     * @param mixed             $rootValue
-     * @param array<string|int> $path
+     * @param mixed                                      $rootValue
+     * @param array<string|int>                          $path
+     * @param ArrayObject<string, array<int, FieldNode>> $fields
      *
      * @return array<mixed>|Promise|stdClass
      */
@@ -543,8 +546,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * by calling its resolve function, then calls completeValue to complete promises,
      * serialize scalars, or execute the sub-selection-set for objects.
      *
-     * @param mixed                  $rootValue
-     * @param array<int, string|int> $path
+     * @param mixed                       $rootValue
+     * @param array<int, string|int>      $path
+     * @param ArrayObject<int, FieldNode> $fieldNodes
      *
      * @return array<mixed>|Throwable|mixed|null
      */
@@ -672,8 +676,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * This is a small wrapper around completeValue which detects and logs errors
      * in the execution context.
      *
-     * @param array<string|int> $path
-     * @param mixed             $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param mixed                       $result
      *
      * @return array<mixed>|Promise|stdClass|null
      */
@@ -712,8 +717,9 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param mixed                  $rawError
-     * @param array<int, string|int> $path
+     * @param mixed                       $rawError
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<int, string|int>      $path
      *
      * @throws Error
      */
@@ -757,8 +763,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * Otherwise, the field type expects a sub-selection set, and will complete the
      * value by evaluating all sub-selections.
      *
-     * @param array<string|int> $path
-     * @param mixed             $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param mixed                       $result
      *
      * @return array<mixed>|mixed|Promise|null
      *
@@ -916,8 +923,9 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Complete a list value by completing each item in the list with the inner type.
      *
-     * @param array<string|int>        $path
-     * @param array<mixed>|Traversable $results
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param array<mixed>|Traversable    $results
      *
      * @return array<mixed>|Promise|stdClass
      *
@@ -976,8 +984,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * Complete a value of an abstract type by determining the runtime object type
      * of that value, then complete the value for that type.
      *
-     * @param array<string|int> $path
-     * @param array<mixed>      $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param array<mixed>                $result
      *
      * @return array<mixed>|Promise|stdClass
      *
@@ -1059,10 +1068,10 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         // First, look for `__typename`.
         if (
-            $value !== null &&
-            (is_array($value) || $value instanceof ArrayAccess) &&
-            isset($value['__typename']) &&
-            is_string($value['__typename'])
+            $value !== null
+            && (is_array($value) || $value instanceof ArrayAccess)
+            && isset($value['__typename'])
+            && is_string($value['__typename'])
         ) {
             return $value['__typename'];
         }
@@ -1117,8 +1126,9 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Complete an Object value by executing all sub-selections.
      *
-     * @param array<string|int> $path
-     * @param mixed             $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param mixed                       $result
      *
      * @return array<mixed>|Promise|stdClass
      *
@@ -1171,7 +1181,8 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param array<mixed> $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<mixed>                $result
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
@@ -1185,8 +1196,9 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param array<string|int> $path
-     * @param mixed             $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param mixed                       $result
      *
      * @return array<mixed>|Promise|stdClass
      *
@@ -1207,12 +1219,16 @@ class ReferenceExecutor implements ExecutorImplementation
      * A memoized collection of relevant subfields with regard to the return
      * type. Memoizing ensures the subfields are not repeatedly calculated, which
      * saves overhead when resolving lists of values.
+     *
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     *
+     * @return ArrayObject<int, FieldNode>
      */
     protected function collectSubFields(ObjectType $returnType, ArrayObject $fieldNodes): ArrayObject
     {
-        $this->subFieldCache[$returnType] ??= new SplObjectStorage();
+        $returnTypeCache = $this->subFieldCache[$returnType] ??= new SplObjectStorage();
 
-        if (! isset($this->subFieldCache[$returnType][$fieldNodes])) {
+        if (! isset($returnTypeCache[$fieldNodes])) {
             // Collect sub-fields to execute to complete this value.
             $subFieldNodes        = new ArrayObject();
             $visitedFragmentNames = new ArrayObject();
@@ -1229,18 +1245,18 @@ class ReferenceExecutor implements ExecutorImplementation
                 );
             }
 
-            $this->subFieldCache[$returnType][$fieldNodes] = $subFieldNodes;
+            $returnTypeCache[$fieldNodes] = $subFieldNodes;
         }
 
-        return $this->subFieldCache[$returnType][$fieldNodes];
+        return $returnTypeCache[$fieldNodes];
     }
 
     /**
-     * Implements the "Evaluating selection sets" section of the spec
-     * for "read" mode.
+     * Implements the "Evaluating selection sets" section of the spec for "read" mode.
      *
-     * @param mixed             $rootValue
-     * @param array<string|int> $path
+     * @param mixed                       $rootValue
+     * @param array<string|int>           $path
+     * @param ArrayObject<int, FieldNode> $fields
      *
      * @return Promise|stdClass|array<mixed>
      */
