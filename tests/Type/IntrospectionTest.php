@@ -32,1043 +32,869 @@ class IntrospectionTest extends TestCase
         $emptySchema = new Schema([
             'query' => new ObjectType([
                 'name'   => 'QueryRoot',
-                'fields' => ['a' => Type::string()],
+                'fields' => [
+                    'a' => Type::string(),
+                ],
             ]),
         ]);
 
-        $request  = Introspection::getIntrospectionQuery([
+        $request = Introspection::getIntrospectionQuery([
             'descriptions' => false,
             'directiveIsRepeatable' => true,
         ]);
+
         $expected = [
-            'data' =>
-                [
-                    '__schema' =>
+            'data' => [
+                '__schema' => [
+                    'mutationType'     => null,
+                    'subscriptionType' => null,
+                    'queryType'        => ['name' => 'QueryRoot'],
+                    'types'            => [
                         [
-                            'mutationType'     => null,
-                            'subscriptionType' => null,
-                            'queryType'        =>
-                                ['name' => 'QueryRoot'],
-                            'types'            =>
+                            'kind'          => 'OBJECT',
+                            'name'          => 'QueryRoot',
+                            'inputFields'   => null,
+                            'interfaces'    => [],
+                            'enumValues'    => null,
+                            'possibleTypes' => null,
+                            'fields'        => [
                                 [
-                                    [
-                                        'kind'          => 'OBJECT',
-                                        'name'          => 'QueryRoot',
-                                        'inputFields'   => null,
-                                        'interfaces'    =>
-                                            [],
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                        'fields'        => [
-                                            [
-                                                'name'              => 'a',
-                                                'args'              => [],
-                                                'type'              => [
-                                                    'kind'   => 'SCALAR',
-                                                    'name'   => 'String',
+                                    'name'              => 'a',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'SCALAR',
+                                        'name'   => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                            ],
+                        ],
+                        [
+                            'kind'          => 'SCALAR',
+                            'name'          => 'String',
+                            'fields'        => null,
+                            'inputFields'   => null,
+                            'interfaces'    => null,
+                            'enumValues'    => null,
+                            'possibleTypes' => null,
+                        ],
+                        [
+                            'kind'          => 'OBJECT',
+                            'name'          => '__Schema',
+                            'fields'        => [
+                                0 => [
+                                    'name'              => 'types',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind'   => 'LIST',
+                                            'name'   => null,
+                                            'ofType' => [
+                                                'kind'   => 'NON_NULL',
+                                                'name'   => null,
+                                                'ofType' => [
+                                                    'kind' => 'OBJECT',
+                                                    'name' => '__Type',
                                                     'ofType' => null,
                                                 ],
-                                                'isDeprecated'      => false,
-                                                'deprecationReason' => null,
                                             ],
                                         ],
                                     ],
-                                    [
-                                        'kind'          => 'SCALAR',
-                                        'name'          => 'String',
-                                        'fields'        => null,
-                                        'inputFields'   => null,
-                                        'interfaces'    => null,
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'SCALAR',
-                                        'name'          => 'ID',
-                                        'fields'        => null,
-                                        'inputFields'   => null,
-                                        'interfaces'    => null,
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'SCALAR',
-                                        'name'          => 'Float',
-                                        'fields'        => null,
-                                        'inputFields'   => null,
-                                        'interfaces'    => null,
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'SCALAR',
-                                        'name'          => 'Int',
-                                        'fields'        => null,
-                                        'inputFields'   => null,
-                                        'interfaces'    => null,
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'SCALAR',
-                                        'name'          => 'Boolean',
-                                        'fields'        => null,
-                                        'inputFields'   => null,
-                                        'interfaces'    => null,
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'OBJECT',
-                                        'name'          => '__Schema',
-                                        'fields'        =>
-                                            [
-                                                0 => [
-                                                    'name'              => 'types',
-                                                    'args'              =>
-                                                            [],
-                                                    'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind'   => 'LIST',
-                                                                        'name'   => null,
-                                                                        'ofType' =>
-                                                                            [
-                                                                                'kind'   => 'NON_NULL',
-                                                                                'name'   => null,
-                                                                                'ofType' =>
-                                                                                    [
-                                                                                        'kind' => 'OBJECT',
-                                                                                        'name' => '__Type',
-                                                                                    ],
-                                                                            ],
-                                                                    ],
-                                                            ],
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                1 => [
-                                                    'name'              => 'queryType',
-                                                    'args'              =>
-                                                            [],
-                                                    'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'OBJECT',
-                                                                        'name' => '__Type',
-                                                                    ],
-                                                            ],
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'mutationType',
-                                                    'args'              =>
-                                                        [],
-                                                    'type'              =>
-                                                        [
-                                                            'kind' => 'OBJECT',
-                                                            'name' => '__Type',
-                                                        ],
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'subscriptionType',
-                                                    'args'              =>
-                                                        [],
-                                                    'type'              =>
-                                                        [
-                                                            'kind' => 'OBJECT',
-                                                            'name' => '__Type',
-                                                        ],
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'directives',
-                                                    'args'              =>
-                                                        [],
-                                                    'type'              =>
-                                                        [
-                                                            'kind'   => 'NON_NULL',
-                                                            'name'   => null,
-                                                            'ofType' =>
-                                                                [
-                                                                    'kind'   => 'LIST',
-                                                                    'name'   => null,
-                                                                    'ofType' =>
-                                                                        [
-                                                                            'kind'   => 'NON_NULL',
-                                                                            'name'   => null,
-                                                                            'ofType' =>
-                                                                                [
-                                                                                    'kind' => 'OBJECT',
-                                                                                    'name' => '__Directive',
-                                                                                ],
-                                                                        ],
-                                                                ],
-                                                        ],
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                            ],
-                                        'inputFields'   => null,
-                                        'interfaces'    =>
-                                            [],
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'OBJECT',
-                                        'name'          => '__Type',
-                                        'fields'        =>
-                                            [
-                                                0 =>
-                                                    [
-                                                        'name'              => 'kind',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'ENUM',
-                                                                        'name' => '__TypeKind',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                1 =>
-                                                    [
-                                                        'name'              => 'name',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'SCALAR',
-                                                                'name' => 'String',
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                2 =>
-                                                    [
-                                                        'name'              => 'description',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'SCALAR',
-                                                                'name' => 'String',
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                3 =>
-                                                    [
-                                                        'name'              => 'fields',
-                                                        'args'              =>
-                                                            [
-                                                                0 =>
-                                                                    [
-                                                                        'name'         => 'includeDeprecated',
-                                                                        'type'         =>
-                                                                            [
-                                                                                'kind' => 'SCALAR',
-                                                                                'name' => 'Boolean',
-                                                                            ],
-                                                                        'defaultValue' => 'false',
-                                                                    ],
-                                                            ],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'LIST',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind'   => 'NON_NULL',
-                                                                        'name'   => null,
-                                                                        'ofType' =>
-                                                                            [
-                                                                                'kind' => 'OBJECT',
-                                                                                'name' => '__Field',
-                                                                            ],
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                4 =>
-                                                    [
-                                                        'name'              => 'interfaces',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'LIST',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind'   => 'NON_NULL',
-                                                                        'name'   => null,
-                                                                        'ofType' =>
-                                                                            [
-                                                                                'kind' => 'OBJECT',
-                                                                                'name' => '__Type',
-                                                                            ],
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                5 =>
-                                                    [
-                                                        'name'              => 'possibleTypes',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'LIST',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind'   => 'NON_NULL',
-                                                                        'name'   => null,
-                                                                        'ofType' =>
-                                                                            [
-                                                                                'kind' => 'OBJECT',
-                                                                                'name' => '__Type',
-                                                                            ],
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                6 =>
-                                                    [
-                                                        'name'              => 'enumValues',
-                                                        'args'              =>
-                                                            [
-                                                                0 =>
-                                                                    [
-                                                                        'name'         => 'includeDeprecated',
-                                                                        'type'         =>
-                                                                            [
-                                                                                'kind' => 'SCALAR',
-                                                                                'name' => 'Boolean',
-                                                                            ],
-                                                                        'defaultValue' => 'false',
-                                                                    ],
-                                                            ],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'LIST',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind'   => 'NON_NULL',
-                                                                        'name'   => null,
-                                                                        'ofType' =>
-                                                                            [
-                                                                                'kind' => 'OBJECT',
-                                                                                'name' => '__EnumValue',
-                                                                            ],
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                7 =>
-                                                    [
-                                                        'name'              => 'inputFields',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'LIST',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind'   => 'NON_NULL',
-                                                                        'name'   => null,
-                                                                        'ofType' =>
-                                                                            [
-                                                                                'kind' => 'OBJECT',
-                                                                                'name' => '__InputValue',
-                                                                            ],
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                8 =>
-                                                    [
-                                                        'name'              => 'ofType',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'OBJECT',
-                                                                'name' => '__Type',
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                            ],
-                                        'inputFields'   => null,
-                                        'interfaces'    =>
-                                            [],
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'ENUM',
-                                        'name'          => '__TypeKind',
-                                        'fields'        => null,
-                                        'inputFields'   => null,
-                                        'interfaces'    => null,
-                                        'enumValues'    =>
-                                            [
-                                                0 =>
-                                                    [
-                                                        'name'              => 'SCALAR',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                1 =>
-                                                    [
-                                                        'name'              => 'OBJECT',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                2 =>
-                                                    [
-                                                        'name'              => 'INTERFACE',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                3 =>
-                                                    [
-                                                        'name'              => 'UNION',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                4 =>
-                                                    [
-                                                        'name'              => 'ENUM',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                5 =>
-                                                    [
-                                                        'name'              => 'INPUT_OBJECT',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                6 =>
-                                                    [
-                                                        'name'              => 'LIST',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                7 =>
-                                                    [
-                                                        'name'              => 'NON_NULL',
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                            ],
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'OBJECT',
-                                        'name'          => '__Field',
-                                        'fields'        =>
-                                            [
-                                                0 =>
-                                                    [
-                                                        'name'              => 'name',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'String',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                1 =>
-                                                    [
-                                                        'name'              => 'description',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'SCALAR',
-                                                                'name' => 'String',
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                2 =>
-                                                    [
-                                                        'name'              => 'args',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind'   => 'LIST',
-                                                                        'name'   => null,
-                                                                        'ofType' =>
-                                                                            [
-                                                                                'kind'   => 'NON_NULL',
-                                                                                'name'   => null,
-                                                                                'ofType' =>
-                                                                                    [
-                                                                                        'kind' => 'OBJECT',
-                                                                                        'name' => '__InputValue',
-                                                                                    ],
-                                                                            ],
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                3 =>
-                                                    [
-                                                        'name'              => 'type',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'OBJECT',
-                                                                        'name' => '__Type',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                4 =>
-                                                    [
-                                                        'name'              => 'isDeprecated',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'Boolean',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                5 =>
-                                                    [
-                                                        'name'              => 'deprecationReason',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'SCALAR',
-                                                                'name' => 'String',
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                            ],
-                                        'inputFields'   => null,
-                                        'interfaces'    =>
-                                            [],
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'OBJECT',
-                                        'name'          => '__InputValue',
-                                        'fields'        =>
-                                            [
-                                                0 =>
-                                                    [
-                                                        'name'              => 'name',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'String',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                1 =>
-                                                    [
-                                                        'name'              => 'description',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'SCALAR',
-                                                                'name' => 'String',
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                2 =>
-                                                    [
-                                                        'name'              => 'type',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'OBJECT',
-                                                                        'name' => '__Type',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                3 =>
-                                                    [
-                                                        'name'              => 'defaultValue',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'SCALAR',
-                                                                'name' => 'String',
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                            ],
-                                        'inputFields'   => null,
-                                        'interfaces'    =>
-                                            [],
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'OBJECT',
-                                        'name'          => '__EnumValue',
-                                        'fields'        =>
-                                            [
-                                                0 =>
-                                                    [
-                                                        'name'              => 'name',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'String',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                1 =>
-                                                    [
-                                                        'name'              => 'description',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'SCALAR',
-                                                                'name' => 'String',
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                2 =>
-                                                    [
-                                                        'name'              => 'isDeprecated',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'Boolean',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                3 =>
-                                                    [
-                                                        'name'              => 'deprecationReason',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'SCALAR',
-                                                                'name' => 'String',
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                            ],
-                                        'inputFields'   => null,
-                                        'interfaces'    =>
-                                            [],
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'OBJECT',
-                                        'name'          => '__Directive',
-                                        'fields'        =>
-                                            [
-                                                0 =>
-                                                    [
-                                                        'name'              => 'name',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'String',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                1 =>
-                                                    [
-                                                        'name'              => 'description',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'SCALAR',
-                                                                'name' => 'String',
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                2 =>
-                                                    [
-                                                        'name'              => 'args',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind'   => 'LIST',
-                                                                        'name'   => null,
-                                                                        'ofType' =>
-                                                                            [
-                                                                                'kind'   => 'NON_NULL',
-                                                                                'name'   => null,
-                                                                                'ofType' =>
-                                                                                    [
-                                                                                        'kind' => 'OBJECT',
-                                                                                        'name' => '__InputValue',
-                                                                                    ],
-                                                                            ],
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                3 =>
-                                                    [
-                                                        'name'              => 'isRepeatable',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'NON_NULL',
-                                                                'name' => null,
-                                                                'ofType' => [
-                                                                    'kind' => 'SCALAR',
-                                                                    'name' => 'Boolean',
-                                                                    'ofType' => null,
-                                                                ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                4 =>
-                                                    [
-                                                        'name'              => 'locations',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind'   => 'LIST',
-                                                                        'name'   => null,
-                                                                        'ofType' =>
-                                                                            [
-                                                                                'kind'   => 'NON_NULL',
-                                                                                'name'   => null,
-                                                                                'ofType' =>
-                                                                                    [
-                                                                                        'kind' => 'ENUM',
-                                                                                        'name' => '__DirectiveLocation',
-                                                                                    ],
-                                                                            ],
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                            ],
-                                        'inputFields'   => null,
-                                        'interfaces'    =>
-                                            [],
-                                        'enumValues'    => null,
-                                        'possibleTypes' => null,
-                                    ],
-                                    [
-                                        'kind'          => 'ENUM',
-                                        'name'          => '__DirectiveLocation',
-                                        'fields'        => null,
-                                        'inputFields'   => null,
-                                        'interfaces'    => null,
-                                        'enumValues'    =>
-                                            [
-                                                0 => [
-                                                    'name'              => 'QUERY',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                1 => [
-                                                    'name'              => 'MUTATION',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                2 => [
-                                                    'name'              => 'SUBSCRIPTION',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                3 => [
-                                                    'name'              => 'FIELD',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                4 => [
-                                                    'name'              => 'FRAGMENT_DEFINITION',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                5 => [
-                                                    'name'              => 'FRAGMENT_SPREAD',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                6 => [
-                                                    'name'              => 'INLINE_FRAGMENT',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                7 => [
-                                                    'name'              => 'VARIABLE_DEFINITION',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'SCHEMA',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'SCALAR',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'OBJECT',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'FIELD_DEFINITION',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'ARGUMENT_DEFINITION',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'INTERFACE',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'UNION',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'ENUM',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'ENUM_VALUE',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'INPUT_OBJECT',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                                [
-                                                    'name'              => 'INPUT_FIELD_DEFINITION',
-                                                    'isDeprecated'      => false,
-                                                    'deprecationReason' => null,
-                                                ],
-                                            ],
-                                        'possibleTypes' => null,
-                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
                                 ],
-                            'directives'       =>
+                                1 => [
+                                    'name'              => 'queryType',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'OBJECT',
+                                            'name' => '__Type',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
                                 [
-                                    0 =>
-                                        [
-                                            'name'      => 'include',
-                                            'isRepeatable' => false,
-                                            'args'      =>
-                                                [
-                                                    0 =>
-                                                        [
-                                                            'defaultValue' => null,
-                                                            'name'         => 'if',
-                                                            'type'         =>
-                                                                [
-                                                                    'kind'   => 'NON_NULL',
-                                                                    'name'   => null,
-                                                                    'ofType' =>
-                                                                        [
-                                                                            'kind' => 'SCALAR',
-                                                                            'name' => 'Boolean',
-                                                                        ],
-                                                                ],
-                                                        ],
-                                                ],
-                                            'locations' =>
-                                                [
-                                                    0 => 'FIELD',
-                                                    1 => 'FRAGMENT_SPREAD',
-                                                    2 => 'INLINE_FRAGMENT',
-                                                ],
-                                        ],
-                                    1 =>
-                                        [
-                                            'name'      => 'skip',
-                                            'isRepeatable' => false,
-                                            'args'      =>
-                                                [
-                                                    0 =>
-                                                        [
-                                                            'defaultValue' => null,
-                                                            'name'         => 'if',
-                                                            'type'         =>
-                                                                [
-                                                                    'kind'   => 'NON_NULL',
-                                                                    'name'   => null,
-                                                                    'ofType' =>
-                                                                        [
-                                                                            'kind' => 'SCALAR',
-                                                                            'name' => 'Boolean',
-                                                                        ],
-                                                                ],
-                                                        ],
-                                                ],
-                                            'locations' =>
-                                                [
-                                                    0 => 'FIELD',
-                                                    1 => 'FRAGMENT_SPREAD',
-                                                    2 => 'INLINE_FRAGMENT',
-                                                ],
-                                        ],
-                                    2 =>
-                                        [
-                                            'name'      => 'deprecated',
-                                            'isRepeatable' => false,
-                                            'args'      =>
-                                                [
-                                                    0 =>
-                                                        [
-                                                            'defaultValue' => '"No longer supported"',
-                                                            'name'         => 'reason',
-                                                            'type'         =>
-                                                                [
-                                                                    'kind'   => 'SCALAR',
-                                                                    'name'   => 'String',
-                                                                    'ofType' => null,
-                                                                ],
-                                                        ],
-                                                ],
-                                            'locations' =>
-                                                [
-                                                    0 => 'FIELD_DEFINITION',
-                                                    1 => 'ENUM_VALUE',
-                                                ],
-                                        ],
+                                    'name'              => 'mutationType',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'OBJECT',
+                                        'name' => '__Type',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
                                 ],
+                                [
+                                    'name'              => 'subscriptionType',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'OBJECT',
+                                        'name' => '__Type',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'directives',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind'   => 'LIST',
+                                            'name'   => null,
+                                            'ofType' => [
+                                                'kind'   => 'NON_NULL',
+                                                'name'   => null,
+                                                'ofType' => [
+                                                    'kind' => 'OBJECT',
+                                                    'name' => '__Directive',
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                            ],
+                            'inputFields'   => null,
+                            'interfaces'    => [],
+                            'enumValues'    => null,
+                            'possibleTypes' => null,
                         ],
+                        [
+                            'kind'          => 'OBJECT',
+                            'name'          => '__Type',
+                            'fields'        => [
+                                0 => [
+                                    'name'              => 'kind',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'ENUM',
+                                            'name' => '__TypeKind',
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                1 => [
+                                    'name'              => 'name',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                2 => [
+                                    'name'              => 'description',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                3 => [
+                                    'name'              => 'fields',
+                                    'args'              => [
+                                        0 => [
+                                            'name'         => 'includeDeprecated',
+                                            'type'         => [
+                                                'kind' => 'SCALAR',
+                                                'name' => 'Boolean',
+                                            ],
+                                            'defaultValue' => 'false',
+                                        ],
+                                    ],
+                                    'type'              => [
+                                        'kind'   => 'LIST',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind'   => 'NON_NULL',
+                                            'name'   => null,
+                                            'ofType' => [
+                                                'kind' => 'OBJECT',
+                                                'name' => '__Field',
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                4 => [
+                                    'name'              => 'interfaces',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'LIST',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind'   => 'NON_NULL',
+                                            'name'   => null,
+                                            'ofType' => [
+                                                'kind' => 'OBJECT',
+                                                'name' => '__Type',
+                                                'ofType' => null,
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                5 => [
+                                    'name'              => 'possibleTypes',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'LIST',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind'   => 'NON_NULL',
+                                            'name'   => null,
+                                            'ofType' => [
+                                                'kind' => 'OBJECT',
+                                                'name' => '__Type',
+                                                'ofType' => null,
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                6 => [
+                                    'name'              => 'enumValues',
+                                    'args'              => [
+                                        0 => [
+                                            'name'         => 'includeDeprecated',
+                                            'type'         => [
+                                                'kind' => 'SCALAR',
+                                                'name' => 'Boolean',
+                                            ],
+                                            'defaultValue' => 'false',
+                                        ],
+                                    ],
+                                    'type'              => [
+                                        'kind'   => 'LIST',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind'   => 'NON_NULL',
+                                            'name'   => null,
+                                            'ofType' => [
+                                                'kind' => 'OBJECT',
+                                                'name' => '__EnumValue',
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                7 => [
+                                    'name'              => 'inputFields',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'LIST',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind'   => 'NON_NULL',
+                                            'name'   => null,
+                                            'ofType' => [
+                                                'kind' => 'OBJECT',
+                                                'name' => '__InputValue',
+                                                'ofType' => null,
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                8 => [
+                                    'name'              => 'ofType',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'OBJECT',
+                                        'name' => '__Type',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                            ],
+                            'inputFields'   => null,
+                            'interfaces'    => [],
+                            'enumValues'    => null,
+                            'possibleTypes' => null,
+                        ],
+                        [
+                            'kind'          => 'ENUM',
+                            'name'          => '__TypeKind',
+                            'fields'        => null,
+                            'inputFields'   => null,
+                            'interfaces'    => null,
+                            'enumValues'    => [
+                                0 => [
+                                    'name'              => 'SCALAR',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                1 => [
+                                    'name'              => 'OBJECT',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                2 => [
+                                    'name'              => 'INTERFACE',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                3 => [
+                                    'name'              => 'UNION',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                4 => [
+                                    'name'              => 'ENUM',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                5 => [
+                                    'name'              => 'INPUT_OBJECT',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                6 => [
+                                    'name'              => 'LIST',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                7 => [
+                                    'name'              => 'NON_NULL',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                            ],
+                            'possibleTypes' => null,
+                        ],
+                        [
+                            'kind'          => 'SCALAR',
+                            'name'          => 'Boolean',
+                            'fields'        => null,
+                            'inputFields'   => null,
+                            'interfaces'    => null,
+                            'enumValues'    => null,
+                            'possibleTypes' => null,
+                        ],
+                        [
+                            'kind'          => 'OBJECT',
+                            'name'          => '__Field',
+                            'fields'        => [
+                                0 => [
+                                    'name'              => 'name',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'String',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                1 => [
+                                    'name'              => 'description',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                2 => [
+                                    'name'              => 'args',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind'   => 'LIST',
+                                            'name'   => null,
+                                            'ofType' => [
+                                                'kind'   => 'NON_NULL',
+                                                'name'   => null,
+                                                'ofType' => [
+                                                    'kind' => 'OBJECT',
+                                                    'name' => '__InputValue',
+                                                    'ofType' => null,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                3 => [
+                                    'name'              => 'type',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'OBJECT',
+                                            'name' => '__Type',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                4 => [
+                                    'name'              => 'isDeprecated',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'Boolean',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                5 => [
+                                    'name'              => 'deprecationReason',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                            ],
+                            'inputFields'   => null,
+                            'interfaces'    => [],
+                            'enumValues'    => null,
+                            'possibleTypes' => null,
+                        ],
+                        [
+                            'kind'          => 'OBJECT',
+                            'name'          => '__InputValue',
+                            'fields'        => [
+                                0 => [
+                                    'name'              => 'name',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'String',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                1 => [
+                                    'name'              => 'description',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                2 => [
+                                    'name'              => 'type',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'OBJECT',
+                                            'name' => '__Type',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                3 => [
+                                    'name'              => 'defaultValue',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                            ],
+                            'inputFields'   => null,
+                            'interfaces'    => [],
+                            'enumValues'    => null,
+                            'possibleTypes' => null,
+                        ],
+                        [
+                            'kind'          => 'OBJECT',
+                            'name'          => '__EnumValue',
+                            'fields'        => [
+                                0 => [
+                                    'name'              => 'name',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'String',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                1 => [
+                                    'name'              => 'description',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                2 => [
+                                    'name'              => 'isDeprecated',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'Boolean',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                3 => [
+                                    'name'              => 'deprecationReason',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                            ],
+                            'inputFields'   => null,
+                            'interfaces'    => [],
+                            'enumValues'    => null,
+                            'possibleTypes' => null,
+                        ],
+                        [
+                            'kind'          => 'OBJECT',
+                            'name'          => '__Directive',
+                            'fields'        => [
+                                0 => [
+                                    'name'              => 'name',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'String',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                1 => [
+                                    'name'              => 'description',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                2 => [
+                                    'name'              => 'args',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind'   => 'LIST',
+                                            'name'   => null,
+                                            'ofType' => [
+                                                'kind'   => 'NON_NULL',
+                                                'name'   => null,
+                                                'ofType' => [
+                                                    'kind' => 'OBJECT',
+                                                    'name' => '__InputValue',
+                                                    'ofType' => null,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                3 => [
+                                    'name'              => 'isRepeatable',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'Boolean',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                4 => [
+                                    'name'              => 'locations',
+                                    'args'              => [],
+                                    'type'              => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind'   => 'LIST',
+                                            'name'   => null,
+                                            'ofType' => [
+                                                'kind'   => 'NON_NULL',
+                                                'name'   => null,
+                                                'ofType' => [
+                                                    'kind' => 'ENUM',
+                                                    'name' => '__DirectiveLocation',
+                                                    'ofType' => null,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                            ],
+                            'inputFields'   => null,
+                            'interfaces'    => [],
+                            'enumValues'    => null,
+                            'possibleTypes' => null,
+                        ],
+                        [
+                            'kind'          => 'ENUM',
+                            'name'          => '__DirectiveLocation',
+                            'fields'        => null,
+                            'inputFields'   => null,
+                            'interfaces'    => null,
+                            'enumValues'    => [
+                                0 => [
+                                    'name'              => 'QUERY',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                1 => [
+                                    'name'              => 'MUTATION',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                2 => [
+                                    'name'              => 'SUBSCRIPTION',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                3 => [
+                                    'name'              => 'FIELD',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                4 => [
+                                    'name'              => 'FRAGMENT_DEFINITION',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                5 => [
+                                    'name'              => 'FRAGMENT_SPREAD',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                6 => [
+                                    'name'              => 'INLINE_FRAGMENT',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                7 => [
+                                    'name'              => 'VARIABLE_DEFINITION',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'SCHEMA',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'SCALAR',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'OBJECT',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'FIELD_DEFINITION',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'ARGUMENT_DEFINITION',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'INTERFACE',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'UNION',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'ENUM',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'ENUM_VALUE',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'INPUT_OBJECT',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name'              => 'INPUT_FIELD_DEFINITION',
+                                    'isDeprecated'      => false,
+                                    'deprecationReason' => null,
+                                ],
+                            ],
+                            'possibleTypes' => null,
+                        ],
+                    ],
+                    'directives'       => [
+                        0 => [
+                            'name'      => 'include',
+                            'isRepeatable' => false,
+                            'args'      => [
+                                0 => [
+                                    'defaultValue' => null,
+                                    'name'         => 'if',
+                                    'type'         => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'Boolean',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'locations' => [
+                                0 => 'FIELD',
+                                1 => 'FRAGMENT_SPREAD',
+                                2 => 'INLINE_FRAGMENT',
+                            ],
+                        ],
+                        1 => [
+                            'name'      => 'skip',
+                            'isRepeatable' => false,
+                            'args'      => [
+                                0 => [
+                                    'defaultValue' => null,
+                                    'name'         => 'if',
+                                    'type'         => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'Boolean',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'locations' => [
+                                0 => 'FIELD',
+                                1 => 'FRAGMENT_SPREAD',
+                                2 => 'INLINE_FRAGMENT',
+                            ],
+                        ],
+                        2 => [
+                            'name'      => 'deprecated',
+                            'isRepeatable' => false,
+                            'args'      => [
+                                0 => [
+                                    'defaultValue' => '"No longer supported"',
+                                    'name'         => 'reason',
+                                    'type'         => [
+                                        'kind'   => 'SCALAR',
+                                        'name'   => 'String',
+                                        'ofType' => null,
+                                    ],
+                                ],
+                            ],
+                            'locations' => [
+                                0 => 'FIELD_DEFINITION',
+                                1 => 'ENUM_VALUE',
+                            ],
+                        ],
+                    ],
                 ],
+            ],
         ];
 
         $actual = GraphQL::executeQuery($emptySchema, $request)->toArray();
@@ -1154,7 +980,11 @@ class IntrospectionTest extends TestCase
                     'type'         => [
                         'kind'   => 'LIST',
                         'name'   => null,
-                        'ofType' => ['kind' => 'SCALAR', 'name' => 'String', 'ofType' => null],
+                        'ofType' => [
+                            'kind' => 'SCALAR',
+                            'name' => 'String',
+                            'ofType' => null,
+                        ],
                     ],
                     'defaultValue' => null,
                 ],

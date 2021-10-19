@@ -22,6 +22,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Move class `BlockString` from namespace `GraphQL\Utils` to `GraphQL\Language`
 - Return string-keyed arrays from `GraphQL::getStandardDirectives()`, `GraphQL::getStandardTypes()` and `GraphQL::getStandardValidationRules()`
 - Move complexity related code from `FieldDefinition` to `QueryComplexity`
+- Exclude unused standard types from the schema
 
 ### Added
 

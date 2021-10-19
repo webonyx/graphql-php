@@ -135,7 +135,7 @@ class Schema
             );
         }
 
-        $this->resolvedTypes += Type::getStandardTypes() + Introspection::getTypes();
+        $this->resolvedTypes += Introspection::getTypes();
 
         if (isset($this->config->typeLoader)) {
             return;
@@ -296,7 +296,8 @@ class Schema
     public function getType(string $name): ?Type
     {
         if (! isset($this->resolvedTypes[$name])) {
-            $type = $this->loadType($name);
+            $type = Type::getStandardTypes()[$name]
+                ?? $this->loadType($name);
 
             if ($type === null) {
                 return null;

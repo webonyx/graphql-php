@@ -165,13 +165,15 @@ SDL;
      */
     public function testIncludesStandardTypesOnlyIfTheyAreUsed(): void
     {
-        self::markTestSkipped('Introspection currently does not follow the reference implementation.');
         $clientSchema = self::clientSchemaFromSDL('
           type Query {
             foo: String
           }
         ');
 
+        self::assertArrayNotHasKey('Int', $clientSchema->getTypeMap());
+
+        self::markTestIncomplete('TODO we differ from graphql-js due to lazy loading, see https://github.com/webonyx/graphql-php/issues/964#issuecomment-945969162');
         self::assertNull($clientSchema->getType('Int'));
     }
 
@@ -717,6 +719,50 @@ SDL;
 
         $this->expectExceptionMessageMatches(
             '/Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: {"name":"Query",.*}\./'
+        );
+        BuildClientSchema::build($introspection);
+    }
+
+    public function testThrowsOnUnknownKind(): void
+    {
+        $introspection          = Introspection::fromSchema(self::dummySchema());
+        $queryTypeIntrospection = null;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
+            }
+
+            $queryTypeIntrospection = &$type;
+        }
+
+        self::assertArrayHasKey('kind', $queryTypeIntrospection);
+
+        $queryTypeIntrospection['kind'] = 3;
+
+        $this->expectExceptionMessageMatches(
+            '/Invalid or incomplete introspection result. Received type with unknown kind: {"kind":3,"name":"Query",.*}\./'
+        );
+        BuildClientSchema::build($introspection);
+    }
+
+    public function testThrowsWhenMissingName(): void
+    {
+        $introspection          = Introspection::fromSchema(self::dummySchema());
+        $queryTypeIntrospection = null;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
+            }
+
+            $queryTypeIntrospection = &$type;
+        }
+
+        self::assertArrayHasKey('name', $queryTypeIntrospection);
+
+        unset($queryTypeIntrospection['name']);
+
+        $this->expectExceptionMessageMatches(
+            '/Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: {"kind":"OBJECT",.*}\./'
         );
         BuildClientSchema::build($introspection);
     }
