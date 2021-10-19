@@ -19,11 +19,12 @@ use function is_object;
 /**
  * Implements the "Evaluating requests" section of the GraphQL specification.
  *
+ * @phpstan-type FieldResolver callable(mixed, array, mixed, ResolveInfo): mixed
  * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed=, mixed=, ?array<mixed>=, ?string=, ?callable=): ExecutorImplementation
  */
 class Executor
 {
-    /** @var callable */
+    /** @var FieldResolver */
     private static $defaultFieldResolver = [self::class, 'defaultFieldResolver'];
 
     private static ?PromiseAdapter $defaultPromiseAdapter;
@@ -31,6 +32,9 @@ class Executor
     /** @var ImplementationFactory */
     private static $implementationFactory = [ReferenceExecutor::class, 'create'];
 
+    /**
+     * @phpstan-return FieldResolver
+     */
     public static function getDefaultFieldResolver(): callable
     {
         return self::$defaultFieldResolver;
@@ -38,6 +42,8 @@ class Executor
 
     /**
      * Set a custom default resolve function.
+     *
+     * @phpstan-param FieldResolver $fieldResolver
      */
     public static function setDefaultFieldResolver(callable $fieldResolver): void
     {
@@ -84,6 +90,7 @@ class Executor
      * @param mixed                     $rootValue
      * @param mixed                     $contextValue
      * @param array<string, mixed>|null $variableValues
+     * @phpstan-param FieldResolver|null $fieldResolver
      *
      * @return ExecutionResult|array<ExecutionResult>
      *
@@ -123,6 +130,7 @@ class Executor
      * @param mixed                     $rootValue
      * @param mixed                     $contextValue
      * @param array<string, mixed>|null $variableValues
+     * @phpstan-param FieldResolver|null $fieldResolver
      *
      * @api
      */

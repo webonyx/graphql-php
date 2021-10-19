@@ -53,6 +53,9 @@ use function is_callable;
 use function is_string;
 use function sprintf;
 
+/**
+ * @phpstan-import-type FieldResolver from Executor
+ */
 class ReferenceExecutor implements ExecutorImplementation
 {
     protected static object $UNDEFINED;
@@ -75,6 +78,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed                $rootValue
      * @param mixed                $contextValue
      * @param array<string, mixed> $variableValues
+     * @phpstan-param FieldResolver $fieldResolver
      */
     public static function create(
         PromiseAdapter $promiseAdapter,
@@ -124,8 +128,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed                $rootValue
      * @param mixed                $contextValue
      * @param array<string, mixed> $rawVariableValues
+     * @phpstan-param FieldResolver $fieldResolver
      *
-     * @return ExecutionContext|array<Error>
+     * @return ExecutionContext|array<int, Error>
      */
     protected static function buildExecutionContext(
         Schema $schema,
@@ -134,14 +139,21 @@ class ReferenceExecutor implements ExecutorImplementation
         $contextValue,
         array $rawVariableValues,
         ?string $operationName,
-        ?callable $fieldResolver,
-        ?PromiseAdapter $promiseAdapter
+        callable $fieldResolver,
+        PromiseAdapter $promiseAdapter
     ) {
-        $errors    = [];
+        /** @var array<int, Error> $errors */
+        $errors = [];
+
+        /** @var array<string, FragmentDefinitionNode> $fragments */
         $fragments = [];
+
         /** @var OperationDefinitionNode|null $operation */
-        $operation                    = null;
+        $operation = null;
+
+        /** @var bool $hasMultipleAssumedOperations */
         $hasMultipleAssumedOperations = false;
+
         foreach ($documentNode->definitions as $definition) {
             switch (true) {
                 case $definition instanceof OperationDefinitionNode:
@@ -629,6 +641,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * Returns the result of resolveFn or the abrupt-return Error object.
      *
      * @param mixed $rootValue
+     * @phpstan-param FieldResolver $resolveFn
      *
      * @return Throwable|Promise|mixed
      */
