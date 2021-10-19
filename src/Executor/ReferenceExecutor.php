@@ -62,6 +62,18 @@ class ReferenceExecutor implements ExecutorImplementation
 
     protected ExecutionContext $exeContext;
 
+    /**
+     * @var SplObjectStorage<
+     *     ObjectType,
+     *     SplObjectStorage<
+     *         ArrayObject<int, FieldNode>,
+     *         ArrayObject<
+     *             string,
+     *             ArrayObject<int, FieldNode>
+     *         >
+     *     >
+     * >
+     */
     protected SplObjectStorage $subFieldCache;
 
     protected function __construct(ExecutionContext $context)
