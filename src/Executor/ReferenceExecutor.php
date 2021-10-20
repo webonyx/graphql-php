@@ -58,7 +58,7 @@ use function sprintf;
  */
 class ReferenceExecutor implements ExecutorImplementation
 {
-    protected static object $UNDEFINED;
+    protected static stdClass $UNDEFINED;
 
     protected ExecutionContext $exeContext;
 
