@@ -22,20 +22,15 @@ use PHPUnit\Framework\TestCase;
 
 class UnionInterfaceTest extends TestCase
 {
-    /** @var Schema */
-    public $schema;
+    public Schema $schema;
 
-    /** @var Cat */
-    public $garfield;
+    public Cat $garfield;
 
-    /** @var Dog */
-    public $odie;
+    public Dog $odie;
 
-    /** @var Person */
-    public $liz;
+    public Person $liz;
 
-    /** @var Person */
-    public $john;
+    public Person $john;
 
     public function setUp(): void
     {
@@ -514,7 +509,7 @@ class UnionInterfaceTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS));
     }
 
     /**
@@ -538,8 +533,7 @@ class UnionInterfaceTest extends TestCase
                 ResolveInfo $info
             ) use (
                 &$encounteredContext,
-                &
-                $encounteredSchema,
+                &$encounteredSchema,
                 &$encounteredRootValue,
                 &$PersonType2
             ) {
