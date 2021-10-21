@@ -19,7 +19,7 @@ use function is_object;
 /**
  * Implements the "Evaluating requests" section of the GraphQL specification.
  *
- * @phpstan-type FieldResolver callable(mixed, array, mixed, ResolveInfo): mixed
+ * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
  * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed=, mixed=, ?array<mixed>=, ?string=, ?callable=): ExecutorImplementation
  */
 class Executor
