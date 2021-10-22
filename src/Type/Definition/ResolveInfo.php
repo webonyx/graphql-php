@@ -63,15 +63,14 @@ class ResolveInfo
      * @api
      * @var array<int, string|int>
      */
-    public $path;
+    public array $path;
 
     /**
      * Instance of a schema used for execution.
      *
      * @api
-     * @var Schema
      */
-    public $schema;
+    public Schema $schema;
 
     /**
      * AST of all fragments defined in query.
