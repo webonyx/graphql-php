@@ -451,9 +451,9 @@ class ReferenceExecutor implements ExecutorImplementation
     protected function shouldIncludeNode(SelectionNode $node): bool
     {
         $variableValues = $this->exeContext->variableValues;
-        $skipDirective  = Directive::skipDirective();
-        $skip           = Values::getDirectiveValues(
-            $skipDirective,
+
+        $skip = Values::getDirectiveValues(
+            Directive::skipDirective(),
             $node,
             $variableValues
         );
@@ -461,9 +461,8 @@ class ReferenceExecutor implements ExecutorImplementation
             return false;
         }
 
-        $includeDirective = Directive::includeDirective();
-        $include          = Values::getDirectiveValues(
-            $includeDirective,
+        $include = Values::getDirectiveValues(
+            Directive::includeDirective(),
             $node,
             $variableValues
         );
