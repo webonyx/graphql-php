@@ -72,23 +72,18 @@ class RequestParsingTest extends TestCase
     }
 
     /**
-     * @param OperationParams $params
-     * @param string          $query
-     * @param string          $queryId
-     * @param mixed|null      $variables
-     * @param string          $operation
+     * @param mixed                $variables
+     * @param array<string, mixed> $extensions
      */
     private static function assertValidOperationParams(
-        $params,
-        $query,
-        $queryId = null,
+        OperationParams $params,
+        ?string $query,
+        ?string $queryId = null,
         $variables = null,
-        $operation = null,
-        $extensions = null,
-        $message = ''
+        ?string $operation = null,
+        ?array $extensions = null,
+        string $message = ''
     ): void {
-        self::assertInstanceOf(OperationParams::class, $params, $message);
-
         self::assertSame($query, $params->query, $message);
         self::assertSame($queryId, $params->queryId, $message);
         self::assertSame($variables, $params->variables, $message);

@@ -114,7 +114,6 @@ class VisitorTest extends ValidatorTestCase
 
     private function checkVisitorFnArgs($ast, $args, $isEdited = false): void
     {
-        /** @var Node $node */
         [$node, $key, $parent, $path, $ancestors] = $args;
 
         $parentArray = $parent && ! is_array($parent)
@@ -125,7 +124,7 @@ class VisitorTest extends ValidatorTestCase
             : $parent;
 
         self::assertInstanceOf(Node::class, $node);
-        self::assertContains($node->kind, array_keys(NodeKind::$classMap));
+        self::assertContains($node->kind, array_keys(NodeKind::CLASS_MAP));
 
         $isRoot = $key === null;
         if ($isRoot) {

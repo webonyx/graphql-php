@@ -310,27 +310,21 @@ class QueryExecutionTest extends ServerTestCase
     }
 
     /**
-     * @param mixed[][] $qs
+     * @param array<array<string, mixed>> $qs
+     *
+     * @return array<int, ExecutionResult>
      */
-    private function executeBatchedQuery(array $qs)
+    private function executeBatchedQuery(array $qs): array
     {
         $batch = [];
         foreach ($qs as $params) {
             $batch[] = OperationParams::create($params);
         }
 
-        $helper = new Helper();
-        $result = $helper->executeBatch($this->config, $batch);
+        $result = (new Helper())->executeBatch($this->config, $batch);
+
         self::assertIsArray($result);
         self::assertCount(count($qs), $result);
-
-        foreach ($result as $index => $entry) {
-            self::assertInstanceOf(
-                ExecutionResult::class,
-                $entry,
-                sprintf('Result at %s is not an instance of %s', $index, ExecutionResult::class)
-            );
-        }
 
         return $result;
     }

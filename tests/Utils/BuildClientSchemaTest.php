@@ -413,7 +413,6 @@ SDL;
         $introspectionFromClientSchema = Introspection::fromSchema($clientSchema);
         self::assertSame($introspection, $introspectionFromClientSchema);
 
-        /** @var EnumType $clientFoodEnum */
         $clientFoodEnum = $clientSchema->getType('Food');
         self::assertInstanceOf(EnumType::class, $clientFoodEnum);
 

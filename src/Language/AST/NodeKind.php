@@ -75,8 +75,7 @@ class NodeKind
     // Type System Extensions
     public const SCHEMA_EXTENSION = 'SchemaExtension';
 
-    /** @var string[] */
-    public static $classMap = [
+    public const CLASS_MAP = [
         self::NAME                         => NameNode::class,
 
         // Document

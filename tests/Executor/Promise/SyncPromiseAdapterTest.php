@@ -47,8 +47,7 @@ class SyncPromiseAdapterTest extends TestCase
         });
         $result = $this->promises->convertThenable($dfd);
 
-        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
-        self::assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $result->adoptedPromise);
+        self::assertInstanceOf(SyncPromise::class, $result->adoptedPromise);
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Expected instance of GraphQL\Deferred, got (empty string)');
@@ -63,8 +62,7 @@ class SyncPromiseAdapterTest extends TestCase
 
         $result = $this->promises->then($promise);
 
-        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
-        self::assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $result->adoptedPromise);
+        self::assertInstanceOf(SyncPromise::class, $result->adoptedPromise);
     }
 
     public function testCreatePromise(): void
@@ -72,8 +70,7 @@ class SyncPromiseAdapterTest extends TestCase
         $promise = $this->promises->create(static function ($resolve, $reject): void {
         });
 
-        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
-        self::assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
+        self::assertInstanceOf(SyncPromise::class, $promise->adoptedPromise);
 
         $promise = $this->promises->create(static function ($resolve, $reject): void {
             $resolve('A');
@@ -82,10 +79,9 @@ class SyncPromiseAdapterTest extends TestCase
         self::assertValidPromise($promise, null, 'A', SyncPromise::FULFILLED);
     }
 
-    private static function assertValidPromise($promise, $expectedNextReason, $expectedNextValue, $expectedNextState): void
+    private static function assertValidPromise(Promise $promise, $expectedNextReason, $expectedNextValue, $expectedNextState): void
     {
-        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
-        self::assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
+        self::assertInstanceOf(SyncPromise::class, $promise->adoptedPromise);
 
         $actualNextValue   = null;
         $actualNextReason  = null;

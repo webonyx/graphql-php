@@ -75,7 +75,7 @@ class ServerConfig
 
     private bool $queryBatching = false;
 
-    /** @var array<ValidationRule>|callable|null */
+    /** @var array<ValidationRule>|(callable(OperationParams, DocumentNode, string): array<ValidationRule>)|null */
     private $validationRules = null;
 
     /** @var callable|null */
@@ -260,7 +260,7 @@ class ServerConfig
     }
 
     /**
-     * @return array<ValidationRule>|callable|null
+     * @return array<ValidationRule>|(callable(OperationParams, DocumentNode, string): array<ValidationRule>)|null
      */
     public function getValidationRules()
     {

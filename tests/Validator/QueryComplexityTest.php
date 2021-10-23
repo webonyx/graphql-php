@@ -13,7 +13,6 @@ use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\ValidationContext;
 
 use function count;
-use function is_int;
 
 class QueryComplexityTest extends QuerySecurityTestCase
 {
@@ -85,11 +84,8 @@ class QueryComplexityTest extends QuerySecurityTestCase
 
     protected function getRule(int $max = 0): QueryComplexity
     {
-        if (! isset(self::$rule)) {
-            self::$rule = new QueryComplexity($max);
-        } elseif (is_int($max)) {
-            self::$rule->setMaxQueryComplexity($max);
-        }
+        self::$rule ??= new QueryComplexity($max);
+        self::$rule->setMaxQueryComplexity($max);
 
         return self::$rule;
     }

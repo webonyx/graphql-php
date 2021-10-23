@@ -187,10 +187,8 @@ class ServerConfigTest extends TestCase
             'errorFormatter'        => static function (): void {
             },
             'promiseAdapter'        => new SyncPromiseAdapter(),
-            'validationRules'       => [
-                static function (): void {
-                },
-            ],
+            'validationRules'       => static function (): void {
+            },
             'fieldResolver'         => static function (): void {
             },
             'persistentQueryLoader' => static function (): void {

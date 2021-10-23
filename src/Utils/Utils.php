@@ -12,7 +12,6 @@ use GraphQL\Error\Warning;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
-use InvalidArgumentException;
 use stdClass;
 use Traversable;
 
@@ -71,18 +70,10 @@ class Utils
     }
 
     /**
-     * @param object   $obj
-     * @param mixed[]  $vars
-     * @param string[] $requiredKeys
+     * @param array<string, mixed> $vars
      */
-    public static function assign($obj, array $vars, array $requiredKeys = []): object
+    public static function assign(object $obj, array $vars): object
     {
-        foreach ($requiredKeys as $key) {
-            if (! isset($vars[$key])) {
-                throw new InvalidArgumentException(sprintf('Key %s is expected to be set and not to be null', $key));
-            }
-        }
-
         foreach ($vars as $key => $value) {
             if (! property_exists($obj, $key)) {
                 $cls = get_class($obj);
