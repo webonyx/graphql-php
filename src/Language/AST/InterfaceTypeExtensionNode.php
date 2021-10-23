@@ -6,8 +6,7 @@ namespace GraphQL\Language\AST;
 
 class InterfaceTypeExtensionNode extends Node implements TypeExtensionNode
 {
-    /** @var string */
-    public $kind = NodeKind::INTERFACE_TYPE_EXTENSION;
+    public string $kind = NodeKind::INTERFACE_TYPE_EXTENSION;
 
     /** @var NameNode */
     public $name;

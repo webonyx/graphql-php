@@ -38,8 +38,7 @@ use function json_encode;
  */
 abstract class Node
 {
-    /** @var Location|null */
-    public $loc;
+    public string $kind;
 
     /** @var string */
     public $kind;

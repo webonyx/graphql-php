@@ -6,8 +6,7 @@ namespace GraphQL\Language\AST;
 
 class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, HasSelectionSet
 {
-    /** @var string */
-    public $kind = NodeKind::OPERATION_DEFINITION;
+    public string $kind = NodeKind::OPERATION_DEFINITION;
 
     public ?NameNode $name = null;
 

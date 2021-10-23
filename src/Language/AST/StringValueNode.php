@@ -6,8 +6,7 @@ namespace GraphQL\Language\AST;
 
 class StringValueNode extends Node implements ValueNode
 {
-    /** @var string */
-    public $kind = NodeKind::STRING;
+    public string $kind = NodeKind::STRING;
 
     /** @var string */
     public $value;
