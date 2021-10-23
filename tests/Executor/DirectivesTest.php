@@ -45,13 +45,12 @@ class DirectivesTest extends TestCase
         ]);
     }
 
-    // describe('works without directives'
-
     /**
-     * @see it('basic query works')
+     * @see describe('works without directives', () => {
      */
     public function testWorksWithoutDirectives(): void
     {
+        // it('basic query works', () => {
         self::assertEquals(
             ['data' => ['a' => 'a', 'b' => 'b']],
             $this->executeTestQuery('{ a, b }')
