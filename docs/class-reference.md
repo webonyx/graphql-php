@@ -6,7 +6,6 @@ See [related documentation](executing-queries.md).
 ### GraphQL\GraphQL Methods
 
 ```php
-
 /**
  * Executes graphql query.
  *
@@ -69,11 +68,11 @@ static function executeQuery(
  * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
  * Useful for Async PHP platforms.
  *
- * @param string|DocumentNode   $source
- * @param mixed                 $rootValue
- * @param mixed                 $context
- * @param mixed[]|null          $variableValues
- * @param ValidationRule[]|null $validationRules
+ * @param string|DocumentNode        $source
+ * @param mixed                      $rootValue
+ * @param mixed                      $context
+ * @param array<string, mixed>|null  $variableValues
+ * @param array<ValidationRule>|null $validationRules
  *
  * @api
  */
@@ -83,7 +82,7 @@ static function promiseToExecute(
     $source,
     $rootValue = null,
     $context = null,
-    $variableValues = null,
+    array $variableValues = null,
     string $operationName = null,
     callable $fieldResolver = null,
     array $validationRules = null
@@ -270,7 +269,6 @@ Passed as 4th argument to every field resolver. See [docs on field resolving (da
  * The definition of the field being resolved.
  *
  * @api
- * @var FieldDefinition
  */
 public $fieldDefinition;
 
@@ -278,7 +276,6 @@ public $fieldDefinition;
  * The name of the field being resolved.
  *
  * @api
- * @var string
  */
 public $fieldName;
 
@@ -286,7 +283,6 @@ public $fieldName;
  * Expected return type of the field being resolved.
  *
  * @api
- * @var Type
  */
 public $returnType;
 
@@ -294,7 +290,7 @@ public $returnType;
  * AST of all nodes referencing this field in the query.
  *
  * @api
- * @var FieldNode[]
+ * @var iterable<int, FieldNode>
  */
 public $fieldNodes;
 
@@ -302,7 +298,6 @@ public $fieldNodes;
  * Parent type of the field being resolved.
  *
  * @api
- * @var ObjectType
  */
 public $parentType;
 
@@ -310,7 +305,7 @@ public $parentType;
  * Path to this field from the very root value.
  *
  * @api
- * @var string[]
+ * @var array<int, string|int>
  */
 public $path;
 
@@ -318,7 +313,6 @@ public $path;
  * Instance of a schema used for execution.
  *
  * @api
- * @var Schema
  */
 public $schema;
 
@@ -326,7 +320,7 @@ public $schema;
  * AST of all fragments defined in query.
  *
  * @api
- * @var FragmentDefinitionNode[]
+ * @var array<string, FragmentDefinitionNode>
  */
 public $fragments;
 
@@ -342,7 +336,6 @@ public $rootValue;
  * AST of operation definition node (query, mutation).
  *
  * @api
- * @var OperationDefinitionNode|null
  */
 public $operation;
 
@@ -350,7 +343,7 @@ public $operation;
  * Array of variables passed to query execution.
  *
  * @api
- * @var mixed[]
+ * @var array<string, mixed>
  */
 public $variableValues;
 ```
@@ -395,7 +388,7 @@ public $variableValues;
  *
  * @api
  */
-function getFieldSelection($depth = 0): array
+function getFieldSelection(int $depth = 0): array
 ```
 
 ## GraphQL\Language\DirectiveLocation
@@ -1008,51 +1001,51 @@ visitor API:
 
 1. Named visitors triggered when entering a node a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => function ($node) {
-   // enter the "Kind" node
-   }
-   ]);
+        // enter the "Kind" node
+      }
+    ]);
 
 2. Named visitors that trigger upon entering and leaving a node of
    a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => [
         'enter' => function ($node) {
-   // enter the "Kind" node
-   }
-   'leave' => function (\$node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+        'leave' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
 3. Generic visitors that trigger upon entering and leaving any node.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => function ($node) {
-   // enter any node
-   },
-   'leave' => function (\$node) {
-   // leave any node
-   }
-   ]);
+        // enter any node
+      },
+      'leave' => function ($node) {
+        // leave any node
+      }
+    ]);
 
 4. Parallel visitors for entering and leaving nodes of a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => [
         'Kind' => function($node) {
-   // enter the "Kind" node
-   }
-   },
-   'leave' => [
-   'Kind' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+      },
+      'leave' => [
+        'Kind' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
 ### GraphQL\Language\Visitor Methods
 
@@ -1156,6 +1149,9 @@ const SCHEMA_EXTENSION = 'SchemaExtension';
 
 Implements the "Evaluating requests" section of the GraphQL specification.
 
+@phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
+@phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed=, mixed=, ?array<mixed>=, ?string=, ?callable=): ExecutorImplementation
+
 ### GraphQL\Executor\Executor Methods
 
 ```php
@@ -1165,12 +1161,12 @@ Implements the "Evaluating requests" section of the GraphQL specification.
  * Always returns ExecutionResult and never throws.
  * All errors which occur during operation execution are collected in `$result->errors`.
  *
- * @param mixed|null                    $rootValue
- * @param mixed|null                    $contextValue
- * @param array<mixed>|ArrayAccess|null $variableValues
- * @param string|null                   $operationName
+ * @param mixed                     $rootValue
+ * @param mixed                     $contextValue
+ * @param array<string, mixed>|null $variableValues
+ * @phpstan-param FieldResolver|null $fieldResolver
  *
- * @return ExecutionResult|Promise
+ * @return ExecutionResult|array<ExecutionResult>
  *
  * @api
  */
@@ -1179,8 +1175,8 @@ static function execute(
     GraphQL\Language\AST\DocumentNode $documentNode,
     $rootValue = null,
     $contextValue = null,
-    $variableValues = null,
-    $operationName = null,
+    array $variableValues = null,
+    string $operationName = null,
     callable $fieldResolver = null
 )
 ```
@@ -1192,10 +1188,10 @@ static function execute(
  *
  * Useful for async PHP platforms.
  *
- * @param mixed|null        $rootValue
- * @param mixed|null        $contextValue
- * @param array<mixed>|null $variableValues
- * @param string|null       $operationName
+ * @param mixed                     $rootValue
+ * @param mixed                     $contextValue
+ * @param array<string, mixed>|null $variableValues
+ * @phpstan-param FieldResolver|null $fieldResolver
  *
  * @api
  */
@@ -1205,8 +1201,8 @@ static function promiseToExecute(
     GraphQL\Language\AST\DocumentNode $documentNode,
     $rootValue = null,
     $contextValue = null,
-    $variableValues = null,
-    $operationName = null,
+    array $variableValues = null,
+    string $operationName = null,
     callable $fieldResolver = null
 ): GraphQL\Executor\Promise\Promise
 ```
@@ -1420,9 +1416,9 @@ will be created from the provided schema.
 /**
  * Primary method for query validation. See class description for details.
  *
- * @param ValidationRule[]|null $rules
+ * @param array<ValidationRule>|null $rules
  *
- * @return Error[]
+ * @return array<int, Error>
  *
  * @api
  */
@@ -1619,10 +1615,10 @@ It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io
 and provides tools for error debugging.
 
 @phpstan-type FormattedErrorArray array{
-message: string,
-locations?: array<int, array{line: int, column: int}>,
-path?: array<int, int|string>,
-extensions?: array<string, mixed>,
+ message: string,
+ locations?: array<int, array{line: int, column: int}>,
+ path?: array<int, int|string>,
+ extensions?: array<string, mixed>,
 }
 
 ### GraphQL\Error\FormattedError Methods
@@ -2141,12 +2137,12 @@ Build instance of @see \GraphQL\Type\Schema out of schema language definition (s
 See [schema definition language docs](schema-definition-language.md) for details.
 
 @phpstan-type Options array{
-commentDescriptions?: bool,
+  commentDescriptions?: bool,
 }
 
-- commentDescriptions:
-  Provide true to use preceding comments as the description.
-  This option is provided to ease adoption and will be removed in v16.
+   - commentDescriptions:
+       Provide true to use preceding comments as the description.
+       This option is provided to ease adoption and will be removed in v16.
 
 ### GraphQL\Utils\BuildSchema Methods
 
@@ -2193,7 +2189,7 @@ Various utilities dealing with AST
 
 ### GraphQL\Utils\AST Methods
 
-````php
+```php
 /**
  * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
  *
@@ -2220,7 +2216,7 @@ Various utilities dealing with AST
  * @api
  */
 static function fromArray(array $node): GraphQL\Language\AST\Node
-````
+```
 
 ```php
 /**
@@ -2368,11 +2364,10 @@ static function concatAST(array $documents): GraphQL\Language\AST\DocumentNode
 Prints the contents of a Schema in schema definition language.
 
 @phpstan-type Options array{commentDescriptions?: bool}
-Available options:
-
-- commentDescriptions:
-  Provide true to use preceding comments as the description.
-  This option is provided to ease adoption and will be removed in v16.
+   Available options:
+   - commentDescriptions:
+       Provide true to use preceding comments as the description.
+       This option is provided to ease adoption and will be removed in v16.
 
 ### GraphQL\Utils\SchemaPrinter Methods
 
@@ -2395,3 +2390,4 @@ static function doPrint(GraphQL\Type\Schema $schema, array $options = []): strin
  */
 static function printIntrospectionSchema(GraphQL\Type\Schema $schema, array $options = []): string
 ```
+
