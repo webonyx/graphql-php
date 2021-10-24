@@ -6,8 +6,7 @@ namespace GraphQL\Language\AST;
 
 class ObjectTypeExtensionNode extends Node implements TypeExtensionNode
 {
-    /** @var string */
-    public $kind = NodeKind::OBJECT_TYPE_EXTENSION;
+    public string $kind = NodeKind::OBJECT_TYPE_EXTENSION;
 
     /** @var NameNode */
     public $name;

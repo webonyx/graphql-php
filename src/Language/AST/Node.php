@@ -41,8 +41,7 @@ abstract class Node
     /** @var Location|null */
     public $loc;
 
-    /** @var string */
-    public $kind;
+    public string $kind;
 
     /**
      * @param (NameNode|NodeList|SelectionSetNode|Location|string|int|bool|float|null)[] $vars

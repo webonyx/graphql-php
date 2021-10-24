@@ -9,8 +9,7 @@ namespace GraphQL\Language\AST;
  */
 class ArgumentNode extends Node
 {
-    /** @var string */
-    public $kind = NodeKind::ARGUMENT;
+    public string $kind = NodeKind::ARGUMENT;
 
     /** @var ArgumentNodeValue */
     public $value;
