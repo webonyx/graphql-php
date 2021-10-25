@@ -164,35 +164,30 @@ class DefinitionTest extends TestCase
         self::assertSame($blogSchema->getQueryType(), $this->blogQuery);
 
         $articleField = $this->blogQuery->getField('article');
-        self::assertSame($articleField->getType(), $this->blogArticle);
-        self::assertSame($articleField->getType()->name, 'Article');
         self::assertSame($articleField->name, 'article');
 
-        /** @var ObjectType $articleFieldType */
         $articleFieldType = $articleField->getType();
-        $titleField       = $articleFieldType->getField('title');
+        self::assertInstanceOf(ObjectType::class, $articleFieldType);
+        self::assertSame($articleFieldType, $this->blogArticle);
+        self::assertSame($articleFieldType->name, 'Article');
 
-        self::assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $titleField);
+        $titleField = $articleFieldType->getField('title');
         self::assertSame('title', $titleField->name);
         self::assertSame(Type::string(), $titleField->getType());
 
         $authorField = $articleFieldType->getField('author');
-        self::assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $authorField);
 
-        /** @var ObjectType $authorFieldType */
         $authorFieldType = $authorField->getType();
+        self::assertInstanceOf(ObjectType::class, $authorFieldType);
         self::assertSame($this->blogAuthor, $authorFieldType);
 
         $recentArticleField = $authorFieldType->getField('recentArticle');
-        self::assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $recentArticleField);
         self::assertSame($this->blogArticle, $recentArticleField->getType());
 
         $feedField = $this->blogQuery->getField('feed');
-        self::assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $feedField);
 
-        /** @var ListOfType $feedFieldType */
         $feedFieldType = $feedField->getType();
-        self::assertInstanceOf('GraphQL\Type\Definition\ListOfType', $feedFieldType);
+        self::assertInstanceOf(ListOfType::class, $feedFieldType);
         self::assertSame($this->blogArticle, $feedFieldType->getWrappedType());
     }
 
@@ -207,12 +202,13 @@ class DefinitionTest extends TestCase
         ]);
 
         self::assertSame($this->blogMutation, $schema->getMutationType());
-        $writeMutation = $this->blogMutation->getField('writeArticle');
 
-        self::assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $writeMutation);
-        self::assertSame($this->blogArticle, $writeMutation->getType());
-        self::assertSame('Article', $writeMutation->getType()->name);
+        $writeMutation = $this->blogMutation->getField('writeArticle');
         self::assertSame('writeArticle', $writeMutation->name);
+
+        $writeMutationType = $writeMutation->getType();
+        self::assertSame($this->blogArticle, $writeMutationType);
+        self::assertSame('Article', $writeMutationType->name);
     }
 
     /**
@@ -553,6 +549,7 @@ class DefinitionTest extends TestCase
             ],
         ]);
 
+        /** @var ObjectType|null $blog */
         $blog   = null;
         $called = false;
 
@@ -601,14 +598,12 @@ class DefinitionTest extends TestCase
         self::assertSame([$node], $blog->getInterfaces());
         self::assertSame([$node], $user->getInterfaces());
 
-        self::assertNotNull($user->getField('blogs'));
-        /** @var NonNull $blogFieldReturnType */
         $blogFieldReturnType = $user->getField('blogs')->getType();
+        self::assertInstanceOf(NonNull::class, $blogFieldReturnType);
         self::assertSame($blog, $blogFieldReturnType->getWrappedType(true));
 
-        self::assertNotNull($blog->getField('owner'));
-        /** @var NonNull $ownerFieldReturnType */
         $ownerFieldReturnType = $blog->getField('owner')->getType();
+        self::assertInstanceOf(NonNull::class, $ownerFieldReturnType);
         self::assertSame($user, $ownerFieldReturnType->getWrappedType(true));
     }
 
@@ -1611,7 +1606,6 @@ class DefinitionTest extends TestCase
         self::assertInstanceOf(InputObjectField::class, $inputObjType->findField($fieldName));
         self::assertNull($inputObjType->findField('unknown'));
 
-        self::assertInstanceOf(InputObjectField::class, $inputObjType->getField($fieldName));
         self::expectExceptionObject(new InvariantViolation('Field "unknown" is not defined for type "SomeInputObject"'));
         $inputObjType->getField('unknown');
     }

@@ -15,24 +15,15 @@ use Generator;
 use GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Throwable;
 
 use function Amp\call;
-use function interface_exists;
 
 /**
  * @group AmpPromise
  */
 class AmpPromiseAdapterTest extends TestCase
 {
-    public function setUp(): void
-    {
-        if (interface_exists(Promise::class)) {
-            return;
-        }
-
-        self::markTestSkipped('amphp/amp package must be installed to run GraphQL\Tests\Executor\Promise\AmpPromiseAdapterTest');
-    }
-
     public function testIsThenableReturnsTrueWhenAnAmpPromiseIsGiven(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
@@ -66,7 +57,6 @@ class AmpPromiseAdapterTest extends TestCase
 
         $promise = $ampAdapter->convertThenable($ampPromise);
 
-        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
         self::assertInstanceOf(Success::class, $promise->adoptedPromise);
     }
 
@@ -86,7 +76,6 @@ class AmpPromiseAdapterTest extends TestCase
         );
 
         self::assertSame(1, $result);
-        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $resultPromise);
         self::assertInstanceOf(Promise::class, $resultPromise->adoptedPromise);
     }
 
@@ -97,7 +86,6 @@ class AmpPromiseAdapterTest extends TestCase
             $resolve(1);
         });
 
-        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $resolvedPromise);
         self::assertInstanceOf(Promise::class, $resolvedPromise->adoptedPromise);
 
         $result = null;
@@ -114,7 +102,6 @@ class AmpPromiseAdapterTest extends TestCase
         $ampAdapter       = new AmpPromiseAdapter();
         $fulfilledPromise = $ampAdapter->createFulfilled(1);
 
-        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $fulfilledPromise);
         self::assertInstanceOf(Success::class, $fulfilledPromise->adoptedPromise);
 
         $result = null;
@@ -131,7 +118,6 @@ class AmpPromiseAdapterTest extends TestCase
         $ampAdapter      = new AmpPromiseAdapter();
         $rejectedPromise = $ampAdapter->createRejected(new Exception('I am a bad promise'));
 
-        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $rejectedPromise);
         self::assertInstanceOf(Failure::class, $rejectedPromise->adoptedPromise);
 
         $exception = null;
@@ -143,7 +129,7 @@ class AmpPromiseAdapterTest extends TestCase
             }
         );
 
-        self::assertInstanceOf('\Exception', $exception);
+        self::assertInstanceOf(Throwable::class, $exception);
         self::assertEquals('I am a bad promise', $exception->getMessage());
     }
 
@@ -154,7 +140,6 @@ class AmpPromiseAdapterTest extends TestCase
 
         $allPromise = $ampAdapter->all($promises);
 
-        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $allPromise);
         self::assertInstanceOf(Promise::class, $allPromise->adoptedPromise);
 
         $result = null;

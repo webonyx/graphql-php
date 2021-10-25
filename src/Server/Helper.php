@@ -369,11 +369,10 @@ class Helper
             $validationRules = $validationRules($params, $doc, $operationType);
         }
 
-        if (! is_array($validationRules) && $validationRules !== null) {
-            throw new InvariantViolation(sprintf(
-                'Expecting validation rules to be array or callable returning array, but got: %s',
-                Utils::printSafe($validationRules)
-            ));
+        if ($validationRules !== null && ! is_array($validationRules)) {
+            throw new InvariantViolation(
+                'Expecting validation rules to be array or callable returning array, but got: ' . Utils::printSafe($validationRules)
+            );
         }
 
         return $validationRules;

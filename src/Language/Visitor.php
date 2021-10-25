@@ -108,8 +108,7 @@ use function json_encode;
  */
 class Visitor
 {
-    /** @var string[][] */
-    public static $visitorKeys = [
+    public const VISITOR_KEYS = [
         NodeKind::NAME                 => [],
         NodeKind::DOCUMENT             => ['definitions'],
         NodeKind::OPERATION_DEFINITION => ['name', 'variableDefinitions', 'directives', 'selectionSet'],
@@ -169,11 +168,11 @@ class Visitor
     ];
 
     /**
-     * Visit the AST (see class description for details)
+     * Visit the AST (see class description for details).
      *
      * @param Node|ArrayObject|stdClass $root
-     * @param callable[]                $visitor
-     * @param mixed[]|null              $keyMap
+     * @param array<string, mixed>      $visitor
+     * @param array<string, mixed>|null $keyMap
      *
      * @return Node|mixed
      *
@@ -181,9 +180,9 @@ class Visitor
      *
      * @api
      */
-    public static function visit($root, $visitor, $keyMap = null)
+    public static function visit(object $root, array $visitor, ?array $keyMap = null)
     {
-        $visitorKeys = $keyMap ?? self::$visitorKeys;
+        $visitorKeys = $keyMap ?? self::VISITOR_KEYS;
 
         $stack     = null;
         $inArray   = $root instanceof NodeList || is_array($root);

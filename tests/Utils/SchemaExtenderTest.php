@@ -1335,17 +1335,16 @@ class SchemaExtenderTest extends TestCase
         $args = $extendedDirective->args;
         self::assertCount(2, $args);
 
-        $arg0 = $args[0];
-        $arg1 = $args[1];
-        /** @var NonNull $arg0Type */
+        $arg0     = $args[0];
+        $arg1     = $args[1];
         $arg0Type = $arg0->getType();
 
-        self::assertEquals('enable', $arg0->name);
-        self::assertTrue($arg0Type instanceof NonNull);
-        self::assertTrue($arg0Type->getWrappedType() instanceof ScalarType);
+        self::assertInstanceOf(NonNull::class, $arg0Type);
+        self::assertSame('enable', $arg0->name);
+        self::assertInstanceOf(ScalarType::class, $arg0Type->getWrappedType());
 
-        self::assertEquals('tag', $arg1->name);
-        self::assertTrue($arg1->getType() instanceof ScalarType);
+        self::assertInstanceOf(ScalarType::class, $arg1->getType());
+        self::assertSame('tag', $arg1->name);
     }
 
     /**

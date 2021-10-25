@@ -887,10 +887,12 @@ type Query {
             foo: String @unknown
           }
         ';
-        // Should not throw:
-        BuildSchema::build($body, null, ['assumeValid' => true]);
-        BuildSchema::build($body, null, ['assumeValidSDL' => true]);
-        self::assertTrue(true);
+
+        $schema = BuildSchema::build($body, null, ['assumeValid' => true]);
+        self::assertCount(1, $schema->validate());
+
+        $schema = BuildSchema::build($body, null, ['assumeValidSDL' => true]);
+        self::assertCount(1, $schema->validate());
     }
 
     /**
