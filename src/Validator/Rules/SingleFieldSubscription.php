@@ -6,13 +6,11 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
-use function array_splice;
 use function count;
 use function sprintf;
 
@@ -28,12 +26,8 @@ class SingleFieldSubscription extends ValidationRule
                 if ($node->operation === 'subscription') {
                     $selections = $node->selectionSet->selections;
 
-                    if (count($selections) !== 1) {
-                        if ($selections instanceof NodeList) {
-                            $offendingSelections = $selections->splice(1, count($selections));
-                        } else {
-                            $offendingSelections = array_splice($selections, 1);
-                        }
+                    if (count($selections) > 1) {
+                        $offendingSelections = $selections->splice(1, count($selections));
 
                         $context->reportError(new Error(
                             static::multipleFieldsInOperation($node->name->value ?? null),

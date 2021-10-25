@@ -249,7 +249,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Defined on implementors but not on interface')
      */
-    public function testDefinedOnImplmentorsButNotOnInterface(): void
+    public function testDefinedOnImplementorsButNotOnInterface(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),

@@ -15,9 +15,7 @@ abstract class ValidationRule
 
     public function getName(): string
     {
-        return $this->name === '' || $this->name === null
-            ? static::class
-            : $this->name;
+        return $this->name ?? static::class;
     }
 
     /**

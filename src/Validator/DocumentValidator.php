@@ -106,7 +106,7 @@ class DocumentValidator
             $rules = static::allRules();
         }
 
-        if (is_array($rules) === true && count($rules) === 0) {
+        if (count($rules) === 0) {
             // Skip validation if there are no rules
             return [];
         }
