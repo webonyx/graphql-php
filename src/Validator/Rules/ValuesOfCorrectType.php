@@ -34,6 +34,7 @@ use Throwable;
 
 use function array_keys;
 use function array_map;
+use function count;
 use function sprintf;
 
 /**
@@ -119,9 +120,11 @@ class ValuesOfCorrectType extends ValidationRule
             },
             NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) use ($context): void {
                 $parentType = Type::getNamedType($context->getParentInputType());
-                /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $fieldType */
-                $fieldType = $context->getInputType();
-                if ($fieldType !== null || ! ($parentType instanceof InputObjectType)) {
+                if (! $parentType instanceof InputObjectType) {
+                    return;
+                }
+
+                if ($context->getInputType() !== null) {
                     return;
                 }
 
@@ -129,7 +132,7 @@ class ValuesOfCorrectType extends ValidationRule
                     $node->name->value,
                     array_keys($parentType->getFields())
                 );
-                $didYouMean  = $suggestions
+                $didYouMean  = count($suggestions) > 0
                     ? 'Did you mean ' . Utils::orList($suggestions) . '?'
                     : null;
 

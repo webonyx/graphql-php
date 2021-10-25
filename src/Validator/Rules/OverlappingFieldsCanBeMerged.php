@@ -460,13 +460,14 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
     protected function sameValue(Node $value1, Node $value2): bool
     {
-        return ($value1 === null && $value2 === null) || (Printer::doPrint($value1) === Printer::doPrint($value2));
+        return Printer::doPrint($value1) === Printer::doPrint($value2);
     }
 
     /**
      * Two types conflict if both types could not apply to a value simultaneously.
+     *
      * Composite types are ignored as their individual field types will be compared
-     * later recursively. However List and Non-Null types must match.
+     * later recursively. However, List and Non-Null types must match.
      */
     protected function doTypesConflict(Type $type1, Type $type2): bool
     {
@@ -477,9 +478,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         }
 
         if ($type2 instanceof ListOfType) {
-            return $type1 instanceof ListOfType
-                ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
-                : true;
+            return true;
         }
 
         if ($type1 instanceof NonNull) {
@@ -489,9 +488,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         }
 
         if ($type2 instanceof NonNull) {
-            return $type1 instanceof NonNull
-                ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
-                : true;
+            return true;
         }
 
         if (Type::isLeafType($type1) || Type::isLeafType($type2)) {

@@ -8,13 +8,19 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
+/**
+ * @phpstan-type VisitorFn callable(ValidationContext): (array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>)
+ */
 class CustomValidationRule extends ValidationRule
 {
-    /** @var callable */
+    /**
+     * @var callable
+     * @phpstan-var VisitorFn
+     */
     protected $visitorFn;
 
     /**
-     * @param callable(ValidationContext): (array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>) $visitorFn
+     * @phpstan-param VisitorFn $visitorFn
      */
     public function __construct(string $name, callable $visitorFn)
     {
