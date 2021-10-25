@@ -9,8 +9,6 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
-use function class_alias;
-
 abstract class ValidationRule
 {
     protected string $name;
@@ -54,5 +52,3 @@ abstract class ValidationRule
         return [];
     }
 }
-
-class_alias(ValidationRule::class, 'GraphQL\Validator\Rules\AbstractValidationRule');

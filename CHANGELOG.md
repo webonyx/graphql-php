@@ -68,6 +68,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated public property access to `InputObjectField::$type`
 - Remove deprecated public property access to `FieldDefinition::$type`
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
+- Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
 
 ## 14.9.0
 
