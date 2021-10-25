@@ -91,11 +91,10 @@ class FieldArgument
 
     public function assertValid(FieldDefinition $parentField, Type $parentType): void
     {
-        try {
-            Utils::assertValidName($this->name);
-        } catch (InvariantViolation $e) {
+        $error = Utils::isValidNameError($this->name);
+        if ($error !== null) {
             throw new InvariantViolation(
-                sprintf('%s.%s(%s:) %s', $parentType->name, $parentField->name, $this->name, $e->getMessage())
+                "{$parentType->name}.{$parentField->name}({$this->name}:) {$error->getMessage()}"
             );
         }
 

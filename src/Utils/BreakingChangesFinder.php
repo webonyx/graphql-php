@@ -218,15 +218,9 @@ class BreakingChangesFinder
                         $newFieldType
                     );
                     if (! $isSafe) {
-                        $oldFieldTypeString = $oldFieldType instanceof NamedType && $oldFieldType instanceof Type
-                            ? $oldFieldType->name
-                            : $oldFieldType;
-                        $newFieldTypeString = $newFieldType instanceof NamedType && $newFieldType instanceof Type
-                            ? $newFieldType->name
-                            : $newFieldType;
-                        $breakingChanges[]  = [
+                        $breakingChanges[] = [
                             'type'        => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                            'description' => "${typeName}.${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}.",
+                            'description' => "{$typeName}.{$fieldName} changed type from {$oldFieldType} to {$newFieldType}.",
                         ];
                     }
                 }
@@ -651,10 +645,12 @@ class BreakingChangesFinder
      */
     private static function getDirectiveMapForSchema(Schema $schema): array
     {
-        return Utils::keyMap(
-            $schema->getDirectives(),
-            static fn (Directive $dir): string => $dir->name
-        );
+        $directives = [];
+        foreach ($schema->getDirectives() as $directive) {
+            $directives[$directive->name] = $directive;
+        }
+
+        return $directives;
     }
 
     /**
@@ -709,10 +705,12 @@ class BreakingChangesFinder
      */
     private static function getArgumentMapForDirective(Directive $directive): array
     {
-        return Utils::keyMap(
-            $directive->args,
-            static fn (FieldArgument $arg): string => $arg->name
-        );
+        $args = [];
+        foreach ($directive->args as $arg) {
+            $args[$arg->name] = $arg;
+        }
+
+        return $args;
     }
 
     /**

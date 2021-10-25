@@ -42,7 +42,6 @@ use GraphQL\Type\Schema;
 use function array_merge;
 use function array_pop;
 use function count;
-use function is_array;
 
 class TypeInfo
 {
@@ -173,16 +172,14 @@ class TypeInfo
     }
 
     /**
-     * @param Type[] $typeMap
+     * @param array<Type> $typeMap
      *
-     * @return Type[]
+     * @return array<Type>
      */
-    public static function extractTypesFromDirectives(Directive $directive, array $typeMap = []): array
+    public static function extractTypesFromDirectives(Directive $directive, array $typeMap): array
     {
-        if (is_array($directive->args)) {
-            foreach ($directive->args as $arg) {
-                $typeMap = self::extractTypes($arg->getType(), $typeMap);
-            }
+        foreach ($directive->args as $arg) {
+            $typeMap = self::extractTypes($arg->getType(), $typeMap);
         }
 
         return $typeMap;
@@ -275,17 +272,16 @@ class TypeInfo
 
             case $node instanceof ArgumentNode:
                 $fieldOrDirective = $this->getDirective() ?? $this->getFieldDef();
-                $argDef           = $argType = null;
+                $argDef           = null;
+                $argType          = null;
                 if ($fieldOrDirective !== null) {
-                    /** @var FieldArgument $argDef */
-                    $argDef = Utils::find(
-                        $fieldOrDirective->args,
-                        static function ($arg) use ($node): bool {
-                            return $arg->name === $node->name->value;
+                    foreach ($fieldOrDirective->args as $arg) {
+                        if ($arg->name !== $node->name->value) {
+                            continue;
                         }
-                    );
-                    if ($argDef !== null) {
-                        $argType = $argDef->getType();
+
+                        $argDef  = $arg;
+                        $argType = $arg->getType();
                     }
                 }
 

@@ -24,8 +24,6 @@ use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\OperationTypeDefinitionNode;
-use GraphQL\Language\AST\ScalarTypeDefinitionNode;
-use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
@@ -251,22 +249,21 @@ class SchemaValidationContext
      */
     private function getAllDirectiveArgNodes(Directive $directive, string $argName): array
     {
-        $subNodes = $this->getAllSubNodes(
-            $directive,
-            /**
-             * @return NodeList<InputValueDefinitionNode>
-             */
-            static function (DirectiveDefinitionNode $directiveNode): NodeList {
-                return $directiveNode->arguments;
-            }
-        );
+        $astNode = $directive->astNode;
+        if ($astNode === null) {
+            return [];
+        }
 
-        return Utils::filter(
-            $subNodes,
-            static function (InputValueDefinitionNode $argNode) use ($argName): bool {
-                return $argNode->name->value === $argName;
+        $matchingSubnodes = [];
+        foreach ($astNode->arguments as $subNode) {
+            if ($subNode->name->value !== $argName) {
+                continue;
             }
-        );
+
+            $matchingSubnodes[] = $subNode;
+        }
+
+        return $matchingSubnodes;
     }
 
     /**
@@ -428,7 +425,7 @@ class SchemaValidationContext
         // Objects and Interfaces both must define one or more fields.
         if ($fieldMap === []) {
             $this->reportError(
-                sprintf('Type %s must define one or more fields.', $type->name),
+                "Type {$type->name} must define one or more fields.",
                 $this->getAllNodes($type)
             );
         }
@@ -543,49 +540,29 @@ class SchemaValidationContext
     }
 
     /**
-     * @param Schema|ObjectType|InterfaceType|UnionType|EnumType|Directive $obj
-     * @param callable(Node): (iterable<Node>|null)                        $getter
-     */
-    private function getAllSubNodes(object $obj, callable $getter): NodeList
-    {
-        $result = new NodeList([]);
-        foreach ($this->getAllNodes($obj) as $astNode) {
-            if ($astNode === null) {
-                continue;
-            }
-
-            $subNodes = $getter($astNode);
-            if ($subNodes === null) {
-                continue;
-            }
-
-            $result = $result->merge($subNodes);
-        }
-
-        return $result;
-    }
-
-    /**
      * @param ObjectType|InterfaceType $type
      *
      * @return array<int, FieldDefinitionNode>
      */
     private function getAllFieldNodes(Type $type, string $fieldName): array
     {
-        $subNodes = $this->getAllSubNodes(
-            $type,
-            /**
-             * @return NodeList<FieldDefinitionNode>
-             */
-            static function (Node $typeNode): NodeList {
-                /** @var ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode $typeNode */
-                return $typeNode->fields;
-            }
-        );
+        $allNodes = $type->astNode !== null
+            ? array_merge([$type->astNode], $type->extensionASTNodes)
+            : $type->extensionASTNodes;
 
-        return Utils::filter($subNodes, static function ($fieldNode) use ($fieldName): bool {
-            return $fieldNode->name->value === $fieldName;
-        });
+        $matchingFieldNodes = [];
+
+        foreach ($allNodes as $node) {
+            foreach ($node->fields as $field) {
+                if ($field->name->value !== $fieldName) {
+                    continue;
+                }
+
+                $matchingFieldNodes[] = $field;
+            }
+        }
+
+        return $matchingFieldNodes;
     }
 
     /**
@@ -704,16 +681,14 @@ class SchemaValidationContext
      */
     private function getDirectives(object $object): NodeList
     {
-        return $this->getAllSubNodes(
-            $object,
-            /**
-             * @return NodeList<DirectiveNode>
-             */
-            static function (Node $node): NodeList {
-                /** @var SchemaDefinitionNode|SchemaTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|EnumTypeDefinitionNode|EnumTypeExtensionNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode|ScalarTypeDefinitionNode|ScalarTypeExtensionNode $node */
-                return $node->directives;
+        $directives = [];
+        foreach ($this->getAllNodes($object) as $node) {
+            foreach ($node->directives as $directive) {
+                $directives[] = $directive;
             }
-        );
+        }
+
+        return new NodeList($directives);
     }
 
     /**
@@ -733,20 +708,24 @@ class SchemaValidationContext
      */
     private function getAllImplementsInterfaceNodes(ImplementingType $type, Type $shouldBeInterface): array
     {
-        $subNodes = $this->getAllSubNodes(
-            $type,
-            /**
-             * @return NodeList<NamedTypeNode>
-             */
-            static function (Node $typeNode): NodeList {
-                /** @var ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode $typeNode */
-                return $typeNode->interfaces;
-            }
-        );
+        $allNodes = $type->astNode !== null
+            ? array_merge([$type->astNode], $type->extensionASTNodes)
+            : $type->extensionASTNodes;
 
-        return Utils::filter($subNodes, static function (NamedTypeNode $ifaceNode) use ($shouldBeInterface): bool {
-            return $ifaceNode->name->value === $shouldBeInterface->name;
-        });
+        $shouldBeInterfaceName  = $shouldBeInterface->name;
+        $matchingInterfaceNodes = [];
+
+        foreach ($allNodes as $node) {
+            foreach ($node->interfaces as $interface) {
+                if ($interface->name->value !== $shouldBeInterfaceName) {
+                    continue;
+                }
+
+                $matchingInterfaceNodes[] = $interface;
+            }
+        }
+
+        return $matchingInterfaceNodes;
     }
 
     /**
@@ -766,12 +745,7 @@ class SchemaValidationContext
             // Assert interface field exists on type.
             if ($typeField === null) {
                 $this->reportError(
-                    sprintf(
-                        'Interface field %s.%s expected but %s does not provide it.',
-                        $iface->name,
-                        $fieldName,
-                        $type->name
-                    ),
+                    "Interface field {$iface->name}.{$fieldName} expected but {$type->name} does not provide it.",
                     array_merge(
                         [$this->getFieldNode($iface, $fieldName)],
                         $this->getAllNodes($type)
@@ -936,7 +910,7 @@ class SchemaValidationContext
 
         if ($memberTypes === []) {
             $this->reportError(
-                sprintf('Union type %s must define one or more member types.', $union->name),
+                "Union type {$union->name} must define one or more member types.",
                 $this->getAllNodes($union)
             );
         }
@@ -973,20 +947,22 @@ class SchemaValidationContext
      */
     private function getUnionMemberTypeNodes(UnionType $union, string $typeName): array
     {
-        $subNodes = $this->getAllSubNodes(
-            $union,
-            /**
-             * @return NodeList<NamedTypeNode>
-             */
-            static function (Node $unionNode): NodeList {
-                /** @var UnionTypeDefinitionNode|UnionTypeExtensionNode $unionNode */
-                return $unionNode->types;
-            }
-        );
+        $allNodes = $union->astNode !== null
+            ? array_merge([$union->astNode], $union->extensionASTNodes)
+            : $union->extensionASTNodes;
 
-        return Utils::filter($subNodes, static function (NamedTypeNode $typeNode) use ($typeName): bool {
-            return $typeNode->name->value === $typeName;
-        });
+        $types = [];
+        foreach ($allNodes as $node) {
+            foreach ($node->types as $type) {
+                if ($type->name->value !== $typeName) {
+                    continue;
+                }
+
+                $types[] = $type;
+            }
+        }
+
+        return $types;
     }
 
     private function validateEnumValues(EnumType $enumType): void
@@ -995,7 +971,7 @@ class SchemaValidationContext
 
         if ($enumValues === []) {
             $this->reportError(
-                sprintf('Enum type %s must define one or more values.', $enumType->name),
+                "Enum type {$enumType->name} must define one or more values.",
                 $this->getAllNodes($enumType)
             );
         }
@@ -1038,21 +1014,22 @@ class SchemaValidationContext
      */
     private function getEnumValueNodes(EnumType $enum, string $valueName): array
     {
-        $subNodes = $this->getAllSubNodes(
-            $enum,
-            /**
-             * @param EnumTypeDefinitionNode|EnumTypeExtensionNode $enumNode
-             *
-             * @return NodeList<EnumValueDefinitionNode>
-             */
-            static function (Node $enumNode): NodeList {
-                return $enumNode->values;
-            }
-        );
+        $allNodes = $enum->astNode !== null
+            ? array_merge([$enum->astNode], $enum->extensionASTNodes)
+            : $enum->extensionASTNodes;
 
-        return Utils::filter($subNodes, static function ($valueNode) use ($valueName): bool {
-            return $valueNode->name->value === $valueName;
-        });
+        $values = [];
+        foreach ($allNodes as $node) {
+            foreach ($node->values as $value) {
+                if ($value->name->value !== $valueName) {
+                    continue;
+                }
+
+                $values[] = $value;
+            }
+        }
+
+        return $values;
     }
 
     private function validateInputFields(InputObjectType $inputObj): void
@@ -1061,7 +1038,7 @@ class SchemaValidationContext
 
         if ($fieldMap === []) {
             $this->reportError(
-                sprintf('Input Object type %s must define one or more fields.', $inputObj->name),
+                "Input Object type {$inputObj->name} must define one or more fields.",
                 $this->getAllNodes($inputObj)
             );
         }

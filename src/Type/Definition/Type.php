@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\TypeDefinitionNode;
@@ -276,7 +277,7 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @throws InvariantViolation
+     * @throws Error
      */
     public function assertValid(): void
     {
