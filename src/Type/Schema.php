@@ -21,8 +21,9 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\InterfaceImplementations;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
-
 use InvalidArgumentException;
+
+use function get_class;
 use function implode;
 use function is_array;
 use function is_callable;
