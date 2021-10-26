@@ -13,7 +13,7 @@ abstract class TypeWithFields extends Type implements HasFieldsType
     /**
      * Lazily initialized.
      *
-     * @var array<string, FieldDefinition>
+     * @var array<string, FieldDefinition|UnresolvedFieldDefinition>
      */
     private array $fields;
 

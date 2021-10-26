@@ -1712,10 +1712,10 @@ class DefinitionTest extends TestCase
             'name'   => 'SomeEnum',
             'values' => [['FOO' => 10]],
         ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'SomeEnum values must be an array with value names as keys.'
-        );
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'SomeEnum values must be an array with value names as keys or values.'
+        ));
         $enumType->assertValid();
     }
 

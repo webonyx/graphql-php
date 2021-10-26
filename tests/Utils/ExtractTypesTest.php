@@ -263,7 +263,8 @@ class ExtractTypesTest extends TestCase
             'Category' => $this->category,
         ];
 
-        $actualTypeMap = TypeInfo::extractTypes($this->query);
+        $actualTypeMap = [];
+        TypeInfo::extractTypes($this->query, $actualTypeMap);
         self::assertEquals($expectedTypeMap, $actualTypeMap);
     }
 
@@ -285,7 +286,8 @@ class ExtractTypesTest extends TestCase
             'PostCommentMutation'      => $this->postCommentMutation,
         ];
 
-        $actualTypeMap = TypeInfo::extractTypes($this->mutation);
+        $actualTypeMap = [];
+        TypeInfo::extractTypes($this->mutation, $actualTypeMap);
         self::assertEquals($expectedTypeMap, $actualTypeMap);
     }
 
@@ -304,8 +306,10 @@ class ExtractTypesTest extends TestCase
             ],
         ]);
 
+        $typeMap = [];
+
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Schema must contain unique named types but contains multiple types named "User"');
-        TypeInfo::extractTypes($queryType);
+        TypeInfo::extractTypes($queryType, $typeMap);
     }
 }

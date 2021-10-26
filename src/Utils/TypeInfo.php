@@ -39,7 +39,6 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 
-use function array_merge;
 use function array_pop;
 use function count;
 
@@ -117,72 +116,72 @@ class TypeInfo
      * ]
      *
      * @param array<Type> $typeMap
-     *
-     * @return array<Type>
      */
-    public static function extractTypes(Type $type, array $typeMap = []): array
+    public static function extractTypes(Type $type, array &$typeMap): void
     {
         if ($type instanceof WrappingType) {
-            return self::extractTypes($type->getWrappedType(true), $typeMap);
+            self::extractTypes($type->getWrappedType(true), $typeMap);
+
+            return;
         }
 
-        if (isset($typeMap[$type->name])) {
+        $name = $type->name;
+
+        if (isset($typeMap[$name])) {
             Utils::invariant(
-                $typeMap[$type->name] === $type,
+                $typeMap[$name] === $type,
                 'Schema must contain unique named types but contains multiple types named "' . $type . '" ' .
                 '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
             );
 
-            return $typeMap;
+            return;
         }
 
-        $typeMap[$type->name] = $type;
-
-        $nestedTypes = [];
+        $typeMap[$name] = $type;
 
         if ($type instanceof UnionType) {
-            $nestedTypes = $type->getTypes();
+            foreach ($type->getTypes() as $member) {
+                self::extractTypes($member, $typeMap);
+            }
+
+            return;
+        }
+
+        if ($type instanceof InputObjectType) {
+            foreach ($type->getFields() as $field) {
+                self::extractTypes($field->getType(), $typeMap);
+            }
+
+            return;
         }
 
         if ($type instanceof ImplementingType) {
-            $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
+            foreach ($type->getInterfaces() as $interface) {
+                self::extractTypes($interface, $typeMap);
+            }
         }
 
         if ($type instanceof HasFieldsType) {
             foreach ($type->getFields() as $field) {
                 foreach ($field->args as $arg) {
-                    $nestedTypes[] = $arg->getType();
+                    self::extractTypes($arg->getType(), $typeMap);
                 }
 
-                $nestedTypes[] = $field->getType();
+                self::extractTypes($field->getType(), $typeMap);
             }
-        }
 
-        if ($type instanceof InputObjectType) {
-            foreach ($type->getFields() as $field) {
-                $nestedTypes[] = $field->getType();
-            }
+            return;
         }
-
-        foreach ($nestedTypes as $nestedType) {
-            $typeMap = self::extractTypes($nestedType, $typeMap);
-        }
-
-        return $typeMap;
     }
 
     /**
      * @param array<Type> $typeMap
-     *
-     * @return array<Type>
      */
-    public static function extractTypesFromDirectives(Directive $directive, array $typeMap): array
+    public static function extractTypesFromDirectives(Directive $directive, array &$typeMap): void
     {
         foreach ($directive->args as $arg) {
-            $typeMap = self::extractTypes($arg->getType(), $typeMap);
+            self::extractTypes($arg->getType(), $typeMap);
         }
-
-        return $typeMap;
     }
 
     /**
