@@ -1,7 +1,11 @@
 parameters:
+    # TODO increase to max
     level: 3
 
     inferPrivatePropertyTypeFromConstructor: true
+
+    # TODO revert this setting once we arrived at level: max
+    reportUnmatchedIgnoredErrors: false
 
     paths:
         - benchmarks
