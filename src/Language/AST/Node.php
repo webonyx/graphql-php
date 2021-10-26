@@ -77,7 +77,7 @@ abstract class Node
                 $cloned->{$prop} = $this->cloneValue($propValue);
             }
         } elseif ($value instanceof NodeList) {
-            $cloned = new NodeList([]);
+            $cloned = clone $value;
 
             foreach ($value as $key => $listValue) {
                 $cloned[$key] = $this->cloneValue($listValue);
