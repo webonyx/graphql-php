@@ -17,8 +17,6 @@ use stdClass;
 use Throwable;
 use TypeError;
 
-use function lcfirst;
-
 /**
  * @see TypeLoaderTest
  */
@@ -92,25 +90,24 @@ final class LazyTypeLoaderTest extends TestCase
             },
         ]);
 
-        $this->typeLoader = function (string $name) {
+        $this->typeLoader = function (string $name): ?Type {
             $this->calls[] = $name;
-            $prop          = lcfirst($name);
 
-            switch ($prop) {
-                case 'node':
+            switch ($name) {
+                case 'Node':
                     return ($this->node)();
 
-                case 'blogStory':
+                case 'BlogStory':
                     return ($this->blogStory)();
 
-                case 'content':
-                    return $this->content;
+                case 'Content':
+                    return ($this->content)();
 
-                case 'postStoryMutation':
-                    return $this->postStoryMutation;
+                case 'PostStoryMutation':
+                    return ($this->postStoryMutation)();
 
-                case 'postStoryMutationInput':
-                    return $this->postStoryMutationInput;
+                case 'PostStoryMutationInput':
+                    return ($this->postStoryMutationInput)();
             }
 
             return null;

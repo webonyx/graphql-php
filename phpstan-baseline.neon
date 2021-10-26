@@ -66,6 +66,16 @@ parameters:
 			path: src/Language/Visitor.php
 
 		-
+			message: "#^Array \\(array\\<string, GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\>\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			count: 1
+			path: src/Type/Schema.php
+
+		-
+			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:getType\\(\\) should return \\(GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			count: 1
+			path: src/Type/Schema.php
+
+		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\|GraphQL\\\\Language\\\\AST\\\\BooleanValueNode\\|GraphQL\\\\Language\\\\AST\\\\DirectiveDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\DirectiveNode\\|GraphQL\\\\Language\\\\AST\\\\DocumentNode\\|GraphQL\\\\Language\\\\AST\\\\EnumTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\EnumTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueNode\\|GraphQL\\\\Language\\\\AST\\\\FieldDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\FieldNode\\|GraphQL\\\\Language\\\\AST\\\\FloatValueNode\\|GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\FragmentSpreadNode\\|GraphQL\\\\Language\\\\AST\\\\InlineFragmentNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\IntValueNode\\|GraphQL\\\\Language\\\\AST\\\\ListTypeNode\\|GraphQL\\\\Language\\\\AST\\\\ListValueNode\\|GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\|GraphQL\\\\Language\\\\AST\\\\NameNode\\|GraphQL\\\\Language\\\\AST\\\\NonNullTypeNode\\|GraphQL\\\\Language\\\\AST\\\\NullValueNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectFieldNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectValueNode\\|GraphQL\\\\Language\\\\AST\\\\OperationDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ScalarTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\SchemaDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|GraphQL\\\\Language\\\\AST\\\\StringValueNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\VariableDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\VariableNode\\.$#"
 			count: 1
 			path: src/Utils/AST.php

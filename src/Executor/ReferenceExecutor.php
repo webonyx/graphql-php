@@ -829,11 +829,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($returnType !== $this->exeContext->schema->getType($returnType->name)) {
             $hint = '';
             if ($this->exeContext->schema->getConfig()->typeLoader !== null) {
-                $hint = sprintf(
-                    'Make sure that type loader returns the same instance as defined in %s.%s',
-                    $info->parentType,
-                    $info->fieldName
-                );
+                $hint = "Make sure that type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}";
             }
 
             throw new InvariantViolation(

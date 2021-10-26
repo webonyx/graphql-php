@@ -16,7 +16,6 @@ use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 
 use function is_array;
-use function is_int;
 use function is_string;
 use function sprintf;
 
@@ -88,15 +87,10 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
                         } else {
                             $value = ['name' => $name, 'value' => $value];
                         }
-                    } elseif (is_int($name) && is_string($value)) {
+                    } elseif (is_string($value)) {
                         $value = ['name' => $value, 'value' => $value];
                     } else {
-                        throw new InvariantViolation(
-                            sprintf(
-                                '%s values must be an array with value names as keys.',
-                                $this->name
-                            )
-                        );
+                        throw new InvariantViolation("{$this->name} values must be an array with value names as keys or values.");
                     }
 
                     $this->values[] = new EnumValueDefinition($value);

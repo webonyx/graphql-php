@@ -102,7 +102,7 @@ class StandardTypesTest extends TestCase
             ['', 'Expecting instance of GraphQL\Type\Definition\Type, got (empty string)'],
             [new stdClass(), 'Expecting instance of GraphQL\Type\Definition\Type, got instance of stdClass'],
             [[], 'Expecting instance of GraphQL\Type\Definition\Type, got []'],
-            [$this->createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: ID, String, Float, Int, Boolean, got NonStandardName'],
+            [$this->createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: ID, String, Float, Int, Boolean; got NonStandardName'],
         ];
     }
 

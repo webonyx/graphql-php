@@ -50,12 +50,11 @@ class InputObjectField
     {
         if (! isset($this->type)) {
             /**
-             * TODO: replace this phpstan cast with native assert
+             * @see it('rejects an Input Object type with incorrectly typed fields')
              *
-             * @var Type&InputType
+             * @phpstan-ignore-next-line schema validation will catch a Type that is not an InputType
              */
-            $type       = Schema::resolveType($this->config['type']);
-            $this->type = $type;
+            $this->type = Schema::resolveType($this->config['type']);
         }
 
         return $this->type;

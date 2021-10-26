@@ -23,10 +23,8 @@ use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
-use GraphQL\Language\AST\OperationTypeDefinitionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
@@ -55,6 +53,7 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_object;
+use function property_exists;
 use function sprintf;
 
 class SchemaValidationContext
@@ -108,31 +107,6 @@ class SchemaValidationContext
         $this->errors[] = $error;
     }
 
-    /**
-     * @return NamedTypeNode|(Node&TypeDefinitionNode)|null
-     */
-    private function getOperationTypeNode(Type $type, string $operation): ?Node
-    {
-        $astNode = $this->schema->getAstNode();
-
-        $operationTypeNode = null;
-        if ($astNode instanceof SchemaDefinitionNode) {
-            /** @var OperationTypeDefinitionNode|null $operationTypeNode */
-            $operationTypeNode = null;
-
-            foreach ($astNode->operationTypes as $operationType) {
-                if ($operationType->operation === $operation) {
-                    $operationTypeNode = $operationType;
-                    break;
-                }
-            }
-        }
-
-        return $operationTypeNode === null
-            ? ($type === null ? null : $type->astNode)
-            : $operationTypeNode->type;
-    }
-
     public function validateDirectives(): void
     {
         $this->validateDirectiveDefinitions();
@@ -151,14 +125,17 @@ class SchemaValidationContext
         $directives = $this->schema->getDirectives();
         foreach ($directives as $directive) {
             // Ensure all directives are in fact GraphQL directives.
+            // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
             if (! $directive instanceof Directive) {
-                $nodes = is_object($directive)
+                $notDirective = Utils::printSafe($directive);
+                // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
+                $node = is_object($directive) && property_exists($directive, 'astNode')
                     ? $directive->astNode
                     : null;
 
                 $this->reportError(
-                    'Expected directive but got: ' . Utils::printSafe($directive) . '.',
-                    $nodes
+                    "Expected directive but got: {$notDirective}.",
+                    $node
                 );
                 continue;
             }
@@ -181,7 +158,7 @@ class SchemaValidationContext
 
                 if (isset($argNames[$argName])) {
                     $this->reportError(
-                        sprintf('Argument @%s(%s:) can only be defined once.', $directive->name, $argName),
+                        "Argument @{$directive->name}({$argName}:) can only be defined once.",
                         $this->getAllDirectiveArgNodes($directive, $argName)
                     );
                     continue;
@@ -194,13 +171,9 @@ class SchemaValidationContext
                     continue;
                 }
 
+                $type = Utils::printSafe($arg->getType());
                 $this->reportError(
-                    sprintf(
-                        'The type of @%s(%s:) must be Input Type but got: %s.',
-                        $directive->name,
-                        $argName,
-                        Utils::printSafe($arg->getType())
-                    ),
+                    "The type of @{$directive->name}({$argName}:) must be Input Type but got: {$type}.",
                     $this->getDirectiveArgTypeNode($directive, $argName)
                 );
             }
@@ -211,18 +184,18 @@ class SchemaValidationContext
                 continue;
             }
 
-            $nodes = [];
+            $node = [];
             foreach ($directiveList as $dir) {
                 if ($dir->astNode === null) {
                     continue;
                 }
 
-                $nodes[] = $dir->astNode;
+                $node[] = $dir->astNode;
             }
 
             $this->reportError(
                 sprintf('Directive @%s defined multiple times.', $directiveName),
-                $nodes
+                $node
             );
         }
     }
@@ -281,12 +254,19 @@ class SchemaValidationContext
     public function validateTypes(): void
     {
         $typeMap = $this->schema->getTypeMap();
-        foreach ($typeMap as $typeName => $type) {
+        foreach ($typeMap as $type) {
             // Ensure all provided types are in fact GraphQL type.
+            // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
             if (! $type instanceof NamedType) {
+                $notNamedType = Utils::printSafe($type);
+                // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
+                $node = $type instanceof Type
+                    ? $type->astNode
+                    : null;
+
                 $this->reportError(
-                    'Expected GraphQL named type but got: ' . Utils::printSafe($type) . '.',
-                    $type instanceof Type ? $type->astNode : null
+                    "Expected GraphQL named type but got: {$notNamedType}.",
+                    $node
                 );
                 continue;
             }
@@ -641,36 +621,37 @@ class SchemaValidationContext
     private function validateInterfaces(ImplementingType $type): void
     {
         $ifaceTypeNames = [];
-        foreach ($type->getInterfaces() as $iface) {
-            if (! $iface instanceof InterfaceType) {
-                $safeIface = Utils::printSafe($iface);
+        foreach ($type->getInterfaces() as $interface) {
+            // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
+            if (! $interface instanceof InterfaceType) {
+                $notInterface = Utils::printSafe($interface);
                 $this->reportError(
-                    "Type {$type->name} must only implement Interface types, it cannot implement {$safeIface}.",
-                    $this->getImplementsInterfaceNode($type, $iface)
+                    "Type {$type->name} must only implement Interface types, it cannot implement {$notInterface}.",
+                    $this->getImplementsInterfaceNode($type, $interface)
                 );
                 continue;
             }
 
-            if ($type === $iface) {
+            if ($type === $interface) {
                 $this->reportError(
                     "Type {$type->name} cannot implement itself because it would create a circular reference.",
-                    $this->getImplementsInterfaceNode($type, $iface)
+                    $this->getImplementsInterfaceNode($type, $interface)
                 );
                 continue;
             }
 
-            if (isset($ifaceTypeNames[$iface->name])) {
+            if (isset($ifaceTypeNames[$interface->name])) {
                 $this->reportError(
-                    "Type {$type->name} can only implement {$iface->name} once.",
-                    $this->getAllImplementsInterfaceNodes($type, $iface)
+                    "Type {$type->name} can only implement {$interface->name} once.",
+                    $this->getAllImplementsInterfaceNodes($type, $interface)
                 );
                 continue;
             }
 
-            $ifaceTypeNames[$iface->name] = true;
+            $ifaceTypeNames[$interface->name] = true;
 
-            $this->validateTypeImplementsAncestors($type, $iface);
-            $this->validateTypeImplementsInterface($type, $iface);
+            $this->validateTypeImplementsAncestors($type, $interface);
+            $this->validateTypeImplementsInterface($type, $interface);
         }
     }
 
@@ -918,14 +899,12 @@ class SchemaValidationContext
         $includedTypeNames = [];
 
         foreach ($memberTypes as $memberType) {
+            // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
             if (! $memberType instanceof ObjectType) {
+                $notObjectType = Utils::printSafe($memberType);
                 $this->reportError(
-                    sprintf(
-                        'Union type %s can only include Object types, it cannot include %s.',
-                        $union->name,
-                        Utils::printSafe($memberType)
-                    ),
-                    $this->getUnionMemberTypeNodes($union, Utils::printSafe($memberType))
+                    "Union type {$union->name} can only include Object types, it cannot include {$notObjectType}.",
+                    $this->getUnionMemberTypeNodes($union, $notObjectType)
                 );
                 continue;
             }
@@ -1050,18 +1029,14 @@ class SchemaValidationContext
 
             // TODO: Ensure they are unique per field.
 
-            // Ensure the type is an input type
-            if (! Type::isInputType($field->getType())) {
+            // Ensure the type is an input type.
+            $type = $field->getType();
+            // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
+            if (! Type::isInputType($type)) {
+                $notInputType = Utils::printSafe($type);
                 $this->reportError(
-                    sprintf(
-                        'The type of %s.%s must be Input Type but got: %s.',
-                        $inputObj->name,
-                        $fieldName,
-                        Utils::printSafe($field->getType())
-                    ),
-                    $field->astNode !== null
-                        ? $field->astNode->type
-                        : null
+                    "The type of {$inputObj->name}.{$fieldName} must be Input Type but got: {$notInputType}.",
+                    $field->astNode->type ?? null
                 );
             }
 

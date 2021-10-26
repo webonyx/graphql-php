@@ -7,6 +7,7 @@ namespace GraphQL\Type;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -25,6 +26,8 @@ use function count;
  *         ->setTypeLoader($myTypeLoader);
  *
  *     $schema = new Schema($config);
+ *
+ * @phpstan-type TypeLoader (callable(string $typeName): (Type&NamedType)|null)|null
  */
 class SchemaConfig
 {
@@ -40,7 +43,10 @@ class SchemaConfig
     /** @var array<Directive>|null */
     public ?array $directives = null;
 
-    /** @var (callable(string $typeName): Type|(callable(): Type)|null)|null */
+    /**
+     * @var callable|null
+     * @phpstan-var TypeLoader|null
+     */
     public $typeLoader = null;
 
     public bool $assumeValid = false;
@@ -202,7 +208,8 @@ class SchemaConfig
     }
 
     /**
-     * @return (callable(string $typeName): Type|(callable(): Type)|null)|null
+     * @return callable|null $typeLoader
+     * @phpstan-return TypeLoader|null $typeLoader
      *
      * @api
      */
@@ -212,7 +219,7 @@ class SchemaConfig
     }
 
     /**
-     * @param (callable(string $typeName): Type|(callable(): Type)|null)|null $typeLoader
+     * @phpstan-param TypeLoader|null $typeLoader
      *
      * @api
      */
