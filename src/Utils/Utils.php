@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use ErrorException;
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
@@ -13,14 +12,12 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use stdClass;
-use Traversable;
 
 use function array_keys;
 use function array_map;
 use function array_reduce;
 use function array_shift;
 use function array_slice;
-use function array_values;
 use function asort;
 use function count;
 use function dechex;
@@ -29,7 +26,6 @@ use function func_num_args;
 use function get_class;
 use function gettype;
 use function is_array;
-use function is_int;
 use function is_object;
 use function is_scalar;
 use function is_string;
@@ -91,16 +87,17 @@ class Utils
 
     /**
      * @param iterable<mixed> $iterable
+     * @phpstan-param iterable<TKey, TValue> $iterable
+     * @phpstan-param callable(TValue, TKey): bool $predicate
      *
-     * @return mixed|null
+     * @return mixed
+     * @phpstan-return TValue|null
+     *
+     * @template TKey of array-key
+     * @template TValue
      */
-    public static function find($iterable, callable $predicate)
+    public static function find(iterable $iterable, callable $predicate)
     {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
         foreach ($iterable as $key => $value) {
             if ($predicate($value, $key)) {
                 return $value;
@@ -108,153 +105,6 @@ class Utils
         }
 
         return null;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     *
-     * @throws Exception
-     */
-    public static function filter($iterable, callable $predicate): array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $result = [];
-        $assoc  = false;
-        foreach ($iterable as $key => $value) {
-            if (! $assoc && ! is_int($key)) {
-                $assoc = true;
-            }
-
-            if (! $predicate($value, $key)) {
-                continue;
-            }
-
-            $result[$key] = $value;
-        }
-
-        return $assoc
-            ? $result
-            : array_values($result);
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     *
-     * @throws Exception
-     */
-    public static function mapKeyValue($iterable, callable $fn): array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $map = [];
-        foreach ($iterable as $key => $value) {
-            [$newKey, $newValue] = $fn($value, $key);
-            $map[$newKey]        = $newValue;
-        }
-
-        return $map;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     *
-     * @throws Exception
-     */
-    public static function keyMap($iterable, callable $keyFn): array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $map = [];
-        foreach ($iterable as $key => $value) {
-            $newKey = $keyFn($value, $key);
-            if (! is_scalar($newKey)) {
-                continue;
-            }
-
-            $map[$newKey] = $value;
-        }
-
-        return $map;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     */
-    public static function each($iterable, callable $fn): void
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        foreach ($iterable as $key => $item) {
-            $fn($item, $key);
-        }
-    }
-
-    /**
-     * Splits original iterable to several arrays with keys equal to $keyFn return
-     *
-     * E.g. Utils::groupBy([1, 2, 3, 4, 5], function($value) {return $value % 3}) will output:
-     * [
-     *    1 => [1, 4],
-     *    2 => [2, 5],
-     *    0 => [3],
-     * ]
-     *
-     * $keyFn is also allowed to return array of keys. Then value will be added to all arrays with given keys
-     *
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<array<mixed>>
-     */
-    public static function groupBy($iterable, callable $keyFn): array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $grouped = [];
-        foreach ($iterable as $key => $value) {
-            $newKeys = (array) $keyFn($value, $key);
-            foreach ($newKeys as $newKey) {
-                $grouped[$newKey][] = $value;
-            }
-        }
-
-        return $grouped;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     */
-    public static function keyValMap($iterable, callable $keyFn, callable $valFn): array
-    {
-        $map = [];
-        foreach ($iterable as $item) {
-            $map[$keyFn($item)] = $valFn($item);
-        }
-
-        return $map;
     }
 
     /**
@@ -479,11 +329,9 @@ class Utils
     /**
      * Upholds the spec rules about naming.
      *
-     * @param string $name
-     *
      * @throws Error
      */
-    public static function assertValidName($name): void
+    public static function assertValidName(string $name): void
     {
         $error = self::isValidNameError($name);
         if ($error !== null) {
@@ -493,25 +341,19 @@ class Utils
 
     /**
      * Returns an Error if a name is invalid.
-     *
-     * @param string    $name
-     * @param Node|null $node
      */
-    public static function isValidNameError($name, $node = null): ?Error
+    public static function isValidNameError(string $name, ?Node $node = null): ?Error
     {
-        self::invariant(is_string($name), 'Expected string');
-
         if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
             return new Error(
-                sprintf('Name "%s" must not begin with "__", which is reserved by ', $name) .
-                'GraphQL introspection.',
+                'Name "' . $name . '" must not begin with "__", which is reserved by GraphQL introspection.',
                 $node
             );
         }
 
         if (! preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
             return new Error(
-                sprintf('Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "%s" does not.', $name),
+                'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "' . $name . '" does not.',
                 $node
             );
         }

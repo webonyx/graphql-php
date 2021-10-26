@@ -198,7 +198,7 @@ class AST
         if ($type instanceof InputObjectType) {
             $isArray     = is_array($value);
             $isArrayLike = $isArray || $value instanceof ArrayAccess;
-            if ($value === null || (! $isArrayLike && ! is_object($value))) {
+            if (! $isArrayLike && ! is_object($value)) {
                 return null;
             }
 
@@ -349,11 +349,6 @@ class AST
                 return $undefined;
             }
 
-            $variableValue = $variables[$variableName] ?? null;
-            if ($variableValue === null && $type instanceof NonNull) {
-                return $undefined; // Invalid: intentionally return no value.
-            }
-
             // Note: This does no further checking that this variable is correct.
             // This assumes that this query has been validated and the variable
             // usage here is of the correct type.
@@ -407,15 +402,15 @@ class AST
 
             $coercedObj = [];
             $fields     = $type->getFields();
-            $fieldNodes = Utils::keyMap(
-                $valueNode->fields,
-                static function ($field) {
-                    return $field->name->value;
-                }
-            );
+
+            $fieldNodes = [];
+            foreach ($valueNode->fields as $field) {
+                $fieldNodes[$field->name->value] = $field;
+            }
+
             foreach ($fields as $field) {
                 $fieldName = $field->name;
-                /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $fieldNode */
+                /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $fieldNode */
                 $fieldNode = $fieldNodes[$fieldName] ?? null;
 
                 if ($fieldNode === null || self::isMissingVariable($fieldNode->value, $variables)) {
@@ -430,7 +425,7 @@ class AST
                 }
 
                 $fieldValue = self::valueFromAST(
-                    $fieldNode !== null ? $fieldNode->value : null,
+                    $fieldNode->value,
                     $field->getType(),
                     $variables
                 );
@@ -582,11 +577,7 @@ class AST
                 : new NonNull($innerType);
         }
 
-        if ($inputTypeNode instanceof NamedTypeNode) {
-            return $schema->getType($inputTypeNode->name->value);
-        }
-
-        throw new Error('Unexpected type kind: ' . $inputTypeNode->kind . '.');
+        return $schema->getType($inputTypeNode->name->value);
     }
 
     /**

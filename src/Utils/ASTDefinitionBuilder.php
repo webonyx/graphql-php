@@ -145,34 +145,33 @@ class ASTDefinitionBuilder
     }
 
     /**
+     * @param NodeList<InputValueDefinitionNode> $values
+     *
      * @return array<string, array<string, mixed>>
      */
     private function makeInputValues(NodeList $values): array
     {
-        return Utils::keyValMap(
-            $values,
-            static function (InputValueDefinitionNode $value): string {
-                return $value->name->value;
-            },
-            function (InputValueDefinitionNode $value): array {
-                // Note: While this could make assertions to get the correctly typed
-                // value, that would throw immediately while type system validation
-                // with validateSchema() will produce more actionable results.
-                $type = $this->buildWrappedType($value->type);
+        $map = [];
+        foreach ($values as $value) {
+            // Note: While this could make assertions to get the correctly typed
+            // value, that would throw immediately while type system validation
+            // with validateSchema() will produce more actionable results.
+            $type = $this->buildWrappedType($value->type);
 
-                $config = [
-                    'name'        => $value->name->value,
-                    'type'        => $type,
-                    'description' => $this->getDescription($value),
-                    'astNode'     => $value,
-                ];
-                if (isset($value->defaultValue)) {
-                    $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
-                }
-
-                return $config;
+            $config = [
+                'name' => $value->name->value,
+                'type' => $type,
+                'description' => $this->getDescription($value),
+                'astNode' => $value,
+            ];
+            if (isset($value->defaultValue)) {
+                $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
             }
-        );
+
+            $map[$value->name->value] = $config;
+        }
+
+        return $map;
     }
 
     private function buildWrappedType(TypeNode $typeNode): Type
@@ -205,7 +204,7 @@ class ASTDefinitionBuilder
      *
      * @throws Error
      */
-    private function internalBuildType(string $typeName, ?Node $typeNode = null): ?Type
+    private function internalBuildType(string $typeName, ?Node $typeNode = null): Type
     {
         if (isset($this->cache[$typeName])) {
             return $this->cache[$typeName];
@@ -272,11 +271,8 @@ class ASTDefinitionBuilder
             case $def instanceof ScalarTypeDefinitionNode:
                 return $this->makeScalarDef($def);
 
-            case $def instanceof InputObjectTypeDefinitionNode:
-                return $this->makeInputObjectDef($def);
-
             default:
-                throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
+                return $this->makeInputObjectDef($def);
         }
     }
 
@@ -302,15 +298,12 @@ class ASTDefinitionBuilder
      */
     private function makeFieldDefMap(Node $def): array
     {
-        return Utils::keyValMap(
-            $def->fields,
-            static function (FieldDefinitionNode $field): string {
-                return $field->name->value;
-            },
-            function (FieldDefinitionNode $field): array {
-                return $this->buildField($field);
-            }
-        );
+        $map = [];
+        foreach ($def->fields as $field) {
+            $map[$field->name->value] = $this->buildField($field);
+        }
+
+        return $map;
     }
 
     /**
@@ -382,22 +375,19 @@ class ASTDefinitionBuilder
 
     private function makeEnumDef(EnumTypeDefinitionNode $def): EnumType
     {
+        $values = [];
+        foreach ($def->values as $value) {
+            $values[$value->name->value] = [
+                'description' => $this->getDescription($value),
+                'deprecationReason' => $this->getDeprecationReason($value),
+                'astNode' => $value,
+            ];
+        }
+
         return new EnumType([
             'name'        => $def->name->value,
             'description' => $this->getDescription($def),
-            'values'      => Utils::keyValMap(
-                $def->values,
-                static function ($enumValue) {
-                    return $enumValue->name->value;
-                },
-                function ($enumValue): array {
-                    return [
-                        'description'       => $this->getDescription($enumValue),
-                        'deprecationReason' => $this->getDeprecationReason($enumValue),
-                        'astNode'           => $enumValue,
-                    ];
-                }
-            ),
+            'values'      => $values,
             'astNode'     => $def,
         ]);
     }

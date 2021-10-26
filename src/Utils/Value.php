@@ -141,86 +141,82 @@ class Value
                 : self::ofValue([$coercedItem['value']]);
         }
 
-        if ($type instanceof InputObjectType) {
-            if ($value instanceof stdClass) {
-                // Cast objects to associative array before checking the fields.
-                // Note that the coerced value will be an array.
-                $value = (array) $value;
-            } elseif (! is_array($value)) {
-                return self::ofErrors([
-                    self::coercionError(
-                        sprintf('Expected type %s to be an object', $type->name),
-                        $blameNode,
-                        $path
-                    ),
-                ]);
-            }
+        if ($value instanceof stdClass) {
+            // Cast objects to associative array before checking the fields.
+            // Note that the coerced value will be an array.
+            $value = (array) $value;
+        } elseif (! is_array($value)) {
+            return self::ofErrors([
+                self::coercionError(
+                    sprintf('Expected type %s to be an object', $type->name),
+                    $blameNode,
+                    $path
+                ),
+            ]);
+        }
 
-            $errors       = [];
-            $coercedValue = [];
-            $fields       = $type->getFields();
-            foreach ($fields as $fieldName => $field) {
-                if (array_key_exists($fieldName, $value)) {
-                    $fieldValue   = $value[$fieldName];
-                    $coercedField = self::coerceValue(
-                        $fieldValue,
-                        $field->getType(),
-                        $blameNode,
-                        self::atPath($path, $fieldName)
-                    );
-                    if ($coercedField['errors']) {
-                        $errors = self::add($errors, $coercedField['errors']);
-                    } else {
-                        $coercedValue[$fieldName] = $coercedField['value'];
-                    }
-                } elseif ($field->defaultValueExists()) {
-                    $coercedValue[$fieldName] = $field->defaultValue;
-                } elseif ($field->getType() instanceof NonNull) {
-                    $fieldPath = self::printPath(self::atPath($path, $fieldName));
-                    $errors    = self::add(
-                        $errors,
-                        self::coercionError(
-                            sprintf(
-                                'Field %s of required type %s was not provided',
-                                $fieldPath,
-                                $field->getType()->toString()
-                            ),
-                            $blameNode
-                        )
-                    );
-                }
-            }
-
-            // Ensure every provided field is defined.
-            foreach ($value as $fieldName => $field) {
-                if (array_key_exists($fieldName, $fields)) {
-                    continue;
-                }
-
-                $suggestions = Utils::suggestionList(
-                    (string) $fieldName,
-                    array_keys($fields)
+        $errors       = [];
+        $coercedValue = [];
+        $fields       = $type->getFields();
+        foreach ($fields as $fieldName => $field) {
+            if (array_key_exists($fieldName, $value)) {
+                $fieldValue   = $value[$fieldName];
+                $coercedField = self::coerceValue(
+                    $fieldValue,
+                    $field->getType(),
+                    $blameNode,
+                    self::atPath($path, $fieldName)
                 );
-                $didYouMean  = $suggestions === []
-                    ? null
-                    : 'did you mean ' . Utils::orList($suggestions) . '?';
-                $errors      = self::add(
+                if ($coercedField['errors']) {
+                    $errors = self::add($errors, $coercedField['errors']);
+                } else {
+                    $coercedValue[$fieldName] = $coercedField['value'];
+                }
+            } elseif ($field->defaultValueExists()) {
+                $coercedValue[$fieldName] = $field->defaultValue;
+            } elseif ($field->getType() instanceof NonNull) {
+                $fieldPath = self::printPath(self::atPath($path, $fieldName));
+                $errors    = self::add(
                     $errors,
                     self::coercionError(
-                        sprintf('Field "%s" is not defined by type %s', $fieldName, $type->name),
-                        $blameNode,
-                        $path,
-                        $didYouMean
+                        sprintf(
+                            'Field %s of required type %s was not provided',
+                            $fieldPath,
+                            $field->getType()->toString()
+                        ),
+                        $blameNode
                     )
                 );
             }
-
-            return $errors === []
-                ? self::ofValue($coercedValue)
-                : self::ofErrors($errors);
         }
 
-        throw new Error(sprintf('Unexpected type %s', $type->name));
+        // Ensure every provided field is defined.
+        foreach ($value as $fieldName => $field) {
+            if (array_key_exists($fieldName, $fields)) {
+                continue;
+            }
+
+            $suggestions = Utils::suggestionList(
+                (string) $fieldName,
+                array_keys($fields)
+            );
+            $didYouMean  = $suggestions === []
+                ? null
+                : 'did you mean ' . Utils::orList($suggestions) . '?';
+            $errors      = self::add(
+                $errors,
+                self::coercionError(
+                    sprintf('Field "%s" is not defined by type %s', $fieldName, $type->name),
+                    $blameNode,
+                    $path,
+                    $didYouMean
+                )
+            );
+        }
+
+        return $errors === []
+            ? self::ofValue($coercedValue)
+            : self::ofErrors($errors);
     }
 
     private static function ofErrors($errors)

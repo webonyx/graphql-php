@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 class AssertValidNameTest extends TestCase
 {
@@ -28,8 +28,7 @@ class AssertValidNameTest extends TestCase
      */
     public function testThrowsForNonStrings(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Expected string');
+        $this->expectException(TypeError::class);
         Utils::assertValidName([]);
     }
 
@@ -41,5 +40,12 @@ class AssertValidNameTest extends TestCase
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Names must match');
         Utils::assertValidName('>--()-->');
+    }
+
+    public function testAcceptsValidNames(): void
+    {
+        $name = 'foo';
+        self::assertNull(Utils::isValidNameError($name));
+        Utils::assertValidName($name);
     }
 }

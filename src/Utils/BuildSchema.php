@@ -24,12 +24,21 @@ use function array_map;
  * See [schema definition language docs](schema-definition-language.md) for details.
  *
  * @phpstan-type Options array{
- *   commentDescriptions?: bool,
+ *   assumeValid?: bool,
+ *   assumeValidSDL?: bool,
  * }
  *
- *    - commentDescriptions:
- *        Provide true to use preceding comments as the description.
- *        This option is provided to ease adoption and will be removed in v16.
+ *    - assumeValid:
+ *          When building a schema from a GraphQL service's introspection result, it
+ *          might be safe to assume the schema is valid. Set to true to assume the
+ *          produced schema is valid.
+ *
+ *          Default: false
+ *
+ *     - assumeValidSDL:
+ *          Set to true to assume the SDL is valid.
+ *
+ *          Default: false
  */
 class BuildSchema
 {
@@ -110,8 +119,10 @@ class BuildSchema
 
     public function buildSchema(): Schema
     {
-        $options = $this->options;
-        if (! ($options['assumeValid'] ?? false) && ! ($options['assumeValidSDL'] ?? false)) {
+        if (
+            ! ($this->options['assumeValid'] ?? false)
+            && ! ($this->options['assumeValidSDL'] ?? false)
+        ) {
             DocumentValidator::assertValidSDL($this->ast);
         }
 
@@ -161,12 +172,11 @@ class BuildSchema
         );
 
         // If specified directives were not explicitly declared, add them.
-        $directivesByName = Utils::groupBy(
-            $directives,
-            static function (Directive $directive): string {
-                return $directive->name;
-            }
-        );
+        $directivesByName = [];
+        foreach ($directives as $directive) {
+            $directivesByName[$directive->name][] = $directive;
+        }
+
         if (! isset($directivesByName['skip'])) {
             $directives[] = Directive::skipDirective();
         }

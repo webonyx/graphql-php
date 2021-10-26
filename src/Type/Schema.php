@@ -76,7 +76,7 @@ class Schema
     private array $validationErrors;
 
     /** @var array<int, SchemaTypeExtensionNode> */
-    public $extensionASTNodes = [];
+    public array $extensionASTNodes = [];
 
     /**
      * @param SchemaConfig|array<string, mixed> $config

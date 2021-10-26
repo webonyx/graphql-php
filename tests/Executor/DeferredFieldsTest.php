@@ -14,6 +14,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
+use function array_filter;
 use function count;
 use function in_array;
 use function json_encode;
@@ -32,8 +33,18 @@ class DeferredFieldsTest extends TestCase
     /** @var mixed */
     private $paths;
 
-    /** @var mixed[][] */
-    private $storyDataSource;
+    /**
+     * @var array<
+     *     int,
+     *     array{
+     *         id: int,
+     *         authorId: int,
+     *         title: string,
+     *         categoryIds: array<int, int>
+     *    }
+     * >
+     */
+    private array $storyDataSource;
 
     /** @var mixed[][] */
     private $userDataSource;
@@ -143,11 +154,9 @@ class DeferredFieldsTest extends TestCase
                     'resolve' => function ($category, $args, $context, ResolveInfo $info): array {
                         $this->paths[] = $info->path;
 
-                        return Utils::filter(
+                        return array_filter(
                             $this->storyDataSource,
-                            static function ($story) use ($category): bool {
-                                return in_array($category['id'], $story['categoryIds'], true);
-                            }
+                            static fn ($story): bool => in_array($category['id'], $story['categoryIds'], true)
                         );
                     },
                 ],
@@ -191,11 +200,9 @@ class DeferredFieldsTest extends TestCase
                     'resolve' => function ($rootValue, $args, $context, ResolveInfo $info): array {
                         $this->paths[] = $info->path;
 
-                        return Utils::filter(
+                        return array_filter(
                             $this->storyDataSource,
-                            static function ($story): bool {
-                                return $story['id'] % 2 === 1;
-                            }
+                            static fn ($story): bool => $story['id'] % 2 === 1
                         );
                     },
                 ],

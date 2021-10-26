@@ -529,7 +529,10 @@ class SchemaExtender
         array $options = [],
         ?callable $typeConfigDecorator = null
     ): Schema {
-        if (! (isset($options['assumeValid']) || isset($options['assumeValidSDL']))) {
+        if (
+            ! ($options['assumeValid'] ?? false)
+            && ! ($options['assumeValidSDL'] ?? false)
+        ) {
             DocumentValidator::assertValidSDLExtension($documentAST, $schema);
         }
 
