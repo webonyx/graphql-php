@@ -26,7 +26,7 @@ class NodeTest extends TestCase
         );
         $clone = $node->cloneDeep();
 
-        $this->assertNotSame($node, $clone);
-        $this->assertNotSame($node->directives, $clone->directives);
+        self::assertNotSame($node, $clone);
+        self::assertNotSame($node->directives, $clone->directives);
     }
 }
