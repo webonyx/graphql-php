@@ -59,7 +59,7 @@ abstract class Node
      */
     public function cloneDeep(): self
     {
-        /** @phpstan-ignore-next-line cloneValue will return same the type, so all fine */
+        /** @phpstan-ignore-next-line cloneValue will return the same type, so all fine */
         return $this->cloneValue($this);
     }
 
@@ -84,7 +84,7 @@ abstract class Node
             $cloned = clone $value;
 
             foreach ($value as $key => $listValue) {
-                /** @phpstan-ignore-next-line cloneValue will return same the type, so all fine */
+                /** @phpstan-ignore-next-line cloneValue will return the same type, so all fine */
                 $cloned[$key] = $this->cloneValue($listValue);
             }
         } else {
