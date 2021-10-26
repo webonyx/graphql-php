@@ -461,6 +461,7 @@ class Schema
             return $abstractType->isPossibleType($maybeSubType);
         }
 
+        // @phpstan-ignore-next-line necessary until function can be type hinted with actual union type
         throw new InvalidArgumentException('$abstractType must be of type UnionType|InterfaceType got: ' . get_class($abstractType) . '.');
     }
 

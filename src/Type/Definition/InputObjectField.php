@@ -49,7 +49,11 @@ class InputObjectField
     public function getType(): Type
     {
         if (! isset($this->type)) {
-            // @phpstan-ignore-next-line schema validation will catch a Type that is not an InputType
+            /**
+             * @see it('rejects an Input Object type with incorrectly typed fields')
+             *
+             * @phpstan-ignore-next-line schema validation will catch a Type that is not an InputType
+             */
             $this->type = Schema::resolveType($this->config['type']);
         }
 
