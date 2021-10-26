@@ -1,6 +1,6 @@
 parameters:
     # TODO increase to max
-    level: 3
+    level: 4
 
     inferPrivatePropertyTypeFromConstructor: true
 

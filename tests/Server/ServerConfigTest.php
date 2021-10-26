@@ -27,7 +27,7 @@ class ServerConfigTest extends TestCase
         self::assertNull($config->getPromiseAdapter());
         self::assertNull($config->getValidationRules());
         self::assertNull($config->getFieldResolver());
-        self::assertNull($config->getPersistentQueryLoader());
+        self::assertNull($config->getPersistedQueryLoader());
         self::assertSame(DebugFlag::NONE, $config->getDebugFlag());
         self::assertFalse($config->getQueryBatching());
     }
@@ -157,12 +157,12 @@ class ServerConfigTest extends TestCase
 
         $loader = static function (): void {
         };
-        $config->setPersistentQueryLoader($loader);
-        self::assertSame($loader, $config->getPersistentQueryLoader());
+        $config->setPersistedQueryLoader($loader);
+        self::assertSame($loader, $config->getPersistedQueryLoader());
 
         $loader = 'date'; // test for callable
-        $config->setPersistentQueryLoader($loader);
-        self::assertSame($loader, $config->getPersistentQueryLoader());
+        $config->setPersistedQueryLoader($loader);
+        self::assertSame($loader, $config->getPersistedQueryLoader());
     }
 
     public function testAllowsSettingCatchPhpErrors(): void
@@ -206,7 +206,7 @@ class ServerConfigTest extends TestCase
         self::assertSame($arr['promiseAdapter'], $config->getPromiseAdapter());
         self::assertSame($arr['validationRules'], $config->getValidationRules());
         self::assertSame($arr['fieldResolver'], $config->getFieldResolver());
-        self::assertSame($arr['persistentQueryLoader'], $config->getPersistentQueryLoader());
+        self::assertSame($arr['persistentQueryLoader'], $config->getPersistedQueryLoader());
         self::assertSame(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
         self::assertTrue($config->getQueryBatching());
     }
