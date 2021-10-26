@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace GraphQL\Tests\Language\AST;
 
@@ -13,8 +15,9 @@ class NodeTest extends TestCase
     /**
      * @covers ::cloneDeep
      */
-    public function testCloneDeep(): void {
-        $node = Parser::objectTypeDefinition(
+    public function testCloneDeep(): void
+    {
+        $node  = Parser::objectTypeDefinition(
             <<<'GRAPHQL'
             type Test {
                 id: ID!
