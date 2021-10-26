@@ -10,6 +10,10 @@ coverage:
       default:
         threshold: 1%
         only_pulls: true
+    patch:
+      default:
+        threshold: 1%
+        only_pulls: true
 
 parsers:
   gcov:
