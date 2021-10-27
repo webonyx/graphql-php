@@ -74,19 +74,19 @@ abstract class Node
      */
     protected static function cloneValue($value)
     {
-        if ($value instanceof NodeList) {
+        if ($value instanceof self) {
             $cloned = clone $value;
-            foreach ($value as $key => $listValue) {
-                $cloned[$key] = static::cloneValue($listValue);
+            foreach (get_object_vars($cloned) as $prop => $propValue) {
+                $cloned->{$prop} = static::cloneValue($propValue);
             }
 
             return $cloned;
         }
 
-        if ($value instanceof self) {
+        if ($value instanceof NodeList) {
             $cloned = clone $value;
-            foreach (get_object_vars($cloned) as $prop => $propValue) {
-                $cloned->{$prop} = static::cloneValue($propValue);
+            foreach ($value as $key => $listValue) {
+                $cloned[$key] = static::cloneValue($listValue);
             }
 
             return $cloned;
