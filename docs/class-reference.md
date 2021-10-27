@@ -1890,11 +1890,11 @@ function setFieldResolver(callable $fieldResolver): self
 
 ```php
 /**
- * @param callable(string $queryId, OperationParams $params): (string|DocumentNode) $persistentQueryLoader
+ * @param callable(string $queryId, OperationParams $params): (string|DocumentNode) $persistedQueryLoader
  *
  * @api
  */
-function setPersistentQueryLoader(callable $persistentQueryLoader): self
+function setPersistentQueryLoader(callable $persistedQueryLoader): self
 ```
 
 ```php

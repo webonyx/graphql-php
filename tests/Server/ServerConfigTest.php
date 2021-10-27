@@ -191,7 +191,7 @@ class ServerConfigTest extends TestCase
             },
             'fieldResolver'         => static function (): void {
             },
-            'persistentQueryLoader' => static function (): void {
+            'persistedQueryLoader' => static function (): void {
             },
             'debugFlag'             => DebugFlag::INCLUDE_DEBUG_MESSAGE,
             'queryBatching'         => true,
@@ -206,7 +206,7 @@ class ServerConfigTest extends TestCase
         self::assertSame($arr['promiseAdapter'], $config->getPromiseAdapter());
         self::assertSame($arr['validationRules'], $config->getValidationRules());
         self::assertSame($arr['fieldResolver'], $config->getFieldResolver());
-        self::assertSame($arr['persistentQueryLoader'], $config->getPersistedQueryLoader());
+        self::assertSame($arr['persistedQueryLoader'], $config->getPersistedQueryLoader());
         self::assertSame(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
         self::assertTrue($config->getQueryBatching());
     }

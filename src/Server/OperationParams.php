@@ -15,6 +15,10 @@ use const JSON_ERROR_NONE;
 
 /**
  * Structure representing parsed HTTP parameters for GraphQL operation.
+ *
+ * The properties in this class are not strictly typed, as this class
+ * is only meant to serve as an intermediary representation which is
+ * not yet validated.
  */
 class OperationParams
 {
@@ -27,39 +31,56 @@ class OperationParams
      * - documentId
      *
      * @api
-     * @var mixed
+     * @var mixed should be string|null
      */
     public $queryId;
 
     /**
+     * A document containing GraphQL operations and fragments to execute.
+     *
      * @api
-     * @var mixed
+     * @var mixed should be string|null
      */
     public $query;
 
     /**
+     * The name of the operation in the document to execute.
+     *
      * @api
-     * @var mixed
+     * @var mixed should be string|null
      */
     public $operation;
 
     /**
+     * Values for any variables defined by the operation.
+     *
      * @api
-     * @var mixed
+     * @var mixed should be array<string, mixed>
      */
     public $variables;
 
     /**
+     * Reserved for implementors to extend the protocol however they see fit.
+     *
      * @api
-     * @var mixed
+     * @var mixed should be array<string, mixed>
      */
     public $extensions;
 
-    /** @api */
+    /**
+     * Executed in read-only context (e.g. via HTTP GET request)?
+     *
+     * @api
+     */
     public bool $readOnly;
 
-    /** @var array<string, mixed> */
-    protected array $originalInput;
+    /**
+     * The raw params used to construct this instance.
+     *
+     * @api
+     * @var array<string, mixed>
+     */
+    public array $originalInput;
 
     /**
      * Creates an instance from given array
@@ -115,7 +136,7 @@ class OperationParams
     /**
      * @return mixed
      *
-     * @api
+     * @deprecated
      */
     public function getOriginalInput(string $key)
     {
@@ -123,10 +144,7 @@ class OperationParams
     }
 
     /**
-     * Indicates that operation is executed in read-only context
-     * (e.g. via HTTP GET request)
-     *
-     * @api
+     * @deprecated
      */
     public function isReadOnly(): bool
     {

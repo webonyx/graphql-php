@@ -32,7 +32,7 @@ use function ucfirst;
  *
  *     $server = new GraphQL\Server\StandardServer($config);
  *
- * @phpstan-type PersistedQueryLoader callable(PersistedOperation): (string|DocumentNode)
+ * @phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
  * @phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
  * @phpstan-type ValidationRulesOption array<ValidationRule>|(callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>)|null
  */
