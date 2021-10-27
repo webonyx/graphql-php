@@ -54,33 +54,40 @@ abstract class Node
         Utils::assign($this, $vars);
     }
 
+    /**
+     * Returns a clone of this instance and all its children, except Location $loc.
+     *
+     * @return static
+     */
     public function cloneDeep(): self
     {
-        return $this->cloneValue($this);
+        return static::cloneValue($this);
     }
 
     /**
-     * @param string|NodeList|Location|Node|(Node|NodeList|Location)[] $value
+     * @phpstan-param TCloneable $value
      *
-     * @return string|NodeList|Location|Node
+     * @phpstan-return TCloneable
+     *
+     * @template TNode of Node
+     * @template TCloneable of TNode|NodeList<TNode>|Location|string
      */
-    private function cloneValue($value)
+    protected static function cloneValue($value)
     {
-        if (is_array($value)) {
-            $cloned = [];
-            foreach ($value as $key => $arrValue) {
-                $cloned[$key] = $this->cloneValue($arrValue);
-            }
-        } elseif ($value instanceof self) {
+        if ($value instanceof self) {
             $cloned = clone $value;
             foreach (get_object_vars($cloned) as $prop => $propValue) {
-                $cloned->{$prop} = $this->cloneValue($propValue);
+                $cloned->{$prop} = static::cloneValue($propValue);
             }
-        } else {
-            $cloned = $value;
+
+            return $cloned;
         }
 
-        return $cloned;
+        if ($value instanceof NodeList) {
+            return $value->cloneDeep();
+        }
+
+        return $value;
     }
 
     public function __toString(): string
