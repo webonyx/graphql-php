@@ -55,7 +55,7 @@ abstract class Node
     }
 
     /**
-     * Performs a deep clone of this Node and all its children, except Location $loc.
+     * Returns a clone of this instance and all its children, except Location $loc.
      *
      * @return static
      */
@@ -84,12 +84,7 @@ abstract class Node
         }
 
         if ($value instanceof NodeList) {
-            $cloned = clone $value;
-            foreach ($value as $key => $listValue) {
-                $cloned[$key] = static::cloneValue($listValue);
-            }
-
-            return $cloned;
+            return $value->cloneDeep();
         }
 
         return $value;

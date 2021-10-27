@@ -56,17 +56,12 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\) should return TCloneable of GraphQL\\\\Language\\\\AST\\\\Location\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\<TNode of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|string\\|TNode of GraphQL\\\\Language\\\\AST\\\\Node but returns TCloneable of GraphQL\\\\Language\\\\AST\\\\NodeList\\<TNode of GraphQL\\\\Language\\\\AST\\\\Node\\>\\.$#"
+			message: "#^Method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\) should return TCloneable of GraphQL\\\\Language\\\\AST\\\\Location\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\<TNode of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|string\\|TNode of GraphQL\\\\Language\\\\AST\\\\Node but returns TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\) should return TCloneable of GraphQL\\\\Language\\\\AST\\\\Location\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\<TNode of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|string\\|TNode of GraphQL\\\\Language\\\\AST\\\\Node but returns TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
-			count: 1
-			path: src/Language/AST/Node.php
-
-		-
-			message: "#^Variable property access on TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
+			message: "#^Variable property access on TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
 

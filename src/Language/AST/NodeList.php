@@ -158,4 +158,19 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     {
         return count($this->nodes);
     }
+
+    /**
+     * Returns a clone of this instance and all its children, except Location $loc.
+     *
+     * @return static<T>
+     */
+    public function cloneDeep(): self
+    {
+        $cloned = clone $this;
+        foreach ($this->nodes as $key => $node) {
+            $cloned[$key] = $node->cloneDeep();
+        }
+
+        return $cloned;
+    }
 }
