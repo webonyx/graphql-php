@@ -55,43 +55,44 @@ abstract class Node
     }
 
     /**
-     * @return $this
+     * Performs a deep clone of this Node and all its children, except Location $loc.
+     *
+     * @return static
      */
     public function cloneDeep(): self
     {
-        /** @phpstan-ignore-next-line cloneValue will return the same type, so all fine */
-        return $this->cloneValue($this);
+        return static::cloneValue($this);
     }
 
     /**
-     * @param string|NodeList|Location|Node|(Node|NodeList|Location)[] $value
+     * @phpstan-param TCloneable $value
      *
-     * @return string|NodeList|Location|Node
+     * @phpstan-return TCloneable
+     *
+     * @template TNode of Node
+     * @template TCloneable of TNode|NodeList<TNode>|Location|string
      */
-    private function cloneValue($value)
+    protected static function cloneValue($value)
     {
-        if (is_array($value)) {
-            $cloned = [];
-            foreach ($value as $key => $arrValue) {
-                $cloned[$key] = $this->cloneValue($arrValue);
-            }
-        } elseif ($value instanceof self) {
+        if ($value instanceof NodeList) {
             $cloned = clone $value;
-            foreach (get_object_vars($cloned) as $prop => $propValue) {
-                $cloned->{$prop} = $this->cloneValue($propValue);
-            }
-        } elseif ($value instanceof NodeList) {
-            $cloned = clone $value;
-
             foreach ($value as $key => $listValue) {
-                /** @phpstan-ignore-next-line cloneValue will return the same type, so all fine */
-                $cloned[$key] = $this->cloneValue($listValue);
+                $cloned[$key] = static::cloneValue($listValue);
             }
-        } else {
-            $cloned = $value;
+
+            return $cloned;
         }
 
-        return $cloned;
+        if ($value instanceof self) {
+            $cloned = clone $value;
+            foreach (get_object_vars($cloned) as $prop => $propValue) {
+                $cloned->{$prop} = static::cloneValue($propValue);
+            }
+
+            return $cloned;
+        }
+
+        return $value;
     }
 
     public function __toString(): string
