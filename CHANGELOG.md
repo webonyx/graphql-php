@@ -72,6 +72,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
 
+## 14.10.0
+
+### Added
+
+- Make `IntType` constants `MAX_INT` and `MIN_INT` public
+
 ## 14.9.0
 
 ### Added
