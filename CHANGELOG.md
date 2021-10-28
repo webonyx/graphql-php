@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.10.0
+
+Feat:
+- Make `IntType` constants `MAX_INT` and `MIN_INT` public
+
 #### 14.9.0
 
 Feat:
