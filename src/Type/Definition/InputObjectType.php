@@ -11,6 +11,7 @@ use GraphQL\Utils\Utils;
 use function count;
 use function is_array;
 use function is_callable;
+use function is_iterable;
 use function is_string;
 use function sprintf;
 
@@ -80,9 +81,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             $fields = $fields();
         }
 
-        if (! is_array($fields)) {
+        if (! is_iterable($fields)) {
             throw new InvariantViolation(
-                sprintf('%s fields must be an array or a callable which returns such an array.', $this->name)
+                sprintf('%s fields must be an iterable or a callable which returns such an iterable.', $this->name)
             );
         }
 
