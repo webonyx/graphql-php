@@ -33,7 +33,6 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Expose structured enumeration of directive locations
 - Add `AST::concatAST()` utility
 - Allow lazy input object fields
-- Allow field definitions to be defined as any `iterable`, not just `array`
 
 ### Optimized
 
@@ -72,6 +71,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated public property access to `FieldDefinition::$type`
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
+
+## 14.11.0
+
+### Added
+
+- Allow field definitions to be defined as any `iterable`, not just `array`
 
 ## 14.10.0
 
