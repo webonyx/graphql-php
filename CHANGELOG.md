@@ -2,6 +2,8 @@
 
 #### Unreleased
 
+#### 14.11.0
+
 - Allow field definitions to be defined as any `iterable`, not just `array`
 
 #### 14.10.0
