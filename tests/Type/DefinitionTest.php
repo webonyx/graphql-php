@@ -2090,7 +2090,7 @@ class DefinitionTest extends TestCase
     {
         $type = new ObjectType([
             'name'   => 'Query',
-            'fields' => static function (): Generator {
+            'fields' => static function () : Generator {
                 yield 'url'    => ['type' => Type::string()];
                 yield 'width'  => ['type' => Type::int()];
             },
