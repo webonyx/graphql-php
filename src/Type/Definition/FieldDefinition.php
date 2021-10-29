@@ -12,6 +12,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function is_array;
 use function is_callable;
+use function is_iterable;
 use function is_string;
 use function sprintf;
 
@@ -95,9 +96,9 @@ class FieldDefinition
         if (is_callable($fields)) {
             $fields = $fields();
         }
-        if (! is_array($fields)) {
+        if (! is_iterable($fields)) {
             throw new InvariantViolation(
-                sprintf('%s fields must be an array or a callable which returns such an array.', $type->name)
+                sprintf('%s fields must be an iterable or a callable which returns such an iterable.', $type->name)
             );
         }
         $map = [];

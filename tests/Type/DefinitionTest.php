@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use Generator;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
@@ -15,9 +16,11 @@ use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
@@ -2081,5 +2084,28 @@ class DefinitionTest extends TestCase
         );
 
         $objType->assertValid();
+    }
+
+    public function testReturningFieldsUsingYield()
+    {
+        $type = new ObjectType([
+            'name'   => 'Query',
+            'fields' => static function () : Generator {
+                yield 'url'    => ['type' => Type::string()];
+                yield 'width'  => ['type' => Type::int()];
+            },
+        ]);
+
+        $blogSchema = new Schema(['query' => $type]);
+
+        self::assertSame($blogSchema->getQueryType(), $type);
+
+        $field = $type->getField('url');
+        self::assertSame($field->name, 'url');
+        self::assertInstanceOf(StringType::class, $field->getType());
+
+        $field = $type->getField('width');
+        self::assertSame($field->name, 'width');
+        self::assertInstanceOf(IntType::class, $field->getType());
     }
 }
