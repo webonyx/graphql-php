@@ -434,8 +434,17 @@ class SchemaPrinter
         $types = count($types) > 0
             ? ' = ' . implode(' | ', $types)
             : '';
+        $directives = static::printTypeDirectives($type, $options, '');
 
-        return static::printDescription($options, $type) . 'union ' . $type->name . $types;
+        if (mb_strlen($directives) >  static::LINE_LENGTH) {
+            $types = ltrim($types);
+            $directives .= "\n";
+        }
+
+        return static::printDescription($options, $type) .
+            'union ' . $type->name .
+            $directives .
+            $types;
     }
 
     /**
@@ -508,7 +517,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param Type|EnumValueDefinition|EnumType|InterfaceType|FieldDefinition $type
+     * @param Type|EnumValueDefinition|EnumType|InterfaceType|FieldDefinition|UnionType $type
      * @param array<string, bool> $options
      * @phpstan-param Options $options
      */

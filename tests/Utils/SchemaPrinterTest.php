@@ -1335,6 +1335,10 @@ class SchemaPrinterTest extends TestCase
             type TypeB implements InterfaceB @test(value: "{$text}") {
               a: ID
             }
+
+            union UnionA @test = TypeA | TypeB
+
+            union UnionB @test(value: "{$text}") = TypeA | TypeB
             GRAPHQL;
         $expected = /** @lang GraphQL */ <<<'GRAPHQL'
             directive @test(value: String) on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
@@ -1415,6 +1419,12 @@ class SchemaPrinterTest extends TestCase
             @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
               a: ID
             }
+
+            union UnionA @test = TypeA | TypeB
+
+            union UnionB
+            @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            = TypeA | TypeB
 
             GRAPHQL;
         $actual = SchemaPrinter::doPrint(BuildSchema::build($schema), [
