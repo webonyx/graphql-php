@@ -6,6 +6,7 @@ namespace GraphQL\Utils;
 
 use Closure;
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
@@ -582,26 +583,45 @@ class SchemaPrinter
      */
     protected static function printTypeDirective(DirectiveNode $directive, array $options, string $indentation): string
     {
-        return Printer::doPrint($directive);
+        $length = 0;
+        $arguments = [];
+
+        foreach ($directive->arguments as $argument) {
+            $value = static::printArgument($argument, $options, '  '.$indentation);
+            $length = $length + mb_strlen($value);
+            $arguments[] = $value;
+        }
+
+        return "@{$directive->name->value}" .
+            static::printLines($arguments, '(', ')', static::isLineTooLong($length), $indentation);
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    protected static function printArgument(ArgumentNode $argument, array $options, string $indentation): string
+    {
+        return "{$indentation}{$argument->name->value}: " . Printer::doPrint($argument->value);
     }
 
     /**
      * @param array<string> $lines
      */
-    protected static function printLines(array $lines, string $begin, string $end, bool $multiline, string $indentation = ''): string
+    protected static function printLines(array $lines, string $begin, string $end, bool $forceMultiline, string $indentation = ''): string
     {
         $block = '';
 
         if ($lines) {
-            $multiline = $multiline || static::isLineTooLong(array_sum(array_map('mb_strlen', $lines)));
+            $forceMultiline = $forceMultiline || static::isLineTooLong(array_sum(array_map('mb_strlen', $lines)));
 
-            if ($multiline) {
+            if ($forceMultiline) {
                 $wrapped = false;
 
                 for ($i = 0, $c = count($lines); $i < $c; $i++) {
                     // If line too long and contains LF we wrap it by empty lines
                     $line = trim($lines[$i], "\n");
-                    $wrap = static::isLineTooLong($line) || mb_strpos($line, "\n") !== false;
+                    $wrap = mb_strpos($line, "\n") !== false;
 
                     if ($i === 0) {
                         $line = "\n{$line}";
