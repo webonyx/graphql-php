@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use Closure;
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
@@ -30,8 +33,10 @@ use function array_values;
 use function count;
 use function explode;
 use function implode;
+use function is_callable;
 use function ksort;
 use function mb_strlen;
+use function self;
 use function sprintf;
 use function str_replace;
 use function strlen;
@@ -39,14 +44,18 @@ use function strlen;
 /**
  * Prints the contents of a Schema in schema definition language.
  *
- * @phpstan-type Options array{commentDescriptions?: bool}
+ * @phpstan-type Options array{commentDescriptions?: bool, printDirectives?: callable(DirectiveNode): bool}
  *
  *  - commentDescriptions:
  *      Provide true to use preceding comments as the description.
  *      This option is provided to ease adoption and will be removed in v16.
+ *  - printDirectives
+ *      Callable used to determine should be directive printed or not.
  */
 class SchemaPrinter
 {
+    protected const LINE_LENGTH = 80;
+
     /**
      * @param array<string, bool> $options
      * @phpstan-param Options $options
@@ -308,7 +317,9 @@ class SchemaPrinter
      */
     protected static function printScalar(ScalarType $type, array $options): string
     {
-        return sprintf('%sscalar %s', static::printDescription($options, $type), $type->name);
+        return static::printDescription($options, $type) .
+            sprintf('scalar %s', $type->name) .
+            static::printTypeDirectives($type, $options);
     }
 
     /**
@@ -458,5 +469,54 @@ class SchemaPrinter
         return count($items) > 0
             ? " {\n" . implode("\n", $items) . "\n}"
             : '';
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    protected static function printTypeDirectives(Type $type, array $options, string $indentation = ''): string {
+        // Enabled?
+        $filter = $options['printDirectives'] ?? null;
+
+        if (!$filter || !is_callable($filter)) {
+            return '';
+        }
+
+        // AST Node available and has directives?
+        $node = $type->astNode;
+
+        if (!($node instanceof ScalarTypeDefinitionNode)) {
+            return '';
+        }
+
+        // Print
+        /** @var array<string> $directives */
+        $length = 0;
+        $directives = [];
+
+        foreach ($node->directives as $directive) {
+            if ($filter($directive)) {
+                $string = static::printTypeDirective($directive, $options, $indentation);
+                $length = $length + mb_strlen($string);
+                $directives[] = $string;
+            }
+        }
+
+        // Multiline?
+        $delimiter = $length > static::LINE_LENGTH ? "\n{$indentation}" : ' ';
+        $serialized = $delimiter.implode($delimiter, $directives);
+
+        // Return
+        return $serialized;
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    protected static function printTypeDirective(DirectiveNode $directive, array $options, string $indentation): string
+    {
+        return Printer::doPrint($directive);
     }
 }

@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Utils;
 
 use Generator;
 use GraphQL\Language\DirectiveLocation;
+use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -18,6 +19,8 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
+
+use function str_pad;
 
 class SchemaPrinterTest extends TestCase
 {
@@ -1272,5 +1275,43 @@ class SchemaPrinterTest extends TestCase
 
             GRAPHQL;
         self::assertEquals($expected, $output);
+    }
+
+    public function testPrintDirectives(): void {
+        $text   = str_pad('a', 80, 'a');
+        $schema = /** @lang GraphQL */ <<<GRAPHQL
+        directive @test(
+          value: String
+        ) on SCHEMA |
+            SCALAR |
+            OBJECT |
+            FIELD_DEFINITION |
+            ARGUMENT_DEFINITION |
+            INTERFACE |
+            UNION |
+            ENUM |
+            ENUM_VALUE |
+            INPUT_OBJECT |
+            INPUT_FIELD_DEFINITION
+
+        scalar ScalarA @test
+        scalar ScalarB @test(value: "{$text}")
+        GRAPHQL;
+        $expected = <<<'GRAPHQL'
+        directive @test(value: String) on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+        scalar ScalarA @test
+
+        scalar ScalarB
+        @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+        GRAPHQL;
+        $actual = SchemaPrinter::doPrint(BuildSchema::build($schema), [
+            'printDirectives' => static function(): bool {
+                return true;
+            },
+        ]);
+
+        self::assertEquals($expected, $actual);
     }
 }
