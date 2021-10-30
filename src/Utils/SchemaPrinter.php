@@ -46,7 +46,6 @@ use function ksort;
 use function ltrim;
 use function mb_strlen;
 use function mb_strpos;
-use function self;
 use function sprintf;
 use function str_replace;
 use function strlen;
@@ -531,7 +530,7 @@ class SchemaPrinter
         // Enabled?
         $filter = $options['printDirectives'] ?? null;
 
-        if (!$filter || !is_callable($filter)) {
+        if (!is_callable($filter)) {
             if ($type instanceof EnumValueDefinition || $type instanceof FieldDefinition) {
                 return static::printDeprecated($type);
             }
@@ -542,12 +541,11 @@ class SchemaPrinter
         // AST Node available and has directives?
         $node = $type->astNode;
 
-        if (!$node) {
+        if ($node === null) {
             return '';
         }
 
         // Print
-        /** @var array<string> $directives */
         $length = 0;
         $directives = [];
 
@@ -562,7 +560,7 @@ class SchemaPrinter
                 // empty
             }
 
-            if ($string) {
+            if ($string !== null) {
                 $length = $length + mb_strlen($string);
                 $directives[] = $string;
             }
@@ -571,7 +569,7 @@ class SchemaPrinter
         // Multiline?
         $serialized = '';
 
-        if ($directives) {
+        if (count($directives) > 0) {
             $delimiter  = static::isLineTooLong($length) ? "\n{$indentation}" : ' ';
             $serialized = $delimiter.implode($delimiter, $directives);
         }
@@ -632,7 +630,7 @@ class SchemaPrinter
     {
         $block = '';
 
-        if ($lines) {
+        if (count($lines) > 0) {
             $forceMultiline = $forceMultiline || static::isLineTooLong(array_sum(array_map('mb_strlen', $lines)));
 
             if ($forceMultiline) {
