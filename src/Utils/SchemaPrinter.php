@@ -10,7 +10,10 @@ use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\ListValueNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
@@ -602,7 +605,24 @@ class SchemaPrinter
      */
     protected static function printArgument(ArgumentNode $argument, array $options, string $indentation): string
     {
-        return "{$indentation}{$argument->name->value}: " . Printer::doPrint($argument->value);
+        $value = $argument->value;
+
+        if ($value instanceof ListValueNode) {
+            $length = 0;
+            $values = [];
+
+            foreach ($value->values as $item) {
+                $string = '  ' . $indentation . Printer::doPrint($item);
+                $length = $length + mb_strlen($string);
+                $values[] = $string;
+            }
+
+            $value = static::printLines($values, '[', ']', static::isLineTooLong($length), $indentation);
+        } else {
+            $value = Printer::doPrint($value);
+        }
+
+        return "{$indentation}{$argument->name->value}: {$value}";
     }
 
     /**

@@ -1281,6 +1281,7 @@ class SchemaPrinterTest extends TestCase
         $text = str_pad('a', 80, 'a');
         $schema = /** @lang GraphQL */ <<<GRAPHQL
             directive @test(
+              values: [String!]
               value: String @test(value: "{$text}")
               text: String
             ) on SCHEMA |
@@ -1366,10 +1367,13 @@ class SchemaPrinterTest extends TestCase
                 "{$text}"
                 d: String = "123" @test(value: "{$text}", text: "{$text}")
               ): Boolean
+              e: String @test(values: ["{$text}", "{$text}", "{$text}"])
             }
             GRAPHQL;
         $expected = /** @lang GraphQL */ <<<'GRAPHQL'
             directive @test(
+              values: [String!]
+
               value: String
               @test(
                 value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -1507,6 +1511,15 @@ class SchemaPrinterTest extends TestCase
                   text: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                 )
               ): Boolean
+
+              e: String
+              @test(
+                values: [
+                  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                ]
+              )
             }
 
             scalar ScalarA @test
