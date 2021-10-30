@@ -404,6 +404,7 @@ class SchemaPrinter
         return static::printDescription($options, $type) .
             sprintf('interface %s', $type->name) .
             self::printImplementedInterfaces($type) .
+            static::printTypeDirectives($type, $options) .
             static::printFields($options, $type);
     }
 
@@ -491,7 +492,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param Type|EnumValueDefinition|EnumType $type
+     * @param Type|EnumValueDefinition|EnumType|InterfaceType $type
      * @param array<string, bool> $options
      * @phpstan-param Options $options
      */
@@ -510,7 +511,7 @@ class SchemaPrinter
         // AST Node available and has directives?
         $node = $type->astNode;
 
-        if (!($node instanceof ScalarTypeDefinitionNode || $node instanceof EnumValueDefinitionNode || $node instanceof EnumTypeDefinitionNode)) {
+        if (!$node) {
             return '';
         }
 

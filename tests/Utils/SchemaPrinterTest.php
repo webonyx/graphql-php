@@ -1309,6 +1309,14 @@ class SchemaPrinterTest extends TestCase
         enum EnumB @test(value: "{$text}") {
           a
         }
+
+        interface InterfaceA @test {
+          a: ID
+        }
+
+        interface InterfaceB @test(value: "{$text}") {
+          a: ID
+        }
         GRAPHQL;
         $expected = /** @lang GraphQL */ <<<'GRAPHQL'
         directive @test(value: String) on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
@@ -1335,6 +1343,15 @@ class SchemaPrinterTest extends TestCase
         enum EnumB
         @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
           a
+        }
+
+        interface InterfaceA @test {
+          a: ID
+        }
+
+        interface InterfaceB
+        @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
+          a: ID
         }
 
         scalar ScalarA @test
