@@ -7,6 +7,7 @@ namespace GraphQL\Utils;
 use Closure;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\BlockString;
@@ -437,6 +438,7 @@ class SchemaPrinter
 
         return static::printDescription($options, $type) .
             sprintf('enum %s', $type->name) .
+            static::printTypeDirectives($type, $options) .
             static::printBlock($values);
     }
 
@@ -489,7 +491,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param Type|EnumValueDefinition $type
+     * @param Type|EnumValueDefinition|EnumType $type
      * @param array<string, bool> $options
      * @phpstan-param Options $options
      */
@@ -508,7 +510,7 @@ class SchemaPrinter
         // AST Node available and has directives?
         $node = $type->astNode;
 
-        if (!($node instanceof ScalarTypeDefinitionNode || $node instanceof EnumValueDefinitionNode)) {
+        if (!($node instanceof ScalarTypeDefinitionNode || $node instanceof EnumValueDefinitionNode || $node instanceof EnumTypeDefinitionNode)) {
             return '';
         }
 
@@ -535,8 +537,12 @@ class SchemaPrinter
         }
 
         // Multiline?
-        $delimiter = $length > static::LINE_LENGTH ? "\n{$indentation}" : ' ';
-        $serialized = $delimiter.implode($delimiter, $directives);
+        $serialized = '';
+
+        if ($directives) {
+            $delimiter  = $length > static::LINE_LENGTH ? "\n{$indentation}" : ' ';
+            $serialized = $delimiter.implode($delimiter, $directives);
+        }
 
         // Return
         return $serialized;

@@ -1278,7 +1278,7 @@ class SchemaPrinterTest extends TestCase
     }
 
     public function testPrintDirectives(): void {
-        $text   = str_pad('a', 80, 'a');
+        $text = str_pad('a', 80, 'a');
         $schema = /** @lang GraphQL */ <<<GRAPHQL
         directive @test(
           value: String
@@ -1297,19 +1297,23 @@ class SchemaPrinterTest extends TestCase
         scalar ScalarA @test
         scalar ScalarB @test(value: "{$text}")
 
-        enum EnumA {
+        enum EnumA @test {
           a @test @deprecated
           b @test(value: "{$text}")
           "{$text}"
           c @test
           "{$text}"
-          d @test(value: "{$text}")
+          d @test(value: "{$text}") @deprecated
+        }
+
+        enum EnumB @test(value: "{$text}") {
+          a
         }
         GRAPHQL;
-        $expected = <<<'GRAPHQL'
+        $expected = /** @lang GraphQL */ <<<'GRAPHQL'
         directive @test(value: String) on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
-        enum EnumA {
+        enum EnumA @test {
           a @test @deprecated
 
           b
@@ -1325,6 +1329,12 @@ class SchemaPrinterTest extends TestCase
           """
           d
           @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+          @deprecated
+        }
+
+        enum EnumB
+        @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
+          a
         }
 
         scalar ScalarA @test
