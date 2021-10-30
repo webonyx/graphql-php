@@ -107,7 +107,7 @@ class UniqueOperationTypesTest extends ValidatorTestCase
     /**
      * @see it('duplicate operation types inside single schema definition')
      */
-    public function testDuplicateOperationTypesInsideSingleSchemaDefiniti(): void
+    public function testDuplicateOperationTypesInsideSingleSchemaDefinition(): void
     {
         $this->expectSDLErrors(
             '
