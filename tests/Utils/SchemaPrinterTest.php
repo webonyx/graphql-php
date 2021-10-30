@@ -1280,142 +1280,143 @@ class SchemaPrinterTest extends TestCase
     public function testPrintDirectives(): void {
         $text = str_pad('a', 80, 'a');
         $schema = /** @lang GraphQL */ <<<GRAPHQL
-        directive @test(
-          value: String
-        ) on SCHEMA |
-            SCALAR |
-            OBJECT |
-            FIELD_DEFINITION |
-            ARGUMENT_DEFINITION |
-            INTERFACE |
-            UNION |
-            ENUM |
-            ENUM_VALUE |
-            INPUT_OBJECT |
-            INPUT_FIELD_DEFINITION
+            directive @test(
+              value: String
+            ) on SCHEMA |
+                SCALAR |
+                OBJECT |
+                FIELD_DEFINITION |
+                ARGUMENT_DEFINITION |
+                INTERFACE |
+                UNION |
+                ENUM |
+                ENUM_VALUE |
+                INPUT_OBJECT |
+                INPUT_FIELD_DEFINITION
 
-        scalar ScalarA @test
-        scalar ScalarB @test(value: "{$text}")
+            scalar ScalarA @test
+            scalar ScalarB @test(value: "{$text}")
 
-        enum EnumA @test {
-          a @test @deprecated
-          b @test(value: "{$text}")
-          "{$text}"
-          c @test
-          "{$text}"
-          d @test(value: "{$text}") @deprecated
-        }
+            enum EnumA @test {
+              a @test @deprecated
+              b @test(value: "{$text}")
+              "{$text}"
+              c @test
+              "{$text}"
+              d @test(value: "{$text}") @deprecated
+            }
 
-        enum EnumB @test(value: "{$text}") {
-          a
-        }
+            enum EnumB @test(value: "{$text}") {
+              a
+            }
 
-        interface InterfaceA @test {
-          a: Int @test @deprecated
-          b: Int @test(value: "{$text}")
-          "{$text}"
-          c: Int @test
-          "{$text}"
-          d: Int @test(value: "{$text}") @deprecated
-        }
+            interface InterfaceA @test {
+              a: Int @test @deprecated
+              b: Int @test(value: "{$text}")
+              "{$text}"
+              c: Int @test
+              "{$text}"
+              d: Int @test(value: "{$text}") @deprecated
+            }
 
-        interface InterfaceB @test(value: "{$text}") {
-          a: ID
-        }
+            interface InterfaceB implements InterfaceA @test(value: "{$text}") {
+              a: ID
+            }
 
-        type TypeA {
-          a: Int @test @deprecated
-          b: Int @test(value: "{$text}")
-          "{$text}"
-          c: Int @test
-          "{$text}"
-          d: Int @test(value: "{$text}") @deprecated
-        }
+            type TypeA @test {
+              a: Int @test @deprecated
+              b: Int @test(value: "{$text}")
+              "{$text}"
+              c: Int @test
+              "{$text}"
+              d: Int @test(value: "{$text}") @deprecated
+            }
 
-        type TypeB {
-          a: ID
-        }
-        GRAPHQL;
+            type TypeB implements InterfaceB @test(value: "{$text}") {
+              a: ID
+            }
+            GRAPHQL;
         $expected = /** @lang GraphQL */ <<<'GRAPHQL'
-        directive @test(value: String) on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+            directive @test(value: String) on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
-        enum EnumA @test {
-          a @test @deprecated
+            enum EnumA @test {
+              a @test @deprecated
 
-          b
-          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+              b
+              @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
-          """
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          """
-          c @test
+              """
+              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+              c @test
 
-          """
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          """
-          d
-          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-          @deprecated
-        }
+              """
+              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+              d
+              @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+              @deprecated
+            }
 
-        enum EnumB
-        @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
-          a
-        }
+            enum EnumB
+            @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
+              a
+            }
 
-        interface InterfaceA @test {
-          a: Int @test @deprecated
+            interface InterfaceA @test {
+              a: Int @test @deprecated
 
-          b: Int
-          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+              b: Int
+              @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
-          """
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          """
-          c: Int @test
+              """
+              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+              c: Int @test
 
-          """
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          """
-          d: Int
-          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-          @deprecated
-        }
+              """
+              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+              d: Int
+              @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+              @deprecated
+            }
 
-        interface InterfaceB
-        @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
-          a: ID
-        }
+            interface InterfaceB implements InterfaceA
+            @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
+              a: ID
+            }
 
-        scalar ScalarA @test
+            scalar ScalarA @test
 
-        scalar ScalarB
-        @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            scalar ScalarB
+            @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
-        type TypeA {
-          a: Int @test @deprecated
+            type TypeA @test {
+              a: Int @test @deprecated
 
-          b: Int
-          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+              b: Int
+              @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
-          """
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          """
-          c: Int @test
+              """
+              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+              c: Int @test
 
-          """
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          """
-          d: Int
-          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-          @deprecated
-        }
+              """
+              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+              d: Int
+              @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+              @deprecated
+            }
 
-        type TypeB {
-          a: ID
-        }
+            type TypeB implements InterfaceB
+            @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
+              a: ID
+            }
 
-        GRAPHQL;
+            GRAPHQL;
         $actual = SchemaPrinter::doPrint(BuildSchema::build($schema), [
             'printDirectives' => static function(): bool {
                 return true;

@@ -334,6 +334,7 @@ class SchemaPrinter
         return static::printDescription($options, $type) .
             sprintf('type %s', $type->name) .
             self::printImplementedInterfaces($type) .
+            static::printTypeDirectives($type, $options) .
             static::printFields($options, $type);
     }
 
