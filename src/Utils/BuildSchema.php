@@ -141,10 +141,6 @@ class BuildSchema
                     break;
                 case $definition instanceof TypeDefinitionNode:
                     $typeName = $definition->name->value;
-                    if (isset($this->nodeMap[$typeName])) {
-                        throw new Error('Type "' . $typeName . '" was defined more than once.');
-                    }
-
                     $this->nodeMap[$typeName] = $definition;
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
