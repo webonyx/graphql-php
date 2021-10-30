@@ -268,37 +268,51 @@ class SchemaPrinter
      */
     protected static function printArgs(array $options, array $args, string $indentation = ''): string
     {
+        // Empty?
         if (count($args) === 0) {
             return '';
         }
 
-        // If every arg does not have a description, print them on one line.
-        if (
-            Utils::every(
-                $args,
-                static function ($arg): bool {
-                    return strlen($arg->description ?? '') === 0;
-                }
-            )
-        ) {
-            return '(' . implode(', ', array_map('static::printInputValue', $args)) . ')';
+        // Print arguments
+        $length = 0;
+        $arguments = [];
+        $description = false;
+
+        foreach ($args as $i => $arg) {
+            $value = static::printArg($arg, $options, '  ' . $indentation, $i === 0);
+            $length = $length + mb_strlen($value);
+            $description = $description || mb_strlen($arg->description ?? '') > 0;
+            $arguments[] = $value;
         }
 
-        return sprintf(
-            "(\n%s\n%s)",
-            implode(
-                "\n",
-                array_map(
-                    static function (FieldArgument $arg, int $i) use ($indentation, $options): string {
-                        return static::printDescription($options, $arg, '  ' . $indentation, $i === 0) . '  ' . $indentation .
-                            static::printInputValue($arg);
-                    },
-                    $args,
-                    array_keys($args)
-                )
-            ),
-            $indentation
-        );
+        // Multiline?
+        $serialized = '';
+
+        if ($length > static::LINE_LENGTH || $description) {
+            $serialized = "(\n" . implode("\n", $arguments) . "\n{$indentation})";
+        } else {
+            $serialized = '(' . implode(', ', array_map('trim', $arguments)) . ')';
+        }
+
+        return $serialized;
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    protected static function printArg(FieldArgument $type, array $options, string $indentation = '', bool $firstInBlock = true): string
+    {
+        $field = static::printDescription($options, $type, $indentation, $firstInBlock) .
+            $indentation .
+            static::printInputValue($type) .
+            static::printTypeDirectives($type, $options, $indentation);
+
+        if (!$firstInBlock && mb_strlen($field) > static::LINE_LENGTH) {
+            $field = "\n".ltrim($field, "\n");
+        }
+
+        return $field;
     }
 
     /**
@@ -536,7 +550,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param Type|EnumValueDefinition|EnumType|InterfaceType|FieldDefinition|UnionType|InputObjectType|InputObjectField $type
+     * @param Type|EnumValueDefinition|EnumType|InterfaceType|FieldDefinition|UnionType|InputObjectType|InputObjectField|FieldArgument $type
      * @param array<string, bool> $options
      * @phpstan-param Options $options
      */

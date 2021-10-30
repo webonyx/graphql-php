@@ -1281,7 +1281,7 @@ class SchemaPrinterTest extends TestCase
         $text = str_pad('a', 80, 'a');
         $schema = /** @lang GraphQL */ <<<GRAPHQL
             directive @test(
-              value: String
+              value: String @test(value: "{$text}")
             ) on SCHEMA |
                 SCALAR |
                 OBJECT |
@@ -1352,9 +1352,26 @@ class SchemaPrinterTest extends TestCase
             input InputB @test(value: "{$text}") {
               a: ID
             }
+
+            type Query {
+              a(a: String, b: String, c: String): Boolean @test
+              b("desc" a: String): Boolean @test(value: "{$text}")
+              c(a: String @test(value: "{$text}")): Boolean
+              d(
+                a: String @test
+                b: String @test(value: "{$text}")
+                "{$text}"
+                c: String @test
+                "{$text}"
+                d: String = "123" @test(value: "{$text}")
+              ): Boolean
+            }
             GRAPHQL;
         $expected = /** @lang GraphQL */ <<<'GRAPHQL'
-            directive @test(value: String) on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+            directive @test(
+              value: String
+              @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            ) on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
             enum EnumA @test {
               a @test @deprecated
@@ -1425,6 +1442,39 @@ class SchemaPrinterTest extends TestCase
             interface InterfaceB implements InterfaceA
             @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
               a: ID
+            }
+
+            type Query {
+              a(a: String, b: String, c: String): Boolean @test
+
+              b(
+                """desc"""
+                a: String
+              ): Boolean
+              @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+              c(
+                a: String
+                @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+              ): Boolean
+
+              d(
+                a: String @test
+
+                b: String
+                @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+                """
+                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                """
+                c: String @test
+
+                """
+                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                """
+                d: String = "123"
+                @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+              ): Boolean
             }
 
             scalar ScalarA @test
