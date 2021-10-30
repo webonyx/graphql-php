@@ -31,6 +31,7 @@ use GraphQL\Type\Schema;
 use function array_filter;
 use function array_keys;
 use function array_map;
+use function array_sum;
 use function array_values;
 use function count;
 use function explode;
@@ -40,6 +41,7 @@ use function is_string;
 use function ksort;
 use function ltrim;
 use function mb_strlen;
+use function mb_strpos;
 use function self;
 use function sprintf;
 use function str_replace;
@@ -239,7 +241,7 @@ class SchemaPrinter
             return static::printDescriptionWithComments($description, $indentation, $firstInBlock);
         }
 
-        $preferMultipleLines = static::isMultiline($description);
+        $preferMultipleLines = static::isLineTooLong($description);
         $blockString         = BlockString::print($description, '', $preferMultipleLines);
         $prefix              = $indentation !== '' && ! $firstInBlock
             ? "\n" . $indentation
@@ -286,16 +288,8 @@ class SchemaPrinter
             $arguments[] = $value;
         }
 
-        // Multiline?
-        $serialized = '';
-
-        if ($description || static::isMultiline($length)) {
-            $serialized = "(\n" . implode("\n", $arguments) . "\n{$indentation})";
-        } else {
-            $serialized = '(' . implode(', ', array_map('trim', $arguments)) . ')';
-        }
-
-        return $serialized;
+        // Return
+        return static::printLines($arguments, '(', ')', $description || static::isLineTooLong($length), $indentation);
     }
 
     /**
@@ -304,13 +298,10 @@ class SchemaPrinter
      */
     protected static function printArg(FieldArgument $type, array $options, string $indentation = '', bool $firstInBlock = true): string
     {
-        $field = static::printDescription($options, $type, $indentation, $firstInBlock) .
+        return static::printDescription($options, $type, $indentation, $firstInBlock) .
             $indentation .
             static::printInputValue($type) .
             static::printTypeDirectives($type, $options, $indentation);
-        $field = static::printLine($field, $firstInBlock);
-
-        return $field;
     }
 
     /**
@@ -375,16 +366,13 @@ class SchemaPrinter
      */
     protected static function printField(FieldDefinition $type, array $options, string $indentation = '', bool $firstInBlock = true): string
     {
-        $field = static::printDescription($options, $type, $indentation, $firstInBlock) .
+        return static::printDescription($options, $type, $indentation, $firstInBlock) .
             '  ' .
             $type->name .
             static::printArgs($options, $type->args, '  ') .
             ': ' .
             (string) $type->getType() .
             static::printTypeDirectives($type, $options, $indentation);
-        $field = static::printLine($field, $firstInBlock);
-
-        return $field;
     }
 
     /**
@@ -483,13 +471,10 @@ class SchemaPrinter
      */
     protected static function printEnumValue(EnumValueDefinition $type, array $options, string $indentation = '', bool $firstInBlock = false): string
     {
-        $value = static::printDescription($options, $type, $indentation, $firstInBlock) .
+        return static::printDescription($options, $type, $indentation, $firstInBlock) .
             '  ' .
             $type->name .
             static::printTypeDirectives($type, $options, $indentation);
-        $value = static::printLine($value, $firstInBlock);
-
-        return $value;
     }
 
     /**
@@ -519,13 +504,10 @@ class SchemaPrinter
      */
     protected static function printInputObjectField(InputObjectField $type, array $options, string $indentation = '', bool $firstInBlock = true): string
     {
-        $field = static::printDescription($options, $type, $indentation, $firstInBlock) .
+        return static::printDescription($options, $type, $indentation, $firstInBlock) .
             '  ' .
             static::printInputValue($type) .
             static::printTypeDirectives($type, $options, $indentation);
-        $field = static::printLine($field, $firstInBlock);
-
-        return $field;
     }
 
     /**
@@ -533,9 +515,7 @@ class SchemaPrinter
      */
     protected static function printBlock(array $items): string
     {
-        return count($items) > 0
-            ? " {\n" . implode("\n", $items) . "\n}"
-            : '';
+        return static::printLines($items, ' {', '}', true);
     }
 
     /**
@@ -588,7 +568,7 @@ class SchemaPrinter
         $serialized = '';
 
         if ($directives) {
-            $delimiter  = static::isMultiline($length) ? "\n{$indentation}" : ' ';
+            $delimiter  = static::isLineTooLong($length) ? "\n{$indentation}" : ' ';
             $serialized = $delimiter.implode($delimiter, $directives);
         }
 
@@ -605,18 +585,51 @@ class SchemaPrinter
         return Printer::doPrint($directive);
     }
 
-    protected static function printLine(string $string, bool $firstInBlock = true): string {
-        if (!$firstInBlock && static::isMultiline($string)) {
-            $string = "\n".ltrim($string, "\n");
+    /**
+     * @param array<string> $lines
+     */
+    protected static function printLines(array $lines, string $begin, string $end, bool $multiline, string $indentation = ''): string
+    {
+        $block = '';
+
+        if ($lines) {
+            $multiline = $multiline || static::isLineTooLong(array_sum(array_map('mb_strlen', $lines)));
+
+            if ($multiline) {
+                $wrapped = false;
+
+                for ($i = 0, $c = count($lines); $i < $c; $i++) {
+                    // If line too long and contains LF we wrap it by empty lines
+                    $line = trim($lines[$i], "\n");
+                    $wrap = static::isLineTooLong($line) || mb_strpos($line, "\n") !== false;
+
+                    if ($i === 0) {
+                        $line = "\n{$line}";
+                    }
+
+                    if (($wrap && $i > 0) || $wrapped) {
+                        $line = "\n{$line}";
+                    }
+
+                    $block .= "{$line}\n";
+                    $wrapped = $wrap;
+                }
+
+                $block .= $indentation;
+            } else {
+                $block = implode(', ', array_map('trim', $lines));
+            }
+
+            $block = $begin.$block.$end;
         }
 
-        return $string;
+        return $block;
     }
 
     /**
      * @param string|int $string
      */
-    protected static function isMultiline($string): bool {
+    protected static function isLineTooLong($string): bool {
         return (is_string($string) ? mb_strlen($string) : $string) > static::LINE_LENGTH;
     }
 }
