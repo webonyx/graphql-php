@@ -1311,10 +1311,28 @@ class SchemaPrinterTest extends TestCase
         }
 
         interface InterfaceA @test {
-          a: ID
+          a: Int @test @deprecated
+          b: Int @test(value: "{$text}")
+          "{$text}"
+          c: Int @test
+          "{$text}"
+          d: Int @test(value: "{$text}") @deprecated
         }
 
         interface InterfaceB @test(value: "{$text}") {
+          a: ID
+        }
+
+        type TypeA {
+          a: Int @test @deprecated
+          b: Int @test(value: "{$text}")
+          "{$text}"
+          c: Int @test
+          "{$text}"
+          d: Int @test(value: "{$text}") @deprecated
+        }
+
+        type TypeB {
           a: ID
         }
         GRAPHQL;
@@ -1346,7 +1364,22 @@ class SchemaPrinterTest extends TestCase
         }
 
         interface InterfaceA @test {
-          a: ID
+          a: Int @test @deprecated
+
+          b: Int
+          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+          """
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          """
+          c: Int @test
+
+          """
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          """
+          d: Int
+          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+          @deprecated
         }
 
         interface InterfaceB
@@ -1358,6 +1391,29 @@ class SchemaPrinterTest extends TestCase
 
         scalar ScalarB
         @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+        type TypeA {
+          a: Int @test @deprecated
+
+          b: Int
+          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+          """
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          """
+          c: Int @test
+
+          """
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          """
+          d: Int
+          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+          @deprecated
+        }
+
+        type TypeB {
+          a: ID
+        }
 
         GRAPHQL;
         $actual = SchemaPrinter::doPrint(BuildSchema::build($schema), [

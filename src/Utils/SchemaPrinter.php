@@ -347,19 +347,34 @@ class SchemaPrinter
         $fields = array_values($type->getFields());
         $fields = array_map(
             static function (FieldDefinition $f, int $i) use ($options): string {
-                return static::printDescription($options, $f, '  ', $i === 0) .
-                    '  ' .
-                    $f->name .
-                    static::printArgs($options, $f->args, '  ') .
-                    ': ' .
-                    (string) $f->getType() .
-                    static::printDeprecated($f);
+                return static::printField($f, $options, '  ', $i === 0);
             },
             $fields,
             array_keys($fields)
         );
 
         return self::printBlock($fields);
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    protected static function printField(FieldDefinition $type, array $options, string $indentation = '', bool $firstInBlock = true): string
+    {
+        $field = static::printDescription($options, $type, $indentation, $firstInBlock) .
+            '  ' .
+            $type->name .
+            static::printArgs($options, $type->args, '  ') .
+            ': ' .
+            (string) $type->getType() .
+            static::printTypeDirectives($type, $options, $indentation);
+
+        if (!$firstInBlock && mb_strlen($field) > static::LINE_LENGTH) {
+            $field = "\n".ltrim($field, "\n");
+        }
+
+        return $field;
     }
 
     /**
@@ -492,7 +507,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param Type|EnumValueDefinition|EnumType|InterfaceType $type
+     * @param Type|EnumValueDefinition|EnumType|InterfaceType|FieldDefinition $type
      * @param array<string, bool> $options
      * @phpstan-param Options $options
      */
@@ -501,7 +516,7 @@ class SchemaPrinter
         $filter = $options['printDirectives'] ?? null;
 
         if (!$filter || !is_callable($filter)) {
-            if ($type instanceof EnumValueDefinition) {
+            if ($type instanceof EnumValueDefinition || $type instanceof FieldDefinition) {
                 return static::printDeprecated($type);
             }
 
