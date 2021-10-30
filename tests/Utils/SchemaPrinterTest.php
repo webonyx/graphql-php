@@ -1296,9 +1296,36 @@ class SchemaPrinterTest extends TestCase
 
         scalar ScalarA @test
         scalar ScalarB @test(value: "{$text}")
+
+        enum EnumA {
+          a @test @deprecated
+          b @test(value: "{$text}")
+          "{$text}"
+          c @test
+          "{$text}"
+          d @test(value: "{$text}")
+        }
         GRAPHQL;
         $expected = <<<'GRAPHQL'
         directive @test(value: String) on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+        enum EnumA {
+          a @test @deprecated
+
+          b
+          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+          """
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          """
+          c @test
+
+          """
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          """
+          d
+          @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        }
 
         scalar ScalarA @test
 

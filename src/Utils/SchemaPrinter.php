@@ -7,6 +7,7 @@ namespace GraphQL\Utils;
 use Closure;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
@@ -35,6 +36,7 @@ use function explode;
 use function implode;
 use function is_callable;
 use function ksort;
+use function ltrim;
 use function mb_strlen;
 use function self;
 use function sprintf;
@@ -54,7 +56,7 @@ use function strlen;
  */
 class SchemaPrinter
 {
-    protected const LINE_LENGTH = 80;
+    protected const LINE_LENGTH = 70;
 
     /**
      * @param array<string, bool> $options
@@ -235,7 +237,7 @@ class SchemaPrinter
             return static::printDescriptionWithComments($description, $indentation, $firstInBlock);
         }
 
-        $preferMultipleLines = mb_strlen($description) > 70;
+        $preferMultipleLines = mb_strlen($description) > static::LINE_LENGTH;
         $blockString         = BlockString::print($description, '', $preferMultipleLines);
         $prefix              = $indentation !== '' && ! $firstInBlock
             ? "\n" . $indentation
@@ -427,10 +429,7 @@ class SchemaPrinter
         $values = $type->getValues();
         $values = array_map(
             static function (EnumValueDefinition $value, int $i) use ($options): string {
-                return static::printDescription($options, $value, '  ', $i === 0) .
-                    '  ' .
-                    $value->name .
-                    static::printDeprecated($value);
+                return static::printEnumValue($value, $options, '  ', $i === 0);
             },
             $values,
             array_keys($values)
@@ -439,6 +438,24 @@ class SchemaPrinter
         return static::printDescription($options, $type) .
             sprintf('enum %s', $type->name) .
             static::printBlock($values);
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    protected static function printEnumValue(EnumValueDefinition $type, array $options, string $indentation = '', bool $firstInBlock = false): string
+    {
+        $value = static::printDescription($options, $type, $indentation, $firstInBlock) .
+            '  ' .
+            $type->name .
+            static::printTypeDirectives($type, $options, $indentation);
+
+        if (!$firstInBlock && mb_strlen($value) > static::LINE_LENGTH) {
+            $value = "\n".ltrim($value, "\n");
+        }
+
+        return $value;
     }
 
     /**
@@ -472,21 +489,26 @@ class SchemaPrinter
     }
 
     /**
+     * @param Type|EnumValueDefinition $type
      * @param array<string, bool> $options
      * @phpstan-param Options $options
      */
-    protected static function printTypeDirectives(Type $type, array $options, string $indentation = ''): string {
+    protected static function printTypeDirectives($type, array $options, string $indentation = ''): string {
         // Enabled?
         $filter = $options['printDirectives'] ?? null;
 
         if (!$filter || !is_callable($filter)) {
+            if ($type instanceof EnumValueDefinition) {
+                return static::printDeprecated($type);
+            }
+
             return '';
         }
 
         // AST Node available and has directives?
         $node = $type->astNode;
 
-        if (!($node instanceof ScalarTypeDefinitionNode)) {
+        if (!($node instanceof ScalarTypeDefinitionNode || $node instanceof EnumValueDefinitionNode)) {
             return '';
         }
 
@@ -496,8 +518,17 @@ class SchemaPrinter
         $directives = [];
 
         foreach ($node->directives as $directive) {
-            if ($filter($directive)) {
+            $string = null;
+
+            if ($directive->name === Directive::DEPRECATED_NAME && ($type instanceof EnumValueDefinition)) {
+                $string = static::printDeprecated($type);
+            } elseif ($filter($directive)) {
                 $string = static::printTypeDirective($directive, $options, $indentation);
+            } else {
+                // empty
+            }
+
+            if ($string) {
                 $length = $length + mb_strlen($string);
                 $directives[] = $string;
             }
