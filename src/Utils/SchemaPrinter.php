@@ -36,6 +36,7 @@ use function count;
 use function explode;
 use function implode;
 use function is_callable;
+use function is_string;
 use function ksort;
 use function ltrim;
 use function mb_strlen;
@@ -238,7 +239,7 @@ class SchemaPrinter
             return static::printDescriptionWithComments($description, $indentation, $firstInBlock);
         }
 
-        $preferMultipleLines = mb_strlen($description) > static::LINE_LENGTH;
+        $preferMultipleLines = static::isMultiline($description);
         $blockString         = BlockString::print($description, '', $preferMultipleLines);
         $prefix              = $indentation !== '' && ! $firstInBlock
             ? "\n" . $indentation
@@ -288,7 +289,7 @@ class SchemaPrinter
         // Multiline?
         $serialized = '';
 
-        if ($length > static::LINE_LENGTH || $description) {
+        if ($description || static::isMultiline($length)) {
             $serialized = "(\n" . implode("\n", $arguments) . "\n{$indentation})";
         } else {
             $serialized = '(' . implode(', ', array_map('trim', $arguments)) . ')';
@@ -307,10 +308,7 @@ class SchemaPrinter
             $indentation .
             static::printInputValue($type) .
             static::printTypeDirectives($type, $options, $indentation);
-
-        if (!$firstInBlock && mb_strlen($field) > static::LINE_LENGTH) {
-            $field = "\n".ltrim($field, "\n");
-        }
+        $field = static::printLine($field, $firstInBlock);
 
         return $field;
     }
@@ -384,10 +382,7 @@ class SchemaPrinter
             ': ' .
             (string) $type->getType() .
             static::printTypeDirectives($type, $options, $indentation);
-
-        if (!$firstInBlock && mb_strlen($field) > static::LINE_LENGTH) {
-            $field = "\n".ltrim($field, "\n");
-        }
+        $field = static::printLine($field, $firstInBlock);
 
         return $field;
     }
@@ -492,10 +487,7 @@ class SchemaPrinter
             '  ' .
             $type->name .
             static::printTypeDirectives($type, $options, $indentation);
-
-        if (!$firstInBlock && mb_strlen($value) > static::LINE_LENGTH) {
-            $value = "\n".ltrim($value, "\n");
-        }
+        $value = static::printLine($value, $firstInBlock);
 
         return $value;
     }
@@ -531,10 +523,7 @@ class SchemaPrinter
             '  ' .
             static::printInputValue($type) .
             static::printTypeDirectives($type, $options, $indentation);
-
-        if (!$firstInBlock && mb_strlen($field) > static::LINE_LENGTH) {
-            $field = "\n".ltrim($field, "\n");
-        }
+        $field = static::printLine($field, $firstInBlock);
 
         return $field;
     }
@@ -599,7 +588,7 @@ class SchemaPrinter
         $serialized = '';
 
         if ($directives) {
-            $delimiter  = $length > static::LINE_LENGTH ? "\n{$indentation}" : ' ';
+            $delimiter  = static::isMultiline($length) ? "\n{$indentation}" : ' ';
             $serialized = $delimiter.implode($delimiter, $directives);
         }
 
@@ -614,5 +603,20 @@ class SchemaPrinter
     protected static function printTypeDirective(DirectiveNode $directive, array $options, string $indentation): string
     {
         return Printer::doPrint($directive);
+    }
+
+    protected static function printLine(string $string, bool $firstInBlock = true): string {
+        if (!$firstInBlock && static::isMultiline($string)) {
+            $string = "\n".ltrim($string, "\n");
+        }
+
+        return $string;
+    }
+
+    /**
+     * @param string|int $string
+     */
+    protected static function isMultiline($string): bool {
+        return (is_string($string) ? mb_strlen($string) : $string) > static::LINE_LENGTH;
     }
 }
