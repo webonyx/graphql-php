@@ -494,8 +494,8 @@ class SchemaPrinter
     {
         $fields = array_values($type->getFields());
         $fields = array_map(
-            static function ($f, $i) use ($options): string {
-                return static::printDescription($options, $f, '  ', ! $i) . '  ' . static::printInputValue($f);
+            static function (InputObjectField $f, $i) use ($options): string {
+                return static::printInputObjectField($f, $options, '  ', ! $i);
             },
             $fields,
             array_keys($fields)
@@ -505,6 +505,24 @@ class SchemaPrinter
             sprintf('input %s', $type->name) .
             static::printTypeDirectives($type, $options) .
             static::printBlock($fields);
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    protected static function printInputObjectField(InputObjectField $type, array $options, string $indentation = '', bool $firstInBlock = true): string
+    {
+        $field = static::printDescription($options, $type, $indentation, $firstInBlock) .
+            '  ' .
+            static::printInputValue($type) .
+            static::printTypeDirectives($type, $options, $indentation);
+
+        if (!$firstInBlock && mb_strlen($field) > static::LINE_LENGTH) {
+            $field = "\n".ltrim($field, "\n");
+        }
+
+        return $field;
     }
 
     /**
@@ -518,7 +536,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param Type|EnumValueDefinition|EnumType|InterfaceType|FieldDefinition|UnionType|InputObjectType $type
+     * @param Type|EnumValueDefinition|EnumType|InterfaceType|FieldDefinition|UnionType|InputObjectType|InputObjectField $type
      * @param array<string, bool> $options
      * @phpstan-param Options $options
      */

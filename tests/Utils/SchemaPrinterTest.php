@@ -1341,7 +1341,12 @@ class SchemaPrinterTest extends TestCase
             union UnionB @test(value: "{$text}") = TypeA | TypeB
 
             input InputA @test {
-              a: Int
+              a: Int @test
+              b: Int @test(value: "{$text}")
+              "{$text}"
+              c: Int @test
+              "{$text}"
+              d: Int @test(value: "{$text}")
             }
 
             input InputB @test(value: "{$text}") {
@@ -1376,7 +1381,21 @@ class SchemaPrinterTest extends TestCase
             }
 
             input InputA @test {
-              a: Int
+              a: Int @test
+
+              b: Int
+              @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+              """
+              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+              c: Int @test
+
+              """
+              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+              d: Int
+              @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             }
 
             input InputB
