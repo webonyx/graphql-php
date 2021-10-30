@@ -503,6 +503,7 @@ class SchemaPrinter
 
         return static::printDescription($options, $type) .
             sprintf('input %s', $type->name) .
+            static::printTypeDirectives($type, $options) .
             static::printBlock($fields);
     }
 
@@ -517,7 +518,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param Type|EnumValueDefinition|EnumType|InterfaceType|FieldDefinition|UnionType $type
+     * @param Type|EnumValueDefinition|EnumType|InterfaceType|FieldDefinition|UnionType|InputObjectType $type
      * @param array<string, bool> $options
      * @phpstan-param Options $options
      */

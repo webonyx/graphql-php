@@ -1339,6 +1339,14 @@ class SchemaPrinterTest extends TestCase
             union UnionA @test = TypeA | TypeB
 
             union UnionB @test(value: "{$text}") = TypeA | TypeB
+
+            input InputA @test {
+              a: Int
+            }
+
+            input InputB @test(value: "{$text}") {
+              a: ID
+            }
             GRAPHQL;
         $expected = /** @lang GraphQL */ <<<'GRAPHQL'
             directive @test(value: String) on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
@@ -1365,6 +1373,15 @@ class SchemaPrinterTest extends TestCase
             enum EnumB
             @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
               a
+            }
+
+            input InputA @test {
+              a: Int
+            }
+
+            input InputB
+            @test(value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") {
+              a: ID
             }
 
             interface InterfaceA @test {
