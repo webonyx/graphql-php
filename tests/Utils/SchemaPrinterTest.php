@@ -1352,12 +1352,12 @@ class SchemaPrinterTest extends TestCase
             }
 
             input InputB @test(value: "{$text}") {
-              a: ID
+              a: [String] = ["{$text}", "{$text}", "{$text}"]
             }
 
             type Query {
               a(a: String, b: String, c: String): Boolean @test
-              b("desc" a: String): Boolean @test(value: "{$text}")
+              b("desc" a: [String] = ["{$text}", "{$text}", "{$text}"]): Boolean @test(value: "{$text}")
               c(a: String @test(value: "{$text}")): Boolean
               d(
                 a: String @test
@@ -1441,7 +1441,11 @@ class SchemaPrinterTest extends TestCase
             @test(
               value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
             ) {
-              a: ID
+              a: [String] = [
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              ]
             }
 
             interface InterfaceA @test {
@@ -1479,7 +1483,11 @@ class SchemaPrinterTest extends TestCase
 
               b(
                 """desc"""
-                a: String
+                a: [String] = [
+                  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                ]
               ): Boolean
               @test(
                 value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"

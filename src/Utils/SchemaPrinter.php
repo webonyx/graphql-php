@@ -7,12 +7,19 @@ namespace GraphQL\Utils;
 use Closure;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\EnumValueNode;
+use GraphQL\Language\AST\FloatValueNode;
+use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Parser;
@@ -316,7 +323,10 @@ class SchemaPrinter
     {
         $argDecl = $arg->name . ': ' . (string) $arg->getType();
         if ($arg->defaultValueExists()) {
-            $argDecl .= ' = ' . Printer::doPrint(AST::astFromValue($arg->defaultValue, $arg->getType()));
+            // TODO Pass `options`.
+            $value = AST::astFromValue($arg->defaultValue, $arg->getType());
+            $indentation = $arg instanceof InputObjectField ? '  ' : '    ';
+            $argDecl .= ' = ' . static::printValue($value, [], $indentation);
         }
 
         return $argDecl;
@@ -611,24 +621,35 @@ class SchemaPrinter
      */
     protected static function printArgument(ArgumentNode $argument, array $options, string $indentation): string
     {
-        $value = $argument->value;
+        return "{$indentation}{$argument->name->value}: " .
+            self::printValue($argument->value, $options, $indentation);
+    }
+
+    /**
+     * @param ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode|null $value
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    protected static function printValue($value, array $options, string $indentation): string
+    {
+        $result = '';
 
         if ($value instanceof ListValueNode) {
             $length = 0;
             $values = [];
 
             foreach ($value->values as $item) {
-                $string = '  ' . $indentation . Printer::doPrint($item);
-                $length = $length + mb_strlen($string);
+                $string   = '  '.$indentation.Printer::doPrint($item);
+                $length   = $length + mb_strlen($string);
                 $values[] = $string;
             }
 
-            $value = static::printLines($values, '[', ']', static::isLineTooLong($length), $indentation);
+            $result = static::printLines($values, '[', ']', static::isLineTooLong($length), $indentation);
         } else {
-            $value = Printer::doPrint($value);
+            $result = Printer::doPrint($value);
         }
 
-        return "{$indentation}{$argument->name->value}: {$value}";
+        return $result;
     }
 
     /**
