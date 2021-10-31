@@ -301,7 +301,7 @@ class SchemaPrinter
         }
 
         // Return
-        return static::printLines($arguments, '(', ')', $description || static::isLineTooLong($length), $indentation);
+        return static::printChildrenBlock($arguments, '(', ')', $description || static::isLineTooLong($length), $indentation);
     }
 
     /**
@@ -448,7 +448,7 @@ class SchemaPrinter
             : '';
         $directives = static::printTypeDirectives($type, $options, '');
 
-        if (mb_strlen($directives) >  static::LINE_LENGTH) {
+        if (static::isLineTooLong($directives)) {
             $types = ltrim($types);
             $directives .= "\n";
         }
@@ -530,7 +530,8 @@ class SchemaPrinter
      */
     protected static function printBlock(array $items): string
     {
-        return static::printLines($items, ' {', '}', true);
+        // TODO Deprecated?
+        return static::printChildrenBlock($items, ' {', '}', true);
     }
 
     /**
@@ -612,7 +613,7 @@ class SchemaPrinter
         }
 
         return "@{$directive->name->value}" .
-            static::printLines($arguments, '(', ')', static::isLineTooLong($length), $indentation);
+            static::printChildrenBlock($arguments, '(', ')', static::isLineTooLong($length), $indentation);
     }
 
     /**
@@ -644,7 +645,7 @@ class SchemaPrinter
                 $values[] = $string;
             }
 
-            $result = static::printLines($values, '[', ']', static::isLineTooLong($length), $indentation);
+            $result = static::printChildrenBlock($values, '[', ']', static::isLineTooLong($length), $indentation);
         } else {
             $result = Printer::doPrint($value);
         }
@@ -655,7 +656,7 @@ class SchemaPrinter
     /**
      * @param array<string> $lines
      */
-    protected static function printLines(array $lines, string $begin, string $end, bool $forceMultiline, string $indentation = ''): string
+    protected static function printChildrenBlock(array $lines, string $begin, string $end, bool $forceMultiline, string $indentation = ''): string
     {
         $block = '';
 
