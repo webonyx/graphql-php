@@ -2,8 +2,6 @@
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Language\SourceLocation;
-use GraphQL\Tests\ErrorHelper;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownTypeNames;
 
@@ -28,6 +26,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
           pets { ... on Pet { name }, ...PetFields, ... { name } }
         }
       }
+
       fragment PetFields on Pet {
         name
       }
@@ -43,7 +42,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
         $this->expectFailsRule(
             new KnownTypeNames(),
             '
-      query Foo($var: [JumbledUpLetters!]!) {
+      query Foo($var: JumbledUpLetters) {
         user(id: 4) {
           name
           pets { ... on Badger { name }, ...PetFields }
@@ -54,9 +53,18 @@ class KnownTypeNamesTest extends ValidatorTestCase
       }
         ',
             [
-                $this->unknownType('JumbledUpLetters', [], 2, 24),
-                $this->unknownType('Badger', [], 5, 25),
-                $this->unknownType('Peat', ['Pet', 'Cat'], 8, 29),
+                [
+                    'message' => 'Unknown type "JumbledUpLetters".',
+                    'locations' => [['line' => 2, 'column' => 23]],
+                ],
+                [
+                    'message' => 'Unknown type "Badger".',
+                    'locations' => [['line' => 5, 'column' => 25]],
+                ],
+                [
+                    'message' => 'Unknown type "Peat". Did you mean "Pet" or "Cat"?',
+                    'locations' => [['line' => 8, 'column' => 29]],
+                ],
             ]
         );
     }
@@ -78,9 +86,18 @@ class KnownTypeNamesTest extends ValidatorTestCase
             new KnownTypeNames(),
             $query,
             [
-                $this->unknownType('Unknown type "ID".', [], 2, 19),
-                $this->unknownType('Unknown type "Float".', [], 2, 31),
-                $this->unknownType('Unknown type "Int".', [], 2, 44),
+                [
+                    'message' => 'Unknown type "ID".',
+                    'locations' => [['line' => 2, 'column' => 19]],
+                ],
+                [
+                    'message' => 'Unknown type "Float".',
+                    'locations' => [['line' => 2, 'column' => 31]],
+                ],
+                [
+                    'message' => 'Unknown type "Int".',
+                    'locations' => [['line' => 2, 'column' => 44]],
+                ],
             ]
         );
     }
@@ -322,7 +339,6 @@ class KnownTypeNamesTest extends ValidatorTestCase
         self::markTestSkipped('Missing implementation for SDL validation for now');
         $schema = BuildSchema::build('type A');
         $sdl = '
-        
         type B
 
         type SomeObject implements C {
@@ -355,69 +371,53 @@ class KnownTypeNamesTest extends ValidatorTestCase
             [
                 [
                     'message' => 'Unknown type "C". Did you mean "A" or "B"?',
-                    'locations' => [['line' => 5, 'column' => 36]],
+                    'locations' => [['line' => 4, 'column' => 36]],
                 ],
                 [
                     'message' => 'Unknown type "D". Did you mean "A", "B", or "ID"?',
-                    'locations' => [['line' => 6, 'column' => 16]],
+                    'locations' => [['line' => 5, 'column' => 16]],
                 ],
                 [
                     'message' => 'Unknown type "E". Did you mean "A" or "B"?',
-                    'locations' => [['line' => 6, 'column' => 20]],
+                    'locations' => [['line' => 5, 'column' => 20]],
                 ],
                 [
                     'message' => 'Unknown type "F". Did you mean "A" or "B"?',
-                    'locations' => [['line' => 9, 'column' => 27]],
+                    'locations' => [['line' => 8, 'column' => 27]],
                 ],
                 [
                     'message' => 'Unknown type "G". Did you mean "A" or "B"?',
-                    'locations' => [['line' => 9, 'column' => 31]],
+                    'locations' => [['line' => 8, 'column' => 31]],
                 ],
                 [
                     'message' => 'Unknown type "H". Did you mean "A" or "B"?',
-                    'locations' => [['line' => 12, 'column' => 16]],
+                    'locations' => [['line' => 11, 'column' => 16]],
                 ],
                 [
                     'message' => 'Unknown type "I". Did you mean "A", "B", or "ID"?',
-                    'locations' => [['line' => 12, 'column' => 20]],
+                    'locations' => [['line' => 11, 'column' => 20]],
                 ],
                 [
                     'message' => 'Unknown type "J". Did you mean "A" or "B"?',
-                    'locations' => [['line' => 16, 'column' => 14]],
+                    'locations' => [['line' => 15, 'column' => 14]],
                 ],
                 [
                     'message' => 'Unknown type "K". Did you mean "A" or "B"?',
-                    'locations' => [['line' => 19, 'column' => 37]],
+                    'locations' => [['line' => 18, 'column' => 37]],
                 ],
                 [
                     'message' => 'Unknown type "L". Did you mean "A" or "B"?',
-                    'locations' => [['line' => 22, 'column' => 18]],
+                    'locations' => [['line' => 21, 'column' => 18]],
                 ],
                 [
                     'message' => 'Unknown type "M". Did you mean "A" or "B"?',
-                    'locations' => [['line' => 23, 'column' => 21]],
+                    'locations' => [['line' => 22, 'column' => 21]],
                 ],
                 [
                     'message' => 'Unknown type "N". Did you mean "A" or "B"?',
-                    'locations' => [['line' => 24, 'column' => 25]],
+                    'locations' => [['line' => 23, 'column' => 25]],
                 ],
             ]
-        );
-    }
-
-    /**
-     * @param array<string> $suggestedTypes
-     *
-     * @return array{
-     *     message: string,
-     *     locations?: array<int, array{line: int, column: int}>
-     * }
-     */
-    private function unknownType(string $typeName, array $suggestedTypes, int $line, int $column)
-    {
-        return ErrorHelper::create(
-            KnownTypeNames::unknownTypeMessage($typeName, $suggestedTypes),
-            [new SourceLocation($line, $column)]
         );
     }
 }
