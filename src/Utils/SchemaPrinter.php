@@ -15,6 +15,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\BlockString;
+use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -42,6 +43,7 @@ use function explode;
 use function implode;
 use function is_callable;
 use function is_string;
+use function json_encode;
 use function ksort;
 use function ltrim;
 use function mb_strlen;
@@ -383,12 +385,12 @@ class SchemaPrinter
      */
     protected static function printDeprecated($fieldOrEnumVal): string
     {
-        $reason = $fieldOrEnumVal->deprecationReason;
+        $reason = static::getDeprecatedReason($fieldOrEnumVal);
         if ($reason === null) {
             return '';
         }
 
-        if ($reason === '' || $reason === Directive::DEFAULT_DEPRECATION_REASON) {
+        if ($reason === '') {
             return ' @deprecated';
         }
 
@@ -529,19 +531,32 @@ class SchemaPrinter
     protected static function printTypeDirectives($type, array $options, string $indentation = ''): string {
         // Enabled?
         $filter = $options['printDirectives'] ?? null;
+        $deprecatable = $type instanceof EnumValueDefinition || $type instanceof FieldDefinition;
 
         if (!is_callable($filter)) {
-            if ($type instanceof EnumValueDefinition || $type instanceof FieldDefinition) {
+            if ($deprecatable) {
                 return static::printDeprecated($type);
             }
 
             return '';
         }
 
-        // AST Node available and has directives?
+        // Collect directives
         $node = $type->astNode;
+        $nodeDirectives = [];
 
-        if ($node === null) {
+        if ($node !== null) {
+            $nodeDirectives = $node->directives;
+        } elseif ($deprecatable && $type->deprecationReason !== null) {
+            // TODO Is there a better way to create directive node?
+            $name = Directive::DEPRECATED_NAME;
+            $reason = json_encode(static::getDeprecatedReason($type));
+            $nodeDirectives[] = Parser::directive("@{$name}(reason: {$reason})");
+        } else {
+            // empty
+        }
+
+        if (count($nodeDirectives) === 0) {
             return '';
         }
 
@@ -549,21 +564,14 @@ class SchemaPrinter
         $length = 0;
         $directives = [];
 
-        foreach ($node->directives as $directive) {
-            $string = null;
-
-            if ($directive->name === Directive::DEPRECATED_NAME && ($type instanceof EnumValueDefinition)) {
-                $string = static::printDeprecated($type);
-            } elseif ($filter($directive)) {
-                $string = static::printTypeDirective($directive, $options, $indentation);
-            } else {
-                // empty
+        foreach ($nodeDirectives as $nodeDirective) {
+            if (!$filter($nodeDirective)) {
+                continue;
             }
 
-            if ($string !== null) {
-                $length = $length + mb_strlen($string);
-                $directives[] = $string;
-            }
+            $directive = static::printTypeDirective($nodeDirective, $options, $indentation);
+            $length = $length + mb_strlen($directive);
+            $directives[] = $directive;
         }
 
         // Multiline?
@@ -637,7 +645,7 @@ class SchemaPrinter
                 $wrapped = false;
 
                 for ($i = 0, $c = count($lines); $i < $c; $i++) {
-                    // If line too long and contains LF we wrap it by empty lines
+                    // If line contains LF we wrap it by empty lines
                     $line = trim($lines[$i], "\n");
                     $wrap = mb_strpos($line, "\n") !== false;
 
@@ -669,5 +677,19 @@ class SchemaPrinter
      */
     protected static function isLineTooLong($string): bool {
         return (is_string($string) ? mb_strlen($string) : $string) > static::LINE_LENGTH;
+    }
+
+    /**
+     * @param FieldDefinition|EnumValueDefinition $fieldOrEnumVal
+     */
+    protected static function getDeprecatedReason($fieldOrEnumVal): ?string
+    {
+        $reason = $fieldOrEnumVal->deprecationReason;
+
+        if ($reason === '' || $reason === Directive::DEFAULT_DEPRECATION_REASON) {
+            $reason = '';
+        }
+
+        return $reason;
     }
 }

@@ -1277,7 +1277,7 @@ class SchemaPrinterTest extends TestCase
         self::assertEquals($expected, $output);
     }
 
-    public function testPrintDirectives(): void {
+    public function testPrintDirectivesAst(): void {
         $text = str_pad('a', 80, 'a');
         $schema = /** @lang GraphQL */ <<<GRAPHQL
             directive @test(
@@ -1301,7 +1301,7 @@ class SchemaPrinterTest extends TestCase
 
             enum EnumA @test {
               a @test @deprecated
-              b @test(value: "{$text}")
+              b @test(value: "{$text}") @deprecated(reason: "{$text}")
               "{$text}"
               c @test
               "{$text}"
@@ -1388,6 +1388,9 @@ class SchemaPrinterTest extends TestCase
               b
               @test(
                 value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              )
+              @deprecated(
+                reason: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
               )
 
               """
@@ -1575,5 +1578,45 @@ class SchemaPrinterTest extends TestCase
         ]);
 
         self::assertEquals($expected, $actual);
+    }
+
+    public function testPrintDirectivesDeprecated(): void {
+        $text = str_pad('a', 80, 'a');
+        $enum = new EnumType([
+            'name' => 'Aaa',
+            'values' => [
+                'A' => [
+                    'value' => 'AAA',
+                    'description' => 'AAAAAAAAAAAAA',
+                    'deprecationReason' => 'deprecated for tests'
+                ],
+                'B' => [
+                    'value' => 'AAA',
+                    'deprecationReason' => $text
+                ],
+            ]
+        ]);
+        $schema  = new Schema(['types' => [$enum]]);
+        $actual = SchemaPrinter::doPrint($schema, [
+            'printDirectives' => static function(): bool {
+                return true;
+            },
+        ]);
+
+        self::assertEquals(
+            <<<'GRAPHQL'
+            enum Aaa {
+              """AAAAAAAAAAAAA"""
+              A @deprecated(reason: "deprecated for tests")
+
+              B
+              @deprecated(
+                reason: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              )
+            }
+
+            GRAPHQL,
+            $actual
+        );
     }
 }
