@@ -2,15 +2,21 @@
 
 namespace GraphQL\Validator\Rules;
 
+use function array_key_exists;
 use function array_keys;
+use Closure;
 use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NamedTypeNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\Visitor;
-use GraphQL\Language\VisitorOperation;
+use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Language\AST\TypeSystemDefinitionNode;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
+use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+use function in_array;
 
 /**
  * Known type names.
@@ -22,30 +28,66 @@ class KnownTypeNames extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array
     {
-        $skip = static function (): VisitorOperation {
-            return Visitor::skipNode();
-        };
+        return $this->getVisitorInternal($context);
+    }
+
+    public function getSDLVisitor(SDLValidationContext $context): array
+    {
+        return $this->getVisitorInternal($context);
+    }
+
+    /**
+     * @param ValidationContext|SDLValidationContext $context
+     *
+     * @return Closure[]
+     */
+    private function getVisitorInternal($context): array
+    {
+        $schema = $context->getSchema();
+        $existingTypesMap = null !== $schema
+            ? $schema->getTypeMap()
+            : [];
+
+        /** @var array<string, bool> $definedTypes */
+        $definedTypes = [];
+        foreach ($context->getDocument()->definitions as $def) {
+            if (! ($def instanceof TypeDefinitionNode)) {
+                continue;
+            }
+
+            $definedTypes[$def->name->value] = true;
+        }
+
+        $typeNames = [
+            ...array_keys($existingTypesMap),
+            ...array_keys($definedTypes),
+        ];
+
+        $standardTypeNames = array_keys(Type::getAllBuiltInTypes());
 
         return [
-            // TODO: when validating IDL, re-enable these. Experimental version does not
-            // add unreferenced types, resulting in false-positive errors. Squelched
-            // errors for now.
-            NodeKind::OBJECT_TYPE_DEFINITION => $skip,
-            NodeKind::INTERFACE_TYPE_DEFINITION => $skip,
-            NodeKind::UNION_TYPE_DEFINITION => $skip,
-            NodeKind::INPUT_OBJECT_TYPE_DEFINITION => $skip,
-            NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) use ($context): void {
-                $schema = $context->getSchema();
+            NodeKind::NAMED_TYPE => static function (NamedTypeNode $node, $_1, $parent, $_2, $ancestors) use ($context, $existingTypesMap, $definedTypes, $typeNames, $standardTypeNames): void {
                 $typeName = $node->name->value;
-                $type = $schema->getType($typeName);
-                if (null !== $type) {
+                if (array_key_exists($typeName, $existingTypesMap) || array_key_exists($typeName, $definedTypes)) {
+                    return;
+                }
+
+                $definitionNode = $ancestors[2] ?? $parent;
+                $isSDL = null !== $definitionNode && self::isSDLNode($definitionNode);
+                if ($isSDL && in_array($typeName, $standardTypeNames, true)) {
                     return;
                 }
 
                 $context->reportError(new Error(
                     static::unknownTypeMessage(
                         $typeName,
-                        Utils::suggestionList($typeName, array_keys($schema->getTypeMap()))
+                        Utils::suggestionList(
+                            $typeName,
+                            $isSDL
+                                // TODO: order
+                                ? [...$typeNames, ...$standardTypeNames]
+                                : $typeNames
+                        )
                     ),
                     [$node]
                 ));
@@ -64,5 +106,15 @@ class KnownTypeNames extends ValidationRule
         }
 
         return $message;
+    }
+
+    /**
+     * @param Node|array<int, Node> $value
+     */
+    public static function isSDLNode($value): bool
+    {
+        return $value instanceof Node
+        // TODO: should be (TypeSystemDefinitionNode || TypeSystemExtensionNode)
+        && $value instanceof TypeSystemDefinitionNode;
     }
 }

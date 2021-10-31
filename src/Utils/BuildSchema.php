@@ -228,11 +228,6 @@ class BuildSchema
         foreach ($schemaDef->operationTypes as $operationType) {
             $typeName = $operationType->type->name->value;
             $operation = $operationType->operation;
-
-            if (! isset($this->nodeMap[$typeName])) {
-                throw new Error('Specified ' . $operation . ' type "' . $typeName . '" not found in document.');
-            }
-
             $opTypes[$operation] = $typeName;
         }
 

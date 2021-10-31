@@ -7,6 +7,7 @@ use function array_map;
 use function array_merge;
 use function count;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
@@ -621,11 +622,11 @@ class SchemaExtender
             $typeDefinitionMap,
             static function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
-                if (null !== $existingType) {
-                    return static::extendNamedType($existingType);
+                if (null === $existingType) {
+                    throw new InvariantViolation('Unknown type: "' . $typeName . '".');
                 }
 
-                throw new Error('Unknown type: "' . $typeName . '". Ensure that this type exists either in the original schema, or is added in a type definition.');
+                return static::extendNamedType($existingType);
             },
             $typeConfigDecorator
         );

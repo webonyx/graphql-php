@@ -74,7 +74,6 @@ class KnownTypeNamesTest extends ValidatorTestCase
      */
     public function testReferencesToStandardScalarsThatAreMissingInSchema(): void
     {
-        self::markTestSkipped('Missing implementation for SDL validation for now');
         $schema = BuildSchema::build('type Query { foo: String }');
         $query = '
       query ($id: ID, $float: Float, $int: Int) {
@@ -171,7 +170,6 @@ class KnownTypeNamesTest extends ValidatorTestCase
      */
     public function testUnknownTypeReferences(): void
     {
-        self::markTestSkipped('Missing implementation for SDL validation for now');
         $this->expectSDLErrorsFromRule(
             new KnownTypeNames(),
             '
@@ -259,7 +257,6 @@ class KnownTypeNamesTest extends ValidatorTestCase
      */
     public function testDoesNotConsiderNonTypeDefinitions(): void
     {
-        self::markTestSkipped('Missing implementation for SDL validation for now');
         $this->expectSDLErrorsFromRule(
             new KnownTypeNames(),
             '
@@ -336,7 +333,6 @@ class KnownTypeNamesTest extends ValidatorTestCase
      */
     public function testUnknownTypeReferencesInsideExtensionDocument(): void
     {
-        self::markTestSkipped('Missing implementation for SDL validation for now');
         $schema = BuildSchema::build('type A');
         $sdl = '
         type B
