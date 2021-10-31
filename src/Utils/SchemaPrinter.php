@@ -4,23 +4,17 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
-use Closure;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveNode;
-use GraphQL\Language\AST\EnumTypeDefinitionNode;
-use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListValueNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectValueNode;
-use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\StringValueNode;
-use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
@@ -57,7 +51,7 @@ use function mb_strlen;
 use function mb_strpos;
 use function sprintf;
 use function str_replace;
-use function strlen;
+use function trim;
 
 /**
  * Prints the contents of a Schema in schema definition language.
@@ -289,13 +283,13 @@ class SchemaPrinter
         }
 
         // Print arguments
-        $length = 0;
-        $arguments = [];
+        $length      = 0;
+        $arguments   = [];
         $description = false;
 
         foreach ($args as $i => $arg) {
-            $value = static::printArg($arg, $options, '  ' . $indentation, $i === 0);
-            $length = $length + mb_strlen($value);
+            $value       = static::printArg($arg, $options, '  ' . $indentation, $i === 0);
+            $length     += mb_strlen($value);
             $description = $description || mb_strlen($arg->description ?? '') > 0;
             $arguments[] = $value;
         }
@@ -324,9 +318,9 @@ class SchemaPrinter
         $argDecl = $arg->name . ': ' . (string) $arg->getType();
         if ($arg->defaultValueExists()) {
             // TODO Pass `options`.
-            $value = AST::astFromValue($arg->defaultValue, $arg->getType());
+            $value       = AST::astFromValue($arg->defaultValue, $arg->getType());
             $indentation = $arg instanceof InputObjectField ? '  ' : '    ';
-            $argDecl .= ' = ' . static::printValue($value, [], $indentation);
+            $argDecl    .= ' = ' . static::printValue($value, [], $indentation);
         }
 
         return $argDecl;
@@ -442,14 +436,14 @@ class SchemaPrinter
      */
     protected static function printUnion(UnionType $type, array $options): string
     {
-        $types = $type->getTypes();
-        $types = count($types) > 0
+        $types      = $type->getTypes();
+        $types      = count($types) > 0
             ? ' = ' . implode(' | ', $types)
             : '';
         $directives = static::printTypeDirectives($type, $options, '');
 
         if (static::isLineTooLong($directives)) {
-            $types = ltrim($types);
+            $types       = ltrim($types);
             $directives .= "\n";
         }
 
@@ -536,15 +530,16 @@ class SchemaPrinter
 
     /**
      * @param Type|EnumValueDefinition|EnumType|InterfaceType|FieldDefinition|UnionType|InputObjectType|InputObjectField|FieldArgument $type
-     * @param array<string, bool> $options
+     * @param array<string, bool>                                                                                                      $options
      * @phpstan-param Options $options
      */
-    protected static function printTypeDirectives($type, array $options, string $indentation = ''): string {
+    protected static function printTypeDirectives($type, array $options, string $indentation = ''): string
+    {
         // Enabled?
-        $filter = $options['printDirectives'] ?? null;
+        $filter       = $options['printDirectives'] ?? null;
         $deprecatable = $type instanceof EnumValueDefinition || $type instanceof FieldDefinition;
 
-        if (!is_callable($filter)) {
+        if (! is_callable($filter)) {
             if ($deprecatable) {
                 return static::printDeprecated($type);
             }
@@ -553,18 +548,16 @@ class SchemaPrinter
         }
 
         // Collect directives
-        $node = $type->astNode;
+        $node           = $type->astNode;
         $nodeDirectives = [];
 
         if ($node !== null) {
             $nodeDirectives = $node->directives;
         } elseif ($deprecatable && $type->deprecationReason !== null) {
             // TODO Is there a better way to create directive node?
-            $name = Directive::DEPRECATED_NAME;
-            $reason = json_encode(static::getDeprecatedReason($type));
+            $name             = Directive::DEPRECATED_NAME;
+            $reason           = json_encode(static::getDeprecatedReason($type));
             $nodeDirectives[] = Parser::directive("@{$name}(reason: {$reason})");
-        } else {
-            // empty
         }
 
         if (count($nodeDirectives) === 0) {
@@ -572,16 +565,16 @@ class SchemaPrinter
         }
 
         // Print
-        $length = 0;
+        $length     = 0;
         $directives = [];
 
         foreach ($nodeDirectives as $nodeDirective) {
-            if (!$filter($nodeDirective)) {
+            if (! $filter($nodeDirective)) {
                 continue;
             }
 
-            $directive = static::printTypeDirective($nodeDirective, $options, $indentation);
-            $length = $length + mb_strlen($directive);
+            $directive    = static::printTypeDirective($nodeDirective, $options, $indentation);
+            $length      += mb_strlen($directive);
             $directives[] = $directive;
         }
 
@@ -589,8 +582,10 @@ class SchemaPrinter
         $serialized = '';
 
         if (count($directives) > 0) {
-            $delimiter  = static::isLineTooLong($length) ? "\n{$indentation}" : ' ';
-            $serialized = $delimiter.implode($delimiter, $directives);
+            $delimiter  = static::isLineTooLong($length)
+                ? "\n{$indentation}"
+                : ' ';
+            $serialized = $delimiter . implode($delimiter, $directives);
         }
 
         // Return
@@ -603,12 +598,12 @@ class SchemaPrinter
      */
     protected static function printTypeDirective(DirectiveNode $directive, array $options, string $indentation): string
     {
-        $length = 0;
+        $length    = 0;
         $arguments = [];
 
         foreach ($directive->arguments as $argument) {
-            $value = static::printArgument($argument, $options, '  '.$indentation);
-            $length = $length + mb_strlen($value);
+            $value       = static::printArgument($argument, $options, '  ' . $indentation);
+            $length     += mb_strlen($value);
             $arguments[] = $value;
         }
 
@@ -628,7 +623,7 @@ class SchemaPrinter
 
     /**
      * @param ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode|null $value
-     * @param array<string, bool> $options
+     * @param array<string, bool>                                                                                                         $options
      * @phpstan-param Options $options
      */
     protected static function printValue($value, array $options, string $indentation): string
@@ -640,8 +635,8 @@ class SchemaPrinter
             $values = [];
 
             foreach ($value->values as $item) {
-                $string   = '  '.$indentation.Printer::doPrint($item);
-                $length   = $length + mb_strlen($string);
+                $string   = '  ' . $indentation . Printer::doPrint($item);
+                $length  += mb_strlen($string);
                 $values[] = $string;
             }
 
@@ -679,7 +674,7 @@ class SchemaPrinter
                         $line = "\n{$line}";
                     }
 
-                    $block .= "{$line}\n";
+                    $block  .= "{$line}\n";
                     $wrapped = $wrap;
                 }
 
@@ -688,7 +683,7 @@ class SchemaPrinter
                 $block = implode(', ', array_map('trim', $lines));
             }
 
-            $block = $begin.$block.$end;
+            $block = $begin . $block . $end;
         }
 
         return $block;
@@ -697,8 +692,9 @@ class SchemaPrinter
     /**
      * @param string|int $string
      */
-    protected static function isLineTooLong($string): bool {
-        return (is_string($string) ? mb_strlen($string) : $string) > static::LINE_LENGTH;
+    protected static function isLineTooLong($string): bool
+    {
+        return (is_string($string) ? mb_strlen($string) : $string) > self::LINE_LENGTH;
     }
 
     /**

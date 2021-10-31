@@ -6,7 +6,6 @@ namespace GraphQL\Tests\Utils;
 
 use Generator;
 use GraphQL\Language\DirectiveLocation;
-use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -1277,9 +1276,10 @@ class SchemaPrinterTest extends TestCase
         self::assertEquals($expected, $output);
     }
 
-    public function testPrintDirectivesAst(): void {
-        $text = str_pad('a', 80, 'a');
-        $schema = /** @lang GraphQL */ <<<GRAPHQL
+    public function testPrintDirectivesAst(): void
+    {
+        $text     = str_pad('a', 80, 'a');
+        $schema   = /** @lang GraphQL */ <<<GRAPHQL
             directive @test(
               values: [String!]
               value: String @test(value: "{$text}")
@@ -1579,8 +1579,8 @@ class SchemaPrinterTest extends TestCase
             = TypeA | TypeB
 
             GRAPHQL;
-        $actual = SchemaPrinter::doPrint(BuildSchema::build($schema), [
-            'printDirectives' => static function(): bool {
+        $actual   = SchemaPrinter::doPrint(BuildSchema::build($schema), [
+            'printDirectives' => static function (): bool {
                 return true;
             },
         ]);
@@ -1588,25 +1588,26 @@ class SchemaPrinterTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function testPrintDirectivesDeprecated(): void {
-        $text = str_pad('a', 80, 'a');
-        $enum = new EnumType([
+    public function testPrintDirectivesDeprecated(): void
+    {
+        $text   = str_pad('a', 80, 'a');
+        $enum   = new EnumType([
             'name' => 'Aaa',
             'values' => [
                 'A' => [
                     'value' => 'AAA',
                     'description' => 'AAAAAAAAAAAAA',
-                    'deprecationReason' => 'deprecated for tests'
+                    'deprecationReason' => 'deprecated for tests',
                 ],
                 'B' => [
                     'value' => 'AAA',
-                    'deprecationReason' => $text
+                    'deprecationReason' => $text,
                 ],
-            ]
+            ],
         ]);
-        $schema  = new Schema(['types' => [$enum]]);
+        $schema = new Schema(['types' => [$enum]]);
         $actual = SchemaPrinter::doPrint($schema, [
-            'printDirectives' => static function(): bool {
+            'printDirectives' => static function (): bool {
                 return true;
             },
         ]);
