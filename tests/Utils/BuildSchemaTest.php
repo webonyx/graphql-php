@@ -155,6 +155,7 @@ enum Color {
 
   """Not a creative color"""
   GREEN
+
   BLUE
 }
 
@@ -187,6 +188,7 @@ enum Color {
 
   # Not a creative color
   GREEN
+
   BLUE
 }
 
@@ -492,7 +494,7 @@ type WorldTwo {
     {
         $schema = BuildSchema::build('
           union Hello = Hello
-    
+
           type Query {
             hello: Hello
           }
@@ -758,7 +760,7 @@ type Query {
       type TestType implements TestInterface {
         interfaceField: String
       }
-      
+
       scalar TestScalar
 
       directive @test(arg: TestScalar) on FIELD
