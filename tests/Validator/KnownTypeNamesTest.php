@@ -74,6 +74,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
      */
     public function testReferencesToStandardScalarsThatAreMissingInSchema(): void
     {
+        self::markTestSkipped('TODO we differ from graphql-js due to lazy loading, see https://github.com/webonyx/graphql-php/issues/964#issuecomment-945969162');
         $schema = BuildSchema::build('type Query { foo: String }');
         $query = '
       query ($id: ID, $float: Float, $int: Int) {

@@ -2,7 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function array_key_exists;
 use function array_keys;
 use Closure;
 use function count;
@@ -43,32 +42,28 @@ class KnownTypeNames extends ValidationRule
      */
     private function getVisitorInternal($context): array
     {
-        $schema = $context->getSchema();
-        $existingTypesMap = null !== $schema
-            ? $schema->getTypeMap()
-            : [];
-
-        /** @var array<string, bool> $definedTypes */
+        /** @var array<int, string> $definedTypes */
         $definedTypes = [];
         foreach ($context->getDocument()->definitions as $def) {
             if (! ($def instanceof TypeDefinitionNode)) {
                 continue;
             }
 
-            $definedTypes[$def->name->value] = true;
+            $definedTypes[] = $def->name->value;
         }
-
-        $typeNames = [
-            ...array_keys($existingTypesMap),
-            ...array_keys($definedTypes),
-        ];
 
         $standardTypeNames = array_keys(Type::getAllBuiltInTypes());
 
         return [
-            NodeKind::NAMED_TYPE => static function (NamedTypeNode $node, $_1, $parent, $_2, $ancestors) use ($context, $existingTypesMap, $definedTypes, $typeNames, $standardTypeNames): void {
+            NodeKind::NAMED_TYPE => static function (NamedTypeNode $node, $_1, $parent, $_2, $ancestors) use ($context, $definedTypes, $standardTypeNames): void {
                 $typeName = $node->name->value;
-                if (array_key_exists($typeName, $existingTypesMap) || array_key_exists($typeName, $definedTypes)) {
+                $schema = $context->getSchema();
+
+                if (in_array($typeName, $definedTypes, true)) {
+                    return;
+                }
+
+                if (null !== $schema && $schema->hasType($typeName)) {
                     return;
                 }
 
@@ -78,6 +73,13 @@ class KnownTypeNames extends ValidationRule
                     return;
                 }
 
+                $existingTypesMap = null !== $schema
+                    ? $schema->getTypeMap()
+                    : [];
+                $typeNames = [
+                    ...array_keys($existingTypesMap),
+                    ...$definedTypes,
+                ];
                 $context->reportError(new Error(
                     static::unknownTypeMessage(
                         $typeName,
