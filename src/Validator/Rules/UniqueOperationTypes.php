@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\SDLValidationContext;
+use TypeError;
 
 /**
  * Unique operation types
@@ -34,7 +36,11 @@ class UniqueOperationTypes extends ValidationRule
         /**
          * @param SchemaDefinitionNode|SchemaTypeExtensionNode $node
          */
-        $checkOperationTypes = static function ($node) use ($context, &$definedOperationTypes, $existingOperationTypes): VisitorOperation {
+        $checkOperationTypes = static function (Node $node) use ($context, &$definedOperationTypes, $existingOperationTypes): VisitorOperation {
+            if (! $node instanceof SchemaDefinitionNode && ! $node instanceof SchemaTypeExtensionNode) {
+                throw new TypeError('Expected $node to be ' . SchemaDefinitionNode::class . ' or ' . SchemaTypeExtensionNode::class . '.');
+            }
+
             $operationTypesNodes = $node->operationTypes;
             foreach ($operationTypesNodes as $operationType) {
                 $operation                    = $operationType->operation;
