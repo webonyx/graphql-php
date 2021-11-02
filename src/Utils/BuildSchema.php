@@ -156,6 +156,7 @@ class BuildSchema
         $operationTypes = null !== $schemaDef
             ? $this->getOperationTypes($schemaDef)
             : [
+                // TODO: simplify
                 'query' => isset($this->nodeMap['Query']) ? 'Query' : null,
                 'mutation' => isset($this->nodeMap['Mutation']) ? 'Mutation' : null,
                 'subscription' => isset($this->nodeMap['Subscription']) ? 'Subscription' : null,
@@ -163,7 +164,7 @@ class BuildSchema
 
         $definitionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
-            static function (string $typeName): void {
+            static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
             $this->typeConfigDecorator
@@ -206,11 +207,11 @@ class BuildSchema
             'subscription' => isset($operationTypes['subscription'])
                 ? $definitionBuilder->buildType($operationTypes['subscription'])
                 : null,
-            'typeLoader' => static fn (string $name): Type => $definitionBuilder->buildType($name),
+            'typeLoader' => static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name),
             'directives' => $directives,
             'astNode' => $schemaDef,
-            'types' => fn (): array => array_map(
-                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value),
+            'types' => fn (): array => array_map( // TODO: $definitionBuilder->buildAllTypes()?
+                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildTypeFromName($def->name->value), // TODO: buildTypeFromTypeDefinition()?
                 $this->nodeMap,
             ),
         ]);

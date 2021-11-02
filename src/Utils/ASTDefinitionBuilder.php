@@ -34,7 +34,6 @@ use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use function is_array;
-use function is_string;
 use Throwable;
 
 /**
@@ -147,19 +146,48 @@ class ASTDefinitionBuilder
             return Type::nonNull($this->buildWrappedType($typeNode->type));
         }
 
-        return $this->buildType($typeNode);
+        return $this->buildTypeFromNamedType($typeNode); // TODO: getNamedType()
+    }
+
+//    /**
+//     * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+//     */
+//    public function buildType($ref): Type
+//    {
+//        if (is_string($ref)) {
+//            return $this->internalBuildType($ref);
+//        }
+//
+//        return $this->internalBuildType($ref->name->value, $ref);
+//    }
+
+    /**
+     * Calling this method is an equivalent of `typeMap[typeName]` in `graphql-js`.
+     * It is legal to access a type from the map of already-built types that doesn't exist in the map.
+     * Since we build types lazily, and we don't have a such map of built types,
+     * this method provides a way to build a type that may not exist in the SDL definitions and returns null instead.
+     */
+    public function maybeBuildType(string $name): ?Type
+    {
+        return isset($this->typeDefinitionsMap[$name]) ? $this->buildTypeFromName($name) : null;
+    }
+
+    public function buildTypeFromName(string $name): Type
+    {
+        return $this->internalBuildType($name);
+    }
+
+    public function buildTypeFromNamedType(NamedTypeNode $node): Type
+    {
+        return $this->internalBuildType($node->name->value);
     }
 
     /**
-     * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+     * @param TypeDefinitionNode&Node $node
      */
-    public function buildType($ref): Type
+    public function buildTypeFromTypeDefinition(TypeDefinitionNode $node): Type
     {
-        if (is_string($ref)) {
-            return $this->internalBuildType($ref);
-        }
-
-        return $this->internalBuildType($ref->name->value, $ref);
+        return $this->internalBuildType($node->name->value, $node);
     }
 
     /**
@@ -317,7 +345,7 @@ class ASTDefinitionBuilder
 
         $interfaces = [];
         foreach ($def->interfaces as $interface) {
-            $interfaces[] = $this->buildType($interface);
+            $interfaces[] = $this->buildTypeFromNamedType($interface); // TODO: getNamedType($interface)
         }
 
         // @phpstan-ignore-next-line generic type will be validated during schema validation
@@ -365,7 +393,7 @@ class ASTDefinitionBuilder
             'types' => function () use ($def): array {
                 $types = [];
                 foreach ($def->types as $type) {
-                    $types[] = $this->buildType($type);
+                    $types[] = $this->buildTypeFromNamedType($type); // TODO: getNamedType($type)
                 }
 
                 /** @var array<int, ObjectType> $types */

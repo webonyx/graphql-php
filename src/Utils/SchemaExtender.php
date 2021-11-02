@@ -272,7 +272,7 @@ class SchemaExtender
                 assert($extension instanceof UnionTypeExtensionNode, 'proven by assertTypeMatchesExtension()');
 
                 foreach ($extension->types as $namedType) {
-                    $possibleTypes[] = static::$astBuilder->buildType($namedType);
+                    $possibleTypes[] = static::$astBuilder->buildTypeFromNamedType($namedType); // TODO: getNamedType($namedType)
                 }
             }
         }
@@ -301,7 +301,7 @@ class SchemaExtender
                 );
 
                 foreach ($extension->interfaces as $namedType) {
-                    $interface = static::$astBuilder->buildType($namedType);
+                    $interface = static::$astBuilder->buildTypeFromNamedType($namedType); // TODO: getNamedType($namedType)
                     assert($interface instanceof InterfaceType, 'we know this, but PHP templates cannot express it');
 
                     $interfaces[] = $interface;
@@ -580,11 +580,7 @@ class SchemaExtender
                     ? $def->name->value
                     : null;
 
-                try {
-                    $type = $schema->getType($typeName);
-                } catch (Error $error) {
-                    $type = null;
-                }
+                $type = $schema->getType($typeName);
 
                 if (null !== $type) {
                     throw new Error('Type "' . $typeName . '" already exists in the schema. It cannot also be defined in this type definition.', [$def]);
@@ -644,14 +640,14 @@ class SchemaExtender
 
         if (null !== $schemaDef) {
             foreach ($schemaDef->operationTypes as $operationType) {
-                $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
+                $operationTypes[$operationType->operation] = static::$astBuilder->buildTypeFromNamedType($operationType->type);
             }
         }
 
         foreach ($schemaExtensions as $schemaExtension) {
             if (isset($schemaExtension->operationTypes)) {
                 foreach ($schemaExtension->operationTypes as $operationType) {
-                    $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
+                    $operationTypes[$operationType->operation] = static::$astBuilder->buildTypeFromNamedType($operationType->type);
                 }
             }
         }
@@ -667,7 +663,7 @@ class SchemaExtender
 
         // Do the same with new types.
         foreach ($typeDefinitionMap as $type) {
-            $types[] = static::$astBuilder->buildType($type);
+            $types[] = static::$astBuilder->buildTypeFromTypeDefinition($type);
         }
 
         return new Schema([
