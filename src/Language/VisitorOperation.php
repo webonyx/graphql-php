@@ -6,12 +6,9 @@ namespace GraphQL\Language;
 
 class VisitorOperation
 {
-    /** @var bool */
-    public $doBreak;
+    public bool $doBreak = false;
 
-    /** @var bool */
-    public $doContinue;
+    public bool $doContinue = false;
 
-    /** @var bool */
-    public $removeNode;
+    public bool $removeNode = false;
 }
