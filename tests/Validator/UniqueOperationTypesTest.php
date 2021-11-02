@@ -15,9 +15,8 @@ class UniqueOperationTypesTest extends ValidatorTestCase
         $this->expectSDLErrorsFromRule(new UniqueOperationTypes(), $sdlString, $schema, $errors);
     }
 
-    // Validate: Unique operation types
-
     /**
+     * @see describe('Validate: Unique operation types')
      * @see it('no schema definition')
      */
     public function testNoSchemaDefinition(): void

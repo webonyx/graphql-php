@@ -41,13 +41,11 @@ class UniqueOperationTypes extends ValidationRule
                 throw new TypeError('Expected $node to be ' . SchemaDefinitionNode::class . ' or ' . SchemaTypeExtensionNode::class . '.');
             }
 
-            $operationTypesNodes = $node->operationTypes;
-            foreach ($operationTypesNodes as $operationType) {
-                $operation                    = $operationType->operation;
-                $alreadyDefinedOperationType  = $definedOperationTypes[$operation] ?? null;
-                $alreadyExistingOperationType = $existingOperationTypes[$operation] ?? null;
+            foreach ($node->operationTypes as $operationType) {
+                $operation                   = $operationType->operation;
+                $alreadyDefinedOperationType = $definedOperationTypes[$operation] ?? null;
 
-                if ($alreadyExistingOperationType !== null) {
+                if (isset($existingOperationTypes[$operation])) {
                     $context->reportError(
                         new Error(
                             "Type for ${operation} already defined in the schema. It cannot be redefined.",
