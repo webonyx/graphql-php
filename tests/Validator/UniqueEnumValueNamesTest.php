@@ -194,14 +194,17 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
      */
     public function testAddingNewValueToTheTypeInsideExistingSchema(): void
     {
-        $this->expectValidSDL(
-            new UniqueEnumValueNames(),
-            '
+        $schema = BuildSchema::build('enum SomeEnum');
+        $sdl = '
       extend enum SomeEnum {
         FOO
       }
-        ',
-            BuildSchema::build('enum SomeEnum'),
+        ';
+
+        $this->expectValidSDL(
+            new UniqueEnumValueNames(),
+            $sdl,
+            $schema,
         );
     }
 
@@ -210,21 +213,24 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
      */
     public function testAddingConflictingValueToExistingSchemaTwice(): void
     {
-        $this->expectSDLErrorsFromRule(
-            new UniqueEnumValueNames(),
-            '
-      extend enum SomeEnum {
-        FOO
-      }
-      extend enum SomeEnum {
-        FOO
-      }
-        ',
-            BuildSchema::build('
+        $schema = BuildSchema::build('
       enum SomeEnum {
         FOO
       }
-            '),
+            ');
+        $sdl = '
+      extend enum SomeEnum {
+        FOO
+      }
+      extend enum SomeEnum {
+        FOO
+      }
+        ';
+
+        $this->expectSDLErrorsFromRule(
+            new UniqueEnumValueNames(),
+            $sdl,
+            $schema,
             [
                 [
                     'message' => 'Enum value "SomeEnum.FOO" already exists in the schema. It cannot also be defined in this type extension.',
@@ -247,19 +253,22 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
      */
     public function testAddingEnumValuesToExistingSchemaTwice(): void
     {
+        $schema = BuildSchema::build('
+      enum SomeEnum
+            ');
+        $sdl = '
+      extend enum SomeEnum {
+        FOO
+      }
+      extend enum SomeEnum {
+        FOO
+      }
+        ';
+
         $this->expectSDLErrorsFromRule(
             new UniqueEnumValueNames(),
-            '
-      extend enum SomeEnum {
-        FOO
-      }
-      extend enum SomeEnum {
-        FOO
-      }
-        ',
-            BuildSchema::build('
-      enum SomeEnum
-            '),
+            $sdl,
+            $schema,
             [
                 [
                     'message' => 'Enum value "SomeEnum.FOO" can only be defined once.',
