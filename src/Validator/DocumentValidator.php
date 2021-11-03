@@ -36,6 +36,7 @@ use GraphQL\Validator\Rules\ScalarLeafs;
 use GraphQL\Validator\Rules\SingleFieldSubscription;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
+use GraphQL\Validator\Rules\UniqueEnumValueNames;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
 use GraphQL\Validator\Rules\UniqueInputFieldNames;
 use GraphQL\Validator\Rules\UniqueOperationNames;
@@ -201,6 +202,7 @@ class DocumentValidator
                 KnownArgumentNamesOnDirectives::class        => new KnownArgumentNamesOnDirectives(),
                 UniqueDirectivesPerLocation::class           => new UniqueDirectivesPerLocation(),
                 UniqueArgumentNames::class                   => new UniqueArgumentNames(),
+                UniqueEnumValueNames::class                  => new UniqueEnumValueNames(),
                 UniqueInputFieldNames::class                 => new UniqueInputFieldNames(),
                 ProvidedRequiredArgumentsOnDirectives::class => new ProvidedRequiredArgumentsOnDirectives(),
             ];
