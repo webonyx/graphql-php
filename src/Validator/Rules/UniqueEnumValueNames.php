@@ -8,7 +8,6 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
@@ -23,7 +22,7 @@ class UniqueEnumValueNames extends ValidationRule
         $knownValueNames = [];
 
         /**
-         * @param (Node&EnumTypeDefinitionNode)|(Node&EnumTypeExtensionNode) $enum
+         * @param EnumTypeDefinitionNode|EnumTypeExtensionNode $enum
          */
         $checkValueUniqueness = static function ($enum) use ($context, &$knownValueNames): VisitorOperation {
             $typeName = $enum->name->value;
