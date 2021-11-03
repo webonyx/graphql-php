@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Language;
 
-abstract class VisitorOperation
+final class VisitorStop extends VisitorOperation
 {
 }

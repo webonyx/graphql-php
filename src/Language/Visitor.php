@@ -283,16 +283,12 @@ class Visitor
 
                     if ($result !== null) {
                         if ($result instanceof VisitorOperation) {
-                            if ($result->doBreak) {
+                            if ($result instanceof VisitorStop) {
                                 break;
-                            }
-
-                            if (! $isLeaving && $result->doContinue) {
+                            } elseif (!$isLeaving && $result instanceof VisitorSkipNode) {
                                 array_pop($path);
                                 continue;
-                            }
-
-                            if ($result->removeNode) {
+                            } elseif ($result instanceof VisitorRemoveNode) {
                                 $editValue = null;
                             }
                         } else {
@@ -351,12 +347,12 @@ class Visitor
      *
      * @api
      */
-    public static function stop(): VisitorOperation
+    public static function stop(): VisitorStop
     {
-        $r          = new VisitorOperation();
-        $r->doBreak = true;
+        static $stop;
+        $stop ??= new VisitorStop();
 
-        return $r;
+        return $stop;
     }
 
     /**
@@ -364,12 +360,12 @@ class Visitor
      *
      * @api
      */
-    public static function skipNode(): VisitorOperation
+    public static function skipNode(): VisitorSkipNode
     {
-        $r             = new VisitorOperation();
-        $r->doContinue = true;
+        static $skipNode;
+        $skipNode ??= new VisitorSkipNode();
 
-        return $r;
+        return $skipNode;
     }
 
     /**
@@ -377,12 +373,12 @@ class Visitor
      *
      * @api
      */
-    public static function removeNode(): VisitorOperation
+    public static function removeNode(): VisitorRemoveNode
     {
-        $r             = new VisitorOperation();
-        $r->removeNode = true;
+        static $removeNode;
+        $removeNode ??= new VisitorRemoveNode();
 
-        return $r;
+        return $removeNode;
     }
 
     /**
@@ -414,14 +410,12 @@ class Visitor
 
                     $result = $fn(...func_get_args());
 
-                    if ($result instanceof VisitorOperation) {
-                        if ($result->doContinue) {
-                            $skipping[$i] = $node;
-                        } elseif ($result->doBreak) {
-                            $skipping[$i] = $result;
-                        } elseif ($result->removeNode) {
-                            return $result;
-                        }
+                    if ($result instanceof VisitorSkipNode) {
+                        $skipping[$i] = $node;
+                    } elseif ($result instanceof VisitorStop) {
+                        $skipping[$i] = $result;
+                    } elseif ($result instanceof VisitorRemoveNode) {
+                        return $result;
                     } elseif ($result !== null) {
                         return $result;
                     }
@@ -438,12 +432,10 @@ class Visitor
 
                         if (isset($fn)) {
                             $result = $fn(...func_get_args());
-                            if ($result instanceof VisitorOperation) {
-                                if ($result->doBreak) {
-                                    $skipping[$i] = $result;
-                                } elseif ($result->removeNode) {
-                                    return $result;
-                                }
+                            if ($result instanceof VisitorStop) {
+                                $skipping[$i] = $result;
+                            } elseif ($result instanceof VisitorRemoveNode) {
+                                return $result;
                             } elseif ($result !== null) {
                                 return $result;
                             }
