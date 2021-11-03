@@ -425,4 +425,11 @@ class SyncPromiseTest extends TestCase
         self::assertValidPromise($nextPromise3, null, 2, SyncPromise::FULFILLED);
         self::assertValidPromise($nextPromise4, null, 3, SyncPromise::FULFILLED);
     }
+
+    public function testRunEmptyQueue(): void
+    {
+        SyncPromise::runQueue();
+
+        self::assertTrue(true);
+    }
 }
