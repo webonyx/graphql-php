@@ -478,6 +478,8 @@ Usage example:
 
     $schema = new Schema($config);
 
+@phpstan-type TypeLoader (callable(string $typeName): (Type&NamedType)|null)|null
+
 ### GraphQL\Type\SchemaConfig Methods
 
 ```php
@@ -572,7 +574,8 @@ function setDirectives(array $directives): self
 
 ```php
 /**
- * @return (callable(string $typeName): Type|(callable(): Type)|null)|null
+ * @return callable|null $typeLoader
+ * @phpstan-return TypeLoader|null $typeLoader
  *
  * @api
  */
@@ -581,7 +584,7 @@ function getTypeLoader(): callable
 
 ```php
 /**
- * @param (callable(string $typeName): Type|(callable(): Type)|null)|null $typeLoader
+ * @phpstan-param TypeLoader|null $typeLoader
  *
  * @api
  */
@@ -626,7 +629,7 @@ function __construct($config)
  *
  * This operation requires a full schema scan. Do not use in production environment.
  *
- * @return array<string, Type> Keys represent type names, values are instances of corresponding type definitions
+ * @return array<string, Type&NamedType> Keys represent type names, values are instances of corresponding type definitions
  *
  * @api
  */
@@ -682,6 +685,8 @@ function getConfig(): GraphQL\Type\SchemaConfig
 /**
  * Returns a type by name.
  *
+ * @return (Type&NamedType)|null
+ *
  * @api
  */
 function getType(string $name): GraphQL\Type\Definition\Type
@@ -696,7 +701,7 @@ function getType(string $name): GraphQL\Type\Definition\Type
  *
  * @param InterfaceType|UnionType $abstractType
  *
- * @return array<Type&ObjectType>
+ * @return array<ObjectType>
  *
  * @api
  */
@@ -707,7 +712,7 @@ function getPossibleTypes(GraphQL\Type\Definition\Type $abstractType): array
 /**
  * Returns all types that implement a given interface type.
  *
- * This operations requires full schema scan. Do not use in production environment.
+ * This operation requires full schema scan. Do not use in production environment.
  *
  * @api
  */
@@ -1001,61 +1006,61 @@ visitor API:
 
 1. Named visitors triggered when entering a node a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => function ($node) {
-   // enter the "Kind" node
-   }
-   ]);
+        // enter the "Kind" node
+      }
+    ]);
 
 2. Named visitors that trigger upon entering and leaving a node of
    a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => [
         'enter' => function ($node) {
-   // enter the "Kind" node
-   }
-   'leave' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+        'leave' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
 3. Generic visitors that trigger upon entering and leaving any node.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => function ($node) {
-   // enter any node
-   },
-   'leave' => function ($node) {
-   // leave any node
-   }
-   ]);
+        // enter any node
+      },
+      'leave' => function ($node) {
+        // leave any node
+      }
+    ]);
 
 4. Parallel visitors for entering and leaving nodes of a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => [
         'Kind' => function($node) {
-   // enter the "Kind" node
-   }
-   },
-   'leave' => [
-   'Kind' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+      },
+      'leave' => [
+        'Kind' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
 ### GraphQL\Language\Visitor Methods
 
 ```php
 /**
- * Visit the AST (see class description for details)
+ * Visit the AST (see class description for details).
  *
  * @param Node|ArrayObject|stdClass $root
- * @param callable[]                $visitor
- * @param mixed[]|null              $keyMap
+ * @param array<string, mixed>      $visitor
+ * @param array<string, mixed>|null $keyMap
  *
  * @return Node|mixed
  *
@@ -1063,34 +1068,34 @@ visitor API:
  *
  * @api
  */
-static function visit($root, $visitor, $keyMap = null)
+static function visit(object $root, array $visitor, array $keyMap = null)
 ```
 
 ```php
 /**
- * Returns marker for visitor break
+ * Returns marker for stopping.
  *
  * @api
  */
-static function stop(): GraphQL\Language\VisitorOperation
+static function stop(): GraphQL\Language\VisitorStop
 ```
 
 ```php
 /**
- * Returns marker for skipping current node
+ * Returns marker for skipping the current node.
  *
  * @api
  */
-static function skipNode(): GraphQL\Language\VisitorOperation
+static function skipNode(): GraphQL\Language\VisitorSkipNode
 ```
 
 ```php
 /**
- * Returns marker for removing a node
+ * Returns marker for removing the current node.
  *
  * @api
  */
-static function removeNode(): GraphQL\Language\VisitorOperation
+static function removeNode(): GraphQL\Language\VisitorRemoveNode
 ```
 
 ## GraphQL\Language\AST\NodeKind
@@ -1143,6 +1148,50 @@ const ENUM_TYPE_EXTENSION = 'EnumTypeExtension';
 const INPUT_OBJECT_TYPE_EXTENSION = 'InputObjectTypeExtension';
 const DIRECTIVE_DEFINITION = 'DirectiveDefinition';
 const SCHEMA_EXTENSION = 'SchemaExtension';
+const CLASS_MAP = [
+    'Name' => 'GraphQL\\Language\\AST\\NameNode',
+    'Document' => 'GraphQL\\Language\\AST\\DocumentNode',
+    'OperationDefinition' => 'GraphQL\\Language\\AST\\OperationDefinitionNode',
+    'VariableDefinition' => 'GraphQL\\Language\\AST\\VariableDefinitionNode',
+    'Variable' => 'GraphQL\\Language\\AST\\VariableNode',
+    'SelectionSet' => 'GraphQL\\Language\\AST\\SelectionSetNode',
+    'Field' => 'GraphQL\\Language\\AST\\FieldNode',
+    'Argument' => 'GraphQL\\Language\\AST\\ArgumentNode',
+    'FragmentSpread' => 'GraphQL\\Language\\AST\\FragmentSpreadNode',
+    'InlineFragment' => 'GraphQL\\Language\\AST\\InlineFragmentNode',
+    'FragmentDefinition' => 'GraphQL\\Language\\AST\\FragmentDefinitionNode',
+    'IntValue' => 'GraphQL\\Language\\AST\\IntValueNode',
+    'FloatValue' => 'GraphQL\\Language\\AST\\FloatValueNode',
+    'StringValue' => 'GraphQL\\Language\\AST\\StringValueNode',
+    'BooleanValue' => 'GraphQL\\Language\\AST\\BooleanValueNode',
+    'EnumValue' => 'GraphQL\\Language\\AST\\EnumValueNode',
+    'NullValue' => 'GraphQL\\Language\\AST\\NullValueNode',
+    'ListValue' => 'GraphQL\\Language\\AST\\ListValueNode',
+    'ObjectValue' => 'GraphQL\\Language\\AST\\ObjectValueNode',
+    'ObjectField' => 'GraphQL\\Language\\AST\\ObjectFieldNode',
+    'Directive' => 'GraphQL\\Language\\AST\\DirectiveNode',
+    'NamedType' => 'GraphQL\\Language\\AST\\NamedTypeNode',
+    'ListType' => 'GraphQL\\Language\\AST\\ListTypeNode',
+    'NonNullType' => 'GraphQL\\Language\\AST\\NonNullTypeNode',
+    'SchemaDefinition' => 'GraphQL\\Language\\AST\\SchemaDefinitionNode',
+    'OperationTypeDefinition' => 'GraphQL\\Language\\AST\\OperationTypeDefinitionNode',
+    'ScalarTypeDefinition' => 'GraphQL\\Language\\AST\\ScalarTypeDefinitionNode',
+    'ObjectTypeDefinition' => 'GraphQL\\Language\\AST\\ObjectTypeDefinitionNode',
+    'FieldDefinition' => 'GraphQL\\Language\\AST\\FieldDefinitionNode',
+    'InputValueDefinition' => 'GraphQL\\Language\\AST\\InputValueDefinitionNode',
+    'InterfaceTypeDefinition' => 'GraphQL\\Language\\AST\\InterfaceTypeDefinitionNode',
+    'UnionTypeDefinition' => 'GraphQL\\Language\\AST\\UnionTypeDefinitionNode',
+    'EnumTypeDefinition' => 'GraphQL\\Language\\AST\\EnumTypeDefinitionNode',
+    'EnumValueDefinition' => 'GraphQL\\Language\\AST\\EnumValueDefinitionNode',
+    'InputObjectTypeDefinition' => 'GraphQL\\Language\\AST\\InputObjectTypeDefinitionNode',
+    'ScalarTypeExtension' => 'GraphQL\\Language\\AST\\ScalarTypeExtensionNode',
+    'ObjectTypeExtension' => 'GraphQL\\Language\\AST\\ObjectTypeExtensionNode',
+    'InterfaceTypeExtension' => 'GraphQL\\Language\\AST\\InterfaceTypeExtensionNode',
+    'UnionTypeExtension' => 'GraphQL\\Language\\AST\\UnionTypeExtensionNode',
+    'EnumTypeExtension' => 'GraphQL\\Language\\AST\\EnumTypeExtensionNode',
+    'InputObjectTypeExtension' => 'GraphQL\\Language\\AST\\InputObjectTypeExtensionNode',
+    'DirectiveDefinition' => 'GraphQL\\Language\\AST\\DirectiveDefinitionNode',
+];
 ```
 
 ## GraphQL\Executor\Executor
@@ -1615,10 +1664,10 @@ It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io
 and provides tools for error debugging.
 
 @phpstan-type FormattedErrorArray array{
-message: string,
-locations?: array<int, array{line: int, column: int}>,
-path?: array<int, int|string>,
-extensions?: array<string, mixed>,
+ message: string,
+ locations?: array<int, array{line: int, column: int}>,
+ path?: array<int, int|string>,
+ extensions?: array<string, mixed>,
 }
 
 ### GraphQL\Error\FormattedError Methods
@@ -2137,12 +2186,21 @@ Build instance of @see \GraphQL\Type\Schema out of schema language definition (s
 See [schema definition language docs](schema-definition-language.md) for details.
 
 @phpstan-type Options array{
-commentDescriptions?: bool,
+  assumeValid?: bool,
+  assumeValidSDL?: bool,
 }
 
-- commentDescriptions:
-  Provide true to use preceding comments as the description.
-  This option is provided to ease adoption and will be removed in v16.
+   - assumeValid:
+         When building a schema from a GraphQL service's introspection result, it
+         might be safe to assume the schema is valid. Set to true to assume the
+         produced schema is valid.
+
+         Default: false
+
+    - assumeValidSDL:
+         Set to true to assume the SDL is valid.
+
+         Default: false
 
 ### GraphQL\Utils\BuildSchema Methods
 
@@ -2189,7 +2247,7 @@ Various utilities dealing with AST
 
 ### GraphQL\Utils\AST Methods
 
-````php
+```php
 /**
  * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
  *
@@ -2211,12 +2269,12 @@ Various utilities dealing with AST
  *
  * This is a reverse operation for AST::toArray($node)
  *
- * @param mixed[] $node
+ * @param array<string, mixed> $node
  *
  * @api
  */
 static function fromArray(array $node): GraphQL\Language\AST\Node
-````
+```
 
 ```php
 /**
@@ -2364,11 +2422,10 @@ static function concatAST(array $documents): GraphQL\Language\AST\DocumentNode
 Prints the contents of a Schema in schema definition language.
 
 @phpstan-type Options array{commentDescriptions?: bool}
-Available options:
-
-- commentDescriptions:
-  Provide true to use preceding comments as the description.
-  This option is provided to ease adoption and will be removed in v16.
+   Available options:
+   - commentDescriptions:
+       Provide true to use preceding comments as the description.
+       This option is provided to ease adoption and will be removed in v16.
 
 ### GraphQL\Utils\SchemaPrinter Methods
 
@@ -2391,3 +2448,4 @@ static function doPrint(GraphQL\Type\Schema $schema, array $options = []): strin
  */
 static function printIntrospectionSchema(GraphQL\Type\Schema $schema, array $options = []): string
 ```
+
