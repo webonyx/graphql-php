@@ -34,6 +34,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Add `AST::concatAST()` utility
 - Allow lazy input object fields
 - Add validation rule `UniqueEnumValueNames`
+- Add SDL validation rule `UniqueOperationTypes` (#995)
 
 ### Optimized
 

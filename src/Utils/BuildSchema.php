@@ -226,10 +226,6 @@ class BuildSchema
             $typeName  = $operationType->type->name->value;
             $operation = $operationType->operation;
 
-            if (isset($opTypes[$operation])) {
-                throw new Error('Must provide only one ' . $operation . ' type in schema.');
-            }
-
             if (! isset($this->nodeMap[$typeName])) {
                 throw new Error('Specified ' . $operation . ' type "' . $typeName . '" not found in document.');
             }
