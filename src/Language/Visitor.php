@@ -285,10 +285,14 @@ class Visitor
                         if ($result instanceof VisitorOperation) {
                             if ($result instanceof VisitorStop) {
                                 break;
-                            } elseif (!$isLeaving && $result instanceof VisitorSkipNode) {
+                            }
+
+                            if (! $isLeaving && $result instanceof VisitorSkipNode) {
                                 array_pop($path);
                                 continue;
-                            } elseif ($result instanceof VisitorRemoveNode) {
+                            }
+
+                            if ($result instanceof VisitorRemoveNode) {
                                 $editValue = null;
                             }
                         } else {
@@ -343,42 +347,39 @@ class Visitor
     }
 
     /**
-     * Returns marker for visitor break
+     * Returns marker for stopping.
      *
      * @api
      */
     public static function stop(): VisitorStop
     {
         static $stop;
-        $stop ??= new VisitorStop();
 
-        return $stop;
+        return $stop ??= new VisitorStop();
     }
 
     /**
-     * Returns marker for skipping current node
+     * Returns marker for skipping the current node.
      *
      * @api
      */
     public static function skipNode(): VisitorSkipNode
     {
         static $skipNode;
-        $skipNode ??= new VisitorSkipNode();
 
-        return $skipNode;
+        return $skipNode ??= new VisitorSkipNode();
     }
 
     /**
-     * Returns marker for removing a node
+     * Returns marker for removing the current node.
      *
      * @api
      */
     public static function removeNode(): VisitorRemoveNode
     {
         static $removeNode;
-        $removeNode ??= new VisitorRemoveNode();
 
-        return $removeNode;
+        return $removeNode ??= new VisitorRemoveNode();
     }
 
     /**
