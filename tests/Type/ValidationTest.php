@@ -1093,32 +1093,6 @@ class ValidationTest extends TestCase
         );
     }
 
-    /**
-     * @see it('rejects an Enum type with duplicate values')
-     */
-    public function testRejectsAnEnumTypeWithDuplicateValues(): void
-    {
-        $schema = BuildSchema::build('
-      type Query {
-        field: SomeEnum
-      }
-      
-      enum SomeEnum {
-        SOME_VALUE
-        SOME_VALUE
-      }
-        ');
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [
-                [
-                    'message'   => 'Enum type SomeEnum can include value SOME_VALUE only once.',
-                    'locations' => [['line' => 7, 'column' => 9], ['line' => 8, 'column' => 9]],
-                ],
-            ]
-        );
-    }
-
     public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnEnum(): void
     {
         $enum = new EnumType([

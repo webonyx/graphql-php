@@ -9,7 +9,6 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
-use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
@@ -958,15 +957,6 @@ class SchemaValidationContext
         foreach ($enumValues as $enumValue) {
             $valueName = $enumValue->name;
 
-            // Ensure no duplicates
-            $allNodes = $this->getEnumValueNodes($enumType, $valueName);
-            if (count($allNodes) > 1) {
-                $this->reportError(
-                    sprintf('Enum type %s can include value %s only once.', $enumType->name, $valueName),
-                    $allNodes
-                );
-            }
-
             // Ensure valid name.
             $this->validateName($enumValue);
             if ($valueName === 'true' || $valueName === 'false' || $valueName === 'null') {
@@ -986,29 +976,6 @@ class SchemaValidationContext
                 DirectiveLocation::ENUM_VALUE
             );
         }
-    }
-
-    /**
-     * @return array<int, EnumValueDefinitionNode>
-     */
-    private function getEnumValueNodes(EnumType $enum, string $valueName): array
-    {
-        $allNodes = $enum->astNode !== null
-            ? array_merge([$enum->astNode], $enum->extensionASTNodes)
-            : $enum->extensionASTNodes;
-
-        $values = [];
-        foreach ($allNodes as $node) {
-            foreach ($node->values as $value) {
-                if ($value->name->value !== $valueName) {
-                    continue;
-                }
-
-                $values[] = $value;
-            }
-        }
-
-        return $values;
     }
 
     private function validateInputFields(InputObjectType $inputObj): void

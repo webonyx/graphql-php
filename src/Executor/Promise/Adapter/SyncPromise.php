@@ -53,7 +53,7 @@ class SyncPromise
 
     public static function runQueue(): void
     {
-        $q = self::$queue;
+        $q = self::getQueue();
         while ($q !== null && ! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();

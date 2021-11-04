@@ -33,6 +33,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Expose structured enumeration of directive locations
 - Add `AST::concatAST()` utility
 - Allow lazy input object fields
+- Add validation rule `UniqueEnumValueNames`
 
 ### Optimized
 
