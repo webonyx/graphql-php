@@ -28,8 +28,7 @@ class QueryExecutionTest extends ServerTestCase
 {
     use ArraySubsetAsserts;
 
-    /** @var ServerConfig */
-    private $config;
+    private ServerConfig $config;
 
     public function setUp(): void
     {
@@ -343,10 +342,10 @@ class QueryExecutionTest extends ServerTestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-    public function testAllowsPersistentQueries(): void
+    public function testAllowsPersistedQueries(): void
     {
         $called = false;
-        $this->config->setPersistentQueryLoader(static function ($queryId, OperationParams $params) use (&$called): string {
+        $this->config->setPersistedQueryLoader(static function ($queryId, OperationParams $params) use (&$called): string {
             $called = true;
             self::assertEquals('some-id', $queryId);
 
@@ -363,7 +362,7 @@ class QueryExecutionTest extends ServerTestCase
 
         // Make sure it allows returning document node:
         $called = false;
-        $this->config->setPersistentQueryLoader(static function ($queryId, OperationParams $params) use (&$called): DocumentNode {
+        $this->config->setPersistedQueryLoader(static function ($queryId, OperationParams $params) use (&$called): DocumentNode {
             $called = true;
             self::assertEquals('some-id', $queryId);
 
@@ -378,10 +377,10 @@ class QueryExecutionTest extends ServerTestCase
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'Persistent query loader must return query string or instance of GraphQL\Language\AST\DocumentNode ' .
+            'Persisted query loader must return query string or instance of GraphQL\Language\AST\DocumentNode ' .
             'but got: {"err":"err"}'
         );
-        $this->config->setPersistentQueryLoader(static function (): array {
+        $this->config->setPersistedQueryLoader(static function (): array {
             return ['err' => 'err'];
         });
         $this->executePersistedQuery('some-id');
@@ -389,7 +388,7 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testPersistedQueriesAreStillValidatedByDefault(): void
     {
-        $this->config->setPersistentQueryLoader(static function (): string {
+        $this->config->setPersistedQueryLoader(static function (): string {
             return '{invalid}';
         });
         $result   = $this->executePersistedQuery('some-id');
@@ -407,7 +406,7 @@ class QueryExecutionTest extends ServerTestCase
     public function testAllowSkippingValidationForPersistedQueries(): void
     {
         $this->config
-            ->setPersistentQueryLoader(static function ($queryId) {
+            ->setPersistedQueryLoader(static function ($queryId) {
                 if ($queryId === 'some-id') {
                     return '{invalid}';
                 }
@@ -447,7 +446,7 @@ class QueryExecutionTest extends ServerTestCase
         $expected = [
             'data' => ['f1' => 'f1'],
         ];
-        $this->config->setPersistentQueryLoader(static function (): array {
+        $this->config->setPersistedQueryLoader(static function (): array {
             throw new Exception('Should not be called since a query is also passed');
         });
 

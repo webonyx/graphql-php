@@ -1006,51 +1006,51 @@ visitor API:
 
 1. Named visitors triggered when entering a node a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => function ($node) {
-   // enter the "Kind" node
-   }
-   ]);
+        // enter the "Kind" node
+      }
+    ]);
 
 2. Named visitors that trigger upon entering and leaving a node of
    a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => [
         'enter' => function ($node) {
-   // enter the "Kind" node
-   }
-   'leave' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+        'leave' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
 3. Generic visitors that trigger upon entering and leaving any node.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => function ($node) {
-   // enter any node
-   },
-   'leave' => function ($node) {
-   // leave any node
-   }
-   ]);
+        // enter any node
+      },
+      'leave' => function ($node) {
+        // leave any node
+      }
+    ]);
 
 4. Parallel visitors for entering and leaving nodes of a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => [
         'Kind' => function($node) {
-   // enter the "Kind" node
-   }
-   },
-   'leave' => [
-   'Kind' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+      },
+      'leave' => [
+        'Kind' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
 ### GraphQL\Language\Visitor Methods
 
@@ -1664,10 +1664,10 @@ It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io
 and provides tools for error debugging.
 
 @phpstan-type FormattedErrorArray array{
-message: string,
-locations?: array<int, array{line: int, column: int}>,
-path?: array<int, int|string>,
-extensions?: array<string, mixed>,
+ message: string,
+ locations?: array<int, array{line: int, column: int}>,
+ path?: array<int, int|string>,
+ extensions?: array<string, mixed>,
 }
 
 ### GraphQL\Error\FormattedError Methods
@@ -1862,6 +1862,10 @@ Usage example:
 
     $server = new GraphQL\Server\StandardServer($config);
 
+@phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
+@phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
+@phpstan-type ValidationRulesOption array<ValidationRule>|(callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>)|null
+
 ### GraphQL\Server\ServerConfig Methods
 
 ```php
@@ -1895,6 +1899,7 @@ function setContext($context): self
 ```php
 /**
  * @param mixed|callable $rootValue
+ * @phpstan-param mixed|RootValueResolver $rootValue
  *
  * @api
  */
@@ -1924,6 +1929,7 @@ function setErrorsHandler(callable $handler): self
  * Set validation rules for this server.
  *
  * @param array<ValidationRule>|callable|null $validationRules
+ * @phpstan-param ValidationRulesOption $validationRules
  *
  * @api
  */
@@ -1939,11 +1945,11 @@ function setFieldResolver(callable $fieldResolver): self
 
 ```php
 /**
- * @param callable(string $queryId, OperationParams $params): (string|DocumentNode) $persistentQueryLoader
+ * @phpstan-param PersistedQueryLoader|null $persistedQueryLoader
  *
  * @api
  */
-function setPersistentQueryLoader(callable $persistentQueryLoader): self
+function setPersistedQueryLoader(callable $persistedQueryLoader): self
 ```
 
 ```php
@@ -2104,13 +2110,17 @@ function toPsrResponse(
 
 ## GraphQL\Server\OperationParams
 
-Structure representing parsed HTTP parameters for GraphQL operation
+Structure representing parsed HTTP parameters for GraphQL operation.
+
+The properties in this class are not strictly typed, as this class
+is only meant to serve as an intermediary representation which is
+not yet validated.
 
 ### GraphQL\Server\OperationParams Props
 
 ```php
 /**
- * Id of the query (when using persistent queries).
+ * Id of the query (when using persisted queries).
  *
  * Valid aliases (case-insensitive):
  * - id
@@ -2118,33 +2128,56 @@ Structure representing parsed HTTP parameters for GraphQL operation
  * - documentId
  *
  * @api
- * @var string|null
+ * @var mixed should be string|null
  */
 public $queryId;
 
 /**
+ * A document containing GraphQL operations and fragments to execute.
+ *
  * @api
- * @var string|null
+ * @var mixed should be string|null
  */
 public $query;
 
 /**
+ * The name of the operation in the document to execute.
+ *
  * @api
- * @var string
+ * @var mixed should be string|null
  */
 public $operation;
 
 /**
+ * Values for any variables defined by the operation.
+ *
  * @api
- * @var array<string, mixed>|null
+ * @var mixed should be array<string, mixed>
  */
 public $variables;
 
 /**
+ * Reserved for implementors to extend the protocol however they see fit.
+ *
  * @api
- * @var array<string, mixed>|null
+ * @var mixed should be array<string, mixed>
  */
 public $extensions;
+
+/**
+ * Executed in read-only context (e.g. via HTTP GET request)?
+ *
+ * @api
+ */
+public $readOnly;
+
+/**
+ * The raw params used to construct this instance.
+ *
+ * @api
+ * @var array<string, mixed>
+ */
+public $originalInput;
 ```
 
 ### GraphQL\Server\OperationParams Methods
@@ -2160,25 +2193,6 @@ public $extensions;
 static function create(array $params, bool $readonly = false): GraphQL\Server\OperationParams
 ```
 
-```php
-/**
- * @return mixed
- *
- * @api
- */
-function getOriginalInput(string $key)
-```
-
-```php
-/**
- * Indicates that operation is executed in read-only context
- * (e.g. via HTTP GET request)
- *
- * @api
- */
-function isReadOnly(): bool
-```
-
 ## GraphQL\Utils\BuildSchema
 
 Build instance of @see \GraphQL\Type\Schema out of schema language definition (string or parsed AST).
@@ -2186,21 +2200,21 @@ Build instance of @see \GraphQL\Type\Schema out of schema language definition (s
 See [schema definition language docs](schema-definition-language.md) for details.
 
 @phpstan-type Options array{
-assumeValid?: bool,
-assumeValidSDL?: bool,
+  assumeValid?: bool,
+  assumeValidSDL?: bool,
 }
 
-- assumeValid:
-  When building a schema from a GraphQL service's introspection result, it
-  might be safe to assume the schema is valid. Set to true to assume the
-  produced schema is valid.
+   - assumeValid:
+         When building a schema from a GraphQL service's introspection result, it
+         might be safe to assume the schema is valid. Set to true to assume the
+         produced schema is valid.
 
-      Default: false
+         Default: false
 
-- assumeValidSDL:
-  Set to true to assume the SDL is valid.
+    - assumeValidSDL:
+         Set to true to assume the SDL is valid.
 
-  Default: false
+         Default: false
 
 ### GraphQL\Utils\BuildSchema Methods
 
@@ -2247,7 +2261,7 @@ Various utilities dealing with AST
 
 ### GraphQL\Utils\AST Methods
 
-````php
+```php
 /**
  * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
  *
@@ -2274,7 +2288,7 @@ Various utilities dealing with AST
  * @api
  */
 static function fromArray(array $node): GraphQL\Language\AST\Node
-````
+```
 
 ```php
 /**
@@ -2422,11 +2436,10 @@ static function concatAST(array $documents): GraphQL\Language\AST\DocumentNode
 Prints the contents of a Schema in schema definition language.
 
 @phpstan-type Options array{commentDescriptions?: bool}
-Available options:
-
-- commentDescriptions:
-  Provide true to use preceding comments as the description.
-  This option is provided to ease adoption and will be removed in v16.
+   Available options:
+   - commentDescriptions:
+       Provide true to use preceding comments as the description.
+       This option is provided to ease adoption and will be removed in v16.
 
 ### GraphQL\Utils\SchemaPrinter Methods
 
@@ -2449,3 +2462,4 @@ static function doPrint(GraphQL\Type\Schema $schema, array $options = []): strin
  */
 static function printIntrospectionSchema(GraphQL\Type\Schema $schema, array $options = []): string
 ```
+

@@ -75,6 +75,7 @@ class StandardServer
             $config = ServerConfig::create($config);
         }
 
+        // @phpstan-ignore-next-line necessary until we can use proper union types
         if (! $config instanceof ServerConfig) {
             throw new InvariantViolation('Expecting valid server config, but got ' . Utils::printSafe($config));
         }
