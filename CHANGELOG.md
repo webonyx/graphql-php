@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.11.2
+
+Fixed:
+- Support non-JSON `ServerRequestInterface`
+
 #### 14.11.1
 
 Fixed:

@@ -559,10 +559,12 @@ class Helper
                     );
                 }
             } else {
-                parse_str((string) $request->getBody(), $bodyParams);
+                if ($request instanceof ServerRequestInterface) {
+                    $bodyParams = $request->getParsedBody();
+                }
 
-                if (! is_array($bodyParams)) {
-                    throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType[0]));
+                if (! isset($bodyParams)) {
+                    $bodyParams = $this->decodeContent((string) $request->getBody(), $contentType[0]);
                 }
             }
         }
@@ -574,6 +576,22 @@ class Helper
             $bodyParams,
             $queryParams
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws RequestError
+     */
+    protected function decodeContent(string $rawBody, string $contentType) : array
+    {
+        parse_str($rawBody, $bodyParams);
+
+        if (! is_array($bodyParams)) {
+            throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType));
+        }
+
+        return $bodyParams;
     }
 
     /**
