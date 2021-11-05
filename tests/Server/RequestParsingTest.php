@@ -10,6 +10,7 @@ use GraphQL\Server\OperationParams;
 use GraphQL\Server\RequestError;
 use InvalidArgumentException;
 use Nyholm\Psr7\Request;
+use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\Uri;
 use PHPUnit\Framework\TestCase;
@@ -110,6 +111,7 @@ class RequestParsingTest extends TestCase
         $parsed = [
             'raw' => $this->parseRawFormUrlencodedRequest($post),
             'psr' => $this->parsePsrFormUrlEncodedRequest($post),
+            'serverRequest' => $this->parsePsrFormUrlEncodedServerRequest($post),
         ];
 
         foreach ($parsed as $method => $parsedBody) {
@@ -152,6 +154,19 @@ class RequestParsingTest extends TestCase
                 ['Content-Type' => 'application/x-www-form-urlencoded'],
                 http_build_query($postValue)
             )
+        );
+    }
+
+    private function parsePsrFormUrlEncodedServerRequest($postValue)
+    {
+        $helper = new Helper();
+
+        return $helper->parsePsrRequest(
+            (new ServerRequest(
+                'POST',
+                '',
+                ['Content-Type' => 'application/x-www-form-urlencoded'],
+            ))->withParsedBody($postValue)
         );
     }
 
