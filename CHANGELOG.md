@@ -52,6 +52,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Preserve extended methods from class-based types in `SchemaExtender::extend()`
 - Fix printing of empty types (#940)
 - Clone `NodeList` in `Node::cloneDeep()`
+- Support non-JSON `ServerRequestInterface`
 
 ### Removed
 
