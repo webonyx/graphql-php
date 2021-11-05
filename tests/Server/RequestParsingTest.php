@@ -111,7 +111,8 @@ class RequestParsingTest extends TestCase
         $parsed = [
             'raw' => $this->parseRawFormUrlencodedRequest($post),
             'psr' => $this->parsePsrFormUrlEncodedRequest($post),
-            'serverRequest' => $this->parsePsrFormUrlEncodedServerRequest($post),
+            'serverRequest' => $this->parsePsrFormUrlEncodedServerRequest($post, false),
+            'parsedServerRequest' => $this->parsePsrFormUrlEncodedServerRequest($post, true),
         ];
 
         foreach ($parsed as $method => $parsedBody) {
@@ -157,17 +158,22 @@ class RequestParsingTest extends TestCase
         );
     }
 
-    private function parsePsrFormUrlEncodedServerRequest($postValue)
+    private function parsePsrFormUrlEncodedServerRequest($postValue, bool $parsed)
     {
         $helper = new Helper();
 
-        return $helper->parsePsrRequest(
-            (new ServerRequest(
-                'POST',
-                '',
-                ['Content-Type' => 'application/x-www-form-urlencoded'],
-            ))->withParsedBody($postValue)
+        $request = new ServerRequest(
+            'POST',
+            '',
+            ['Content-Type' => 'application/x-www-form-urlencoded'],
+            $parsed ? null : http_build_query($postValue),
         );
+
+        if ($parsed) {
+            $request = $request->withParsedBody($postValue);
+        }
+
+        return $helper->parsePsrRequest($request);
     }
 
     public function testParsesGetRequest(): void
