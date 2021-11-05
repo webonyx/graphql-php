@@ -525,9 +525,11 @@ class Helper
 
                 $this->assertJsonObjectOrArray($bodyParams);
             } else {
-                $bodyParams = $request instanceof ServerRequestInterface
-                    ? $request->getParsedBody()
-                    : $this->decodeContent((string) $request->getBody(), $contentType[0]);
+                if ($request instanceof ServerRequestInterface) {
+                    $bodyParams = $request->getParsedBody();
+                }
+
+                $bodyParams ??= $this->decodeContent((string) $request->getBody(), $contentType[0]);
             }
         }
 
