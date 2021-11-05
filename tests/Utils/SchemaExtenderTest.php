@@ -1393,25 +1393,6 @@ class SchemaExtenderTest extends TestCase
     }
 
     /**
-     * @see it('does not allow replacing an existing enum value')
-     */
-    public function testDoesNotAllowReplacingAnExistingEnumValue(): void
-    {
-        $sdl = '
-          extend enum SomeEnum {
-            ONE
-          }
-        ';
-
-        try {
-            $this->extendTestSchema($sdl);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Enum value "SomeEnum.ONE" already exists in the schema. It cannot also be defined in this type extension.', $error->getMessage());
-        }
-    }
-
-    /**
      * @see it('does not automatically include common root type names')
      */
     public function testDoesNotAutomaticallyIncludeCommonRootTypeNames(): void

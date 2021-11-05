@@ -33,6 +33,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Expose structured enumeration of directive locations
 - Add `AST::concatAST()` utility
 - Allow lazy input object fields
+- Add validation rule `UniqueEnumValueNames`
+- Add SDL validation rule `UniqueOperationTypes` (#995)
 
 ### Optimized
 
@@ -50,6 +52,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Preserve extended methods from class-based types in `SchemaExtender::extend()`
 - Fix printing of empty types (#940)
 - Clone `NodeList` in `Node::cloneDeep()`
+- Support non-JSON `ServerRequestInterface`
 
 ### Removed
 
@@ -71,6 +74,18 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated public property access to `FieldDefinition::$type`
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
+
+## 14.11.0
+
+### Added
+
+- Allow field definitions to be defined as any `iterable`, not just `array`
+
+## 14.10.0
+
+### Added
+
+- Make `IntType` constants `MAX_INT` and `MIN_INT` public
 
 ## 14.9.0
 

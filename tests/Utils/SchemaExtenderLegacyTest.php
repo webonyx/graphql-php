@@ -36,7 +36,6 @@ use function iterator_to_array;
  *   - https://github.com/graphql/graphql-js/commit/257797a0ebdddd3da6e75b7c237fdc12a1a7c75a
  *   - https://github.com/graphql/graphql-js/commit/3b9ea61f2348215dee755f779caef83df749d2bb
  *   - https://github.com/graphql/graphql-js/commit/e6a3f08cc92594f68a6e61d3d4b46a6d279f845e
- *   - https://github.com/graphql/graphql-js/commit/9b7a8af43fc0865a01df5b5a084f37bbb8680ef8
  */
 class SchemaExtenderLegacyTest extends TestCase
 {
@@ -494,84 +493,6 @@ class SchemaExtenderLegacyTest extends TestCase
             self::fail();
         } catch (Error $error) {
             self::assertEquals('Cannot extend non-input object type "Foo".', $error->getMessage());
-        }
-    }
-
-    // Extract check for unique operation types into separate rule (#1624)
-
-    /**
-     * @see it('does not allow redefining an existing root type')
-     */
-    public function testDoesNotAllowRedefiningAnExistingRootType(): void
-    {
-        $sdl = '
-            extend schema {
-                query: SomeType
-            }
-
-            type SomeType {
-                seeSomething: String
-            }
-        ';
-
-        try {
-            $this->extendTestSchema($sdl);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Must provide only one query type in schema.', $error->getMessage());
-        }
-    }
-
-    /**
-     * @see it('does not allow defining a root operation type twice')
-     */
-    public function testDoesNotAllowDefiningARootOperationTypeTwice(): void
-    {
-        $sdl = '
-            extend schema {
-              mutation: Mutation
-            }
-            extend schema {
-              mutation: Mutation
-            }
-            type Mutation {
-              doSomething: String
-            }
-        ';
-
-        try {
-            $this->extendTestSchema($sdl);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Must provide only one mutation type in schema.', $error->getMessage());
-        }
-    }
-
-    /**
-     * @see it('does not allow defining a root operation type with different types')
-     */
-    public function testDoesNotAllowDefiningARootOperationTypeWithDifferentTypes(): void
-    {
-        $sdl = '
-            extend schema {
-              mutation: Mutation
-            }
-            extend schema {
-              mutation: SomethingElse
-            }
-            type Mutation {
-              doSomething: String
-            }
-            type SomethingElse {
-              doSomethingElse: String
-            }
-        ';
-
-        try {
-            $this->extendTestSchema($sdl);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Must provide only one mutation type in schema.', $error->getMessage());
         }
     }
 }
