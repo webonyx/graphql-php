@@ -323,7 +323,7 @@ class Helper
             return $result;
         };
 
-            return $result->then($applyErrorHandling);
+        return $result->then($applyErrorHandling);
     }
 
     /**
