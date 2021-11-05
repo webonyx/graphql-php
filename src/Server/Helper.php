@@ -524,11 +524,11 @@ class Helper
 
                 $this->assertJsonObjectOrArray($bodyParams);
             } else {
-                parse_str((string) $request->getBody(), $bodyParams);
-
-                if (! is_array($bodyParams)) {
-                    throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType[0]));
+                if ($request instanceof ServerRequestInterface) {
+                    $bodyParams = $request->getParsedBody();
                 }
+
+                $bodyParams ??= $this->decodeContent((string) $request->getBody(), $contentType[0]);
             }
         }
 
@@ -552,6 +552,22 @@ class Helper
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new RequestError('Expected JSON object or array for "application/json" request, but failed to parse because: ' . json_last_error_msg());
+        }
+
+        return $bodyParams;
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws RequestError
+     */
+    protected function decodeContent(string $rawBody, string $contentType): array
+    {
+        parse_str($rawBody, $bodyParams);
+
+        if (! is_array($bodyParams)) {
+            throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType));
         }
 
         return $bodyParams;
