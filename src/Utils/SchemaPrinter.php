@@ -651,14 +651,12 @@ class SchemaPrinter
     /**
      * @param array<string> $lines
      */
-    protected static function printChildrenBlock(array $lines, string $begin, string $end, bool $forceMultiline, string $indentation = ''): string
+    protected static function printChildrenBlock(array $lines, string $begin, string $end, bool $multiline, string $indentation = ''): string
     {
         $block = '';
 
         if (count($lines) > 0) {
-            $forceMultiline = $forceMultiline || static::isLineTooLong(array_sum(array_map('mb_strlen', $lines)));
-
-            if ($forceMultiline) {
+            if ($multiline) {
                 $wrapped = false;
 
                 for ($i = 0, $c = count($lines); $i < $c; $i++) {
