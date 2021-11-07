@@ -133,24 +133,6 @@ class OperationParams
     }
 
     /**
-     * @deprecated
-     *
-     * @return mixed
-     */
-    public function getOriginalInput(string $key)
-    {
-        return $this->originalInput[$key] ?? null;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function isReadOnly(): bool
-    {
-        return $this->readOnly;
-    }
-
-    /**
      * Decodes the value if it is JSON, otherwise returns it unchanged.
      *
      * @param mixed $value

@@ -182,7 +182,7 @@ class Helper
         if ($params->variables !== null && (! is_array($params->variables) || isset($params->variables[0]))) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "variables" must be object or JSON string parsed to object, but got ' .
-                Utils::printSafeJson($params->getOriginalInput('variables'))
+                Utils::printSafeJson($params->originalInput['variables'])
             );
         }
 
@@ -281,7 +281,7 @@ class Helper
             }
 
             $operationType = $operationAST->operation;
-            if ($operationType !== 'query' && $op->isReadOnly()) {
+            if ($operationType !== 'query' && $op->readOnly) {
                 throw new RequestError('GET supports only query operation');
             }
 

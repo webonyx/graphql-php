@@ -75,6 +75,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated public property access to `FieldDefinition::$type`
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
+- Remove `OperationParams` method `getOriginalInput()` in favor of public property `$originalInput`
+- Remove `OperationParams` method `isReadOnly()` in favor of public property `$readOnly`
 
 ## 14.11.0
 
