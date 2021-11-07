@@ -30,7 +30,7 @@ class RequestParsingTest extends TestCase
 
         foreach ($parsed as $source => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, null, null, null, $source);
-            self::assertFalse($parsedBody->isReadOnly(), $source);
+            self::assertFalse($parsedBody->readOnly, $source);
         }
     }
 
@@ -112,7 +112,7 @@ class RequestParsingTest extends TestCase
 
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
@@ -189,7 +189,7 @@ class RequestParsingTest extends TestCase
 
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertTrue($parsedBody->isReadOnly(), $method);
+            self::assertTrue($parsedBody->readOnly, $method);
         }
     }
 
@@ -240,7 +240,7 @@ class RequestParsingTest extends TestCase
 
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
@@ -298,7 +298,7 @@ class RequestParsingTest extends TestCase
         ];
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
@@ -321,7 +321,7 @@ class RequestParsingTest extends TestCase
         ];
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $extensions, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
@@ -342,7 +342,7 @@ class RequestParsingTest extends TestCase
         ];
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
@@ -364,7 +364,7 @@ class RequestParsingTest extends TestCase
         ];
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, null, $queryId, $variables, $operation, $extensions, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
