@@ -182,7 +182,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /**
      * @param mixed[]|null $variables
      *
-     * @return null
+     * @return mixed
      *
      * @throws Exception
      */
