@@ -276,11 +276,6 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\|null given\\.$#"
-			count: 1
-			path: src/Utils/AST.php
-
-		-
 			message: "#^Only booleans are allowed in &&, array\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Utils/AST.php

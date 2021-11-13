@@ -442,15 +442,11 @@ class AST
         }
 
         if ($type instanceof EnumType) {
-            if (! $valueNode instanceof EnumValueNode) {
+            try {
+                return $type->parseLiteral($valueNode, $variables);
+            } catch (Throwable $error) {
                 return $undefined;
             }
-            $enumValue = $type->getValue($valueNode->value);
-            if (! $enumValue) {
-                return $undefined;
-            }
-
-            return $enumValue->value;
         }
 
         if ($type instanceof ScalarType) {

@@ -9,12 +9,15 @@ use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
+use GraphQL\Tests\Type\TestClasses\OtherEnum;
+use GraphQL\Tests\Type\TestClasses\OtherEnumType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use function assert;
 use function count;
 use function is_array;
 
@@ -53,6 +56,8 @@ class EnumTypeTest extends TestCase
                 'THREE',
             ],
         ]);
+
+        $otherEnum = new OtherEnumType();
 
         $Complex1 = [
             'someRandomFunction' => static function () : void {
@@ -112,6 +117,28 @@ class EnumTypeTest extends TestCase
                         if (isset($args['fromValue'])) {
                             return $args['fromValue'];
                         }
+                    },
+                ],
+                'otherEnum'  => [
+                    'type'    => Type::string(),
+                    'args'    => [
+                        'from'  => ['type' => $otherEnum],
+                    ],
+                    'resolve' => static function ($rootValue, $args) : string {
+                        assert($args['from'] instanceof OtherEnum);
+
+                        return 'Hello enum ' . $args['from']->getValue();
+                    },
+                ],
+                'returnOtherEnum'  => [
+                    'type'    => $otherEnum,
+                    'args'    => [
+                        'from'  => ['type' => $otherEnum],
+                    ],
+                    'resolve' => static function ($rootValue, $args) : ?OtherEnum {
+                        assert($args['from'] instanceof OtherEnum);
+
+                        return $args['from'];
                     },
                 ],
                 'colorInt'    => [
@@ -601,6 +628,24 @@ class EnumTypeTest extends TestCase
                     'debugMessage' => 'Expected a value of type "SimpleEnum" but received: WRONG',
                     'locations'    => [['line' => 4, 'column' => 13]],
                 ],
+                ],
+            ],
+            GraphQL::executeQuery($this->schema, $q)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
+        );
+    }
+
+    public function testAllowsCustomParseLiteral() : void
+    {
+        $q = '{
+            otherEnum(from: ONE)
+            returnOtherEnum(from: TWO)
+        }';
+
+        self::assertArraySubset(
+            [
+                'data'   => [
+                    'otherEnum' => 'Hello enum ONE',
+                    'returnOtherEnum' => 'TWO',
                 ],
             ],
             GraphQL::executeQuery($this->schema, $q)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
