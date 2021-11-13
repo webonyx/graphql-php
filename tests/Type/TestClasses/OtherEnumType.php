@@ -9,35 +9,37 @@ use GraphQL\Type\Definition\EnumType;
 
 class OtherEnumType extends EnumType
 {
+    const SERIALIZE_RESULT = 'ONE';
+    const PARSE_LITERAL_RESULT = '1';
+    const PARSE_VALUE_RESULT = '2';
+
     public function __construct()
     {
-        $config = [
+        parent::__construct([
             'name'   => 'OtherEnum',
             'values' => [
                 'ONE',
                 'TWO',
                 'THREE',
             ],
-        ];
-        parent::__construct($config);
-    }
-
-    /**
-     * @param mixed[]|null $variables
-     */
-    public function parseLiteral(Node $valueNode, ?array $variables = null)
-    {
-        $value = parent::parseLiteral($valueNode, $variables);
-
-        return new OtherEnum($value);
+        ]);
     }
 
     public function serialize($value)
     {
-        if ($value instanceof OtherEnum) {
-            $value = $value->getValue();
-        }
+//        die('serialize');
+        return self::SERIALIZE_RESULT;
+    }
 
-        return parent::serialize($value);
+    public function parseValue($value)
+    {
+        die('parseValue');
+        return self::PARSE_VALUE_RESULT;
+    }
+
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
+    {
+//        die('parseLiteral');
+        return self::PARSE_LITERAL_RESULT;
     }
 }
