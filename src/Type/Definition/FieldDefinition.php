@@ -161,12 +161,12 @@ class FieldDefinition
         return null;
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getType() : Type
+    public function getType(): Type
     {
         if (! isset($this->type)) {
             /**

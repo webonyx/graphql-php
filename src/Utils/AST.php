@@ -576,8 +576,6 @@ class AST
     }
 
     /**
-     * @deprecated use getOperationAST instead.
-     *
      * Returns the operation within a document by name.
      *
      * If a name is not provided, an operation is only returned if the document has exactly one.
@@ -625,34 +623,5 @@ class AST
         }
 
         return new DocumentNode(['definitions' => new NodeList($definitions)]);
-    }
-
-    /**
-     * Returns the operation within a document by name.
-     *
-     * If a name is not provided, an operation is only returned if the document has exactly one.
-     *
-     * @api
-     */
-    public static function getOperationAST(DocumentNode $document, ?string $operationName = null) : ?OperationDefinitionNode
-    {
-        $operation = null;
-        foreach ($document->definitions->getIterator() as $node) {
-            if (! $node instanceof OperationDefinitionNode) {
-                continue;
-            }
-
-            if ($operationName === null) {
-                // We found a second operation, so we bail instead of returning an ambiguous result.
-                if ($operation !== null) {
-                    return null;
-                }
-                $operation = $node;
-            } elseif ($node->name instanceof NameNode && $node->name->value === $operationName) {
-                return $node;
-            }
-        }
-
-        return $operation;
     }
 }
