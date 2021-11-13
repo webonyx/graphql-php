@@ -9,11 +9,12 @@ use GraphQL\Server\Helper;
 use Nyholm\Psr7\Response;
 use Nyholm\Psr7\Stream;
 use PHPUnit\Framework\TestCase;
+
 use function json_encode;
 
 final class PsrResponseTest extends TestCase
 {
-    public function testConvertsResultToPsrResponse() : void
+    public function testConvertsResultToPsrResponse(): void
     {
         $result      = new ExecutionResult(['key' => 'value']);
         $stream      = Stream::create();

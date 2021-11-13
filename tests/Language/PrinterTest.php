@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
-use ArrayObject;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
-use Throwable;
+
 use function file_get_contents;
 
 class PrinterTest extends TestCase
@@ -20,7 +20,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('does not alter ast')
      */
-    public function testDoesntAlterAST() : void
+    public function testDoesntAlterAST(): void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $ast         = Parser::parse($kitchenSink);
@@ -35,27 +35,20 @@ class PrinterTest extends TestCase
     /**
      * @see it('prints minimal ast')
      */
-    public function testPrintsMinimalAst() : void
+    public function testPrintsMinimalAst(): void
     {
-        $ast = new FieldNode(['name' => new NameNode(['value' => 'foo'])]);
+        $ast = new FieldNode([
+            'name' => new NameNode(['value' => 'foo']),
+            'arguments' => new NodeList([]),
+            'directives' => new NodeList([]),
+        ]);
         self::assertEquals('foo', Printer::doPrint($ast));
-    }
-
-    /**
-     * @see it('produces helpful error messages')
-     */
-    public function testProducesHelpfulErrorMessages() : void
-    {
-        $badAst1 = new ArrayObject(['random' => 'Data']);
-        $this->expectException(Throwable::class);
-        $this->expectExceptionMessage('Invalid AST Node: {"random":"Data"}');
-        Printer::doPrint($badAst1);
     }
 
     /**
      * @see it('correctly prints non-query operations without name')
      */
-    public function testCorrectlyPrintsOpsWithoutName() : void
+    public function testCorrectlyPrintsOpsWithoutName(): void
     {
         $queryAstShorthanded = Parser::parse('query { id, name }');
 
@@ -95,10 +88,26 @@ class PrinterTest extends TestCase
         self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
+    public function testCorrectlyPrintsOpsWithNonNullableVariableArgument(): void
+    {
+        $queryWithNonNullVariable = Parser::parse(
+            'query ($var: ID!) { a(arg: $var) { __typename } }
+'
+        );
+
+        $expected = 'query ($var: ID!) {
+  a(arg: $var) {
+    __typename
+  }
+}
+';
+        self::assertEquals($expected, Printer::doPrint($queryWithNonNullVariable));
+    }
+
     /**
      * @see it('prints query with variable directives')
      */
-    public function testPrintsQueryWithVariableDirectives()
+    public function testPrintsQueryWithVariableDirectives(): void
     {
         $queryAstWithVariableDirective = Parser::parse(
             'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) { id }'
@@ -113,7 +122,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('prints fragment with variable directives')
      */
-    public function testPrintsFragmentWithVariableDirectives()
+    public function testPrintsFragmentWithVariableDirectives(): void
     {
         $queryAstWithVariableDirective = Parser::parse(
             'fragment Foo($foo: TestType @test) on TestType @testDirective { id }',
@@ -127,70 +136,9 @@ class PrinterTest extends TestCase
     }
 
     /**
-     * @see it('correctly prints single-line with leading space')
-     */
-    public function testCorrectlyPrintsSingleLineBlockStringsWithLeadingSpace() : void
-    {
-        $mutationAstWithArtifacts = Parser::parse(
-            '{ field(arg: """    space-led value""") }'
-        );
-        $expected                 = '{
-  field(arg: """    space-led value""")
-}
-';
-        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
-    }
-
-    /**
-     * @see it('correctly prints string with a first line indentation')
-     */
-    public function testCorrectlyPrintsBlockStringsWithAFirstLineIndentation() : void
-    {
-        $mutationAstWithArtifacts = Parser::parse(
-            '{
-  field(arg: """
-        first
-      line
-    indentation
-  """)
-}'
-        );
-        $expected                 = '{
-  field(arg: """
-        first
-      line
-    indentation
-  """)
-}
-';
-        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
-    }
-
-    /**
-     * @see it('correctly prints single-line with leading space and quotation')
-     */
-    public function testCorrectlyPrintsSingleLineWithLeadingSpaceAndQuotation() : void
-    {
-        $mutationAstWithArtifacts = Parser::parse('
-            {
-              field(arg: """    space-led value "quoted string"
-              """)
-            }
-        ');
-        $expected                 = <<<END
-{
-  field(arg: """    space-led value "quoted string"
-  """)
-}
-
-END;
-        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
-    }
-
-    /**
      * @see it('Experimental: correctly prints fragment defined variables')
      */
-    public function testExperimentalCorrectlyPrintsFragmentDefinedVariables() : void
+    public function testExperimentalCorrectlyPrintsFragmentDefinedVariables(): void
     {
         $fragmentWithVariable = Parser::parse(
             '
@@ -211,28 +159,9 @@ END;
     }
 
     /**
-     * @see it('correctly prints single-line with leading space and quotation')
-     */
-    public function testCorrectlyPrintsSingleLineStringsWithLeadingSpaceAndQuotation() : void
-    {
-        $mutationAstWithArtifacts = Parser::parse(
-            '{
-  field(arg: """    space-led value "quoted string"
-  """)
-}'
-        );
-        $expected                 = '{
-  field(arg: """    space-led value "quoted string"
-  """)
-}
-';
-        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
-    }
-
-    /**
      * @see it('prints kitchen sink')
      */
-    public function testPrintsKitchenSink() : void
+    public function testPrintsKitchenSink(): void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $ast         = Parser::parse($kitchenSink);
@@ -297,7 +226,7 @@ EOT;
         self::assertEquals($expected, $printed);
     }
 
-    public function testPrintPrimitives() : void
+    public function testPrintPrimitives(): void
     {
         self::assertSame('3', Printer::doPrint(AST::astFromValue(3, Type::int())));
         self::assertSame('3.14', Printer::doPrint(AST::astFromValue(3.14, Type::float())));

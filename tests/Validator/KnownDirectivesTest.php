@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownDirectives;
@@ -15,7 +15,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /** @var Schema */
     public $schemaWithSDLDirectives;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->schemaWithSDLDirectives = BuildSchema::build('
           directive @onSchema on SCHEMA
@@ -32,9 +32,9 @@ class KnownDirectivesTest extends ValidatorTestCase
         ');
     }
 
-    private function expectSDLErrors($sdlString, $schema = null, $errors = [])
+    private function expectSDLErrors($sdlString, $schema = null, $errors = []): void
     {
-        return $this->expectSDLErrorsFromRule(new KnownDirectives(), $sdlString, $schema, $errors);
+        $this->expectSDLErrorsFromRule(new KnownDirectives(), $sdlString, $schema, $errors);
     }
 
     // Validate: Known directives
@@ -42,7 +42,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with no directives')
      */
-    public function testWithNoDirectives() : void
+    public function testWithNoDirectives(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
@@ -62,7 +62,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with known directives')
      */
-    public function testWithKnownDirectives() : void
+    public function testWithKnownDirectives(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
@@ -82,7 +82,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with unknown directive')
      */
-    public function testWithUnknownDirective() : void
+    public function testWithUnknownDirective(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),
@@ -99,7 +99,7 @@ class KnownDirectivesTest extends ValidatorTestCase
 
     private function unknownDirective($directiveName, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownDirectives::unknownDirectiveMessage($directiveName),
             [new SourceLocation($line, $column)]
         );
@@ -108,7 +108,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with many unknown directives')
      */
-    public function testWithManyUnknownDirectives() : void
+    public function testWithManyUnknownDirectives(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),
@@ -136,7 +136,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with well placed directives')
      */
-    public function testWithWellPlacedDirectives() : void
+    public function testWithWellPlacedDirectives(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
@@ -158,7 +158,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with well placed variable definition directive')
      */
-    public function testWithWellPlacedVariableDefinitionDirective()
+    public function testWithWellPlacedVariableDefinitionDirective(): void
     {
         $this->expectPassesRule(
             new KnownDirectives(),
@@ -175,7 +175,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with directive defined inside SDL')
      */
-    public function testWithDirectiveDefinedInsideSDL()
+    public function testWithDirectiveDefinedInsideSDL(): void
     {
         $this->expectSDLErrors('
             type Query {
@@ -189,7 +189,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with standard directive')
      */
-    public function testWithStandardDirective()
+    public function testWithStandardDirective(): void
     {
         $this->expectSDLErrors(
             '
@@ -204,7 +204,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with overrided standard directive')
      */
-    public function testWithOverridedStandardDirective()
+    public function testWithOverridedStandardDirective(): void
     {
         $this->expectSDLErrors(
             '
@@ -220,7 +220,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with directive defined in schema extension')
      */
-    public function testWithDirectiveDefinedInSchemaExtension()
+    public function testWithDirectiveDefinedInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
           type Query {
@@ -241,7 +241,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with directive used in schema extension')
      */
-    public function testWithDirectiveUsedInSchemaExtension()
+    public function testWithDirectiveUsedInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
             directive @test on OBJECT
@@ -262,7 +262,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with unknown directive in schema extension')
      */
-    public function testWithUnknownDirectiveInSchemaExtension()
+    public function testWithUnknownDirectiveInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
             type Query {
@@ -281,7 +281,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with misplaced directives')
      */
-    public function testWithMisplacedDirectives() : void
+    public function testWithMisplacedDirectives(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),
@@ -307,7 +307,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with misplaced variable definition directive')
      */
-    public function testWithMisplacedVariableDefinitionDirective()
+    public function testWithMisplacedVariableDefinitionDirective(): void
     {
         $this->expectFailsRule(
             new KnownDirectives(),
@@ -322,7 +322,7 @@ class KnownDirectivesTest extends ValidatorTestCase
 
     private function misplacedDirective($directiveName, $placement, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             KnownDirectives::misplacedDirectiveMessage($directiveName, $placement),
             [new SourceLocation($line, $column)]
         );
@@ -331,7 +331,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with well placed directives')
      */
-    public function testWSLWithWellPlacedDirectives() : void
+    public function testWSLWithWellPlacedDirectives(): void
     {
         $this->expectSDLErrors(
             '
@@ -379,7 +379,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     /**
      * @see it('with misplaced directives')
      */
-    public function testWSLWithMisplacedDirectives() : void
+    public function testWSLWithMisplacedDirectives(): void
     {
         $this->expectSDLErrors(
             '

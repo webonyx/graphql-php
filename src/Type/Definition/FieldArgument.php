@@ -8,6 +8,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function array_key_exists;
 use function is_array;
 use function is_string;
@@ -15,65 +16,54 @@ use function sprintf;
 
 class FieldArgument
 {
-    /** @var string */
-    public $name;
+    public string $name;
 
     /** @var mixed */
     public $defaultValue;
 
-    /** @var string|null */
-    public $description;
+    public ?string $description;
 
-    /** @var InputValueDefinitionNode|null */
-    public $astNode;
+    public ?InputValueDefinitionNode $astNode;
 
-    /** @var mixed[] */
-    public $config;
+    /** @var array<string, mixed> */
+    public array $config;
 
     /** @var Type&InputType */
-    private $type;
+    private Type $type;
 
-    /** @param mixed[] $def */
-    public function __construct(array $def)
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function __construct(array $config)
     {
-        foreach ($def as $key => $value) {
-            switch ($key) {
-                case 'name':
-                    $this->name = $value;
-                    break;
-                case 'defaultValue':
-                    $this->defaultValue = $value;
-                    break;
-                case 'description':
-                    $this->description = $value;
-                    break;
-                case 'astNode':
-                    $this->astNode = $value;
-                    break;
-            }
-        }
-        $this->config = $def;
+        $this->name         = $config['name'];
+        $this->defaultValue = $config['defaultValue'] ?? null;
+        $this->description  = $config['description'] ?? null;
+        $this->astNode      = $config['astNode'] ?? null;
+
+        $this->config = $config;
     }
 
     /**
-     * @param mixed[] $config
+     * @param array<string, mixed> $config
      *
-     * @return FieldArgument[]
+     * @return array<int, FieldArgument>
      */
-    public static function createMap(array $config) : array
+    public static function createMap(array $config): array
     {
         $map = [];
         foreach ($config as $name => $argConfig) {
             if (! is_array($argConfig)) {
                 $argConfig = ['type' => $argConfig];
             }
+
             $map[] = new self($argConfig + ['name' => $name]);
         }
 
         return $map;
     }
 
-    public function getType() : Type
+    public function getType(): Type
     {
         if (! isset($this->type)) {
             /**
@@ -88,29 +78,31 @@ class FieldArgument
         return $this->type;
     }
 
-    public function defaultValueExists() : bool
+    public function defaultValueExists(): bool
     {
         return array_key_exists('defaultValue', $this->config);
     }
 
-    public function isRequired() : bool
+    public function isRequired(): bool
     {
-        return $this->getType() instanceof NonNull && ! $this->defaultValueExists();
+        return $this->getType() instanceof NonNull
+            && ! $this->defaultValueExists();
     }
 
-    public function assertValid(FieldDefinition $parentField, Type $parentType)
+    public function assertValid(FieldDefinition $parentField, Type $parentType): void
     {
-        try {
-            Utils::assertValidName($this->name);
-        } catch (InvariantViolation $e) {
+        $error = Utils::isValidNameError($this->name);
+        if ($error !== null) {
             throw new InvariantViolation(
-                sprintf('%s.%s(%s:) %s', $parentType->name, $parentField->name, $this->name, $e->getMessage())
+                "{$parentType->name}.{$parentField->name}({$this->name}:) {$error->getMessage()}"
             );
         }
+
         $type = $this->getType();
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
+
         Utils::invariant(
             $type instanceof InputType,
             sprintf(

@@ -8,6 +8,7 @@ use Exception;
 use GraphQL\Utils\Utils;
 use SplQueue;
 use Throwable;
+
 use function is_object;
 use function method_exists;
 
@@ -25,29 +26,34 @@ use function method_exists;
  */
 class SyncPromise
 {
-    const PENDING   = 'pending';
-    const FULFILLED = 'fulfilled';
-    const REJECTED  = 'rejected';
+    public const PENDING   = 'pending';
+    public const FULFILLED = 'fulfilled';
+    public const REJECTED  = 'rejected';
 
-    /** @var SplQueue */
-    public static $queue;
+    public static SplQueue $queue;
 
-    /** @var string */
-    public $state = self::PENDING;
+    public string $state = self::PENDING;
 
     /** @var mixed */
     public $result;
 
     /**
-     * Promises created in `then` method of this promise and awaiting for resolution of this promise
+     * Promises created in `then` method of this promise and awaiting resolution of this promise
      *
-     * @var mixed[][]
+     * @var array<
+     *     int,
+     *     array{
+     *         self,
+     *         (callable(mixed): mixed)|null,
+     *         (callable(Throwable): mixed)|null
+     *     }
+     * >
      */
-    private $waiting = [];
+    private array $waiting = [];
 
-    public static function runQueue() : void
+    public static function runQueue(): void
     {
-        $q = self::$queue;
+        $q = self::getQueue();
         while ($q !== null && ! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();
@@ -62,7 +68,8 @@ class SyncPromise
         if ($executor === null) {
             return;
         }
-        self::getQueue()->enqueue(function () use ($executor) : void {
+
+        self::getQueue()->enqueue(function () use ($executor): void {
             try {
                 $this->resolve($executor());
             } catch (Throwable $e) {
@@ -71,19 +78,20 @@ class SyncPromise
         });
     }
 
-    public function resolve($value) : self
+    public function resolve($value): self
     {
         switch ($this->state) {
             case self::PENDING:
                 if ($value === $this) {
                     throw new Exception('Cannot resolve promise with self');
                 }
+
                 if (is_object($value) && method_exists($value, 'then')) {
                     $value->then(
-                        function ($resolvedValue) : void {
+                        function ($resolvedValue): void {
                             $this->resolve($resolvedValue);
                         },
-                        function ($reason) : void {
+                        function ($reason): void {
                             $this->reject($reason);
                         }
                     );
@@ -99,6 +107,7 @@ class SyncPromise
                 if ($this->result !== $value) {
                     throw new Exception('Cannot change value of fulfilled promise');
                 }
+
                 break;
             case self::REJECTED:
                 throw new Exception('Cannot resolve rejected promise');
@@ -107,7 +116,7 @@ class SyncPromise
         return $this;
     }
 
-    public function reject($reason) : self
+    public function reject($reason): self
     {
         if (! $reason instanceof Throwable) {
             throw new Exception('SyncPromise::reject() has to be called with an instance of \Throwable');
@@ -123,6 +132,7 @@ class SyncPromise
                 if ($reason !== $this->result) {
                     throw new Exception('Cannot change rejection reason');
                 }
+
                 break;
             case self::FULFILLED:
                 throw new Exception('Cannot reject fulfilled promise');
@@ -131,7 +141,7 @@ class SyncPromise
         return $this;
     }
 
-    private function enqueueWaitingPromises() : void
+    private function enqueueWaitingPromises(): void
     {
         Utils::invariant(
             $this->state !== self::PENDING,
@@ -139,7 +149,7 @@ class SyncPromise
         );
 
         foreach ($this->waiting as $descriptor) {
-            self::getQueue()->enqueue(function () use ($descriptor) : void {
+            self::getQueue()->enqueue(function () use ($descriptor): void {
                 /** @var self $promise */
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
@@ -162,26 +172,29 @@ class SyncPromise
                 }
             });
         }
+
         $this->waiting = [];
     }
 
-    public static function getQueue() : SplQueue
+    public static function getQueue(): SplQueue
     {
         return self::$queue ?? self::$queue = new SplQueue();
     }
 
     /**
-     * @param callable(mixed) : mixed     $onFulfilled
-     * @param callable(Throwable) : mixed $onRejected
+     * @param (callable(mixed): mixed)|null     $onFulfilled
+     * @param (callable(Throwable): mixed)|null $onRejected
      */
-    public function then(?callable $onFulfilled = null, ?callable $onRejected = null) : self
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
     {
         if ($this->state === self::REJECTED && $onRejected === null) {
             return $this;
         }
+
         if ($this->state === self::FULFILLED && $onFulfilled === null) {
             return $this;
         }
+
         $tmp             = new self();
         $this->waiting[] = [$tmp, $onFulfilled, $onRejected];
 
@@ -195,7 +208,7 @@ class SyncPromise
     /**
      * @param callable(Throwable) : mixed $onRejected
      */
-    public function catch(callable $onRejected) : self
+    public function catch(callable $onRejected): self
     {
         return $this->then(null, $onRejected);
     }

@@ -10,44 +10,38 @@ use GraphQL\Type\Schema;
 
 abstract class ASTValidationContext
 {
-    /** @var DocumentNode */
-    protected $ast;
+    protected DocumentNode $ast;
 
-    /** @var Error[] */
-    protected $errors;
+    /** @var array<int, Error> */
+    protected array $errors = [];
 
-    /** @var Schema */
-    protected $schema;
+    protected ?Schema $schema;
 
     public function __construct(DocumentNode $ast, ?Schema $schema = null)
     {
         $this->ast    = $ast;
         $this->schema = $schema;
-        $this->errors = [];
     }
 
-    public function reportError(Error $error)
+    public function reportError(Error $error): void
     {
         $this->errors[] = $error;
     }
 
     /**
-     * @return Error[]
+     * @return array<int, Error>
      */
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }
 
-    /**
-     * @return DocumentNode
-     */
-    public function getDocument()
+    public function getDocument(): DocumentNode
     {
         return $this->ast;
     }
 
-    public function getSchema() : ?Schema
+    public function getSchema(): ?Schema
     {
         return $this->schema;
     }

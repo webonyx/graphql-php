@@ -5,61 +5,45 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Utils\Utils;
-use LogicException;
 use PHPUnit\Framework\TestCase;
 
 class QuotedOrListTest extends TestCase
 {
-    // DESCRIBE: quotedOrList
-
-    /**
-     * @see it('Does not accept an empty list')
-     */
-    public function testResturnsResultsWhenInputIsEmpty() : void
+    public function testEmpty(): void
     {
-        $this->expectException(LogicException::class);
-        Utils::quotedOrList([]);
+        self::assertSame(
+            '',
+            Utils::quotedOrList([])
+        );
     }
 
-    /**
-     * @see it('Returns single quoted item')
-     */
-    public function testReturnsSingleQuotedItem() : void
+    public function testSingleItem(): void
     {
-        self::assertEquals(
+        self::assertSame(
             '"A"',
             Utils::quotedOrList(['A'])
         );
     }
 
-    /**
-     * @see it('Returns two item list')
-     */
-    public function testReturnsTwoItemList() : void
+    public function testTwoItems(): void
     {
-        self::assertEquals(
+        self::assertSame(
             '"A" or "B"',
             Utils::quotedOrList(['A', 'B'])
         );
     }
 
-    /**
-     * @see it('Returns comma separated many item list')
-     */
-    public function testReturnsCommaSeparatedManyItemList() : void
+    public function testManyItems(): void
     {
-        self::assertEquals(
+        self::assertSame(
             '"A", "B", or "C"',
             Utils::quotedOrList(['A', 'B', 'C'])
         );
     }
 
-    /**
-     * @see it('Limits to five items')
-     */
-    public function testLimitsToFiveItems() : void
+    public function testLimitsToFiveItems(): void
     {
-        self::assertEquals(
+        self::assertSame(
             '"A", "B", "C", "D", or "E"',
             Utils::quotedOrList(['A', 'B', 'C', 'D', 'E', 'F'])
         );

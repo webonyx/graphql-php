@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\QueryDepth;
+
 use function sprintf;
 use function str_replace;
 
@@ -17,7 +18,7 @@ class QueryDepthTest extends QuerySecurityTestCase
      *
      * @dataProvider queryDataProvider
      */
-    public function testSimpleQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
+    public function testSimpleQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []): void
     {
         $this->assertDocumentValidator($this->buildRecursiveQuery($queryDepth), $maxQueryDepth, $expectedErrors);
     }
@@ -42,6 +43,7 @@ class QueryDepthTest extends QuerySecurityTestCase
 
             $part = sprintf($part, ($key === 'human' ? ' owner ' : '') . $template);
         }
+
         $part = str_replace('%s', '', $part);
 
         return $part;
@@ -54,7 +56,7 @@ class QueryDepthTest extends QuerySecurityTestCase
      *
      * @dataProvider queryDataProvider
      */
-    public function testFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
+    public function testFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []): void
     {
         $this->assertDocumentValidator(
             $this->buildRecursiveUsingFragmentQuery($queryDepth),
@@ -78,7 +80,7 @@ class QueryDepthTest extends QuerySecurityTestCase
      *
      * @dataProvider queryDataProvider
      */
-    public function testInlineFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
+    public function testInlineFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []): void
     {
         $this->assertDocumentValidator(
             $this->buildRecursiveUsingInlineFragmentQuery($queryDepth),
@@ -95,17 +97,17 @@ class QueryDepthTest extends QuerySecurityTestCase
         );
     }
 
-    public function testComplexityIntrospectionQuery() : void
+    public function testComplexityIntrospectionQuery(): void
     {
         $this->assertIntrospectionQuery(11);
     }
 
-    public function testIntrospectionTypeMetaFieldQuery() : void
+    public function testIntrospectionTypeMetaFieldQuery(): void
     {
         $this->assertIntrospectionTypeMetaFieldQuery(1);
     }
 
-    public function testTypeNameMetaFieldQuery() : void
+    public function testTypeNameMetaFieldQuery(): void
     {
         $this->assertTypeNameMetaFieldQuery(1);
     }
@@ -135,24 +137,13 @@ class QueryDepthTest extends QuerySecurityTestCase
         ];
     }
 
-    /**
-     * @param int $max
-     * @param int $count
-     *
-     * @return string
-     */
-    protected function getErrorMessage($max, $count)
+    protected function getErrorMessage(int $max, int $count): string
     {
         return QueryDepth::maxQueryDepthErrorMessage($max, $count);
     }
 
-    /**
-     * @param int $maxDepth
-     *
-     * @return QueryDepth
-     */
-    protected function getRule($maxDepth)
+    protected function getRule(int $max): QueryDepth
     {
-        return new QueryDepth($maxDepth);
+        return new QueryDepth($max);
     }
 }

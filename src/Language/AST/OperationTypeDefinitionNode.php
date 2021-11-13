@@ -6,8 +6,7 @@ namespace GraphQL\Language\AST;
 
 class OperationTypeDefinitionNode extends Node
 {
-    /** @var string */
-    public $kind = NodeKind::OPERATION_TYPE_DEFINITION;
+    public string $kind = NodeKind::OPERATION_TYPE_DEFINITION;
 
     /**
      * One of 'query' | 'mutation' | 'subscription'

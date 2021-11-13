@@ -18,25 +18,19 @@ use PHPUnit\Framework\TestCase;
 
 class SchemaTest extends TestCase
 {
-    /** @var InterfaceType */
-    private $interfaceType;
+    private InterfaceType $interfaceType;
 
-    /** @var ObjectType */
-    private $implementingType;
+    private ObjectType $implementingType;
 
-    /** @var InputObjectType */
-    private $directiveInputType;
+    private InputObjectType $directiveInputType;
 
-    /** @var InputObjectType */
-    private $wrappedDirectiveInputType;
+    private InputObjectType $wrappedDirectiveInputType;
 
-    /** @var Directive */
-    private $directive;
+    private Directive $directive;
 
-    /** @var Schema */
-    private $schema;
+    private Schema $schema;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->interfaceType = new InterfaceType([
             'name'   => 'Interface',
@@ -49,7 +43,7 @@ class SchemaTest extends TestCase
             'fields'     => [
                 'fieldName' => [
                     'type'    => Type::string(),
-                    'resolve' => static function () : string {
+                    'resolve' => static function (): string {
                         return '';
                     },
                 ],
@@ -93,7 +87,7 @@ class SchemaTest extends TestCase
                 'fields' => [
                     'getObject' => [
                         'type'    => $this->interfaceType,
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return [];
                         },
                     ],
@@ -109,7 +103,7 @@ class SchemaTest extends TestCase
     /**
      * @see it('throws human-reable error if schema.types is not defined')
      */
-    public function testThrowsHumanReableErrorIfSchemaTypesIsNotDefined() : void
+    public function testThrowsHumanReableErrorIfSchemaTypesIsNotDefined(): void
     {
         self::markTestSkipped("Can't check interface implementations without full schema scan");
 
@@ -119,7 +113,7 @@ class SchemaTest extends TestCase
             'Check that schema.types is defined and is an array of all possible ' .
             'types in the schema.'
         );
-        $this->schema->isPossibleType($this->interfaceType, $this->implementingType);
+        $this->schema->isSubType($this->interfaceType, $this->implementingType);
     }
 
     // Type Map
@@ -127,7 +121,7 @@ class SchemaTest extends TestCase
     /**
      * @see it('includes input types only used in directives')
      */
-    public function testIncludesInputTypesOnlyUsedInDirectives() : void
+    public function testIncludesInputTypesOnlyUsedInDirectives(): void
     {
         $typeMap = $this->schema->getTypeMap();
         self::assertArrayHasKey('DirInput', $typeMap);
@@ -139,7 +133,7 @@ class SchemaTest extends TestCase
     /**
      * @see it('validates argument to isSubType to be of the correct type')
      */
-    public function testThrowsInvalidArgumentExceptionWhenInvalidTypeIsPassedToIsSubType() : void
+    public function testThrowsInvalidArgumentExceptionWhenInvalidTypeIsPassedToIsSubType(): void
     {
         $this->expectException(InvalidArgumentException::class);
 

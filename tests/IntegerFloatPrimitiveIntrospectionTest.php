@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 class IntegerFloatPrimitiveIntrospectionTest extends TestCase
 {
-    public static function build() : Schema
+    public static function build(): Schema
     {
         $queryType = new ObjectType([
             'name' => 'Query',
@@ -38,7 +38,7 @@ class IntegerFloatPrimitiveIntrospectionTest extends TestCase
         return new Schema(['query' => $queryType]);
     }
 
-    public function testDefaultValues() : void
+    public function testDefaultValues(): void
     {
         $query = '{
           __schema {

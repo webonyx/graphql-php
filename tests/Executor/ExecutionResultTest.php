@@ -10,14 +10,14 @@ use PHPUnit\Framework\TestCase;
 
 class ExecutionResultTest extends TestCase
 {
-    public function testToArrayWithoutExtensions() : void
+    public function testToArrayWithoutExtensions(): void
     {
         $executionResult = new ExecutionResult();
 
         self::assertSame([], $executionResult->toArray());
     }
 
-    public function testToArrayExtensions() : void
+    public function testToArrayExtensions(): void
     {
         $executionResult = new ExecutionResult(null, [], ['foo' => 'bar']);
 
@@ -28,11 +28,11 @@ class ExecutionResultTest extends TestCase
         self::assertSame(['extensions' => ['bar' => 'foo']], $executionResult->toArray());
     }
 
-    public function testNoEmptyErrors() : void
+    public function testNoEmptyErrors(): void
     {
         $executionResult = new ExecutionResult(null, [new Error()]);
         $executionResult->setErrorsHandler(
-            static function () : array {
+            static function (): array {
                 return [];
             }
         );

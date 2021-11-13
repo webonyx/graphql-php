@@ -13,13 +13,13 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+
 use function array_diff_key;
 use function array_filter;
 use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
-use function array_merge_recursive;
 use function array_unique;
 use function array_values;
 use function count;
@@ -29,29 +29,27 @@ use function is_numeric;
 
 class QueryPlan
 {
-    /** @var string[][] */
-    private $types = [];
+    /** @var array<string, array<int, string>> */
+    private array $types = [];
 
-    /** @var Schema */
-    private $schema;
+    private Schema $schema;
 
     /** @var array<string, mixed> */
-    private $queryPlan = [];
+    private array $queryPlan = [];
 
-    /** @var mixed[] */
-    private $variableValues;
+    /** @var array<string, mixed> */
+    private array $variableValues;
 
-    /** @var FragmentDefinitionNode[] */
-    private $fragments;
+    /** @var array<string, FragmentDefinitionNode> */
+    private array $fragments;
 
-    /** @var bool */
-    private $groupImplementorFields;
+    private bool $groupImplementorFields;
 
     /**
-     * @param FieldNode[]              $fieldNodes
-     * @param mixed[]                  $variableValues
-     * @param FragmentDefinitionNode[] $fragments
-     * @param mixed[]                  $options
+     * @param iterable<FieldNode>                   $fieldNodes
+     * @param array<string, mixed>                  $variableValues
+     * @param array<string, FragmentDefinitionNode> $fragments
+     * @param array<string>                         $options        TODO move to using key
      */
     public function __construct(ObjectType $parentType, Schema $schema, iterable $fieldNodes, array $variableValues, array $fragments, array $options = [])
     {
@@ -63,65 +61,62 @@ class QueryPlan
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, mixed>
      */
-    public function queryPlan() : array
+    public function queryPlan(): array
     {
         return $this->queryPlan;
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getReferencedTypes() : array
+    public function getReferencedTypes(): array
     {
         return array_keys($this->types);
     }
 
-    public function hasType(string $type) : bool
+    public function hasType(string $type): bool
     {
-        return count(array_filter($this->getReferencedTypes(), static function (string $referencedType) use ($type) : bool {
-                return $type === $referencedType;
-        })) > 0;
+        return isset($this->types[$type]);
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getReferencedFields() : array
+    public function getReferencedFields(): array
     {
         return array_values(array_unique(array_merge(...array_values($this->types))));
     }
 
-    public function hasField(string $field) : bool
+    public function hasField(string $field): bool
     {
-        return count(array_filter($this->getReferencedFields(), static function (string $referencedField) use ($field) : bool {
-            return $field === $referencedField;
-        })) > 0;
+        return count(
+            array_filter(
+                $this->getReferencedFields(),
+                static fn (string $referencedField): bool => $field === $referencedField
+            )
+        ) > 0;
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
-    public function subFields(string $typename) : array
+    public function subFields(string $typename): array
     {
-        if (! array_key_exists($typename, $this->types)) {
-            return [];
-        }
-
-        return $this->types[$typename];
+        return $this->types[$typename] ?? [];
     }
 
     /**
-     * @param FieldNode[] $fieldNodes
+     * @param iterable<FieldNode> $fieldNodes
      */
-    private function analyzeQueryPlan(ObjectType $parentType, iterable $fieldNodes) : void
+    private function analyzeQueryPlan(ObjectType $parentType, iterable $fieldNodes): void
     {
         $queryPlan    = [];
         $implementors = [];
         /** @var FieldNode $fieldNode */
         foreach ($fieldNodes as $fieldNode) {
-            if (! $fieldNode->selectionSet) {
+            if ($fieldNode->selectionSet === null) {
                 continue;
             }
 
@@ -137,7 +132,7 @@ class QueryPlan
                 array_keys($subfields)
             ));
 
-            $queryPlan = array_merge_recursive(
+            $queryPlan = $this->arrayMergeDeep(
                 $queryPlan,
                 $subfields
             );
@@ -156,13 +151,13 @@ class QueryPlan
 
     /**
      * @param InterfaceType|ObjectType $parentType
-     * @param mixed[]                  $implementors
+     * @param array<string, mixed>     $implementors
      *
-     * @return mixed[]
+     * @return array<mixed>
      *
      * @throws Error
      */
-    private function analyzeSelectionSet(SelectionSetNode $selectionSet, Type $parentType, array &$implementors) : array
+    private function analyzeSelectionSet(SelectionSetNode $selectionSet, Type $parentType, array &$implementors): array
     {
         $fields       = [];
         $implementors = [];
@@ -179,7 +174,7 @@ class QueryPlan
 
                 $subfields       = [];
                 $subImplementors = [];
-                if ($selectionNode->selectionSet) {
+                if (isset($selectionNode->selectionSet)) {
                     $subfields = $this->analyzeSubFields($selectionType, $selectionNode->selectionSet, $subImplementors);
                 }
 
@@ -210,11 +205,11 @@ class QueryPlan
     }
 
     /**
-     * @param mixed[] $implementors
+     * @param array<string, mixed> $implementors
      *
-     * @return mixed[]
+     * @return array<mixed>
      */
-    private function analyzeSubFields(Type $type, SelectionSetNode $selectionSet, array &$implementors = []) : array
+    private function analyzeSubFields(Type $type, SelectionSetNode $selectionSet, array &$implementors = []): array
     {
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
@@ -233,13 +228,13 @@ class QueryPlan
     }
 
     /**
-     * @param mixed[] $fields
-     * @param mixed[] $subfields
-     * @param mixed[] $implementors
+     * @param array<mixed>         $fields
+     * @param array<mixed>         $subfields
+     * @param array<string, mixed> $implementors
      *
-     * @return mixed[]
+     * @return array<mixed>
      */
-    private function mergeFields(Type $parentType, Type $type, array $fields, array $subfields, array &$implementors) : array
+    private function mergeFields(Type $parentType, Type $type, array $fields, array $subfields, array &$implementors): array
     {
         if ($this->groupImplementorFields && $parentType instanceof AbstractType && ! $type instanceof AbstractType) {
             $implementors[$type->name] = [
@@ -270,12 +265,12 @@ class QueryPlan
      *
      * @see https://stackoverflow.com/a/25712428
      *
-     * @param mixed[] $array1
-     * @param mixed[] $array2
+     * @param array<mixed> $array1
+     * @param array<mixed> $array2
      *
-     * @return mixed[]
+     * @return array<mixed>
      */
-    private function arrayMergeDeep(array $array1, array $array2) : array
+    private function arrayMergeDeep(array $array1, array $array2): array
     {
         $merged = $array1;
 

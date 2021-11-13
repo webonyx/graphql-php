@@ -26,7 +26,7 @@ class LoneSchemaDefinition extends ValidationRule
         return 'Cannot define a new schema within a schema extension.';
     }
 
-    public function getSDLVisitor(SDLValidationContext $context)
+    public function getSDLVisitor(SDLValidationContext $context): array
     {
         $oldSchema      = $context->getSchema();
         $alreadyDefined = $oldSchema !== null
@@ -41,15 +41,15 @@ class LoneSchemaDefinition extends ValidationRule
         $schemaDefinitionsCount = 0;
 
         return [
-            NodeKind::SCHEMA_DEFINITION => static function (SchemaDefinitionNode $node) use ($alreadyDefined, $context, &$schemaDefinitionsCount) : void {
+            NodeKind::SCHEMA_DEFINITION => static function (SchemaDefinitionNode $node) use ($alreadyDefined, $context, &$schemaDefinitionsCount): void {
                 if ($alreadyDefined !== false) {
-                    $context->reportError(new Error(self::canNotDefineSchemaWithinExtensionMessage(), $node));
+                    $context->reportError(new Error(static::canNotDefineSchemaWithinExtensionMessage(), $node));
 
                     return;
                 }
 
                 if ($schemaDefinitionsCount > 0) {
-                    $context->reportError(new Error(self::schemaDefinitionNotAloneMessage(), $node));
+                    $context->reportError(new Error(static::schemaDefinitionNotAloneMessage(), $node));
                 }
 
                 ++$schemaDefinitionsCount;

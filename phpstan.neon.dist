@@ -1,16 +1,18 @@
 parameters:
+    # TODO increase to max
     level: 3
 
     inferPrivatePropertyTypeFromConstructor: true
 
-    paths:
-        - %currentWorkingDirectory%/src
-        - %currentWorkingDirectory%/tests
+    # TODO revert this setting once we arrived at level: max
+    reportUnmatchedIgnoredErrors: false
 
-    excludes_analyse:
-        # Ported from dms/phpunit-arraysubset-asserts
-        - tests/PHPUnit/ArraySubsetAsserts.php
-        - tests/PHPUnit/Constraint/ArraySubset.php
+    paths:
+        - benchmarks
+        - examples
+        - generate-class-reference.php
+        - src
+        - tests
 
     ignoreErrors:
         # Since this is a library that is supposed to be flexible, we don't
@@ -20,6 +22,12 @@ parameters:
         # This class uses magic methods to reduce a whole lot of boilerplate required to
         # allow partial parsing of language fragments.
         - "~Variable method call on GraphQL\\\\Language\\\\Parser\\.~"
+
+        # Useful/necessary in the default field resolver, deals with arbitrary user data
+        -
+            message: "~Variable property access on object~"
+            path: src/Executor/Executor.php
+            count: 2
 
         # Those come from graphql-php\tests\Language\VisitorTest.php
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didEnter~"

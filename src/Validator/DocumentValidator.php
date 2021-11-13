@@ -8,7 +8,6 @@ use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Visitor;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\Rules\DisableIntrospection;
@@ -37,15 +36,18 @@ use GraphQL\Validator\Rules\ScalarLeafs;
 use GraphQL\Validator\Rules\SingleFieldSubscription;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
+use GraphQL\Validator\Rules\UniqueEnumValueNames;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
 use GraphQL\Validator\Rules\UniqueInputFieldNames;
 use GraphQL\Validator\Rules\UniqueOperationNames;
+use GraphQL\Validator\Rules\UniqueOperationTypes;
 use GraphQL\Validator\Rules\UniqueVariableNames;
 use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 use Throwable;
+
 use function array_filter;
 use function array_merge;
 use function count;
@@ -62,9 +64,9 @@ use function sprintf;
  * default list of rules defined by the GraphQL specification will be used.
  *
  * Each validation rule is an instance of GraphQL\Validator\Rules\ValidationRule
- * which returns a visitor (see the [GraphQL\Language\Visitor API](reference.md#graphqllanguagevisitor)).
+ * which returns a visitor (see the [GraphQL\Language\Visitor API](class-reference.md#graphqllanguagevisitor)).
  *
- * Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference.md#graphqlerrorerror),
+ * Visitor methods are expected to return an instance of [GraphQL\Error\Error](class-reference.md#graphqlerrorerror),
  * or array of such instances when invalid.
  *
  * Optionally a custom TypeInfo instance may be provided. If not provided, one
@@ -90,9 +92,9 @@ class DocumentValidator
     /**
      * Primary method for query validation. See class description for details.
      *
-     * @param ValidationRule[]|null $rules
+     * @param array<ValidationRule>|null $rules
      *
-     * @return Error[]
+     * @return array<int, Error>
      *
      * @api
      */
@@ -101,17 +103,17 @@ class DocumentValidator
         DocumentNode $ast,
         ?array $rules = null,
         ?TypeInfo $typeInfo = null
-    ) {
+    ): array {
         if ($rules === null) {
             $rules = static::allRules();
         }
 
-        if (is_array($rules) === true && count($rules) === 0) {
+        if (count($rules) === 0) {
             // Skip validation if there are no rules
             return [];
         }
 
-        $typeInfo = $typeInfo ?? new TypeInfo($schema);
+        $typeInfo ??= new TypeInfo($schema);
 
         return static::visitUsingRules($schema, $typeInfo, $ast, $rules);
     }
@@ -119,11 +121,11 @@ class DocumentValidator
     /**
      * Returns all global validation rules.
      *
-     * @return ValidationRule[]
+     * @return array<class-string<ValidationRule>, ValidationRule>
      *
      * @api
      */
-    public static function allRules()
+    public static function allRules(): array
     {
         if (! self::$initRules) {
             static::$rules     = array_merge(static::defaultRules(), self::securityRules(), self::$rules);
@@ -133,7 +135,10 @@ class DocumentValidator
         return self::$rules;
     }
 
-    public static function defaultRules()
+    /**
+     * @return array<class-string<ValidationRule>, ValidationRule>
+     */
+    public static function defaultRules(): array
     {
         if (self::$defaultRules === null) {
             self::$defaultRules = [
@@ -172,7 +177,7 @@ class DocumentValidator
     /**
      * @return QuerySecurityRule[]
      */
-    public static function securityRules()
+    public static function securityRules(): array
     {
         // This way of defining rules is deprecated
         // When custom security rule is required - it should be just added via DocumentValidator::addRule();
@@ -194,10 +199,12 @@ class DocumentValidator
         if (self::$sdlRules === null) {
             self::$sdlRules = [
                 LoneSchemaDefinition::class                  => new LoneSchemaDefinition(),
+                UniqueOperationTypes::class                  => new UniqueOperationTypes(),
                 KnownDirectives::class                       => new KnownDirectives(),
                 KnownArgumentNamesOnDirectives::class        => new KnownArgumentNamesOnDirectives(),
                 UniqueDirectivesPerLocation::class           => new UniqueDirectivesPerLocation(),
                 UniqueArgumentNames::class                   => new UniqueArgumentNames(),
+                UniqueEnumValueNames::class                  => new UniqueEnumValueNames(),
                 UniqueInputFieldNames::class                 => new UniqueInputFieldNames(),
                 ProvidedRequiredArgumentsOnDirectives::class => new ProvidedRequiredArgumentsOnDirectives(),
             ];
@@ -210,17 +217,18 @@ class DocumentValidator
      * This uses a specialized visitor which runs multiple visitors in parallel,
      * while maintaining the visitor skip and break API.
      *
-     * @param ValidationRule[] $rules
+     * @param array<ValidationRule> $rules
      *
-     * @return Error[]
+     * @return array<int, Error>
      */
-    public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules)
+    public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules): array
     {
         $context  = new ValidationContext($schema, $documentNode, $typeInfo);
         $visitors = [];
         foreach ($rules as $rule) {
             $visitors[] = $rule->getVisitor($context);
         }
+
         Visitor::visit($documentNode, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
 
         return $context->getErrors();
@@ -234,11 +242,9 @@ class DocumentValidator
      *
      * @param string $name
      *
-     * @return ValidationRule
-     *
      * @api
      */
-    public static function getRule($name)
+    public static function getRule($name): ?ValidationRule
     {
         $rules = static::allRules();
 
@@ -256,7 +262,7 @@ class DocumentValidator
      *
      * @api
      */
-    public static function addRule(ValidationRule $rule)
+    public static function addRule(ValidationRule $rule): void
     {
         self::$rules[$rule->getName()] = $rule;
     }
@@ -266,7 +272,7 @@ class DocumentValidator
         return is_array($value)
             ? count(array_filter(
                 $value,
-                static function ($item) : bool {
+                static function ($item): bool {
                     return $item instanceof Throwable;
                 }
             )) === count($value)
@@ -285,29 +291,6 @@ class DocumentValidator
     }
 
     /**
-     * Utility which determines if a value literal node is valid for an input type.
-     *
-     * Deprecated. Rely on validation for documents co
-     * ntaining literal values.
-     *
-     * @deprecated
-     *
-     * @return Error[]
-     */
-    public static function isValidLiteralValue(Type $type, $valueNode)
-    {
-        $emptySchema = new Schema([]);
-        $emptyDoc    = new DocumentNode(['definitions' => []]);
-        $typeInfo    = new TypeInfo($emptySchema, $type);
-        $context     = new ValidationContext($emptySchema, $emptyDoc, $typeInfo);
-        $validator   = new ValuesOfCorrectType();
-        $visitor     = $validator->getVisitor($context);
-        Visitor::visit($valueNode, Visitor::visitWithTypeInfo($typeInfo, $visitor));
-
-        return $context->getErrors();
-    }
-
-    /**
      * @param ValidationRule[]|null $rules
      *
      * @return Error[]
@@ -318,19 +301,20 @@ class DocumentValidator
         DocumentNode $documentAST,
         ?Schema $schemaToExtend = null,
         ?array $rules = null
-    ) {
+    ): array {
         $usedRules = $rules ?? self::sdlRules();
         $context   = new SDLValidationContext($documentAST, $schemaToExtend);
         $visitors  = [];
         foreach ($usedRules as $rule) {
             $visitors[] = $rule->getSDLVisitor($context);
         }
+
         Visitor::visit($documentAST, Visitor::visitInParallel($visitors));
 
         return $context->getErrors();
     }
 
-    public static function assertValidSDL(DocumentNode $documentAST)
+    public static function assertValidSDL(DocumentNode $documentAST): void
     {
         $errors = self::validateSDL($documentAST);
         if (count($errors) > 0) {
@@ -338,7 +322,7 @@ class DocumentValidator
         }
     }
 
-    public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
+    public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema): void
     {
         $errors = self::validateSDL($documentAST, $schema);
         if (count($errors) > 0) {
@@ -349,11 +333,11 @@ class DocumentValidator
     /**
      * @param Error[] $errors
      */
-    private static function combineErrorMessages(array $errors) : string
+    private static function combineErrorMessages(array $errors): string
     {
         $str = '';
         foreach ($errors as $error) {
-            $str .= ($error->getMessage() . "\n\n");
+            $str .= $error->getMessage() . "\n\n";
         }
 
         return $str;

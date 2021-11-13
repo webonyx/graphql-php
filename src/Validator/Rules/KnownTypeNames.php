@@ -11,9 +11,9 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
+
 use function array_keys;
 use function count;
-use function sprintf;
 
 /**
  * Known type names
@@ -23,9 +23,9 @@ use function sprintf;
  */
 class KnownTypeNames extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
-        $skip = static function () : VisitorOperation {
+        $skip = static function (): VisitorOperation {
             return Visitor::skipNode();
         };
 
@@ -37,7 +37,7 @@ class KnownTypeNames extends ValidationRule
             NodeKind::INTERFACE_TYPE_DEFINITION    => $skip,
             NodeKind::UNION_TYPE_DEFINITION        => $skip,
             NodeKind::INPUT_OBJECT_TYPE_DEFINITION => $skip,
-            NodeKind::NAMED_TYPE                   => static function (NamedTypeNode $node) use ($context) : void {
+            NodeKind::NAMED_TYPE                   => static function (NamedTypeNode $node) use ($context): void {
                 $schema   = $context->getSchema();
                 $typeName = $node->name->value;
                 $type     = $schema->getType($typeName);
@@ -46,7 +46,7 @@ class KnownTypeNames extends ValidationRule
                 }
 
                 $context->reportError(new Error(
-                    self::unknownTypeMessage(
+                    static::unknownTypeMessage(
                         $typeName,
                         Utils::suggestionList($typeName, array_keys($schema->getTypeMap()))
                     ),
@@ -57,16 +57,13 @@ class KnownTypeNames extends ValidationRule
     }
 
     /**
-     * @param string   $type
-     * @param string[] $suggestedTypes
+     * @param array<string> $suggestedTypes
      */
-    public static function unknownTypeMessage($type, array $suggestedTypes)
+    public static function unknownTypeMessage(string $type, array $suggestedTypes): string
     {
-        $message = sprintf('Unknown type "%s".', $type);
+        $message = 'Unknown type "' . $type . '".';
         if (count($suggestedTypes) > 0) {
-            $suggestions = Utils::quotedOrList($suggestedTypes);
-
-            $message .= sprintf(' Did you mean %s?', $suggestions);
+            $message .= ' Did you mean ' . Utils::quotedOrList($suggestedTypes) . '?';
         }
 
         return $message;

@@ -15,18 +15,18 @@ class StandardTypesTest extends TestCase
     /** @var Type[] */
     private static $originalStandardTypes;
 
-    public static function setUpBeforeClass() : void
+    public static function setUpBeforeClass(): void
     {
         self::$originalStandardTypes = Type::getStandardTypes();
     }
 
-    public function tearDown() : void
+    public function tearDown(): void
     {
         parent::tearDown();
         Type::overrideStandardTypes(self::$originalStandardTypes);
     }
 
-    public function testAllowsOverridingStandardTypes()
+    public function testAllowsOverridingStandardTypes(): void
     {
         $originalTypes = Type::getStandardTypes();
         self::assertCount(5, $originalTypes);
@@ -62,7 +62,7 @@ class StandardTypesTest extends TestCase
         self::assertSame($newStringType, Type::string());
     }
 
-    public function testPreservesOriginalStandardTypes()
+    public function testPreservesOriginalStandardTypes(): void
     {
         $originalTypes = Type::getStandardTypes();
         self::assertCount(5, $originalTypes);
@@ -102,30 +102,30 @@ class StandardTypesTest extends TestCase
             ['', 'Expecting instance of GraphQL\Type\Definition\Type, got (empty string)'],
             [new stdClass(), 'Expecting instance of GraphQL\Type\Definition\Type, got instance of stdClass'],
             [[], 'Expecting instance of GraphQL\Type\Definition\Type, got []'],
-            [$this->createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: ID, String, Float, Int, Boolean, got NonStandardName'],
+            [$this->createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: ID, String, Float, Int, Boolean; got NonStandardName'],
         ];
     }
 
     /**
      * @dataProvider getInvalidStandardTypes
      */
-    public function testStandardTypesOverrideDoesSanityChecks($type, string $expectedMessage)
+    public function testStandardTypesOverrideDoesSanityChecks($type, string $expectedMessage): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage($expectedMessage);
 
-        Type::overrideStandardTypes([ $type ]);
+        Type::overrideStandardTypes([$type]);
     }
 
     private function createCustomScalarType($name)
     {
         return new CustomScalarType([
             'name' => $name,
-            'serialize' => static function () : void {
+            'serialize' => static function (): void {
             },
-            'parseValue' => static function () : void {
+            'parseValue' => static function (): void {
             },
-            'parseLiteral' => static function () : void {
+            'parseLiteral' => static function (): void {
             },
         ]);
     }

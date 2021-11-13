@@ -8,6 +8,9 @@ use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use JsonSerializable;
+// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
+use ReturnTypeWillChange;
+
 use function array_map;
 use function count;
 
@@ -80,11 +83,9 @@ class ExecutionResult implements JsonSerializable
      *    // ... other keys
      * );
      *
-     * @return self
-     *
      * @api
      */
-    public function setErrorFormatter(callable $errorFormatter)
+    public function setErrorFormatter(callable $errorFormatter): self
     {
         $this->errorFormatter = $errorFormatter;
 
@@ -101,11 +102,9 @@ class ExecutionResult implements JsonSerializable
      *     return array_map($formatter, $errors);
      * }
      *
-     * @return self
-     *
      * @api
      */
-    public function setErrorsHandler(callable $handler)
+    public function setErrorsHandler(callable $handler): self
     {
         $this->errorsHandler = $handler;
 
@@ -115,7 +114,8 @@ class ExecutionResult implements JsonSerializable
     /**
      * @return mixed[]
      */
-    public function jsonSerialize()
+    #[ReturnTypeWillChange]
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }
@@ -133,12 +133,12 @@ class ExecutionResult implements JsonSerializable
      *
      * @api
      */
-    public function toArray(int $debug = DebugFlag::NONE) : array
+    public function toArray(int $debug = DebugFlag::NONE): array
     {
         $result = [];
 
         if (count($this->errors ?? []) > 0) {
-            $errorsHandler = $this->errorsHandler ?? static function (array $errors, callable $formatter) : array {
+            $errorsHandler = $this->errorsHandler ?? static function (array $errors, callable $formatter): array {
                 return array_map($formatter, $errors);
             };
 

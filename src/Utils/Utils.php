@@ -5,23 +5,19 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use ErrorException;
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
-use InvalidArgumentException;
-use LogicException;
 use stdClass;
-use Traversable;
+
 use function array_keys;
 use function array_map;
 use function array_reduce;
 use function array_shift;
 use function array_slice;
-use function array_values;
 use function asort;
 use function count;
 use function dechex;
@@ -30,13 +26,11 @@ use function func_num_args;
 use function get_class;
 use function gettype;
 use function is_array;
-use function is_int;
 use function is_object;
 use function is_scalar;
 use function is_string;
 use function json_encode;
 use function levenshtein;
-use function max;
 use function mb_convert_encoding;
 use function mb_strlen;
 use function mb_substr;
@@ -54,40 +48,28 @@ use function unpack;
 
 class Utils
 {
-    public static function undefined()
+    public static function undefined(): stdClass
     {
         static $undefined;
 
-        return $undefined ?? $undefined = new stdClass();
+        return $undefined ??= new stdClass();
     }
 
     /**
      * Check if the value is invalid
      *
      * @param mixed $value
-     *
-     * @return bool
      */
-    public static function isInvalid($value)
+    public static function isInvalid($value): bool
     {
         return self::undefined() === $value;
     }
 
     /**
-     * @param object   $obj
-     * @param mixed[]  $vars
-     * @param string[] $requiredKeys
-     *
-     * @return object
+     * @param array<string, mixed> $vars
      */
-    public static function assign($obj, array $vars, array $requiredKeys = [])
+    public static function assign(object $obj, array $vars): object
     {
-        foreach ($requiredKeys as $key) {
-            if (! isset($vars[$key])) {
-                throw new InvalidArgumentException(sprintf('Key %s is expected to be set and not to be null', $key));
-            }
-        }
-
         foreach ($vars as $key => $value) {
             if (! property_exists($obj, $key)) {
                 $cls = get_class($obj);
@@ -96,6 +78,7 @@ class Utils
                     Warning::WARNING_ASSIGN
                 );
             }
+
             $obj->{$key} = $value;
         }
 
@@ -104,16 +87,17 @@ class Utils
 
     /**
      * @param iterable<mixed> $iterable
+     * @phpstan-param iterable<TKey, TValue> $iterable
+     * @phpstan-param callable(TValue, TKey): bool $predicate
      *
-     * @return mixed|null
+     * @return mixed
+     * @phpstan-return TValue|null
+     *
+     * @template TKey of array-key
+     * @template TValue
      */
-    public static function find($iterable, callable $predicate)
+    public static function find(iterable $iterable, callable $predicate)
     {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
         foreach ($iterable as $key => $value) {
             if ($predicate($value, $key)) {
                 return $value;
@@ -125,174 +109,8 @@ class Utils
 
     /**
      * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     *
-     * @throws Exception
      */
-    public static function filter($iterable, callable $predicate) : array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $result = [];
-        $assoc  = false;
-        foreach ($iterable as $key => $value) {
-            if (! $assoc && ! is_int($key)) {
-                $assoc = true;
-            }
-            if (! $predicate($value, $key)) {
-                continue;
-            }
-
-            $result[$key] = $value;
-        }
-
-        return $assoc ? $result : array_values($result);
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     *
-     * @throws Exception
-     */
-    public static function map($iterable, callable $fn) : array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $map = [];
-        foreach ($iterable as $key => $value) {
-            $map[$key] = $fn($value, $key);
-        }
-
-        return $map;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     *
-     * @throws Exception
-     */
-    public static function mapKeyValue($iterable, callable $fn) : array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $map = [];
-        foreach ($iterable as $key => $value) {
-            [$newKey, $newValue] = $fn($value, $key);
-            $map[$newKey]        = $newValue;
-        }
-
-        return $map;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     *
-     * @throws Exception
-     */
-    public static function keyMap($iterable, callable $keyFn) : array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $map = [];
-        foreach ($iterable as $key => $value) {
-            $newKey = $keyFn($value, $key);
-            if (! is_scalar($newKey)) {
-                continue;
-            }
-
-            $map[$newKey] = $value;
-        }
-
-        return $map;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     */
-    public static function each($iterable, callable $fn) : void
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        foreach ($iterable as $key => $item) {
-            $fn($item, $key);
-        }
-    }
-
-    /**
-     * Splits original iterable to several arrays with keys equal to $keyFn return
-     *
-     * E.g. Utils::groupBy([1, 2, 3, 4, 5], function($value) {return $value % 3}) will output:
-     * [
-     *    1 => [1, 4],
-     *    2 => [2, 5],
-     *    0 => [3],
-     * ]
-     *
-     * $keyFn is also allowed to return array of keys. Then value will be added to all arrays with given keys
-     *
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<array<mixed>>
-     */
-    public static function groupBy($iterable, callable $keyFn) : array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $grouped = [];
-        foreach ($iterable as $key => $value) {
-            $newKeys = (array) $keyFn($value, $key);
-            foreach ($newKeys as $newKey) {
-                $grouped[$newKey][] = $value;
-            }
-        }
-
-        return $grouped;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     */
-    public static function keyValMap($iterable, callable $keyFn, callable $valFn) : array
-    {
-        $map = [];
-        foreach ($iterable as $item) {
-            $map[$keyFn($item)] = $valFn($item);
-        }
-
-        return $map;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     */
-    public static function every($iterable, callable $predicate) : bool
+    public static function every($iterable, callable $predicate): bool
     {
         foreach ($iterable as $key => $value) {
             if (! $predicate($value, $key)) {
@@ -306,7 +124,7 @@ class Utils
     /**
      * @param iterable<mixed> $iterable
      */
-    public static function some($iterable, callable $predicate) : bool
+    public static function some($iterable, callable $predicate): bool
     {
         foreach ($iterable as $key => $value) {
             if ($predicate($value, $key)) {
@@ -321,25 +139,26 @@ class Utils
      * @param bool   $test
      * @param string $message
      */
-    public static function invariant($test, $message = '')
+    public static function invariant($test, $message = ''): void
     {
-        if (! $test) {
-            if (func_num_args() > 2) {
-                $args = func_get_args();
-                array_shift($args);
-                $message = sprintf(...$args);
-            }
-            // TODO switch to Error here
-            throw new InvariantViolation($message);
+        if ($test) {
+            return;
         }
+
+        if (func_num_args() > 2) {
+            $args = func_get_args();
+            array_shift($args);
+            $message = sprintf(...$args);
+        }
+
+        // TODO switch to Error here
+        throw new InvariantViolation($message);
     }
 
     /**
      * @param Type|mixed $var
-     *
-     * @return string
      */
-    public static function getVariableType($var)
+    public static function getVariableType($var): string
     {
         if ($var instanceof Type) {
             // FIXME: Replace with schema printer call
@@ -350,37 +169,44 @@ class Utils
             return $var->name;
         }
 
-        return is_object($var) ? get_class($var) : gettype($var);
+        return is_object($var)
+            ? get_class($var)
+            : gettype($var);
     }
 
     /**
      * @param mixed $var
-     *
-     * @return string
      */
-    public static function printSafeJson($var)
+    public static function printSafeJson($var): string
     {
         if ($var instanceof stdClass) {
             $var = (array) $var;
         }
+
         if (is_array($var)) {
             return json_encode($var);
         }
+
         if ($var === '') {
             return '(empty string)';
         }
+
         if ($var === null) {
             return 'null';
         }
+
         if ($var === false) {
             return 'false';
         }
+
         if ($var === true) {
             return 'true';
         }
+
         if (is_string($var)) {
             return sprintf('"%s"', $var);
         }
+
         if (is_scalar($var)) {
             return (string) $var;
         }
@@ -390,14 +216,13 @@ class Utils
 
     /**
      * @param Type|mixed $var
-     *
-     * @return string
      */
-    public static function printSafe($var)
+    public static function printSafe($var): string
     {
         if ($var instanceof Type) {
             return $var->toString();
         }
+
         if (is_object($var)) {
             if (method_exists($var, '__toString')) {
                 return (string) $var;
@@ -405,24 +230,31 @@ class Utils
 
             return 'instance of ' . get_class($var);
         }
+
         if (is_array($var)) {
             return json_encode($var);
         }
+
         if ($var === '') {
             return '(empty string)';
         }
+
         if ($var === null) {
             return 'null';
         }
+
         if ($var === false) {
             return 'false';
         }
+
         if ($var === true) {
             return 'true';
         }
+
         if (is_string($var)) {
             return $var;
         }
+
         if (is_scalar($var)) {
             return (string) $var;
         }
@@ -435,10 +267,8 @@ class Utils
      *
      * @param string $ord
      * @param string $encoding
-     *
-     * @return string
      */
-    public static function chr($ord, $encoding = 'UTF-8')
+    public static function chr($ord, $encoding = 'UTF-8'): string
     {
         if ($encoding === 'UCS-4BE') {
             return pack('N', $ord);
@@ -450,19 +280,14 @@ class Utils
     /**
      * UTF-8 compatible ord()
      *
-     * @param string $char
-     * @param string $encoding
-     *
      * @return mixed
      */
-    public static function ord($char, $encoding = 'UTF-8')
+    public static function ord(string $char, string $encoding = 'UTF-8')
     {
-        if (! $char && $char !== '0') {
-            return 0;
-        }
         if (! isset($char[1])) {
             return ord($char);
         }
+
         if ($encoding !== 'UCS-4BE') {
             $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
         }
@@ -487,10 +312,8 @@ class Utils
 
     /**
      * @param int|null $code
-     *
-     * @return string
      */
-    public static function printCharCode($code)
+    public static function printCharCode($code): string
     {
         if ($code === null) {
             return '<EOF>';
@@ -506,41 +329,31 @@ class Utils
     /**
      * Upholds the spec rules about naming.
      *
-     * @param string $name
-     *
      * @throws Error
      */
-    public static function assertValidName($name)
+    public static function assertValidName(string $name): void
     {
         $error = self::isValidNameError($name);
-        if ($error) {
+        if ($error !== null) {
             throw $error;
         }
     }
 
     /**
      * Returns an Error if a name is invalid.
-     *
-     * @param string    $name
-     * @param Node|null $node
-     *
-     * @return Error|null
      */
-    public static function isValidNameError($name, $node = null)
+    public static function isValidNameError(string $name, ?Node $node = null): ?Error
     {
-        self::invariant(is_string($name), 'Expected string');
-
         if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
             return new Error(
-                sprintf('Name "%s" must not begin with "__", which is reserved by ', $name) .
-                'GraphQL introspection.',
+                'Name "' . $name . '" must not begin with "__", which is reserved by GraphQL introspection.',
                 $node
             );
         }
 
         if (! preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
             return new Error(
-                sprintf('Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "%s" does not.', $name),
+                'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "' . $name . '" does not.',
                 $node
             );
         }
@@ -553,14 +366,12 @@ class Utils
      * Resulting callable will collect all PHP errors that occur during the call in $errors array.
      *
      * @param ErrorException[] $errors
-     *
-     * @return callable
      */
-    public static function withErrorHandling(callable $fn, array &$errors)
+    public static function withErrorHandling(callable $fn, array &$errors): callable
     {
         return static function () use ($fn, &$errors) {
             // Catch custom errors (to report them in query results)
-            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors) : void {
+            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors): void {
                 $errors[] = new ErrorException($message, 0, $severity, $file, $line);
             });
 
@@ -573,32 +384,27 @@ class Utils
     }
 
     /**
-     * @param string[] $items
-     *
-     * @return string
+     * @param array<string> $items
      */
-    public static function quotedOrList(array $items)
+    public static function quotedOrList(array $items): string
     {
-        $items = array_map(
-            static function ($item) : string {
-                return sprintf('"%s"', $item);
-            },
+        $quoted = array_map(
+            static fn (string $item): string => "\"{$item}\"",
             $items
         );
 
-        return self::orList($items);
+        return self::orList($quoted);
     }
 
     /**
-     * @param string[] $items
-     *
-     * @return string
+     * @param array<string> $items
      */
-    public static function orList(array $items)
+    public static function orList(array $items): string
     {
         if (count($items) === 0) {
-            throw new LogicException('items must not need to be empty.');
+            return '';
         }
+
         $selected       = array_slice($items, 0, 5);
         $selectedLength = count($selected);
         $firstSelected  = $selected[0];
@@ -609,7 +415,7 @@ class Utils
 
         return array_reduce(
             range(1, $selectedLength - 1),
-            static function ($list, $index) use ($selected, $selectedLength) : string {
+            static function ($list, $index) use ($selected, $selectedLength): string {
                 return $list .
                     ($selectedLength > 2 ? ', ' : ' ') .
                     ($index === $selectedLength - 1 ? 'or ' : '') .
@@ -627,12 +433,11 @@ class Utils
      * as a single edit which helps identify mis-cased values with an edit distance
      * of 1
      *
-     * @param string   $input
-     * @param string[] $options
+     * @param array<string> $options
      *
-     * @return string[]
+     * @return array<int, string>
      */
-    public static function suggestionList($input, array $options)
+    public static function suggestionList(string $input, array $options): array
     {
         $optionsByDistance = [];
         $threshold         = mb_strlen($input) * 0.4 + 1;
@@ -644,6 +449,7 @@ class Utils
                     ? 1
                     : levenshtein($input, $option));
             }
+
             if ($distance > $threshold) {
                 continue;
             }

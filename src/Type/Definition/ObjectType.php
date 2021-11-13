@@ -8,10 +8,9 @@ use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
-use GraphQL\Type\Schema;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
-use function array_map;
-use function is_array;
+
 use function is_callable;
 use function is_string;
 use function sprintf;
@@ -57,38 +56,23 @@ use function sprintf;
  */
 class ObjectType extends TypeWithFields implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
+    use TypeWithInterfaces;
+
     /** @var ObjectTypeDefinitionNode|null */
-    public $astNode;
+    public ?TypeDefinitionNode $astNode;
 
-    /** @var ObjectTypeExtensionNode[] */
-    public $extensionASTNodes;
+    /** @var array<int, ObjectTypeExtensionNode> */
+    public array $extensionASTNodes;
 
-    /** @var ?callable */
+    /** @var callable|null */
     public $resolveFieldFn;
 
     /**
-     * Lazily initialized.
-     *
-     * @var array<int, InterfaceType>
-     */
-    private $interfaces;
-
-    /**
-     * Lazily initialized.
-     *
-     * @var array<string, InterfaceType>
-     */
-    private $interfaceMap;
-
-    /**
-     * @param mixed[] $config
+     * @param array<string, mixed> $config
      */
     public function __construct(array $config)
     {
-        if (! isset($config['name'])) {
-            $config['name'] = $this->tryInferName();
-        }
-
+        $config['name'] ??= $this->tryInferName();
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         $this->name              = $config['name'];
@@ -96,7 +80,8 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
         $this->resolveFieldFn    = $config['resolveField'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
-        $this->config            = $config;
+
+        $this->config = $config;
     }
 
     /**
@@ -106,7 +91,7 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
      *
      * @throws InvariantViolation
      */
-    public static function assertObjectType($type) : self
+    public static function assertObjectType($type): self
     {
         Utils::invariant(
             $type instanceof self,
@@ -116,57 +101,17 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
         return $type;
     }
 
-    public function implementsInterface(InterfaceType $interfaceType) : bool
-    {
-        if (! isset($this->interfaceMap)) {
-            $this->interfaceMap = [];
-            foreach ($this->getInterfaces() as $interface) {
-                /** @var Type&InterfaceType $interface */
-                $interface                            = Schema::resolveType($interface);
-                $this->interfaceMap[$interface->name] = $interface;
-            }
-        }
-
-        return isset($this->interfaceMap[$interfaceType->name]);
-    }
-
     /**
-     * @return array<int, InterfaceType>
-     */
-    public function getInterfaces() : array
-    {
-        if (! isset($this->interfaces)) {
-            $interfaces = $this->config['interfaces'] ?? [];
-            if (is_callable($interfaces)) {
-                $interfaces = $interfaces();
-            }
-
-            if ($interfaces !== null && ! is_array($interfaces)) {
-                throw new InvariantViolation(
-                    sprintf('%s interfaces must be an Array or a callable which returns an Array.', $this->name)
-                );
-            }
-
-            /** @var InterfaceType[] $interfaces */
-            $interfaces = array_map([Schema::class, 'resolveType'], $interfaces ?? []);
-
-            $this->interfaces = $interfaces;
-        }
-
-        return $this->interfaces;
-    }
-
-    /**
-     * @param mixed $value
-     * @param mixed $context
+     * @param mixed $objectValue The resolved value for the object type
+     * @param mixed $context     The context that was passed to GraphQL::execute()
      *
      * @return bool|Deferred|null
      */
-    public function isTypeOf($value, $context, ResolveInfo $info)
+    public function isTypeOf($objectValue, $context, ResolveInfo $info)
     {
         return isset($this->config['isTypeOf'])
             ? $this->config['isTypeOf'](
-                $value,
+                $objectValue,
                 $context,
                 $info
             )
@@ -179,7 +124,7 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
      *
      * @throws InvariantViolation
      */
-    public function assertValid() : void
+    public function assertValid(): void
     {
         parent::assertValid();
 

@@ -7,16 +7,19 @@ namespace GraphQL\Tests\Validator;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
+use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QuerySecurityRule;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+
 use function array_map;
 
 abstract class QuerySecurityTestCase extends TestCase
 {
-    public function testMaxQueryDepthMustBeGreaterOrEqualTo0() : void
+    public function testMaxQueryDepthMustBeGreaterOrEqualTo0(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('argument must be greater or equal to 0.');
@@ -24,38 +27,32 @@ abstract class QuerySecurityTestCase extends TestCase
         $this->getRule(-1);
     }
 
-    /**
-     * @param int $max
-     *
-     * @return QuerySecurityRule
-     */
-    abstract protected function getRule($max);
+    abstract protected function getRule(int $max): QuerySecurityRule;
 
-    protected function assertIntrospectionQuery($maxExpected)
+    protected function assertIntrospectionQuery(int $maxExpected): void
     {
         $query = Introspection::getIntrospectionQuery();
 
         $this->assertMaxValue($query, $maxExpected);
     }
 
-    protected function assertMaxValue($query, $maxExpected)
+    protected function assertMaxValue(string $query, int $maxExpected): void
     {
         $this->assertDocumentValidator($query, $maxExpected);
         $newMax = $maxExpected - 1;
         if ($newMax === QuerySecurityRule::DISABLED) {
             return;
         }
+
         $this->assertDocumentValidator($query, $newMax, [$this->createFormattedError($newMax, $maxExpected)]);
     }
 
     /**
-     * @param string     $queryString
-     * @param int        $max
-     * @param string[][] $expectedErrors
+     * @param array<int, array<string, mixed>> $expectedErrors
      *
-     * @return Error[]
+     * @return array<int, Error>
      */
-    protected function assertDocumentValidator($queryString, $max, array $expectedErrors = []) : array
+    protected function assertDocumentValidator(string $queryString, int $max, array $expectedErrors = []): array
     {
         $errors = DocumentValidator::validate(
             QuerySecuritySchema::buildSchema(),
@@ -63,25 +60,22 @@ abstract class QuerySecurityTestCase extends TestCase
             [$this->getRule($max)]
         );
 
-        self::assertEquals($expectedErrors, array_map([Error::class, 'formatError'], $errors), $queryString);
+        self::assertEquals($expectedErrors, array_map([FormattedError::class, 'createFromException'], $errors), $queryString);
 
         return $errors;
     }
 
-    protected function createFormattedError($max, $count, $locations = [])
+    /**
+     * @param array<SourceLocation> $locations
+     */
+    protected function createFormattedError(int $max, int $count, array $locations = [])
     {
-        return FormattedError::create($this->getErrorMessage($max, $count), $locations);
+        return ErrorHelper::create($this->getErrorMessage($max, $count), $locations);
     }
 
-    /**
-     * @param int $max
-     * @param int $count
-     *
-     * @return string
-     */
-    abstract protected function getErrorMessage($max, $count);
+    abstract protected function getErrorMessage(int $max, int $count): string;
 
-    protected function assertIntrospectionTypeMetaFieldQuery($maxExpected)
+    protected function assertIntrospectionTypeMetaFieldQuery($maxExpected): void
     {
         $query = '
           {
@@ -94,7 +88,7 @@ abstract class QuerySecurityTestCase extends TestCase
         $this->assertMaxValue($query, $maxExpected);
     }
 
-    protected function assertTypeNameMetaFieldQuery($maxExpected)
+    protected function assertTypeNameMetaFieldQuery($maxExpected): void
     {
         $query = '
           {

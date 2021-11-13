@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -15,59 +15,55 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Throwable;
-use function lcfirst;
+use TypeError;
 
+/**
+ * @see LazyTypeLoaderTest
+ */
 class TypeLoaderTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @var ObjectType */
-    private $query;
+    private ObjectType $query;
 
-    /** @var ObjectType */
-    private $mutation;
+    private ObjectType $mutation;
 
-    /** @var InterfaceType */
-    private $node;
+    private InterfaceType $node;
 
-    /** @var InterfaceType */
-    private $content;
+    private InterfaceType $content;
 
-    /** @var ObjectType */
-    private $blogStory;
+    private ObjectType $blogStory;
 
-    /** @var ObjectType */
-    private $postStoryMutation;
+    private ObjectType $postStoryMutation;
 
-    /** @var InputObjectType */
-    private $postStoryMutationInput;
+    private InputObjectType $postStoryMutationInput;
 
-    /** @var callable */
+    /** @var callable(string): ?Type */
     private $typeLoader;
 
-    /** @var string[] */
-    private $calls;
+    /** @var array<int, string> */
+    private array $calls;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->calls = [];
 
         $this->node = new InterfaceType([
             'name'        => 'Node',
-            'fields'      => function () : array {
+            'fields'      => function (): array {
                 $this->calls[] = 'Node.fields';
 
                 return [
                     'id' => Type::string(),
                 ];
             },
-            'resolveType' => static function () : void {
+            'resolveType' => static function (): void {
             },
         ]);
 
         $this->content = new InterfaceType([
             'name'        => 'Content',
-            'fields'      => function () : array {
+            'fields'      => function (): array {
                 $this->calls[] = 'Content.fields';
 
                 return [
@@ -75,7 +71,7 @@ class TypeLoaderTest extends TestCase
                     'body'  => Type::string(),
                 ];
             },
-            'resolveType' => static function () : void {
+            'resolveType' => static function (): void {
             },
         ]);
 
@@ -85,7 +81,7 @@ class TypeLoaderTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields'     => function () : array {
+            'fields'     => function (): array {
                 $this->calls[] = 'BlogStory.fields';
 
                 return [
@@ -98,7 +94,7 @@ class TypeLoaderTest extends TestCase
 
         $this->query = new ObjectType([
             'name'   => 'Query',
-            'fields' => function () : array {
+            'fields' => function (): array {
                 $this->calls[] = 'Query.fields';
 
                 return [
@@ -110,7 +106,7 @@ class TypeLoaderTest extends TestCase
 
         $this->mutation = new ObjectType([
             'name'   => 'Mutation',
-            'fields' => function () : array {
+            'fields' => function (): array {
                 $this->calls[] = 'Mutation.fields';
 
                 return [
@@ -142,15 +138,38 @@ class TypeLoaderTest extends TestCase
             ],
         ]);
 
-        $this->typeLoader = function ($name) {
+        $this->typeLoader = function (string $name): ?Type {
             $this->calls[] = $name;
-            $prop          = lcfirst($name);
 
-            return $this->{$prop} ?? null;
+            switch ($name) {
+                case 'Query':
+                    return $this->query;
+
+                case 'Mutation':
+                    return $this->mutation;
+
+                case 'Node':
+                    return $this->node;
+
+                case 'Content':
+                    return $this->content;
+
+                case 'BlogStory':
+                    return $this->blogStory;
+
+                case 'PostStoryMutation':
+                    return $this->postStoryMutation;
+
+                case 'PostStoryMutationInput':
+                    return $this->postStoryMutationInput;
+
+                default:
+                    return null;
+            }
         };
     }
 
-    public function testSchemaAcceptsTypeLoader() : void
+    public function testSchemaAcceptsTypeLoader(): void
     {
         $this->expectNotToPerformAssertions();
         new Schema([
@@ -158,15 +177,15 @@ class TypeLoaderTest extends TestCase
                 'name'   => 'Query',
                 'fields' => ['a' => Type::string()],
             ]),
-            'typeLoader' => static function () : void {
+            'typeLoader' => static function (): void {
             },
         ]);
     }
 
-    public function testSchemaRejectsNonCallableTypeLoader() : void
+    public function testSchemaRejectsNonCallableTypeLoader(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Schema type loader must be callable if provided but got: []');
+        $this->expectException(TypeError::class);
+        $this->expectExceptionMessageMatches('/callable.*, array given/');
 
         new Schema([
             'query'      => new ObjectType([
@@ -177,7 +196,7 @@ class TypeLoaderTest extends TestCase
         ]);
     }
 
-    public function testWorksWithoutTypeLoader() : void
+    public function testWorksWithoutTypeLoader(): void
     {
         $schema = new Schema([
             'query'    => $this->query,
@@ -215,7 +234,7 @@ class TypeLoaderTest extends TestCase
         self::assertArraySubset($expectedTypeMap, $schema->getTypeMap());
     }
 
-    public function testWorksWithTypeLoader() : void
+    public function testWorksWithTypeLoader(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
@@ -248,7 +267,7 @@ class TypeLoaderTest extends TestCase
         );
     }
 
-    public function testOnlyCallsLoaderOnce() : void
+    public function testOnlyCallsLoaderOnce(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
@@ -262,11 +281,11 @@ class TypeLoaderTest extends TestCase
         self::assertEquals(['Node'], $this->calls);
     }
 
-    public function testFailsOnNonExistentType() : void
+    public function testFailsOnNonExistentType(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () : void {
+            'typeLoader' => static function (): void {
             },
         ]);
 
@@ -276,11 +295,11 @@ class TypeLoaderTest extends TestCase
         $schema->getType('NonExistingType');
     }
 
-    public function testFailsOnNonType() : void
+    public function testFailsOnNonType(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () : stdClass {
+            'typeLoader' => static function (): stdClass {
                 return new stdClass();
             },
         ]);
@@ -291,11 +310,11 @@ class TypeLoaderTest extends TestCase
         $schema->getType('Node');
     }
 
-    public function testFailsOnInvalidLoad() : void
+    public function testFailsOnInvalidLoad(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => function () : InterfaceType {
+            'typeLoader' => function (): InterfaceType {
                 return $this->content;
             },
         ]);
@@ -306,11 +325,11 @@ class TypeLoaderTest extends TestCase
         $schema->getType('Node');
     }
 
-    public function testPassesThroughAnExceptionInLoader() : void
+    public function testPassesThroughAnExceptionInLoader(): void
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () : void {
+            'typeLoader' => static function (): void {
                 throw new Exception('This is the exception we are looking for');
             },
         ]);
@@ -321,7 +340,7 @@ class TypeLoaderTest extends TestCase
         $schema->getType('Node');
     }
 
-    public function testReturnsIdenticalResults() : void
+    public function testReturnsIdenticalResults(): void
     {
         $withoutLoader = new Schema([
             'query'    => $this->query,
@@ -340,7 +359,7 @@ class TypeLoaderTest extends TestCase
         self::assertSame($withoutLoader->getDirectives(), $withLoader->getDirectives());
     }
 
-    public function testSkipsLoaderForInternalTypes() : void
+    public function testSkipsLoaderForInternalTypes(): void
     {
         $schema = new Schema([
             'query'      => $this->query,

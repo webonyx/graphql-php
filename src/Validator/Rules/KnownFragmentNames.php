@@ -8,22 +8,23 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class KnownFragmentNames extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return [
-            NodeKind::FRAGMENT_SPREAD => static function (FragmentSpreadNode $node) use ($context) : void {
+            NodeKind::FRAGMENT_SPREAD => static function (FragmentSpreadNode $node) use ($context): void {
                 $fragmentName = $node->name->value;
                 $fragment     = $context->getFragment($fragmentName);
-                if ($fragment) {
+                if ($fragment !== null) {
                     return;
                 }
 
                 $context->reportError(new Error(
-                    self::unknownFragmentMessage($fragmentName),
+                    static::unknownFragmentMessage($fragmentName),
                     [$node->name]
                 ));
             },

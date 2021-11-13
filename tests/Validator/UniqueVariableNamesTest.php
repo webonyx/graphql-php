@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\UniqueVariableNames;
 
 class UniqueVariableNamesTest extends ValidatorTestCase
@@ -15,7 +15,7 @@ class UniqueVariableNamesTest extends ValidatorTestCase
     /**
      * @see it('unique variable names')
      */
-    public function testUniqueVariableNames() : void
+    public function testUniqueVariableNames(): void
     {
         $this->expectPassesRule(
             new UniqueVariableNames(),
@@ -29,7 +29,7 @@ class UniqueVariableNamesTest extends ValidatorTestCase
     /**
      * @see it('duplicate variable names')
      */
-    public function testDuplicateVariableNames() : void
+    public function testDuplicateVariableNames(): void
     {
         $this->expectFailsRule(
             new UniqueVariableNames(),
@@ -49,7 +49,7 @@ class UniqueVariableNamesTest extends ValidatorTestCase
 
     private function duplicateVariable($name, $l1, $c1, $l2, $c2)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             UniqueVariableNames::duplicateVariableMessage($name),
             [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)]
         );

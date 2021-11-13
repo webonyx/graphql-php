@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 class AssertValidNameTest extends TestCase
 {
@@ -16,7 +16,7 @@ class AssertValidNameTest extends TestCase
     /**
      * @see it('throws for use of leading double underscores')
      */
-    public function testThrowsForUseOfLeadingDoubleUnderscores() : void
+    public function testThrowsForUseOfLeadingDoubleUnderscores(): void
     {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('"__bad" must not begin with "__", which is reserved by GraphQL introspection.');
@@ -26,20 +26,26 @@ class AssertValidNameTest extends TestCase
     /**
      * @see it('throws for non-strings')
      */
-    public function testThrowsForNonStrings() : void
+    public function testThrowsForNonStrings(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Expected string');
+        $this->expectException(TypeError::class);
         Utils::assertValidName([]);
     }
 
     /**
      * @see it('throws for names with invalid characters')
      */
-    public function testThrowsForNamesWithInvalidCharacters() : void
+    public function testThrowsForNamesWithInvalidCharacters(): void
     {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Names must match');
         Utils::assertValidName('>--()-->');
+    }
+
+    public function testAcceptsValidNames(): void
+    {
+        $name = 'foo';
+        self::assertNull(Utils::isValidNameError($name));
+        Utils::assertValidName($name);
     }
 }

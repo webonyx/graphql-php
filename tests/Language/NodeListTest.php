@@ -8,11 +8,12 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeList;
 use PHPUnit\Framework\TestCase;
+
 use function get_class;
 
 final class NodeListTest extends TestCase
 {
-    public function testConvertArrayToASTNode() : void
+    public function testConvertArrayToASTNode(): void
     {
         $nodeList = new NodeList([]);
 
@@ -22,15 +23,16 @@ final class NodeListTest extends TestCase
         self::assertInstanceOf(get_class($nameNode), $nodeList['foo']);
     }
 
-    public function testThrowsOnInvalidArrays() : void
+    public function testThrowsOnInvalidArrays(): void
     {
         $nodeList = new NodeList([]);
 
         self::expectException(InvariantViolation::class);
+        // @phpstan-ignore-next-line Wrong on purpose
         $nodeList[] = ['not a valid array representation of an AST node'];
     }
 
-    public function testPushNodes() : void
+    public function testPushNodes(): void
     {
         $nodeList = new NodeList([]);
         self::assertCount(0, $nodeList);

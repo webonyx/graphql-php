@@ -54,7 +54,7 @@ class ExtractTypesTest extends TestCase
     /** @var InputObjectType */
     private $postCommentMutationInput;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->node = new InterfaceType([
             'name'   => 'Node',
@@ -65,7 +65,7 @@ class ExtractTypesTest extends TestCase
 
         $this->content = new InterfaceType([
             'name'   => 'Content',
-            'fields' => function () : array {
+            'fields' => function (): array {
                 return [
                     'title'      => Type::string(),
                     'body'       => Type::string(),
@@ -82,7 +82,7 @@ class ExtractTypesTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields'     => function () : array {
+            'fields'     => function (): array {
                 return [
                     $this->node->getField('id'),
                     $this->content->getField('title'),
@@ -100,7 +100,7 @@ class ExtractTypesTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields'     => function () : array {
+            'fields'     => function (): array {
                 return [
                     'id'         => $this->node->getField('id'),
                     'title'      => $this->content->getField('title'),
@@ -119,7 +119,7 @@ class ExtractTypesTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields'     => function () : array {
+            'fields'     => function (): array {
                 return [
                     'id'          => $this->node->getField('id'),
                     'title'       => $this->content->getField('title'),
@@ -145,7 +145,7 @@ class ExtractTypesTest extends TestCase
             'interfaces' => [
                 $this->node,
             ],
-            'fields'     => function () : array {
+            'fields'     => function (): array {
                 return [
                     'id'      => $this->node->getField('id'),
                     'author'  => $this->user,
@@ -162,7 +162,7 @@ class ExtractTypesTest extends TestCase
             'interfaces' => [
                 $this->node,
             ],
-            'fields'     => function () : array {
+            'fields'     => function (): array {
                 return [
                     'id'   => $this->node->getField('id'),
                     'name' => Type::string(),
@@ -175,7 +175,7 @@ class ExtractTypesTest extends TestCase
             'interfaces' => [
                 $this->node,
             ],
-            'fields'     => function () : array {
+            'fields'     => function (): array {
                 return [
                     'id'   => $this->node->getField('id'),
                     'name' => Type::string(),
@@ -250,7 +250,7 @@ class ExtractTypesTest extends TestCase
         ]);
     }
 
-    public function testExtractTypesFromQuery() : void
+    public function testExtractTypesFromQuery(): void
     {
         $expectedTypeMap = [
             'Query'    => $this->query,
@@ -263,11 +263,12 @@ class ExtractTypesTest extends TestCase
             'Category' => $this->category,
         ];
 
-        $actualTypeMap = TypeInfo::extractTypes($this->query);
+        $actualTypeMap = [];
+        TypeInfo::extractTypes($this->query, $actualTypeMap);
         self::assertEquals($expectedTypeMap, $actualTypeMap);
     }
 
-    public function testExtractTypesFromMutation() : void
+    public function testExtractTypesFromMutation(): void
     {
         $expectedTypeMap = [
             'Mutation'                 => $this->mutation,
@@ -285,11 +286,12 @@ class ExtractTypesTest extends TestCase
             'PostCommentMutation'      => $this->postCommentMutation,
         ];
 
-        $actualTypeMap = TypeInfo::extractTypes($this->mutation);
+        $actualTypeMap = [];
+        TypeInfo::extractTypes($this->mutation, $actualTypeMap);
         self::assertEquals($expectedTypeMap, $actualTypeMap);
     }
 
-    public function testThrowsOnMultipleTypesWithSameName() : void
+    public function testThrowsOnMultipleTypesWithSameName(): void
     {
         $otherUserType = new ObjectType([
             'name'   => 'User',
@@ -304,8 +306,10 @@ class ExtractTypesTest extends TestCase
             ],
         ]);
 
+        $typeMap = [];
+
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Schema must contain unique named types but contains multiple types named "User"');
-        TypeInfo::extractTypes($queryType);
+        TypeInfo::extractTypes($queryType, $typeMap);
     }
 }

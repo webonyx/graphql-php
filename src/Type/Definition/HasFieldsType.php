@@ -11,23 +11,23 @@ interface HasFieldsType
     /**
      * @throws InvariantViolation
      */
-    public function getField(string $name) : FieldDefinition;
+    public function getField(string $name): FieldDefinition;
 
-    public function hasField(string $name) : bool;
+    public function hasField(string $name): bool;
 
-    public function findField(string $name) : ?FieldDefinition;
+    public function findField(string $name): ?FieldDefinition;
 
     /**
      * @return array<string, FieldDefinition>
      *
      * @throws InvariantViolation
      */
-    public function getFields() : array;
+    public function getFields(): array;
 
     /**
      * @return array<int, string>
      *
      * @throws InvariantViolation
      */
-    public function getFieldNames() : array;
+    public function getFieldNames(): array;
 }

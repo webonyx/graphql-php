@@ -6,84 +6,95 @@ namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
-use GraphQL\Language\Source;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Describe: Execute: handles directives
+ * @see describe('Execute: handles directives'
  */
 class DirectivesTest extends TestCase
 {
-    /** @var Schema */
-    private static $schema;
+    private static Schema $schema;
 
-    /** @var array<string, string> */
-    private static $data = [
+    private const DATA = [
         'a' => 'a',
         'b' => 'b',
     ];
 
     /**
-     * @see it('basic query works')
+     * @return array<string, mixed>
      */
-    public function testWorksWithoutDirectives() : void
+    private function executeTestQuery(string $doc): array
     {
-        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b }'));
+        return Executor::execute(self::getSchema(), Parser::parse($doc), self::DATA)
+            ->toArray();
+    }
+
+    private static function getSchema(): Schema
+    {
+        return self::$schema ??= new Schema([
+            'query' => new ObjectType([
+                'name'   => 'TestType',
+                'fields' => [
+                    'a' => ['type' => Type::string()],
+                    'b' => ['type' => Type::string()],
+                ],
+            ]),
+        ]);
     }
 
     /**
-     * @param Source|string $doc
-     *
-     * @return mixed[]
+     * @see describe('works without directives', () => {
      */
-    private function executeTestQuery($doc) : array
+    public function testWorksWithoutDirectives(): void
     {
-        return Executor::execute(self::getSchema(), Parser::parse($doc), self::$data)->toArray();
+        // it('basic query works', () => {
+        self::assertEquals(
+            ['data' => ['a' => 'a', 'b' => 'b']],
+            $this->executeTestQuery('{ a, b }')
+        );
     }
 
-    private static function getSchema() : Schema
+    /**
+     * @see describe('works on scalars', () => {
+     */
+    public function testWorksOnScalars(): void
     {
-        if (! self::$schema) {
-            self::$schema = new Schema([
-                'query' => new ObjectType([
-                    'name'   => 'TestType',
-                    'fields' => [
-                        'a' => ['type' => Type::string()],
-                        'b' => ['type' => Type::string()],
-                    ],
-                ]),
-            ]);
-        }
-
-        return self::$schema;
-    }
-
-    public function testWorksOnScalars() : void
-    {
-        // if true includes scalar
+        // it('if true includes scalar', () => {
         self::assertEquals(
             ['data' => ['a' => 'a', 'b' => 'b']],
             $this->executeTestQuery('{ a, b @include(if: true) }')
         );
 
-        // if false omits on scalar
-        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @include(if: false) }'));
+        // it('if false omits on scalar', () => {
+        self::assertEquals(
+            ['data' => ['a' => 'a']],
+            $this->executeTestQuery('{ a, b @include(if: false) }')
+        );
 
-        // unless false includes scalar
-        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b @skip(if: false) }'));
+        // it('unless false includes scalar', () => {
+        self::assertEquals(
+            ['data' => ['a' => 'a', 'b' => 'b']],
+            $this->executeTestQuery('{ a, b @skip(if: false) }')
+        );
 
-        // unless true omits scalar
-        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @skip(if: true) }'));
+        // it('unless true omits scalar', () => {
+        self::assertEquals(
+            ['data' => ['a' => 'a']],
+            $this->executeTestQuery('{ a, b @skip(if: true) }')
+        );
     }
 
-    public function testWorksOnFragmentSpreads() : void
+    /**
+     * @see describe('works on fragment spreads', () => {
+     */
+    public function testWorksOnFragmentSpreads(): void
     {
-        // if false omits fragment spread
+        // it('if false omits fragment spread', () => {
         $q = '
-        query Q {
+        query {
           a
           ...Frag @include(if: false)
         }
@@ -91,11 +102,14 @@ class DirectivesTest extends TestCase
           b
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a']],
+            $this->executeTestQuery($q)
+        );
 
-        // if true includes fragment spread
+        // it('if true includes fragment spread', () => {
         $q = '
-        query Q {
+        query {
           a
           ...Frag @include(if: true)
         }
@@ -103,11 +117,14 @@ class DirectivesTest extends TestCase
           b
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a', 'b' => 'b']],
+            $this->executeTestQuery($q)
+        );
 
-        // unless false includes fragment spread
+        // it('unless false includes fragment spread', () => {
         $q = '
-        query Q {
+        query {
           a
           ...Frag @skip(if: false)
         }
@@ -115,11 +132,14 @@ class DirectivesTest extends TestCase
           b
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a', 'b' => 'b']],
+            $this->executeTestQuery($q)
+        );
 
-        // unless true omits fragment spread
+        // it('unless true omits fragment spread', () => {
         $q = '
-        query Q {
+        query {
           a
           ...Frag @skip(if: true)
         }
@@ -127,121 +147,172 @@ class DirectivesTest extends TestCase
           b
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a']],
+            $this->executeTestQuery($q)
+        );
     }
 
-    public function testWorksOnInlineFragment() : void
+    /**
+     * @see describe('works on inline fragment', () => {
+     */
+    public function testWorksOnInlineFragment(): void
     {
-        // if false omits inline fragment
+        // it('if false omits inline fragment', () => {
         $q = '
-        query Q {
+        query {
           a
           ... on TestType @include(if: false) {
             b
           }
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a']],
+            $this->executeTestQuery($q)
+        );
 
-        // if true includes inline fragment
+        // it('if true includes inline fragment', () => {
         $q = '
-        query Q {
+        query {
           a
           ... on TestType @include(if: true) {
             b
           }
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a', 'b' => 'b']],
+            $this->executeTestQuery($q)
+        );
 
-        // unless false includes inline fragment
+        // it('unless false includes inline fragment', () => {
         $q = '
-        query Q {
+        query {
           a
           ... on TestType @skip(if: false) {
             b
           }
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a', 'b' => 'b']],
+            $this->executeTestQuery($q)
+        );
 
-        // unless true includes inline fragment
+        // it('unless true includes inline fragment', () => {
         $q = '
-        query Q {
+        query {
           a
           ... on TestType @skip(if: true) {
             b
           }
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a']],
+            $this->executeTestQuery($q)
+        );
     }
 
-    public function testWorksOnAnonymousInlineFragment() : void
+    /**
+     * @see describe('works on anonymous inline fragment', () => {
+     */
+    public function testWorksOnAnonymousInlineFragment(): void
     {
-        // if false omits anonymous inline fragment
+        // it('if false omits anonymous inline fragment', () => {
         $q = '
-        query Q {
+        query {
           a
           ... @include(if: false) {
             b
           }
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a']],
+            $this->executeTestQuery($q)
+        );
 
-        // if true includes anonymous inline fragment
+        // it('if true includes anonymous inline fragment', () => {
         $q = '
-        query Q {
+        query {
           a
           ... @include(if: true) {
             b
           }
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a', 'b' => 'b']],
+            $this->executeTestQuery($q)
+        );
 
-        // unless false includes anonymous inline fragment
+        // it('unless false includes anonymous inline fragment', () => {
         $q = '
-        query Q {
+        query {
           a
           ... @skip(if: false) {
             b
           }
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a', 'b' => 'b']],
+            $this->executeTestQuery($q)
+        );
 
-        // unless true includes anonymous inline fragment
+        // it('unless true includes anonymous inline fragment', () => {
         $q = '
-        query Q {
+        query {
           a
           ... @skip(if: true) {
             b
           }
         }
         ';
-        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(
+            ['data' => ['a' => 'a']],
+            $this->executeTestQuery($q)
+        );
     }
 
-    public function testWorksWithSkipAndIncludeDirectives() : void
+    /**
+     * @see describe('works with skip and include directives', () => {
+     */
+    public function testWorksWithSkipAndIncludeDirectives(): void
     {
-        // include and no skip
+        // it('include and no skip', () => {
         self::assertEquals(
             ['data' => ['a' => 'a', 'b' => 'b']],
-            $this->executeTestQuery('{ a, b @include(if: true) @skip(if: false) }')
+            $this->executeTestQuery('
+        {
+          a
+          b @include(if: true) @skip(if: false)
+        }
+            ')
         );
 
-        // include and skip
+        // it('include and skip', () => {
         self::assertEquals(
             ['data' => ['a' => 'a']],
-            $this->executeTestQuery('{ a, b @include(if: true) @skip(if: true) }')
+            $this->executeTestQuery('
+        {
+          a
+          b @include(if: true) @skip(if: true)
+        }
+            ')
         );
 
-        // no include or skip
+        // it('no include or skip', () => {
         self::assertEquals(
             ['data' => ['a' => 'a']],
-            $this->executeTestQuery('{ a, b @include(if: false) @skip(if: false) }')
+            $this->executeTestQuery('
+        {
+          a
+          b @include(if: false) @skip(if: false)
+        }
+            ')
         );
     }
 }

@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor\Promise;
 
+use Amp\Promise as AmpPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Utils\Utils;
-use React\Promise\Promise as ReactPromise;
+use React\Promise\PromiseInterface as ReactPromise;
 
 /**
  * Convenience wrapper for promises represented by Promise Adapter
  */
 class Promise
 {
-    /** @var SyncPromise|ReactPromise */
+    /** @var SyncPromise|ReactPromise|AmpPromise */
     public $adoptedPromise;
 
-    /** @var PromiseAdapter */
-    private $adapter;
+    private PromiseAdapter $adapter;
 
     /**
      * @param mixed $adoptedPromise
@@ -26,14 +26,11 @@ class Promise
     {
         Utils::invariant(! $adoptedPromise instanceof self, 'Expecting promise from adapted system, got ' . self::class);
 
-        $this->adapter        = $adapter;
         $this->adoptedPromise = $adoptedPromise;
+        $this->adapter        = $adapter;
     }
 
-    /**
-     * @return Promise
-     */
-    public function then(?callable $onFulfilled = null, ?callable $onRejected = null)
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         return $this->adapter->then($this, $onFulfilled, $onRejected);
     }

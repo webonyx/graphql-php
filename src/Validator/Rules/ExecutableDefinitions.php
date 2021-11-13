@@ -12,6 +12,7 @@ use GraphQL\Language\AST\TypeSystemDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 /**
@@ -22,10 +23,10 @@ use function sprintf;
  */
 class ExecutableDefinitions extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return [
-            NodeKind::DOCUMENT => static function (DocumentNode $node) use ($context) : VisitorOperation {
+            NodeKind::DOCUMENT => static function (DocumentNode $node) use ($context): VisitorOperation {
                 /** @var ExecutableDefinitionNode|TypeSystemDefinitionNode $definition */
                 foreach ($node->definitions as $definition) {
                     if ($definition instanceof ExecutableDefinitionNode) {
@@ -33,7 +34,7 @@ class ExecutableDefinitions extends ValidationRule
                     }
 
                     $context->reportError(new Error(
-                        self::nonExecutableDefinitionMessage($definition->name->value),
+                        static::nonExecutableDefinitionMessage($definition->name->value),
                         [$definition->name]
                     ));
                 }

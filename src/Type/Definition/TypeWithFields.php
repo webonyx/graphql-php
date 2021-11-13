@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Utils\Utils;
+
 use function array_keys;
 
 abstract class TypeWithFields extends Type implements HasFieldsType
@@ -12,11 +13,11 @@ abstract class TypeWithFields extends Type implements HasFieldsType
     /**
      * Lazily initialized.
      *
-     * @var array<string, FieldDefinition>
+     * @var array<string, FieldDefinition|UnresolvedFieldDefinition>
      */
-    private $fields;
+    private array $fields;
 
-    private function initializeFields() : void
+    private function initializeFields(): void
     {
         if (isset($this->fields)) {
             return;
@@ -26,14 +27,14 @@ abstract class TypeWithFields extends Type implements HasFieldsType
         $this->fields = FieldDefinition::defineFieldMap($this, $fields);
     }
 
-    public function getField(string $name) : FieldDefinition
+    public function getField(string $name): FieldDefinition
     {
         Utils::invariant($this->hasField($name), 'Field "%s" is not defined for type "%s"', $name, $this->name);
 
         return $this->findField($name);
     }
 
-    public function findField(string $name) : ?FieldDefinition
+    public function findField(string $name): ?FieldDefinition
     {
         $this->initializeFields();
 
@@ -48,15 +49,14 @@ abstract class TypeWithFields extends Type implements HasFieldsType
         return $this->fields[$name];
     }
 
-    public function hasField(string $name) : bool
+    public function hasField(string $name): bool
     {
         $this->initializeFields();
 
         return isset($this->fields[$name]);
     }
 
-    /** @inheritDoc */
-    public function getFields() : array
+    public function getFields(): array
     {
         $this->initializeFields();
 
@@ -71,8 +71,7 @@ abstract class TypeWithFields extends Type implements HasFieldsType
         return $this->fields;
     }
 
-    /** @inheritDoc */
-    public function getFieldNames() : array
+    public function getFieldNames(): array
     {
         $this->initializeFields();
 

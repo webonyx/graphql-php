@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Language\AST;
 
 use GraphQL\Utils\Utils;
+
 use function count;
 use function get_object_vars;
 use function is_array;
@@ -37,14 +38,12 @@ use function json_encode;
  */
 abstract class Node
 {
-    /** @var Location|null */
-    public $loc;
+    public ?Location $loc = null;
 
-    /** @var string */
-    public $kind;
+    public string $kind;
 
     /**
-     * @param (NameNode|NodeList|SelectionSetNode|Location|string|int|bool|float|null)[] $vars
+     * @param array<string, mixed> $vars
      */
     public function __construct(array $vars)
     {
@@ -56,38 +55,42 @@ abstract class Node
     }
 
     /**
-     * @return self
+     * Returns a clone of this instance and all its children, except Location $loc.
+     *
+     * @return static
      */
-    public function cloneDeep()
+    public function cloneDeep(): self
     {
-        return $this->cloneValue($this);
+        return static::cloneValue($this);
     }
 
     /**
-     * @param string|NodeList|Location|Node|(Node|NodeList|Location)[] $value
+     * @phpstan-param TCloneable $value
      *
-     * @return string|NodeList|Location|Node
+     * @phpstan-return TCloneable
+     *
+     * @template TNode of Node
+     * @template TCloneable of TNode|NodeList<TNode>|Location|string
      */
-    private function cloneValue($value)
+    protected static function cloneValue($value)
     {
-        if (is_array($value)) {
-            $cloned = [];
-            foreach ($value as $key => $arrValue) {
-                $cloned[$key] = $this->cloneValue($arrValue);
-            }
-        } elseif ($value instanceof self) {
+        if ($value instanceof self) {
             $cloned = clone $value;
             foreach (get_object_vars($cloned) as $prop => $propValue) {
-                $cloned->{$prop} = $this->cloneValue($propValue);
+                $cloned->{$prop} = static::cloneValue($propValue);
             }
-        } else {
-            $cloned = $value;
+
+            return $cloned;
         }
 
-        return $cloned;
+        if ($value instanceof NodeList) {
+            return $value->cloneDeep();
+        }
+
+        return $value;
     }
 
-    public function __toString() : string
+    public function __toString(): string
     {
         $tmp = $this->toArray(true);
 
@@ -95,9 +98,9 @@ abstract class Node
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, mixed>
      */
-    public function toArray(bool $recursive = false) : array
+    public function toArray(bool $recursive = false): array
     {
         if ($recursive) {
             return $this->recursiveToArray($this);
@@ -116,9 +119,9 @@ abstract class Node
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, mixed>
      */
-    private function recursiveToArray(Node $node)
+    private function recursiveToArray(Node $node): array
     {
         $result = [
             'kind' => $node->kind,
@@ -143,7 +146,9 @@ abstract class Node
             if (is_array($propValue) || $propValue instanceof NodeList) {
                 $tmp = [];
                 foreach ($propValue as $tmp1) {
-                    $tmp[] = $tmp1 instanceof Node ? $this->recursiveToArray($tmp1) : (array) $tmp1;
+                    $tmp[] = $tmp1 instanceof Node
+                        ? $this->recursiveToArray($tmp1)
+                        : (array) $tmp1;
                 }
             } elseif ($propValue instanceof Node) {
                 $tmp = $this->recursiveToArray($propValue);

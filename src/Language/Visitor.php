@@ -12,12 +12,11 @@ use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
 use SplFixedArray;
 use stdClass;
+
 use function array_pop;
-use function array_splice;
 use function count;
 use function func_get_args;
 use function is_array;
-use function is_callable;
 use function json_encode;
 
 /**
@@ -25,7 +24,7 @@ use function json_encode;
  *
  * `visit()` will walk through an AST using a depth first traversal, calling
  * the visitor's enter function at each node in the traversal, and calling the
- * leave function after visiting that node and all of it's child nodes.
+ * leave function after visiting that node and all of its child nodes.
  *
  * By returning different values from the enter and leave functions, the
  * behavior of the visitor can be altered, including skipping over a sub-tree of
@@ -55,11 +54,11 @@ use function json_encode;
  *     ]);
  *
  * Alternatively to providing enter() and leave() functions, a visitor can
- * instead provide functions named the same as the [kinds of AST nodes](reference.md#graphqllanguageastnodekind),
+ * instead provide functions named the same as the [kinds of AST nodes](class-reference.md#graphqllanguageastnodekind),
  * or enter/leave visitors at a named key, leading to four permutations of
  * visitor API:
  *
- * 1) Named visitors triggered when entering a node a specific kind.
+ * 1. Named visitors triggered when entering a node a specific kind.
  *
  *     Visitor::visit($ast, [
  *       'Kind' => function ($node) {
@@ -67,7 +66,7 @@ use function json_encode;
  *       }
  *     ]);
  *
- * 2) Named visitors that trigger upon entering and leaving a node of
+ * 2. Named visitors that trigger upon entering and leaving a node of
  *    a specific kind.
  *
  *     Visitor::visit($ast, [
@@ -81,7 +80,7 @@ use function json_encode;
  *       ]
  *     ]);
  *
- * 3) Generic visitors that trigger upon entering and leaving any node.
+ * 3. Generic visitors that trigger upon entering and leaving any node.
  *
  *     Visitor::visit($ast, [
  *       'enter' => function ($node) {
@@ -92,7 +91,7 @@ use function json_encode;
  *       }
  *     ]);
  *
- * 4) Parallel visitors for entering and leaving nodes of a specific kind.
+ * 4. Parallel visitors for entering and leaving nodes of a specific kind.
  *
  *     Visitor::visit($ast, [
  *       'enter' => [
@@ -109,8 +108,7 @@ use function json_encode;
  */
 class Visitor
 {
-    /** @var string[][] */
-    public static $visitorKeys = [
+    public const VISITOR_KEYS = [
         NodeKind::NAME                 => [],
         NodeKind::DOCUMENT             => ['definitions'],
         NodeKind::OPERATION_DEFINITION => ['name', 'variableDefinitions', 'directives', 'selectionSet'],
@@ -170,11 +168,11 @@ class Visitor
     ];
 
     /**
-     * Visit the AST (see class description for details)
+     * Visit the AST (see class description for details).
      *
      * @param Node|ArrayObject|stdClass $root
-     * @param callable[]                $visitor
-     * @param mixed[]|null              $keyMap
+     * @param array<string, mixed>      $visitor
+     * @param array<string, mixed>|null $keyMap
      *
      * @return Node|mixed
      *
@@ -182,9 +180,9 @@ class Visitor
      *
      * @api
      */
-    public static function visit($root, $visitor, $keyMap = null)
+    public static function visit(object $root, array $visitor, ?array $keyMap = null)
     {
-        $visitorKeys = $keyMap ?? self::$visitorKeys;
+        $visitorKeys = $keyMap ?? self::VISITOR_KEYS;
 
         $stack     = null;
         $inArray   = $root instanceof NodeList || is_array($root);
@@ -206,7 +204,9 @@ class Visitor
             $isEdited  = $isLeaving && count($edits) > 0;
 
             if ($isLeaving) {
-                $key    = ! $ancestors ? $UNDEFINED : $path[count($path) - 1];
+                $key    = $ancestors === []
+                    ? $UNDEFINED
+                    : $path[count($path) - 1];
                 $node   = $parent;
                 $parent = array_pop($ancestors);
 
@@ -219,6 +219,7 @@ class Visitor
                     } else {
                         $node = clone $node;
                     }
+
                     $editOffset = 0;
                     for ($ii = 0; $ii < count($edits); $ii++) {
                         $editKey   = $edits[$ii][0];
@@ -227,6 +228,7 @@ class Visitor
                         if ($inArray) {
                             $editKey -= $editOffset;
                         }
+
                         if ($inArray && $editValue === null) {
                             $node->splice($editKey, 1);
                             $editOffset++;
@@ -239,6 +241,7 @@ class Visitor
                         }
                     }
                 }
+
                 $index   = $stack['index'];
                 $keys    = $stack['keys'];
                 $edits   = $stack['edits'];
@@ -260,6 +263,7 @@ class Visitor
                 if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
+
                 if ($parent !== null) {
                     $path[] = $key;
                 }
@@ -279,14 +283,16 @@ class Visitor
 
                     if ($result !== null) {
                         if ($result instanceof VisitorOperation) {
-                            if ($result->doBreak) {
+                            if ($result instanceof VisitorStop) {
                                 break;
                             }
-                            if (! $isLeaving && $result->doContinue) {
+
+                            if (! $isLeaving && $result instanceof VisitorSkipNode) {
                                 array_pop($path);
                                 continue;
                             }
-                            if ($result->removeNode) {
+
+                            if ($result instanceof VisitorRemoveNode) {
                                 $editValue = null;
                             }
                         } else {
@@ -328,6 +334,7 @@ class Visitor
                 if ($parent !== null) {
                     $ancestors[] = $parent;
                 }
+
                 $parent = $node;
             }
         } while ($stack);
@@ -340,48 +347,39 @@ class Visitor
     }
 
     /**
-     * Returns marker for visitor break
-     *
-     * @return VisitorOperation
+     * Returns marker for stopping.
      *
      * @api
      */
-    public static function stop()
+    public static function stop(): VisitorStop
     {
-        $r          = new VisitorOperation();
-        $r->doBreak = true;
+        static $stop;
 
-        return $r;
+        return $stop ??= new VisitorStop();
     }
 
     /**
-     * Returns marker for skipping current node
-     *
-     * @return VisitorOperation
+     * Returns marker for skipping the current node.
      *
      * @api
      */
-    public static function skipNode()
+    public static function skipNode(): VisitorSkipNode
     {
-        $r             = new VisitorOperation();
-        $r->doContinue = true;
+        static $skipNode;
 
-        return $r;
+        return $skipNode ??= new VisitorSkipNode();
     }
 
     /**
-     * Returns marker for removing a node
-     *
-     * @return VisitorOperation
+     * Returns marker for removing the current node.
      *
      * @api
      */
-    public static function removeNode()
+    public static function removeNode(): VisitorRemoveNode
     {
-        $r             = new VisitorOperation();
-        $r->removeNode = true;
+        static $removeNode;
 
-        return $r;
+        return $removeNode ??= new VisitorRemoveNode();
     }
 
     /**
@@ -389,7 +387,7 @@ class Visitor
      *
      * @return array<string, callable>
      */
-    public static function visitInParallel($visitors)
+    public static function visitInParallel($visitors): array
     {
         $visitorsCount = count($visitors);
         $skipping      = new SplFixedArray($visitorsCount);
@@ -407,20 +405,18 @@ class Visitor
                         false
                     );
 
-                    if (! $fn) {
+                    if ($fn === null) {
                         continue;
                     }
 
                     $result = $fn(...func_get_args());
 
-                    if ($result instanceof VisitorOperation) {
-                        if ($result->doContinue) {
-                            $skipping[$i] = $node;
-                        } elseif ($result->doBreak) {
-                            $skipping[$i] = $result;
-                        } elseif ($result->removeNode) {
-                            return $result;
-                        }
+                    if ($result instanceof VisitorSkipNode) {
+                        $skipping[$i] = $node;
+                    } elseif ($result instanceof VisitorStop) {
+                        $skipping[$i] = $result;
+                    } elseif ($result instanceof VisitorRemoveNode) {
+                        return $result;
                     } elseif ($result !== null) {
                         return $result;
                     }
@@ -437,12 +433,10 @@ class Visitor
 
                         if (isset($fn)) {
                             $result = $fn(...func_get_args());
-                            if ($result instanceof VisitorOperation) {
-                                if ($result->doBreak) {
-                                    $skipping[$i] = $result;
-                                } elseif ($result->removeNode) {
-                                    return $result;
-                                }
+                            if ($result instanceof VisitorStop) {
+                                $skipping[$i] = $result;
+                            } elseif ($result instanceof VisitorRemoveNode) {
+                                return $result;
                             } elseif ($result !== null) {
                                 return $result;
                             }
@@ -498,7 +492,7 @@ class Visitor
      * @param string          $kind
      * @param bool            $isLeaving
      */
-    public static function getVisitFn($visitor, $kind, $isLeaving) : ?callable
+    public static function getVisitFn($visitor, $kind, $isLeaving): ?callable
     {
         if ($visitor === null) {
             return null;
@@ -522,7 +516,9 @@ class Visitor
 
         $visitor += ['leave' => null, 'enter' => null];
 
-        $specificVisitor = $isLeaving ? $visitor['leave'] : $visitor['enter'];
+        $specificVisitor = $isLeaving
+            ? $visitor['leave']
+            : $visitor['enter'];
 
         if (isset($specificVisitor)) {
             if (! is_array($specificVisitor)) {

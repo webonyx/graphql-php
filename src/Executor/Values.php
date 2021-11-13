@@ -6,60 +6,51 @@ namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
-use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
-use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\FieldNode;
-use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
-use GraphQL\Language\AST\IntValueNode;
-use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NullValueNode;
-use GraphQL\Language\AST\ObjectValueNode;
-use GraphQL\Language\AST\StringValueNode;
-use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
-use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
-use stdClass;
-use Throwable;
+
 use function array_key_exists;
-use function array_map;
 use function count;
 use function sprintf;
 
+/**
+ * @see ArgumentNode - force IDE import
+ *
+ * @phpstan-import-type ArgumentNodeValue from ArgumentNode
+ */
 class Values
 {
     /**
      * Prepares an object map of variables of the correct type based on the provided
      * variable definitions and arbitrary input. If the input cannot be coerced
-     * to match the variable definitions, a Error will be thrown.
+     * to match the variable definitions, an Error will be thrown.
      *
-     * @param VariableDefinitionNode[] $varDefNodes
-     * @param mixed[]                  $inputs
+     * @param NodeList<VariableDefinitionNode> $varDefNodes
+     * @param array<string, mixed>             $rawVariableValues
      *
-     * @return mixed[]
+     * @return array{array<int, Error>, null}|array{null, array<string, mixed>}
      */
-    public static function getVariableValues(Schema $schema, $varDefNodes, array $inputs)
+    public static function getVariableValues(Schema $schema, NodeList $varDefNodes, array $rawVariableValues): array
     {
         $errors        = [];
         $coercedValues = [];
@@ -80,8 +71,10 @@ class Values
                     [$varDefNode->type]
                 );
             } else {
-                $hasValue = array_key_exists($varName, $inputs);
-                $value    = $hasValue ? $inputs[$varName] : Utils::undefined();
+                $hasValue = array_key_exists($varName, $rawVariableValues);
+                $value    = $hasValue
+                    ? $rawVariableValues[$varName]
+                    : Utils::undefined();
 
                 if (! $hasValue && ($varDefNode->defaultValue !== null)) {
                     // If no value was provided to a variable with a default value,
@@ -154,14 +147,14 @@ class Values
      * @param FragmentSpreadNode|FieldNode|InlineFragmentNode|EnumValueDefinitionNode|FieldDefinitionNode $node
      * @param mixed[]|null                                                                                $variableValues
      *
-     * @return mixed[]|null
+     * @return array<string, mixed>|null
      */
-    public static function getDirectiveValues(Directive $directiveDef, $node, $variableValues = null)
+    public static function getDirectiveValues(Directive $directiveDef, $node, $variableValues = null): ?array
     {
         if (isset($node->directives) && $node->directives instanceof NodeList) {
             $directiveNode = Utils::find(
                 $node->directives,
-                static function (DirectiveNode $directive) use ($directiveDef) : bool {
+                static function (DirectiveNode $directive) use ($directiveDef): bool {
                     return $directive->name->value === $directiveDef->name;
                 }
             );
@@ -182,17 +175,18 @@ class Values
      * @param FieldNode|DirectiveNode   $node
      * @param mixed[]                   $variableValues
      *
-     * @return mixed[]
+     * @return array<string, mixed>
      *
      * @throws Error
      */
-    public static function getArgumentValues($def, $node, $variableValues = null)
+    public static function getArgumentValues($def, $node, $variableValues = null): array
     {
         if (count($def->args) === 0) {
             return [];
         }
 
-        $argumentNodes    = $node->arguments;
+        $argumentNodes = $node->arguments;
+        /** @var array<string, ArgumentNodeValue> $argumentValueMap */
         $argumentValueMap = [];
         foreach ($argumentNodes as $argumentNode) {
             $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;
@@ -202,16 +196,16 @@ class Values
     }
 
     /**
-     * @param FieldDefinition|Directive $fieldDefinition
-     * @param ArgumentNode[]            $argumentValueMap
-     * @param mixed[]                   $variableValues
-     * @param Node|null                 $referenceNode
+     * @param FieldDefinition|Directive        $fieldDefinition
+     * @param array<string, ArgumentNodeValue> $argumentValueMap
+     * @param mixed[]                          $variableValues
+     * @param Node|null                        $referenceNode
      *
      * @return mixed[]
      *
      * @throws Error
      */
-    public static function getArgumentValuesForMap($fieldDefinition, $argumentValueMap, $variableValues = null, $referenceNode = null)
+    public static function getArgumentValuesForMap($fieldDefinition, array $argumentValueMap, $variableValues = null, $referenceNode = null): array
     {
         $argumentDefinitions = $fieldDefinition->args;
         $coercedValues       = [];
@@ -224,7 +218,9 @@ class Values
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
                 $hasValue     = array_key_exists($variableName, $variableValues ?? []);
-                $isNull       = $hasValue ? $variableValues[$variableName] === null : false;
+                $isNull       = $hasValue
+                    ? $variableValues[$variableName] === null
+                    : false;
             } else {
                 $hasValue = $argumentValueNode !== null;
                 $isNull   = $argumentValueNode instanceof NullValueNode;
@@ -247,6 +243,7 @@ class Values
 
                 if ($argumentValueNode instanceof VariableNode) {
                     $variableName = $argumentValueNode->name->value;
+
                     throw new Error(
                         'Argument "' . $name . '" of required type "' . Utils::printSafe($argType) . '" was ' .
                         'provided the variable "$' . $variableName . '" which was not provided ' .
@@ -284,51 +281,12 @@ class Values
                             [$argumentValueNode]
                         );
                     }
+
                     $coercedValues[$name] = $coercedValue;
                 }
             }
         }
 
         return $coercedValues;
-    }
-
-    /**
-     * @deprecated as of 8.0 (Moved to \GraphQL\Utils\AST::valueFromAST)
-     *
-     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $valueNode
-     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull                                                                              $type
-     * @param mixed[]|null                                                                                                                        $variables
-     *
-     * @return mixed[]|stdClass|null
-     *
-     * @codeCoverageIgnore
-     */
-    public static function valueFromAST(ValueNode $valueNode, InputType $type, ?array $variables = null)
-    {
-        return AST::valueFromAST($valueNode, $type, $variables);
-    }
-
-    /**
-     * @deprecated as of 0.12 (Use coerceValue() directly for richer information)
-     *
-     * @param mixed[]                                                $value
-     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
-     *
-     * @return string[]
-     *
-     * @codeCoverageIgnore
-     */
-    public static function isValidPHPValue($value, InputType $type)
-    {
-        $errors = Value::coerceValue($value, $type)['errors'];
-
-        return $errors
-            ? array_map(
-                static function (Throwable $error) : string {
-                    return $error->getMessage();
-                },
-                $errors
-            )
-            : [];
     }
 }

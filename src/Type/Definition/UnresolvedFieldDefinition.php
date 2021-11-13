@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+
 use function is_array;
 use function sprintf;
 
 class UnresolvedFieldDefinition
 {
-    /** @var Type $type */
-    private $type;
+    private Type $type;
 
-    /** @var string $name */
-    private $name;
+    private string $name;
 
     /** @var callable(): (FieldDefinition|array<string, mixed>|Type) $resolver */
     private $resolver;
@@ -29,12 +28,12 @@ class UnresolvedFieldDefinition
         $this->resolver = $resolver;
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function resolve() : FieldDefinition
+    public function resolve(): FieldDefinition
     {
         $field = ($this->resolver)();
 

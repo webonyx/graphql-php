@@ -13,19 +13,20 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class UniqueArgumentNames extends ValidationRule
 {
     /** @var NameNode[] */
-    public $knownArgNames;
+    protected array $knownArgNames;
 
-    public function getSDLVisitor(SDLValidationContext $context)
+    public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
@@ -35,17 +36,17 @@ class UniqueArgumentNames extends ValidationRule
         $this->knownArgNames = [];
 
         return [
-            NodeKind::FIELD     => function () : void {
+            NodeKind::FIELD     => function (): void {
                 $this->knownArgNames = [];
             },
-            NodeKind::DIRECTIVE => function () : void {
+            NodeKind::DIRECTIVE => function (): void {
                 $this->knownArgNames = [];
             },
-            NodeKind::ARGUMENT  => function (ArgumentNode $node) use ($context) : VisitorOperation {
+            NodeKind::ARGUMENT  => function (ArgumentNode $node) use ($context): VisitorOperation {
                 $argName = $node->name->value;
                 if ($this->knownArgNames[$argName] ?? false) {
                     $context->reportError(new Error(
-                        self::duplicateArgMessage($argName),
+                        static::duplicateArgMessage($argName),
                         [$this->knownArgNames[$argName], $node->name]
                     ));
                 } else {

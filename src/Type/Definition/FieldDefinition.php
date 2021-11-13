@@ -4,30 +4,23 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\Warning;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function is_callable;
 use function is_iterable;
 use function is_string;
 use function sprintf;
 
-/**
- * @todo Move complexity-related code to it's own place
- */
 class FieldDefinition
 {
-    public const DEFAULT_COMPLEXITY_FN = 'GraphQL\Type\Definition\FieldDefinition::defaultComplexity';
+    public string $name;
 
-    /** @var string */
-    public $name;
-
-    /** @var FieldArgument[] */
-    public $args;
+    /** @var array<int, FieldArgument> */
+    public array $args;
 
     /**
      * Callback for resolving field value given parent value.
@@ -45,109 +38,101 @@ class FieldDefinition
      */
     public $mapFn;
 
-    /** @var string|null */
-    public $description;
+    public ?string $description;
 
-    /** @var string|null */
-    public $deprecationReason;
+    public ?string $deprecationReason;
 
-    /** @var FieldDefinitionNode|null */
-    public $astNode;
+    public ?FieldDefinitionNode $astNode;
 
     /**
      * Original field definition config
      *
-     * @var mixed[]
+     * @var array<string, mixed>
      */
-    public $config;
+    public array $config;
 
     /** @var OutputType&Type */
-    private $type;
+    private Type $type;
 
-    /** @var callable|string */
-    private $complexityFn;
+    /** @var callable(int, array<string, mixed>): int|null */
+    public $complexityFn;
 
     /**
-     * @param mixed[] $config
+     * @param array<string, mixed> $config
      */
     protected function __construct(array $config)
     {
-        $this->name      = $config['name'];
-        $this->resolveFn = $config['resolve'] ?? null;
-        $this->mapFn     = $config['map'] ?? null;
-        $this->args      = isset($config['args']) ? FieldArgument::createMap($config['args']) : [];
-
+        $this->name              = $config['name'];
+        $this->resolveFn         = $config['resolve'] ?? null;
+        $this->mapFn             = $config['map'] ?? null;
+        $this->args              = isset($config['args'])
+            ? FieldArgument::createMap($config['args'])
+            : [];
         $this->description       = $config['description'] ?? null;
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         $this->astNode           = $config['astNode'] ?? null;
+        $this->complexityFn      = $config['complexity'] ?? null;
 
         $this->config = $config;
-
-        $this->complexityFn = $config['complexity'] ?? self::DEFAULT_COMPLEXITY_FN;
     }
 
     /**
-     * @param (callable():mixed[])|mixed[] $fields
+     * @param (callable(): array<mixed>)|array<mixed> $fields
      *
      * @return array<string, self>
      */
-    public static function defineFieldMap(Type $type, $fields) : array
+    public static function defineFieldMap(Type $type, $fields): array
     {
         if (is_callable($fields)) {
             $fields = $fields();
         }
+
         if (! is_iterable($fields)) {
             throw new InvariantViolation(
-                sprintf('%s fields must be an iterable or a callable which returns such an iterable.', $type->name)
+                "{$type->name} fields must be an iterable or a callable which returns such an iterable."
             );
         }
+
         $map = [];
-        foreach ($fields as $name => $field) {
+        foreach ($fields as $maybeName => $field) {
             if (is_array($field)) {
                 if (! isset($field['name'])) {
-                    if (! is_string($name)) {
+                    if (! is_string($maybeName)) {
                         throw new InvariantViolation(
-                            sprintf(
-                                '%s fields must be an associative array with field names as keys or a function which returns such an array.',
-                                $type->name
-                            )
+                            "{$type->name} fields must be an associative array with field names as keys or a function which returns such an array."
                         );
                     }
 
-                    $field['name'] = $name;
+                    $field['name'] = $maybeName;
                 }
+
                 if (isset($field['args']) && ! is_array($field['args'])) {
                     throw new InvariantViolation(
-                        sprintf('%s.%s args must be an array.', $type->name, $name)
+                        "{$type->name}.{$maybeName} args must be an array."
                     );
                 }
+
                 $fieldDef = self::create($field);
             } elseif ($field instanceof self) {
                 $fieldDef = $field;
             } elseif (is_callable($field)) {
-                if (! is_string($name)) {
+                if (! is_string($maybeName)) {
                     throw new InvariantViolation(
-                        sprintf(
-                            '%s lazy fields must be an associative array with field names as keys.',
-                            $type->name
-                        )
+                        "{$type->name} lazy fields must be an associative array with field names as keys."
                     );
                 }
 
-                $fieldDef = new UnresolvedFieldDefinition($type, $name, $field);
+                $fieldDef = new UnresolvedFieldDefinition($type, $maybeName, $field);
             } else {
-                if (! is_string($name) || ! $field) {
+                if (! is_string($maybeName) || ! $field) {
+                    $safeField = Utils::printSafe($field);
+
                     throw new InvariantViolation(
-                        sprintf(
-                            '%s.%s field config must be an array, but got: %s',
-                            $type->name,
-                            $name,
-                            Utils::printSafe($field)
-                        )
+                        "{$type->name}.{$maybeName} field config must be an array, but got: {$safeField}"
                     );
                 }
 
-                $fieldDef = self::create(['name' => $name, 'type' => $field]);
+                $fieldDef = self::create(['name' => $maybeName, 'type' => $field]);
             }
 
             $map[$fieldDef->getName()] = $fieldDef;
@@ -157,33 +142,16 @@ class FieldDefinition
     }
 
     /**
-     * @param mixed[] $field
-     *
-     * @return FieldDefinition
+     * @param array<string, mixed> $field
      */
-    public static function create($field)
+    public static function create(array $field): FieldDefinition
     {
         return new self($field);
     }
 
-    /**
-     * @param int $childrenComplexity
-     *
-     * @return mixed
-     */
-    public static function defaultComplexity($childrenComplexity)
+    public function getArg(string $name): ?FieldArgument
     {
-        return $childrenComplexity + 1;
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return FieldArgument|null
-     */
-    public function getArg($name)
-    {
-        foreach ($this->args ?? [] as $arg) {
+        foreach ($this->args as $arg) {
             /** @var FieldArgument $arg */
             if ($arg->name === $name) {
                 return $arg;
@@ -213,84 +181,21 @@ class FieldDefinition
         return $this->type;
     }
 
-    public function __isset(string $name) : bool
-    {
-        switch ($name) {
-            case 'type':
-                Warning::warnOnce(
-                    "The public getter for 'type' on FieldDefinition has been deprecated and will be removed" .
-                    " in the next major version. Please update your code to use the 'getType' method.",
-                    Warning::WARNING_CONFIG_DEPRECATION
-                );
-
-                return isset($this->type);
-        }
-
-        return isset($this->$name);
-    }
-
-    public function __get(string $name)
-    {
-        switch ($name) {
-            case 'type':
-                Warning::warnOnce(
-                    "The public getter for 'type' on FieldDefinition has been deprecated and will be removed" .
-                    " in the next major version. Please update your code to use the 'getType' method.",
-                    Warning::WARNING_CONFIG_DEPRECATION
-                );
-
-                return $this->getType();
-            default:
-                return $this->$name;
-        }
-
-        return null;
-    }
-
-    public function __set(string $name, $value)
-    {
-        switch ($name) {
-            case 'type':
-                Warning::warnOnce(
-                    "The public setter for 'type' on FieldDefinition has been deprecated and will be removed" .
-                    ' in the next major version.',
-                    Warning::WARNING_CONFIG_DEPRECATION
-                );
-                $this->type = $value;
-                break;
-
-            default:
-                $this->$name = $value;
-                break;
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDeprecated()
+    public function isDeprecated(): bool
     {
         return (bool) $this->deprecationReason;
     }
 
     /**
-     * @return callable|callable
-     */
-    public function getComplexityFn()
-    {
-        return $this->complexityFn;
-    }
-
-    /**
      * @throws InvariantViolation
      */
-    public function assertValid(Type $parentType)
+    public function assertValid(Type $parentType): void
     {
-        try {
-            Utils::assertValidName($this->name);
-        } catch (Error $e) {
-            throw new InvariantViolation(sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
+        $error = Utils::isValidNameError($this->name);
+        if ($error !== null) {
+            throw new InvariantViolation("{$parentType->name}.{$this->name}: {$error->getMessage()}");
         }
+
         Utils::invariant(
             ! isset($this->config['isDeprecated']),
             sprintf(
@@ -304,6 +209,7 @@ class FieldDefinition
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
+
         Utils::invariant(
             $type instanceof OutputType,
             sprintf(

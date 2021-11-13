@@ -18,6 +18,7 @@ class StarWarsData
         if (isset($humans[$id])) {
             return $humans[$id];
         }
+
         if (isset($droids[$id])) {
             return $droids[$id];
         }
@@ -137,7 +138,7 @@ class StarWarsData
      *
      * @return mixed[]
      */
-    public static function getHero($episode)
+    public static function getHero($episode): array
     {
         if ($episode === 5) {
             // Luke is the hero of Episode V.

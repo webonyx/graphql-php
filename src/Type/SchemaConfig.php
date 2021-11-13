@@ -7,16 +7,17 @@ namespace GraphQL\Type;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils\Utils;
+
 use function count;
-use function is_callable;
 
 /**
- * Schema configuration class.
- * Could be passed directly to schema constructor. List of options accepted by **create** method is
- * [described in docs](type-system/schema.md#configuration-options).
+ * Configuration options for schema construction.
+ *
+ * The options accepted by the **create** method are described
+ * in the [schema definition docs](schema-definition.md#configuration-options).
  *
  * Usage example:
  *
@@ -25,47 +26,45 @@ use function is_callable;
  *         ->setTypeLoader($myTypeLoader);
  *
  *     $schema = new Schema($config);
+ *
+ * @phpstan-type TypeLoader (callable(string $typeName): (Type&NamedType)|null)|null
  */
 class SchemaConfig
 {
-    /** @var ObjectType|null */
-    public $query;
+    public ?ObjectType $query = null;
 
-    /** @var ObjectType|null */
-    public $mutation;
+    public ?ObjectType $mutation = null;
 
-    /** @var ObjectType|null */
-    public $subscription;
+    public ?ObjectType $subscription = null;
 
-    /** @var Type[]|callable */
+    /** @var array<Type>|(callable(): array<Type>) */
     public $types = [];
 
-    /** @var Directive[]|null */
-    public $directives;
+    /** @var array<Directive>|null */
+    public ?array $directives = null;
 
-    /** @var callable|null */
-    public $typeLoader;
+    /**
+     * @var callable|null
+     * @phpstan-var TypeLoader|null
+     */
+    public $typeLoader = null;
 
-    /** @var SchemaDefinitionNode|null */
-    public $astNode;
+    public bool $assumeValid = false;
 
-    /** @var bool */
-    public $assumeValid = false;
+    public ?SchemaDefinitionNode $astNode = null;
 
-    /** @var SchemaTypeExtensionNode[] */
-    public $extensionASTNodes = [];
+    /** @var array<SchemaTypeExtensionNode> */
+    public array $extensionASTNodes = [];
 
     /**
      * Converts an array of options to instance of SchemaConfig
      * (or just returns empty config when array is not passed).
      *
-     * @param mixed[] $options
-     *
-     * @return SchemaConfig
+     * @param array<string, mixed> $options
      *
      * @api
      */
-    public static function create(array $options = [])
+    public static function create(array $options = []): self
     {
         $config = new static();
 
@@ -91,20 +90,15 @@ class SchemaConfig
             }
 
             if (isset($options['typeLoader'])) {
-                Utils::invariant(
-                    is_callable($options['typeLoader']),
-                    'Schema type loader must be callable if provided but got: %s',
-                    Utils::printSafe($options['typeLoader'])
-                );
                 $config->setTypeLoader($options['typeLoader']);
+            }
+
+            if (isset($options['assumeValid'])) {
+                $config->setAssumeValid($options['assumeValid']);
             }
 
             if (isset($options['astNode'])) {
                 $config->setAstNode($options['astNode']);
-            }
-
-            if (isset($options['assumeValid'])) {
-                $config->setAssumeValid((bool) $options['assumeValid']);
             }
 
             if (isset($options['extensionASTNodes'])) {
@@ -116,41 +110,17 @@ class SchemaConfig
     }
 
     /**
-     * @return SchemaDefinitionNode|null
-     */
-    public function getAstNode()
-    {
-        return $this->astNode;
-    }
-
-    /**
-     * @return SchemaConfig
-     */
-    public function setAstNode(SchemaDefinitionNode $astNode)
-    {
-        $this->astNode = $astNode;
-
-        return $this;
-    }
-
-    /**
-     * @return ObjectType|null
-     *
      * @api
      */
-    public function getQuery()
+    public function getQuery(): ?ObjectType
     {
         return $this->query;
     }
 
     /**
-     * @param ObjectType|null $query
-     *
-     * @return SchemaConfig
-     *
      * @api
      */
-    public function setQuery($query)
+    public function setQuery(?ObjectType $query): self
     {
         $this->query = $query;
 
@@ -158,23 +128,17 @@ class SchemaConfig
     }
 
     /**
-     * @return ObjectType|null
-     *
      * @api
      */
-    public function getMutation()
+    public function getMutation(): ?ObjectType
     {
         return $this->mutation;
     }
 
     /**
-     * @param ObjectType|null $mutation
-     *
-     * @return SchemaConfig
-     *
      * @api
      */
-    public function setMutation($mutation)
+    public function setMutation(?ObjectType $mutation): self
     {
         $this->mutation = $mutation;
 
@@ -182,23 +146,17 @@ class SchemaConfig
     }
 
     /**
-     * @return ObjectType|null
-     *
      * @api
      */
-    public function getSubscription()
+    public function getSubscription(): ?ObjectType
     {
         return $this->subscription;
     }
 
     /**
-     * @param ObjectType|null $subscription
-     *
-     * @return SchemaConfig
-     *
      * @api
      */
-    public function setSubscription($subscription)
+    public function setSubscription(?ObjectType $subscription): self
     {
         $this->subscription = $subscription;
 
@@ -206,7 +164,7 @@ class SchemaConfig
     }
 
     /**
-     * @return Type[]|callable
+     * @return array<Type>|(callable(): array<Type>)
      *
      * @api
      */
@@ -216,13 +174,11 @@ class SchemaConfig
     }
 
     /**
-     * @param Type[]|callable $types
-     *
-     * @return SchemaConfig
+     * @param array<Type>|(callable(): array<Type>) $types
      *
      * @api
      */
-    public function setTypes($types)
+    public function setTypes($types): self
     {
         $this->types = $types;
 
@@ -230,23 +186,21 @@ class SchemaConfig
     }
 
     /**
-     * @return Directive[]|null
+     * @return array<Directive>|null
      *
      * @api
      */
-    public function getDirectives()
+    public function getDirectives(): ?array
     {
         return $this->directives;
     }
 
     /**
-     * @param Directive[] $directives
-     *
-     * @return SchemaConfig
+     * @param array<Directive>|null $directives
      *
      * @api
      */
-    public function setDirectives(array $directives)
+    public function setDirectives(?array $directives): self
     {
         $this->directives = $directives;
 
@@ -254,60 +208,67 @@ class SchemaConfig
     }
 
     /**
-     * @return callable|null
+     * @return callable|null $typeLoader
+     * @phpstan-return TypeLoader|null $typeLoader
      *
      * @api
      */
-    public function getTypeLoader()
+    public function getTypeLoader(): ?callable
     {
         return $this->typeLoader;
     }
 
     /**
-     * @return SchemaConfig
+     * @phpstan-param TypeLoader|null $typeLoader
      *
      * @api
      */
-    public function setTypeLoader(callable $typeLoader)
+    public function setTypeLoader(?callable $typeLoader): self
     {
         $this->typeLoader = $typeLoader;
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getAssumeValid()
+    public function getAssumeValid(): bool
     {
         return $this->assumeValid;
     }
 
-    /**
-     * @param bool $assumeValid
-     *
-     * @return SchemaConfig
-     */
-    public function setAssumeValid($assumeValid)
+    public function setAssumeValid(bool $assumeValid): self
     {
         $this->assumeValid = $assumeValid;
 
         return $this;
     }
 
+    public function getAstNode(): ?SchemaDefinitionNode
+    {
+        return $this->astNode;
+    }
+
+    public function setAstNode(SchemaDefinitionNode $astNode): self
+    {
+        $this->astNode = $astNode;
+
+        return $this;
+    }
+
     /**
-     * @return SchemaTypeExtensionNode[]
+     * @return array<SchemaTypeExtensionNode>
      */
-    public function getExtensionASTNodes()
+    public function getExtensionASTNodes(): array
     {
         return $this->extensionASTNodes;
     }
 
     /**
-     * @param SchemaTypeExtensionNode[] $extensionASTNodes
+     * @param array<SchemaTypeExtensionNode> $extensionASTNodes
      */
-    public function setExtensionASTNodes(array $extensionASTNodes)
+    public function setExtensionASTNodes(array $extensionASTNodes): self
     {
         $this->extensionASTNodes = $extensionASTNodes;
+
+        return $this;
     }
 }

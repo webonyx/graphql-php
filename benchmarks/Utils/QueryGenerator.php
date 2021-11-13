@@ -1,9 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Benchmarks\Utils;
 
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Printer;
@@ -13,19 +17,20 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function count;
 use function max;
 use function round;
 
 class QueryGenerator
 {
-    private $schema;
+    private Schema $schema;
 
-    private $maxLeafFields;
+    private int $maxLeafFields;
 
-    private $currentLeafFields;
+    private int $currentLeafFields;
 
-    public function __construct(Schema $schema, $percentOfLeafFields)
+    public function __construct(Schema $schema, float $percentOfLeafFields)
     {
         $this->schema = $schema;
 
@@ -40,36 +45,41 @@ class QueryGenerator
             $totalFields += count($type->getFieldNames());
         }
 
-        $this->maxLeafFields     = max(1, round($totalFields * $percentOfLeafFields));
+        $this->maxLeafFields     = max(1, (int) round($totalFields * $percentOfLeafFields));
         $this->currentLeafFields = 0;
     }
 
-    public function buildQuery()
+    public function buildQuery(): string
     {
-        $qtype = $this->schema->getQueryType();
+        $queryType = $this->schema->getQueryType();
 
         $ast = new DocumentNode([
-            'definitions' => [new OperationDefinitionNode([
-                'name' => new NameNode(['value' => 'TestQuery']),
-                'operation' => 'query',
-                'selectionSet' => $this->buildSelectionSet($qtype->getFields()),
+            'definitions' => new NodeList([
+                new OperationDefinitionNode([
+                    'name' => new NameNode(['value' => 'TestQuery']),
+                    'operation' => 'query',
+                    'variableDefinitions' => new NodeList([]),
+                    'directives' => new NodeList([]),
+                    'selectionSet' => $this->buildSelectionSet($queryType->getFields()),
+                ]),
             ]),
-            ],
         ]);
 
         return Printer::doPrint($ast);
     }
 
     /**
-     * @param FieldDefinition[] $fields
-     *
-     * @return SelectionSetNode
+     * @param array<FieldDefinition> $fields
      */
-    public function buildSelectionSet($fields)
+    public function buildSelectionSet(array $fields): SelectionSetNode
     {
-        $selections[] = new FieldNode([
-            'name' => new NameNode(['value' => '__typename']),
-        ]);
+        $selections = [
+            new FieldNode([
+                'name' => new NameNode(['value' => '__typename']),
+                'arguments' => new NodeList([]),
+                'directives' => new NodeList([]),
+            ]),
+        ];
         $this->currentLeafFields++;
 
         foreach ($fields as $field) {
@@ -93,13 +103,13 @@ class QueryGenerator
             $selections[] = new FieldNode([
                 'name' => new NameNode(['value' => $field->name]),
                 'selectionSet' => $selectionSet,
+                'arguments' => new NodeList([]),
+                'directives' => new NodeList([]),
             ]);
         }
 
-        $selectionSet = new SelectionSetNode([
-            'selections' => $selections,
+        return new SelectionSetNode([
+            'selections' => new NodeList($selections),
         ]);
-
-        return $selectionSet;
     }
 }

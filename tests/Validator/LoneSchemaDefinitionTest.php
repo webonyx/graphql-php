@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\LoneSchemaDefinition;
 
 class LoneSchemaDefinitionTest extends ValidatorTestCase
 {
-    private function expectSDLErrors($sdlString, $schema = null, $errors = [])
+    private function expectSDLErrors($sdlString, $schema = null, $errors = []): void
     {
-        return $this->expectSDLErrorsFromRule(new LoneSchemaDefinition(), $sdlString, $schema, $errors);
+        $this->expectSDLErrorsFromRule(new LoneSchemaDefinition(), $sdlString, $schema, $errors);
     }
 
     private function schemaDefinitionNotAlone($line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             LoneSchemaDefinition::schemaDefinitionNotAloneMessage(),
             [new SourceLocation($line, $column)]
         );
@@ -26,7 +26,7 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
 
     private function canNotDefineSchemaWithinExtension($line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             LoneSchemaDefinition::canNotDefineSchemaWithinExtensionMessage(),
             [new SourceLocation($line, $column)]
         );
@@ -37,7 +37,7 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
     /**
      * @see it('no schema')
      */
-    public function testNoSchema()
+    public function testNoSchema(): void
     {
         $this->expectSDLErrors(
             '
@@ -53,7 +53,7 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
     /**
      * @see it('one schema definition')
      */
-    public function testOneSchemaDefinition()
+    public function testOneSchemaDefinition(): void
     {
         $this->expectSDLErrors(
             '
@@ -73,7 +73,7 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
     /**
      * @see it('multiple schema definitions')
      */
-    public function testMultipleSchemaDefinitions()
+    public function testMultipleSchemaDefinitions(): void
     {
         $this->expectSDLErrors(
             '
@@ -104,7 +104,7 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
     /**
      * @see it('define schema in schema extension')
      */
-    public function testDefineSchemaInSchemaExtension()
+    public function testDefineSchemaInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
           type Foo {
@@ -126,7 +126,7 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
     /**
      * @see it('redefine schema in schema extension')
      */
-    public function testRedefineSchemaInSchemaExtension()
+    public function testRedefineSchemaInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
           schema {
@@ -151,7 +151,7 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
     /**
      * @see it('redefine implicit schema in schema extension')
      */
-    public function testRedefineImplicitSchemaInSchemaExtension()
+    public function testRedefineImplicitSchemaInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
           type Query {
@@ -177,7 +177,7 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
     /**
      * @see it('extend schema in schema extension')
      */
-    public function testExtendSchemaInSchemaExtension()
+    public function testExtendSchemaInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
           type Query {

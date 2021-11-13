@@ -4,21 +4,24 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use GraphQL\Language\AST\Node;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
-use function class_alias;
 
 abstract class ValidationRule
 {
-    /** @var string */
-    protected $name;
+    protected string $name;
 
-    public function getName()
+    public function getName(): string
     {
-        return $this->name === '' || $this->name === null  ? static::class : $this->name;
+        return $this->name ?? static::class;
     }
 
-    public function __invoke(ValidationContext $context)
+    /**
+     * @return array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
+     */
+    public function __invoke(ValidationContext $context): array
     {
         return $this->getVisitor($context);
     }
@@ -28,9 +31,9 @@ abstract class ValidationRule
      *
      * @see \GraphQL\Language\Visitor
      *
-     * @return mixed[]
+     * @return array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
      */
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return [];
     }
@@ -40,12 +43,10 @@ abstract class ValidationRule
      *
      * @see \GraphQL\Language\Visitor
      *
-     * @return mixed[]
+     * @return array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
      */
-    public function getSDLVisitor(SDLValidationContext $context)
+    public function getSDLVisitor(SDLValidationContext $context): array
     {
         return [];
     }
 }
-
-class_alias(ValidationRule::class, 'GraphQL\Validator\Rules\AbstractValidationRule');

@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Executor;
 
 use ArrayAccess;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NotSpecial;
 use GraphQL\Tests\Executor\TestClasses\Special;
-use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -24,7 +25,10 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
+use ReturnTypeWillChange;
 use stdClass;
+
 use function count;
 use function json_encode;
 
@@ -32,7 +36,7 @@ class ExecutorTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    public function tearDown() : void
+    public function tearDown(): void
     {
         Executor::setPromiseAdapter(null);
     }
@@ -42,38 +46,38 @@ class ExecutorTest extends TestCase
     /**
      * @see it('executes arbitrary code')
      */
-    public function testExecutesArbitraryCode() : void
+    public function testExecutesArbitraryCode(): void
     {
         $deepData = null;
         $data     = null;
 
-        $promiseData = static function () use (&$data) : Deferred {
+        $promiseData = static function () use (&$data): Deferred {
             return new Deferred(static function () use (&$data) {
                 return $data;
             });
         };
 
-        $data = [
-            'a'       => static function () : string {
+        $data     = [
+            'a'       => static function (): string {
                 return 'Apple';
             },
-            'b'       => static function () : string {
+            'b'       => static function (): string {
                 return 'Banana';
             },
-            'c'       => static function () : string {
+            'c'       => static function (): string {
                 return 'Cookie';
             },
-            'd'       => static function () : string {
+            'd'       => static function (): string {
                 return 'Donut';
             },
-            'e'       => static function () : string {
+            'e'       => static function (): string {
                 return 'Egg';
             },
             'f'       => 'Fish',
-            'pic'     => static function ($size = 50) : string {
+            'pic'     => static function ($size = 50): string {
                 return 'Pic of size: ' . $size;
             },
-            'promise' => static function () use ($promiseData) : Deferred {
+            'promise' => static function () use ($promiseData): Deferred {
                 return $promiseData();
             },
             'deep'    => static function () use (&$deepData) {
@@ -83,16 +87,16 @@ class ExecutorTest extends TestCase
 
         // Required for that & reference above
         $deepData = [
-            'a'      => static function () : string {
+            'a'      => static function (): string {
                 return 'Already Been Done';
             },
-            'b'      => static function () : string {
+            'b'      => static function (): string {
                 return 'Boring';
             },
-            'c'      => static function () : array {
+            'c'      => static function (): array {
                 return ['Contrived', null, 'Confusing'];
             },
-            'deeper' => static function () use (&$data) : array {
+            'deeper' => static function () use (&$data): array {
                 return [$data, null, $data];
             },
         ];
@@ -154,7 +158,7 @@ class ExecutorTest extends TestCase
         $deepDataType = null;
         $dataType     = new ObjectType([
             'name'   => 'DataType',
-            'fields' => static function () use (&$dataType, &$deepDataType) : array {
+            'fields' => static function () use (&$dataType, &$deepDataType): array {
                 return [
                     'a'       => ['type' => Type::string()],
                     'b'       => ['type' => Type::string()],
@@ -196,7 +200,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('merges parallel fragments')
      */
-    public function testMergesParallelFragments() : void
+    public function testMergesParallelFragments(): void
     {
         $ast = Parser::parse('
       { a, ...FragOne, ...FragTwo }
@@ -214,29 +218,29 @@ class ExecutorTest extends TestCase
 
         $Type = new ObjectType([
             'name'   => 'Type',
-            'fields' => static function () use (&$Type) : array {
+            'fields' => static function () use (&$Type): array {
                 return [
                     'a'    => [
                         'type'    => Type::string(),
-                        'resolve' => static function () : string {
+                        'resolve' => static function (): string {
                             return 'Apple';
                         },
                     ],
                     'b'    => [
                         'type'    => Type::string(),
-                        'resolve' => static function () : string {
+                        'resolve' => static function (): string {
                             return 'Banana';
                         },
                     ],
                     'c'    => [
                         'type'    => Type::string(),
-                        'resolve' => static function () : string {
+                        'resolve' => static function (): string {
                             return 'Cherry';
                         },
                     ],
                     'deep' => [
                         'type'    => $Type,
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return [];
                         },
                     ],
@@ -267,7 +271,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('provides info about current execution state')
      */
-    public function testProvidesInfoAboutCurrentExecutionState() : void
+    public function testProvidesInfoAboutCurrentExecutionState(): void
     {
         $ast = Parser::parse('query ($var: String) { result: test }');
 
@@ -279,7 +283,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'test' => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($test, $args, $ctx, $_info) use (&$info) : void {
+                        'resolve' => static function ($test, $args, $ctx, $_info) use (&$info): void {
                             $info = $_info;
                         },
                     ],
@@ -310,7 +314,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('threads root value context correctly')
      */
-    public function testThreadsContextCorrectly() : void
+    public function testThreadsContextCorrectly(): void
     {
         // threads context correctly
         $doc = 'query Example { a }';
@@ -326,7 +330,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'a' => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($context) use (&$gotHere) : void {
+                        'resolve' => static function ($context) use (&$gotHere): void {
                             self::assertEquals('thing', $context['contextThing']);
                             $gotHere = true;
                         },
@@ -342,7 +346,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('correctly threads arguments')
      */
-    public function testCorrectlyThreadsArguments() : void
+    public function testCorrectlyThreadsArguments(): void
     {
         $doc = '
       query Example {
@@ -363,7 +367,7 @@ class ExecutorTest extends TestCase
                             'stringArg' => ['type' => Type::string()],
                         ],
                         'type'    => Type::string(),
-                        'resolve' => static function ($_, $args) use (&$gotHere) : void {
+                        'resolve' => static function ($_, $args) use (&$gotHere): void {
                             self::assertEquals(123, $args['numArg']);
                             self::assertEquals('foo', $args['stringArg']);
                             $gotHere = true;
@@ -379,7 +383,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('nulls out error subtrees')
      */
-    public function testNullsOutErrorSubtrees() : void
+    public function testNullsOutErrorSubtrees(): void
     {
         $doc = '{
       sync
@@ -398,21 +402,21 @@ class ExecutorTest extends TestCase
         }';
 
         $data = [
-            'sync'                => static function () : string {
+            'sync'                => static function (): string {
                 return 'sync';
             },
-            'syncError'           => static function () : void {
+            'syncError'           => static function (): void {
                 throw new UserError('Error getting syncError');
             },
-            'syncRawError'        => static function () : void {
+            'syncRawError'        => static function (): void {
                 throw new UserError('Error getting syncRawError');
             },
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
-            'syncReturnError'     => static function () : UserError {
+            'syncReturnError'     => static function (): UserError {
                 return new UserError('Error getting syncReturnError');
             },
-            'syncReturnErrorList' => static function () : array {
+            'syncReturnErrorList' => static function (): array {
                 return [
                     'sync0',
                     new UserError('Error getting syncReturnErrorList1'),
@@ -420,45 +424,45 @@ class ExecutorTest extends TestCase
                     new UserError('Error getting syncReturnErrorList3'),
                 ];
             },
-            'async'               => static function () : Deferred {
-                return new Deferred(static function () : string {
+            'async'               => static function (): Deferred {
+                return new Deferred(static function (): string {
                     return 'async';
                 });
             },
-            'asyncReject'         => static function () : Deferred {
-                return new Deferred(static function () : void {
+            'asyncReject'         => static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('Error getting asyncReject');
                 });
             },
-            'asyncRawReject'      => static function () : Deferred {
-                return new Deferred(static function () : void {
+            'asyncRawReject'      => static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('Error getting asyncRawReject');
                 });
             },
-            'asyncEmptyReject'    => static function () : Deferred {
-                return new Deferred(static function () : void {
+            'asyncEmptyReject'    => static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError();
                 });
             },
-            'asyncError'          => static function () : Deferred {
-                return new Deferred(static function () : void {
+            'asyncError'          => static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('Error getting asyncError');
                 });
             },
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
-            'asyncRawError'       => static function () : Deferred {
-                return new Deferred(static function () : void {
+            'asyncRawError'       => static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('Error getting asyncRawError');
                 });
             },
-            'asyncReturnError'    => static function () : Deferred {
-                return new Deferred(static function () : void {
+            'asyncReturnError'    => static function (): Deferred {
+                return new Deferred(static function (): void {
                     throw new UserError('Error getting asyncReturnError');
                 });
             },
-            'asyncReturnErrorWithExtensions' => static function () : Deferred {
-                return new Deferred(static function () : void {
+            'asyncReturnErrorWithExtensions' => static function (): Deferred {
+                return new Deferred(static function (): void {
                     $error = new Error(
                         'Error getting asyncReturnErrorWithExtensions',
                         null,
@@ -468,6 +472,7 @@ class ExecutorTest extends TestCase
                         null,
                         ['foo' => 'bar']
                     );
+
                     throw $error;
                 });
             },
@@ -585,7 +590,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the inline operation if no operation name is provided')
      */
-    public function testUsesTheInlineOperationIfNoOperationIsProvided() : void
+    public function testUsesTheInlineOperationIfNoOperationIsProvided(): void
     {
         $doc    = '{ a }';
         $data   = ['a' => 'b'];
@@ -607,7 +612,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the only operation if no operation name is provided')
      */
-    public function testUsesTheOnlyOperationIfNoOperationIsProvided() : void
+    public function testUsesTheOnlyOperationIfNoOperationIsProvided(): void
     {
         $doc    = 'query Example { a }';
         $data   = ['a' => 'b'];
@@ -628,7 +633,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the named operation if operation name is provided')
      */
-    public function testUsesTheNamedOperationIfOperationNameIsProvided() : void
+    public function testUsesTheNamedOperationIfOperationNameIsProvided(): void
     {
         $doc    = 'query Example { first: a } query OtherExample { second: a }';
         $data   = ['a' => 'b'];
@@ -649,7 +654,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('provides error if no operation is provided')
      */
-    public function testProvidesErrorIfNoOperationIsProvided() : void
+    public function testProvidesErrorIfNoOperationIsProvided(): void
     {
         $doc    = 'fragment Example on Type { a }';
         $data   = ['a' => 'b'];
@@ -676,7 +681,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('errors if no op name is provided with multiple operations')
      */
-    public function testErrorsIfNoOperationIsProvidedWithMultipleOperations() : void
+    public function testErrorsIfNoOperationIsProvidedWithMultipleOperations(): void
     {
         $doc    = 'query Example { a } query OtherExample { a }';
         $data   = ['a' => 'b'];
@@ -704,7 +709,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('errors if unknown operation name is provided')
      */
-    public function testErrorsIfUnknownOperationNameIsProvided() : void
+    public function testErrorsIfUnknownOperationNameIsProvided(): void
     {
         $doc    = 'query Example { a } query OtherExample { a }';
         $ast    = Parser::parse($doc);
@@ -739,7 +744,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the query schema for queries')
      */
-    public function testUsesTheQuerySchemaForQueries() : void
+    public function testUsesTheQuerySchemaForQueries(): void
     {
         $doc    = 'query Q { a } mutation M { c }';
         $data   = ['a' => 'b', 'c' => 'd'];
@@ -766,7 +771,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the mutation schema for mutations')
      */
-    public function testUsesTheMutationSchemaForMutations() : void
+    public function testUsesTheMutationSchemaForMutations(): void
     {
         $doc            = 'query Q { a } mutation M { c }';
         $data           = ['a' => 'b', 'c' => 'd'];
@@ -792,7 +797,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the subscription schema for subscriptions')
      */
-    public function testUsesTheSubscriptionSchemaForSubscriptions() : void
+    public function testUsesTheSubscriptionSchemaForSubscriptions(): void
     {
         $doc    = 'query Q { a } subscription S { a }';
         $data   = ['a' => 'b', 'c' => 'd'];
@@ -816,7 +821,7 @@ class ExecutorTest extends TestCase
         self::assertEquals(['data' => ['a' => 'b']], $subscriptionResult->toArray());
     }
 
-    public function testCorrectFieldOrderingDespiteExecutionOrder() : void
+    public function testCorrectFieldOrderingDespiteExecutionOrder(): void
     {
         $doc  = '{
       a,
@@ -826,23 +831,23 @@ class ExecutorTest extends TestCase
       e
     }';
         $data = [
-            'a' => static function () : string {
+            'a' => static function (): string {
                 return 'a';
             },
-            'b' => static function () : Deferred {
-                return new Deferred(static function () : string {
+            'b' => static function (): Deferred {
+                return new Deferred(static function (): string {
                     return 'b';
                 });
             },
-            'c' => static function () : string {
+            'c' => static function (): string {
                 return 'c';
             },
-            'd' => static function () : Deferred {
-                return new Deferred(static function () : string {
+            'd' => static function (): Deferred {
+                return new Deferred(static function (): string {
                     return 'd';
                 });
             },
-            'e' => static function () : string {
+            'e' => static function (): string {
                 return 'e';
             },
         ];
@@ -877,7 +882,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('Avoids recursion')
      */
-    public function testAvoidsRecursion() : void
+    public function testAvoidsRecursion(): void
     {
         $doc    = '
       query Q {
@@ -909,7 +914,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('does not include illegal fields in output')
      */
-    public function testDoesNotIncludeIllegalFieldsInOutput() : void
+    public function testDoesNotIncludeIllegalFieldsInOutput(): void
     {
         $doc            = 'mutation M {
       thisIsIllegalDontIncludeMe
@@ -936,7 +941,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('does not include arguments that were not set')
      */
-    public function testDoesNotIncludeArgumentsThatWereNotSet() : void
+    public function testDoesNotIncludeArgumentsThatWereNotSet(): void
     {
         $schema = new Schema([
             'query' => new ObjectType([
@@ -945,7 +950,9 @@ class ExecutorTest extends TestCase
                     'field' => [
                         'type'    => Type::string(),
                         'resolve' => static function ($data, $args) {
-                            return $args ? json_encode($args) : '';
+                            return $args
+                                ? json_encode($args)
+                                : '';
                         },
                         'args'    => [
                             'a' => ['type' => Type::boolean()],
@@ -971,11 +978,11 @@ class ExecutorTest extends TestCase
     /**
      * @see it('fails when an isTypeOf check is not met')
      */
-    public function testFailsWhenAnIsTypeOfCheckIsNotMet() : void
+    public function testFailsWhenAnIsTypeOfCheckIsNotMet(): void
     {
         $SpecialType = new ObjectType([
             'name'     => 'SpecialType',
-            'isTypeOf' => static function ($obj) : bool {
+            'isTypeOf' => static function ($obj): bool {
                 return $obj instanceof Special;
             },
             'fields'   => [
@@ -1020,14 +1027,14 @@ class ExecutorTest extends TestCase
                 'locations' => [['line' => 1, 'column' => 3]],
                 'path'      => ['specials', 1],
             ],
-            $result->errors[0]->toSerializableArray()
+            FormattedError::createFromException($result->errors[0])
         );
     }
 
     /**
      * @see it('executes ignoring invalid non-executable definitions')
      */
-    public function testExecutesIgnoringInvalidNonExecutableDefinitions() : void
+    public function testExecutesIgnoringInvalidNonExecutableDefinitions(): void
     {
         $query = Parser::parse('
       { foo }
@@ -1056,7 +1063,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses a custom field resolver')
      */
-    public function testUsesACustomFieldResolver() : void
+    public function testUsesACustomFieldResolver(): void
     {
         $query = Parser::parse('{ foo }');
 
@@ -1070,7 +1077,7 @@ class ExecutorTest extends TestCase
         ]);
 
         // For the purposes of test, just return the name of the field!
-        $customResolver = static function ($source, $args, $context, ResolveInfo $info) : string {
+        $customResolver = static function ($source, $args, $context, ResolveInfo $info): string {
             return $info->fieldName;
         };
 
@@ -1091,7 +1098,7 @@ class ExecutorTest extends TestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-    public function testSubstitutesArgumentWithDefaultValue() : void
+    public function testSubstitutesArgumentWithDefaultValue(): void
     {
         $schema = new Schema([
             'query' => new ObjectType([
@@ -1100,7 +1107,9 @@ class ExecutorTest extends TestCase
                     'field' => [
                         'type'    => Type::string(),
                         'resolve' => static function ($data, $args) {
-                            return $args ? json_encode($args) : '';
+                            return $args
+                                ? json_encode($args)
+                                : '';
                         },
                         'args'    => [
                             'a' => ['type' => Type::boolean(), 'defaultValue' => 1],
@@ -1148,7 +1157,7 @@ class ExecutorTest extends TestCase
     /**
      * @see https://github.com/webonyx/graphql-php/issues/59
      */
-    public function testSerializesToEmptyObjectVsEmptyArray() : void
+    public function testSerializesToEmptyObjectVsEmptyArray(): void
     {
         $iface = null;
 
@@ -1157,7 +1166,7 @@ class ExecutorTest extends TestCase
             'fields'     => [
                 'id' => Type::id(),
             ],
-            'interfaces' => static function () use (&$iface) : array {
+            'interfaces' => static function () use (&$iface): array {
                 return [$iface];
             },
         ]);
@@ -1167,7 +1176,7 @@ class ExecutorTest extends TestCase
             'fields'     => [
                 'id' => Type::id(),
             ],
-            'interfaces' => static function () use (&$iface) : array {
+            'interfaces' => static function () use (&$iface): array {
                 return [$iface];
             },
         ]);
@@ -1177,7 +1186,7 @@ class ExecutorTest extends TestCase
             'fields'      => [
                 'id' => Type::id(),
             ],
-            'resolveType' => static function ($v) use ($a, $b) : ObjectType {
+            'resolveType' => static function ($v) use ($a, $b): ObjectType {
                 return $v['type'] === 'A' ? $a : $b;
             },
         ]);
@@ -1228,7 +1237,7 @@ class ExecutorTest extends TestCase
         );
     }
 
-    public function testDefaultResolverGrabsValuesOffOfCommonPhpDataStructures() : void
+    public function testDefaultResolverGrabsValuesOffOfCommonPhpDataStructures(): void
     {
         $Array = new ObjectType([
             'name'       => 'Array',
@@ -1271,41 +1280,48 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'array' => [
                         'type' => $Array,
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return ['set' => 1];
                         },
                     ],
                     'arrayAccess' => [
                         'type' => $ArrayAccess,
-                        'resolve' => static function () : ArrayAccess {
+                        'resolve' => static function (): ArrayAccess {
                             return new class implements ArrayAccess {
+                                #[ReturnTypeWillChange]
                                 public function offsetExists($offset)
                                 {
                                     switch ($offset) {
                                         case 'set':
                                             return true;
+
                                         default:
                                             return false;
                                     }
                                 }
 
+                                #[ReturnTypeWillChange]
                                 public function offsetGet($offset)
                                 {
                                     switch ($offset) {
                                         case 'set':
                                             return 1;
+
                                         case 'unsetNull':
                                             return null;
+
                                         default:
                                             throw new Exception('unsetThrow');
                                     }
                                 }
 
-                                public function offsetSet($offset, $value)
+                                #[ReturnTypeWillChange]
+                                public function offsetSet($offset, $value): void
                                 {
                                 }
 
-                                public function offsetUnset($offset)
+                                #[ReturnTypeWillChange]
+                                public function offsetUnset($offset): void
                                 {
                                 }
                             };
@@ -1313,7 +1329,7 @@ class ExecutorTest extends TestCase
                     ],
                     'objectField' => [
                         'type' => $ObjectField,
-                        'resolve' => static function () : stdClass {
+                        'resolve' => static function (): stdClass {
                             return new class extends stdClass {
                                 /** @var int|null */
                                 public $set = 1;
@@ -1325,25 +1341,28 @@ class ExecutorTest extends TestCase
                     ],
                     'objectVirtual' => [
                         'type' => $ObjectVirtual,
-                        'resolve' => static function () {
+                        'resolve' => static function (): object {
                             return new class {
-                                public function __isset($name) : bool
+                                public function __isset($name): bool
                                 {
                                     switch ($name) {
                                         case 'set':
                                             return true;
+
                                         default:
                                             return false;
                                     }
                                 }
 
-                                public function __get($name) : ?int
+                                public function __get($name): ?int
                                 {
                                     switch ($name) {
                                         case 'set':
                                             return 1;
+
                                         case 'unsetNull':
                                             return null;
+
                                         default:
                                             throw new Exception('unsetThrow');
                                     }

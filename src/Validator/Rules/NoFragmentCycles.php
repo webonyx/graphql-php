@@ -10,8 +10,8 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
+
 use function array_pop;
 use function array_slice;
 use function count;
@@ -21,15 +21,15 @@ use function sprintf;
 class NoFragmentCycles extends ValidationRule
 {
     /** @var bool[] */
-    public $visitedFrags;
+    protected array $visitedFrags;
 
     /** @var FragmentSpreadNode[] */
-    public $spreadPath;
+    protected array $spreadPath;
 
     /** @var (int|null)[] */
-    public $spreadPathIndexByName;
+    protected array $spreadPathIndexByName;
 
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         // Tracks already visited fragments to maintain O(N) and to ensure that cycles
         // are not redundantly reported.
@@ -42,10 +42,10 @@ class NoFragmentCycles extends ValidationRule
         $this->spreadPathIndexByName = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => static function () : VisitorOperation {
+            NodeKind::OPERATION_DEFINITION => static function (): VisitorOperation {
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION  => function (FragmentDefinitionNode $node) use ($context) : VisitorOperation {
+            NodeKind::FRAGMENT_DEFINITION  => function (FragmentDefinitionNode $node) use ($context): VisitorOperation {
                 $this->detectCycleRecursive($node, $context);
 
                 return Visitor::skipNode();
@@ -53,7 +53,7 @@ class NoFragmentCycles extends ValidationRule
         ];
     }
 
-    private function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context)
+    protected function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context): void
     {
         if (isset($this->visitedFrags[$fragment->name->value])) {
             return;
@@ -78,20 +78,22 @@ class NoFragmentCycles extends ValidationRule
             $this->spreadPath[] = $spreadNode;
             if ($cycleIndex === null) {
                 $spreadFragment = $context->getFragment($spreadName);
-                if ($spreadFragment) {
+                if ($spreadFragment !== null) {
                     $this->detectCycleRecursive($spreadFragment, $context);
                 }
             } else {
                 $cyclePath     = array_slice($this->spreadPath, $cycleIndex);
-                $fragmentNames = Utils::map(array_slice($cyclePath, 0, -1), static function ($s) {
-                    return $s->name->value;
-                });
+                $fragmentNames = [];
+                foreach (array_slice($cyclePath, 0, -1) as $frag) {
+                    $fragmentNames[] = $frag->name->value;
+                }
 
                 $context->reportError(new Error(
-                    self::cycleErrorMessage($spreadName, $fragmentNames),
+                    static::cycleErrorMessage($spreadName, $fragmentNames),
                     $cyclePath
                 ));
             }
+
             array_pop($this->spreadPath);
         }
 

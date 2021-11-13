@@ -26,7 +26,7 @@ class LazyInterfaceTest extends TestCase
     /**
      * Handles execution of a lazily created interface
      */
-    public function testReturnsFragmentsWithLazyCreatedInterface() : void
+    public function testReturnsFragmentsWithLazyCreatedInterface(): void
     {
         $request = '
         {
@@ -50,15 +50,15 @@ class LazyInterfaceTest extends TestCase
     /**
      * Setup schema
      */
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $query = new ObjectType([
             'name'   => 'query',
-            'fields' => function () : array {
+            'fields' => function (): array {
                 return [
                     'lazyInterface' => [
                         'type'    => $this->getLazyInterfaceType(),
-                        'resolve' => static function () : array {
+                        'resolve' => static function (): array {
                             return [];
                         },
                     ],
@@ -71,48 +71,36 @@ class LazyInterfaceTest extends TestCase
 
     /**
      * Returns the LazyInterface
-     *
-     * @return InterfaceType
      */
-    protected function getLazyInterfaceType()
+    protected function getLazyInterfaceType(): InterfaceType
     {
-        if (! $this->lazyInterface) {
-            $this->lazyInterface = new InterfaceType([
-                'name'        => 'LazyInterface',
-                'fields'      => [
-                    'a' => Type::string(),
-                ],
-                'resolveType' => function () : ObjectType {
-                    return $this->getTestObjectType();
-                },
-            ]);
-        }
-
-        return $this->lazyInterface;
+        return $this->lazyInterface ??= new InterfaceType([
+            'name'        => 'LazyInterface',
+            'fields'      => [
+                'a' => Type::string(),
+            ],
+            'resolveType' => function (): ObjectType {
+                return $this->getTestObjectType();
+            },
+        ]);
     }
 
     /**
      * Returns the test ObjectType
-     *
-     * @return ObjectType
      */
-    protected function getTestObjectType()
+    protected function getTestObjectType(): ObjectType
     {
-        if (! $this->testObject) {
-            $this->testObject = new ObjectType([
-                'name'       => 'TestObject',
-                'fields'     => [
-                    'name' => [
-                        'type'    => Type::string(),
-                        'resolve' => static function () : string {
-                            return 'testname';
-                        },
-                    ],
+        return $this->testObject ??= new ObjectType([
+            'name'       => 'TestObject',
+            'fields'     => [
+                'name' => [
+                    'type'    => Type::string(),
+                    'resolve' => static function (): string {
+                        return 'testname';
+                    },
                 ],
-                'interfaces' => [$this->getLazyInterfaceType()],
-            ]);
-        }
-
-        return $this->testObject;
+            ],
+            'interfaces' => [$this->getLazyInterfaceType()],
+        ]);
     }
 }

@@ -4,27 +4,32 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
-use GraphQL\Error\Error;
+use GraphQL\Language\AST\Node;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
+/**
+ * @phpstan-type VisitorFn callable(ValidationContext): (array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>)
+ */
 class CustomValidationRule extends ValidationRule
 {
-    /** @var callable */
-    private $visitorFn;
+    /**
+     * @var callable
+     * @phpstan-var VisitorFn
+     */
+    protected $visitorFn;
 
-    public function __construct($name, callable $visitorFn)
+    /**
+     * @phpstan-param VisitorFn $visitorFn
+     */
+    public function __construct(string $name, callable $visitorFn)
     {
         $this->name      = $name;
         $this->visitorFn = $visitorFn;
     }
 
-    /**
-     * @return Error[]
-     */
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
-        $fn = $this->visitorFn;
-
-        return $fn($context);
+        return ($this->visitorFn)($context);
     }
 }

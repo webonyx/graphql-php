@@ -5,9 +5,15 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
+use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\ImplementingType;
+use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -16,44 +22,45 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+
 use function array_filter;
 use function array_keys;
 use function array_map;
-use function array_merge;
 use function array_values;
 use function count;
 use function explode;
 use function implode;
 use function ksort;
 use function mb_strlen;
-use function preg_match_all;
 use function sprintf;
 use function str_replace;
 use function strlen;
-use function substr;
 
 /**
- * Given an instance of Schema, prints it in GraphQL type language.
+ * Prints the contents of a Schema in schema definition language.
+ *
+ * @phpstan-type Options array{commentDescriptions?: bool}
+ *    Available options:
+ *    - commentDescriptions:
+ *        Provide true to use preceding comments as the description.
+ *        This option is provided to ease adoption and will be removed in v16.
  */
 class SchemaPrinter
 {
     /**
      * @param array<string, bool> $options
-     *    Available options:
-     *    - commentDescriptions:
-     *        Provide true to use preceding comments as the description.
-     *        This option is provided to ease adoption and will be removed in v16.
+     * @phpstan-param Options $options
      *
      * @api
      */
-    public static function doPrint(Schema $schema, array $options = []) : string
+    public static function doPrint(Schema $schema, array $options = []): string
     {
         return static::printFilteredSchema(
             $schema,
-            static function ($type) : bool {
-                return ! Directive::isSpecifiedDirective($type);
+            static function (Directive $directive): bool {
+                return ! Directive::isSpecifiedDirective($directive);
             },
-            static function ($type) : bool {
+            static function (Type $type): bool {
                 return ! Type::isBuiltInType($type);
             },
             $options
@@ -62,8 +69,60 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     *
+     * @api
      */
-    protected static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options) : string
+    public static function printIntrospectionSchema(Schema $schema, array $options = []): string
+    {
+        return static::printFilteredSchema(
+            $schema,
+            [Directive::class, 'isSpecifiedDirective'],
+            [Introspection::class, 'isIntrospectionType'],
+            $options
+        );
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    public static function printType(Type $type, array $options = []): string
+    {
+        if ($type instanceof ScalarType) {
+            return static::printScalar($type, $options);
+        }
+
+        if ($type instanceof ObjectType) {
+            return static::printObject($type, $options);
+        }
+
+        if ($type instanceof InterfaceType) {
+            return static::printInterface($type, $options);
+        }
+
+        if ($type instanceof UnionType) {
+            return static::printUnion($type, $options);
+        }
+
+        if ($type instanceof EnumType) {
+            return static::printEnum($type, $options);
+        }
+
+        if ($type instanceof InputObjectType) {
+            return static::printInputObject($type, $options);
+        }
+
+        throw new Error(sprintf('Unknown type: %s.', Utils::printSafe($type)));
+    }
+
+    /**
+     * @param callable(Directive  $directive): bool $directiveFilter
+     * @param callable(Type       $type):      bool $typeFilter
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    protected static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
     {
         $directives = array_filter($schema->getDirectives(), $directiveFilter);
 
@@ -71,32 +130,20 @@ class SchemaPrinter
         ksort($types);
         $types = array_filter($types, $typeFilter);
 
-        return sprintf(
-            "%s\n",
-            implode(
-                "\n\n",
-                array_filter(
-                    array_merge(
-                        [static::printSchemaDefinition($schema)],
-                        array_map(
-                            static function (Directive $directive) use ($options) : string {
-                                return static::printDirective($directive, $options);
-                            },
-                            $directives
-                        ),
-                        array_map(
-                            static function ($type) use ($options) : string {
-                                return static::printType($type, $options);
-                            },
-                            $types
-                        )
-                    )
-                )
-            )
-        );
+        $elements = [static::printSchemaDefinition($schema)];
+
+        foreach ($directives as $directive) {
+            $elements[] = static::printDirective($directive, $options);
+        }
+
+        foreach ($types as $type) {
+            $elements[] = static::printType($type, $options);
+        }
+
+        return implode("\n\n", array_filter($elements)) . "\n";
     }
 
-    protected static function printSchemaDefinition(Schema $schema) : string
+    protected static function printSchemaDefinition(Schema $schema): string
     {
         if (static::isSchemaOfCommonNames($schema)) {
             return '';
@@ -134,7 +181,7 @@ class SchemaPrinter
      *
      * When using this naming convention, the schema description can be omitted.
      */
-    protected static function isSchemaOfCommonNames(Schema $schema) : bool
+    protected static function isSchemaOfCommonNames(Schema $schema): bool
     {
         $queryType = $schema->getQueryType();
         if ($queryType !== null && $queryType->name !== 'Query') {
@@ -153,8 +200,9 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
-    protected static function printDirective(Directive $directive, array $options) : string
+    protected static function printDirective(Directive $directive, array $options): string
     {
         return static::printDescription($options, $directive)
             . 'directive @' . $directive->name
@@ -164,124 +212,63 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param array<string, bool>                                                               $options
+     * @param Type|Directive|EnumValueDefinition|FieldArgument|FieldDefinition|InputObjectField $def
      */
-    protected static function printDescription(array $options, $def, $indentation = '', $firstInBlock = true) : string
+    protected static function printDescription(array $options, $def, string $indentation = '', bool $firstInBlock = true): string
     {
-        if (! $def->description) {
+        $description = $def->description;
+        if ($description === null) {
             return '';
         }
-        $lines = static::descriptionLines($def->description, 120 - strlen($indentation));
+
         if (isset($options['commentDescriptions'])) {
-            return static::printDescriptionWithComments($lines, $indentation, $firstInBlock);
+            return static::printDescriptionWithComments($description, $indentation, $firstInBlock);
         }
 
-        $description = $indentation && ! $firstInBlock
-            ? "\n" . $indentation . '"""'
-            : $indentation . '"""';
+        $preferMultipleLines = mb_strlen($description) > 70;
+        $blockString         = BlockString::print($description, '', $preferMultipleLines);
+        $prefix              = $indentation !== '' && ! $firstInBlock
+            ? "\n" . $indentation
+            : $indentation;
 
-        // In some circumstances, a single line can be used for the description.
-        if (count($lines) === 1 &&
-            mb_strlen($lines[0]) < 70 &&
-            substr($lines[0], -1) !== '"'
-        ) {
-            return $description . static::escapeQuote($lines[0]) . "\"\"\"\n";
-        }
-
-        // Format a multi-line block quote to account for leading space.
-        $hasLeadingSpace = isset($lines[0]) &&
-            (
-                substr($lines[0], 0, 1) === ' ' ||
-                substr($lines[0], 0, 1) === '\t'
-            );
-        if (! $hasLeadingSpace) {
-            $description .= "\n";
-        }
-
-        $lineLength = count($lines);
-        for ($i = 0; $i < $lineLength; $i++) {
-            if ($i !== 0 || ! $hasLeadingSpace) {
-                $description .= $indentation;
-            }
-            $description .= static::escapeQuote($lines[$i]) . "\n";
-        }
-        $description .= $indentation . "\"\"\"\n";
-
-        return $description;
+        return $prefix . str_replace("\n", "\n" . $indentation, $blockString) . "\n";
     }
 
-    /**
-     * @return string[]
-     */
-    protected static function descriptionLines(string $description, int $maxLen) : array
+    protected static function printDescriptionWithComments(string $description, string $indentation, bool $firstInBlock): string
     {
-        $lines    = [];
-        $rawLines = explode("\n", $description);
-        foreach ($rawLines as $line) {
+        $comment = $indentation !== '' && ! $firstInBlock ? "\n" : '';
+        foreach (explode("\n", $description) as $line) {
             if ($line === '') {
-                $lines[] = $line;
+                $comment .= $indentation . "#\n";
             } else {
-                // For > 120 character long lines, cut at space boundaries into sublines
-                // of ~80 chars.
-                $sublines = static::breakLine($line, $maxLen);
-                foreach ($sublines as $subline) {
-                    $lines[] = $subline;
-                }
+                $comment .= $indentation . '# ' . $line . "\n";
             }
         }
 
-        return $lines;
+        return $comment;
     }
 
     /**
-     * @return string[]
+     * @param array<string, bool>       $options
+     * @param array<int, FieldArgument> $args
+     * @phpstan-param Options $options
      */
-    protected static function breakLine(string $line, int $maxLen) : array
+    protected static function printArgs(array $options, array $args, string $indentation = ''): string
     {
-        if (strlen($line) < $maxLen + 5) {
-            return [$line];
-        }
-        preg_match_all('/((?: |^).{15,' . ($maxLen - 40) . '}(?= |$))/', $line, $parts);
-        $parts = $parts[0];
-
-        return array_map('trim', $parts);
-    }
-
-    protected static function printDescriptionWithComments($lines, $indentation, $firstInBlock) : string
-    {
-        $description = $indentation && ! $firstInBlock ? "\n" : '';
-        foreach ($lines as $line) {
-            if ($line === '') {
-                $description .= $indentation . "#\n";
-            } else {
-                $description .= $indentation . '# ' . $line . "\n";
-            }
-        }
-
-        return $description;
-    }
-
-    protected static function escapeQuote($line) : string
-    {
-        return str_replace('"""', '\\"""', $line);
-    }
-
-    /**
-     * @param array<string, bool> $options
-     */
-    protected static function printArgs(array $options, $args, $indentation = '') : string
-    {
-        if (! $args) {
+        if (count($args) === 0) {
             return '';
         }
 
         // If every arg does not have a description, print them on one line.
-        if (Utils::every(
-            $args,
-            static function ($arg) : bool {
-                return strlen($arg->description ?? '') === 0;
-            }
-        )) {
+        if (
+            Utils::every(
+                $args,
+                static function ($arg): bool {
+                    return strlen($arg->description ?? '') === 0;
+                }
+            )
+        ) {
             return '(' . implode(', ', array_map('static::printInputValue', $args)) . ')';
         }
 
@@ -290,8 +277,8 @@ class SchemaPrinter
             implode(
                 "\n",
                 array_map(
-                    static function ($arg, $i) use ($indentation, $options) : string {
-                        return static::printDescription($options, $arg, '  ' . $indentation, ! $i) . '  ' . $indentation .
+                    static function (FieldArgument $arg, int $i) use ($indentation, $options): string {
+                        return static::printDescription($options, $arg, '  ' . $indentation, $i === 0) . '  ' . $indentation .
                             static::printInputValue($arg);
                     },
                     $args,
@@ -302,7 +289,10 @@ class SchemaPrinter
         );
     }
 
-    protected static function printInputValue($arg) : string
+    /**
+     * @param InputObjectField|FieldArgument $arg
+     */
+    protected static function printInputValue($arg): string
     {
         $argDecl = $arg->name . ': ' . (string) $arg->getType();
         if ($arg->defaultValueExists()) {
@@ -314,93 +304,60 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
-    public static function printType(Type $type, array $options = []) : string
-    {
-        if ($type instanceof ScalarType) {
-            return static::printScalar($type, $options);
-        }
-
-        if ($type instanceof ObjectType) {
-            return static::printObject($type, $options);
-        }
-
-        if ($type instanceof InterfaceType) {
-            return static::printInterface($type, $options);
-        }
-
-        if ($type instanceof UnionType) {
-            return static::printUnion($type, $options);
-        }
-
-        if ($type instanceof EnumType) {
-            return static::printEnum($type, $options);
-        }
-
-        if ($type instanceof InputObjectType) {
-            return static::printInputObject($type, $options);
-        }
-
-        throw new Error(sprintf('Unknown type: %s.', Utils::printSafe($type)));
-    }
-
-    /**
-     * @param array<string, bool> $options
-     */
-    protected static function printScalar(ScalarType $type, array $options) : string
+    protected static function printScalar(ScalarType $type, array $options): string
     {
         return sprintf('%sscalar %s', static::printDescription($options, $type), $type->name);
     }
 
     /**
      * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
-    protected static function printObject(ObjectType $type, array $options) : string
+    protected static function printObject(ObjectType $type, array $options): string
     {
-        $interfaces            = $type->getInterfaces();
-        $implementedInterfaces = count($interfaces) > 0
-            ? ' implements ' . implode(
-                ' & ',
-                array_map(
-                    static function (InterfaceType $interface) : string {
-                        return $interface->name;
-                    },
-                    $interfaces
-                )
-            )
-            : '';
-
         return static::printDescription($options, $type) .
-            sprintf("type %s%s {\n%s\n}", $type->name, $implementedInterfaces, static::printFields($options, $type));
+            sprintf('type %s', $type->name) .
+            self::printImplementedInterfaces($type) .
+            static::printFields($options, $type);
     }
 
     /**
-     * @param array<string, bool> $options
+     * @param array<string, bool>      $options
+     * @param ObjectType|InterfaceType $type
+     * @phpstan-param Options $options
      */
-    protected static function printFields(array $options, $type) : string
+    protected static function printFields(array $options, $type): string
     {
         $fields = array_values($type->getFields());
-
-        return implode(
-            "\n",
-            array_map(
-                static function ($f, $i) use ($options) : string {
-                    return static::printDescription($options, $f, '  ', ! $i) . '  ' .
-                        $f->name . static::printArgs($options, $f->args, '  ') . ': ' .
-                        (string) $f->getType() . static::printDeprecated($f);
-                },
-                $fields,
-                array_keys($fields)
-            )
+        $fields = array_map(
+            static function (FieldDefinition $f, int $i) use ($options): string {
+                return static::printDescription($options, $f, '  ', $i === 0) .
+                    '  ' .
+                    $f->name .
+                    static::printArgs($options, $f->args, '  ') .
+                    ': ' .
+                    (string) $f->getType() .
+                    static::printDeprecated($f);
+            },
+            $fields,
+            array_keys($fields)
         );
+
+        return self::printBlock($fields);
     }
 
-    protected static function printDeprecated($fieldOrEnumVal) : string
+    /**
+     * @param FieldDefinition|EnumValueDefinition $fieldOrEnumVal
+     */
+    protected static function printDeprecated($fieldOrEnumVal): string
     {
         $reason = $fieldOrEnumVal->deprecationReason;
         if ($reason === null) {
             return '';
         }
+
         if ($reason === '' || $reason === Directive::DEFAULT_DEPRECATION_REASON) {
             return ' @deprecated';
         }
@@ -409,100 +366,97 @@ class SchemaPrinter
             Printer::doPrint(AST::astFromValue($reason, Type::string())) . ')';
     }
 
+    protected static function printImplementedInterfaces(ImplementingType $type): string
+    {
+        $interfaces = $type->getInterfaces();
+
+        return count($interfaces) > 0
+        ? ' implements ' . implode(
+            ' & ',
+            array_map(
+                static fn (InterfaceType $interface): string => $interface->name,
+                $interfaces
+            )
+        )
+        : '';
+    }
+
     /**
      * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
-    protected static function printInterface(InterfaceType $type, array $options) : string
+    protected static function printInterface(InterfaceType $type, array $options): string
     {
-        $interfaces            = $type->getInterfaces();
-        $implementedInterfaces = count($interfaces) > 0
-            ? ' implements ' . implode(
-                ' & ',
-                array_map(
-                    static function (InterfaceType $interface) : string {
-                        return $interface->name;
-                    },
-                    $interfaces
-                )
-            )
+        return static::printDescription($options, $type) .
+            sprintf('interface %s', $type->name) .
+            self::printImplementedInterfaces($type) .
+            static::printFields($options, $type);
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @phpstan-param Options $options
+     */
+    protected static function printUnion(UnionType $type, array $options): string
+    {
+        $types = $type->getTypes();
+        $types = count($types) > 0
+            ? ' = ' . implode(' | ', $types)
             : '';
 
-        return static::printDescription($options, $type) .
-            sprintf("interface %s%s {\n%s\n}", $type->name, $implementedInterfaces, static::printFields($options, $type));
+        return static::printDescription($options, $type) . 'union ' . $type->name . $types;
     }
 
     /**
      * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
-    protected static function printUnion(UnionType $type, array $options) : string
+    protected static function printEnum(EnumType $type, array $options): string
     {
-        return static::printDescription($options, $type) .
-            sprintf('union %s = %s', $type->name, implode(' | ', $type->getTypes()));
-    }
-
-    /**
-     * @param array<string, bool> $options
-     */
-    protected static function printEnum(EnumType $type, array $options) : string
-    {
-        return static::printDescription($options, $type) .
-            sprintf("enum %s {\n%s\n}", $type->name, static::printEnumValues($type->getValues(), $options));
-    }
-
-    /**
-     * @param array<string, bool> $options
-     */
-    protected static function printEnumValues($values, array $options) : string
-    {
-        return implode(
-            "\n",
-            array_map(
-                static function ($value, $i) use ($options) : string {
-                    return static::printDescription($options, $value, '  ', ! $i) . '  ' .
-                        $value->name . static::printDeprecated($value);
-                },
-                $values,
-                array_keys($values)
-            )
+        $values = $type->getValues();
+        $values = array_map(
+            static function (EnumValueDefinition $value, int $i) use ($options): string {
+                return static::printDescription($options, $value, '  ', $i === 0) .
+                    '  ' .
+                    $value->name .
+                    static::printDeprecated($value);
+            },
+            $values,
+            array_keys($values)
         );
+
+        return static::printDescription($options, $type) .
+            sprintf('enum %s', $type->name) .
+            static::printBlock($values);
     }
 
     /**
      * @param array<string, bool> $options
+     * @phpstan-param Options $options
      */
-    protected static function printInputObject(InputObjectType $type, array $options) : string
+    protected static function printInputObject(InputObjectType $type, array $options): string
     {
         $fields = array_values($type->getFields());
+        $fields = array_map(
+            static function ($f, $i) use ($options): string {
+                return static::printDescription($options, $f, '  ', ! $i) . '  ' . static::printInputValue($f);
+            },
+            $fields,
+            array_keys($fields)
+        );
 
         return static::printDescription($options, $type) .
-            sprintf(
-                "input %s {\n%s\n}",
-                $type->name,
-                implode(
-                    "\n",
-                    array_map(
-                        static function ($f, $i) use ($options) : string {
-                            return static::printDescription($options, $f, '  ', ! $i) . '  ' . static::printInputValue($f);
-                        },
-                        $fields,
-                        array_keys($fields)
-                    )
-                )
-            );
+            sprintf('input %s', $type->name) .
+            static::printBlock($fields);
     }
 
     /**
-     * @param array<string, bool> $options
-     *
-     * @api
+     * @param array<string> $items
      */
-    public static function printIntrospectionSchema(Schema $schema, array $options = []) : string
+    protected static function printBlock(array $items): string
     {
-        return static::printFilteredSchema(
-            $schema,
-            [Directive::class, 'isSpecifiedDirective'],
-            [Introspection::class, 'isIntrospectionType'],
-            $options
-        );
+        return count($items) > 0
+            ? " {\n" . implode("\n", $items) . "\n}"
+            : '';
     }
 }

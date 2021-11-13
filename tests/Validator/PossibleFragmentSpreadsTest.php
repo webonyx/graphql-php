@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 
 class PossibleFragmentSpreadsTest extends ValidatorTestCase
@@ -15,7 +15,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('of the same object')
      */
-    public function testOfTheSameObject() : void
+    public function testOfTheSameObject(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -29,7 +29,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('of the same object with inline fragment')
      */
-    public function testOfTheSameObjectWithInlineFragment() : void
+    public function testOfTheSameObjectWithInlineFragment(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -42,7 +42,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('object into an implemented interface')
      */
-    public function testObjectIntoAnImplementedInterface() : void
+    public function testObjectIntoAnImplementedInterface(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -56,7 +56,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('object into containing union')
      */
-    public function testObjectIntoContainingUnion() : void
+    public function testObjectIntoContainingUnion(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -70,7 +70,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('union into contained object')
      */
-    public function testUnionIntoContainedObject() : void
+    public function testUnionIntoContainedObject(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -84,7 +84,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('union into overlapping interface')
      */
-    public function testUnionIntoOverlappingInterface() : void
+    public function testUnionIntoOverlappingInterface(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -98,7 +98,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('union into overlapping union')
      */
-    public function testUnionIntoOverlappingUnion() : void
+    public function testUnionIntoOverlappingUnion(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -112,7 +112,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('interface into implemented object')
      */
-    public function testInterfaceIntoImplementedObject() : void
+    public function testInterfaceIntoImplementedObject(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -126,7 +126,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('interface into overlapping interface')
      */
-    public function testInterfaceIntoOverlappingInterface() : void
+    public function testInterfaceIntoOverlappingInterface(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -140,7 +140,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('interface into overlapping interface in inline fragment')
      */
-    public function testInterfaceIntoOverlappingInterfaceInInlineFragment() : void
+    public function testInterfaceIntoOverlappingInterfaceInInlineFragment(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -153,7 +153,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('interface into overlapping union')
      */
-    public function testInterfaceIntoOverlappingUnion() : void
+    public function testInterfaceIntoOverlappingUnion(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -167,7 +167,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('ignores incorrect type (caught by FragmentsOnCompositeTypes)')
      */
-    public function testIgnoresIncorrectTypeCaughtByFragmentsOnCompositeTypes() : void
+    public function testIgnoresIncorrectTypeCaughtByFragmentsOnCompositeTypes(): void
     {
         $this->expectPassesRule(
             new PossibleFragmentSpreads(),
@@ -181,7 +181,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('different object into object')
      */
-    public function testDifferentObjectIntoObject() : void
+    public function testDifferentObjectIntoObject(): void
     {
         $this->expectFailsRule(
             new PossibleFragmentSpreads(),
@@ -195,7 +195,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
 
     private function error($fragName, $parentType, $fragType, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             PossibleFragmentSpreads::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
             [new SourceLocation($line, $column)]
         );
@@ -204,7 +204,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('different object into object in inline fragment')
      */
-    public function testDifferentObjectIntoObjectInInlineFragment() : void
+    public function testDifferentObjectIntoObjectInInlineFragment(): void
     {
         $this->expectFailsRule(
             new PossibleFragmentSpreads(),
@@ -219,7 +219,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
 
     private function errorAnon($parentType, $fragType, $line, $column)
     {
-        return FormattedError::create(
+        return ErrorHelper::create(
             PossibleFragmentSpreads::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
             [new SourceLocation($line, $column)]
         );
@@ -228,7 +228,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('object into not implementing interface')
      */
-    public function testObjectIntoNotImplementingInterface() : void
+    public function testObjectIntoNotImplementingInterface(): void
     {
         $this->expectFailsRule(
             new PossibleFragmentSpreads(),
@@ -243,7 +243,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('object into not containing union')
      */
-    public function testObjectIntoNotContainingUnion() : void
+    public function testObjectIntoNotContainingUnion(): void
     {
         $this->expectFailsRule(
             new PossibleFragmentSpreads(),
@@ -258,7 +258,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('union into not contained object')
      */
-    public function testUnionIntoNotContainedObject() : void
+    public function testUnionIntoNotContainedObject(): void
     {
         $this->expectFailsRule(
             new PossibleFragmentSpreads(),
@@ -273,7 +273,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('union into non overlapping interface')
      */
-    public function testUnionIntoNonOverlappingInterface() : void
+    public function testUnionIntoNonOverlappingInterface(): void
     {
         $this->expectFailsRule(
             new PossibleFragmentSpreads(),
@@ -288,7 +288,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('union into non overlapping union')
      */
-    public function testUnionIntoNonOverlappingUnion() : void
+    public function testUnionIntoNonOverlappingUnion(): void
     {
         $this->expectFailsRule(
             new PossibleFragmentSpreads(),
@@ -303,7 +303,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('interface into non implementing object')
      */
-    public function testInterfaceIntoNonImplementingObject() : void
+    public function testInterfaceIntoNonImplementingObject(): void
     {
         $this->expectFailsRule(
             new PossibleFragmentSpreads(),
@@ -318,7 +318,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('interface into non overlapping interface')
      */
-    public function testInterfaceIntoNonOverlappingInterface() : void
+    public function testInterfaceIntoNonOverlappingInterface(): void
     {
         // Ideally this should fail, but our new lazy schema doesn't scan through all types and fields
         // So we don't have enough knowledge to check interface intersection and always allow this to pass:
@@ -337,7 +337,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('interface into non overlapping interface in inline fragment')
      */
-    public function testInterfaceIntoNonOverlappingInterfaceInInlineFragment() : void
+    public function testInterfaceIntoNonOverlappingInterfaceInInlineFragment(): void
     {
         // Ideally this should fail, but our new lazy schema doesn't scan through all types and fields
         // So we don't have enough knowledge to check interface intersection and always allow this to pass:
@@ -355,7 +355,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     /**
      * @see it('interface into non overlapping union')
      */
-    public function testInterfaceIntoNonOverlappingUnion() : void
+    public function testInterfaceIntoNonOverlappingUnion(): void
     {
         $this->expectFailsRule(
             new PossibleFragmentSpreads(),

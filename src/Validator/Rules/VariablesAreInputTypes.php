@@ -11,24 +11,25 @@ use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class VariablesAreInputTypes extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    public function getVisitor(ValidationContext $context): array
     {
         return [
-            NodeKind::VARIABLE_DEFINITION => static function (VariableDefinitionNode $node) use ($context) : void {
+            NodeKind::VARIABLE_DEFINITION => static function (VariableDefinitionNode $node) use ($context): void {
                 $type = TypeInfo::typeFromAST($context->getSchema(), $node->type);
 
                 // If the variable type is not an input type, return an error.
-                if (! $type || Type::isInputType($type)) {
+                if ($type === null || Type::isInputType($type)) {
                     return;
                 }
 
                 $variableName = $node->variable->name->value;
                 $context->reportError(new Error(
-                    self::nonInputTypeOnVarMessage($variableName, Printer::doPrint($node->type)),
+                    static::nonInputTypeOnVarMessage($variableName, Printer::doPrint($node->type)),
                     [$node->type]
                 ));
             },
