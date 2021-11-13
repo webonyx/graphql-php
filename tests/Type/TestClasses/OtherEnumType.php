@@ -9,9 +9,9 @@ use GraphQL\Type\Definition\EnumType;
 
 class OtherEnumType extends EnumType
 {
-    const SERIALIZE_RESULT = 'ONE';
-    const PARSE_LITERAL_RESULT = '1';
-    const PARSE_VALUE_RESULT = '2';
+    public const SERIALIZE_RESULT     = 'ONE';
+    public const PARSE_LITERAL_RESULT = '1';
+    public const PARSE_VALUE_RESULT   = '2';
 
     public function __construct()
     {
@@ -34,6 +34,7 @@ class OtherEnumType extends EnumType
     public function parseValue($value)
     {
         die('parseValue');
+
         return self::PARSE_VALUE_RESULT;
     }
 

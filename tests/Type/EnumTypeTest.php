@@ -9,7 +9,6 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Tests\Type\TestClasses\OtherEnum;
 use GraphQL\Tests\Type\TestClasses\OtherEnumType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
@@ -18,7 +17,6 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-use function assert;
 use function count;
 use function is_array;
 
@@ -637,7 +635,7 @@ class EnumTypeTest extends TestCase
 
     public function testCallsOverwrittenEnumTypeMethods(): void
     {
-        $query = '
+        $query     = '
         query ($from: OtherEnum!) {
             serialize: otherEnumReturn
             parseValue: otherEnumArg(from: $from)
