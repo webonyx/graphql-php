@@ -24,6 +24,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Move complexity related code from `FieldDefinition` to `QueryComplexity`
 - Exclude unused standard types from the schema
 - Require lazy type loader to return `Type` directly without an intermediary callable
+- Rename `ServerConfig` option `persistentQueryLoader` to `persistedQueryLoader`
 
 ### Added
 
@@ -74,6 +75,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated public property access to `FieldDefinition::$type`
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
+- Remove `OperationParams` method `getOriginalInput()` in favor of public property `$originalInput`
+- Remove `OperationParams` method `isReadOnly()` in favor of public property `$readOnly`
 
 ## 14.11.0
 

@@ -478,7 +478,7 @@ Usage example:
 
     $schema = new Schema($config);
 
-@phpstan-type TypeLoader (callable(string $typeName): (Type&NamedType)|null)|null
+@phpstan-type TypeLoader (callable(string \$typeName): (Type&NamedType)|null)|null
 
 ### GraphQL\Type\SchemaConfig Methods
 
@@ -1020,7 +1020,7 @@ visitor API:
         'enter' => function ($node) {
    // enter the "Kind" node
    }
-   'leave' => function ($node) {
+   'leave' => function (\$node) {
    // leave the "Kind" node
    }
    ]
@@ -1032,7 +1032,7 @@ visitor API:
       'enter' => function ($node) {
    // enter any node
    },
-   'leave' => function ($node) {
+   'leave' => function (\$node) {
    // leave any node
    }
    ]);
@@ -1862,6 +1862,10 @@ Usage example:
 
     $server = new GraphQL\Server\StandardServer($config);
 
+@phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
+@phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
+@phpstan-type ValidationRulesOption array<ValidationRule>|(callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>)|null
+
 ### GraphQL\Server\ServerConfig Methods
 
 ```php
@@ -1895,6 +1899,7 @@ function setContext($context): self
 ```php
 /**
  * @param mixed|callable $rootValue
+ * @phpstan-param mixed|RootValueResolver $rootValue
  *
  * @api
  */
@@ -1924,6 +1929,7 @@ function setErrorsHandler(callable $handler): self
  * Set validation rules for this server.
  *
  * @param array<ValidationRule>|callable|null $validationRules
+ * @phpstan-param ValidationRulesOption $validationRules
  *
  * @api
  */
@@ -1939,11 +1945,11 @@ function setFieldResolver(callable $fieldResolver): self
 
 ```php
 /**
- * @param callable(string $queryId, OperationParams $params): (string|DocumentNode) $persistedQueryLoader
+ * @phpstan-param PersistedQueryLoader|null $persistedQueryLoader
  *
  * @api
  */
-function setPersistentQueryLoader(callable $persistedQueryLoader): self
+function setPersistedQueryLoader(callable $persistedQueryLoader): self
 ```
 
 ```php
@@ -2104,13 +2110,17 @@ function toPsrResponse(
 
 ## GraphQL\Server\OperationParams
 
-Structure representing parsed HTTP parameters for GraphQL operation
+Structure representing parsed HTTP parameters for GraphQL operation.
+
+The properties in this class are not strictly typed, as this class
+is only meant to serve as an intermediary representation which is
+not yet validated.
 
 ### GraphQL\Server\OperationParams Props
 
 ```php
 /**
- * Id of the query (when using persistent queries).
+ * Id of the query (when using persisted queries).
  *
  * Valid aliases (case-insensitive):
  * - id
@@ -2118,33 +2128,56 @@ Structure representing parsed HTTP parameters for GraphQL operation
  * - documentId
  *
  * @api
- * @var string|null
+ * @var mixed should be string|null
  */
 public $queryId;
 
 /**
+ * A document containing GraphQL operations and fragments to execute.
+ *
  * @api
- * @var string|null
+ * @var mixed should be string|null
  */
 public $query;
 
 /**
+ * The name of the operation in the document to execute.
+ *
  * @api
- * @var string
+ * @var mixed should be string|null
  */
 public $operation;
 
 /**
+ * Values for any variables defined by the operation.
+ *
  * @api
- * @var array<string, mixed>|null
+ * @var mixed should be array<string, mixed>
  */
 public $variables;
 
 /**
+ * Reserved for implementors to extend the protocol however they see fit.
+ *
  * @api
- * @var array<string, mixed>|null
+ * @var mixed should be array<string, mixed>
  */
 public $extensions;
+
+/**
+ * Executed in read-only context (e.g. via HTTP GET request)?
+ *
+ * @api
+ */
+public $readOnly;
+
+/**
+ * The raw params used to construct this instance.
+ *
+ * @api
+ * @var array<string, mixed>
+ */
+public $originalInput;
 ```
 
 ### GraphQL\Server\OperationParams Methods
@@ -2158,25 +2191,6 @@ public $extensions;
  * @api
  */
 static function create(array $params, bool $readonly = false): GraphQL\Server\OperationParams
-```
-
-```php
-/**
- * @return mixed
- *
- * @api
- */
-function getOriginalInput(string $key)
-```
-
-```php
-/**
- * Indicates that operation is executed in read-only context
- * (e.g. via HTTP GET request)
- *
- * @api
- */
-function isReadOnly(): bool
 ```
 
 ## GraphQL\Utils\BuildSchema
@@ -2195,7 +2209,7 @@ assumeValidSDL?: bool,
   might be safe to assume the schema is valid. Set to true to assume the
   produced schema is valid.
 
-      Default: false
+  Default: false
 
 - assumeValidSDL:
   Set to true to assume the SDL is valid.
@@ -2422,7 +2436,6 @@ static function concatAST(array $documents): GraphQL\Language\AST\DocumentNode
 Prints the contents of a Schema in schema definition language.
 
 @phpstan-type Options array{commentDescriptions?: bool}
-Available options:
 
 - commentDescriptions:
   Provide true to use preceding comments as the description.

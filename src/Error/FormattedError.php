@@ -40,10 +40,10 @@ use function strlen;
  * and provides tools for error debugging.
  *
  * @phpstan-type FormattedErrorArray array{
- *  message: string,
- *  locations?: array<int, array{line: int, column: int}>,
- *  path?: array<int, int|string>,
- *  extensions?: array<string, mixed>,
+ *   message: string,
+ *   locations?: array<int, array{line: int, column: int}>,
+ *   path?: array<int, int|string>,
+ *   extensions?: array<string, mixed>,
  * }
  */
 class FormattedError

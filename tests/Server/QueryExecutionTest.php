@@ -343,7 +343,7 @@ class QueryExecutionTest extends ServerTestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-    public function testAllowsPersistentQueries(): void
+    public function testAllowsPersistedQueries(): void
     {
         $called = false;
         $this->config->setPersistedQueryLoader(static function ($queryId, OperationParams $params) use (&$called): string {
@@ -378,7 +378,7 @@ class QueryExecutionTest extends ServerTestCase
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'Persistent query loader must return query string or instance of GraphQL\Language\AST\DocumentNode ' .
+            'Persisted query loader must return query string or instance of GraphQL\Language\AST\DocumentNode ' .
             'but got: {"err":"err"}'
         );
         $this->config->setPersistedQueryLoader(static function (): array {

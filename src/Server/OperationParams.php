@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Server;
 
 use function array_change_key_case;
-use function array_walk;
 use function is_string;
 use function json_decode;
 use function json_last_error;
@@ -106,13 +105,13 @@ class OperationParams
             'extensions' => null,
         ];
 
-        array_walk($params, static function (&$value): void {
+        foreach ($params as &$value) {
             if ($value !== '') {
-                return;
+                continue;
             }
 
             $value = null;
-        });
+        }
 
         $instance->query      = $params['query'];
         $instance->queryId    = $params['queryid'] ?? $params['documentid'] ?? $params['id'];
@@ -131,24 +130,6 @@ class OperationParams
         }
 
         return $instance;
-    }
-
-    /**
-     * @return mixed
-     *
-     * @deprecated
-     */
-    public function getOriginalInput(string $key)
-    {
-        return $this->originalInput[$key] ?? null;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function isReadOnly(): bool
-    {
-        return $this->readOnly;
     }
 
     /**
