@@ -40,16 +40,16 @@ use RuntimeException;
 use SplObjectStorage;
 use stdClass;
 use Throwable;
-use Traversable;
 
 use function array_keys;
 use function array_merge;
 use function array_reduce;
 use function array_values;
 use function count;
-use function get_class;
+use function gettype;
 use function is_array;
 use function is_callable;
+use function is_iterable;
 use function is_string;
 use function sprintf;
 
@@ -814,13 +814,18 @@ class ReferenceExecutor implements ExecutorImplementation
             return $completed;
         }
 
-        // If result is null-like, return null.
         if ($result === null) {
             return null;
         }
 
         // If field type is List, complete each item in the list with the inner type
         if ($returnType instanceof ListOfType) {
+            if (! is_iterable($result)) {
+                $resultType = gettype($result);
+
+                throw new InvariantViolation("Expected field {$info->parentType}.{$info->fieldName} to return iterable, but got: {$resultType}.");
+            }
+
             return $this->completeListValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
@@ -842,8 +847,6 @@ class ReferenceExecutor implements ExecutorImplementation
             );
         }
 
-        // If field type is Scalar or Enum, serialize to a valid value, returning
-        // null if serialization is not possible.
         if ($returnType instanceof LeafType) {
             return $this->completeLeafValue($returnType, $result);
         }
@@ -852,7 +855,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return $this->completeAbstractValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
-        // Field type must be Object, Interface or Union and expect sub-selections.
+        // Field type must be and Object, Interface or Union and expect sub-selections.
         if ($returnType instanceof ObjectType) {
             return $this->completeObjectValue($returnType, $fieldNodes, $info, $path, $result);
         }
@@ -882,16 +885,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         if ($this->exeContext->promiseAdapter->isThenable($value)) {
-            $promise = $this->exeContext->promiseAdapter->convertThenable($value);
-            if (! $promise instanceof Promise) {
-                throw new InvariantViolation(sprintf(
-                    '%s::convertThenable is expected to return instance of GraphQL\Executor\Promise\Promise, got: %s',
-                    get_class($this->exeContext->promiseAdapter),
-                    Utils::printSafe($promise)
-                ));
-            }
-
-            return $promise;
+            return $this->exeContext->promiseAdapter->convertThenable($value);
         }
 
         return null;
@@ -931,28 +925,31 @@ class ReferenceExecutor implements ExecutorImplementation
      * Complete a list value by completing each item in the list with the inner type.
      *
      * @param ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<string|int>           $path
-     * @param array<mixed>|Traversable    $results
+     * @param list<string|int>            $path
+     * @param iterable<mixed>             $results
      *
      * @return array<mixed>|Promise|stdClass
      *
      * @throws Exception
      */
-    protected function completeListValue(ListOfType $returnType, ArrayObject $fieldNodes, ResolveInfo $info, array $path, &$results)
-    {
+    protected function completeListValue(
+        ListOfType $returnType,
+        ArrayObject $fieldNodes,
+        ResolveInfo $info,
+        array $path,
+        iterable &$results
+    ) {
         $itemType = $returnType->getWrappedType();
-        Utils::invariant(
-            is_array($results) || $results instanceof Traversable,
-            'User Error: expected iterable, but did not find one for field ' . $info->parentType . '.' . $info->fieldName . '.'
-        );
-        $containsPromise = false;
+
         $i               = 0;
+        $containsPromise = false;
         $completedItems  = [];
         foreach ($results as $item) {
-            $fieldPath     = $path;
-            $fieldPath[]   = $i++;
-            $info->path    = $fieldPath;
+            $fieldPath  = [...$path, $i++];
+            $info->path = $fieldPath;
+
             $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $fieldPath, $item);
+
             if (! $containsPromise && $this->getPromise($completedItem) !== null) {
                 $containsPromise = true;
             }

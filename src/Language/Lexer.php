@@ -746,12 +746,9 @@ class Lexer
     /**
      * Reads next UTF8Character from the byte stream, starting from $byteStreamPosition.
      *
-     * @param bool $advance
-     * @param int  $byteStreamPosition
-     *
-     * @return (string|int)[]
+     * @return array{string, int|null, int}
      */
-    private function readChar($advance = false, $byteStreamPosition = null): array
+    private function readChar(bool $advance = false, ?int $byteStreamPosition = null): array
     {
         if ($byteStreamPosition === null) {
             $byteStreamPosition = $this->byteStreamPosition;

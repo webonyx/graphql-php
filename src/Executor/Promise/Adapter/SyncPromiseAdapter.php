@@ -48,14 +48,8 @@ class SyncPromiseAdapter implements PromiseAdapter
 
         try {
             $resolver(
-                [
-                    $promise,
-                    'resolve',
-                ],
-                [
-                    $promise,
-                    'reject',
-                ]
+                [$promise, 'resolve'],
+                [$promise, 'reject']
             );
         } catch (Throwable $e) {
             $promise->reject($e);
@@ -71,7 +65,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->resolve($value), $this);
     }
 
-    public function createRejected($reason): Promise
+    public function createRejected(Throwable $reason): Promise
     {
         $promise = new SyncPromise();
 

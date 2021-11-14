@@ -478,7 +478,7 @@ Usage example:
 
     $schema = new Schema($config);
 
-@phpstan-type TypeLoader (callable(string \$typeName): (Type&NamedType)|null)|null
+@phpstan-type TypeLoader (callable(string $typeName): (Type&NamedType)|null)|null
 
 ### GraphQL\Type\SchemaConfig Methods
 
@@ -1020,7 +1020,7 @@ visitor API:
         'enter' => function ($node) {
    // enter the "Kind" node
    }
-   'leave' => function (\$node) {
+   'leave' => function ($node) {
    // leave the "Kind" node
    }
    ]
@@ -1032,7 +1032,7 @@ visitor API:
       'enter' => function ($node) {
    // enter any node
    },
-   'leave' => function (\$node) {
+   'leave' => function ($node) {
    // leave any node
    }
    ]);
@@ -1058,9 +1058,9 @@ visitor API:
 /**
  * Visit the AST (see class description for details).
  *
- * @param Node|ArrayObject|stdClass $root
- * @param array<string, mixed>      $visitor
- * @param array<string, mixed>|null $keyMap
+ * @param NodeList|Node|ArrayObject|stdClass $root
+ * @param array<string, mixed>               $visitor
+ * @param array<string, mixed>|null          $keyMap
  *
  * @return Node|mixed
  *
@@ -1353,13 +1353,13 @@ function toArray(int $debug = 'GraphQL\\Error\\DebugFlag::NONE'): array
 
 ## GraphQL\Executor\Promise\PromiseAdapter
 
-Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php))
+Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php)).
 
 ### GraphQL\Executor\Promise\PromiseAdapter Methods
 
 ```php
 /**
- * Return true if the value is a promise or a deferred of the underlying platform
+ * Is the value a promise or a deferred of the underlying platform?
  *
  * @param mixed $value
  *
@@ -1370,7 +1370,7 @@ function isThenable($value): bool
 
 ```php
 /**
- * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance
+ * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance.
  *
  * @param object $thenable
  *
@@ -1395,10 +1395,9 @@ function then(
 
 ```php
 /**
- * Creates a Promise
+ * Creates a Promise from the given resolver callable.
  *
- * Expected resolver signature:
- *     function(callable $resolve, callable $reject)
+ * @param callable(callable $resolve, callable $reject): void $resolver
  *
  * @api
  */
@@ -1418,14 +1417,13 @@ function createFulfilled($value = null): GraphQL\Executor\Promise\Promise
 
 ```php
 /**
- * Creates a rejected promise for a reason if the reason is not a promise. If
- * the provided reason is a promise, then it is returned as-is.
+ * Creates a rejected promise for a reason if the reason is not a promise.
  *
- * @param Throwable $reason
+ * If the provided reason is a promise, then it is returned as-is.
  *
  * @api
  */
-function createRejected($reason): GraphQL\Executor\Promise\Promise
+function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
 ```
 
 ```php
@@ -1433,7 +1431,7 @@ function createRejected($reason): GraphQL\Executor\Promise\Promise
  * Given an array of promises (or values), returns a promise that is fulfilled when all the
  * items in the array are fulfilled.
  *
- * @param Promise[]|mixed[] $promisesOrValues Promises or values.
+ * @param array<Promise|mixed> $promisesOrValues
  *
  * @api
  */
@@ -1566,11 +1564,14 @@ function getPath(): array
 Encapsulates warnings produced by the library.
 
 Warnings can be suppressed (individually or all) if required.
-Also it is possible to override warning handler (which is **trigger_error()** by default)
+Also, it is possible to override warning handler (which is **trigger_error()** by default).
+
+@phpstan-type WarningHandler callable(string $errorMessage, int $warningId, ?int $messageLevel): void
 
 ### GraphQL\Error\Warning Constants
 
 ```php
+const NONE = 0;
 const WARNING_ASSIGN = 2;
 const WARNING_CONFIG = 4;
 const WARNING_FULL_SCHEMA_SCAN = 8;
@@ -1586,6 +1587,8 @@ const ALL = 63;
  * Sets warning handler which can intercept all system warnings.
  * When not set, trigger_error() is used to notify about warnings.
  *
+ * @phpstan-param WarningHandler|null $warningHandler
+ *
  * @api
  */
 static function setWarningHandler(callable $warningHandler = null): void
@@ -1593,15 +1596,13 @@ static function setWarningHandler(callable $warningHandler = null): void
 
 ```php
 /**
- * Suppress warning by id (has no effect when custom warning handler is set)
- *
- * Usage example:
- * Warning::suppress(Warning::WARNING_NOT_A_TYPE)
- *
- * When passing true - suppresses all warnings.
+ * Suppress warning by id (has no effect when custom warning handler is set).
  *
  * @param bool|int $suppress
  *
+ * @example Warning::suppress(Warning::WARNING_NOT_A_TYPE) suppress a specific warning
+ * @example Warning::suppress(true) suppresses all warnings
+ * @example Warning::suppress(false) enables all warnings
  * @api
  */
 static function suppress($suppress = true): void
@@ -1609,15 +1610,13 @@ static function suppress($suppress = true): void
 
 ```php
 /**
- * Re-enable previously suppressed warning by id
- *
- * Usage example:
- * Warning::suppress(Warning::WARNING_NOT_A_TYPE)
- *
- * When passing true - re-enables all warnings.
+ * Re-enable previously suppressed warning by id (has no effect when custom warning handler is set).
  *
  * @param bool|int $enable
  *
+ * @example Warning::suppress(Warning::WARNING_NOT_A_TYPE) re-enables a specific warning
+ * @example Warning::suppress(true) re-enables all warnings
+ * @example Warning::suppress(false) suppresses all warnings
  * @api
  */
 static function enable($enable = true): void

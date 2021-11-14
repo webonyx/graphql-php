@@ -54,7 +54,7 @@ class SyncPromise
     public static function runQueue(): void
     {
         $q = self::getQueue();
-        while ($q !== null && ! $q->isEmpty()) {
+        while (! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();
         }
@@ -116,12 +116,8 @@ class SyncPromise
         return $this;
     }
 
-    public function reject($reason): self
+    public function reject(Throwable $reason): self
     {
-        if (! $reason instanceof Throwable) {
-            throw new Exception('SyncPromise::reject() has to be called with an instance of \Throwable');
-        }
-
         switch ($this->state) {
             case self::PENDING:
                 $this->state  = self::REJECTED;
@@ -178,7 +174,7 @@ class SyncPromise
 
     public static function getQueue(): SplQueue
     {
-        return self::$queue ?? self::$queue = new SplQueue();
+        return self::$queue ??= new SplQueue();
     }
 
     /**

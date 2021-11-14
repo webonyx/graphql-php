@@ -915,9 +915,6 @@ class Parser
                         'loc'   => $this->loc($token),
                     ]);
                 }
-
-                break;
-
             case Token::DOLLAR:
                 if (! $isConst) {
                     return $this->parseVariable();
