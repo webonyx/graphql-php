@@ -31,6 +31,10 @@ use function ucfirst;
  *         ->setContext($myContext);
  *
  *     $server = new GraphQL\Server\StandardServer($config);
+ *
+ * @phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
+ * @phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
+ * @phpstan-type ValidationRulesOption array<ValidationRule>|(callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>)|null
  */
 class ServerConfig
 {
@@ -62,7 +66,10 @@ class ServerConfig
     /** @var mixed|callable(self $config, OperationParams $params, DocumentNode $doc): mixed|null */
     private $context = null;
 
-    /** @var mixed|callable(OperationParams $params, DocumentNode $doc, string $operationType): mixed|null */
+    /**
+     * @var mixed|callable
+     * @phpstan-var mixed|RootValueResolver
+     */
     private $rootValue = null;
 
     /** @var callable|null */
@@ -75,7 +82,10 @@ class ServerConfig
 
     private bool $queryBatching = false;
 
-    /** @var array<ValidationRule>|(callable(OperationParams, DocumentNode, string): array<ValidationRule>)|null */
+    /**
+     * @var array<ValidationRule>|callable|null
+     * @phpstan-var ValidationRulesOption
+     */
     private $validationRules = null;
 
     /** @var callable|null */
@@ -83,8 +93,11 @@ class ServerConfig
 
     private ?PromiseAdapter $promiseAdapter = null;
 
-    /** @var callable|null */
-    private $persistentQueryLoader = null;
+    /**
+     * @var callable|null
+     * @phpstan-var PersistedQueryLoader|null
+     */
+    private $persistedQueryLoader = null;
 
     /**
      * @api
@@ -110,6 +123,7 @@ class ServerConfig
 
     /**
      * @param mixed|callable $rootValue
+     * @phpstan-param mixed|RootValueResolver $rootValue
      *
      * @api
      */
@@ -148,16 +162,17 @@ class ServerConfig
      * Set validation rules for this server.
      *
      * @param array<ValidationRule>|callable|null $validationRules
+     * @phpstan-param ValidationRulesOption $validationRules
      *
      * @api
      */
     public function setValidationRules($validationRules): self
     {
-        if (! is_callable($validationRules) && ! is_array($validationRules) && $validationRules !== null) {
-            throw new InvariantViolation(
-                'Server config expects array of validation rules or callable returning such array, but got ' .
-                Utils::printSafe($validationRules)
-            );
+        // @phpstan-ignore-next-line necessary until we can use proper union types
+        if (! is_array($validationRules) && ! is_callable($validationRules) && $validationRules !== null) {
+            $invalidValidationRules = Utils::printSafe($validationRules);
+
+            throw new InvariantViolation("Server config expects array of validation rules or callable returning such array, but got {$invalidValidationRules}");
         }
 
         $this->validationRules = $validationRules;
@@ -176,13 +191,13 @@ class ServerConfig
     }
 
     /**
-     * @param callable(string $queryId, OperationParams $params): (string|DocumentNode) $persistentQueryLoader
+     * @phpstan-param PersistedQueryLoader|null $persistedQueryLoader
      *
      * @api
      */
-    public function setPersistentQueryLoader(callable $persistentQueryLoader): self
+    public function setPersistedQueryLoader(?callable $persistedQueryLoader): self
     {
-        $this->persistentQueryLoader = $persistentQueryLoader;
+        $this->persistedQueryLoader = $persistedQueryLoader;
 
         return $this;
     }
@@ -233,6 +248,7 @@ class ServerConfig
 
     /**
      * @return mixed|callable
+     * @phpstan-return mixed|RootValueResolver
      */
     public function getRootValue()
     {
@@ -260,7 +276,8 @@ class ServerConfig
     }
 
     /**
-     * @return array<ValidationRule>|(callable(OperationParams, DocumentNode, string): array<ValidationRule>)|null
+     * @return array<ValidationRule>|callable|null
+     * @phpstan-return ValidationRulesOption
      */
     public function getValidationRules()
     {
@@ -272,9 +289,12 @@ class ServerConfig
         return $this->fieldResolver;
     }
 
-    public function getPersistentQueryLoader(): ?callable
+    /**
+     * @phpstan-return PersistedQueryLoader|null
+     */
+    public function getPersistedQueryLoader(): ?callable
     {
-        return $this->persistentQueryLoader;
+        return $this->persistedQueryLoader;
     }
 
     public function getDebugFlag(): int
