@@ -192,10 +192,10 @@ class Helper
     }
 
     private function promiseToExecuteOperation(
-        PromiseAdapter  $promiseAdapter,
-        ServerConfig    $config,
+        PromiseAdapter $promiseAdapter,
+        ServerConfig $config,
         OperationParams $params,
-        bool            $isBatch = false
+        bool $isBatch = false
     ): Promise {
         $schema = $config->getSchema();
         if ($schema === null) {
@@ -204,6 +204,7 @@ class Helper
 
         if ($isBatch && ! $config->getQueryBatching()) {
             $batchedQueriesAreNotSupported = new RequestError('Batched queries are not supported by this server');
+
             return $promiseAdapter->createFulfilled(
                 new ExecutionResult(null, [Error::createLocatedError($batchedQueriesAreNotSupported)])
             );
@@ -251,12 +252,12 @@ class Helper
 
             if ($loader === null) {
                 $errors[] = new RequestError('Persisted queries are not supported by this server');
-                $source = null;
+                $source   = null;
             } else {
                 $source = $loader($queryId, $params);
 
                 // @phpstan-ignore-next-line unless PHP gains function types, we have to check this at runtime
-                if (!is_string($source) && ! $source instanceof DocumentNode) {
+                if (! is_string($source) && ! $source instanceof DocumentNode) {
                     throw new InvariantViolation(
                         'Persistent query loader must return query string or instance of ' . DocumentNode::class
                         . ' but got: ' . Utils::printSafe($source)
@@ -276,7 +277,7 @@ class Helper
             $errors[] = new RequestError(
                 'GraphQL Request must include at least one of those two parameters: "query" or "queryId"'
             );
-            $source = null;
+            $source   = null;
         }
 
         if (is_string($source)) {
@@ -286,15 +287,15 @@ class Helper
                 $operationAST = AST::getOperationAST($source, $operation);
 
                 if ($operationAST === null) {
-                    $errors []= new RequestError('Failed to determine operation type');
+                    $errors[] = new RequestError('Failed to determine operation type');
                 }
 
                 $operationType = $operationAST->operation;
                 if ($operationType !== 'query' && $params->readOnly) {
-                    $errors []= new RequestError('GET supports only query operation');
+                    $errors[] = new RequestError('GET supports only query operation');
                 }
             } catch (SyntaxError $error) {
-                $errors[]= $error;
+                $errors[] = $error;
             }
         }
 
