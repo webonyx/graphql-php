@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.11.1
+
+Fixed:
+- Fix compatibility of methods with native return type in PHP 8.1
+
 #### 14.11.0
 
 Feat:
