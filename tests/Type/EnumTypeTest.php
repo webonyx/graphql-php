@@ -9,6 +9,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\Type\TestClasses\OtherEnumType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -23,17 +24,15 @@ class EnumTypeTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @var Schema */
-    private $schema;
+    private Schema $schema;
 
-    /** @var EnumType */
-    private $ComplexEnum;
+    private EnumType $ComplexEnum;
 
-    /** @var mixed[] */
+    /** @var array{someRandomFunction: callable(): void} */
     private $Complex1;
 
-    /** @var ArrayObject */
-    private $Complex2;
+    /** @var ArrayObject{someRandomValue: int} */
+    private ArrayObject $Complex2;
 
     public function setUp(): void
     {
@@ -54,6 +53,8 @@ class EnumTypeTest extends TestCase
                 'THREE',
             ],
         ]);
+
+        $otherEnum = new OtherEnumType();
 
         $Complex1 = [
             'someRandomFunction' => static function (): void {
@@ -88,7 +89,7 @@ class EnumTypeTest extends TestCase
                         'fromInt'    => ['type' => Type::int()],
                         'fromString' => ['type' => Type::string()],
                     ],
-                    'resolve' => static function ($rootValue, $args) {
+                    'resolve' => static function ($rootValue, array $args) {
                         if (isset($args['fromInt'])) {
                             return $args['fromInt'];
                         }
@@ -100,6 +101,8 @@ class EnumTypeTest extends TestCase
                         if (isset($args['fromEnum'])) {
                             return $args['fromEnum'];
                         }
+
+                        return null;
                     },
                 ],
                 'simpleEnum'  => [
@@ -108,7 +111,7 @@ class EnumTypeTest extends TestCase
                         'fromName'  => ['type' => Type::string()],
                         'fromValue' => ['type' => Type::string()],
                     ],
-                    'resolve' => static function ($rootValue, $args) {
+                    'resolve' => static function ($rootValue, array $args) {
                         if (isset($args['fromName'])) {
                             return $args['fromName'];
                         }
@@ -116,7 +119,20 @@ class EnumTypeTest extends TestCase
                         if (isset($args['fromValue'])) {
                             return $args['fromValue'];
                         }
+
+                        return null;
                     },
+                ],
+                'otherEnumReturn'  => [
+                    'type'    => $otherEnum,
+                    'resolve' => static fn (): string => 'does not matter, enum serializes anything to a constant result',
+                ],
+                'otherEnumArg'  => [
+                    'type'    => Type::string(),
+                    'args'    => [
+                        'from'  => ['type' => $otherEnum],
+                    ],
+                    'resolve' => static fn ($rootValue, array $args): string => $args['from'],
                 ],
                 'colorInt'    => [
                     'type'    => Type::int(),
@@ -614,6 +630,29 @@ class EnumTypeTest extends TestCase
                 ],
             ],
             GraphQL::executeQuery($this->schema, $q)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE)
+        );
+    }
+
+    public function testCallsOverwrittenEnumTypeMethods(): void
+    {
+        $query     = '
+        query ($from: OtherEnum!) {
+            serialize: otherEnumReturn
+            parseValue: otherEnumArg(from: $from)
+            parseLiteral: otherEnumArg(from: ONE)
+        }
+        ';
+        $variables = ['from' => 'ONE'];
+
+        self::assertArraySubset(
+            [
+                'data'   => [
+                    'serialize' => OtherEnumType::SERIALIZE_RESULT,
+                    'parseValue' => OtherEnumType::PARSE_VALUE_RESULT,
+                    'parseLiteral' => OtherEnumType::PARSE_LITERAL_RESULT,
+                ],
+            ],
+            GraphQL::executeQuery($this->schema, $query, null, null, $variables)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
 }
