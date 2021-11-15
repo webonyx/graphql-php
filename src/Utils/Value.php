@@ -36,8 +36,8 @@ class Value
     /**
      * Given a type and any value, return a runtime value coerced to match the type.
      *
-     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
-     * @param mixed[]                                                $path
+     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull                              $type
+     * @param array{errors: array<int, Error>, value: stdClass}|array{errors: null, value: mixed} $path
      */
     public static function coerceValue($value, InputType $type, $blameNode = null, ?array $path = null)
     {
@@ -45,7 +45,7 @@ class Value
             if ($value === null) {
                 return self::ofErrors([
                     self::coercionError(
-                        sprintf('Expected non-nullable type %s not to be null', $type),
+                        "Expected non-nullable type {$type} not to be null",
                         $blameNode,
                         $path
                     ),
@@ -69,7 +69,7 @@ class Value
             } catch (Throwable $error) {
                 return self::ofErrors([
                     self::coercionError(
-                        sprintf('Expected type %s', $type->name),
+                        "Expected type {$type->name}",
                         $blameNode,
                         $path,
                         $error->getMessage(),
@@ -80,33 +80,31 @@ class Value
         }
 
         if ($type instanceof EnumType) {
-            if (is_string($value)) {
-                $enumValue = $type->getValue($value);
-                if ($enumValue !== null) {
-                    return self::ofValue($enumValue->value);
-                }
+            try {
+                return self::ofValue($type->parseValue($value));
+            } catch (Throwable $error) {
+                $suggestions = Utils::suggestionList(
+                    Utils::printSafe($value),
+                    array_map(
+                        static fn (EnumValueDefinition $enumValue): string => $enumValue->name,
+                        $type->getValues()
+                    )
+                );
+
+                $didYouMean = $suggestions === []
+                    ? null
+                    : 'did you mean ' . Utils::orList($suggestions) . '?';
+
+                return self::ofErrors([
+                    self::coercionError(
+                        sprintf('Expected type %s', $type->name),
+                        $blameNode,
+                        $path,
+                        $didYouMean,
+                        $error
+                    ),
+                ]);
             }
-
-            $suggestions = Utils::suggestionList(
-                Utils::printSafe($value),
-                array_map(
-                    static fn (EnumValueDefinition $enumValue): string => $enumValue->name,
-                    $type->getValues()
-                )
-            );
-
-            $didYouMean = $suggestions === []
-                ? null
-                : 'did you mean ' . Utils::orList($suggestions) . '?';
-
-            return self::ofErrors([
-                self::coercionError(
-                    sprintf('Expected type %s', $type->name),
-                    $blameNode,
-                    $path,
-                    $didYouMean
-                ),
-            ]);
         }
 
         if ($type instanceof ListOfType) {
@@ -219,7 +217,12 @@ class Value
             : self::ofErrors($errors);
     }
 
-    private static function ofErrors($errors)
+    /**
+     * @param array<int, Error> $errors
+     *
+     * @return array{errors: array<int, Error>, value: stdClass}
+     */
+    private static function ofErrors(array $errors): array
     {
         return ['errors' => $errors, 'value' => Utils::undefined()];
     }
@@ -279,7 +282,7 @@ class Value
     /**
      * @param mixed $value
      *
-     * @return (mixed|null)[]
+     * @return array{errors: null, value: mixed}
      */
     private static function ofValue($value): array
     {
