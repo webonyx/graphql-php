@@ -28,17 +28,17 @@ use function array_map;
  *   assumeValidSDL?: bool,
  * }
  *
- *    - assumeValid:
- *          When building a schema from a GraphQL service's introspection result, it
- *          might be safe to assume the schema is valid. Set to true to assume the
- *          produced schema is valid.
+ * - assumeValid:
+ *     When building a schema from a GraphQL service's introspection result, it
+ *     might be safe to assume the schema is valid. Set to true to assume the
+ *     produced schema is valid.
  *
- *          Default: false
+ *     Default: false
  *
- *     - assumeValidSDL:
- *          Set to true to assume the SDL is valid.
+ * - assumeValidSDL:
+ *     Set to true to assume the SDL is valid.
  *
- *          Default: false
+ *     Default: false
  */
 class BuildSchema
 {

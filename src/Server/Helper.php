@@ -37,7 +37,6 @@ use function json_encode;
 use function json_last_error;
 use function json_last_error_msg;
 use function parse_str;
-use function sprintf;
 use function stripos;
 
 use const JSON_ERROR_NONE;
@@ -123,22 +122,23 @@ class Helper
     public function parseRequestParams(string $method, array $bodyParams, array $queryParams)
     {
         if ($method === 'GET') {
-            $result = OperationParams::create($queryParams, true);
-        } elseif ($method === 'POST') {
-            if (isset($bodyParams[0])) {
-                $result = [];
-                foreach ($bodyParams as $entry) {
-                    $op       = OperationParams::create($entry);
-                    $result[] = $op;
-                }
-            } else {
-                $result = OperationParams::create($bodyParams);
-            }
-        } else {
-            throw new RequestError('HTTP Method "' . $method . '" is not supported');
+            return OperationParams::create($queryParams, true);
         }
 
-        return $result;
+        if ($method === 'POST') {
+            if (isset($bodyParams[0])) {
+                $operations = [];
+                foreach ($bodyParams as $entry) {
+                    $operations[] = OperationParams::create($entry);
+                }
+
+                return $operations;
+            }
+
+            return OperationParams::create($bodyParams);
+        }
+
+        throw new RequestError('HTTP Method "' . $method . '" is not supported');
     }
 
     /**
@@ -182,7 +182,7 @@ class Helper
         if ($params->variables !== null && (! is_array($params->variables) || isset($params->variables[0]))) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "variables" must be object or JSON string parsed to object, but got ' .
-                Utils::printSafeJson($params->getOriginalInput('variables'))
+                Utils::printSafeJson($params->originalInput['variables'])
             );
         }
 
@@ -281,7 +281,7 @@ class Helper
             }
 
             $operationType = $operationAST->operation;
-            if ($operationType !== 'query' && $op->isReadOnly()) {
+            if ($operationType !== 'query' && $op->readOnly) {
                 throw new RequestError('GET supports only query operation');
             }
 
@@ -333,8 +333,7 @@ class Helper
      */
     private function loadPersistedQuery(ServerConfig $config, OperationParams $operationParams)
     {
-        // Load query if we got persisted query id:
-        $loader = $config->getPersistentQueryLoader();
+        $loader = $config->getPersistedQueryLoader();
 
         if ($loader === null) {
             throw new RequestError('Persisted queries are not supported by this server');
@@ -342,12 +341,12 @@ class Helper
 
         $source = $loader($operationParams->queryId, $operationParams);
 
+        // @phpstan-ignore-next-line Necessary until PHP gains function types
         if (! is_string($source) && ! $source instanceof DocumentNode) {
-            throw new InvariantViolation(sprintf(
-                'Persistent query loader must return query string or instance of %s but got: %s',
-                DocumentNode::class,
-                Utils::printSafe($source)
-            ));
+            throw new InvariantViolation(
+                'Persisted query loader must return query string or instance of ' . DocumentNode::class
+                . ' but got: ' . Utils::printSafe($source)
+            );
         }
 
         return $source;
@@ -362,13 +361,13 @@ class Helper
         DocumentNode $doc,
         string $operationType
     ): ?array {
-        // Allow customizing validation rules per operation:
         $validationRules = $config->getValidationRules();
 
         if (is_callable($validationRules)) {
             $validationRules = $validationRules($params, $doc, $operationType);
         }
 
+        // @phpstan-ignore-next-line unless PHP gains function types, we have to check this at runtime
         if ($validationRules !== null && ! is_array($validationRules)) {
             throw new InvariantViolation(
                 'Expecting validation rules to be array or callable returning array, but got: ' . Utils::printSafe($validationRules)
@@ -381,8 +380,12 @@ class Helper
     /**
      * @return mixed
      */
-    private function resolveRootValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, string $operationType)
-    {
+    private function resolveRootValue(
+        ServerConfig $config,
+        OperationParams $params,
+        DocumentNode $doc,
+        string $operationType
+    ) {
         $rootValue = $config->getRootValue();
 
         if (is_callable($rootValue)) {
@@ -465,24 +468,23 @@ class Helper
     {
         if (is_array($result) && isset($result[0])) {
             foreach ($result as $index => $executionResult) {
+                // @phpstan-ignore-next-line unless PHP gains generic support, this is unsure
                 if (! $executionResult instanceof ExecutionResult) {
-                    throw new InvariantViolation(sprintf(
-                        'Expecting every entry of batched query result to be instance of %s but entry at position %d is %s',
-                        ExecutionResult::class,
-                        $index,
-                        Utils::printSafe($executionResult)
-                    ));
+                    throw new InvariantViolation(
+                        'Expecting every entry of batched query result to be instance of '
+                        . ExecutionResult::class . ' but entry at position ' . $index
+                        . ' is ' . Utils::printSafe($executionResult)
+                    );
                 }
             }
 
             $httpStatus = 200;
         } else {
             if (! $result instanceof ExecutionResult) {
-                throw new InvariantViolation(sprintf(
-                    'Expecting query result to be instance of %s but got %s',
-                    ExecutionResult::class,
-                    Utils::printSafe($result)
-                ));
+                throw new InvariantViolation(
+                    'Expecting query result to be instance of ' . ExecutionResult::class
+                    . ' but got ' . Utils::printSafe($result)
+                );
             }
 
             if ($result->data === null && count($result->errors) > 0) {

@@ -13,6 +13,7 @@ use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
 use JsonSerializable;
 use ReflectionClass;
+use ReturnTypeWillChange;
 
 use function array_keys;
 use function array_merge;
@@ -287,6 +288,7 @@ abstract class Type implements JsonSerializable
         Utils::assertValidName($this->name);
     }
 
+    #[ReturnTypeWillChange]
     public function jsonSerialize(): string
     {
         return $this->toString();
