@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Language;
 
 use JsonSerializable;
+use ReturnTypeWillChange;
 
 class SourceLocation implements JsonSerializable
 {
@@ -46,6 +47,7 @@ class SourceLocation implements JsonSerializable
     /**
      * @return int[]
      */
+    #[ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->toSerializableArray();

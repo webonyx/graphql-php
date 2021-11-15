@@ -10,6 +10,7 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Utils\Utils;
 use JsonSerializable;
+use ReturnTypeWillChange;
 use Throwable;
 use Traversable;
 use function array_filter;
@@ -367,6 +368,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * @return mixed data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      */
+    #[ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->toSerializableArray();

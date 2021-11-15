@@ -11,6 +11,8 @@ use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
 use JsonSerializable;
 use ReflectionClass;
+use ReturnTypeWillChange;
+
 use function array_keys;
 use function array_merge;
 use function assert;
@@ -308,7 +310,8 @@ abstract class Type implements JsonSerializable
     /**
      * @return string
      */
-    public function jsonSerialize()
+    #[ReturnTypeWillChange]
+    public function jsonSerialize(): string
     {
         return $this->toString();
     }
