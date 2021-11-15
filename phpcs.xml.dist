@@ -17,8 +17,13 @@
         <exclude name="SlevomatCodingStandard.Classes.ClassConstantVisibility.MissingConstantVisibility" />
         <exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint" />
         <exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint" />
+
         <!-- Enable when Slevomat starts supporting variadics, see https://github.com/slevomat/coding-standard/issues/251 -->
         <exclude name="SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse" />
+
+        <!-- Breaks PHP 8 Attributes -->
+        <exclude name="PEAR.Commenting.InlineComment.WrongStyle" />
+        <exclude name="Squiz.Commenting.FunctionComment.WrongStyle" />
     </rule>
 
     <!--@api annotation is required for now -->
