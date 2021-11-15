@@ -78,6 +78,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove `OperationParams` method `getOriginalInput()` in favor of public property `$originalInput`
 - Remove `OperationParams` method `isReadOnly()` in favor of public property `$readOnly`
 
+## 14.11.1
+
+### Fixed
+
+- Fix compatibility of methods with native return type in PHP 8.1
+
 ## 14.11.0
 
 ### Added
