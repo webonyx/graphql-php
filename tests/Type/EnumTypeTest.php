@@ -125,7 +125,7 @@ class EnumTypeTest extends TestCase
                 ],
                 'otherEnumReturn'  => [
                     'type'    => $otherEnum,
-                    'resolve' => static fn () => 'does not matter, enum serializes anything to a constant result',
+                    'resolve' => static fn (): string => 'does not matter, enum serializes anything to a constant result',
                 ],
                 'otherEnumArg'  => [
                     'type'    => Type::string(),
