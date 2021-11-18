@@ -165,7 +165,7 @@ class RequestParsingTest extends TestCase
             'POST',
             '',
             ['Content-Type' => 'application/x-www-form-urlencoded'],
-            $parsed ? null : http_build_query($postValue),
+            $parsed ? null : http_build_query($postValue)
         );
 
         if ($parsed) {
