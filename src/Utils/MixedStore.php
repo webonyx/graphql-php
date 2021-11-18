@@ -7,6 +7,7 @@ namespace GraphQL\Utils;
 use ArrayAccess;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use InvalidArgumentException;
+use ReturnTypeWillChange;
 use SplObjectStorage;
 use function array_key_exists;
 use function array_search;
@@ -90,7 +91,7 @@ class MixedStore implements ArrayAccess
      * <p>
      * The return value will be casted to boolean if non-boolean was returned.
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset) : bool
     {
         if ($offset === false) {
             return $this->falseValueIsSet;
@@ -135,6 +136,7 @@ class MixedStore implements ArrayAccess
      *
      * @return mixed Can return all value types.
      */
+    #[ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         if ($offset === true) {
@@ -181,10 +183,8 @@ class MixedStore implements ArrayAccess
      * @param mixed $value  <p>
      *  The value to set.
      *  </p>
-     *
-     * @return void
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value) : void
     {
         if ($offset === false) {
             $this->falseValue      = $value;
@@ -217,10 +217,8 @@ class MixedStore implements ArrayAccess
      * @param mixed $offset <p>
      * The offset to unset.
      * </p>
-     *
-     * @return void
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset) : void
     {
         if ($offset === true) {
             $this->trueValue      = null;

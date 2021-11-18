@@ -9,6 +9,7 @@ use Countable;
 use GraphQL\Utils\AST;
 use InvalidArgumentException;
 use IteratorAggregate;
+use ReturnTypeWillChange;
 use Traversable;
 use function array_merge;
 use function array_splice;
@@ -69,6 +70,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      *
      * @phpstan-return T
      */
+    #[ReturnTypeWillChange]
     public function offsetGet($offset)// : Node
     {
         $item = $this->nodes[$offset];
