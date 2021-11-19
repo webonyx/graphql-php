@@ -17,7 +17,6 @@ use GraphQL\Utils\Utils;
 
 use function is_array;
 use function is_string;
-use function sprintf;
 
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
@@ -73,28 +72,22 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     {
         if (! isset($this->values)) {
             $this->values = [];
-            $config       = $this->config;
 
-            if (isset($config['values'])) {
-                if (! is_array($config['values'])) {
-                    throw new InvariantViolation(sprintf('%s values must be an array', $this->name));
-                }
-
-                foreach ($config['values'] as $name => $value) {
-                    if (is_string($name)) {
-                        if (is_array($value)) {
-                            $value += ['name' => $name, 'value' => $name];
-                        } else {
-                            $value = ['name' => $name, 'value' => $value];
-                        }
-                    } elseif (is_string($value)) {
-                        $value = ['name' => $value, 'value' => $value];
+            // We are just assuming the config option is set correctly here, validation happens in assertValid()
+            foreach ($this->config['values'] as $name => $value) {
+                if (is_string($name)) {
+                    if (is_array($value)) {
+                        $value += ['name' => $name, 'value' => $name];
                     } else {
-                        throw new InvariantViolation("{$this->name} values must be an array with value names as keys or values.");
+                        $value = ['name' => $name, 'value' => $value];
                     }
-
-                    $this->values[] = new EnumValueDefinition($value);
+                } elseif (is_string($value)) {
+                    $value = ['name' => $value, 'value' => $value];
+                } else {
+                    throw new InvariantViolation("{$this->name} values must be an array with value names as keys or values.");
                 }
+
+                $this->values[] = new EnumValueDefinition($value);
             }
         }
 
@@ -119,7 +112,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         if (! isset($this->valueLookup)) {
             $this->valueLookup = new MixedStore();
 
-            foreach ($this->getValues() as $valueName => $value) {
+            foreach ($this->getValues() as $value) {
                 $this->valueLookup->offsetSet($value->value, $value);
             }
         }
@@ -143,11 +136,12 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof EnumValueNode) {
+            $name = $valueNode->value;
+
             if (! isset($this->nameLookup)) {
                 $this->initializeNameLookup();
             }
 
-            $name = $valueNode->value;
             if (isset($this->nameLookup[$name])) {
                 return $this->nameLookup[$name]->value;
             }
@@ -164,20 +158,17 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     {
         parent::assertValid();
 
-        Utils::invariant(
-            isset($this->config['values']),
-            sprintf('%s values must be an array.', $this->name)
-        );
+        $values = $this->config['values'] ?? null;
+        if (! is_array($values)) {
+            $safeValues = Utils::printSafe($values);
 
-        $values = $this->getValues();
-        foreach ($values as $value) {
+            throw new InvariantViolation("{$this->name} values must be an array, got: {$safeValues}");
+        }
+
+        foreach ($this->getValues() as $value) {
             Utils::invariant(
                 ! isset($value->config['isDeprecated']),
-                sprintf(
-                    '%s.%s should provide "deprecationReason" instead of "isDeprecated".',
-                    $this->name,
-                    $value->name
-                )
+                $this->name . '.' . $value->name . ' should provide "deprecationReason" instead of "isDeprecated".'
             );
         }
     }

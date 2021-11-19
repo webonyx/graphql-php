@@ -39,7 +39,6 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use stdClass;
 use Throwable;
 use Traversable;
 
@@ -124,7 +123,7 @@ class AST
     /**
      * Convert AST node to serializable array
      *
-     * @return mixed[]
+     * @return array<string, mixed>
      *
      * @api
      */
@@ -309,9 +308,9 @@ class AST
      * | Null Value           | null          |
      *
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $valueNode
-     * @param mixed[]|null                                                                                                                             $variables
+     * @param array<string, mixed>|null                                                                                                                $variables
      *
-     * @return mixed[]|stdClass|null
+     * @return mixed
      *
      * @throws Exception
      *
@@ -442,16 +441,11 @@ class AST
         }
 
         if ($type instanceof EnumType) {
-            if (! $valueNode instanceof EnumValueNode) {
+            try {
+                return $type->parseLiteral($valueNode, $variables);
+            } catch (Throwable $error) {
                 return $undefined;
             }
-
-            $enumValue = $type->getValue($valueNode->value);
-            if ($enumValue === null) {
-                return $undefined;
-            }
-
-            return $enumValue->value;
         }
 
         if ($type instanceof ScalarType) {
@@ -473,9 +467,9 @@ class AST
      * in the set of variables.
      *
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $valueNode
-     * @param mixed[]                                                                                                                             $variables
+     * @param array<string, mixed>|null                                                                                                           $variables
      */
-    private static function isMissingVariable(ValueNode $valueNode, $variables): bool
+    private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
     {
         return $valueNode instanceof VariableNode &&
             (count($variables) === 0 || ! array_key_exists($valueNode->name->value, $variables));
@@ -497,8 +491,7 @@ class AST
      * | Enum                 | Mixed         |
      * | Null                 | null          |
      *
-     * @param Node         $valueNode
-     * @param mixed[]|null $variables
+     * @param array<string, mixed>|null $variables
      *
      * @return mixed
      *
@@ -506,7 +499,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromASTUntyped($valueNode, ?array $variables = null)
+    public static function valueFromASTUntyped(Node $valueNode, ?array $variables = null)
     {
         switch (true) {
             case $valueNode instanceof NullValueNode:
@@ -559,7 +552,7 @@ class AST
      *
      * @api
      */
-    public static function typeFromAST(Schema $schema, $inputTypeNode): ?Type
+    public static function typeFromAST(Schema $schema, Node $inputTypeNode): ?Type
     {
         if ($inputTypeNode instanceof ListTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);

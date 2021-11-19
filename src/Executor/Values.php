@@ -102,18 +102,12 @@ class Values
                         // Otherwise, a non-null value was provided, coerce it to the expected
                         // type or report an error if coercion fails.
                         $coerced = Value::coerceValue($value, $varType, $varDefNode);
-                        /** @var Error[] $coercionErrors */
-                        $coercionErrors = $coerced['errors'];
-                        if (count($coercionErrors ?? []) > 0) {
-                            $messagePrelude = sprintf(
-                                'Variable "$%s" got invalid value %s; ',
-                                $varName,
-                                Utils::printSafeJson($value)
-                            );
 
+                        $coercionErrors = $coerced['errors'];
+                        if ($coercionErrors !== null) {
                             foreach ($coercionErrors as $error) {
                                 $errors[] = new Error(
-                                    $messagePrelude . $error->getMessage(),
+                                    'Variable "$' . $varName . '" got invalid value ' . Utils::printSafeJson($value) . '; ' . $error->getMessage(),
                                     $error->getNodes(),
                                     $error->getSource(),
                                     $error->getPositions(),

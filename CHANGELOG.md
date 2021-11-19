@@ -25,6 +25,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Exclude unused standard types from the schema
 - Require lazy type loader to return `Type` directly without an intermediary callable
 - Rename `ServerConfig` option `persistentQueryLoader` to `persistedQueryLoader`
+- Call previously unused methods `EnumType::parseValue()` and `EnumType::parseLiteral()`
 - Strongly type `PromiseAdapter::createRejected()` to require `\Throwable`
 
 ### Added
@@ -54,7 +55,6 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Preserve extended methods from class-based types in `SchemaExtender::extend()`
 - Fix printing of empty types (#940)
 - Clone `NodeList` in `Node::cloneDeep()`
-- Support non-JSON `ServerRequestInterface`
 
 ### Removed
 
@@ -78,6 +78,18 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
 - Remove `OperationParams` method `getOriginalInput()` in favor of public property `$originalInput`
 - Remove `OperationParams` method `isReadOnly()` in favor of public property `$readOnly`
+
+## 14.11.2
+
+### Fixed
+
+- Support non-JSON `ServerRequestInterface`
+
+## 14.11.1
+
+### Fixed
+
+- Fix compatibility of methods with native return type in PHP 8.1
 
 ## 14.11.0
 
