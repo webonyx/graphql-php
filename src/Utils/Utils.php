@@ -263,12 +263,9 @@ class Utils
     }
 
     /**
-     * UTF-8 compatible chr()
-     *
-     * @param string $ord
-     * @param string $encoding
+     * UTF-8 compatible chr().
      */
-    public static function chr($ord, $encoding = 'UTF-8'): string
+    public static function chr(int $ord, string $encoding = 'UTF-8'): string
     {
         if ($encoding === 'UCS-4BE') {
             return pack('N', $ord);
@@ -278,11 +275,9 @@ class Utils
     }
 
     /**
-     * UTF-8 compatible ord()
-     *
-     * @return mixed
+     * UTF-8 compatible ord().
      */
-    public static function ord(string $char, string $encoding = 'UTF-8')
+    public static function ord(string $char, string $encoding = 'UTF-8'): int
     {
         if (! isset($char[1])) {
             return ord($char);

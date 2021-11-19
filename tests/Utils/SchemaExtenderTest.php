@@ -1746,7 +1746,7 @@ extend type Query {
         self::assertInstanceOf(CustomScalarType::class, $extendedScalar);
         self::assertSame(SomeScalarClassType::SERIALIZE_RETURN, $extendedScalar->serialize(null));
         self::assertSame(SomeScalarClassType::PARSE_VALUE_RETURN, $extendedScalar->parseValue(null));
-        self::assertSame(SomeScalarClassType::PARSE_LITERAL_RETURN, $extendedScalar->parseLiteral($documentNode));
+        self::assertSame(SomeScalarClassType::PARSE_LITERAL_RETURN, $extendedScalar->parseLiteral(Parser::valueLiteral('1')));
     }
 
     public function testPreservesResolveTypeMethod(): void

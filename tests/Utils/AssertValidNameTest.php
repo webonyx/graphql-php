@@ -29,6 +29,7 @@ class AssertValidNameTest extends TestCase
     public function testThrowsForNonStrings(): void
     {
         $this->expectException(TypeError::class);
+        // @phpstan-ignore-next-line purposefully wrong
         Utils::assertValidName([]);
     }
 

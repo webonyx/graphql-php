@@ -6,14 +6,15 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
 class StandardTypesTest extends TestCase
 {
-    /** @var Type[] */
-    private static $originalStandardTypes;
+    /** @var array<string, ScalarType> */
+    private static array $originalStandardTypes;
 
     public static function setUpBeforeClass(): void
     {
@@ -39,11 +40,11 @@ class StandardTypesTest extends TestCase
         $newStringType  = $this->createCustomScalarType(Type::STRING);
 
         Type::overrideStandardTypes([
-            $newStringType,
             $newBooleanType,
+            $newFloatType,
             $newIDType,
             $newIntType,
-            $newFloatType,
+            $newStringType,
         ]);
 
         $types = Type::getStandardTypes();
@@ -117,7 +118,7 @@ class StandardTypesTest extends TestCase
         Type::overrideStandardTypes([$type]);
     }
 
-    private function createCustomScalarType($name)
+    private function createCustomScalarType(string $name): CustomScalarType
     {
         return new CustomScalarType([
             'name' => $name,

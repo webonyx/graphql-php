@@ -16,8 +16,7 @@ use Throwable;
 
 class SyncPromiseAdapterTest extends TestCase
 {
-    /** @var SyncPromiseAdapter */
-    private $promises;
+    private SyncPromiseAdapter $promises;
 
     public function setUp(): void
     {
@@ -51,6 +50,7 @@ class SyncPromiseAdapterTest extends TestCase
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Expected instance of GraphQL\Deferred, got (empty string)');
+        // @phpstan-ignore-next-line purposefully wrong
         $this->promises->convertThenable('');
     }
 
