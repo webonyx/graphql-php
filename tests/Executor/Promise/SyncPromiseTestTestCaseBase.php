@@ -12,7 +12,7 @@ use Throwable;
 
 use function uniqid;
 
-class SyncPromiseTest extends TestCaseBase
+class SyncPromiseTestTestCaseBase extends TestCaseBase
 {
     public function getFulfilledPromiseResolveData()
     {

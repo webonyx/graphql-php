@@ -1,6 +1,6 @@
 parameters:
     # TODO increase to max
-    level: 3
+    level: 4
 
     inferPrivatePropertyTypeFromConstructor: true
 
@@ -36,6 +36,10 @@ parameters:
 
         # TODO convert to less magical code
         - "~Variable method call on static\\(GraphQL\\\\Server\\\\ServerConfig\\)~"
+
+        # PHPStan does not play nicely with markTestSkipped()
+        - message: "~Unreachable statement - code above always terminates~"
+          path: tests
 
 includes:
     - phpstan-baseline.neon

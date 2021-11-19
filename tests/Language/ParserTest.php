@@ -11,7 +11,6 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
-use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
@@ -729,14 +728,14 @@ GRAPHQL
 
     public function testPartiallyParsesSource(): void
     {
-        self::assertInstanceOf(
-            NameNode::class,
-            Parser::name('Foo')
+        self::assertSame(
+            'Foo',
+            Parser::name('Foo')->value
         );
 
-        self::assertInstanceOf(
-            ObjectTypeDefinitionNode::class,
-            Parser::objectTypeDefinition('type Foo { name: String }')
+        self::assertSame(
+            'Foo',
+            Parser::objectTypeDefinition('type Foo { name: String }')->name->value
         );
 
         self::assertInstanceOf(
@@ -744,23 +743,23 @@ GRAPHQL
             Parser::valueLiteral('$foo')
         );
 
-        self::assertInstanceOf(
-            NodeList::class,
+        self::assertCount(
+            1,
             Parser::argumentsDefinition('(foo: Int!)')
         );
 
-        self::assertInstanceOf(
-            NodeList::class,
+        self::assertCount(
+            2,
             Parser::directiveLocations('| INPUT_OBJECT | OBJECT')
         );
 
-        self::assertInstanceOf(
-            NodeList::class,
+        self::assertCount(
+            2,
             Parser::implementsInterfaces('implements Foo & Bar')
         );
 
-        self::assertInstanceOf(
-            NodeList::class,
+        self::assertCount(
+            2,
             Parser::unionMemberTypes('= | Foo | Bar')
         );
 
