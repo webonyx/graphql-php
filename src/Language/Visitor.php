@@ -170,9 +170,9 @@ class Visitor
     /**
      * Visit the AST (see class description for details).
      *
-     * @param Node|ArrayObject|stdClass $root
-     * @param array<string, mixed>      $visitor
-     * @param array<string, mixed>|null $keyMap
+     * @param NodeList|Node|ArrayObject|stdClass $root
+     * @param array<string, mixed>               $visitor
+     * @param array<string, mixed>|null          $keyMap
      *
      * @return Node|mixed
      *
@@ -185,7 +185,7 @@ class Visitor
         $visitorKeys = $keyMap ?? self::VISITOR_KEYS;
 
         $stack     = null;
-        $inArray   = $root instanceof NodeList || is_array($root);
+        $inArray   = $root instanceof NodeList;
         $keys      = [$root];
         $index     = -1;
         $edits     = [];

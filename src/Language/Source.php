@@ -6,7 +6,6 @@ namespace GraphQL\Language;
 
 use GraphQL\Utils\Utils;
 
-use function is_string;
 use function json_decode;
 use function mb_strlen;
 use function mb_substr;
@@ -16,36 +15,25 @@ use const PREG_OFFSET_CAPTURE;
 
 class Source
 {
-    /** @var string */
-    public $body;
+    public string $body;
 
-    /** @var int */
-    public $length;
+    public int $length;
 
-    /** @var string */
-    public $name;
+    public string $name;
 
-    /** @var SourceLocation */
-    public $locationOffset;
+    public SourceLocation $locationOffset;
 
     /**
      * A representation of source input to GraphQL.
+     *
      * `name` and `locationOffset` are optional. They are useful for clients who
      * store GraphQL documents in source files; for example, if the GraphQL input
      * starts at line 40 in a file named Foo.graphql, it might be useful for name to
      * be "Foo.graphql" and location to be `{ line: 40, column: 0 }`.
      * line and column in locationOffset are 1-indexed
-     *
-     * @param string      $body
-     * @param string|null $name
      */
-    public function __construct($body, $name = null, ?SourceLocation $location = null)
+    public function __construct(string $body, ?string $name = null, ?SourceLocation $location = null)
     {
-        Utils::invariant(
-            is_string($body),
-            'GraphQL query body is expected to be string, but got ' . Utils::getVariableType($body)
-        );
-
         $this->body           = $body;
         $this->length         = mb_strlen($body, 'UTF-8');
         $this->name           = $name === '' || $name === null

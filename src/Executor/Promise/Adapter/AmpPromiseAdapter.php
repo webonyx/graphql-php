@@ -72,7 +72,7 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    public function createRejected($reason): Promise
+    public function createRejected(Throwable $reason): Promise
     {
         $promise = new Failure($reason);
 

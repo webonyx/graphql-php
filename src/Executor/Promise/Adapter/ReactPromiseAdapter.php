@@ -8,6 +8,7 @@ use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use React\Promise\Promise as ReactPromise;
 use React\Promise\PromiseInterface as ReactPromiseInterface;
+use Throwable;
 
 use function React\Promise\all;
 use function React\Promise\reject;
@@ -47,7 +48,7 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    public function createRejected($reason): Promise
+    public function createRejected(Throwable $reason): Promise
     {
         $promise = reject($reason);
 

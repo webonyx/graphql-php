@@ -46,6 +46,11 @@ parameters:
 			path: examples/01-blog/Blog/Types.php
 
 		-
+			message: "#^Strict comparison using \\=\\=\\= between non\\-empty\\-string and null will always evaluate to false\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
 			message: "#^SplObjectStorage\\<GraphQL\\\\Type\\\\Definition\\\\ObjectType, SplObjectStorage\\<ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>, ArrayObject\\<string, ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>\\>\\>\\> does not accept SplObjectStorage\\<ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>, ArrayObject\\<string, ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>\\>\\>\\|SplObjectStorage\\<object, mixed\\>\\.$#"
 			count: 1
 			path: src/Executor/ReferenceExecutor.php
@@ -64,6 +69,11 @@ parameters:
 			message: "#^Variable property access on TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between mixed and null will always evaluate to false\\.$#"
+			count: 1
+			path: src/Language/Visitor.php
 
 		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
