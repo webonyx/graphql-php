@@ -6,13 +6,13 @@ namespace GraphQL\Tests\Executor\Promise;
 
 use Exception;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
-use GraphQL\Tests\TestCaseBase;
+use GraphQL\Tests\BaseTestCase;
 use PHPUnit\Framework\Error\Error;
 use Throwable;
 
 use function uniqid;
 
-class SyncPromiseTest extends TestCaseBase
+class SyncPromiseTestTestCase extends BaseTestCase
 {
     public function getFulfilledPromiseResolveData()
     {
