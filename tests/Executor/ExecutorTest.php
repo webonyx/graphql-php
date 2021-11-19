@@ -24,6 +24,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use ReturnTypeWillChange;
 use stdClass;
 use function count;
 use function json_encode;
@@ -1279,7 +1280,7 @@ class ExecutorTest extends TestCase
                         'type' => $ArrayAccess,
                         'resolve' => static function () : ArrayAccess {
                             return new class implements ArrayAccess {
-                                public function offsetExists($offset)
+                                public function offsetExists($offset) : bool
                                 {
                                     switch ($offset) {
                                         case 'set':
@@ -1289,6 +1290,7 @@ class ExecutorTest extends TestCase
                                     }
                                 }
 
+                                #[ReturnTypeWillChange]
                                 public function offsetGet($offset)
                                 {
                                     switch ($offset) {
@@ -1301,11 +1303,11 @@ class ExecutorTest extends TestCase
                                     }
                                 }
 
-                                public function offsetSet($offset, $value)
+                                public function offsetSet($offset, $value) : void
                                 {
                                 }
 
-                                public function offsetUnset($offset)
+                                public function offsetUnset($offset) : void
                                 {
                                 }
                             };
