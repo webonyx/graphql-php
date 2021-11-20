@@ -176,9 +176,9 @@ class ServerConfigTest extends TestCase
         self::assertSame($closure, $config->getPersistedQueryLoader());
     }
 
-    public static function loadPersistedQuery(): ?string
+    public static function loadPersistedQuery(): string
     {
-        return rand() === 0 ? '{ foo }' : null;
+        return '{ foo }';
     }
 
     public function testAllowsSettingCatchPhpErrors(): void
