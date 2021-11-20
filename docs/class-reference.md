@@ -216,9 +216,11 @@ static function isInputType($type): bool
 
 ```php
 /**
+ * @return (Type&NamedType)|null
+ *
  * @api
  */
-static function getNamedType($type): GraphQL\Type\Definition\Type
+static function getNamedType(GraphQL\Type\Definition\Type $type): GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -2293,7 +2295,7 @@ static function fromArray(array $node): GraphQL\Language\AST\Node
 /**
  * Convert AST node to serializable array
  *
- * @return mixed[]
+ * @return array<string, mixed>
  *
  * @api
  */
@@ -2349,9 +2351,9 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type)
  * | Null Value           | null          |
  *
  * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $valueNode
- * @param mixed[]|null                                                                                                                             $variables
+ * @param array<string, mixed>|null                                                                                                                $variables
  *
- * @return mixed[]|stdClass|null
+ * @return mixed
  *
  * @throws Exception
  *
@@ -2381,8 +2383,7 @@ static function valueFromAST(
  * | Enum                 | Mixed         |
  * | Null                 | null          |
  *
- * @param Node         $valueNode
- * @param mixed[]|null $variables
+ * @param array<string, mixed>|null $variables
  *
  * @return mixed
  *
@@ -2390,7 +2391,7 @@ static function valueFromAST(
  *
  * @api
  */
-static function valueFromASTUntyped($valueNode, array $variables = null)
+static function valueFromASTUntyped(GraphQL\Language\AST\Node $valueNode, array $variables = null)
 ```
 
 ```php
@@ -2403,7 +2404,7 @@ static function valueFromASTUntyped($valueNode, array $variables = null)
  *
  * @api
  */
-static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode): GraphQL\Type\Definition\Type
+static function typeFromAST(GraphQL\Type\Schema $schema, GraphQL\Language\AST\Node $inputTypeNode): GraphQL\Type\Definition\Type
 ```
 
 ```php
