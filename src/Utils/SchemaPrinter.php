@@ -37,7 +37,6 @@ use GraphQL\Type\Schema;
 use function array_filter;
 use function array_keys;
 use function array_map;
-use function array_sum;
 use function array_values;
 use function count;
 use function explode;
