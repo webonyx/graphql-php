@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor\Promise\Adapter;
 
+use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
@@ -28,7 +29,10 @@ class SyncPromiseAdapter implements PromiseAdapter
     {
         if (! $thenable instanceof SyncPromise) {
             // End-users should always use Deferred (and don't use SyncPromise directly)
-            throw new InvariantViolation('Expected instance of GraphQL\Deferred, got ' . Utils::printSafe($thenable));
+            $deferred     = Deferred::class;
+            $safeThenable = Utils::printSafe($thenable);
+
+            throw new InvariantViolation("Expected instance of {$deferred}, got {$safeThenable}");
         }
 
         return new Promise($thenable, $this);

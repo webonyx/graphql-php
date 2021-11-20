@@ -375,28 +375,25 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testProhibitsInvalidPersistedQueryLoader(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        // @phpstan-ignore-next-line purposefully wrong
+        $this->config->setPersistedQueryLoader(static fn (): array => ['err' => 'err']);
+
+        $this->expectExceptionObject(new InvariantViolation(
             'Persisted query loader must return query string or instance of GraphQL\Language\AST\DocumentNode ' .
             'but got: {"err":"err"}'
-        );
-        $this->config->setPersistedQueryLoader(static function (): array {
-            return ['err' => 'err'];
-        });
+        ));
         $this->executePersistedQuery('some-id');
     }
 
     public function testPersistedQueriesAreStillValidatedByDefault(): void
     {
-        $this->config->setPersistedQueryLoader(static function (): string {
-            return '{invalid}';
-        });
+        $this->config->setPersistedQueryLoader(static fn (): string => '{ invalid }');
         $result   = $this->executePersistedQuery('some-id');
         $expected = [
             'errors' => [
                 [
                     'message'   => 'Cannot query field "invalid" on type "Query".',
-                    'locations' => [['line' => 1, 'column' => 2]],
+                    'locations' => [['line' => 1, 'column' => 3]],
                 ],
             ],
         ];
@@ -455,12 +452,13 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testProhibitsUnexpectedValidationRules(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Expecting validation rules to be array or callable returning array, but got: instance of stdClass');
-        $this->config->setValidationRules(static function (OperationParams $params): stdClass {
-            return new stdClass();
-        });
-        $this->executeQuery('{f1}');
+        // @phpstan-ignore-next-line purposefully wrong
+        $this->config->setValidationRules(static fn (): stdClass => new stdClass());
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'Expecting validation rules to be array or callable returning array, but got: instance of stdClass'
+        ));
+        $this->executeQuery('{ f1 }');
     }
 
     public function testExecutesBatchedQueries(): void

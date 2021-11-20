@@ -183,7 +183,7 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param array<string, ScalarType> $types
+     * @param array<ScalarType> $types
      */
     public static function overrideStandardTypes(array $types): void
     {

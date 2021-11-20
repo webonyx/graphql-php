@@ -274,7 +274,10 @@ final class LazyTypeLoaderTest extends TestCase
         self::assertEquals([], $this->calls);
 
         $node = $schema->getType('Node');
-        self::assertSame(Schema::resolveType($this->node), $node);
+        self::assertInstanceOf(InterfaceType::class, $node);
+        $resolvedNode = Schema::resolveType($this->node);
+        self::assertInstanceOf(InterfaceType::class, $resolvedNode);
+        self::assertSame($resolvedNode, $node);
         self::assertEquals(['Node'], $this->calls);
 
         $content = $schema->getType('Content');
@@ -285,11 +288,10 @@ final class LazyTypeLoaderTest extends TestCase
         self::assertSame(Schema::resolveType($this->postStoryMutationInput), $input);
         self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
 
-        $result = $schema->isSubType(
-            Schema::resolveType($this->node),
-            Schema::resolveType($this->blogStory)
-        );
-        self::assertTrue($result);
+        $resolvedBlogStory = Schema::resolveType($this->blogStory);
+        self::assertInstanceOf(ObjectType::class, $resolvedBlogStory);
+
+        self::assertTrue($schema->isSubType($resolvedNode, $resolvedBlogStory));
         self::assertEquals(
             [
                 'Node',

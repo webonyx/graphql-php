@@ -7,12 +7,11 @@ namespace GraphQL\Tests\Executor\Promise;
 use Exception;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Tests\TestCaseBase;
-use PHPUnit\Framework\Error\Error;
 use Throwable;
 
 use function uniqid;
 
-class SyncPromiseTestTestCaseBase extends TestCaseBase
+class SyncPromiseTest extends TestCaseBase
 {
     public function getFulfilledPromiseResolveData()
     {
@@ -347,10 +346,9 @@ class SyncPromiseTestTestCaseBase extends TestCaseBase
         self::assertEquals(SyncPromise::PENDING, $promise->state);
 
         try {
+            // @phpstan-ignore-next-line purposefully wrong
             $promise->reject('a');
             self::fail('Expected exception not thrown');
-        } catch (Error $e) {
-            throw $e;
         } catch (Throwable $e) {
             self::assertEquals(SyncPromise::PENDING, $promise->state);
         }

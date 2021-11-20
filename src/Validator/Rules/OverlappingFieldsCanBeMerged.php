@@ -864,21 +864,19 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     }
 
     /**
-     * @param string $responseName
-     * @param string $reason
+     * @param string|array<array{string, string|array<array{string, string}>}> $reasonOrReasons
      */
-    public static function fieldsConflictMessage($responseName, $reason)
+    public static function fieldsConflictMessage(string $responseName, $reasonOrReasons): string
     {
-        $reasonMessage = static::reasonMessage($reason);
+        $reasonMessage = static::reasonMessage($reasonOrReasons);
 
-        return sprintf(
-            'Fields "%s" conflict because %s. Use different aliases on the fields to fetch both if this was intentional.',
-            $responseName,
-            $reasonMessage
-        );
+        return "Fields \"{$responseName}\" conflict because {$reasonMessage}. Use different aliases on the fields to fetch both if this was intentional.";
     }
 
-    public static function reasonMessage($reasonOrReasons)
+    /**
+     * @param string|array<array{string, string|array<array{string, string}>}> $reasonOrReasons
+     */
+    public static function reasonMessage($reasonOrReasons): string
     {
         if (is_array($reasonOrReasons)) {
             $reasons = array_map(
@@ -886,7 +884,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     [$responseName, $subReason] = $reason;
                     $reasonMessage              = static::reasonMessage($subReason);
 
-                    return sprintf('subfields "%s" conflict because %s', $responseName, $reasonMessage);
+                    return "subfields \"{$responseName}\" conflict because {$reasonMessage}";
                 },
                 $reasonOrReasons
             );

@@ -35,30 +35,22 @@ class RequestParsingTest extends TestCase
     }
 
     /**
-     * @param string $contentType
-     * @param string $content
-     *
-     * @return OperationParams|OperationParams[]
+     * @return OperationParams|array<int, OperationParams>
      */
-    private function parseRawRequest($contentType, $content, string $method = 'POST')
+    private function parseRawRequest(?string $contentType, string $content, string $method = 'POST')
     {
         $_SERVER['CONTENT_TYPE']   = $contentType;
         $_SERVER['REQUEST_METHOD'] = $method;
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(static function () use ($content): string {
-            return $content;
-        });
+        return $helper->parseHttpRequest(static fn (): string => $content);
     }
 
     /**
-     * @param string $contentType
-     * @param string $content
-     *
-     * @return OperationParams|OperationParams[]
+     * @return OperationParams|array<int, OperationParams>
      */
-    private function parsePsrRequest($contentType, $content, string $method = 'POST')
+    private function parsePsrRequest(?string $contentType, string $content, string $method = 'POST')
     {
         $psrRequest = new Request(
             $method,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Server;
 
+use Closure;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
@@ -11,6 +12,7 @@ use GraphQL\Server\ServerConfig;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Validator\Rules\UniqueEnumValueNames;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -75,28 +77,42 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $formatter = static function (): void {
-        };
-        $config->setErrorFormatter($formatter);
-        self::assertSame($formatter, $config->getErrorFormatter());
+        $callable = [self::class, 'formatError'];
+        $config->setErrorFormatter($callable);
+        self::assertSame($callable, $config->getErrorFormatter());
 
-        $formatter = 'date'; // test for callable
-        $config->setErrorFormatter($formatter);
-        self::assertSame($formatter, $config->getErrorFormatter());
+        $closure = Closure::fromCallable($callable);
+        $config->setErrorFormatter($closure);
+        self::assertSame($closure, $config->getErrorFormatter());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function formatError(): array
+    {
+        return [];
     }
 
     public function testAllowsSettingErrorsHandler(): void
     {
         $config = ServerConfig::create();
 
-        $handler = static function (): void {
-        };
-        $config->setErrorsHandler($handler);
-        self::assertSame($handler, $config->getErrorsHandler());
+        $callable = [self::class, 'handleError'];
+        $config->setErrorsHandler($callable);
+        self::assertSame($callable, $config->getErrorsHandler());
 
-        $handler = 'date'; // test for callable
-        $config->setErrorsHandler($handler);
-        self::assertSame($handler, $config->getErrorsHandler());
+        $closure = Closure::fromCallable($callable);
+        $config->setErrorsHandler($closure);
+        self::assertSame($closure, $config->getErrorsHandler());
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function handleError(): array
+    {
+        return [];
     }
 
     public function testAllowsSettingPromiseAdapter(): void
@@ -120,19 +136,13 @@ class ServerConfigTest extends TestCase
         $config->setValidationRules($rules);
         self::assertSame($rules, $config->getValidationRules());
 
-        $rules = [
-            static function (): void {
-            },
-        ];
+        $rules = [new UniqueEnumValueNames()];
         $config->setValidationRules($rules);
         self::assertSame($rules, $config->getValidationRules());
 
-        $rules = static function (): array {
-            return [
-                static function (): void {
-                },
-            ];
-        };
+        $rules = static fn (): array => [
+            new UniqueEnumValueNames(),
+        ];
         $config->setValidationRules($rules);
         self::assertSame($rules, $config->getValidationRules());
     }
@@ -155,14 +165,18 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $loader = static function (): void {
-        };
-        $config->setPersistedQueryLoader($loader);
-        self::assertSame($loader, $config->getPersistedQueryLoader());
+        $callable = [self::class, 'loadPersistedQuery'];
+        $config->setPersistedQueryLoader($callable);
+        self::assertSame($callable, $config->getPersistedQueryLoader());
 
-        $loader = 'date'; // test for callable
-        $config->setPersistedQueryLoader($loader);
-        self::assertSame($loader, $config->getPersistedQueryLoader());
+        $closure = Closure::fromCallable($callable);
+        $config->setPersistedQueryLoader($closure);
+        self::assertSame($closure, $config->getPersistedQueryLoader());
+    }
+
+    public static function loadPersistedQuery(): string
+    {
+        return '{ foo }';
     }
 
     public function testAllowsSettingCatchPhpErrors(): void
