@@ -18,6 +18,9 @@
     <file>tests</file>
 
     <rule ref="Doctrine">
+        <!-- Prevents useful type assertions -->
+        <exclude name="SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration.MissingVariable" />
+
         <!-- We will rely on PHPStan instead of these -->
         <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification" />
         <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingAnyTypeHint" />
