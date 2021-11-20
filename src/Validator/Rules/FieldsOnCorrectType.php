@@ -7,8 +7,10 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\TypeWithFields;
+use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
@@ -69,6 +71,8 @@ class FieldsOnCorrectType extends ValidationRule
     protected function getSuggestedTypeNames(Schema $schema, Type $type, string $fieldName): array
     {
         if (Type::isAbstractType($type)) {
+            /** @var InterfaceType|UnionType $type must be abstract type inside this if */
+
             $suggestedObjectTypes = [];
             $interfaceUsageCount  = [];
 

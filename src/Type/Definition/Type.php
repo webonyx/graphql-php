@@ -217,14 +217,17 @@ abstract class Type implements JsonSerializable
     }
 
     /**
+     * @return (Type&NamedType)|null
+     *
      * @api
      */
-    public static function getNamedType($type): ?Type
+    public static function getNamedType(?Type $type): ?Type
     {
         while ($type instanceof WrappingType) {
             $type = $type->getWrappedType();
         }
 
+        // @phpstan-ignore-next-line non-wrapped types must be named types
         return $type;
     }
 
