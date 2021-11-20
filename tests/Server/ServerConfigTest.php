@@ -16,8 +16,6 @@ use GraphQL\Validator\Rules\UniqueEnumValueNames;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use function rand;
-
 class ServerConfigTest extends TestCase
 {
     public function testDefaults(): void
