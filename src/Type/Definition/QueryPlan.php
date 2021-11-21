@@ -125,6 +125,8 @@ class QueryPlan
                 $type = $type->getWrappedType(true);
             }
 
+            /** @var ObjectType|InterfaceType $type proven because it must be a type with fields and was unwrapped */
+
             $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type, $implementors);
 
             $this->types[$type->name] = array_unique(array_merge(

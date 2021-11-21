@@ -31,17 +31,18 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
      */
     public function getOfType(): Type
     {
-        /** @var NullableType&Type $type */
-        $type = Schema::resolveType($this->ofType);
-
-        return $type;
+        // @phpstan-ignore-next-line generics in Schema::resolveType() are not recognized correctly
+        return Schema::resolveType($this->ofType);
     }
 
+    /**
+     * @return NullableType&Type
+     */
     public function getWrappedType(bool $recurse = false): Type
     {
-        /** @var NullableType&Type $type */
         $type = $this->getOfType();
 
+        // @phpstan-ignore-next-line might return another type intermediary, but will always match the return type when done with recursion
         return $recurse && $type instanceof WrappingType
             ? $type->getWrappedType($recurse)
             : $type;

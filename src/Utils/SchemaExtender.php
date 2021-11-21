@@ -297,11 +297,6 @@ class SchemaExtender
         return $interfaces;
     }
 
-    /**
-     * @param ListOfType|NonNull|(Type &NamedType) $typeDef
-     *
-     * @return ListOfType|NonNull|(Type&NamedType)
-     */
     protected static function extendType(Type $typeDef): Type
     {
         if ($typeDef instanceof ListOfType) {
@@ -311,6 +306,8 @@ class SchemaExtender
         if ($typeDef instanceof NonNull) {
             return Type::nonNull(static::extendType($typeDef->getWrappedType()));
         }
+
+        /** @var NamedType&Type $typeDef */
 
         return static::extendNamedType($typeDef);
     }
@@ -433,7 +430,7 @@ class SchemaExtender
      *
      * @template T of Type
      */
-    protected static function extendNamedType($type)
+    protected static function extendNamedType(Type $type): Type
     {
         if (Introspection::isIntrospectionType($type) || static::isSpecifiedScalarType($type)) {
             return $type;
@@ -461,9 +458,9 @@ class SchemaExtender
     }
 
     /**
-     * @param T|null $type
+     * @param (T &NamedType)|null $type
      *
-     * @return T|null
+     * @return (T&NamedType)|null
      *
      * @template T of Type
      */
@@ -594,7 +591,7 @@ class SchemaExtender
                     return static::extendNamedType($existingType);
                 }
 
-                throw new Error('Unknown type: "' . $typeName . '". Ensure that this type exists either in the original schema, or is added in a type definition.', [$typeName]);
+                throw new Error('Unknown type: "' . $typeName . '". Ensure that this type exists either in the original schema, or is added in a type definition.');
             },
             $typeConfigDecorator
         );

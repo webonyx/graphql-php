@@ -174,6 +174,9 @@ class ASTDefinitionBuilder
         return $map;
     }
 
+    /**
+     * @param ListTypeNode|NonNullTypeNode|NamedTypeNode $typeNode
+     */
     private function buildWrappedType(TypeNode $typeNode): Type
     {
         if ($typeNode instanceof ListTypeNode) {

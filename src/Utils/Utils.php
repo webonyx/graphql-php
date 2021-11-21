@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
-use ErrorException;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
@@ -40,8 +39,6 @@ use function pack;
 use function preg_match;
 use function property_exists;
 use function range;
-use function restore_error_handler;
-use function set_error_handler;
 use function sprintf;
 use function strtolower;
 use function unpack;
@@ -136,11 +133,14 @@ class Utils
     }
 
     /**
-     * @param bool   $test
+     * @param mixed  $test    will be evaluated for truthy-ness
      * @param string $message
+     *
+     * @throws InvariantViolation
      */
     public static function invariant($test, $message = ''): void
     {
+        // @phpstan-ignore-next-line we want to evaluate for truthy-ness
         if ($test) {
             return;
         }
@@ -354,28 +354,6 @@ class Utils
         }
 
         return null;
-    }
-
-    /**
-     * Wraps original callable with PHP error handling (using set_error_handler).
-     * Resulting callable will collect all PHP errors that occur during the call in $errors array.
-     *
-     * @param ErrorException[] $errors
-     */
-    public static function withErrorHandling(callable $fn, array &$errors): callable
-    {
-        return static function () use ($fn, &$errors) {
-            // Catch custom errors (to report them in query results)
-            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors): void {
-                $errors[] = new ErrorException($message, 0, $severity, $file, $line);
-            });
-
-            try {
-                return $fn();
-            } finally {
-                restore_error_handler();
-            }
-        };
     }
 
     /**

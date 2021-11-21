@@ -65,8 +65,50 @@ use function sprintf;
 /**
  * Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
  *
- * Those magic functions allow partial parsing:
+ * @phpstan-type ParserOptions array{
+ *   noLocation?: bool,
+ *   allowLegacySDLEmptyFields?: bool,
+ *   allowLegacySDLImplementsInterfaces?: bool,
+ *   experimentalFragmentVariables?: bool,
+ * }
  *
+ * noLocation:
+ *   (By default, the parser creates AST nodes that know the location
+ *   in the source that they correspond to. This configuration flag
+ *   disables that behavior for performance or testing.)
+ *
+ * allowLegacySDLEmptyFields:
+ *   If enabled, the parser will parse empty fields sets in the Schema
+ *   Definition Language. Otherwise, the parser will follow the current
+ *   specification.
+ *
+ *   This option is provided to ease adoption of the final SDL specification
+ *   and will be removed in a future major release.
+ *
+ * allowLegacySDLImplementsInterfaces:
+ *   If enabled, the parser will parse implemented interfaces with no `&`
+ *   character between each interface. Otherwise, the parser will follow the
+ *   current specification.
+ *
+ *   This option is provided to ease adoption of the final SDL specification
+ *   and will be removed in a future major release.
+ *
+ * experimentalFragmentVariables:
+ *   (If enabled, the parser will understand and parse variable definitions
+ *   contained in a fragment definition. They'll be represented in the
+ *   `variableDefinitions` field of the FragmentDefinitionNode.
+ *
+ *   The syntax is identical to normal, query-defined variables. For example:
+ *
+ *     fragment A($var: Boolean = false) on T  {
+ *       ...
+ *     }
+ *
+ *   Note: this feature is experimental and may change or be removed in the
+ *   future.)
+ *
+ *
+ * Those magic functions allow partial parsing:
  * @method static NameNode name(Source|string $source, bool[] $options = [])
  * @method static DocumentNode document(Source|string $source, bool[] $options = [])
  * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
@@ -138,47 +180,11 @@ class Parser
 {
     /**
      * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
+     *
      * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
-     * Available options:
-     *
-     * noLocation: boolean,
-     *   (By default, the parser creates AST nodes that know the location
-     *   in the source that they correspond to. This configuration flag
-     *   disables that behavior for performance or testing.)
-     *
-     * allowLegacySDLEmptyFields: boolean
-     *   If enabled, the parser will parse empty fields sets in the Schema
-     *   Definition Language. Otherwise, the parser will follow the current
-     *   specification.
-     *
-     *   This option is provided to ease adoption of the final SDL specification
-     *   and will be removed in a future major release.
-     *
-     * allowLegacySDLImplementsInterfaces: boolean
-     *   If enabled, the parser will parse implemented interfaces with no `&`
-     *   character between each interface. Otherwise, the parser will follow the
-     *   current specification.
-     *
-     *   This option is provided to ease adoption of the final SDL specification
-     *   and will be removed in a future major release.
-     *
-     * experimentalFragmentVariables: boolean,
-     *   (If enabled, the parser will understand and parse variable definitions
-     *   contained in a fragment definition. They'll be represented in the
-     *   `variableDefinitions` field of the FragmentDefinitionNode.
-     *
-     *   The syntax is identical to normal, query-defined variables. For example:
-     *
-     *     fragment A($var: Boolean = false) on T  {
-     *       ...
-     *     }
-     *
-     *   Note: this feature is experimental and may change or be removed in the
-     *   future.)
-     *
      * @param Source|string $source
-     * @param bool[]        $options
+     * @phpstan-param ParserOptions       $options
      *
      * @throws SyntaxError
      *
@@ -192,8 +198,8 @@ class Parser
     }
 
     /**
-     * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for
-     * that value.
+     * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for that value.
+     *
      * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * This is useful within tools that operate upon GraphQL Values directly and
@@ -202,7 +208,7 @@ class Parser
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
      *
      * @param Source|string $source
-     * @param bool[]        $options
+     * @phpstan-param ParserOptions       $options
      *
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode
      *
@@ -219,8 +225,8 @@ class Parser
     }
 
     /**
-     * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for
-     * that type.
+     * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for that type.
+     *
      * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * This is useful within tools that operate upon GraphQL Types directly and
@@ -229,7 +235,7 @@ class Parser
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
      *
      * @param Source|string $source
-     * @param bool[]        $options
+     * @phpstan-param ParserOptions       $options
      *
      * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
      *
@@ -248,7 +254,7 @@ class Parser
     /**
      * Parse partial source by delegating calls to the internal parseX methods.
      *
-     * @param bool[] $arguments
+     * @phpstan-param array{string, ParserOptions} $arguments
      *
      * @throws SyntaxError
      */
@@ -297,12 +303,11 @@ class Parser
         return $type;
     }
 
-    /** @var Lexer */
-    private $lexer;
+    private Lexer $lexer;
 
     /**
      * @param Source|string $source
-     * @param bool[]        $options
+     * @phpstan-param ParserOptions        $options
      */
     public function __construct($source, array $options = [])
     {

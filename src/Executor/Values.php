@@ -56,7 +56,6 @@ class Values
         $coercedValues = [];
         foreach ($varDefNodes as $varDefNode) {
             $varName = $varDefNode->variable->name->value;
-            /** @var InputType|Type $varType */
             $varType = TypeInfo::typeFromAST($schema, $varDefNode->type);
 
             if (! Type::isInputType($varType)) {
@@ -71,6 +70,7 @@ class Values
                     [$varDefNode->type]
                 );
             } else {
+                /** @var InputType&Type $varType */
                 $hasValue = array_key_exists($varName, $rawVariableValues);
                 $value    = $hasValue
                     ? $rawVariableValues[$varName]

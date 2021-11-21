@@ -16,6 +16,7 @@ use function array_merge;
 use function array_splice;
 use function count;
 use function is_array;
+use function iterator_to_array;
 
 /**
  * @template T of Node
@@ -133,15 +134,14 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @param NodeList|array<Node|array<string, mixed>> $list
-     * @phpstan-param NodeList<T>|array<T> $list
+     * @phpstan-param iterable<T> $list
      *
      * @phpstan-return NodeList<T>
      */
-    public function merge($list): NodeList
+    public function merge(iterable $list): NodeList
     {
-        if ($list instanceof self) {
-            $list = $list->nodes;
+        if (! is_array($list)) {
+            $list = iterator_to_array($list);
         }
 
         return new NodeList(array_merge($this->nodes, $list));

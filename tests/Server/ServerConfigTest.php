@@ -230,7 +230,7 @@ class ServerConfigTest extends TestCase
         $arr = ['missingKey' => 'value'];
 
         $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Unknown server config option "missingKey"');
+        $this->expectExceptionMessage('Unknown server config option: missingKey');
 
         ServerConfig::create($arr);
     }

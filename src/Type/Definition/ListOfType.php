@@ -8,13 +8,20 @@ use GraphQL\Type\Schema;
 
 use function is_callable;
 
+/**
+ * @template OfType of Type
+ */
 class ListOfType extends Type implements WrappingType, OutputType, NullableType, InputType
 {
-    /** @var Type|callable():Type */
+    /**
+     * @var Type|callable
+     * @phpstan-var OfType|callable(): OfType
+     */
     public $ofType;
 
     /**
-     * @param Type|callable():Type $type
+     * @param Type|callable $type
+     * @phpstan-param OfType|callable(): OfType $type
      */
     public function __construct($type)
     {
@@ -28,6 +35,9 @@ class ListOfType extends Type implements WrappingType, OutputType, NullableType,
         return '[' . $this->getOfType()->toString() . ']';
     }
 
+    /**
+     * @phpstan-return OfType
+     */
     public function getOfType(): Type
     {
         return Schema::resolveType($this->ofType);
