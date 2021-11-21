@@ -124,7 +124,6 @@ class QueryPlan
             if ($type instanceof WrappingType) {
                 $type = $type->getWrappedType(true);
             }
-            /** @var ObjectType|InterfaceType $type proven because it must be a type with fields and was unwrapped */
 
             /** @var ObjectType|InterfaceType $type proven because it must be a type with fields and was unwrapped */
 
