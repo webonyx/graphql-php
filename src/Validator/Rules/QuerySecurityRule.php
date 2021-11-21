@@ -18,6 +18,9 @@ use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 use InvalidArgumentException;
 
+/**
+ * @phpstan-import-type VisitorArray from ValidationRule
+ */
 abstract class QuerySecurityRule extends ValidationRule
 {
     public const DISABLED = 0;
@@ -46,13 +49,12 @@ abstract class QuerySecurityRule extends ValidationRule
     }
 
     /**
-     * @param callable[] $validators
+     * @phpstan-param VisitorArray $validators
      *
-     * @return callable[]
+     * @phpstan-return VisitorArray
      */
     protected function invokeIfNeeded(ValidationContext $context, array $validators): array
     {
-        // is disabled?
         if (! $this->isEnabled()) {
             return [];
         }

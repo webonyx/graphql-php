@@ -11,6 +11,7 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\HasSelectionSet;
 use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
@@ -18,6 +19,7 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
@@ -88,28 +90,26 @@ class ValidationContext extends ASTValidationContext
     }
 
     /**
-     * @return mixed[][] List of ['node' => VariableNode, 'type' => ?InputObjectType]
+     * @param HasSelectionSet &Node $node
+     *
+     * @return array<int, array{node: VariableNode, type: InputObjectType|null, defaultValue: mixed}>
      */
     private function getVariableUsages(HasSelectionSet $node): array
     {
-        $usages = $this->variableUsages[$node] ?? null;
-
-        if ($usages === null) {
-            $newUsages = [];
-            $typeInfo  = new TypeInfo($this->schema);
+        if (! isset($this->variableUsages[$node])) {
+            $usages   = [];
+            $typeInfo = new TypeInfo($this->schema);
             Visitor::visit(
                 $node,
                 Visitor::visitWithTypeInfo(
                     $typeInfo,
                     [
-                        NodeKind::VARIABLE_DEFINITION => static function (): bool {
-                            return false;
-                        },
+                        NodeKind::VARIABLE_DEFINITION => static fn (): bool => false,
                         NodeKind::VARIABLE            => static function (VariableNode $variable) use (
-                            &$newUsages,
+                            &$usages,
                             $typeInfo
                         ): void {
-                            $newUsages[] = [
+                            $usages[] = [
                                 'node' => $variable,
                                 'type' => $typeInfo->getInputType(),
                                 'defaultValue' => $typeInfo->getDefaultValue(),
@@ -118,11 +118,11 @@ class ValidationContext extends ASTValidationContext
                     ]
                 )
             );
-            $usages                      = $newUsages;
-            $this->variableUsages[$node] = $usages;
+
+            return $this->variableUsages[$node] = $usages;
         }
 
-        return $usages;
+        return $this->variableUsages[$node];
     }
 
     /**
@@ -216,6 +216,9 @@ class ValidationContext extends ASTValidationContext
         return $this->fragments[$name] ?? null;
     }
 
+    /**
+     * @return (OutputType&Type)|null
+     */
     public function getType(): ?OutputType
     {
         return $this->typeInfo->getType();

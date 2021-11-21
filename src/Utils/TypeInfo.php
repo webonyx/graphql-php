@@ -406,7 +406,7 @@ class TypeInfo
     }
 
     /**
-     * @return mixed|null
+     * @return mixed any value is possible
      */
     public function getDefaultValue()
     {

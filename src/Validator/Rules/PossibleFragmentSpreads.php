@@ -30,9 +30,9 @@ class PossibleFragmentSpreads extends ValidationRule
                 $parentType = $context->getParentType();
 
                 if (
-                    ! ($fragType instanceof CompositeType) ||
-                    ! ($parentType instanceof CompositeType) ||
-                    $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
+                    ! $fragType instanceof CompositeType
+                    || ! $parentType instanceof CompositeType
+                    || $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
                 ) {
                     return;
                 }
@@ -63,6 +63,10 @@ class PossibleFragmentSpreads extends ValidationRule
         ];
     }
 
+    /**
+     * @param CompositeType &Type $fragType
+     * @param CompositeType &Type $parentType
+     */
     protected function doTypesOverlap(Schema $schema, CompositeType $fragType, CompositeType $parentType)
     {
         // Checking in the order of the most frequently used scenarios:
@@ -140,6 +144,9 @@ class PossibleFragmentSpreads extends ValidationRule
         );
     }
 
+    /**
+     * @return (CompositeType&Type)|null
+     */
     protected function getFragmentType(ValidationContext $context, string $name): ?Type
     {
         $frag = $context->getFragment($name);

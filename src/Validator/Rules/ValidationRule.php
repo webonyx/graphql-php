@@ -9,6 +9,9 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
+/**
+ * @phpstan-type VisitorArray array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
+ */
 abstract class ValidationRule
 {
     protected string $name;
@@ -19,7 +22,7 @@ abstract class ValidationRule
     }
 
     /**
-     * @return array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
+     * @phpstan-return VisitorArray
      */
     public function __invoke(ValidationContext $context): array
     {
@@ -27,11 +30,9 @@ abstract class ValidationRule
     }
 
     /**
-     * Returns structure suitable for GraphQL\Language\Visitor
+     * Returns structure suitable for @see \GraphQL\Language\Visitor.
      *
-     * @see \GraphQL\Language\Visitor
-     *
-     * @return array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
+     * @phpstan-return VisitorArray
      */
     public function getVisitor(ValidationContext $context): array
     {
@@ -39,11 +40,9 @@ abstract class ValidationRule
     }
 
     /**
-     * Returns structure suitable for GraphQL\Language\Visitor
+     * Returns structure suitable for @see \GraphQL\Language\Visitor.
      *
-     * @see \GraphQL\Language\Visitor
-     *
-     * @return array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
+     * @phpstan-return VisitorArray
      */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
