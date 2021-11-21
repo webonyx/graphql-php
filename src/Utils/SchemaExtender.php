@@ -298,7 +298,7 @@ class SchemaExtender
     }
 
     /**
-     * @param ListOfType|NonNull|(Type &NamedType) $typeDef
+     * @param ListOfType|NonNull|(Type&NamedType) $typeDef
      *
      * @return ListOfType|NonNull|(Type&NamedType)
      */

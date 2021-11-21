@@ -357,28 +357,6 @@ class Utils
     }
 
     /**
-     * Wraps original callable with PHP error handling (using set_error_handler).
-     * Resulting callable will collect all PHP errors that occur during the call in $errors array.
-     *
-     * @param ErrorException[] $errors
-     */
-    public static function withErrorHandling(callable $fn, array &$errors): callable
-    {
-        return static function () use ($fn, &$errors) {
-            // Catch custom errors (to report them in query results)
-            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors): void {
-                $errors[] = new ErrorException($message, 0, $severity, $file, $line);
-            });
-
-            try {
-                return $fn();
-            } finally {
-                restore_error_handler();
-            }
-        };
-    }
-
-    /**
      * @param array<string> $items
      */
     public static function quotedOrList(array $items): string

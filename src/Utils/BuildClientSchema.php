@@ -207,6 +207,7 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeRef
+     * @return Type&InputType
      */
     private function getInputType(array $typeRef): InputType
     {

@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
-use GraphQL\Type\Definition\AbstractType;
-use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\ImplementingType;
+use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 
+/**
+ * @phpstan-import-type AbstractTypeAlias from AbstractType
+ */
 class TypeComparators
 {
     /**
@@ -77,55 +80,15 @@ class TypeComparators
             return false;
         }
 
-        // If superType type is an abstract type, maybeSubType type may be a currently
-        // possible object or interface type.
-        return Type::isAbstractType($superType) &&
-            $maybeSubType instanceof ImplementingType &&
-            $schema->isSubType(
-                $superType,
-                $maybeSubType
-            );
-    }
+        if (Type::isAbstractType($superType)) {
+            // If superType type is an abstract type, maybeSubType type may be a currently
+            // possible object or interface type.
+            /** @phpstan-var AbstractTypeAlias $superType proven by Type::isAbstractType() */
 
-    /**
-     * Provided two composite types, determine if they "overlap". Two composite
-     * types overlap when the Sets of possible concrete types for each intersect.
-     *
-     * This is often used to determine if a fragment of a given type could possibly
-     * be visited in a context of another type.
-     *
-     * This function is commutative.
-     */
-    public static function doTypesOverlap(Schema $schema, CompositeType $typeA, CompositeType $typeB): bool
-    {
-        // Equivalent types overlap
-        if ($typeA === $typeB) {
-            return true;
+            return $maybeSubType instanceof ImplementingType
+                && $schema->isSubType($superType, $maybeSubType);
         }
 
-        if ($typeA instanceof AbstractType) {
-            if ($typeB instanceof AbstractType) {
-                // If both types are abstract, then determine if there is any intersection
-                // between possible concrete types of each.
-                foreach ($schema->getPossibleTypes($typeA) as $type) {
-                    if ($schema->isSubType($typeB, $type)) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            // Determine if the latter type is a possible concrete type of the former.
-            return $schema->isSubType($typeA, $typeB);
-        }
-
-        if ($typeB instanceof AbstractType) {
-            // Determine if the former type is a possible concrete type of the latter.
-            return $schema->isSubType($typeB, $typeA);
-        }
-
-        // Otherwise the types do not overlap.
         return false;
     }
 }
