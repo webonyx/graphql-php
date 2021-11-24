@@ -6,7 +6,6 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
@@ -115,7 +114,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * Synchronously wait when promise completes
      *
-     * @return ExecutionResult|array<ExecutionResult>
+     * @return mixed
      */
     public function wait(Promise $promise)
     {
