@@ -22,8 +22,3 @@ parsers:
       loop: yes
       method: no
       macro: no
-
-comment:
-  layout: "reach,diff,flags,files,footer"
-  behavior: default
-  require_changes: no
