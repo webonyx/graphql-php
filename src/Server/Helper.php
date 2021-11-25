@@ -8,6 +8,7 @@ use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
@@ -142,54 +143,6 @@ class Helper
     }
 
     /**
-     * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
-     * if params are invalid (or empty array when params are valid)
-     *
-     * @return array<int, RequestError>
-     *
-     * @api
-     */
-    public function validateOperationParams(OperationParams $params): array
-    {
-        $errors  = [];
-        $query   = $params->query ?? '';
-        $queryId = $params->queryId ?? '';
-        if ($query === '' && $queryId === '') {
-            $errors[] = new RequestError('GraphQL Request must include at least one of those two parameters: "query" or "queryId"');
-        }
-
-        if (! is_string($query)) {
-            $errors[] = new RequestError(
-                'GraphQL Request parameter "query" must be string, but got ' .
-                Utils::printSafeJson($params->query)
-            );
-        }
-
-        if (! is_string($queryId)) {
-            $errors[] = new RequestError(
-                'GraphQL Request parameter "queryId" must be string, but got ' .
-                Utils::printSafeJson($params->queryId)
-            );
-        }
-
-        if ($params->operation !== null && ! is_string($params->operation)) {
-            $errors[] = new RequestError(
-                'GraphQL Request parameter "operation" must be string, but got ' .
-                Utils::printSafeJson($params->operation)
-            );
-        }
-
-        if ($params->variables !== null && (! is_array($params->variables) || isset($params->variables[0]))) {
-            $errors[] = new RequestError(
-                'GraphQL Request parameter "variables" must be object or JSON string parsed to object, but got ' .
-                Utils::printSafeJson($params->originalInput['variables'])
-            );
-        }
-
-        return $errors;
-    }
-
-    /**
      * Executes GraphQL operation with given server configuration and returns execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter)
      *
@@ -241,72 +194,138 @@ class Helper
     private function promiseToExecuteOperation(
         PromiseAdapter $promiseAdapter,
         ServerConfig $config,
-        OperationParams $op,
+        OperationParams $params,
         bool $isBatch = false
     ): Promise {
-        try {
-            if ($config->getSchema() === null) {
-                throw new InvariantViolation('Schema is required for the server');
-            }
+        $schema = $config->getSchema();
+        if ($schema === null) {
+            throw new InvariantViolation('Schema is required for the server');
+        }
 
-            if ($isBatch && ! $config->getQueryBatching()) {
-                throw new RequestError('Batched queries are not supported by this server');
-            }
+        if ($isBatch && ! $config->getQueryBatching()) {
+            $batchedQueriesAreNotSupported = new RequestError('Batched queries are not supported by this server');
 
-            $errors = $this->validateOperationParams($op);
-
-            if (count($errors) > 0) {
-                $locatedErrors = array_map(
-                    [Error::class, 'createLocatedError'],
-                    $errors
-                );
-
-                return $promiseAdapter->createFulfilled(
-                    new ExecutionResult(null, $locatedErrors)
-                );
-            }
-
-            $doc = $op->queryId !== null && $op->query === null
-                ? $this->loadPersistedQuery($config, $op)
-                : $op->query;
-
-            if (! $doc instanceof DocumentNode) {
-                $doc = Parser::parse($doc);
-            }
-
-            $operationAST = AST::getOperationAST($doc, $op->operation);
-
-            if ($operationAST === null) {
-                throw new RequestError('Failed to determine operation type');
-            }
-
-            $operationType = $operationAST->operation;
-            if ($operationType !== 'query' && $op->readOnly) {
-                throw new RequestError('GET supports only query operation');
-            }
-
-            $result = GraphQL::promiseToExecute(
-                $promiseAdapter,
-                $config->getSchema(),
-                $doc,
-                $this->resolveRootValue($config, $op, $doc, $operationType),
-                $this->resolveContextValue($config, $op, $doc, $operationType),
-                $op->variables,
-                $op->operation,
-                $config->getFieldResolver(),
-                $this->resolveValidationRules($config, $op, $doc, $operationType)
-            );
-        } catch (RequestError $e) {
-            $result = $promiseAdapter->createFulfilled(
-                new ExecutionResult(null, [Error::createLocatedError($e)])
-            );
-        } catch (Error $e) {
-            $result = $promiseAdapter->createFulfilled(
-                new ExecutionResult(null, [$e])
+            return $promiseAdapter->createFulfilled(
+                new ExecutionResult(null, [Error::createLocatedError($batchedQueriesAreNotSupported)])
             );
         }
 
-        $applyErrorHandling = static function (ExecutionResult $result) use ($config): ExecutionResult {
+        /** @var array<int, RequestError|SyntaxError> $errors */
+        $errors = [];
+
+        $query      = $params->query;
+        $queryId    = $params->queryId;
+        $operation  = $params->operation;
+        $variables  = $params->variables;
+        $extensions = $params->extensions;
+
+        if ($operation !== null && ! is_string($operation)) {
+            $errors[] = new RequestError(
+                'GraphQL Request parameter "operation" must be string, but got ' .
+                Utils::printSafeJson($operation)
+            );
+        }
+
+        if ($variables !== null && (! is_array($variables) || isset($variables[0]))) {
+            $errors[] = new RequestError(
+                'GraphQL Request parameter "variables" must be object or JSON string parsed to object, but got ' .
+                Utils::printSafeJson($params->getOriginalInput('variables'))
+            );
+        }
+
+        if ($extensions !== null && (! is_array($extensions) || isset($variables[0]))) {
+            $errors[] = new RequestError(
+                'GraphQL Request parameter "extensions" must be object or JSON string parsed to object, but got ' .
+                Utils::printSafeJson($params->getOriginalInput('extensions'))
+            );
+        }
+
+        if ($queryId !== null) {
+            if (! is_string($queryId)) {
+                $errors[] = new RequestError(
+                    'GraphQL Request parameter "queryId" must be string, but got ' .
+                    Utils::printSafeJson($params->queryId)
+                );
+            }
+
+            $loader = $config->getPersistedQueryLoader();
+
+            if ($loader === null) {
+                $errors[] = new RequestError('Persisted queries are not supported by this server');
+                $source   = null;
+            } else {
+                $source = $loader($queryId, $params);
+
+                // @phpstan-ignore-next-line unless PHP gains function types, we have to check this at runtime
+                if (! is_string($source) && ! $source instanceof DocumentNode) {
+                    throw new InvariantViolation(
+                        'Persistent query loader must return query string or instance of ' . DocumentNode::class
+                        . ' but got: ' . Utils::printSafe($source)
+                    );
+                }
+            }
+        } elseif ($query !== null) {
+            if (! is_string($query)) {
+                $errors[] = new RequestError(
+                    'GraphQL Request parameter "query" must be string, but got ' .
+                    Utils::printSafeJson($params->query)
+                );
+            }
+
+            $source = $query;
+        } else {
+            $errors[] = new RequestError(
+                'GraphQL Request must include at least one of those two parameters: "query" or "queryId"'
+            );
+            $source   = null;
+        }
+
+        if (is_string($source)) {
+            try {
+                $source = Parser::parse($source);
+
+                $operationAST = AST::getOperationAST($source, $operation);
+
+                if ($operationAST === null) {
+                    $errors[] = new RequestError('Failed to determine operation type');
+                }
+
+                $operationType = $operationAST->operation;
+                if ($operationType !== 'query' && $params->readOnly) {
+                    $errors[] = new RequestError('GET supports only query operation');
+                }
+            } catch (SyntaxError $error) {
+                $errors[] = $error;
+            }
+        }
+
+        if (count($errors) > 0) {
+            return $promiseAdapter->createFulfilled(
+                new ExecutionResult(
+                    null,
+                    array_map([Error::class, 'createLocatedError'], $errors)
+                )
+            );
+        }
+
+        $result = GraphQL::promiseToExecute(
+            $promiseAdapter,
+            $schema,
+            $source,
+            $this->resolveRootValue($config, $params, $source, $operationType),
+            $this->resolveContextValue($config, $params, $source, $operationType),
+            $variables,
+            $operation,
+            $config->getFieldResolver(),
+            $this->resolveValidationRules($config, $params, $source, $operationType)
+        );
+
+        return $this->applyErrorHandling($result, $config);
+    }
+
+    private function applyErrorHandling(Promise $result, ServerConfig $config): Promise
+    {
+        return $result->then(static function (ExecutionResult $result) use ($config): ExecutionResult {
             if ($config->getErrorsHandler() !== null) {
                 $result->setErrorsHandler($config->getErrorsHandler());
             }
@@ -321,35 +340,7 @@ class Helper
             }
 
             return $result;
-        };
-
-        return $result->then($applyErrorHandling);
-    }
-
-    /**
-     * @return mixed
-     *
-     * @throws RequestError
-     */
-    private function loadPersistedQuery(ServerConfig $config, OperationParams $operationParams)
-    {
-        $loader = $config->getPersistedQueryLoader();
-
-        if ($loader === null) {
-            throw new RequestError('Persisted queries are not supported by this server');
-        }
-
-        $source = $loader($operationParams->queryId, $operationParams);
-
-        // @phpstan-ignore-next-line Necessary until PHP gains function types
-        if (! is_string($source) && ! $source instanceof DocumentNode) {
-            throw new InvariantViolation(
-                'Persisted query loader must return query string or instance of ' . DocumentNode::class
-                . ' but got: ' . Utils::printSafe($source)
-            );
-        }
-
-        return $source;
+        });
     }
 
     /**
