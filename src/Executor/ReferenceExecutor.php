@@ -55,6 +55,8 @@ use function sprintf;
 
 /**
  * @phpstan-import-type FieldResolver from Executor
+ * @phpstan-import-type AbstractTypeAlias from AbstractType
+ * @phpstan-type Fields ArrayObject<string, ArrayObject<int, FieldNode>>
  */
 class ReferenceExecutor implements ExecutorImplementation
 {
@@ -373,10 +375,10 @@ class ReferenceExecutor implements ExecutorImplementation
      * returns an Interface or Union type, the "runtime type" will be the actual
      * Object type returned by that field.
      *
-     * @param ArrayObject<string, ArrayObject<int, FieldNode>> $fields
-     * @param ArrayObject<string, true>                        $visitedFragmentNames
+     * @param ArrayObject<string, true> $visitedFragmentNames
+     * @phpstan-param Fields $fields
      *
-     * @return ArrayObject<string, ArrayObject<int, FieldNode>>
+     * @phpstan-return Fields
      */
     protected function collectFields(
         ObjectType $runtimeType,
@@ -506,9 +508,9 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Implements the "Evaluating selection sets" section of the spec for "write" mode.
      *
-     * @param mixed                                      $rootValue
-     * @param array<string|int>                          $path
-     * @param ArrayObject<string, array<int, FieldNode>> $fields
+     * @param mixed             $rootValue
+     * @param array<string|int> $path
+     * @phpstan-param Fields $fields
      *
      * @return array<mixed>|Promise|stdClass
      */
@@ -860,7 +862,9 @@ class ReferenceExecutor implements ExecutorImplementation
             return $this->completeObjectValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
-        throw new RuntimeException(sprintf('Cannot complete value of unexpected type "%s".', $returnType));
+        $safeReturnType = Utils::printSafe($returnType);
+
+        throw new RuntimeException("Cannot complete value of unexpected type \"{$safeReturnType}\".");
     }
 
     /**
@@ -991,6 +995,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param ArrayObject<int, FieldNode> $fieldNodes
      * @param array<string|int>           $path
      * @param array<mixed>                $result
+     * @phpstan-param AbstractTypeAlias $returnType
      *
      * @return array<mixed>|Promise|stdClass
      *
@@ -1062,9 +1067,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * Otherwise, test each possible type for the abstract type by calling
      * isTypeOf for the object being coerced, returning the first type that matches.
      *
-     * @param mixed|null              $value
-     * @param mixed|null              $contextValue
-     * @param InterfaceType|UnionType $abstractType
+     * @param mixed|null        $value
+     * @param mixed|null        $contextValue
+     * @param AbstractTypeAlias $abstractType
      *
      * @return Promise|Type|string|null
      */
@@ -1226,7 +1231,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param ArrayObject<int, FieldNode> $fieldNodes
      *
-     * @return ArrayObject<int, FieldNode>
+     * @phpstan-return Fields
      */
     protected function collectSubFields(ObjectType $returnType, ArrayObject $fieldNodes): ArrayObject
     {
@@ -1258,9 +1263,9 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Implements the "Evaluating selection sets" section of the spec for "read" mode.
      *
-     * @param mixed                       $rootValue
-     * @param array<string|int>           $path
-     * @param ArrayObject<int, FieldNode> $fields
+     * @param mixed             $rootValue
+     * @param array<string|int> $path
+     * @phpstan-param Fields $fields
      *
      * @return Promise|stdClass|array<mixed>
      */

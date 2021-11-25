@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\Type;
 use stdClass;
 use Throwable;
 use Traversable;
@@ -36,7 +37,7 @@ class Value
     /**
      * Given a type and any value, return a runtime value coerced to match the type.
      *
-     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull                              $type
+     * @param ScalarType|EnumType|InputObjectType|ListOfType<Type                                 &InputType>|NonNull $type
      * @param array{errors: array<int, Error>, value: stdClass}|array{errors: null, value: mixed} $path
      */
     public static function coerceValue($value, InputType $type, $blameNode = null, ?array $path = null)

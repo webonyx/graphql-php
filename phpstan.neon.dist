@@ -1,8 +1,6 @@
 parameters:
     # TODO increase to max
-    level: 4
-
-    inferPrivatePropertyTypeFromConstructor: true
+    level: 5
 
     # TODO revert this setting once we arrived at level: max
     reportUnmatchedIgnoredErrors: false
@@ -33,9 +31,6 @@ parameters:
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didEnter~"
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
-
-        # TODO convert to less magical code
-        - "~Variable method call on static\\(GraphQL\\\\Server\\\\ServerConfig\\)~"
 
         # PHPStan does not play nicely with markTestSkipped()
         - message: "~Unreachable statement - code above always terminates~"

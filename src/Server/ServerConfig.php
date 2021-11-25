@@ -15,9 +15,6 @@ use GraphQL\Validator\Rules\ValidationRule;
 
 use function is_array;
 use function is_callable;
-use function method_exists;
-use function sprintf;
-use function ucfirst;
 
 /**
  * Server configuration class.
@@ -50,12 +47,43 @@ class ServerConfig
     {
         $instance = new static();
         foreach ($config as $key => $value) {
-            $method = 'set' . ucfirst($key);
-            if (! method_exists($instance, $method)) {
-                throw new InvariantViolation(sprintf('Unknown server config option "%s"', $key));
+            switch ($key) {
+                case 'schema':
+                    $instance->setSchema($value);
+                    break;
+                case 'rootValue':
+                    $instance->setRootValue($value);
+                    break;
+                case 'context':
+                    $instance->setContext($value);
+                    break;
+                case 'fieldResolver':
+                    $instance->setFieldResolver($value);
+                    break;
+                case 'validationRules':
+                    $instance->setValidationRules($value);
+                    break;
+                case 'queryBatching':
+                    $instance->setQueryBatching($value);
+                    break;
+                case 'debugFlag':
+                    $instance->setDebugFlag($value);
+                    break;
+                case 'persistedQueryLoader':
+                    $instance->setPersistedQueryLoader($value);
+                    break;
+                case 'errorFormatter':
+                    $instance->setErrorFormatter($value);
+                    break;
+                case 'errorsHandler':
+                    $instance->setErrorsHandler($value);
+                    break;
+                case 'promiseAdapter':
+                    $instance->setPromiseAdapter($value);
+                    break;
+                default:
+                    throw new InvariantViolation("Unknown server config option: {$key}");
             }
-
-            $instance->$method($value);
         }
 
         return $instance;

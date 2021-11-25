@@ -72,10 +72,10 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
     protected ?array $extensions;
 
     /**
-     * @param iterable<Node>|Node|null    $nodes
-     * @param array<int, int>|null        $positions
-     * @param array<int, int|string>|null $path
-     * @param array<string, mixed>|null   $extensions
+     * @param iterable<array-key, Node>|Node|null $nodes
+     * @param array<int, int>|null                $positions
+     * @param array<int, int|string>|null         $path
+     * @param array<string, mixed>|null           $extensions
      */
     public function __construct(
         string $message = '',

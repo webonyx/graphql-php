@@ -63,16 +63,14 @@ class FieldArgument
         return $map;
     }
 
+    /**
+     * @return Type&InputType
+     */
     public function getType(): Type
     {
         if (! isset($this->type)) {
-            /**
-             * TODO: replace this phpstan cast with native assert
-             *
-             * @var Type&InputType
-             */
-            $type       = Schema::resolveType($this->config['type']);
-            $this->type = $type;
+            // @phpstan-ignore-next-line schema validation will catch a Type that is not an InputType
+            $this->type = Schema::resolveType($this->config['type']);
         }
 
         return $this->type;

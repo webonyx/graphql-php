@@ -61,7 +61,7 @@ class UserType extends ObjectType
     }
 
     /**
-     * @param array{size: int} $args
+     * @param array{size: string} $args
      */
     public function resolvePhoto(User $user, array $args): Image
     {
