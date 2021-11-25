@@ -20,8 +20,8 @@ use function iterator_to_array;
 
 /**
  * @template T of Node
- * @phpstan-implements ArrayAccess<int|string, T>
- * @phpstan-implements IteratorAggregate<T>
+ * @phpstan-implements ArrayAccess<array-key, T>
+ * @phpstan-implements IteratorAggregate<array-key, T>
  */
 class NodeList implements ArrayAccess, IteratorAggregate, Countable
 {
@@ -134,7 +134,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @phpstan-param iterable<T> $list
+     * @phpstan-param iterable<array-key, T> $list
      *
      * @phpstan-return NodeList<T>
      */
