@@ -14,6 +14,7 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
+use GraphQL\Server\PersistedOperation;
 use GraphQL\Server\RequestError;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Validator\DocumentValidator;
@@ -403,8 +404,8 @@ class QueryExecutionTest extends ServerTestCase
     public function testAllowSkippingValidationForPersistedQueries(): void
     {
         $this->config
-            ->setPersistedQueryLoader(static function ($queryId) {
-                if ($queryId === 'some-id') {
+            ->setPersistedQueryLoader(static function (PersistedOperation $persistedOperation): string {
+                if ($persistedOperation->queryId === 'some-id') {
                     return '{invalid}';
                 }
 
