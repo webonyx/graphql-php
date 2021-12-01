@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Server;
 
-use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
@@ -309,15 +308,12 @@ class Helper
         $applyErrorHandling = static function (ExecutionResult $result) use ($config): ExecutionResult {
             $result->setErrorsHandler($config->getErrorsHandler());
 
-            $debugFlag = $config->getDebugFlag();
-            if ($debugFlag !== DebugFlag::NONE) {
-                $result->setErrorFormatter(
-                    FormattedError::prepareFormatter(
-                        $config->getErrorFormatter(),
-                        $debugFlag
-                    )
-                );
-            }
+            $result->setErrorFormatter(
+                FormattedError::prepareFormatter(
+                    $config->getErrorFormatter(),
+                    $config->getDebugFlag()
+                )
+            );
 
             return $result;
         };
