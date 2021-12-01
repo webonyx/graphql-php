@@ -307,15 +307,14 @@ class Helper
         }
 
         $applyErrorHandling = static function (ExecutionResult $result) use ($config): ExecutionResult {
-            if ($config->getErrorsHandler() !== null) {
-                $result->setErrorsHandler($config->getErrorsHandler());
-            }
+            $result->setErrorsHandler($config->getErrorsHandler());
 
-            if ($config->getErrorFormatter() !== null || $config->getDebugFlag() !== DebugFlag::NONE) {
+            $debugFlag = $config->getDebugFlag();
+            if ($debugFlag !== DebugFlag::NONE) {
                 $result->setErrorFormatter(
                     FormattedError::prepareFormatter(
                         $config->getErrorFormatter(),
-                        $config->getDebugFlag()
+                        $debugFlag
                     )
                 );
             }

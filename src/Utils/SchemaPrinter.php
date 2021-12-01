@@ -436,18 +436,19 @@ class SchemaPrinter
      */
     protected static function printInputObject(InputObjectType $type, array $options): string
     {
-        $fields = array_values($type->getFields());
-        $fields = array_map(
-            static function ($f, $i) use ($options): string {
-                return static::printDescription($options, $f, '  ', ! $i) . '  ' . static::printInputValue($f);
-            },
-            $fields,
-            array_keys($fields)
-        );
+        $fields       = [];
+        $firstInBlock = true;
 
-        return static::printDescription($options, $type) .
-            sprintf('input %s', $type->name) .
-            static::printBlock($fields);
+        foreach ($type->getFields() as $field) {
+            $fields[]     = static::printDescription($options, $field, '  ', $firstInBlock)
+                . '  '
+                . static::printInputValue($field);
+            $firstInBlock = false;
+        }
+
+        return static::printDescription($options, $type)
+            . "input {$type->name}"
+            . static::printBlock($fields);
     }
 
     /**

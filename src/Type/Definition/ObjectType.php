@@ -8,7 +8,6 @@ use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 use function is_callable;
@@ -58,8 +57,7 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
 {
     use TypeWithInterfaces;
 
-    /** @var ObjectTypeDefinitionNode|null */
-    public ?TypeDefinitionNode $astNode;
+    public ?ObjectTypeDefinitionNode $astNode;
 
     /** @var array<int, ObjectTypeExtensionNode> */
     public array $extensionASTNodes;

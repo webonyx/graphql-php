@@ -7,7 +7,6 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 use function is_callable;
@@ -18,8 +17,7 @@ class InterfaceType extends TypeWithFields implements AbstractType, OutputType, 
 {
     use TypeWithInterfaces;
 
-    /** @var InterfaceTypeDefinitionNode|null */
-    public ?TypeDefinitionNode $astNode;
+    public ?InterfaceTypeDefinitionNode $astNode;
 
     /** @var array<int, InterfaceTypeExtensionNode> */
     public array $extensionASTNodes;

@@ -110,3 +110,8 @@ parameters:
 			count: 1
 			path: src/Utils/Utils.php
 
+		-
+			message: "#^Property GraphQL\\\\Tests\\\\Type\\\\SchemaTest\\:\\:\\$implementingType is never read, only written\\.$#"
+			count: 1
+			path: tests/Type/SchemaTest.php
+

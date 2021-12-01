@@ -27,6 +27,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Rename `ServerConfig` option `persistentQueryLoader` to `persistedQueryLoader`
 - Call previously unused methods `EnumType::parseValue()` and `EnumType::parseLiteral()`
 - Strongly type `PromiseAdapter::createRejected()` to require `\Throwable`
+- Store rules exclusively by class name in `DocumentValidator`
 
 ### Added
 
@@ -80,6 +81,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove `OperationParams` method `isReadOnly()` in favor of public property `$readOnly`
 - Remove `Utils::withErrorHandling()`
 - Remove `TypeComparators::doTypesOverlap()`
+- Remove `DocumentValidator::isError()`
+- Remove `DocumentValidator::append()`
 
 ## 14.11.3
 

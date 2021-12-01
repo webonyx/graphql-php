@@ -10,6 +10,7 @@ use GraphQL\Error\FormattedError;
 use JsonSerializable;
 // phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
 use ReturnTypeWillChange;
+use Throwable;
 
 use function array_map;
 use function count;
@@ -20,17 +21,27 @@ use function count;
  * (with errors collected in `errors` prop)
  *
  * Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
- * serializable array using `toArray()`
+ * serializable array using `toArray()`.
+ *
+ * @phpstan-type SerializableError array<string, mixed>
+ * @phpstan-type SerializableErrors array<int, SerializableError>
+ * @phpstan-type SerializableResult array{
+ *     data?: array<string, mixed>,
+ *     errors?: SerializableErrors,
+ *     extensions?: array<string, mixed>,
+ * }
+ * @phpstan-type ErrorFormatter callable(Throwable): SerializableError
+ * @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
  */
 class ExecutionResult implements JsonSerializable
 {
     /**
-     * Data collected from resolvers during query execution
+     * Data collected from resolvers during query execution.
      *
      * @api
-     * @var mixed[]
+     * @var array<string, mixed>|null
      */
-    public $data;
+    public ?array $data = null;
 
     /**
      * Errors registered during query execution.
@@ -39,31 +50,36 @@ class ExecutionResult implements JsonSerializable
      * contain original exception.
      *
      * @api
-     * @var Error[]
+     * @var array<Error>
      */
-    public $errors;
+    public array $errors = [];
 
     /**
      * User-defined serializable array of extensions included in serialized result.
-     * Conforms to
      *
      * @api
-     * @var mixed[]
+     * @var array<string, mixed>|null
      */
-    public $extensions;
-
-    /** @var callable */
-    private $errorFormatter;
-
-    /** @var callable */
-    private $errorsHandler;
+    public ?array $extensions = null;
 
     /**
-     * @param mixed[] $data
-     * @param Error[] $errors
-     * @param mixed[] $extensions
+     * @var callable|null
+     * @phpstan-var ErrorFormatter|null
      */
-    public function __construct($data = null, array $errors = [], array $extensions = [])
+    private $errorFormatter = null;
+
+    /**
+     * @var callable|null
+     * @phpstan-var ErrorsHandler|null
+     */
+    private $errorsHandler = null;
+
+    /**
+     * @param array<string, mixed>|null $data
+     * @param array<Error>              $errors
+     * @param array<string, mixed>      $extensions
+     */
+    public function __construct(?array $data = null, array $errors = [], array $extensions = [])
     {
         $this->data       = $data;
         $this->errors     = $errors;
@@ -83,9 +99,11 @@ class ExecutionResult implements JsonSerializable
      *    // ... other keys
      * );
      *
+     * @phpstan-param ErrorFormatter|null $errorFormatter
+     *
      * @api
      */
-    public function setErrorFormatter(callable $errorFormatter): self
+    public function setErrorFormatter(?callable $errorFormatter): self
     {
         $this->errorFormatter = $errorFormatter;
 
@@ -102,17 +120,19 @@ class ExecutionResult implements JsonSerializable
      *     return array_map($formatter, $errors);
      * }
      *
+     * @phpstan-param ErrorsHandler|null $errorsHandler
+     *
      * @api
      */
-    public function setErrorsHandler(callable $handler): self
+    public function setErrorsHandler(?callable $errorsHandler): self
     {
-        $this->errorsHandler = $handler;
+        $this->errorsHandler = $errorsHandler;
 
         return $this;
     }
 
     /**
-     * @return mixed[]
+     * @phpstan-return SerializableResult
      */
     #[ReturnTypeWillChange]
     public function jsonSerialize(): array
@@ -129,7 +149,7 @@ class ExecutionResult implements JsonSerializable
      *
      * $debug argument must sum of flags from @see \GraphQL\Error\DebugFlag
      *
-     * @return mixed[]
+     * @phpstan-return SerializableResult
      *
      * @api
      */
@@ -137,7 +157,7 @@ class ExecutionResult implements JsonSerializable
     {
         $result = [];
 
-        if (count($this->errors ?? []) > 0) {
+        if (count($this->errors) > 0) {
             $errorsHandler = $this->errorsHandler ?? static function (array $errors, callable $formatter): array {
                 return array_map($formatter, $errors);
             };
@@ -157,7 +177,7 @@ class ExecutionResult implements JsonSerializable
             $result['data'] = $this->data;
         }
 
-        if (count($this->extensions ?? []) > 0) {
+        if ($this->extensions !== null && count($this->extensions) > 0) {
             $result['extensions'] = $this->extensions;
         }
 

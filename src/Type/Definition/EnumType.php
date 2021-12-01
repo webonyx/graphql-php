@@ -11,7 +11,6 @@ use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 
@@ -20,8 +19,10 @@ use function is_string;
 
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
-    /** @var EnumTypeDefinitionNode|null */
-    public ?TypeDefinitionNode $astNode;
+    public ?EnumTypeDefinitionNode $astNode;
+
+    /** @var array<int, EnumTypeExtensionNode> */
+    public array $extensionASTNodes;
 
     /**
      * Lazily initialized.
@@ -39,9 +40,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     /** @var array<string, EnumValueDefinition> */
     private array $nameLookup;
-
-    /** @var array<int, EnumTypeExtensionNode> */
-    public array $extensionASTNodes;
 
     public function __construct(array $config)
     {
