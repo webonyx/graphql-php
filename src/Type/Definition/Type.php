@@ -6,9 +6,6 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\TypeDefinitionNode;
-use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
 use JsonSerializable;
@@ -46,14 +43,8 @@ abstract class Type implements JsonSerializable
 
     public ?string $description;
 
-    /** @var (Node&TypeDefinitionNode)|null */
-    public ?TypeDefinitionNode $astNode;
-
     /** @var array<string, mixed> */
     public array $config;
-
-    /** @var array<Node&TypeExtensionNode> */
-    public array $extensionASTNodes;
 
     /**
      * @api

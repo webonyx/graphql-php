@@ -126,11 +126,9 @@ class GraphQL
         ?array $validationRules = null
     ): Promise {
         try {
-            if ($source instanceof DocumentNode) {
-                $documentNode = $source;
-            } else {
-                $documentNode = Parser::parse(new Source($source ?? '', 'GraphQL'));
-            }
+            $documentNode = $source instanceof DocumentNode
+                ? $source
+                : Parser::parse(new Source($source, 'GraphQL'));
 
             // TODO this could be more elegant
             if (count($validationRules ?? []) === 0) {

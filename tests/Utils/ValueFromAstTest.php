@@ -14,8 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 class ValueFromAstTest extends TestCase
 {
-    /** @var InputObjectType */
-    private $inputObj;
+    private InputObjectType $inputObj;
 
     /**
      * @see it('rejects empty input')
@@ -40,7 +39,10 @@ class ValueFromAstTest extends TestCase
         $this->runTestCase(Type::id(), '"123456"', '123456');
     }
 
-    private function runTestCase($type, $valueText, $expected): void
+    /**
+     * @param mixed $expected any value
+     */
+    private function runTestCase(Type $type, string $valueText, $expected): void
     {
         self::assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type));
     }
@@ -181,9 +183,9 @@ class ValueFromAstTest extends TestCase
         $this->runTestCase($testInputObj, '{ bool: true }', $undefined);
     }
 
-    private function inputObj()
+    private function inputObj(): InputObjectType
     {
-        return $this->inputObj ?? $this->inputObj = new InputObjectType([
+        return $this->inputObj ??= new InputObjectType([
             'name'   => 'TestInput',
             'fields' => [
                 'int'          => ['type' => Type::int(), 'defaultValue' => 42],
@@ -203,7 +205,11 @@ class ValueFromAstTest extends TestCase
         $this->runTestCaseWithVars(['var' => null], Type::boolean(), '$var', null);
     }
 
-    private function runTestCaseWithVars($variables, $type, $valueText, $expected): void
+    /**
+     * @param array<string, mixed> $variables
+     * @param mixed                $expected  any value
+     */
+    private function runTestCaseWithVars(array $variables, Type $type, string $valueText, $expected): void
     {
         self::assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type, $variables));
     }

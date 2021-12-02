@@ -182,7 +182,7 @@ class QueryPlan
 
                 $fields[$fieldName] = [
                     'type' => $selectionType,
-                    'fields' => $subfields ?? [],
+                    'fields' => $subfields,
                     'args' => Values::getArgumentValues($type, $selectionNode, $this->variableValues),
                 ];
                 if ($this->groupImplementorFields && $subImplementors) {

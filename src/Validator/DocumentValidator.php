@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator;
 
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Visitor;
@@ -46,13 +45,9 @@ use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
-use Throwable;
 
-use function array_filter;
 use function array_merge;
 use function count;
-use function is_array;
-use function sprintf;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -74,20 +69,19 @@ use function sprintf;
  */
 class DocumentValidator
 {
-    /** @var ValidationRule[] */
-    private static $rules = [];
+    /** @var array<class-string<ValidationRule>, ValidationRule> */
+    private static array $rules = [];
 
-    /** @var ValidationRule[]|null */
-    private static $defaultRules;
+    /** @var array<class-string<ValidationRule>, ValidationRule> */
+    private static array $defaultRules;
 
-    /** @var QuerySecurityRule[]|null */
-    private static $securityRules;
+    /** @var array<class-string<QuerySecurityRule>, QuerySecurityRule> */
+    private static array $securityRules;
 
-    /** @var ValidationRule[]|null */
-    private static $sdlRules;
+    /** @var array<class-string<ValidationRule>, ValidationRule> */
+    private static array $sdlRules;
 
-    /** @var bool */
-    private static $initRules = false;
+    private static bool $initRules = false;
 
     /**
      * Primary method for query validation. See class description for details.
@@ -128,8 +122,8 @@ class DocumentValidator
     public static function allRules(): array
     {
         if (! self::$initRules) {
-            static::$rules     = array_merge(static::defaultRules(), self::securityRules(), self::$rules);
-            static::$initRules = true;
+            self::$rules     = array_merge(static::defaultRules(), self::securityRules(), self::$rules);
+            self::$initRules = true;
         }
 
         return self::$rules;
@@ -140,42 +134,38 @@ class DocumentValidator
      */
     public static function defaultRules(): array
     {
-        if (self::$defaultRules === null) {
-            self::$defaultRules = [
-                ExecutableDefinitions::class        => new ExecutableDefinitions(),
-                UniqueOperationNames::class         => new UniqueOperationNames(),
-                LoneAnonymousOperation::class       => new LoneAnonymousOperation(),
-                SingleFieldSubscription::class      => new SingleFieldSubscription(),
-                KnownTypeNames::class               => new KnownTypeNames(),
-                FragmentsOnCompositeTypes::class    => new FragmentsOnCompositeTypes(),
-                VariablesAreInputTypes::class       => new VariablesAreInputTypes(),
-                ScalarLeafs::class                  => new ScalarLeafs(),
-                FieldsOnCorrectType::class          => new FieldsOnCorrectType(),
-                UniqueFragmentNames::class          => new UniqueFragmentNames(),
-                KnownFragmentNames::class           => new KnownFragmentNames(),
-                NoUnusedFragments::class            => new NoUnusedFragments(),
-                PossibleFragmentSpreads::class      => new PossibleFragmentSpreads(),
-                NoFragmentCycles::class             => new NoFragmentCycles(),
-                UniqueVariableNames::class          => new UniqueVariableNames(),
-                NoUndefinedVariables::class         => new NoUndefinedVariables(),
-                NoUnusedVariables::class            => new NoUnusedVariables(),
-                KnownDirectives::class              => new KnownDirectives(),
-                UniqueDirectivesPerLocation::class  => new UniqueDirectivesPerLocation(),
-                KnownArgumentNames::class           => new KnownArgumentNames(),
-                UniqueArgumentNames::class          => new UniqueArgumentNames(),
-                ValuesOfCorrectType::class          => new ValuesOfCorrectType(),
-                ProvidedRequiredArguments::class    => new ProvidedRequiredArguments(),
-                VariablesInAllowedPosition::class   => new VariablesInAllowedPosition(),
-                OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
-                UniqueInputFieldNames::class        => new UniqueInputFieldNames(),
-            ];
-        }
-
-        return self::$defaultRules;
+        return self::$defaultRules ??= [
+            ExecutableDefinitions::class        => new ExecutableDefinitions(),
+            UniqueOperationNames::class         => new UniqueOperationNames(),
+            LoneAnonymousOperation::class       => new LoneAnonymousOperation(),
+            SingleFieldSubscription::class      => new SingleFieldSubscription(),
+            KnownTypeNames::class               => new KnownTypeNames(),
+            FragmentsOnCompositeTypes::class    => new FragmentsOnCompositeTypes(),
+            VariablesAreInputTypes::class       => new VariablesAreInputTypes(),
+            ScalarLeafs::class                  => new ScalarLeafs(),
+            FieldsOnCorrectType::class          => new FieldsOnCorrectType(),
+            UniqueFragmentNames::class          => new UniqueFragmentNames(),
+            KnownFragmentNames::class           => new KnownFragmentNames(),
+            NoUnusedFragments::class            => new NoUnusedFragments(),
+            PossibleFragmentSpreads::class      => new PossibleFragmentSpreads(),
+            NoFragmentCycles::class             => new NoFragmentCycles(),
+            UniqueVariableNames::class          => new UniqueVariableNames(),
+            NoUndefinedVariables::class         => new NoUndefinedVariables(),
+            NoUnusedVariables::class            => new NoUnusedVariables(),
+            KnownDirectives::class              => new KnownDirectives(),
+            UniqueDirectivesPerLocation::class  => new UniqueDirectivesPerLocation(),
+            KnownArgumentNames::class           => new KnownArgumentNames(),
+            UniqueArgumentNames::class          => new UniqueArgumentNames(),
+            ValuesOfCorrectType::class          => new ValuesOfCorrectType(),
+            ProvidedRequiredArguments::class    => new ProvidedRequiredArguments(),
+            VariablesInAllowedPosition::class   => new VariablesInAllowedPosition(),
+            OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
+            UniqueInputFieldNames::class        => new UniqueInputFieldNames(),
+        ];
     }
 
     /**
-     * @return QuerySecurityRule[]
+     * @return array<class-string<QuerySecurityRule>, QuerySecurityRule>
      */
     public static function securityRules(): array
     {
@@ -183,34 +173,29 @@ class DocumentValidator
         // When custom security rule is required - it should be just added via DocumentValidator::addRule();
         // TODO: deprecate this
 
-        if (self::$securityRules === null) {
-            self::$securityRules = [
-                DisableIntrospection::class => new DisableIntrospection(DisableIntrospection::DISABLED), // DEFAULT DISABLED
-                QueryDepth::class           => new QueryDepth(QueryDepth::DISABLED), // default disabled
-                QueryComplexity::class      => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
-            ];
-        }
-
-        return self::$securityRules;
+        return self::$securityRules ??= [
+            DisableIntrospection::class => new DisableIntrospection(DisableIntrospection::DISABLED), // DEFAULT DISABLED
+            QueryDepth::class           => new QueryDepth(QueryDepth::DISABLED), // default disabled
+            QueryComplexity::class      => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
+        ];
     }
 
-    public static function sdlRules()
+    /**
+     * @return array<class-string<ValidationRule>, ValidationRule>
+     */
+    public static function sdlRules(): array
     {
-        if (self::$sdlRules === null) {
-            self::$sdlRules = [
-                LoneSchemaDefinition::class                  => new LoneSchemaDefinition(),
-                UniqueOperationTypes::class                  => new UniqueOperationTypes(),
-                KnownDirectives::class                       => new KnownDirectives(),
-                KnownArgumentNamesOnDirectives::class        => new KnownArgumentNamesOnDirectives(),
-                UniqueDirectivesPerLocation::class           => new UniqueDirectivesPerLocation(),
-                UniqueArgumentNames::class                   => new UniqueArgumentNames(),
-                UniqueEnumValueNames::class                  => new UniqueEnumValueNames(),
-                UniqueInputFieldNames::class                 => new UniqueInputFieldNames(),
-                ProvidedRequiredArgumentsOnDirectives::class => new ProvidedRequiredArgumentsOnDirectives(),
-            ];
-        }
-
-        return self::$sdlRules;
+        return self::$sdlRules ??= [
+            LoneSchemaDefinition::class                  => new LoneSchemaDefinition(),
+            UniqueOperationTypes::class                  => new UniqueOperationTypes(),
+            KnownDirectives::class                       => new KnownDirectives(),
+            KnownArgumentNamesOnDirectives::class        => new KnownArgumentNamesOnDirectives(),
+            UniqueDirectivesPerLocation::class           => new UniqueDirectivesPerLocation(),
+            UniqueArgumentNames::class                   => new UniqueArgumentNames(),
+            UniqueEnumValueNames::class                  => new UniqueEnumValueNames(),
+            UniqueInputFieldNames::class                 => new UniqueInputFieldNames(),
+            ProvidedRequiredArgumentsOnDirectives::class => new ProvidedRequiredArgumentsOnDirectives(),
+        ];
     }
 
     /**
@@ -240,62 +225,33 @@ class DocumentValidator
      *
      * $rule = DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
      *
-     * @param string $name
+     * @param class-string<T> $name
      *
+     * @return T|null
+     *
+     * @template T of ValidationRule
      * @api
      */
-    public static function getRule($name): ?ValidationRule
+    public static function getRule(string $name): ?ValidationRule
     {
-        $rules = static::allRules();
-
-        if (isset($rules[$name])) {
-            return $rules[$name];
-        }
-
-        $name = sprintf('GraphQL\\Validator\\Rules\\%s', $name);
-
-        return $rules[$name] ?? null;
+        // @phpstan-ignore-next-line class-strings are always mapped to a matching class instance
+        return static::allRules()[$name] ?? null;
     }
 
     /**
-     * Add rule to list of global validation rules
+     * Add rule to list of global validation rules.
      *
      * @api
      */
     public static function addRule(ValidationRule $rule): void
     {
-        self::$rules[$rule->getName()] = $rule;
-    }
-
-    public static function isError($value)
-    {
-        return is_array($value)
-            ? count(array_filter(
-                $value,
-                static function ($item): bool {
-                    return $item instanceof Throwable;
-                }
-            )) === count($value)
-            : $value instanceof Throwable;
-    }
-
-    public static function append(&$arr, $items)
-    {
-        if (is_array($items)) {
-            $arr = array_merge($arr, $items);
-        } else {
-            $arr[] = $items;
-        }
-
-        return $arr;
+        self::$rules[ValidationRule::class] = $rule;
     }
 
     /**
-     * @param ValidationRule[]|null $rules
+     * @param array<ValidationRule>|null $rules
      *
-     * @return Error[]
-     *
-     * @throws Exception
+     * @return array<int, Error>
      */
     public static function validateSDL(
         DocumentNode $documentAST,
@@ -331,7 +287,7 @@ class DocumentValidator
     }
 
     /**
-     * @param Error[] $errors
+     * @param array<Error> $errors
      */
     private static function combineErrorMessages(array $errors): string
     {

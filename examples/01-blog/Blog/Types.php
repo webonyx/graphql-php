@@ -36,64 +36,64 @@ use function strtolower;
  * As simplistic as possible for the sake of clarity of this example.
  * Your own may be more dynamic (or even code-generated).
  */
-class Types
+final class Types
 {
     /** @var array<string, Type> */
     private static array $types = [];
 
     public static function user(): callable
     {
-        return static::get(UserType::class);
+        return self::get(UserType::class);
     }
 
     public static function story(): callable
     {
-        return static::get(StoryType::class);
+        return self::get(StoryType::class);
     }
 
     public static function comment(): callable
     {
-        return static::get(CommentType::class);
+        return self::get(CommentType::class);
     }
 
     public static function image(): callable
     {
-        return static::get(ImageType::class);
+        return self::get(ImageType::class);
     }
 
     public static function node(): callable
     {
-        return static::get(NodeType::class);
+        return self::get(NodeType::class);
     }
 
     public static function mention(): callable
     {
-        return static::get(SearchResultType::class);
+        return self::get(SearchResultType::class);
     }
 
     public static function imageSize(): callable
     {
-        return static::get(ImageSizeType::class);
+        return self::get(ImageSizeType::class);
     }
 
     public static function contentFormat(): callable
     {
-        return static::get(ContentFormatType::class);
+        return self::get(ContentFormatType::class);
     }
 
     public static function storyAffordances(): callable
     {
-        return static::get(StoryAffordancesType::class);
+        return self::get(StoryAffordancesType::class);
     }
 
     public static function email(): callable
     {
-        return static::get(EmailType::class);
+        return self::get(EmailType::class);
     }
 
     public static function url(): callable
     {
-        return static::get(UrlType::class);
+        return self::get(UrlType::class);
     }
 
     /**
@@ -101,7 +101,7 @@ class Types
      */
     private static function get(string $classname): Closure
     {
-        return static fn () => static::byClassName($classname);
+        return static fn () => self::byClassName($classname);
     }
 
     private static function byClassName(string $classname): Type
@@ -138,7 +138,7 @@ class Types
         }
 
         $method = lcfirst($shortName);
-        if (method_exists(static::class, $method)) {
+        if (method_exists(self::class, $method)) {
             $type = self::{$method}();
         }
 

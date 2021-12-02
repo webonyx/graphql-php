@@ -6,6 +6,7 @@ namespace GraphQL\Error;
 
 use Countable;
 use ErrorException;
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
@@ -30,7 +31,6 @@ use function is_scalar;
 use function is_string;
 use function mb_strlen;
 use function preg_split;
-use function sprintf;
 use function str_repeat;
 use function strlen;
 
@@ -45,6 +45,7 @@ use function strlen;
  *   path?: array<int, int|string>,
  *   extensions?: array<string, mixed>,
  * }
+ * @phpstan-import-type ErrorFormatter from ExecutionResult
  */
 class FormattedError
 {
@@ -116,7 +117,7 @@ class FormattedError
         $lines[0] = self::whitespace($source->locationOffset->column - 1) . $lines[0];
 
         $outputLines = [
-            sprintf('%s (%s:%s)', $source->name, $contextLine, $contextColumn),
+            "{$source->name} ({$contextLine}:{$contextColumn})",
             $line >= 2 ? (self::lpad($padLen, $prevLineNum) . ': ' . $lines[$line - 2]) : null,
             self::lpad($padLen, $lineNum) . ': ' . $lines[$line - 1],
             self::whitespace(2 + $padLen + $contextColumn - 1) . '^',
@@ -199,7 +200,6 @@ class FormattedError
      * phpcs:disable SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectAnnotationsGroup
      * @param int                 $debugFlag      For available flags @see \GraphQL\Error\DebugFlag
      *
-     * phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification
      * @param FormattedErrorArray $formattedError
      *
      * @return FormattedErrorArray
@@ -251,7 +251,7 @@ class FormattedError
      *
      * If initial formatter is not set, FormattedError::createFromException is used.
      *
-     * @param callable(Throwable): array<string, mixed> $formatter
+     * @phpstan-param ErrorFormatter|null $formatter
      */
     public static function prepareFormatter(?callable $formatter, int $debug): callable
     {

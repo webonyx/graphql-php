@@ -95,7 +95,12 @@ class QueryType extends ObjectType
      */
     public function stories($rootValue, array $args): array
     {
-        return DataSource::findStories($args['limit'], (int) $args['after'] ?? null);
+        return DataSource::findStories(
+            $args['limit'],
+            isset($args['after'])
+                ? (int) $args['after']
+                : null
+        );
     }
 
     public function lastStoryPosted(): ?Story

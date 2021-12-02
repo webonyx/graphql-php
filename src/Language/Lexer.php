@@ -768,19 +768,15 @@ class Lexer
     }
 
     /**
-     * Reads next $numberOfChars UTF8 characters from the byte stream, starting from $byteStreamPosition.
-     *
-     * @param int  $charCount
-     * @param bool $advance
-     * @param null $byteStreamPosition
+     * Reads next $numberOfChars UTF8 characters from the byte stream.
      *
      * @return array{string, int}
      */
-    private function readChars($charCount, $advance = false, $byteStreamPosition = null): array
+    private function readChars(int $charCount, bool $advance): array
     {
         $result     = '';
         $totalBytes = 0;
-        $byteOffset = $byteStreamPosition ?? $this->byteStreamPosition;
+        $byteOffset = $this->byteStreamPosition;
 
         for ($i = 0; $i < $charCount; $i++) {
             [$char, $code, $bytes] = $this->readChar(false, $byteOffset);

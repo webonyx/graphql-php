@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace GraphQL\Server;
 
 use GraphQL\Error\DebugFlag;
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Schema;
@@ -32,6 +32,8 @@ use function is_callable;
  * @phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
  * @phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
  * @phpstan-type ValidationRulesOption array<ValidationRule>|(callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>)|null
+ * @phpstan-import-type ErrorsHandler from ExecutionResult
+ * @phpstan-import-type ErrorFormatter from ExecutionResult
  */
 class ServerConfig
 {
@@ -100,10 +102,16 @@ class ServerConfig
      */
     private $rootValue = null;
 
-    /** @var callable|null */
+    /**
+     * @var callable|null
+     * @phpstan-var ErrorFormatter|null
+     */
     private $errorFormatter = null;
 
-    /** @var callable|null */
+    /**
+     * @var callable|null
+     * @phpstan-var ErrorsHandler|null
+     */
     private $errorsHandler = null;
 
     private int $debugFlag = DebugFlag::NONE;
@@ -163,7 +171,7 @@ class ServerConfig
     }
 
     /**
-     * @param callable(Error): array<string, mixed> $errorFormatter
+     * @phpstan-param ErrorFormatter $errorFormatter
      *
      * @api
      */
@@ -175,7 +183,7 @@ class ServerConfig
     }
 
     /**
-     * @param callable(array<int, Error> $errors, callable(Error): array<string, mixed> $formatter): array<int, array<string, mixed>> $handler
+     * @phpstan-param ErrorsHandler $handler
      *
      * @api
      */
@@ -288,11 +296,17 @@ class ServerConfig
         return $this->schema;
     }
 
+    /**
+     * @phpstan-return ErrorFormatter|null
+     */
     public function getErrorFormatter(): ?callable
     {
         return $this->errorFormatter;
     }
 
+    /**
+     * @phpstan-return ErrorsHandler|null
+     */
     public function getErrorsHandler(): ?callable
     {
         return $this->errorsHandler;
