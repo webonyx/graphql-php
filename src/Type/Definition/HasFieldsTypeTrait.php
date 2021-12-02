@@ -8,7 +8,7 @@ use GraphQL\Utils\Utils;
 
 use function array_keys;
 
-abstract class TypeWithFields extends Type implements HasFieldsType
+trait HasFieldsTypeTrait
 {
     /**
      * Lazily initialized.

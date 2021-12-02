@@ -18,6 +18,8 @@ use function sprintf;
 
 class InputObjectType extends Type implements InputType, NullableType, NamedType
 {
+    use NamedTypeTrait;
+
     public ?InputObjectTypeDefinitionNode $astNode;
 
     /** @var array<int, InputObjectTypeExtensionNode> */
@@ -144,7 +146,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
         Utils::invariant(
             count($this->getFields()) > 0,

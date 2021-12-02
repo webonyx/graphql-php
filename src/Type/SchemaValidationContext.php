@@ -209,7 +209,7 @@ class SchemaValidationContext
         $error = Utils::isValidNameError($object->name, $object->astNode);
         if (
             $error === null
-            || ($object instanceof Type && Introspection::isIntrospectionType($object))
+            || ($object instanceof Type && $object instanceof NamedType && Introspection::isIntrospectionType($object))
         ) {
             return;
         }
@@ -425,6 +425,7 @@ class SchemaValidationContext
             }
 
             // Ensure the type is an output type
+            // @phpstan-ignore-next-line not statically provable until we can use union types
             if (! Type::isOutputType($field->getType())) {
                 $safeFieldType = Utils::printSafe($field->getType());
                 $this->reportError(
@@ -661,8 +662,9 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
+     * @param Type                     &NamedType $shouldBeInterface
      */
-    private function getImplementsInterfaceNode(ImplementingType $type, Type $shouldBeInterface): ?NamedTypeNode
+    private function getImplementsInterfaceNode(ImplementingType $type, NamedType $shouldBeInterface): ?NamedTypeNode
     {
         $nodes = $this->getAllImplementsInterfaceNodes($type, $shouldBeInterface);
 
@@ -671,10 +673,11 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
+     * @param Type                     &NamedType $shouldBeInterface
      *
      * @return array<int, NamedTypeNode>
      */
-    private function getAllImplementsInterfaceNodes(ImplementingType $type, Type $shouldBeInterface): array
+    private function getAllImplementsInterfaceNodes(ImplementingType $type, NamedType $shouldBeInterface): array
     {
         $allNodes = $type->astNode !== null
             ? array_merge([$type->astNode], $type->extensionASTNodes)

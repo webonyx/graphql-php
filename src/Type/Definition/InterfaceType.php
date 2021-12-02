@@ -13,9 +13,11 @@ use function is_callable;
 use function is_string;
 use function sprintf;
 
-class InterfaceType extends TypeWithFields implements AbstractType, OutputType, CompositeType, NullableType, NamedType, ImplementingType
+class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
 {
-    use TypeWithInterfaces;
+    use HasFieldsTypeTrait;
+    use NamedTypeTrait;
+    use ImplementingTypeTrait;
 
     public ?InterfaceTypeDefinitionNode $astNode;
 
@@ -67,7 +69,7 @@ class InterfaceType extends TypeWithFields implements AbstractType, OutputType, 
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
         $resolveType = $this->config['resolveType'] ?? null;
 

@@ -226,9 +226,11 @@ class DefinitionTest extends TestCase
 
         self::assertEquals($this->blogSubscription, $schema->getSubscriptionType());
 
-        $sub = $this->blogSubscription->getField('articleSubscribe');
-        self::assertEquals($sub->getType(), $this->blogArticle);
-        self::assertEquals($sub->getType()->name, 'Article');
+        $sub     = $this->blogSubscription->getField('articleSubscribe');
+        $subType = $sub->getType();
+        self::assertInstanceOf(ObjectType::class, $subType);
+        self::assertEquals($subType, $this->blogArticle);
+        self::assertEquals($subType->name, 'Article');
         self::assertEquals($sub->name, 'articleSubscribe');
     }
 
@@ -798,11 +800,10 @@ class DefinitionTest extends TestCase
             'name'   => 'SomeObject',
             'fields' => [['field' => Type::string()]],
         ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'SomeObject fields must be an associative array with field names as keys or a ' .
-            'function which returns such an array.'
-        );
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'SomeObject fields must be an associative array with field names as keys or a function which returns such an array.'
+        ));
         $objType->getFields();
     }
 
@@ -817,11 +818,10 @@ class DefinitionTest extends TestCase
                 return [['field' => Type::string()]];
             },
         ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'SomeObject fields must be an associative array with field names as keys or a ' .
-            'function which returns such an array.'
-        );
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'SomeObject fields must be an associative array with field names as keys or a function which returns such an array.'
+        ));
         $objType->getFields();
     }
 
@@ -846,30 +846,6 @@ class DefinitionTest extends TestCase
         ]);
         // Should not throw:
         $objType->assertValid();
-    }
-
-    // rejects an Object type with incorrectly typed field args
-
-    /**
-     * @see it('does not allow isDeprecated without deprecationReason on field')
-     */
-    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnField(): void
-    {
-        $OldObject = new ObjectType([
-            'name'   => 'OldObject',
-            'fields' => [
-                'field' => [
-                    'type'         => Type::string(),
-                    'isDeprecated' => true,
-                ],
-            ],
-        ]);
-
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'OldObject.field should provide "deprecationReason" instead of "isDeprecated".'
-        );
-        $OldObject->assertValid();
     }
 
     // Object interfaces must be array

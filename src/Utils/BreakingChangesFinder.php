@@ -151,7 +151,10 @@ class BreakingChangesFinder
         return $breakingChanges;
     }
 
-    private static function typeKindName(Type $type): string
+    /**
+     * @param Type &NamedType $type
+     */
+    private static function typeKindName(NamedType $type): string
     {
         if ($type instanceof ScalarType) {
             return 'a Scalar type';

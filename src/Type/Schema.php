@@ -132,9 +132,9 @@ class Schema
             }
         // @phpstan-ignore-next-line not strictly enforced until we can use actual union types
         } elseif (! is_callable($types)) {
-            throw new InvariantViolation(
-                '"types" must be array or callable if provided but got: ' . Utils::getVariableType($types)
-            );
+            $invalidTypes = Utils::printSafe($types);
+
+            throw new InvariantViolation("\"types\" must be array or callable if provided but got: {$invalidTypes}");
         }
 
         $this->resolvedTypes += Introspection::getTypes();
@@ -157,7 +157,7 @@ class Schema
 
         // @phpstan-ignore-next-line not strictly enforced unless PHP supports function types
         if (! is_iterable($types)) {
-            $notIterable = Utils::getVariableType($types);
+            $notIterable = Utils::printSafe($types);
 
             throw new InvariantViolation("Schema types callable must return iterable but got: {$notIterable}");
         }
@@ -300,7 +300,7 @@ class Schema
                 return null;
             }
 
-            $this->resolvedTypes[$name] = self::resolveType($type);
+            return $this->resolvedTypes[$name] = self::resolveType($type);
         }
 
         return $this->resolvedTypes[$name];

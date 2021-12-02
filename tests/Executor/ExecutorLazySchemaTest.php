@@ -205,9 +205,7 @@ class ExecutorLazySchemaTest extends TestCase
         self::assertEquals(['Test', 'Test'], $calls);
 
         self::assertEquals(
-            'Schema must contain unique named types but contains multiple types named "Test". ' .
-            'Make sure that type loader returns the same instance as defined in Query.test ' .
-            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
+            'Found duplicate type in schema: Test. Ensure the type loader returns the same instance as defined in Query.test. See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.',
             $result->errors[0]->getMessage()
         );
         self::assertInstanceOf(

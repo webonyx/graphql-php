@@ -17,6 +17,8 @@ use function sprintf;
 
 class UnionType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
 {
+    use NamedTypeTrait;
+
     public ?UnionTypeDefinitionNode $astNode;
 
     /** @var array<int, UnionTypeExtensionNode> */
@@ -117,7 +119,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
         if (! isset($this->config['resolveType'])) {
             return;

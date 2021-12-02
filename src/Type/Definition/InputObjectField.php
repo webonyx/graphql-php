@@ -71,6 +71,8 @@ class InputObjectField
     }
 
     /**
+     * @param Type &NamedType $parentType
+     *
      * @throws InvariantViolation
      */
     public function assertValid(Type $parentType): void

@@ -53,9 +53,11 @@ use function sprintf;
  *        }
  *     ]);
  */
-class ObjectType extends TypeWithFields implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
+class ObjectType extends Type implements OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
 {
-    use TypeWithInterfaces;
+    use HasFieldsTypeTrait;
+    use NamedTypeTrait;
+    use ImplementingTypeTrait;
 
     public ?ObjectTypeDefinitionNode $astNode;
 
@@ -124,7 +126,7 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
         Utils::invariant(
             $this->description === null || is_string($this->description),

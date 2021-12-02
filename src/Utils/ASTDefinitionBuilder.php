@@ -236,7 +236,7 @@ class ASTDefinitionBuilder
 
                 if (! is_array($config) || isset($config[0])) {
                     throw new Error(
-                        'Type config decorator passed to ' . static::class . ' is expected to return an array, but got ' . Utils::getVariableType($config)
+                        'Type config decorator passed to ' . static::class . ' is expected to return an array, but got ' . Utils::printSafe($config)
                     );
                 }
 

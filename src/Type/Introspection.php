@@ -161,7 +161,10 @@ class Introspection
 EOD;
     }
 
-    public static function isIntrospectionType(Type $type): bool
+    /**
+     * @param Type &NamedType $type
+     */
+    public static function isIntrospectionType(NamedType $type): bool
     {
         return array_key_exists($type->name, self::getTypes());
     }
@@ -321,11 +324,15 @@ EOD;
                         ],
                         'name'          => [
                             'type' => Type::string(),
-                            'resolve' => static fn (Type $obj): ?string => $obj->name ?? null,
+                            'resolve' => static fn (Type $type): ?string => $type instanceof NamedType
+                                ? $type->name
+                                : null,
                         ],
                         'description'   => [
                             'type' => Type::string(),
-                            'resolve' => static fn (Type $obj): ?string => $obj->description,
+                            'resolve' => static fn (Type $type): ?string => $type instanceof NamedType
+                                ? $type->description
+                                : null,
                         ],
                         'fields'        => [
                             'type'    => Type::listOf(Type::nonNull(self::_field())),

@@ -30,6 +30,8 @@ use function is_string;
  */
 abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NullableType, NamedType
 {
+    use NamedTypeTrait;
+
     public ?ScalarTypeDefinitionNode $astNode;
 
     /** @var array<ScalarTypeExtensionNode> */
@@ -49,5 +51,10 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
         $this->config = $config;
+    }
+
+    public function assertValid(): void
+    {
+        Utils::assertValidName($this->name);
     }
 }

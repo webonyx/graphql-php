@@ -7,11 +7,11 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 
 use function is_array;
-use function sprintf;
 
 class UnresolvedFieldDefinition
 {
-    private Type $type;
+    /** @var ObjectType|InterfaceType */
+    private Type $parentType;
 
     private string $name;
 
@@ -19,13 +19,14 @@ class UnresolvedFieldDefinition
     private $resolver;
 
     /**
+     * @param ObjectType|InterfaceType                                $parentType
      * @param callable(): (FieldDefinition|array<string, mixed>|Type) $resolver
      */
-    public function __construct(Type $type, string $name, callable $resolver)
+    public function __construct(Type $parentType, string $name, callable $resolver)
     {
-        $this->type     = $type;
-        $this->name     = $name;
-        $this->resolver = $resolver;
+        $this->parentType = $parentType;
+        $this->name       = $name;
+        $this->resolver   = $resolver;
     }
 
     public function getName(): string
@@ -40,7 +41,7 @@ class UnresolvedFieldDefinition
         if ($field instanceof FieldDefinition) {
             if ($field->name !== $this->name) {
                 throw new InvariantViolation(
-                    sprintf('%s.%s should not dynamically change its name when resolved lazily.', $this->type->name, $this->name)
+                    "{$this->parentType->name}.{$this->name} should not dynamically change its name when resolved lazily."
                 );
             }
 
@@ -55,13 +56,13 @@ class UnresolvedFieldDefinition
             $field['name'] = $this->name;
         } elseif ($field['name'] !== $this->name) {
             throw new InvariantViolation(
-                sprintf('%s.%s should not dynamically change its name when resolved lazily.', $this->type->name, $this->name)
+                "{$this->parentType->name}.{$this->name} should not dynamically change its name when resolved lazily."
             );
         }
 
         if (isset($field['args']) && ! is_array($field['args'])) {
             throw new InvariantViolation(
-                sprintf('%s.%s args must be an array.', $this->type->name, $this->name)
+                "{$this->parentType->name}.{$this->name} args must be an array."
             );
         }
 

@@ -14,6 +14,14 @@ use function is_array;
 use function is_string;
 use function sprintf;
 
+/**
+ * @phpstan-type FieldArgumentConfig array{
+ *     name: string,
+ *     defaultValue?: mixed,
+ *     description?: string|null,
+ *     astNode?: InputValueDefinitionNode|null,
+ * }
+ */
 class FieldArgument
 {
     public string $name;
@@ -25,14 +33,14 @@ class FieldArgument
 
     public ?InputValueDefinitionNode $astNode;
 
-    /** @var array<string, mixed> */
+    /** @var FieldArgumentConfig */
     public array $config;
 
     /** @var Type&InputType */
     private Type $type;
 
     /**
-     * @param array<string, mixed> $config
+     * @param FieldArgumentConfig $config
      */
     public function __construct(array $config)
     {
@@ -45,7 +53,7 @@ class FieldArgument
     }
 
     /**
-     * @param array<string, mixed> $config
+     * @param array<string, FieldArgumentConfig|Type> $config
      *
      * @return array<int, FieldArgument>
      */
@@ -87,6 +95,9 @@ class FieldArgument
             && ! $this->defaultValueExists();
     }
 
+    /**
+     * @param Type &NamedType $parentType
+     */
     public function assertValid(FieldDefinition $parentField, Type $parentType): void
     {
         $error = Utils::isValidNameError($this->name);

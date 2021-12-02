@@ -24,6 +24,7 @@ inner type.
 Several styles of type definitions are supported depending on your preferences.
 
 ### Inline definitions
+
 ```php
 <?php
 namespace MyApp;
@@ -40,6 +41,7 @@ $myType = new ObjectType([
 ```
 
 ### Class per type
+
 ```php
 <?php
 namespace MyApp;

@@ -124,6 +124,7 @@ Think user friends or nested comments for example.
 option **fields** (and/or **interfaces**).
  
 For example:
+
 ```php
 <?php
 use GraphQL\Type\Definition\Type;
