@@ -13,7 +13,7 @@ use function is_callable;
 /**
  * @see ImplementingType
  */
-trait ImplementingTypeTrait
+trait ImplementingTypeImplementation
 {
     /**
      * Lazily initialized.

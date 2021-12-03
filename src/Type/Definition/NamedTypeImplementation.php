@@ -12,7 +12,7 @@ use function preg_replace;
 /**
  * @see NamedType
  */
-trait NamedTypeTrait
+trait NamedTypeImplementation
 {
     public string $name;
 

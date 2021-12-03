@@ -8,7 +8,10 @@ use GraphQL\Utils\Utils;
 
 use function array_keys;
 
-trait HasFieldsTypeTrait
+/**
+ * @see HasFieldsType
+ */
+trait HasFieldsTypeImplementation
 {
     /**
      * Lazily initialized.

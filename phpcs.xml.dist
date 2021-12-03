@@ -29,9 +29,6 @@
         <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingAnyTypeHint" />
         <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification" />
 
-        <!-- Don't repress me, man! -->
-        <exclude name="SlevomatCodingStandard.Classes.SuperfluousTraitNaming.SuperfluousSuffix" />
-
         <!-- To fix -->
         <exclude name="PSR2.Methods.MethodDeclaration.Underscore" />
         <exclude name="SlevomatCodingStandard.PHP.RequireExplicitAssertion.RequiredExplicitAssertion" />

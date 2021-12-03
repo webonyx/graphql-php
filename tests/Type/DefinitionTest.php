@@ -1120,10 +1120,10 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAnInterfaceTypeWithAnIncorrectTypeForResolveType(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'AnotherInterface must provide "resolveType" as a function, but got: instance of stdClass'
-        );
+        // Slightly deviating from the reference implementation in order to be idiomatic for PHP
+        $this->expectExceptionObject(new InvariantViolation(
+            'AnotherInterface must provide "resolveType" as a callable, but got: instance of stdClass'
+        ));
 
         $type = new InterfaceType([
             'name'        => 'AnotherInterface',
@@ -1185,10 +1185,10 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAnUnionTypeWithAnIncorrectTypeForResolveType(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'SomeUnion must provide "resolveType" as a function, but got: instance of stdClass'
-        );
+        // Slightly deviating from the reference implementation in order to be idiomatic for PHP
+        $this->expectExceptionObject(new InvariantViolation(
+            'SomeUnion must provide "resolveType" as a callable, but got: instance of stdClass'
+        ));
         $this->schemaWithFieldType(
             new UnionType([
                 'name'        => 'SomeUnion',
@@ -1354,10 +1354,10 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAnObjectTypeWithAnIncorrectTypeForIsTypeOf(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'AnotherObject must provide "isTypeOf" as a function, but got: instance of stdClass'
-        );
+        // Slightly deviating from the reference implementation in order to be idiomatic for PHP
+        $this->expectExceptionObject(new InvariantViolation(
+            'AnotherObject must provide "isTypeOf" as a callable, but got: instance of stdClass'
+        ));
         $this->schemaWithFieldType(
             new ObjectType([
                 'name'     => 'AnotherObject',

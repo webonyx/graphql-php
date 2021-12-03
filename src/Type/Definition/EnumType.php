@@ -19,7 +19,7 @@ use function is_string;
 
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
-    use NamedTypeTrait;
+    use NamedTypeImplementation;
 
     public ?EnumTypeDefinitionNode $astNode;
 

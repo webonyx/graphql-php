@@ -11,13 +11,12 @@ use GraphQL\Utils\Utils;
 
 use function is_callable;
 use function is_string;
-use function sprintf;
 
 class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
 {
-    use HasFieldsTypeTrait;
-    use NamedTypeTrait;
-    use ImplementingTypeTrait;
+    use HasFieldsTypeImplementation;
+    use NamedTypeImplementation;
+    use ImplementingTypeImplementation;
 
     public ?InterfaceTypeDefinitionNode $astNode;
 

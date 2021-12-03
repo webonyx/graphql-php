@@ -55,9 +55,9 @@ use function sprintf;
  */
 class ObjectType extends Type implements OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
 {
-    use HasFieldsTypeTrait;
-    use NamedTypeTrait;
-    use ImplementingTypeTrait;
+    use HasFieldsTypeImplementation;
+    use NamedTypeImplementation;
+    use ImplementingTypeImplementation;
 
     public ?ObjectTypeDefinitionNode $astNode;
 

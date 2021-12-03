@@ -17,7 +17,7 @@ use function sprintf;
 
 class UnionType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
 {
-    use NamedTypeTrait;
+    use NamedTypeImplementation;
 
     public ?UnionTypeDefinitionNode $astNode;
 

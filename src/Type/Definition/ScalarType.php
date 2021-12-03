@@ -30,7 +30,7 @@ use function is_string;
  */
 abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NullableType, NamedType
 {
-    use NamedTypeTrait;
+    use NamedTypeImplementation;
 
     public ?ScalarTypeDefinitionNode $astNode;
 

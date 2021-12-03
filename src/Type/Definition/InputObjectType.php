@@ -18,7 +18,7 @@ use function sprintf;
 
 class InputObjectType extends Type implements InputType, NullableType, NamedType
 {
-    use NamedTypeTrait;
+    use NamedTypeImplementation;
 
     public ?InputObjectTypeDefinitionNode $astNode;
 
