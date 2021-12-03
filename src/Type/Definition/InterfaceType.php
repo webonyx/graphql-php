@@ -70,15 +70,10 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     {
         Utils::assertValidName($this->name);
 
-        $resolveType = $this->config['resolveType'] ?? null;
+        if (isset($this->config['resolveType']) && ! is_callable($this->config['resolveType'])) {
+            $notCallable = Utils::printSafe($this->config['resolveType']);
 
-        Utils::invariant(
-            ! isset($resolveType) || is_callable($resolveType),
-            sprintf(
-                '%s must provide "resolveType" as a function, but got: %s',
-                $this->name,
-                Utils::printSafe($resolveType)
-            )
-        );
+            throw new InvariantViolation("{$this->name} must provide \"resolveType\" as a callable, but got: {$notCallable}");
+        }
     }
 }
