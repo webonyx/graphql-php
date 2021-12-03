@@ -120,12 +120,10 @@ class QueryPlan
                 continue;
             }
 
-            $type = $parentType->getField($fieldNode->name->value)->getType();
-            if ($type instanceof WrappingType) {
-                $type = $type->getWrappedType(true);
-            }
-
             /** @var ObjectType|InterfaceType $type proven because it must be a type with fields and was unwrapped */
+            $type = Type::getNamedType(
+                $parentType->getField($fieldNode->name->value)->getType()
+            );
 
             $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type, $implementors);
 
@@ -213,9 +211,7 @@ class QueryPlan
      */
     private function analyzeSubFields(Type $type, SelectionSetNode $selectionSet, array &$implementors = []): array
     {
-        if ($type instanceof WrappingType) {
-            $type = $type->getWrappedType(true);
-        }
+        $type = Type::getNamedType($type);
 
         $subfields = [];
         if ($type instanceof ObjectType || $type instanceof AbstractType) {

@@ -362,7 +362,6 @@ class Schema
     public static function resolveType($type): Type
     {
         if ($type instanceof Type) {
-            /** @phpstan-var T $type */
             return $type;
         }
 

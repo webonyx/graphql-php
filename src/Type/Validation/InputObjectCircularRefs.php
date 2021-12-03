@@ -58,7 +58,7 @@ class InputObjectCircularRefs
         $this->fieldPathIndexByTypeName[$inputObj->name] = count($this->fieldPath);
 
         $fieldMap = $inputObj->getFields();
-        foreach ($fieldMap as $fieldName => $field) {
+        foreach ($fieldMap as $field) {
             $type = $field->getType();
 
             if ($type instanceof NonNull) {

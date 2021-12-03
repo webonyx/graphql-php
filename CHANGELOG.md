@@ -86,6 +86,9 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove `DocumentValidator::append()`
 - Remove `Utils::getVariableType()` in favor of `Utils::printSafe()`
 - Remove warning for passing `isDeprecated` in field definition config
+- Remove `WrappingType::getWrappedType()` argument `$recurse` in favor of `WrappingType::getInnermostType()`
+- Remove `Type::assertType()`
+- Remove `ListOfType::$ofType`, `ListOfType::getOfType()` and `NonNull::getOfType()`
 
 ## 14.11.3
 

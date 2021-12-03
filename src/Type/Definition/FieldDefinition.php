@@ -198,12 +198,7 @@ class FieldDefinition
             throw new InvariantViolation("{$parentType->name}.{$this->name}: {$error->getMessage()}");
         }
 
-        $type = $this->getType();
-        if ($type instanceof WrappingType) {
-            $type = $type->getWrappedType(true);
-        }
-
-        /** @var Type&NamedType $type */
+        $type = Type::getNamedType($this->getType());
 
         if (! $type instanceof OutputType) {
             $safeType = Utils::printSafe($this->type);

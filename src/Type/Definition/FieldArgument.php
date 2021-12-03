@@ -11,8 +11,6 @@ use GraphQL\Utils\Utils;
 
 use function array_key_exists;
 use function is_array;
-use function is_string;
-use function sprintf;
 
 /**
  * @phpstan-type FieldArgumentConfig array{
@@ -107,30 +105,14 @@ class FieldArgument
             );
         }
 
-        $type = $this->getType();
-        if ($type instanceof WrappingType) {
-            $type = $type->getWrappedType(true);
-        }
+        $type = Type::getNamedType($this->getType());
 
-        Utils::invariant(
-            $type instanceof InputType,
-            sprintf(
-                '%s.%s(%s): argument type must be Input Type but got: %s',
-                $parentType->name,
-                $parentField->name,
-                $this->name,
-                Utils::printSafe($this->type)
-            )
-        );
-        Utils::invariant(
-            $this->description === null || is_string($this->description),
-            sprintf(
-                '%s.%s(%s): argument description type must be string but got: %s',
-                $parentType->name,
-                $parentField->name,
-                $this->name,
-                Utils::printSafe($this->description)
-            )
-        );
+        if (! $type instanceof InputType) {
+            $notInputType = Utils::printSafe($this->type);
+
+            throw new InvariantViolation(
+                "{$parentType->name}.{$parentField->name}({$this->name}): argument type must be Input Type but got: {$notInputType}"
+            );
+        }
     }
 }

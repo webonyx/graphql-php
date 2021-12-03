@@ -32,6 +32,7 @@ use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NamedType;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
@@ -91,13 +92,12 @@ class TypeInfo
      */
     public static function extractTypes(Type $type, array &$typeMap): void
     {
+        /** @var (Type&WrappingType)|(Type&NamedType) $type */
         if ($type instanceof WrappingType) {
-            self::extractTypes($type->getWrappedType(true), $typeMap);
+            self::extractTypes($type->getInnermostType(), $typeMap);
 
             return;
         }
-
-        /** @var Type&NamedType $type since the type was unwrapped */
 
         $name = $type->name;
 
@@ -267,9 +267,9 @@ class TypeInfo
 
             case $node instanceof ListValueNode:
                 $type     = $this->getInputType();
-                $listType = $type === null
-                    ? null
-                    : Type::getNullableType($type);
+                $listType = $type instanceof NonNull
+                    ? $type->getWrappedType()
+                    : $type;
                 $itemType = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
                     : $listType;

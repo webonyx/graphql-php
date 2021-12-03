@@ -12,7 +12,6 @@ use ReturnTypeWillChange;
 
 use function array_keys;
 use function array_merge;
-use function assert;
 use function implode;
 
 /**
@@ -188,12 +187,10 @@ abstract class Type implements JsonSerializable
      */
     public static function getNamedType(?Type $type): ?Type
     {
-        while ($type instanceof WrappingType) {
-            $type = $type->getWrappedType();
-        }
-
-        // @phpstan-ignore-next-line non-wrapped types must be named types
-        return $type;
+        /** @var (Type&WrappingType)|(Type&NamedType)|null $type */
+        return $type instanceof WrappingType
+            ? $type->getInnermostType()
+            : $type;
     }
 
     /**
@@ -228,21 +225,14 @@ abstract class Type implements JsonSerializable
         return $type instanceof AbstractType;
     }
 
-    public static function assertType($type): Type
-    {
-        assert(
-            $type instanceof Type,
-            new InvariantViolation('Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.')
-        );
-
-        return $type;
-    }
-
     /**
+     * @return Type&NullableType
+     *
      * @api
      */
     public static function getNullableType(Type $type): Type
     {
+        /** @var (Type&NullableType)|(Type&NonNull) $type */
         return $type instanceof NonNull
             ? $type->getWrappedType()
             : $type;

@@ -605,11 +605,11 @@ class DefinitionTest extends TestCase
 
         $blogFieldReturnType = $user->getField('blogs')->getType();
         self::assertInstanceOf(NonNull::class, $blogFieldReturnType);
-        self::assertSame($blog, $blogFieldReturnType->getWrappedType(true));
+        self::assertSame($blog, $blogFieldReturnType->getInnermostType());
 
         $ownerFieldReturnType = $blog->getField('owner')->getType();
         self::assertInstanceOf(NonNull::class, $ownerFieldReturnType);
-        self::assertSame($user, $ownerFieldReturnType->getWrappedType(true));
+        self::assertSame($user, $ownerFieldReturnType->getInnermostType());
     }
 
     public function testInputObjectTypeAllowsRecursiveDefinitions(): void
