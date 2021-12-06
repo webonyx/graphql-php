@@ -27,6 +27,7 @@ use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -831,21 +832,18 @@ class ReferenceExecutor implements ExecutorImplementation
             return $this->completeListValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
+        /** @var Type&NamedType $returnType wrapping types returned early */
+
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
-        if ($returnType !== $this->exeContext->schema->getType($returnType->name)) {
-            $hint = '';
-            if ($this->exeContext->schema->getConfig()->typeLoader !== null) {
-                $hint = "Make sure that type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}";
-            }
+        $schema = $this->exeContext->schema;
+        if ($returnType !== $schema->getType($returnType->name)) {
+            $hint = $schema->getConfig()->typeLoader !== null
+                ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
+                : '';
 
             throw new InvariantViolation(
-                sprintf(
-                    'Schema must contain unique named types but contains multiple types named "%s". %s ' .
-                    '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
-                    $returnType,
-                    $hint
-                )
+                "Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry."
             );
         }
 

@@ -66,9 +66,11 @@ class SchemaExtender
     }
 
     /**
+     * @param Type &NamedType $type
+     *
      * @throws Error
      */
-    protected static function assertTypeMatchesExtension(Type $type, Node $node): void
+    protected static function assertTypeMatchesExtension(NamedType $type, Node $node): void
     {
         switch (true) {
             case $node instanceof ObjectTypeExtensionNode:
@@ -300,7 +302,7 @@ class SchemaExtender
     protected static function extendType(Type $typeDef): Type
     {
         if ($typeDef instanceof ListOfType) {
-            return Type::listOf(static::extendType($typeDef->getOfType()));
+            return Type::listOf(static::extendType($typeDef->getWrappedType()));
         }
 
         if ($typeDef instanceof NonNull) {

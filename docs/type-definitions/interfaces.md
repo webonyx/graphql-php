@@ -48,6 +48,7 @@ resolveType | `callback` | **function($value, $context, [ResolveInfo](../class-r
 
 ## Implementing interface
 To implement the Interface simply add it to **interfaces** array of Object Type definition:
+
 ```php
 <?php
 use GraphQL\Type\Definition\Type;

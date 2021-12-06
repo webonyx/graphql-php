@@ -19,6 +19,8 @@ use function is_string;
 
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
+    use NamedTypeImplementation;
+
     public ?EnumTypeDefinitionNode $astNode;
 
     /** @var array<int, EnumTypeExtensionNode> */
@@ -154,7 +156,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
         $values = $this->config['values'] ?? null;
         if (! is_array($values)) {

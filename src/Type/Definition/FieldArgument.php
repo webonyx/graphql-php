@@ -11,9 +11,15 @@ use GraphQL\Utils\Utils;
 
 use function array_key_exists;
 use function is_array;
-use function is_string;
-use function sprintf;
 
+/**
+ * @phpstan-type FieldArgumentConfig array{
+ *     name: string,
+ *     defaultValue?: mixed,
+ *     description?: string|null,
+ *     astNode?: InputValueDefinitionNode|null,
+ * }
+ */
 class FieldArgument
 {
     public string $name;
@@ -25,14 +31,14 @@ class FieldArgument
 
     public ?InputValueDefinitionNode $astNode;
 
-    /** @var array<string, mixed> */
+    /** @var FieldArgumentConfig */
     public array $config;
 
     /** @var Type&InputType */
     private Type $type;
 
     /**
-     * @param array<string, mixed> $config
+     * @param FieldArgumentConfig $config
      */
     public function __construct(array $config)
     {
@@ -45,7 +51,7 @@ class FieldArgument
     }
 
     /**
-     * @param array<string, mixed> $config
+     * @param array<string, FieldArgumentConfig|Type> $config
      *
      * @return array<int, FieldArgument>
      */
@@ -87,6 +93,9 @@ class FieldArgument
             && ! $this->defaultValueExists();
     }
 
+    /**
+     * @param Type &NamedType $parentType
+     */
     public function assertValid(FieldDefinition $parentField, Type $parentType): void
     {
         $error = Utils::isValidNameError($this->name);
@@ -96,30 +105,14 @@ class FieldArgument
             );
         }
 
-        $type = $this->getType();
-        if ($type instanceof WrappingType) {
-            $type = $type->getWrappedType(true);
-        }
+        $type = Type::getNamedType($this->getType());
 
-        Utils::invariant(
-            $type instanceof InputType,
-            sprintf(
-                '%s.%s(%s): argument type must be Input Type but got: %s',
-                $parentType->name,
-                $parentField->name,
-                $this->name,
-                Utils::printSafe($this->type)
-            )
-        );
-        Utils::invariant(
-            $this->description === null || is_string($this->description),
-            sprintf(
-                '%s.%s(%s): argument description type must be string but got: %s',
-                $parentType->name,
-                $parentField->name,
-                $this->name,
-                Utils::printSafe($this->description)
-            )
-        );
+        if (! $type instanceof InputType) {
+            $notInputType = Utils::printSafe($this->type);
+
+            throw new InvariantViolation(
+                "{$parentType->name}.{$parentField->name}({$this->name}): argument type must be Input Type but got: {$notInputType}"
+            );
+        }
     }
 }

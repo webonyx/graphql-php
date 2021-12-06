@@ -4,20 +4,15 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
 use JsonSerializable;
-use ReflectionClass;
 use ReturnTypeWillChange;
 
 use function array_keys;
 use function array_merge;
-use function assert;
 use function implode;
-use function in_array;
-use function preg_replace;
 
 /**
  * Registry of standard GraphQL types and base class for all other types.
@@ -35,16 +30,6 @@ abstract class Type implements JsonSerializable
 
     /** @var array<string, Type> */
     private static array $builtInTypes;
-
-    /**
-     * Not set in wrapping types.
-     */
-    public string $name;
-
-    public ?string $description;
-
-    /** @var array<string, mixed> */
-    public array $config;
 
     /**
      * @api
@@ -129,18 +114,6 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * Checks if the type is a builtin type.
-     */
-    public static function isBuiltInType(Type $type): bool
-    {
-        return in_array(
-            $type->name,
-            array_keys(self::getAllBuiltInTypes()),
-            true
-        );
-    }
-
-    /**
      * Returns all builtin in types including base scalar and introspection types.
      *
      * @return array<string, Type>
@@ -214,12 +187,10 @@ abstract class Type implements JsonSerializable
      */
     public static function getNamedType(?Type $type): ?Type
     {
-        while ($type instanceof WrappingType) {
-            $type = $type->getWrappedType();
-        }
-
-        // @phpstan-ignore-next-line non-wrapped types must be named types
-        return $type;
+        /** @var (Type&WrappingType)|(Type&NamedType)|null $type */
+        return $type instanceof WrappingType
+            ? $type->getInnermostType()
+            : $type;
     }
 
     /**
@@ -254,66 +225,29 @@ abstract class Type implements JsonSerializable
         return $type instanceof AbstractType;
     }
 
-    public static function assertType($type): Type
-    {
-        assert(
-            $type instanceof Type,
-            new InvariantViolation('Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.')
-        );
-
-        return $type;
-    }
-
     /**
+     * @return Type&NullableType
+     *
      * @api
      */
     public static function getNullableType(Type $type): Type
     {
+        /** @var (Type&NullableType)|(Type&NonNull) $type */
         return $type instanceof NonNull
             ? $type->getWrappedType()
             : $type;
     }
 
-    /**
-     * @throws Error
-     */
-    public function assertValid(): void
-    {
-        Utils::assertValidName($this->name);
-    }
-
-    #[ReturnTypeWillChange]
-    public function jsonSerialize(): string
-    {
-        return $this->toString();
-    }
-
-    public function toString(): string
-    {
-        return $this->name;
-    }
+    abstract public function toString(): string;
 
     public function __toString(): string
     {
         return $this->toString();
     }
 
-    protected function tryInferName(): ?string
+    #[ReturnTypeWillChange]
+    public function jsonSerialize(): string
     {
-        if (isset($this->name)) {
-            return $this->name;
-        }
-
-        // If class is extended - infer name from className
-        // QueryType -> Type
-        // SomeOtherType -> SomeOther
-        $reflection = new ReflectionClass($this);
-        $name       = $reflection->getShortName();
-
-        if ($reflection->getNamespaceName() !== __NAMESPACE__) {
-            return preg_replace('~Type$~', '', $name);
-        }
-
-        return null;
+        return $this->toString();
     }
 }

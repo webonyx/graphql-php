@@ -11,11 +11,12 @@ use GraphQL\Utils\Utils;
 
 use function is_callable;
 use function is_string;
-use function sprintf;
 
-class InterfaceType extends TypeWithFields implements AbstractType, OutputType, CompositeType, NullableType, NamedType, ImplementingType
+class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
 {
-    use TypeWithInterfaces;
+    use HasFieldsTypeImplementation;
+    use NamedTypeImplementation;
+    use ImplementingTypeImplementation;
 
     public ?InterfaceTypeDefinitionNode $astNode;
 
@@ -67,17 +68,12 @@ class InterfaceType extends TypeWithFields implements AbstractType, OutputType, 
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
-        $resolveType = $this->config['resolveType'] ?? null;
+        if (isset($this->config['resolveType']) && ! is_callable($this->config['resolveType'])) {
+            $notCallable = Utils::printSafe($this->config['resolveType']);
 
-        Utils::invariant(
-            ! isset($resolveType) || is_callable($resolveType),
-            sprintf(
-                '%s must provide "resolveType" as a function, but got: %s',
-                $this->name,
-                Utils::printSafe($resolveType)
-            )
-        );
+            throw new InvariantViolation("{$this->name} must provide \"resolveType\" as a callable, but got: {$notCallable}");
+        }
     }
 }

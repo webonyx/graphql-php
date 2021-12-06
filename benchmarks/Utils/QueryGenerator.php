@@ -14,7 +14,7 @@ use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\WrappingType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
@@ -87,11 +87,7 @@ class QueryGenerator
                 break;
             }
 
-            $type = $field->getType();
-
-            if ($type instanceof WrappingType) {
-                $type = $type->getWrappedType(true);
-            }
+            $type = Type::getNamedType($field->getType());
 
             if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                 $selectionSet = $this->buildSelectionSet($type->getFields());

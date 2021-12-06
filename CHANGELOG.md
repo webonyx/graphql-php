@@ -28,6 +28,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Call previously unused methods `EnumType::parseValue()` and `EnumType::parseLiteral()`
 - Strongly type `PromiseAdapter::createRejected()` to require `\Throwable`
 - Store rules exclusively by class name in `DocumentValidator`
+- Move members specific to `NamedType` out of `Type`: `$name`, `$description`, `$config`, `isBuiltInType()`, `assertValid()`
 
 ### Added
 
@@ -83,6 +84,11 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove `TypeComparators::doTypesOverlap()`
 - Remove `DocumentValidator::isError()`
 - Remove `DocumentValidator::append()`
+- Remove `Utils::getVariableType()` in favor of `Utils::printSafe()`
+- Remove warning for passing `isDeprecated` in field definition config
+- Remove `WrappingType::getWrappedType()` argument `$recurse` in favor of `WrappingType::getInnermostType()`
+- Remove `Type::assertType()`
+- Remove `ListOfType::$ofType`, `ListOfType::getOfType()` and `NonNull::getOfType()`
 
 ## 14.11.3
 

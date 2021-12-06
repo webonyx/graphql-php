@@ -8,8 +8,9 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\AbstractType;
+use GraphQL\Type\Definition\HasFieldsType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\TypeWithFields;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
@@ -28,13 +29,13 @@ class FieldsOnCorrectType extends ValidationRule
     {
         return [
             NodeKind::FIELD => function (FieldNode $node) use ($context): void {
-                $type = $context->getParentType();
-                if ($type === null) {
+                $fieldDef = $context->getFieldDef();
+                if ($fieldDef !== null) {
                     return;
                 }
 
-                $fieldDef = $context->getFieldDef();
-                if ($fieldDef !== null) {
+                $type = $context->getParentType();
+                if (! $type instanceof NamedType) {
                     return;
                 }
 
@@ -118,7 +119,7 @@ class FieldsOnCorrectType extends ValidationRule
      */
     protected function getSuggestedFieldNames(Type $type, string $fieldName): array
     {
-        if ($type instanceof TypeWithFields) {
+        if ($type instanceof HasFieldsType) {
             return Utils::suggestionList(
                 $fieldName,
                 $type->getFieldNames()

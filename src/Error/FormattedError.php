@@ -11,7 +11,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\WrappingType;
 use Throwable;
 
 use function addcslashes;
@@ -319,12 +318,7 @@ class FormattedError
     public static function printVar($var): string
     {
         if ($var instanceof Type) {
-            // FIXME: Replace with schema printer call
-            if ($var instanceof WrappingType) {
-                $var = $var->getWrappedType(true);
-            }
-
-            return 'GraphQLType: ' . $var->name;
+            return 'GraphQLType: ' . $var->toString();
         }
 
         if (is_object($var)) {

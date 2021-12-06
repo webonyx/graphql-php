@@ -31,6 +31,8 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
@@ -44,62 +46,33 @@ use function count;
 
 class TypeInfo
 {
-    /** @var Schema */
-    private $schema;
+    private Schema $schema;
 
     /** @var array<(OutputType&Type)|null> */
-    private $typeStack;
+    private array $typeStack = [];
 
     /** @var array<(CompositeType&Type)|null> */
-    private $parentTypeStack;
+    private array $parentTypeStack = [];
 
     /** @var array<(InputType&Type)|null> */
-    private $inputTypeStack;
+    private array $inputTypeStack = [];
 
     /** @var array<FieldDefinition> */
-    private $fieldDefStack;
+    private array $fieldDefStack = [];
 
     /** @var array<mixed> */
-    private $defaultValueStack;
+    private array $defaultValueStack = [];
 
-    /** @var Directive|null */
-    private $directive;
+    private ?Directive $directive = null;
 
-    /** @var FieldArgument|null */
-    private $argument;
+    private ?FieldArgument $argument = null;
 
     /** @var mixed */
     private $enumValue;
 
-    /**
-     * @param Type|null $initialType
-     */
-    public function __construct(Schema $schema, $initialType = null)
+    public function __construct(Schema $schema)
     {
-        $this->schema            = $schema;
-        $this->typeStack         = [];
-        $this->parentTypeStack   = [];
-        $this->inputTypeStack    = [];
-        $this->fieldDefStack     = [];
-        $this->defaultValueStack = [];
-
-        if ($initialType === null) {
-            return;
-        }
-
-        if (Type::isInputType($initialType)) {
-            $this->inputTypeStack[] = $initialType;
-        }
-
-        if (Type::isCompositeType($initialType)) {
-            $this->parentTypeStack[] = $initialType;
-        }
-
-        if (! Type::isOutputType($initialType)) {
-            return;
-        }
-
-        $this->typeStack[] = $initialType;
+        $this->schema = $schema;
     }
 
     /**
@@ -119,8 +92,9 @@ class TypeInfo
      */
     public static function extractTypes(Type $type, array &$typeMap): void
     {
+        /** @var (Type&WrappingType)|(Type&NamedType) $type */
         if ($type instanceof WrappingType) {
-            self::extractTypes($type->getWrappedType(true), $typeMap);
+            self::extractTypes($type->getInnermostType(), $typeMap);
 
             return;
         }
@@ -161,16 +135,16 @@ class TypeInfo
             }
         }
 
-        if ($type instanceof HasFieldsType) {
-            foreach ($type->getFields() as $field) {
-                foreach ($field->args as $arg) {
-                    self::extractTypes($arg->getType(), $typeMap);
-                }
+        if (! ($type instanceof HasFieldsType)) {
+            return;
+        }
 
-                self::extractTypes($field->getType(), $typeMap);
+        foreach ($type->getFields() as $field) {
+            foreach ($field->args as $arg) {
+                self::extractTypes($arg->getType(), $typeMap);
             }
 
-            return;
+            self::extractTypes($field->getType(), $typeMap);
         }
     }
 
@@ -293,9 +267,9 @@ class TypeInfo
 
             case $node instanceof ListValueNode:
                 $type     = $this->getInputType();
-                $listType = $type === null
-                    ? null
-                    : Type::getNullableType($type);
+                $listType = $type instanceof NonNull
+                    ? $type->getWrappedType()
+                    : $type;
                 $itemType = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
                     : $listType;

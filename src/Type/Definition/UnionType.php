@@ -13,10 +13,11 @@ use GraphQL\Utils\Utils;
 use function is_array;
 use function is_callable;
 use function is_string;
-use function sprintf;
 
 class UnionType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
 {
+    use NamedTypeImplementation;
+
     public ?UnionTypeDefinitionNode $astNode;
 
     /** @var array<int, UnionTypeExtensionNode> */
@@ -117,19 +118,12 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
-        if (! isset($this->config['resolveType'])) {
-            return;
+        if (isset($this->config['resolveType']) && ! is_callable($this->config['resolveType'])) {
+            $notCallable = Utils::printSafe($this->config['resolveType']);
+
+            throw new InvariantViolation("{$this->name} must provide \"resolveType\" as a callable, but got: {$notCallable}");
         }
-
-        Utils::invariant(
-            is_callable($this->config['resolveType']),
-            sprintf(
-                '%s must provide "resolveType" as a function, but got: %s',
-                $this->name,
-                Utils::printSafe($this->config['resolveType'])
-            )
-        );
     }
 }

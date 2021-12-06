@@ -9,7 +9,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\WrappingType;
 use stdClass;
 
 use function array_keys;
@@ -153,25 +152,6 @@ class Utils
 
         // TODO switch to Error here
         throw new InvariantViolation($message);
-    }
-
-    /**
-     * @param Type|mixed $var
-     */
-    public static function getVariableType($var): string
-    {
-        if ($var instanceof Type) {
-            // FIXME: Replace with schema printer call
-            if ($var instanceof WrappingType) {
-                $var = $var->getWrappedType(true);
-            }
-
-            return $var->name;
-        }
-
-        return is_object($var)
-            ? get_class($var)
-            : gettype($var);
     }
 
     /**

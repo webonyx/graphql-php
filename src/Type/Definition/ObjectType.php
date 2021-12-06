@@ -12,7 +12,6 @@ use GraphQL\Utils\Utils;
 
 use function is_callable;
 use function is_string;
-use function sprintf;
 
 /**
  * Object Type Definition
@@ -53,9 +52,11 @@ use function sprintf;
  *        }
  *     ]);
  */
-class ObjectType extends TypeWithFields implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
+class ObjectType extends Type implements OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
 {
-    use TypeWithInterfaces;
+    use HasFieldsTypeImplementation;
+    use NamedTypeImplementation;
+    use ImplementingTypeImplementation;
 
     public ?ObjectTypeDefinitionNode $astNode;
 
@@ -124,23 +125,13 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
-        Utils::invariant(
-            $this->description === null || is_string($this->description),
-            sprintf(
-                '%s description must be string if set, but it is: %s',
-                $this->name,
-                Utils::printSafe($this->description)
-            )
-        );
+        if (isset($this->config['isTypeOf']) && ! is_callable($this->config['isTypeOf'])) {
+            $notCallable = Utils::printSafe($this->config['isTypeOf']);
 
-        $isTypeOf = $this->config['isTypeOf'] ?? null;
-
-        Utils::invariant(
-            $isTypeOf === null || is_callable($isTypeOf),
-            sprintf('%s must provide "isTypeOf" as a function, but got: %s', $this->name, Utils::printSafe($isTypeOf))
-        );
+            throw new InvariantViolation("{$this->name} must provide \"isTypeOf\" as a callable, but got: {$notCallable}");
+        }
 
         foreach ($this->getFields() as $field) {
             $field->assertValid($this);

@@ -13,7 +13,7 @@ use function is_callable;
 /**
  * @see ImplementingType
  */
-trait TypeWithInterfaces
+trait ImplementingTypeImplementation
 {
     /**
      * Lazily initialized.
@@ -69,9 +69,7 @@ trait TypeWithInterfaces
         }
 
         foreach ($interfaces as $interface) {
-            /** @var Type&InterfaceType $resolvedInterface */
-            $resolvedInterface  = Schema::resolveType($interface);
-            $this->interfaces[] = $resolvedInterface;
+            $this->interfaces[] = Schema::resolveType($interface);
         }
     }
 }

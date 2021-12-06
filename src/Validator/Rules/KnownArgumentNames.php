@@ -8,7 +8,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\FieldArgument;
-use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
@@ -34,9 +34,13 @@ class KnownArgumentNames extends ValidationRule
                     return;
                 }
 
-                $fieldDef   = $context->getFieldDef();
+                $fieldDef = $context->getFieldDef();
+                if ($fieldDef === null) {
+                    return;
+                }
+
                 $parentType = $context->getParentType();
-                if ($fieldDef === null || ! ($parentType instanceof Type)) {
+                if (! $parentType instanceof NamedType) {
                     return;
                 }
 
@@ -55,8 +59,6 @@ class KnownArgumentNames extends ValidationRule
                     ),
                     [$node]
                 ));
-
-                return;
             },
         ];
     }
