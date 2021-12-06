@@ -1,13 +1,13 @@
 {
   "name": "webonyx/graphql-php",
-  "type": "library",
   "description": "A PHP port of GraphQL reference implementation",
+  "license": "MIT",
+  "type": "library",
   "keywords": [
     "graphql",
     "API"
   ],
   "homepage": "https://github.com/webonyx/graphql-php",
-  "license": "MIT",
   "require": {
     "php": "^7.4 || ^8",
     "ext-json": "*",
@@ -34,10 +34,6 @@
     "psr/http-message": "To use standard GraphQL server",
     "react/promise": "To leverage async resolving on React PHP platform"
   },
-  "config": {
-    "preferred-install": "dist",
-    "sort-packages": true
-  },
   "autoload": {
     "psr-4": {
       "GraphQL\\": "src/"
@@ -49,6 +45,10 @@
       "GraphQL\\Benchmarks\\": "benchmarks/",
       "GraphQL\\Examples\\Blog\\": "examples/01-blog/Blog/"
     }
+  },
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true
   },
   "scripts": {
     "baseline": "phpstan --ansi --generate-baseline",
