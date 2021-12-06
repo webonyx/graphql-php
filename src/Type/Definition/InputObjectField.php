@@ -11,11 +11,20 @@ use GraphQL\Utils\Utils;
 
 use function array_key_exists;
 
+/**
+ * @phpstan-type InputObjectFieldConfig array{
+ *   name: string,
+ *   defaultValue?: mixed,
+ *   description?: string|null,
+ *   type: (Type&InputType)|callable(): (Type&InputType),
+ *   astNode?: InputValueDefinitionNode|null,
+ * }
+ */
 class InputObjectField
 {
     public string $name;
 
-    /** @var mixed|null */
+    /** @var mixed */
     public $defaultValue;
 
     public ?string $description;
@@ -29,7 +38,7 @@ class InputObjectField
     public array $config;
 
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param InputObjectFieldConfig $config
      */
     public function __construct(array $config)
     {
@@ -51,8 +60,9 @@ class InputObjectField
             /**
              * @see it('rejects an Input Object type with incorrectly typed fields')
              */
+
              // @phpstan-ignore-next-line schema validation will catch a Type that is not an InputType
-            $this->type = Schema::resolveType($this->config['type']);
+            return $this->type = Schema::resolveType($this->config['type']);
         }
 
         return $this->type;

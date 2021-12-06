@@ -9,13 +9,28 @@ use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
 
-use function count;
 use function is_array;
 use function is_callable;
 use function is_iterable;
 use function is_string;
-use function sprintf;
 
+/**
+ * @phpstan-type PartialInputObjectFieldConfig array{
+ *   name?: string,
+ *   defaultValue?: mixed,
+ *   description?: string|null,
+ *   type: (Type&InputType)|callable(): (Type&InputType),
+ *   astNode?: InputValueDefinitionNode|null,
+ * }
+ * @phpstan-type FieldConfig InputObjectField|(Type&InputType)|PartialInputObjectFieldConfig|(callable(): InputObjectField|(Type&InputType)|PartialInputObjectFieldConfig)
+ * @phpstan-type InputObjectConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
+ *   astNode?: InputObjectTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<int, InputObjectTypeExtensionNode>|null,
+ * }
+ */
 class InputObjectType extends Type implements InputType, NullableType, NamedType
 {
     use NamedTypeImplementation;
@@ -24,6 +39,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     /** @var array<int, InputObjectTypeExtensionNode> */
     public array $extensionASTNodes;
+
+    /** @phpstan-var InputObjectConfig */
+    public array $config;
 
     /**
      * Lazily initialized.
@@ -41,8 +59,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         $this->name              = $config['name'];
-        $this->astNode           = $config['astNode'] ?? null;
         $this->description       = $config['description'] ?? null;
+        $this->astNode           = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
         $this->config = $config;
@@ -92,15 +110,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     protected function initializeFields(): void
     {
-        $fields = $this->config['fields'] ?? [];
+        $fields = $this->config['fields'];
         if (is_callable($fields)) {
             $fields = $fields();
-        }
-
-        if (! is_iterable($fields)) {
-            throw new InvariantViolation(
-                sprintf('%s fields must be an iterable or a callable which returns such an iterable.', $this->name)
-            );
         }
 
         $this->fields = [];
@@ -110,8 +122,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     }
 
     /**
-     * @param string|int                                                            $nameOrIndex
-     * @param InputObjectField|Type|array|(callable(): InputObjectField|Type|array) $field
+     * @param string|int $nameOrIndex
+     * @phpstan-param FieldConfig $field
      */
     protected function initializeField($nameOrIndex, $field): void
     {
@@ -148,15 +160,21 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         Utils::assertValidName($this->name);
 
-        Utils::invariant(
-            count($this->getFields()) > 0,
-            sprintf(
-                '%s fields must be an associative array with field names as keys or a callable which returns such an array.',
-                $this->name
-            )
-        );
+        $fields = $this->config['fields'] ?? null;
+        if (is_callable($fields)) {
+            $fields = $fields();
+        }
 
-        foreach ($this->getFields() as $field) {
+        // @phpstan-ignore-next-line should not happen if used correctly
+        if (! is_iterable($fields)) {
+            throw new InvariantViolation(
+                "{$this->name} fields must be an iterable or a callable which returns an iterable."
+            );
+        }
+
+        $resolvedFields = $this->getFields();
+
+        foreach ($resolvedFields as $field) {
             $field->assertValid($this);
         }
     }

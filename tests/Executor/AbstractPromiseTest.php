@@ -41,11 +41,7 @@ class AbstractPromiseTest extends TestCase
         $DogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj): Deferred {
-                return new Deferred(static function () use ($obj): bool {
-                    return $obj instanceof Dog;
-                });
-            },
+            'isTypeOf'   => static fn ($obj): Deferred => new Deferred(static fn (): bool => $obj instanceof Dog),
             'fields'     => [
                 'name'  => ['type' => Type::string()],
                 'woofs' => ['type' => Type::boolean()],
@@ -55,11 +51,7 @@ class AbstractPromiseTest extends TestCase
         $CatType = new ObjectType([
             'name'       => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj): Deferred {
-                return new Deferred(static function () use ($obj): bool {
-                    return $obj instanceof Cat;
-                });
-            },
+            'isTypeOf'   => static fn ($obj): Deferred => new Deferred(static fn (): bool => $obj instanceof Cat),
             'fields'     => [
                 'name'  => ['type' => Type::string()],
                 'meows' => ['type' => Type::boolean()],

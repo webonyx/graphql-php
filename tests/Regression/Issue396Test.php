@@ -102,7 +102,7 @@ class Issue396Test extends TestCase
             'fields' => [
                 'name' => Type::string(),
             ],
-            'resolveType' => static function ($result, $value, ResolveInfo $info) use (&$a, &$b, &$c, &$log): ?Type {
+            'resolveType' => static function ($result, $value, ResolveInfo $info) use (&$a, &$b, &$c, &$log): ?ObjectType {
                 $log[] = [$result, $info->path];
                 if (stristr($result['name'], 'A')) {
                     return $a;

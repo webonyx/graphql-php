@@ -702,7 +702,10 @@ class SchemaPrinterTest extends TestCase
      */
     public function testCustomScalar(): void
     {
-        $oddType = new CustomScalarType(['name' => 'Odd']);
+        $oddType = new CustomScalarType([
+            'name' => 'Odd',
+            'serialize' => static fn () => null,
+        ]);
 
         $schema = new Schema(['types' => [$oddType]]);
 

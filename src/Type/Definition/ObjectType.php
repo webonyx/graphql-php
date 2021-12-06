@@ -6,6 +6,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
@@ -16,8 +17,8 @@ use function is_string;
 /**
  * Object Type Definition
  *
- * Almost all of the GraphQL types you define will be object types. Object types
- * have a name, but most importantly describe their fields.
+ * Most GraphQL types you define will be object types.
+ * Object types have a name, but most importantly describe their fields.
  *
  * Example:
  *
@@ -51,6 +52,19 @@ use function is_string;
  *          ];
  *        }
  *     ]);
+ *
+ * @phpstan-import-type FieldResolver from Executor
+ * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
+ * @phpstan-type ObjectConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   resolveField?: FieldResolver,
+ *   fields: (callable(): iterable<mixed>)|iterable<mixed>,
+ *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
+ *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
+ *   astNode?: ObjectTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<int, ObjectTypeExtensionNode>|null,
+ * }
  */
 class ObjectType extends Type implements OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
 {
@@ -66,8 +80,11 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /** @var callable|null */
     public $resolveFieldFn;
 
+    /** @phpstan-var ObjectConfig */
+    public array $config;
+
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param ObjectConfig $config
      */
     public function __construct(array $config)
     {
@@ -136,5 +153,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         foreach ($this->getFields() as $field) {
             $field->assertValid($this);
         }
+
+        $this->assertValidInterfaces();
     }
 }

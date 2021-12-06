@@ -130,8 +130,7 @@ final class LazyTypeLoaderTest extends TestCase
                                     'id' => Type::string(),
                                 ];
                             },
-                            'resolveType' => static function (): void {
-                            },
+                            'resolveType' => static fn (): ?ObjectType => null,
                         ]);
                         break;
 
@@ -146,8 +145,7 @@ final class LazyTypeLoaderTest extends TestCase
                                     'body' => Type::string(),
                                 ];
                             },
-                            'resolveType' => static function (): void {
-                            },
+                            'resolveType' => static fn (): ?ObjectType => null,
                         ]);
                         break;
 

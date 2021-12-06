@@ -12,6 +12,20 @@ use GraphQL\Utils\Utils;
 use function is_callable;
 use function is_string;
 
+/**
+ * @phpstan-import-type ResolveType from AbstractType
+ * @phpstan-import-type FieldMapConfig from FieldDefinition
+ * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
+ * @phpstan-type InterfaceConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   fields: FieldMapConfig,
+ *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
+ *   resolveType?: ResolveType|null,
+ *   astNode?: InterfaceTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<int, InterfaceTypeExtensionNode>|null,
+ * }
+ */
 class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
 {
     use HasFieldsTypeImplementation;
@@ -23,8 +37,11 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /** @var array<int, InterfaceTypeExtensionNode> */
     public array $extensionASTNodes;
 
+    /** @phpstan-var InterfaceConfig */
+    public array $config;
+
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param InterfaceConfig $config
      */
     public function __construct(array $config)
     {
@@ -75,5 +92,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
             throw new InvariantViolation("{$this->name} must provide \"resolveType\" as a callable, but got: {$notCallable}");
         }
+
+        $this->assertValidInterfaces();
     }
 }

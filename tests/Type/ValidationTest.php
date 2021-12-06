@@ -174,21 +174,18 @@ class ValidationTest extends TestCase
     {
         $this->assertEachCallableThrows(
             [
-                static function (): ObjectType {
-                    return new ObjectType([]);
-                },
-                static function (): EnumType {
-                    return new EnumType([]);
-                },
-                static function (): InputObjectType {
-                    return new InputObjectType([]);
-                },
-                static function (): UnionType {
-                    return new UnionType([]);
-                },
-                static function (): InterfaceType {
-                    return new InterfaceType([]);
-                },
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): ObjectType => new ObjectType([]),
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): EnumType => new EnumType([]),
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): InputObjectType => new InputObjectType([]),
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): UnionType => new UnionType([]),
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): InterfaceType => new InterfaceType([]),
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): ScalarType => new CustomScalarType([]),
             ],
             'Must provide name.'
         );
@@ -1091,19 +1088,6 @@ class ValidationTest extends TestCase
                 ],
             ]
         );
-    }
-
-    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnEnum(): void
-    {
-        $enum = new EnumType([
-            'name'   => 'SomeEnum',
-            'values' => [
-                'value' => ['isDeprecated' => true],
-            ],
-        ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('SomeEnum.value should provide "deprecationReason" instead of "isDeprecated".');
-        $enum->assertValid();
     }
 
     /**

@@ -1723,9 +1723,9 @@ extend type Query {
 
     public function testPreservesScalarClassMethods(): void
     {
-        $SomeScalarClassType = new SomeScalarClassType();
+        $SomeScalarClassType = new SomeScalarClassType(['serialize' => static fn () => null]);
 
-        $queryType = new ObjectType([
+        $queryType           = new ObjectType([
             'name' => 'Query',
             'fields' => [
                 'someScalarClass' => ['type' => $SomeScalarClassType],
