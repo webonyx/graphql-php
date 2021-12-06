@@ -253,6 +253,8 @@ static function isAbstractType($type): bool
 
 ```php
 /**
+ * @return Type&NullableType
+ *
  * @api
  */
 static function getNullableType(GraphQL\Type\Definition\Type $type): GraphQL\Type\Definition\Type
@@ -776,114 +778,115 @@ function validate(): array
 Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
 
 @phpstan-type ParserOptions array{
-noLocation?: bool,
-allowLegacySDLEmptyFields?: bool,
-allowLegacySDLImplementsInterfaces?: bool,
-experimentalFragmentVariables?: bool,
+  noLocation?: bool,
+  allowLegacySDLEmptyFields?: bool,
+  allowLegacySDLImplementsInterfaces?: bool,
+  experimentalFragmentVariables?: bool,
 }
 
 noLocation:
-(By default, the parser creates AST nodes that know the location
-in the source that they correspond to. This configuration flag
-disables that behavior for performance or testing.)
+  (By default, the parser creates AST nodes that know the location
+  in the source that they correspond to. This configuration flag
+  disables that behavior for performance or testing.)
 
 allowLegacySDLEmptyFields:
-If enabled, the parser will parse empty fields sets in the Schema
-Definition Language. Otherwise, the parser will follow the current
-specification.
+  If enabled, the parser will parse empty fields sets in the Schema
+  Definition Language. Otherwise, the parser will follow the current
+  specification.
 
-This option is provided to ease adoption of the final SDL specification
-and will be removed in a future major release.
+  This option is provided to ease adoption of the final SDL specification
+  and will be removed in a future major release.
 
 allowLegacySDLImplementsInterfaces:
-If enabled, the parser will parse implemented interfaces with no `&`
-character between each interface. Otherwise, the parser will follow the
-current specification.
+  If enabled, the parser will parse implemented interfaces with no `&`
+  character between each interface. Otherwise, the parser will follow the
+  current specification.
 
-This option is provided to ease adoption of the final SDL specification
-and will be removed in a future major release.
+  This option is provided to ease adoption of the final SDL specification
+  and will be removed in a future major release.
 
 experimentalFragmentVariables:
-(If enabled, the parser will understand and parse variable definitions
-contained in a fragment definition. They'll be represented in the
-`variableDefinitions` field of the FragmentDefinitionNode.
+  (If enabled, the parser will understand and parse variable definitions
+  contained in a fragment definition. They'll be represented in the
+  `variableDefinitions` field of the FragmentDefinitionNode.
 
-The syntax is identical to normal, query-defined variables. For example:
+  The syntax is identical to normal, query-defined variables. For example:
 
     fragment A($var: Boolean = false) on T  {
       ...
     }
 
-Note: this feature is experimental and may change or be removed in the
-future.)
+  Note: this feature is experimental and may change or be removed in the
+  future.)
 
-- Those magic functions allow partial parsing:
-  @method static NameNode name(Source|string $source, bool[] $options = [])
-  @method static DocumentNode document(Source|string $source, bool[] $options = [])
-  @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
-  @method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
-  @method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
-  @method static string operationType(Source|string $source, bool[] $options = [])
-  @method static NodeList<VariableDefinitionNode> variableDefinitions(Source|string $source, bool[] $options = [])
-  @method static VariableDefinitionNode variableDefinition(Source|string $source, bool[] $options = [])
-  @method static VariableNode variable(Source|string $source, bool[] $options = [])
-  @method static SelectionSetNode selectionSet(Source|string $source, bool[] $options = [])
-  @method static mixed selection(Source|string $source, bool[] $options = [])
-  @method static FieldNode field(Source|string $source, bool[] $options = [])
-  @method static NodeList<ArgumentNode> arguments(Source|string $source, bool[] $options = [])
-  @method static NodeList<ArgumentNode> constArguments(Source|string $source, bool[] $options = [])
-  @method static ArgumentNode argument(Source|string $source, bool[] $options = [])
-  @method static ArgumentNode constArgument(Source|string $source, bool[] $options = [])
-  @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
-  @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, bool[] $options = [])
-  @method static NameNode fragmentName(Source|string $source, bool[] $options = [])
-  @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, bool[] $options = [])
-  @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode constValueLiteral(Source|string $source, bool[] $options = [])
-  @method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
-  @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode constValue(Source|string $source, bool[] $options = [])
-  @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, bool[] $options = [])
-  @method static ListValueNode array(Source|string $source, bool[] $options = [])
-  @method static ListValueNode constArray(Source|string $source, bool[] $options = [])
-  @method static ObjectValueNode object(Source|string $source, bool[] $options = [])
-  @method static ObjectValueNode constObject(Source|string $source, bool[] $options = [])
-  @method static ObjectFieldNode objectField(Source|string $source, bool[] $options = [])
-  @method static ObjectFieldNode constObjectField(Source|string $source, bool[] $options = [])
-  @method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
-  @method static NodeList<DirectiveNode> constDirectives(Source|string $source, bool[] $options = [])
-  @method static DirectiveNode directive(Source|string $source, bool[] $options = [])
-  @method static DirectiveNode constDirective(Source|string $source, bool[] $options = [])
-  @method static ListTypeNode|NamedTypeNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
-  @method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
-  @method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
-  @method static StringValueNode|null description(Source|string $source, bool[] $options = [])
-  @method static SchemaDefinitionNode schemaDefinition(Source|string $source, bool[] $options = [])
-  @method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, bool[] $options = [])
-  @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
-  @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
-  @method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, bool[] $options = [])
-  @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
-  @method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
-  @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
-  @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
-  @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
-  @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
-  @method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, bool[] $options = [])
-  @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
-  @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
-  @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
-  @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
-  @method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, bool[] $options = [])
-  @method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
-  @method static SchemaTypeExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
-  @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
-  @method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, bool[] $options = [])
-  @method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, bool[] $options = [])
-  @method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, bool[] $options = [])
-  @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
-  @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
-  @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
-  @method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
-  @method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
+ *
+Those magic functions allow partial parsing:
+@method static NameNode name(Source|string $source, bool[] $options = [])
+@method static DocumentNode document(Source|string $source, bool[] $options = [])
+@method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
+@method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
+@method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
+@method static string operationType(Source|string $source, bool[] $options = [])
+@method static NodeList<VariableDefinitionNode> variableDefinitions(Source|string $source, bool[] $options = [])
+@method static VariableDefinitionNode variableDefinition(Source|string $source, bool[] $options = [])
+@method static VariableNode variable(Source|string $source, bool[] $options = [])
+@method static SelectionSetNode selectionSet(Source|string $source, bool[] $options = [])
+@method static mixed selection(Source|string $source, bool[] $options = [])
+@method static FieldNode field(Source|string $source, bool[] $options = [])
+@method static NodeList<ArgumentNode> arguments(Source|string $source, bool[] $options = [])
+@method static NodeList<ArgumentNode> constArguments(Source|string $source, bool[] $options = [])
+@method static ArgumentNode argument(Source|string $source, bool[] $options = [])
+@method static ArgumentNode constArgument(Source|string $source, bool[] $options = [])
+@method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
+@method static FragmentDefinitionNode fragmentDefinition(Source|string $source, bool[] $options = [])
+@method static NameNode fragmentName(Source|string $source, bool[] $options = [])
+@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, bool[] $options = [])
+@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode constValueLiteral(Source|string $source, bool[] $options = [])
+@method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
+@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode constValue(Source|string $source, bool[] $options = [])
+@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, bool[] $options = [])
+@method static ListValueNode array(Source|string $source, bool[] $options = [])
+@method static ListValueNode constArray(Source|string $source, bool[] $options = [])
+@method static ObjectValueNode object(Source|string $source, bool[] $options = [])
+@method static ObjectValueNode constObject(Source|string $source, bool[] $options = [])
+@method static ObjectFieldNode objectField(Source|string $source, bool[] $options = [])
+@method static ObjectFieldNode constObjectField(Source|string $source, bool[] $options = [])
+@method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
+@method static NodeList<DirectiveNode> constDirectives(Source|string $source, bool[] $options = [])
+@method static DirectiveNode directive(Source|string $source, bool[] $options = [])
+@method static DirectiveNode constDirective(Source|string $source, bool[] $options = [])
+@method static ListTypeNode|NamedTypeNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
+@method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
+@method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
+@method static StringValueNode|null description(Source|string $source, bool[] $options = [])
+@method static SchemaDefinitionNode schemaDefinition(Source|string $source, bool[] $options = [])
+@method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, bool[] $options = [])
+@method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
+@method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
+@method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, bool[] $options = [])
+@method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
+@method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
+@method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
+@method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
+@method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
+@method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
+@method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, bool[] $options = [])
+@method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
+@method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
+@method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
+@method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
+@method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, bool[] $options = [])
+@method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
+@method static SchemaTypeExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
+@method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
+@method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, bool[] $options = [])
+@method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, bool[] $options = [])
+@method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, bool[] $options = [])
+@method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
+@method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
+@method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
+@method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
+@method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
 
 ### GraphQL\Language\Parser Methods
 
@@ -1013,51 +1016,51 @@ visitor API:
 
 1. Named visitors triggered when entering a node a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => function ($node) {
-   // enter the "Kind" node
-   }
-   ]);
+        // enter the "Kind" node
+      }
+    ]);
 
 2. Named visitors that trigger upon entering and leaving a node of
    a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => [
         'enter' => function ($node) {
-   // enter the "Kind" node
-   }
-   'leave' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+        'leave' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
 3. Generic visitors that trigger upon entering and leaving any node.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => function ($node) {
-   // enter any node
-   },
-   'leave' => function ($node) {
-   // leave any node
-   }
-   ]);
+        // enter any node
+      },
+      'leave' => function ($node) {
+        // leave any node
+      }
+    ]);
 
 4. Parallel visitors for entering and leaving nodes of a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => [
         'Kind' => function($node) {
-   // enter the "Kind" node
-   }
-   },
-   'leave' => [
-   'Kind' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+      },
+      'leave' => [
+        'Kind' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
 ### GraphQL\Language\Visitor Methods
 
@@ -1270,16 +1273,26 @@ Represents both - result of successful execution and of a failed one
 (with errors collected in `errors` prop)
 
 Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
-serializable array using `toArray()`
+serializable array using `toArray()`.
+
+@phpstan-type SerializableError array<string, mixed>
+@phpstan-type SerializableErrors array<int, SerializableError>
+@phpstan-type SerializableResult array{
+    data?: array<string, mixed>,
+    errors?: SerializableErrors,
+    extensions?: array<string, mixed>,
+}
+@phpstan-type ErrorFormatter callable(Throwable): SerializableError
+@phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
 
 ### GraphQL\Executor\ExecutionResult Props
 
 ```php
 /**
- * Data collected from resolvers during query execution
+ * Data collected from resolvers during query execution.
  *
  * @api
- * @var mixed[]
+ * @var array<string, mixed>|null
  */
 public $data;
 
@@ -1290,16 +1303,15 @@ public $data;
  * contain original exception.
  *
  * @api
- * @var Error[]
+ * @var array<Error>
  */
 public $errors;
 
 /**
  * User-defined serializable array of extensions included in serialized result.
- * Conforms to
  *
  * @api
- * @var mixed[]
+ * @var array<string, mixed>|null
  */
 public $extensions;
 ```
@@ -1320,6 +1332,8 @@ public $extensions;
  *    // ... other keys
  * );
  *
+ * @phpstan-param ErrorFormatter|null $errorFormatter
+ *
  * @api
  */
 function setErrorFormatter(callable $errorFormatter): self
@@ -1336,9 +1350,11 @@ function setErrorFormatter(callable $errorFormatter): self
  *     return array_map($formatter, $errors);
  * }
  *
+ * @phpstan-param ErrorsHandler|null $errorsHandler
+ *
  * @api
  */
-function setErrorsHandler(callable $handler): self
+function setErrorsHandler(callable $errorsHandler): self
 ```
 
 ```php
@@ -1351,7 +1367,7 @@ function setErrorsHandler(callable $handler): self
  *
  * $debug argument must sum of flags from @see \GraphQL\Error\DebugFlag
  *
- * @return mixed[]
+ * @phpstan-return SerializableResult
  *
  * @api
  */
@@ -1502,16 +1518,19 @@ static function allRules(): array
  *
  * $rule = DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
  *
- * @param string $name
+ * @param class-string<T> $name
  *
+ * @return T|null
+ *
+ * @template T of ValidationRule
  * @api
  */
-static function getRule($name): GraphQL\Validator\Rules\ValidationRule
+static function getRule(string $name): GraphQL\Validator\Rules\ValidationRule
 ```
 
 ```php
 /**
- * Add rule to list of global validation rules
+ * Add rule to list of global validation rules.
  *
  * @api
  */
@@ -1670,11 +1689,12 @@ It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io
 and provides tools for error debugging.
 
 @phpstan-type FormattedErrorArray array{
-message: string,
-locations?: array<int, array{line: int, column: int}>,
-path?: array<int, int|string>,
-extensions?: array<string, mixed>,
+  message: string,
+  locations?: array<int, array{line: int, column: int}>,
+  path?: array<int, int|string>,
+  extensions?: array<string, mixed>,
 }
+@phpstan-import-type ErrorFormatter from ExecutionResult
 
 ### GraphQL\Error\FormattedError Methods
 
@@ -1871,6 +1891,8 @@ Usage example:
 @phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
 @phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
 @phpstan-type ValidationRulesOption array<ValidationRule>|(callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>)|null
+@phpstan-import-type ErrorsHandler from ExecutionResult
+@phpstan-import-type ErrorFormatter from ExecutionResult
 
 ### GraphQL\Server\ServerConfig Methods
 
@@ -1914,7 +1936,7 @@ function setRootValue($rootValue): self
 
 ```php
 /**
- * @param callable(Error): array<string, mixed> $errorFormatter
+ * @phpstan-param ErrorFormatter $errorFormatter
  *
  * @api
  */
@@ -1923,7 +1945,7 @@ function setErrorFormatter(callable $errorFormatter): self
 
 ```php
 /**
- * @param callable(array<int, Error> $errors, callable(Error): array<string, mixed> $formatter): array<int, array<string, mixed>> $handler
+ * @phpstan-param ErrorsHandler $handler
  *
  * @api
  */
@@ -2206,21 +2228,21 @@ Build instance of @see \GraphQL\Type\Schema out of schema language definition (s
 See [schema definition language docs](schema-definition-language.md) for details.
 
 @phpstan-type Options array{
-assumeValid?: bool,
-assumeValidSDL?: bool,
+  assumeValid?: bool,
+  assumeValidSDL?: bool,
 }
 
 - assumeValid:
-  When building a schema from a GraphQL service's introspection result, it
-  might be safe to assume the schema is valid. Set to true to assume the
-  produced schema is valid.
+    When building a schema from a GraphQL service's introspection result, it
+    might be safe to assume the schema is valid. Set to true to assume the
+    produced schema is valid.
 
-  Default: false
+    Default: false
 
 - assumeValidSDL:
-  Set to true to assume the SDL is valid.
+    Set to true to assume the SDL is valid.
 
-  Default: false
+    Default: false
 
 ### GraphQL\Utils\BuildSchema Methods
 
@@ -2267,7 +2289,7 @@ Various utilities dealing with AST
 
 ### GraphQL\Utils\AST Methods
 
-````php
+```php
 /**
  * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
  *
@@ -2294,7 +2316,7 @@ Various utilities dealing with AST
  * @api
  */
 static function fromArray(array $node): GraphQL\Language\AST\Node
-````
+```
 
 ```php
 /**
@@ -2443,9 +2465,9 @@ Prints the contents of a Schema in schema definition language.
 
 @phpstan-type Options array{commentDescriptions?: bool}
 
-- commentDescriptions:
-  Provide true to use preceding comments as the description.
-  This option is provided to ease adoption and will be removed in v16.
+ - commentDescriptions:
+     Provide true to use preceding comments as the description.
+     This option is provided to ease adoption and will be removed in v16.
 
 ### GraphQL\Utils\SchemaPrinter Methods
 
@@ -2468,3 +2490,4 @@ static function doPrint(GraphQL\Type\Schema $schema, array $options = []): strin
  */
 static function printIntrospectionSchema(GraphQL\Type\Schema $schema, array $options = []): string
 ```
+
