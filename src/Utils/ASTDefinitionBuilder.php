@@ -29,6 +29,7 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -43,6 +44,10 @@ use function is_array;
 use function is_string;
 use function sprintf;
 
+/**
+ * @phpstan-import-type FieldMapConfig from FieldDefinition
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ */
 class ASTDefinitionBuilder
 {
     /** @var array<string, Node&TypeDefinitionNode> */
@@ -284,12 +289,8 @@ class ASTDefinitionBuilder
         return new ObjectType([
             'name'        => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields'      => function () use ($def): array {
-                return $this->makeFieldDefMap($def);
-            },
-            'interfaces'  => function () use ($def): array {
-                return $this->makeImplementedInterfaces($def);
-            },
+            'fields'      => fn (): array => $this->makeFieldDefMap($def),
+            'interfaces'  => fn (): array => $this->makeImplementedInterfaces($def),
             'astNode'     => $def,
         ]);
     }
@@ -297,7 +298,7 @@ class ASTDefinitionBuilder
     /**
      * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode $def
      *
-     * @return array<string, array<string, mixed>>
+     * @phpstan-return array<string, UnnamedFieldDefinitionConfig>
      */
     private function makeFieldDefMap(Node $def): array
     {
@@ -310,7 +311,7 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @return array<string, mixed>
+     * @return UnnamedFieldDefinitionConfig
      */
     public function buildField(FieldDefinitionNode $field): array
     {
@@ -345,7 +346,7 @@ class ASTDefinitionBuilder
     /**
      * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode $def
      *
-     * @return array<int, Type>
+     * @return array<int, InterfaceType>
      */
     private function makeImplementedInterfaces($def): array
     {
@@ -358,6 +359,7 @@ class ASTDefinitionBuilder
             $interfaces[] = $this->buildType($interface);
         }
 
+        // @phpstan-ignore-next-line generic type will be validated during schema validation
         return $interfaces;
     }
 
@@ -366,12 +368,8 @@ class ASTDefinitionBuilder
         return new InterfaceType([
             'name'        => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields'      => function () use ($def): array {
-                return $this->makeFieldDefMap($def);
-            },
-            'interfaces'  => function () use ($def): array {
-                return $this->makeImplementedInterfaces($def);
-            },
+            'fields'      => fn (): array => $this->makeFieldDefMap($def),
+            'interfaces'  => fn (): array => $this->makeImplementedInterfaces($def),
             'astNode'     => $def,
         ]);
     }
@@ -421,9 +419,7 @@ class ASTDefinitionBuilder
             'name'        => $def->name->value,
             'description' => $this->getDescription($def),
             'astNode'     => $def,
-            'serialize'   => static function ($value) {
-                return $value;
-            },
+            'serialize'   => static fn ($value) => $value,
         ]);
     }
 
@@ -432,9 +428,7 @@ class ASTDefinitionBuilder
         return new InputObjectType([
             'name'        => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields'      => function () use ($def): array {
-                return $this->makeInputValues($def->fields);
-            },
+            'fields'      => fn (): array => $this->makeInputValues($def->fields),
             'astNode'     => $def,
         ]);
     }

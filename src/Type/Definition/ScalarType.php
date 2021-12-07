@@ -27,6 +27,13 @@ use function is_string;
  *         return $value % 2 === 1 ? $value : null;
  *     }
  * }
+ *
+ * @phpstan-type ScalarConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   astNode?: ScalarTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
+ * }
  */
 abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NullableType, NamedType
 {
@@ -37,8 +44,11 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     /** @var array<ScalarTypeExtensionNode> */
     public array $extensionASTNodes;
 
+    /** @phpstan-var ScalarConfig */
+    public array $config;
+
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param ScalarConfig $config
      */
     public function __construct(array $config = [])
     {

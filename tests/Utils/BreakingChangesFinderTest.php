@@ -1722,15 +1722,26 @@ class BreakingChangesFinderTest extends TestCase
      */
     public function testShouldDetectInterfacesAddedToInterfaces(): void
     {
-        $oldInterface = new InterfaceType(['name' => 'OldInterface']);
-        $newInterface = new InterfaceType(['name' => 'NewInterface']);
+        $oldInterface = new InterfaceType([
+            'name' => 'OldInterface',
+            'fields' => ['irrelevant' => Type::int()],
+        ]);
+        $newInterface = new InterfaceType([
+            'name' => 'NewInterface',
+            'fields' => ['notImportant' => Type::int()],
+        ]);
 
         $oldInterface1 = new InterfaceType([
             'name'   => 'Interface1',
+            'fields' => ['irrelevant' => Type::int()],
             'interfaces' => [$oldInterface],
         ]);
         $newInterface1 = new InterfaceType([
             'name'   => 'Interface1',
+            'fields' => [
+                'irrelevant' => Type::int(),
+                'notImportant' => Type::int(),
+            ],
             'interfaces' => [$oldInterface, $newInterface],
         ]);
 

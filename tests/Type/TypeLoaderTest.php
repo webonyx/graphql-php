@@ -57,8 +57,7 @@ class TypeLoaderTest extends TestCase
                     'id' => Type::string(),
                 ];
             },
-            'resolveType' => static function (): void {
-            },
+            'resolveType' => static fn (): ?ObjectType => null,
         ]);
 
         $this->content = new InterfaceType([
@@ -71,8 +70,7 @@ class TypeLoaderTest extends TestCase
                     'body'  => Type::string(),
                 ];
             },
-            'resolveType' => static function (): void {
-            },
+            'resolveType' => static fn (): ?ObjectType => null,
         ]);
 
         $this->blogStory = new ObjectType([

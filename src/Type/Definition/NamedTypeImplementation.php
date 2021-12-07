@@ -18,9 +18,6 @@ trait NamedTypeImplementation
 
     public ?string $description;
 
-    /** @var array<string, mixed> */
-    public array $config;
-
     public function toString(): string
     {
         return $this->name;

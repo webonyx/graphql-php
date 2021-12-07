@@ -96,16 +96,6 @@ parameters:
 			path: src/Type/Definition/FieldDefinition.php
 
 		-
-			message: "#^Array \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\>\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
-			count: 1
-			path: src/Type/Definition/InterfaceType.php
-
-		-
-			message: "#^Array \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\>\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
-			count: 1
-			path: src/Type/Definition/ObjectType.php
-
-		-
 			message: "#^Array \\(array\\<string, GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\>\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
 			count: 1
 			path: src/Type/Schema.php
@@ -129,6 +119,11 @@ parameters:
 			message: "#^Variable property access on mixed\\.$#"
 			count: 1
 			path: src/Utils/AST.php
+
+		-
+			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\CustomScalarType constructor expects array\\{name\\?\\: string\\|null, description\\?\\: string\\|null, serialize\\: callable\\(mixed\\)\\: mixed, parseValue\\?\\: callable\\(mixed\\)\\: mixed, parseLiteral\\?\\: callable\\(GraphQL\\\\Language\\\\AST\\\\Node, array\\|null\\)\\: mixed, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|null, extensionASTNodes\\?\\: array\\<GraphQL\\\\Language\\\\AST\\\\ScalarTypeExtensionNode\\>\\|null\\}, array\\{name\\: string, description\\: string\\|null, serialize\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'serialize'\\}, parseValue\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'parseValue'\\}, parseLiteral\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'parseLiteral'\\}, astNode\\: GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|null, extensionASTNodes\\: array\\<GraphQL\\\\Language\\\\AST\\\\TypeExtensionNode\\>\\|null\\} given\\.$#"
+			count: 1
+			path: src/Utils/SchemaExtender.php
 
 		-
 			message: "#^Variable property access on object\\.$#"

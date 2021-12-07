@@ -10,18 +10,33 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
-use function is_array;
 use function is_callable;
+use function is_iterable;
 use function is_string;
 
+/**
+ * @phpstan-import-type ResolveType from AbstractType
+ * @phpstan-type ObjectTypeReference ObjectType|callable(): ObjectType
+ * @phpstan-type UnionConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   types: iterable<ObjectTypeReference>|callable(): iterable<ObjectTypeReference>,
+ *   resolveType?: ResolveType|null,
+ *   astNode?: UnionTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<UnionTypeExtensionNode>|null,
+ * }
+ */
 class UnionType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
 {
     use NamedTypeImplementation;
 
     public ?UnionTypeDefinitionNode $astNode;
 
-    /** @var array<int, UnionTypeExtensionNode> */
+    /** @var array<UnionTypeExtensionNode> */
     public array $extensionASTNodes;
+
+    /** @phpstan-var UnionConfig */
+    public array $config;
 
     /**
      * Lazily initialized.
@@ -38,7 +53,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     private array $possibleTypeNames;
 
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param UnionConfig $config
      */
     public function __construct(array $config)
     {
@@ -84,20 +99,16 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
                 $types = $types();
             }
 
-            if (! is_array($types)) {
+            // @phpstan-ignore-next-line should not happen if used correctly
+            if (! is_iterable($types)) {
                 throw new InvariantViolation(
-                    "Must provide Array of types or a callable which returns such an array for Union {$this->name}."
+                    "Must provide iterable of types or a callable which returns such an iterable for Union {$this->name}."
                 );
             }
 
             foreach ($types as $type) {
-                /**
-                 * Might not be true, actually checked during schema validation.
-                 *
-                 * @var ObjectType $resolvedType
-                 */
-                $resolvedType  = Schema::resolveType($type);
-                $this->types[] = $resolvedType;
+                // @phpstan-ignore-next-line type might not match, actually checked during schema validation
+                $this->types[] = Schema::resolveType($type);
             }
         }
 

@@ -29,6 +29,16 @@ use function is_string;
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null,
  * }
+ * @phpstan-type UnnamedFieldDefinitionConfig array{
+ *     type: (Type&OutputType)|callable(): (Type&OutputType),
+ *     resolve?: FieldResolver|null,
+ *     args?: array<string, FieldArgumentConfig|Type>|null,
+ *     description?: string|null,
+ *     deprecationReason?: string|null,
+ *     astNode?: FieldDefinitionNode|null,
+ *     complexity?: ComplexityFn|null,
+ * }
+ * @phpstan-type FieldMapConfig (callable(): iterable<mixed>)|iterable<mixed>
  */
 class FieldDefinition
 {
@@ -83,8 +93,9 @@ class FieldDefinition
     }
 
     /**
-     * @param ObjectType|InterfaceType                $parentType
-     * @param (callable(): array<mixed>)|array<mixed> $fields
+     * @param ObjectType|InterfaceType $parentType
+     * @param callable|iterable        $fields
+     * @phpstan-param FieldMapConfig $fields
      *
      * @return array<string, self>
      */
@@ -94,6 +105,7 @@ class FieldDefinition
             $fields = $fields();
         }
 
+        // @phpstan-ignore-next-line should not happen if used correctly
         if (! is_iterable($fields)) {
             throw new InvariantViolation(
                 "{$parentType->name} fields must be an iterable or a callable which returns such an iterable."
@@ -130,16 +142,14 @@ class FieldDefinition
                 }
 
                 $fieldDef = new UnresolvedFieldDefinition($parentType, $maybeName, $field);
-            } else {
-                if (! is_string($maybeName) || ! $field) {
-                    $safeField = Utils::printSafe($field);
-
-                    throw new InvariantViolation(
-                        "{$parentType->name}.{$maybeName} field config must be an array, but got: {$safeField}"
-                    );
-                }
-
+            } elseif ($field instanceof Type) {
                 $fieldDef = self::create(['name' => $maybeName, 'type' => $field]);
+            } else {
+                $invalidFieldConfig = Utils::printSafe($field);
+
+                throw new InvariantViolation(
+                    "{$parentType->name}.{$maybeName} field config must be an array, but got: {$invalidFieldConfig}"
+                );
             }
 
             $map[$fieldDef->getName()] = $fieldDef;

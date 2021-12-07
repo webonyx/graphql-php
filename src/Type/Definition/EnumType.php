@@ -15,8 +15,25 @@ use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 
 use function is_array;
+use function is_iterable;
 use function is_string;
 
+/**
+ * @phpstan-type PartialEnumValueConfig array{
+ *   name?: string,
+ *   value?: mixed,
+ *   deprecationReason?: string|null,
+ *   description?: string|null,
+ *   astNode?: EnumValueDefinitionNode|null,
+ * }
+ * @phpstan-type EnumTypeConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   values: iterable<string, PartialEnumValueConfig>|iterable<string, mixed>|iterable<int, string>,
+ *   astNode?: EnumTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<int, EnumTypeExtensionNode>|null,
+ * }
+ */
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
     use NamedTypeImplementation;
@@ -25,6 +42,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     /** @var array<int, EnumTypeExtensionNode> */
     public array $extensionASTNodes;
+
+    /** @phpstan-var EnumTypeConfig */
+    public array $config;
 
     /**
      * Lazily initialized.
@@ -43,6 +63,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /** @var array<string, EnumValueDefinition> */
     private array $nameLookup;
 
+    /**
+     * @phpstan-param EnumTypeConfig $config
+     */
     public function __construct(array $config)
     {
         $config['name'] ??= $this->tryInferName();
@@ -159,18 +182,14 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         Utils::assertValidName($this->name);
 
         $values = $this->config['values'] ?? null;
-        if (! is_array($values)) {
-            $safeValues = Utils::printSafe($values);
+        // @phpstan-ignore-next-line should not happen if used correctly
+        if (! is_iterable($values)) {
+            $notIterable = Utils::printSafe($values);
 
-            throw new InvariantViolation("{$this->name} values must be an array, got: {$safeValues}");
+            throw new InvariantViolation("{$this->name} values must be an iterable, got: {$notIterable}");
         }
 
-        foreach ($this->getValues() as $value) {
-            Utils::invariant(
-                ! isset($value->config['isDeprecated']),
-                $this->name . '.' . $value->name . ' should provide "deprecationReason" instead of "isDeprecated".'
-            );
-        }
+        $this->getValues();
     }
 
     private function initializeNameLookup(): void
