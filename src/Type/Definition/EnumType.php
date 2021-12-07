@@ -186,7 +186,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         if (! is_iterable($values)) {
             $notIterable = Utils::printSafe($values);
 
-            throw new InvariantViolation("{$this->name} values must be iterable, got: {$notIterable}");
+            throw new InvariantViolation("{$this->name} values must be an iterable, got: {$notIterable}");
         }
 
         $this->getValues();
