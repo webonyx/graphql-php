@@ -59,7 +59,7 @@ use function is_string;
  *   name?: string|null,
  *   description?: string|null,
  *   resolveField?: FieldResolver,
- *   fields: (callable(): iterable<mixed>)|iterable<mixed>,
+ *   fields?: (callable(): iterable<mixed>)|iterable<mixed>,
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
  *   astNode?: ObjectTypeDefinitionNode|null,
