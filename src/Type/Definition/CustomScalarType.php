@@ -16,7 +16,7 @@ use function is_callable;
  * @phpstan-type CustomScalarConfig array{
  *   name?: string|null,
  *   description?: string|null,
- *   serialize: callable(mixed): mixed,
+ *   serialize?: callable(mixed): mixed,
  *   parseValue?: callable(mixed): mixed,
  *   parseLiteral?: callable(Node $valueNode, array|null $variables): mixed,
  *   astNode?: ScalarTypeDefinitionNode|null,
