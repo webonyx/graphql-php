@@ -8,7 +8,6 @@ use ArrayAccess;
 use Countable;
 use GraphQL\Utils\AST;
 use IteratorAggregate;
-// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
 use ReturnTypeWillChange;
 use Traversable;
 
@@ -61,19 +60,12 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * TODO enable strict typing by changing how the Visitor deals with NodeList.
-     * Ideally, this function should always return a Node instance.
-     * However, the Visitor currently allows mutation of the NodeList
-     * and puts arbitrary values in the NodeList, such as strings.
-     * We will have to switch to using an array or a less strict
-     * type instead so we can enable strict typing in this class.
-     *
      * @param int|string $offset
      *
      * @phpstan-return T
      */
     #[ReturnTypeWillChange]
-    public function offsetGet($offset)// : Node
+    public function offsetGet($offset): Node
     {
         $item = $this->nodes[$offset];
 
@@ -121,7 +113,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @param mixed $replacement
+     * @param T|array<T>|null $replacement
      *
      * @phpstan-return NodeList<T>
      */
