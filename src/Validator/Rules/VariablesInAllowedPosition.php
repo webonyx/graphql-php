@@ -25,7 +25,7 @@ class VariablesInAllowedPosition extends ValidationRule
     /**
      * A map from variable names to their definition nodes.
      *
-     * @var VariableDefinitionNode[]
+     * @var array<string, VariableDefinitionNode>
      */
     protected array $varDefMap;
 
@@ -81,14 +81,9 @@ class VariablesInAllowedPosition extends ValidationRule
      * expected type is nullable. If both are list types, the variable item type can
      * be more strict than the expected item type.
      */
-    public static function badVarPosMessage($varName, $varType, $expectedType)
+    public static function badVarPosMessage(string $varName, Type $varType, string $expectedType): string
     {
-        return sprintf(
-            'Variable "$%s" of type "%s" used in position expecting type "%s".',
-            $varName,
-            $varType,
-            $expectedType
-        );
+        return "Variable \"\${$varName}\" of type \"{$varType}\" used in position expecting type \"{$expectedType}\".";
     }
 
     /**

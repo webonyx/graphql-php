@@ -70,11 +70,8 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
         $item = $this->nodes[$offset];
 
         if (is_array($item)) {
-            /** @phpstan-var T $node */
-            $node                 = AST::fromArray($item);
-            $this->nodes[$offset] = $node;
-
-            return $node;
+            // @phpstan-ignore-next-line not really possible to express the correctness of this in PHP
+            return $this->nodes[$offset] = AST::fromArray($item);
         }
 
         return $item;
@@ -119,10 +116,9 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      */
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
-        /** @var array<T> $nodes */
-        $nodes = array_splice($this->nodes, $offset, $length, $replacement);
-
-        return new NodeList($nodes);
+        return new NodeList(
+            array_splice($this->nodes, $offset, $length, $replacement)
+        );
     }
 
     /**

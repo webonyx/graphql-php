@@ -245,7 +245,7 @@ class DocumentValidator
      */
     public static function addRule(ValidationRule $rule): void
     {
-        self::$rules[ValidationRule::class] = $rule;
+        self::$rules[get_class($rule)] = $rule;
     }
 
     /**

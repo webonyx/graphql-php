@@ -12,6 +12,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
@@ -327,12 +328,15 @@ class VisitorTest extends ValidatorTestCase
                 'enter' => function ($node) use ($addedField, &$didVisitAddedField, $ast): ?FieldNode {
                     $this->checkVisitorFnArgs($ast, func_get_args(), true);
                     if ($node instanceof FieldNode && $node->name->value === 'a') {
+                        /** @var NodeList<SelectionNode&Node> $newSelection */
+                        $newSelection = new NodeList([$addedField]);
+
                         return new FieldNode([
                             'name' => $node->name,
                             'arguments' => new NodeList([]),
                             'directives' => new NodeList([]),
                             'selectionSet' => new SelectionSetNode([
-                                'selections' => NodeList::create([$addedField])->merge($node->selectionSet->selections),
+                                'selections' => $newSelection->merge($node->selectionSet->selections),
                             ]),
                         ]);
                     }

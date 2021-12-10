@@ -36,8 +36,8 @@ class VariablesAreInputTypes extends ValidationRule
         ];
     }
 
-    public static function nonInputTypeOnVarMessage($variableName, $typeName)
+    public static function nonInputTypeOnVarMessage(string $variableName, string $typeName): string
     {
-        return sprintf('Variable "$%s" cannot be non-input type "%s".', $variableName, $typeName);
+        return "Variable \"\${$variableName}\" cannot be non-input type \"{$typeName}\".";
     }
 }

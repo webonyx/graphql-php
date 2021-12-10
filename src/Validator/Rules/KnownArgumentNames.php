@@ -64,9 +64,9 @@ class KnownArgumentNames extends ValidationRule
     }
 
     /**
-     * @param string[] $suggestedArgs
+     * @param array<int, string> $suggestedArgs
      */
-    public static function unknownArgMessage($argName, $fieldName, $typeName, array $suggestedArgs)
+    public static function unknownArgMessage(string $argName, string $fieldName, string $typeName, array $suggestedArgs): string
     {
         $message = sprintf('Unknown argument "%s" on field "%s" of type "%s".', $argName, $fieldName, $typeName);
         if (isset($suggestedArgs[0])) {
