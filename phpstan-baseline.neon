@@ -71,6 +71,11 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
+			message: "#^Method GraphQL\\\\Language\\\\AST\\\\NodeList\\:\\:splice\\(\\) should return GraphQL\\\\Language\\\\AST\\\\NodeList\\<T of GraphQL\\\\Language\\\\AST\\\\Node\\> but returns GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\.$#"
+			count: 1
+			path: src/Language/AST/NodeList.php
+
+		-
 			message: "#^Strict comparison using \\=\\=\\= between mixed and null will always evaluate to false\\.$#"
 			count: 1
 			path: src/Language/Visitor.php
@@ -121,7 +126,7 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\CustomScalarType constructor expects array\\{name\\?\\: string\\|null, description\\?\\: string\\|null, serialize\\: callable\\(mixed\\)\\: mixed, parseValue\\?\\: callable\\(mixed\\)\\: mixed, parseLiteral\\?\\: callable\\(GraphQL\\\\Language\\\\AST\\\\Node, array\\|null\\)\\: mixed, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|null, extensionASTNodes\\?\\: array\\<GraphQL\\\\Language\\\\AST\\\\ScalarTypeExtensionNode\\>\\|null\\}, array\\{name\\: string, description\\: string\\|null, serialize\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'serialize'\\}, parseValue\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'parseValue'\\}, parseLiteral\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'parseLiteral'\\}, astNode\\: GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|null, extensionASTNodes\\: array\\<GraphQL\\\\Language\\\\AST\\\\TypeExtensionNode\\>\\|null\\} given\\.$#"
+			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\CustomScalarType constructor expects array\\(\\?'name' \\=\\> string\\|null, \\?'description' \\=\\> string\\|null, 'serialize' \\=\\> callable\\(mixed\\)\\: mixed, \\?'parseValue' \\=\\> callable\\(mixed\\)\\: mixed, \\?'parseLiteral' \\=\\> callable\\(GraphQL\\\\Language\\\\AST\\\\Node, array\\|null\\)\\: mixed, \\?'astNode' \\=\\> GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|null, \\?'extensionASTNodes' \\=\\> array\\<GraphQL\\\\Language\\\\AST\\\\ScalarTypeExtensionNode\\>\\|null\\), array\\('name' \\=\\> string, 'description' \\=\\> string\\|null, 'serialize' \\=\\> array\\(GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'serialize'\\), 'parseValue' \\=\\> array\\(GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'parseValue'\\), 'parseLiteral' \\=\\> array\\(GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'parseLiteral'\\), 'astNode' \\=\\> GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|null, 'extensionASTNodes' \\=\\> array\\<GraphQL\\\\Language\\\\AST\\\\TypeExtensionNode\\>\\|null\\) given\\.$#"
 			count: 1
 			path: src/Utils/SchemaExtender.php
 
@@ -131,7 +136,7 @@ parameters:
 			path: src/Utils/Utils.php
 
 		-
-			message: "#^Property GraphQL\\\\Tests\\\\Type\\\\SchemaTest\\:\\:\\$implementingType is never read, only written\\.$#"
+			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\(array\\<string, array\\<int, array\\(GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\)\\>\\>, array\\<int, string\\>\\)\\> does not accept array\\<int, mixed\\>\\.$#"
 			count: 1
-			path: tests/Type/SchemaTest.php
+			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
