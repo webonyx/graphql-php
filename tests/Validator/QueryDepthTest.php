@@ -12,13 +12,11 @@ use function str_replace;
 class QueryDepthTest extends QuerySecurityTestCase
 {
     /**
-     * @param int        $queryDepth
-     * @param int        $maxQueryDepth
-     * @param string[][] $expectedErrors
+     * @param array<int, array<string, mixed>> $expectedErrors
      *
      * @dataProvider queryDataProvider
      */
-    public function testSimpleQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []): void
+    public function testSimpleQueries(int $queryDepth, int $maxQueryDepth = 7, array $expectedErrors = []): void
     {
         $this->assertDocumentValidator($this->buildRecursiveQuery($queryDepth), $maxQueryDepth, $expectedErrors);
     }

@@ -165,7 +165,6 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     /**
      * @phpstan-return ErrorArray
      */
-
     private function unusedVar(string $varName, ?string $opName, int $line, int $column): array
     {
         return ErrorHelper::create(

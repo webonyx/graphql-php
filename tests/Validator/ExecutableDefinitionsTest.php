@@ -86,7 +86,6 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
     /**
      * @phpstan-return ErrorArray
      */
-
     private function nonExecutableDefinition(string $defName, int $line, int $column): array
     {
         return ErrorHelper::create(

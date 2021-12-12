@@ -136,7 +136,6 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      *
      * @phpstan-return ErrorArray
      */
-
     private function undefinedField(string $field, string $type, array $suggestedTypes, array $suggestedFields, int $line, int $column): array
     {
         return ErrorHelper::create(

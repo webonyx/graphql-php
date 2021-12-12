@@ -18,7 +18,6 @@ use GraphQL\Validator\ValidationContext;
 use function array_keys;
 use function array_merge;
 use function arsort;
-use function sprintf;
 
 /**
  * @phpstan-import-type AbstractTypeAlias from AbstractType
@@ -131,27 +130,25 @@ class FieldsOnCorrectType extends ValidationRule
     }
 
     /**
-     * @param string   $fieldName
-     * @param string   $type
-     * @param string[] $suggestedTypeNames
-     * @param string[] $suggestedFieldNames
+     * @param array<string> $suggestedTypeNames
+     * @param array<string> $suggestedFieldNames
      */
     public static function undefinedFieldMessage(
-        $fieldName,
-        $type,
+        string $fieldName,
+        string $type,
         array $suggestedTypeNames,
         array $suggestedFieldNames
     ): string {
-        $message = sprintf('Cannot query field "%s" on type "%s".', $fieldName, $type);
+        $message = "Cannot query field \"{$fieldName}\" on type \"{$type}\".";
 
         if ($suggestedTypeNames !== []) {
             $suggestions = Utils::quotedOrList($suggestedTypeNames);
 
-            $message .= sprintf(' Did you mean to use an inline fragment on %s?', $suggestions);
+            $message .= " Did you mean to use an inline fragment on {$suggestions}?";
         } elseif ($suggestedFieldNames !== []) {
             $suggestions = Utils::quotedOrList($suggestedFieldNames);
 
-            $message .= sprintf(' Did you mean %s?', $suggestions);
+            $message .= " Did you mean {$suggestions}?";
         }
 
         return $message;

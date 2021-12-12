@@ -122,7 +122,6 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @phpstan-return ErrorArray
      */
-
     private function unusedFrag(string $fragName, int $line, int $column): array
     {
         return ErrorHelper::create(
