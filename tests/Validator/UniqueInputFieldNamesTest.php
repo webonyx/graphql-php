@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\UniqueInputFieldNames;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class UniqueInputFieldNamesTest extends ValidatorTestCase
 {
     // Validate: Unique input field names
@@ -96,7 +99,10 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
         );
     }
 
-    private function duplicateField($name, $l1, $c1, $l2, $c2)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function duplicateField(string $name, int $l1, int $c1, int $l2, int $c2): array
     {
         return ErrorHelper::create(
             UniqueInputFieldNames::duplicateInputFieldMessage($name),

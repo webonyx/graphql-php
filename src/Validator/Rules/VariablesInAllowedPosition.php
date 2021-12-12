@@ -18,8 +18,6 @@ use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class VariablesInAllowedPosition extends ValidationRule
 {
     /**
@@ -63,7 +61,7 @@ class VariablesInAllowedPosition extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            static::badVarPosMessage($varName, $varType, $type),
+                            static::badVarPosMessage($varName, $varType->toString(), $type->toString()),
                             [$varDef, $node]
                         ));
                     }
@@ -81,7 +79,7 @@ class VariablesInAllowedPosition extends ValidationRule
      * expected type is nullable. If both are list types, the variable item type can
      * be more strict than the expected item type.
      */
-    public static function badVarPosMessage(string $varName, Type $varType, string $expectedType): string
+    public static function badVarPosMessage(string $varName, string $varType, string $expectedType): string
     {
         return "Variable \"\${$varName}\" of type \"{$varType}\" used in position expecting type \"{$expectedType}\".";
     }

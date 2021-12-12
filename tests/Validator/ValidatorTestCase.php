@@ -423,13 +423,15 @@ abstract class ValidatorTestCase extends TestCase
     /**
      * @param array<int, array<string, mixed>> $errors
      * @param array<string, mixed>             $options
+     *
+     * @return array<int, Error>
      */
     protected function expectFailsRule(
         ValidationRule $rule,
         string $queryString,
         array $errors,
         array $options = []
-    ) {
+    ): array {
         return $this->expectInvalid(self::getTestSchema(), [$rule], $queryString, $errors, $options);
     }
 
@@ -437,8 +439,10 @@ abstract class ValidatorTestCase extends TestCase
      * @param array<ValidationRule>|null       $rules
      * @param array<int, array<string, mixed>> $expectedErrors
      * @param array<string, mixed>             $options
+     *
+     * @return array<int, Error>
      */
-    protected function expectInvalid(Schema $schema, ?array $rules, string $queryString, array $expectedErrors, array $options = [])
+    protected function expectInvalid(Schema $schema, ?array $rules, string $queryString, array $expectedErrors, array $options = []): array
     {
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules);
 

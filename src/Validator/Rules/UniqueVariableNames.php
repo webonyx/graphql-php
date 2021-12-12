@@ -10,8 +10,6 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class UniqueVariableNames extends ValidationRule
 {
     /** @var array<string, NameNode> */
@@ -39,8 +37,8 @@ class UniqueVariableNames extends ValidationRule
         ];
     }
 
-    public static function duplicateVariableMessage($variableName)
+    public static function duplicateVariableMessage(string $variableName): string
     {
-        return sprintf('There can be only one variable named "%s".', $variableName);
+        return "There can be only one variable named \"{$variableName}\".";
     }
 }

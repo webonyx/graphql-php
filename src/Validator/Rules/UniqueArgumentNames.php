@@ -14,11 +14,12 @@ use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
+/**
+ * @phpstan-import-type VisitorArray from Visitor
+ */
 class UniqueArgumentNames extends ValidationRule
 {
-    /** @var NameNode[] */
+    /** @var array<string, NameNode> */
     protected array $knownArgNames;
 
     public function getSDLVisitor(SDLValidationContext $context): array
@@ -31,7 +32,10 @@ class UniqueArgumentNames extends ValidationRule
         return $this->getASTVisitor($context);
     }
 
-    public function getASTVisitor(ASTValidationContext $context)
+    /**
+     * @phpstan-return VisitorArray
+     */
+    public function getASTVisitor(ASTValidationContext $context): array
     {
         $this->knownArgNames = [];
 
@@ -58,8 +62,8 @@ class UniqueArgumentNames extends ValidationRule
         ];
     }
 
-    public static function duplicateArgMessage($argName)
+    public static function duplicateArgMessage(string $argName): string
     {
-        return sprintf('There can be only one argument named "%s".', $argName);
+        return "There can be only one argument named \"{$argName}\".";
     }
 }

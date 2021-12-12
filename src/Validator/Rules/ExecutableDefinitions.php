@@ -13,8 +13,6 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 /**
  * Executable definitions
  *
@@ -44,8 +42,8 @@ class ExecutableDefinitions extends ValidationRule
         ];
     }
 
-    public static function nonExecutableDefinitionMessage($defName)
+    public static function nonExecutableDefinitionMessage(string $defName): string
     {
-        return sprintf('The "%s" definition is not executable.', $defName);
+        return "The \"{$defName}\" definition is not executable.";
     }
 }

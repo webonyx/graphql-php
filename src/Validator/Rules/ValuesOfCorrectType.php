@@ -36,7 +36,6 @@ use Throwable;
 use function array_keys;
 use function array_map;
 use function count;
-use function sprintf;
 
 /**
  * Value literals of correct type.
@@ -94,7 +93,6 @@ class ValuesOfCorrectType extends ValidationRule
                     return Visitor::skipNode();
                 }
 
-                unset($fieldName);
                 // Ensure every required field exists.
                 $inputFields = $type->getFields();
 
@@ -103,15 +101,15 @@ class ValuesOfCorrectType extends ValidationRule
                     $fieldNodeMap[$field->name->value] = $field;
                 }
 
-                foreach ($inputFields as $fieldName => $fieldDef) {
+                foreach ($inputFields as $inputFieldName => $fieldDef) {
                     $fieldType = $fieldDef->getType();
-                    if (isset($fieldNodeMap[$fieldName]) || ! $fieldDef->isRequired()) {
+                    if (isset($fieldNodeMap[$inputFieldName]) || ! $fieldDef->isRequired()) {
                         continue;
                     }
 
                     $context->reportError(
                         new Error(
-                            static::requiredFieldMessage($type->name, $fieldName, (string) $fieldType),
+                            static::requiredFieldMessage($type->name, $inputFieldName, (string) $fieldType),
                             $node
                         )
                     );
@@ -178,10 +176,10 @@ class ValuesOfCorrectType extends ValidationRule
         ];
     }
 
-    public static function badValueMessage(string $typeName, string $valueName, ?string $message = null)
+    public static function badValueMessage(string $typeName, string $valueName, ?string $message = null): string
     {
         return "Expected type {$typeName}, found {$valueName}"
-            . ($message
+            . ($message !== null && $message !== ''
                 ? "; ${message}"
                 : '.');
     }
@@ -268,7 +266,7 @@ class ValuesOfCorrectType extends ValidationRule
     public static function badArgumentValueMessage(string $typeName, string $valueName, string $fieldName, string $argName, ?string $message = null): string
     {
         return "Field \"{$fieldName}\" argument \"{$argName}\" requires type {$typeName}, found {$valueName}"
-            . ($message
+            . ($message !== null && $message !== ''
                 ? "; {$message}"
                 : '.'
             );
@@ -282,7 +280,7 @@ class ValuesOfCorrectType extends ValidationRule
     public static function unknownFieldMessage(string $typeName, string $fieldName, ?string $message = null): string
     {
         return "Field \"{$fieldName}\" is not defined by type {$typeName}"
-            . ($message
+            . ($message !== null && $message !== ''
                 ? "; {$message}"
                 : '.'
             );

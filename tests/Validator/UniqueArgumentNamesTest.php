@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class UniqueArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique argument names
@@ -164,7 +167,10 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    private function duplicateArg($argName, $l1, $c1, $l2, $c2)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function duplicateArg(string $argName, int $l1, int $c1, int $l2, int $c2): array
     {
         return ErrorHelper::create(
             UniqueArgumentNames::duplicateArgMessage($argName),

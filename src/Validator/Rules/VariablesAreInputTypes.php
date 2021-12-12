@@ -12,8 +12,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class VariablesAreInputTypes extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array

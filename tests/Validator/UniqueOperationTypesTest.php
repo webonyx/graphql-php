@@ -10,6 +10,9 @@ use GraphQL\Validator\Rules\UniqueOperationTypes;
 
 class UniqueOperationTypesTest extends ValidatorTestCase
 {
+    /**
+     * @param array<int, array<string, mixed>> $errors
+     */
     private function expectSDLErrors(string $sdlString, ?Schema $schema, array $errors): void
     {
         $this->expectSDLErrorsFromRule(new UniqueOperationTypes(), $sdlString, $schema, $errors);

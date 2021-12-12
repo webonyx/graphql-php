@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class PossibleFragmentSpreadsTest extends ValidatorTestCase
 {
     // Validate: Possible fragment spreads
@@ -193,7 +196,10 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
         );
     }
 
-    private function error($fragName, $parentType, $fragType, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function error(string $fragName, string $parentType, string $fragType, int $line, int $column): array
     {
         return ErrorHelper::create(
             PossibleFragmentSpreads::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
@@ -217,7 +223,10 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
         );
     }
 
-    private function errorAnon($parentType, $fragType, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function errorAnon(string $parentType, string $fragType, int $line, int $column): array
     {
         return ErrorHelper::create(
             PossibleFragmentSpreads::typeIncompatibleAnonSpreadMessage($parentType, $fragType),

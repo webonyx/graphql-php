@@ -10,20 +10,10 @@ namespace GraphQL\Utils;
  */
 class PairSet
 {
-    /** @var bool[][] */
-    private $data;
+    /** @var array<string, array<string, bool>> */
+    private array $data = [];
 
-    public function __construct()
-    {
-        $this->data = [];
-    }
-
-    /**
-     * @param string $a
-     * @param string $b
-     * @param bool   $areMutuallyExclusive
-     */
-    public function has($a, $b, $areMutuallyExclusive): bool
+    public function has(string $a, string $b, bool $areMutuallyExclusive): bool
     {
         $first  = $this->data[$a] ?? null;
         $result = $first !== null && isset($first[$b]) ? $first[$b] : null;
@@ -41,23 +31,13 @@ class PairSet
         return true;
     }
 
-    /**
-     * @param string $a
-     * @param string $b
-     * @param bool   $areMutuallyExclusive
-     */
-    public function add($a, $b, $areMutuallyExclusive): void
+    public function add(string $a, string $b, bool $areMutuallyExclusive): void
     {
         $this->pairSetAdd($a, $b, $areMutuallyExclusive);
         $this->pairSetAdd($b, $a, $areMutuallyExclusive);
     }
 
-    /**
-     * @param string $a
-     * @param string $b
-     * @param bool   $areMutuallyExclusive
-     */
-    private function pairSetAdd($a, $b, $areMutuallyExclusive): void
+    private function pairSetAdd(string $a, string $b, bool $areMutuallyExclusive): void
     {
         $this->data[$a]   ??= [];
         $this->data[$a][$b] = $areMutuallyExclusive;

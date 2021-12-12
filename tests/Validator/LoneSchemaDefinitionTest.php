@@ -6,17 +6,27 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\LoneSchemaDefinition;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class LoneSchemaDefinitionTest extends ValidatorTestCase
 {
-    private function expectSDLErrors($sdlString, $schema = null, $errors = []): void
+    /**
+     * @param array<int, array<string, mixed>> $errors
+     */
+    private function expectSDLErrors(string $sdlString, ?Schema $schema = null, array $errors = []): void
     {
         $this->expectSDLErrorsFromRule(new LoneSchemaDefinition(), $sdlString, $schema, $errors);
     }
 
-    private function schemaDefinitionNotAlone($line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function schemaDefinitionNotAlone(int $line, int $column): array
     {
         return ErrorHelper::create(
             LoneSchemaDefinition::schemaDefinitionNotAloneMessage(),
@@ -24,7 +34,10 @@ class LoneSchemaDefinitionTest extends ValidatorTestCase
         );
     }
 
-    private function canNotDefineSchemaWithinExtension($line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function canNotDefineSchemaWithinExtension(int $line, int $column): array
     {
         return ErrorHelper::create(
             LoneSchemaDefinition::canNotDefineSchemaWithinExtensionMessage(),

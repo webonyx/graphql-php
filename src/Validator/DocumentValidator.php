@@ -48,6 +48,7 @@ use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 
 use function array_merge;
 use function count;
+use function get_class;
 
 /**
  * Implements the "Validation" section of the spec.

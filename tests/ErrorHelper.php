@@ -9,15 +9,18 @@ use GraphQL\Language\SourceLocation;
 use function array_map;
 use function count;
 
+/**
+ * @phpstan-type ErrorArray array{
+ *     message: string,
+ *     locations?: array<int, array{line: int, column: int}>
+ * }
+ */
 class ErrorHelper
 {
     /**
      * @param array<SourceLocation> $locations
      *
-     * @return array{
-     *     message: string,
-     *     locations?: array<int, array{line: int, column: int}>
-     * }
+     * @phpstan-return ErrorArray
      */
     public static function create(string $error, array $locations = []): array
     {

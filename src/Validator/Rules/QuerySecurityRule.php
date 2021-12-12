@@ -10,8 +10,8 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\HasFieldsType;
-use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\TypeInfo;
@@ -20,6 +20,7 @@ use InvalidArgumentException;
 
 /**
  * @phpstan-import-type VisitorArray from ValidationRule
+ * @phpstan-type ASTAndDefs ArrayObject<string, ArrayObject<int, array{FieldNode, FieldDefinition|null}>>
  */
 abstract class QuerySecurityRule extends ValidationRule
 {
@@ -31,7 +32,7 @@ abstract class QuerySecurityRule extends ValidationRule
     protected function checkIfGreaterOrEqualToZero(string $name, int $value): void
     {
         if ($value < 0) {
-            throw new InvalidArgumentException('$' . $name . ' argument must be greater or equal to 0.');
+            throw new InvalidArgumentException("\${$name} argument must be greater or equal to 0.");
         }
     }
 
@@ -89,6 +90,11 @@ abstract class QuerySecurityRule extends ValidationRule
      * spread in all fragments.
      *
      * @see \GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
+     *
+     * @param ArrayObject<string, true>|null $visitedFragmentNames
+     * @phpstan-param ASTAndDefs|null $astAndDefs
+     *
+     * @phpstan-return ASTAndDefs
      */
     protected function collectFieldASTsAndDefs(
         ValidationContext $context,
@@ -105,7 +111,7 @@ abstract class QuerySecurityRule extends ValidationRule
                 case $selection instanceof FieldNode:
                     $fieldName = $selection->name->value;
                     $fieldDef  = null;
-                    if ($parentType instanceof HasFieldsType || $parentType instanceof InputObjectType) {
+                    if ($parentType instanceof HasFieldsType) {
                         $schemaMetaFieldDef   = Introspection::schemaMetaFieldDef();
                         $typeMetaFieldDef     = Introspection::typeMetaFieldDef();
                         $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
@@ -143,7 +149,7 @@ abstract class QuerySecurityRule extends ValidationRule
                 case $selection instanceof FragmentSpreadNode:
                     $fragName = $selection->name->value;
 
-                    if (! ($_visitedFragmentNames[$fragName] ?? false)) {
+                    if (! isset($_visitedFragmentNames[$fragName])) {
                         $_visitedFragmentNames[$fragName] = true;
 
                         $fragment = $context->getFragment($fragName);

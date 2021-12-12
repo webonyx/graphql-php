@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoUnusedFragments;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class NoUnusedFragmentsTest extends ValidatorTestCase
 {
     // Validate: No unused fragments
@@ -116,7 +119,11 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
         );
     }
 
-    private function unusedFrag($fragName, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+
+    private function unusedFrag(string $fragName, int $line, int $column): array
     {
         return ErrorHelper::create(
             NoUnusedFragments::unusedFragMessage($fragName),

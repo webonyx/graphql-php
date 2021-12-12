@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\UniqueVariableNames;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class UniqueVariableNamesTest extends ValidatorTestCase
 {
     // Validate: Unique variable names
@@ -47,7 +50,10 @@ class UniqueVariableNamesTest extends ValidatorTestCase
         );
     }
 
-    private function duplicateVariable($name, $l1, $c1, $l2, $c2)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function duplicateVariable(string $name, int $l1, int $c1, int $l2, int $c2): array
     {
         return ErrorHelper::create(
             UniqueVariableNames::duplicateVariableMessage($name),

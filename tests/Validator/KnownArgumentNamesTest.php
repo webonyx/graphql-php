@@ -10,6 +10,9 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownArgumentNames;
 use GraphQL\Validator\Rules\KnownArgumentNamesOnDirectives;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class KnownArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Known argument names:
@@ -146,7 +149,12 @@ class KnownArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    private function unknownDirectiveArg($argName, $directiveName, $suggestedArgs, $line, $column)
+    /**
+     * @param array<string> $suggestedArgs
+     *
+     * @phpstan-return ErrorArray
+     */
+    private function unknownDirectiveArg(string $argName, string $directiveName, array $suggestedArgs, int $line, int $column): array
     {
         return ErrorHelper::create(
             KnownArgumentNamesOnDirectives::unknownDirectiveArgMessage($argName, $directiveName, $suggestedArgs),
@@ -190,7 +198,12 @@ class KnownArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    private function unknownArg($argName, $fieldName, $typeName, $suggestedArgs, $line, $column)
+    /**
+     * @param array<string> $suggestedArgs
+     *
+     * @phpstan-return ErrorArray
+     */
+    private function unknownArg(string $argName, string $fieldName, string $typeName, array $suggestedArgs, int $line, int $column): array
     {
         return ErrorHelper::create(
             KnownArgumentNames::unknownArgMessage($argName, $fieldName, $typeName, $suggestedArgs),

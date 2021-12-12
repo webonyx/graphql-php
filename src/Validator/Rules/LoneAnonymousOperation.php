@@ -48,7 +48,7 @@ class LoneAnonymousOperation extends ValidationRule
         ];
     }
 
-    public static function anonOperationNotAloneMessage()
+    public static function anonOperationNotAloneMessage(): string
     {
         return 'This anonymous operation must be the only defined operation.';
     }

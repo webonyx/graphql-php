@@ -21,7 +21,6 @@ use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
@@ -53,14 +52,10 @@ class ValidationContext extends ASTValidationContext
     /** @var SplObjectStorage<OperationDefinitionNode, array<int, FragmentDefinitionNode>> */
     private SplObjectStorage $recursivelyReferencedFragments;
 
-    /**
-     * @var SplObjectStorage<HasSelectionSet, array<int, VariableUsage>>
-     */
+    /** @var SplObjectStorage<HasSelectionSet, array<int, VariableUsage>> */
     private SplObjectStorage $variableUsages;
 
-    /**
-     * @var SplObjectStorage<HasSelectionSet, array<int, VariableUsage>>
-     */
+    /** @var SplObjectStorage<HasSelectionSet, array<int, VariableUsage>> */
     private SplObjectStorage $recursiveVariableUsages;
 
     public function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)

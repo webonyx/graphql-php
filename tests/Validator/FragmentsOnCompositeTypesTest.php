@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class FragmentsOnCompositeTypesTest extends ValidatorTestCase
 {
     // Validate: Fragments on composite types
@@ -124,7 +127,10 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    private function error($fragName, $typeName, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function error(string $fragName, string $typeName, int $line, int $column): array
     {
         return ErrorHelper::create(
             FragmentsOnCompositeTypes::fragmentOnNonCompositeErrorMessage($fragName, $typeName),

@@ -8,6 +8,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
@@ -20,6 +21,8 @@ use function sprintf;
  *
  * A GraphQL document is only valid if all non-repeatable directives at
  * a given location are uniquely named.
+ *
+ * @phpstan-import-type VisitorArray from Visitor
  */
 class UniqueDirectivesPerLocation extends ValidationRule
 {
@@ -33,7 +36,10 @@ class UniqueDirectivesPerLocation extends ValidationRule
         return $this->getASTVisitor($context);
     }
 
-    public function getASTVisitor(ASTValidationContext $context)
+    /**
+     * @phpstan-return VisitorArray
+     */
+    public function getASTVisitor(ASTValidationContext $context): array
     {
         $uniqueDirectiveMap = [];
 
@@ -83,7 +89,7 @@ class UniqueDirectivesPerLocation extends ValidationRule
         ];
     }
 
-    public static function duplicateDirectiveMessage($directiveName)
+    public static function duplicateDirectiveMessage(string $directiveName): string
     {
         return sprintf('The directive "%s" can only be used once at this location.', $directiveName);
     }

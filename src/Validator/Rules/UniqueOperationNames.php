@@ -12,8 +12,6 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class UniqueOperationNames extends ValidationRule
 {
     /** @var NameNode[] */
@@ -46,8 +44,8 @@ class UniqueOperationNames extends ValidationRule
         ];
     }
 
-    public static function duplicateOperationNameMessage($operationName)
+    public static function duplicateOperationNameMessage(string $operationName): string
     {
-        return sprintf('There can be only one operation named "%s".', $operationName);
+        return "There can be only one operation named \"{$operationName}\".";
     }
 }

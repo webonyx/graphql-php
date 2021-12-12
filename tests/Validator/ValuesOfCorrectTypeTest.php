@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class ValuesOfCorrectTypeTest extends ValidatorTestCase
 {
     /**
@@ -247,7 +250,12 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    private function badValue($typeName, $value, $line, $column, $message = null)
+    /**
+     * @param mixed $value anything
+     *
+     * @phpstan-return ErrorArray
+     */
+    private function badValue(string $typeName, $value, int $line, int $column, ?string $message = null): array
     {
         return ErrorHelper::create(
             ValuesOfCorrectType::badValueMessage(
@@ -259,7 +267,10 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    private function badValueWithMessage($message, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function badValueWithMessage(string $message, int $line, int $column): array
     {
         return ErrorHelper::create($message, [new SourceLocation($line, $column)]);
     }
@@ -1300,7 +1311,10 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    private function requiredField($typeName, $fieldName, $fieldTypeName, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function requiredField(string $typeName, string $fieldName, string $fieldTypeName, int $line, int $column): array
     {
         return ErrorHelper::create(
             ValuesOfCorrectType::requiredFieldMessage(
@@ -1396,7 +1410,10 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    private function unknownField($typeName, $fieldName, $line, $column, $message = null)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function unknownField(string $typeName, string $fieldName, int $line, int $column, ?string $message = null): array
     {
         return ErrorHelper::create(
             ValuesOfCorrectType::unknownFieldMessage(
