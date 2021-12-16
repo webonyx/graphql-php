@@ -14,8 +14,6 @@ use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 /**
  * Unique directive names per location
  *
@@ -91,6 +89,6 @@ class UniqueDirectivesPerLocation extends ValidationRule
 
     public static function duplicateDirectiveMessage(string $directiveName): string
     {
-        return sprintf('The directive "%s" can only be used once at this location.', $directiveName);
+        return "The directive \"{$directiveName}\" can only be used once at this location.";
     }
 }

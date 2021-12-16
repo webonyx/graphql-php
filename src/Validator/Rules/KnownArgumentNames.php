@@ -13,7 +13,7 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
 use function array_map;
-use function sprintf;
+use function count;
 
 /**
  * Known argument names
@@ -64,13 +64,15 @@ class KnownArgumentNames extends ValidationRule
     }
 
     /**
-     * @param array<int, string> $suggestedArgs
+     * @param array<string> $suggestedArgs
      */
     public static function unknownArgMessage(string $argName, string $fieldName, string $typeName, array $suggestedArgs): string
     {
-        $message = sprintf('Unknown argument "%s" on field "%s" of type "%s".', $argName, $fieldName, $typeName);
-        if (isset($suggestedArgs[0])) {
-            $message .= sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
+        $message = "Unknown argument \"{$argName}\" on field \"{$fieldName}\" of type \"{$typeName}\".";
+
+        if (count($suggestedArgs) > 0) {
+            $suggestions = Utils::quotedOrList($suggestedArgs);
+            $message    .= " Did you mean {$suggestions}?";
         }
 
         return $message;
