@@ -27,7 +27,6 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Rename `ServerConfig` option `persistentQueryLoader` to `persistedQueryLoader`
 - Call previously unused methods `EnumType::parseValue()` and `EnumType::parseLiteral()`
 - Strongly type `PromiseAdapter::createRejected()` to require `\Throwable`
-- Store rules exclusively by class name in `DocumentValidator`
 - Move members specific to `NamedType` out of `Type`: `$name`, `$description`, `$config`, `isBuiltInType()`, `assertValid()`
 
 ### Added
@@ -40,6 +39,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Allow lazy input object fields
 - Add validation rule `UniqueEnumValueNames`
 - Add SDL validation rule `UniqueOperationTypes` (#995)
+- Add ability to remove custom validation rules after adding them via `DocumentValidator::removeRule()`
 
 ### Optimized
 

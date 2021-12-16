@@ -48,7 +48,6 @@ use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 
 use function array_merge;
 use function count;
-use function get_class;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -70,7 +69,7 @@ use function get_class;
  */
 class DocumentValidator
 {
-    /** @var array<class-string<ValidationRule>, ValidationRule> */
+    /** @var array<string, ValidationRule> */
     private static array $rules = [];
 
     /** @var array<class-string<ValidationRule>, ValidationRule> */
@@ -246,7 +245,17 @@ class DocumentValidator
      */
     public static function addRule(ValidationRule $rule): void
     {
-        self::$rules[get_class($rule)] = $rule;
+        self::$rules[$rule->getName()] = $rule;
+    }
+
+    /**
+     * Remove rule from list of global validation rules.
+     *
+     * @api
+     */
+    public static function removeRule(ValidationRule $rule): void
+    {
+        unset(self::$rules[$rule->getName()]);
     }
 
     /**

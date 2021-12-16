@@ -1,17 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\Error\Error;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
-use GraphQL\Tests\Validator\CustomRuleTest\CustomExecutableDefinitions;
 use GraphQL\Validator\DocumentValidator;
+use GraphQL\Validator\Rules\CustomValidationRule;
+use GraphQL\Validator\Rules\ExecutableDefinitions;
+use GraphQL\Validator\ValidationContext;
 
-class CustomRuleTest extends ValidatorTestCase
+final class CustomRuleTest extends ValidatorTestCase
 {
-    public function testAddCustomRule(): void
+    private const CUSTOM_VALIDATION_RULE_ERROR = 'This is the error we are looking for!';
+
+    public function testAddRuleCanReplaceDefaultRules(): void
     {
-        DocumentValidator::addRule(new CustomExecutableDefinitions);
+        DocumentValidator::addRule(new class extends ExecutableDefinitions
+        {
+            public function getName(): string
+            {
+                return ExecutableDefinitions::class;
+            }
+
+            public static function nonExecutableDefinitionMessage(string $defName): string
+            {
+                return "Custom message including {$defName}";
+            }
+        });
 
         $this->expectInvalid(
             self::getTestSchema(),
@@ -29,10 +47,38 @@ class CustomRuleTest extends ValidatorTestCase
         ',
             [
                 ErrorHelper::create(
-                    CustomExecutableDefinitions::nonExecutableDefinitionMessage('Cow'),
+                    'Custom message including Cow',
                     [new SourceLocation(8, 12)]
-                )
+                ),
             ]
         );
+    }
+
+    public function testAddRuleUsingCustomValidationRule(): void
+    {
+        $customRule = new CustomValidationRule('MyRule', static function (ValidationContext $context): array {
+            $context->reportError(new Error(self::CUSTOM_VALIDATION_RULE_ERROR));
+
+            return [];
+        });
+
+        DocumentValidator::addRule($customRule);
+
+        $this->expectInvalid(
+            self::getTestSchema(),
+            null,
+            '
+      query Foo {
+        dog {
+          name
+        }
+      }
+        ',
+            [
+                ErrorHelper::create(self::CUSTOM_VALIDATION_RULE_ERROR),
+            ]
+        );
+
+        DocumentValidator::removeRule($customRule);
     }
 }
