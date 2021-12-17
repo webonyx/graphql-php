@@ -157,7 +157,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         SelectionSetNode $selectionSet
     ): array {
         if (! isset($this->cachedFieldsAndFragmentNames[$selectionSet])) {
-            /** @phpstan-var FieldMap   $astAndDefs */
+            /** @phpstan-var FieldMap $astAndDefs */
             $astAndDefs = [];
 
             /** @var array<string, bool> $fragmentNames */
