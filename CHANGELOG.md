@@ -24,6 +24,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Move complexity related code from `FieldDefinition` to `QueryComplexity`
 - Exclude unused standard types from the schema
 - Require lazy type loader to return `Type` directly without an intermediary callable
+- Allow lazy type loader to return `null`
 - Rename `ServerConfig` option `persistentQueryLoader` to `persistedQueryLoader`
 - Call previously unused methods `EnumType::parseValue()` and `EnumType::parseLiteral()`
 - Strongly type `PromiseAdapter::createRejected()` to require `\Throwable`

@@ -228,6 +228,22 @@ class Schema
         return $this->config->directives ?? GraphQL::getStandardDirectives();
     }
 
+    /**
+     * @param mixed $typeLoaderReturn could be anything
+     */
+    public static function typeLoaderNotType($typeLoaderReturn): string
+    {
+        $typeClass = Type::class;
+        $notType   = Utils::printSafe($typeLoaderReturn);
+
+        return "Type loader is expected to return an instanceof {$typeClass}, but it returned {$notType}";
+    }
+
+    public static function typeLoaderWrongTypeName(string $expectedTypeName, string $actualTypeName): string
+    {
+        return "Type loader is expected to return type {$expectedTypeName}, but it returned type {$actualTypeName}.";
+    }
+
     public function getOperationType(string $operation): ?ObjectType
     {
         switch ($operation) {
@@ -324,19 +340,17 @@ class Schema
 
         $type = $typeLoader($typeName);
 
-        // @phpstan-ignore-next-line not strictly enforceable unless PHP gets function types
-        if (! $type instanceof Type) {
-            $notType = Utils::printSafe($type);
-
-            throw new InvariantViolation(
-                "Type loader is expected to return a callable or valid type \"$typeName\", but it returned {$notType}"
-            );
+        if ($type === null) {
+            return null;
         }
 
-        if ($type->name !== $typeName) {
-            throw new InvariantViolation(
-                'Type loader is expected to return type "' . $typeName . '", but it returned "' . $type->name . '"'
-            );
+        // @phpstan-ignore-next-line not strictly enforceable unless PHP gets function types
+        if (! $type instanceof Type) {
+            throw new InvariantViolation(self::typeLoaderNotType($type));
+        }
+
+        if ($typeName !== $type->name) {
+            throw new InvariantViolation(self::typeLoaderWrongTypeName($typeName, $type->name));
         }
 
         return $type;
