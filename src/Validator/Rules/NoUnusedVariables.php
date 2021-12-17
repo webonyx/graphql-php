@@ -10,8 +10,6 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class NoUnusedVariables extends ValidationRule
 {
     /** @var VariableDefinitionNode[] */
@@ -58,10 +56,10 @@ class NoUnusedVariables extends ValidationRule
         ];
     }
 
-    public static function unusedVariableMessage($varName, $opName = null)
+    public static function unusedVariableMessage(string $varName, ?string $opName = null): string
     {
-        return $opName
-            ? sprintf('Variable "$%s" is never used in operation "%s".', $varName, $opName)
-            : sprintf('Variable "$%s" is never used.', $varName);
+        return $opName !== null
+            ? "Variable \"\${$varName}\" is never used in operation \"{$opName}\"."
+            : "Variable \"\${$varName}\" is never used.";
     }
 }

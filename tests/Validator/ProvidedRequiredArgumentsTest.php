@@ -10,6 +10,9 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class ProvidedRequiredArgumentsTest extends ValidatorTestCase
 {
     // Validate: Provided required arguments
@@ -241,7 +244,10 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
         );
     }
 
-    private function missingFieldArg($fieldName, $argName, $typeName, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function missingFieldArg(string $fieldName, string $argName, string $typeName, int $line, int $column): array
     {
         return ErrorHelper::create(
             ProvidedRequiredArguments::missingFieldArgMessage($fieldName, $argName, $typeName),
@@ -462,7 +468,10 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
         );
     }
 
-    private function missingDirectiveArg($directiveName, $argName, $typeName, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function missingDirectiveArg(string $directiveName, string $argName, string $typeName, int $line, int $column): array
     {
         return ErrorHelper::create(
             ProvidedRequiredArgumentsOnDirectives::missingDirectiveArgMessage($directiveName, $argName, $typeName),

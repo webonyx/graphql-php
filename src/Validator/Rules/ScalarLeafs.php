@@ -10,8 +10,6 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class ScalarLeafs extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array
@@ -26,13 +24,13 @@ class ScalarLeafs extends ValidationRule
                 if (Type::isLeafType(Type::getNamedType($type))) {
                     if ($node->selectionSet !== null) {
                         $context->reportError(new Error(
-                            static::noSubselectionAllowedMessage($node->name->value, $type),
+                            static::noSubselectionAllowedMessage($node->name->value, $type->toString()),
                             [$node->selectionSet]
                         ));
                     }
                 } elseif ($node->selectionSet === null) {
                     $context->reportError(new Error(
-                        static::requiredSubselectionMessage($node->name->value, $type),
+                        static::requiredSubselectionMessage($node->name->value, $type->toString()),
                         [$node]
                     ));
                 }
@@ -40,13 +38,13 @@ class ScalarLeafs extends ValidationRule
         ];
     }
 
-    public static function noSubselectionAllowedMessage($field, $type)
+    public static function noSubselectionAllowedMessage(string $field, string $type): string
     {
-        return sprintf('Field "%s" of type "%s" must not have a sub selection.', $field, $type);
+        return "Field \"{$field}\" of type \"{$type}\" must not have a sub selection.";
     }
 
-    public static function requiredSubselectionMessage($field, $type)
+    public static function requiredSubselectionMessage(string $field, string $type): string
     {
-        return sprintf('Field "%s" of type "%s" must have a sub selection.', $field, $type);
+        return "Field \"{$field}\" of type \"{$type}\" must have a sub selection.";
     }
 }

@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\ScalarLeafs;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class ScalarLeafsTest extends ValidatorTestCase
 {
     // Validate: Scalar leafs
@@ -43,7 +46,10 @@ class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    private function missingObjSubselection($field, $type, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function missingObjSubselection(string $field, string $type, int $line, int $column): array
     {
         return ErrorHelper::create(
             ScalarLeafs::requiredSubselectionMessage($field, $type),
@@ -98,7 +104,10 @@ class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    private function noScalarSubselection($field, $type, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function noScalarSubselection(string $field, string $type, int $line, int $column): array
     {
         return ErrorHelper::create(
             ScalarLeafs::noSubselectionAllowedMessage($field, $type),

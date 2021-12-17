@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
-use GraphQL\Language\AST\Node;
-use GraphQL\Language\VisitorOperation;
+use GraphQL\Language\Visitor;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
 /**
- * @phpstan-type VisitorArray array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
+ * @phpstan-import-type VisitorArray from Visitor
  */
 abstract class ValidationRule
 {
@@ -19,14 +18,6 @@ abstract class ValidationRule
     public function getName(): string
     {
         return $this->name ?? static::class;
-    }
-
-    /**
-     * @phpstan-return VisitorArray
-     */
-    public function __invoke(ValidationContext $context): array
-    {
-        return $this->getVisitor($context);
     }
 
     /**

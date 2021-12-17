@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\LoneAnonymousOperation;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class LoneAnonymousOperationTest extends ValidatorTestCase
 {
     // Validate: Anonymous operation must be alone
@@ -101,7 +104,10 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
         );
     }
 
-    private function anonNotAlone($line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function anonNotAlone(int $line, int $column): array
     {
         return ErrorHelper::create(
             LoneAnonymousOperation::anonOperationNotAloneMessage(),

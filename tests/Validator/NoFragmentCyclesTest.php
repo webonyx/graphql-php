@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoFragmentCycles;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class NoFragmentCyclesTest extends ValidatorTestCase
 {
     // Validate: No circular fragment spreads
@@ -107,10 +110,15 @@ class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    private function cycleError($fargment, $spreadNames, $line, $column)
+    /**
+     * @param array<string> $spreadNames
+     *
+     * @phpstan-return ErrorArray
+     */
+    private function cycleError(string $fragment, array $spreadNames, int $line, int $column): array
     {
         return ErrorHelper::create(
-            NoFragmentCycles::cycleErrorMessage($fargment, $spreadNames),
+            NoFragmentCycles::cycleErrorMessage($fragment, $spreadNames),
             [new SourceLocation($line, $column)]
         );
     }

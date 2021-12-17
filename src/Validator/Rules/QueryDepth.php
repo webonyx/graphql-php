@@ -14,13 +14,11 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class QueryDepth extends QuerySecurityRule
 {
     protected int $maxQueryDepth;
 
-    public function __construct($maxQueryDepth)
+    public function __construct(int $maxQueryDepth)
     {
         $this->setMaxQueryDepth($maxQueryDepth);
     }
@@ -34,12 +32,12 @@ class QueryDepth extends QuerySecurityRule
                     'leave' => function (OperationDefinitionNode $operationDefinition) use ($context): void {
                         $maxDepth = $this->fieldDepth($operationDefinition);
 
-                        if ($maxDepth <= $this->getMaxQueryDepth()) {
+                        if ($maxDepth <= $this->maxQueryDepth) {
                             return;
                         }
 
                         $context->reportError(
-                            new Error(static::maxQueryDepthErrorMessage($this->getMaxQueryDepth(), $maxDepth))
+                            new Error(static::maxQueryDepthErrorMessage($this->maxQueryDepth, $maxDepth))
                         );
                     },
                 ],
@@ -47,7 +45,7 @@ class QueryDepth extends QuerySecurityRule
         );
     }
 
-    protected function fieldDepth($node, $depth = 0, $maxDepth = 0)
+    protected function fieldDepth(Node $node, int $depth = 0, int $maxDepth = 0): int
     {
         if (isset($node->selectionSet) && $node->selectionSet instanceof SelectionSetNode) {
             foreach ($node->selectionSet->selections as $childNode) {
@@ -58,7 +56,7 @@ class QueryDepth extends QuerySecurityRule
         return $maxDepth;
     }
 
-    protected function nodeDepth(Node $node, $depth = 0, $maxDepth = 0)
+    protected function nodeDepth(Node $node, int $depth = 0, int $maxDepth = 0): int
     {
         switch (true) {
             case $node instanceof FieldNode:
@@ -92,28 +90,23 @@ class QueryDepth extends QuerySecurityRule
         return $maxDepth;
     }
 
-    public function getMaxQueryDepth()
-    {
-        return $this->maxQueryDepth;
-    }
-
     /**
      * Set max query depth. If equal to 0 no check is done. Must be greater or equal to 0.
      */
-    public function setMaxQueryDepth($maxQueryDepth): void
+    public function setMaxQueryDepth(int $maxQueryDepth): void
     {
         $this->checkIfGreaterOrEqualToZero('maxQueryDepth', $maxQueryDepth);
 
-        $this->maxQueryDepth = (int) $maxQueryDepth;
+        $this->maxQueryDepth = $maxQueryDepth;
     }
 
-    public static function maxQueryDepthErrorMessage($max, $count)
+    public static function maxQueryDepthErrorMessage(int $max, int $count): string
     {
-        return sprintf('Max query depth should be %d but got %d.', $max, $count);
+        return "Max query depth should be {$max} but got {$count}.";
     }
 
     protected function isEnabled(): bool
     {
-        return $this->getMaxQueryDepth() !== self::DISABLED;
+        return $this->maxQueryDepth !== self::DISABLED;
     }
 }

@@ -696,7 +696,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    private function getSchema()
+    private function getSchema(): Schema
     {
         $StringBox = null;
         $IntBox    = null;

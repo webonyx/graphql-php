@@ -4,11 +4,20 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\ErrorHelper;
+use GraphQL\Type\Schema;
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class UniqueDirectivesPerLocationTest extends ValidatorTestCase
 {
-    private function expectSDLErrors($sdlString, $schema = null, $errors = []): void
+    /**
+     * @param array<int, array<string, mixed>> $errors
+     */
+    private function expectSDLErrors(string $sdlString, ?Schema $schema = null, array $errors = []): void
     {
         $this->expectSDLErrorsFromRule(new UniqueDirectivesPerLocation(), $sdlString, $schema, $errors);
     }
@@ -138,15 +147,15 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    private function duplicateDirective($directiveName, $l1, $c1, $l2, $c2)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function duplicateDirective(string $directiveName, int $l1, int $c1, int $l2, int $c2)
     {
-        return [
-            'message'   => UniqueDirectivesPerLocation::duplicateDirectiveMessage($directiveName),
-            'locations' => [
-                ['line' => $l1, 'column' => $c1],
-                ['line' => $l2, 'column' => $c2],
-            ],
-        ];
+        return ErrorHelper::create(
+            UniqueDirectivesPerLocation::duplicateDirectiveMessage($directiveName),
+            [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)],
+        );
     }
 
     /**

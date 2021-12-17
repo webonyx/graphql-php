@@ -53,6 +53,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * A cache for the "field map" and list of fragment names found in any given
      * selection set. Selection sets may be asked for this information multiple
      * times, so this improves the performance of this validator.
+     *
+     * @phpstan-var SplObjectStorage<SelectionSetNode, array{FieldMap, array<int, string>}>
      */
     protected SplObjectStorage $cachedFieldsAndFragmentNames;
 
@@ -155,7 +157,10 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         SelectionSetNode $selectionSet
     ): array {
         if (! isset($this->cachedFieldsAndFragmentNames[$selectionSet])) {
-            $astAndDefs    = [];
+            /** @phpstan-var FieldMap $astAndDefs */
+            $astAndDefs = [];
+
+            /** @var array<string, bool> $fragmentNames */
             $fragmentNames = [];
 
             $this->internalCollectFieldsAndFragmentNames(

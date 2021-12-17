@@ -10,6 +10,7 @@ use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\Printer;
+use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Validator\ASTValidationContext;
@@ -21,13 +22,14 @@ use GraphQL\Validator\ValidationContext;
  *
  * A directive is only valid if all required (non-null without a
  * default value) field arguments have been provided.
+ *
+ * @phpstan-import-type VisitorArray from Visitor
  */
 class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 {
-    public static function missingDirectiveArgMessage(string $directiveName, string $argName, string $type)
+    public static function missingDirectiveArgMessage(string $directiveName, string $argName, string $type): string
     {
-        return 'Directive "@' . $directiveName . '" argument "' . $argName
-            . '" of type "' . $type . '" is required but not provided.';
+        return "Directive \"@{$directiveName}\" argument \"{$argName}\" of type \"{$type}\" is required but not provided.";
     }
 
     public function getSDLVisitor(SDLValidationContext $context): array
@@ -40,7 +42,10 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         return $this->getASTVisitor($context);
     }
 
-    public function getASTVisitor(ASTValidationContext $context)
+    /**
+     * @phpstan-return VisitorArray
+     */
+    public function getASTVisitor(ASTValidationContext $context): array
     {
         $requiredArgsMap   = [];
         $schema            = $context->getSchema();

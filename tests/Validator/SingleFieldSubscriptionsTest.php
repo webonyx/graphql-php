@@ -10,6 +10,9 @@ use GraphQL\Validator\Rules\SingleFieldSubscription;
 
 use function array_map;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class SingleFieldSubscriptionsTest extends ValidatorTestCase
 {
     /**
@@ -179,8 +182,10 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
 
     /**
      * @param array<int, int> ...$locations A tuple of line and column
+     *
+     * @phpstan-return ErrorArray
      */
-    private function multipleFieldsInOperation(?string $operationName, array ...$locations)
+    private function multipleFieldsInOperation(?string $operationName, array ...$locations): array
     {
         return ErrorHelper::create(
             SingleFieldSubscription::multipleFieldsInOperation($operationName),

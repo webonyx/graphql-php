@@ -12,14 +12,12 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class NoUnusedFragments extends ValidationRule
 {
-    /** @var OperationDefinitionNode[] */
+    /** @var array<int, OperationDefinitionNode> */
     protected array $operationDefs;
 
-    /** @var FragmentDefinitionNode[] */
+    /** @var array<int, FragmentDefinitionNode> */
     protected array $fragmentDefs;
 
     public function getVisitor(ValidationContext $context): array
@@ -64,8 +62,8 @@ class NoUnusedFragments extends ValidationRule
         ];
     }
 
-    public static function unusedFragMessage($fragName)
+    public static function unusedFragMessage(string $fragName): string
     {
-        return sprintf('Fragment "%s" is never used.', $fragName);
+        return "Fragment \"{$fragName}\" is never used.";
     }
 }

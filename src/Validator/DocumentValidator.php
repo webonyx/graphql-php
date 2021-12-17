@@ -69,7 +69,7 @@ use function count;
  */
 class DocumentValidator
 {
-    /** @var array<class-string<ValidationRule>, ValidationRule> */
+    /** @var array<string, ValidationRule> */
     private static array $rules = [];
 
     /** @var array<class-string<ValidationRule>, ValidationRule> */
@@ -245,7 +245,17 @@ class DocumentValidator
      */
     public static function addRule(ValidationRule $rule): void
     {
-        self::$rules[ValidationRule::class] = $rule;
+        self::$rules[$rule->getName()] = $rule;
+    }
+
+    /**
+     * Remove rule from list of global validation rules.
+     *
+     * @api
+     */
+    public static function removeRule(ValidationRule $rule): void
+    {
+        unset(self::$rules[$rule->getName()]);
     }
 
     /**

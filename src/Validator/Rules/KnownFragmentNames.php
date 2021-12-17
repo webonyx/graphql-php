@@ -9,8 +9,6 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class KnownFragmentNames extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array
@@ -31,11 +29,8 @@ class KnownFragmentNames extends ValidationRule
         ];
     }
 
-    /**
-     * @param string $fragName
-     */
-    public static function unknownFragmentMessage($fragName)
+    public static function unknownFragmentMessage(string $fragName): string
     {
-        return sprintf('Unknown fragment "%s".', $fragName);
+        return "Unknown fragment \"{$fragName}\".";
     }
 }
