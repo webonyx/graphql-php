@@ -9,18 +9,16 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeList;
 use PHPUnit\Framework\TestCase;
 
-use function get_class;
-
 final class NodeListTest extends TestCase
 {
     public function testConvertArrayToASTNode(): void
     {
-        $nodeList = new NodeList([]);
+        $nameNode = new NameNode(['value' => 'bar']);
 
-        $nameNode        = new NameNode(['value' => 'foo']);
-        $nodeList['foo'] = $nameNode->toArray();
+        $key      = 'foo';
+        $nodeList = new NodeList([$key => $nameNode->toArray()]);
 
-        self::assertInstanceOf(get_class($nameNode), $nodeList['foo']);
+        self::assertEquals($nameNode, $nodeList[$key]);
     }
 
     public function testThrowsOnInvalidArrays(): void

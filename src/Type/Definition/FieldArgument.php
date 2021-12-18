@@ -13,6 +13,13 @@ use function array_key_exists;
 use function is_array;
 
 /**
+ * @phpstan-type OptionalNameFieldArgumentConfig array{
+ *     name?: string,
+ *     defaultValue?: mixed,
+ *     description?: string|null,
+ *     astNode?: InputValueDefinitionNode|null,
+ * }
+ *
  * @phpstan-type FieldArgumentConfig array{
  *     name: string,
  *     defaultValue?: mixed,

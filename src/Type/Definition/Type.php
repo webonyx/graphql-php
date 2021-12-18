@@ -154,8 +154,8 @@ abstract class Type implements JsonSerializable
         $standardTypes = self::getStandardTypes();
         foreach ($types as $type) {
             // @phpstan-ignore-next-line generic type is not enforced by PHP
-            if (! $type instanceof Type) {
-                $typeClass = self::class;
+            if (! $type instanceof ScalarType) {
+                $typeClass = ScalarType::class;
                 $notType   = Utils::printSafe($type);
 
                 throw new InvariantViolation("Expecting instance of {$typeClass}, got {$notType}");

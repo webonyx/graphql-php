@@ -40,10 +40,11 @@ use function array_map;
 use function array_merge;
 use function count;
 
+/**
+ * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+ */
 class SchemaExtender
 {
-    public const SCHEMA_EXTENSION = 'SchemaExtension';
-
     /** @var array<string, Type> */
     protected static array $extendTypeCache;
 
@@ -510,6 +511,7 @@ class SchemaExtender
 
     /**
      * @param array<string, bool> $options
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      */
     public static function extend(
         Schema $schema,
@@ -586,7 +588,6 @@ class SchemaExtender
 
         static::$astBuilder = new ASTDefinitionBuilder(
             $typeDefinitionMap,
-            $options,
             static function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
                 if ($existingType !== null) {

@@ -23,7 +23,8 @@ use function array_map;
  *
  * See [schema definition language docs](schema-definition-language.md) for details.
  *
- * @phpstan-type Options array{
+ * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+ * @phpstan-type BuildSchemaOptions array{
  *   assumeValid?: bool,
  *   assumeValidSDL?: bool,
  * }
@@ -47,18 +48,22 @@ class BuildSchema
     /** @var array<string, TypeDefinitionNode> */
     private array $nodeMap;
 
-    /** @var callable|null */
+    /**
+     * @var callable|null
+     * @phpstan-var TypeConfigDecorator|null
+     */
     private $typeConfigDecorator;
 
     /**
      * @var array<string, bool>
-     * @phpstan-var Options
+     * @phpstan-var BuildSchemaOptions
      */
     private array $options;
 
     /**
      * @param array<string, bool> $options
-     * @phpstan-param Options $options
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     * @phpstan-param BuildSchemaOptions $options
      */
     public function __construct(
         DocumentNode $ast,
@@ -76,7 +81,7 @@ class BuildSchema
      *
      * @param DocumentNode|Source|string $source
      * @param array<string, bool>        $options
-     * @phpstan-param Options $options
+     * @phpstan-param BuildSchemaOptions $options
      *
      * @api
      */
@@ -101,7 +106,7 @@ class BuildSchema
      * has no resolve methods, so execution will use default resolvers.
      *
      * @param array<string, bool> $options
-     * @phpstan-param Options $options
+     * @phpstan-param BuildSchemaOptions $options
      *
      * @throws Error
      *
@@ -159,7 +164,6 @@ class BuildSchema
 
         $definitionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
-            $this->options,
             static function (string $typeName): void {
                 throw self::unknownType($typeName);
             },

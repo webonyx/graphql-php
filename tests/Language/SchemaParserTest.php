@@ -314,7 +314,7 @@ extend type Hello {
             ],
             'loc'         => ['start' => 0, 'end' => 116],
         ];
-        self::assertEquals($expected, $doc->toArray(true));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -350,7 +350,7 @@ extend type Hello {
             ],
             'loc'         => ['start' => 0, 'end' => 122],
         ];
-        self::assertEquals($expected, $doc->toArray(true));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -1391,7 +1391,7 @@ input Hello {
                 ],
             ],
         ];
-        self::assertArraySubset($expected, $doc->toArray(true));
+        self::assertArraySubset($expected, $doc->toArray());
     }
 
     public function testDoesntAllowLegacySDLImplementsInterfacesByDefault(): void
@@ -1417,6 +1417,6 @@ input Hello {
                 ],
             ],
         ];
-        self::assertArraySubset($expected, $doc->toArray(true));
+        self::assertArraySubset($expected, $doc->toArray());
     }
 }

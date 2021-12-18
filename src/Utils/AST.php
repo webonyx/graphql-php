@@ -128,7 +128,7 @@ class AST
      */
     public static function toArray(Node $node): array
     {
-        return $node->toArray(true);
+        return $node->toArray();
     }
 
     /**

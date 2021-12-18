@@ -160,7 +160,7 @@ class Utils
     public static function printSafeJson($var): string
     {
         if ($var instanceof stdClass) {
-            $var = (array) $var;
+            return json_encode($var);
         }
 
         if (is_array($var)) {
@@ -184,7 +184,7 @@ class Utils
         }
 
         if (is_string($var)) {
-            return sprintf('"%s"', $var);
+            return "\"{$var}\"";
         }
 
         if (is_scalar($var)) {

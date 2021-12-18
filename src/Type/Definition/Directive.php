@@ -4,13 +4,24 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 
 use function array_key_exists;
 use function is_array;
 
+/**
+ * @phpstan-import-type FieldArgumentConfig from FieldArgument
+ * @phpstan-import-type OptionalNameFieldArgumentConfig from FieldArgument
+ * @phpstan-type DirectiveConfig array{
+ *   name: string,
+ *   description?: string|null,
+ *   args?: iterable<FieldArgumentConfig|FieldArgument>|iterable<string, OptionalNameFieldArgumentConfig>|null,
+ *   locations: array<string>,
+ *   isRepeatable?: bool|null,
+ *   astNode?: DirectiveDefinitionNode|null,
+ * }
+ */
 class Directive
 {
     public const DEFAULT_DEPRECATION_REASON = 'No longer supported';
@@ -28,8 +39,6 @@ class Directive
      */
     protected static array $internalDirectives;
 
-    // Schema Definitions
-
     public string $name;
 
     public ?string $description;
@@ -44,20 +53,19 @@ class Directive
 
     public ?DirectiveDefinitionNode $astNode;
 
-    /** @var array<string, mixed> */
+    /**
+     * @var array<string, mixed>
+     * @phpstan-var DirectiveConfig
+     */
     public array $config;
 
     /**
      * @param array<string, mixed> $config
+     * @phpstan-param DirectiveConfig $config
      */
     public function __construct(array $config)
     {
-        if (! isset($config['name'])) {
-            throw new InvariantViolation('Directive must be named.');
-        }
-
-        $this->name = $config['name'];
-
+        $this->name        = $config['name'];
         $this->description = $config['description'] ?? null;
 
         if (isset($config['args'])) {
@@ -68,13 +76,8 @@ class Directive
             }
         }
 
-        if (! isset($config['locations']) || ! is_array($config['locations'])) {
-            throw new InvariantViolation('Must provide locations for directive.');
-        }
-
-        $this->locations = $config['locations'];
-
         $this->isRepeatable = $config['isRepeatable'] ?? false;
+        $this->locations    = $config['locations'];
         $this->astNode      = $config['astNode'] ?? null;
 
         $this->config = $config;

@@ -6,12 +6,12 @@ namespace GraphQL\Tests\Executor\Promise;
 
 use Exception;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
-use GraphQL\Tests\TestCaseBase;
+use PHPUnit\Framework\TestCase;
 use Throwable;
 
 use function uniqid;
 
-class SyncPromiseTest extends TestCaseBase
+class SyncPromiseTest extends TestCase
 {
     public function getFulfilledPromiseResolveData()
     {
@@ -426,8 +426,8 @@ class SyncPromiseTest extends TestCaseBase
 
     public function testRunEmptyQueue(): void
     {
-        SyncPromise::runQueue();
+        $this->expectNotToPerformAssertions();
 
-        self::assertDidNotCrash();
+        SyncPromise::runQueue();
     }
 }

@@ -28,6 +28,9 @@ use PHPUnit\Framework\TestCase;
 use function array_keys;
 use function count;
 
+/**
+ * @phpstan-import-type BuildSchemaOptions from BuildSchema
+ */
 class BuildSchemaTest extends TestCase
 {
     use ArraySubsetAsserts;
@@ -111,12 +114,15 @@ type HelloScalars {
         self::assertNull($schema->getType('ID'));
     }
 
-    private function cycleOutput($body, $options = [])
+    /**
+     * @phpstan-param BuildSchemaOptions $options
+     */
+    private function cycleOutput(string $body, array $options = []): string
     {
         $ast    = Parser::parse($body);
         $schema = BuildSchema::buildAST($ast, null, $options);
 
-        return "\n" . SchemaPrinter::doPrint($schema, $options);
+        return "\n" . SchemaPrinter::doPrint($schema);
     }
 
     /**
@@ -166,37 +172,6 @@ type Query {
 ';
 
         $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
-    }
-
-    /**
-     * @see it('Supports option for comment descriptions')
-     */
-    public function testSupportsOptionForCommentDescriptions(): void
-    {
-        $body   = '
-# This is a directive
-directive @foo(
-  # It has an argument
-  arg: Int
-) on FIELD
-
-# With an enum
-enum Color {
-  RED
-
-  # Not a creative color
-  GREEN
-  BLUE
-}
-
-# What a great type
-type Query {
-  # And a field to boot
-  str: String
-}
-';
-        $output = $this->cycleOutput($body, ['commentDescriptions' => true]);
         self::assertEquals($body, $output);
     }
 

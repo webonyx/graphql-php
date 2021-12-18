@@ -71,11 +71,6 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Array \\(array\\<array\\<string, mixed\\>\\|T of GraphQL\\\\Language\\\\AST\\\\Node\\>\\) does not accept GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
-			count: 2
-			path: src/Language/AST/NodeList.php
-
-		-
 			message: "#^Strict comparison using \\=\\=\\= between mixed and null will always evaluate to false\\.$#"
 			count: 1
 			path: src/Language/Visitor.php
@@ -139,6 +134,21 @@ parameters:
 			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\}\\> does not accept array\\<int, mixed\\>\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) with int\\|string and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
+			count: 1
+			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Instanceof between mixed and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
+			count: 1
+			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Variable property access on mixed\\.$#"
+			count: 2
+			path: tests/Language/VisitorTest.php
 
 		-
 			message: "#^Property GraphQL\\\\Tests\\\\Type\\\\SchemaTest\\:\\:\\$implementingType is never read, only written\\.$#"

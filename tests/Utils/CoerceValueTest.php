@@ -17,11 +17,9 @@ use function pow;
 
 class CoerceValueTest extends TestCase
 {
-    /** @var EnumType */
-    private $testEnum;
+    private EnumType $testEnum;
 
-    /** @var InputObjectType */
-    private $testInputObject;
+    private InputObjectType $testInputObject;
 
     public function setUp(): void
     {

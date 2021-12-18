@@ -6,7 +6,6 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
-use GraphQL\Tests\Type\TestClasses\CanCastToString;
 use GraphQL\Tests\Type\TestClasses\ObjectIdStub;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
@@ -125,7 +124,12 @@ class ScalarSerializationTest extends TestCase
         self::assertSame('1', $stringType->serialize(true));
         self::assertSame('', $stringType->serialize(false));
         self::assertSame('', $stringType->serialize(null));
-        self::assertSame('foo', $stringType->serialize(new CanCastToString('foo')));
+        self::assertSame('foo', $stringType->serialize(new class {
+            public function __toString(): string
+            {
+                return 'foo';
+            }
+        }));
     }
 
     public function badStringValues()
