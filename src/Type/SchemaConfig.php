@@ -27,7 +27,7 @@ use function count;
  *
  *     $schema = new Schema($config);
  *
- * @phpstan-type TypeLoader (callable(string $typeName): (Type&NamedType)|null)|null
+ * @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
  */
 class SchemaConfig
 {
