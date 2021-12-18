@@ -42,7 +42,6 @@ use function sprintf;
 /**
  * @phpstan-import-type FieldMapConfig from FieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
- *
  * @phpstan-type ResolveType callable(string, Node|null): Type
  * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
  */

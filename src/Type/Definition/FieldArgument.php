@@ -19,7 +19,6 @@ use function is_array;
  *     description?: string|null,
  *     astNode?: InputValueDefinitionNode|null,
  * }
- *
  * @phpstan-type FieldArgumentConfig array{
  *     name: string,
  *     defaultValue?: mixed,
