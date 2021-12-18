@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language\AST;
 
+use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\Parser;
 use PHPUnit\Framework\TestCase;
+
+use function json_encode;
 
 class NodeTest extends TestCase
 {
@@ -45,5 +48,21 @@ class NodeTest extends TestCase
     {
         self::assertNotSame($node, $clone);
         self::assertEquals($node, $clone);
+    }
+
+    public function testJsonSerialize(): void
+    {
+        self::assertJsonStringEqualsJsonString(
+            /** @lang JSON */            '{"kind":"Name","value":"foo"}',
+            json_encode(new NameNode(['value' => 'foo']))
+        );
+    }
+
+    public function testToString(): void
+    {
+        self::assertJsonStringEqualsJsonString(
+            /** @lang JSON */            '{"kind":"Name","value":"foo"}',
+            (string) new NameNode(['value' => 'foo'])
+        );
     }
 }

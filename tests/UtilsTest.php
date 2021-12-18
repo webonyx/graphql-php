@@ -47,4 +47,12 @@ final class UtilsTest extends TestCase
             'expected' => '⌚',
         ];
     }
+
+    public function testPrintSafeJson(): void
+    {
+        self::assertJsonStringEqualsJsonString(
+            /** @lang JSON */            '{"foo":1}',
+            Utils::printSafeJson((object) ['foo' => 1])
+        );
+    }
 }
