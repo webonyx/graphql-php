@@ -40,13 +40,13 @@ class Argument
 
     public ?string $description;
 
+    /** @var Type&InputType */
+    private Type $type;
+
     public ?InputValueDefinitionNode $astNode;
 
     /** @var ArgumentConfig */
     public array $config;
-
-    /** @var Type&InputType */
-    private Type $type;
 
     /**
      * @param ArgumentConfig $config
@@ -56,7 +56,8 @@ class Argument
         $this->name         = $config['name'];
         $this->defaultValue = $config['defaultValue'] ?? null;
         $this->description  = $config['description'] ?? null;
-        $this->astNode      = $config['astNode'] ?? null;
+        // Do nothing for type, it is lazy loaded in getType()
+        $this->astNode = $config['astNode'] ?? null;
 
         $this->config = $config;
     }
