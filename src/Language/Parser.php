@@ -256,7 +256,7 @@ class Parser
      *
      * @phpstan-param array{string, ParserOptions} $arguments
      *
-     * @return Node|NodeList<Node>
+     * @return Node|NodeList
      *
      * @throws SyntaxError
      */

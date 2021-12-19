@@ -166,7 +166,7 @@ class VisitorTest extends ValidatorTestCase
     /**
      * @param array<string|int> $path
      *
-     * @return Node|NodeList<Node>
+     * @return Node|NodeList
      */
     private function getNodeByPath(DocumentNode $ast, array $path): object
     {

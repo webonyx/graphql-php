@@ -66,9 +66,99 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
+			message: "#^Unable to resolve the template type TCloneable in call to method static method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\)$#"
+			count: 1
+			path: src/Language/AST/Node.php
+
+		-
 			message: "#^Variable property access on TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
+
+		-
+			message: "#^Array \\(array\\<array\\<string, mixed\\>\\|T of GraphQL\\\\Language\\\\AST\\\\Node\\>\\) does not accept GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
+			count: 2
+			path: src/Language/AST/NodeList.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:__callStatic\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:any\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:many\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:parseArguments\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:parseArgumentsDefinition\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:parseDirectiveLocations\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:parseDirectives\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:parseEnumValuesDefinition\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:parseFieldsDefinition\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:parseImplementsInterfaces\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:parseInputFieldsDefinition\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:parseUnionMemberTypes\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Parser\\:\\:parseVariableDefinitions\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Printer\\:\\:printList\\(\\) has parameter \\$list with generic class GraphQL\\\\Language\\\\AST\\\\NodeList but does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Printer.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Printer\\:\\:printListBlock\\(\\) has parameter \\$list with generic class GraphQL\\\\Language\\\\AST\\\\NodeList but does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Printer.php
+
+		-
+			message: "#^Method GraphQL\\\\Language\\\\Visitor\\:\\:visit\\(\\) has parameter \\$root with generic class GraphQL\\\\Language\\\\AST\\\\NodeList but does not specify its types\\: T$#"
+			count: 1
+			path: src/Language/Visitor.php
 
 		-
 			message: "#^Strict comparison using \\=\\=\\= between mixed and null will always evaluate to false\\.$#"
@@ -126,14 +216,14 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\CustomScalarType constructor expects array\\{name\\?\\: string\\|null, description\\?\\: string\\|null, serialize\\: callable\\(mixed\\)\\: mixed, parseValue\\?\\: callable\\(mixed\\)\\: mixed, parseLiteral\\?\\: callable\\(GraphQL\\\\Language\\\\AST\\\\Node, array\\|null\\)\\: mixed, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|null, extensionASTNodes\\?\\: array\\<GraphQL\\\\Language\\\\AST\\\\ScalarTypeExtensionNode\\>\\|null\\}, array\\{name\\: string, description\\: string\\|null, serialize\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'serialize'\\}, parseValue\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'parseValue'\\}, parseLiteral\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'parseLiteral'\\}, astNode\\: GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|null, extensionASTNodes\\: array\\<GraphQL\\\\Language\\\\AST\\\\TypeExtensionNode\\>\\|null\\} given\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
-
-		-
 			message: "#^Variable property access on object\\.$#"
 			count: 1
 			path: src/Utils/Utils.php
+
+		-
+			message: "#^Method GraphQL\\\\Validator\\\\Rules\\\\KnownDirectives\\:\\:getDirectiveLocationForASTPath\\(\\) has parameter \\$ancestors with generic class GraphQL\\\\Language\\\\AST\\\\NodeList but does not specify its types\\: T$#"
+			count: 1
+			path: src/Validator/Rules/KnownDirectives.php
 
 		-
 			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\}\\> does not accept array\\<int, mixed\\>\\.$#"
@@ -147,6 +237,11 @@ parameters:
 
 		-
 			message: "#^Instanceof between mixed and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
+			count: 1
+			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Method GraphQL\\\\Tests\\\\Language\\\\VisitorTest\\:\\:getNodeByPath\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
 			count: 1
 			path: tests/Language/VisitorTest.php
 

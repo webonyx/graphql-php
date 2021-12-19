@@ -170,7 +170,7 @@ class Visitor
     /**
      * Visit the AST (see class description for details).
      *
-     * @param NodeList<Node>|Node       $root
+     * @param NodeList|Node       $root
      * @param VisitorArray              $visitor
      * @param array<string, mixed>|null $keyMap
      *

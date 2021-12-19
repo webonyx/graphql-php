@@ -14,10 +14,11 @@ use PHPUnit\Framework\TestCase;
 
 use function sprintf;
 
+/**
+ * describe('Execute: Handles execution with a complex schema', () => {
+ */
 class ExecutorSchemaTest extends TestCase
 {
-    // Execute: Handles execution with a complex schema
-
     /**
      * @see it('executes using a schema')
      */
@@ -25,9 +26,7 @@ class ExecutorSchemaTest extends TestCase
     {
         $BlogSerializableValueType = new CustomScalarType([
             'name'         => 'JsonSerializableValueScalar',
-            'serialize'    => static function ($value) {
-                return $value;
-            },
+            'serialize'    => static fn($value) => $value,
         ]);
 
         $BlogArticle = null;
@@ -47,11 +46,12 @@ class ExecutorSchemaTest extends TestCase
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
                     'pic'           => [
-                        'args'    => ['width' => ['type' => Type::int()], 'height' => ['type' => Type::int()]],
+                        'args'    => [
+                            'width' => ['type' => Type::int()],
+                            'height' => ['type' => Type::int()]
+                        ],
                         'type'    => $BlogImage,
-                        'resolve' => static function ($obj, $args) {
-                            return $obj['pic']($args['width'], $args['height']);
-                        },
+                        'resolve' => static fn(array $obj, array $args) => $obj['pic']($args['width'], $args['height']),
                     ],
                     'recentArticle' => $BlogArticle,
                 ];
@@ -77,26 +77,22 @@ class ExecutorSchemaTest extends TestCase
                 'article' => [
                     'type'    => $BlogArticle,
                     'args'    => ['id' => ['type' => Type::id()]],
-                    'resolve' => function ($rootValue, $args) {
-                        return $this->article($args['id']);
-                    },
+                    'resolve' => fn($rootValue, array $args): array => $this->article($args['id']),
                 ],
                 'feed'    => [
                     'type'    => Type::listOf($BlogArticle),
-                    'resolve' => function (): array {
-                        return [
-                            $this->article(1),
-                            $this->article(2),
-                            $this->article(3),
-                            $this->article(4),
-                            $this->article(5),
-                            $this->article(6),
-                            $this->article(7),
-                            $this->article(8),
-                            $this->article(9),
-                            $this->article(10),
-                        ];
-                    },
+                    'resolve' => fn(): array => [
+                        $this->article('1'),
+                        $this->article('2'),
+                        $this->article('3'),
+                        $this->article('4'),
+                        $this->article('5'),
+                        $this->article('6'),
+                        $this->article('7'),
+                        $this->article('8'),
+                        $this->article('9'),
+                        $this->article('10'),
+                    ],
                 ],
             ],
         ]);
@@ -211,10 +207,13 @@ class ExecutorSchemaTest extends TestCase
         self::assertEquals($expected, Executor::execute($BlogSchema, Parser::parse($request))->toArray());
     }
 
-    private function article($id)
+    /**
+     * @return array<string, mixed>
+     */
+    private function article(string $id): array
     {
         $johnSmith = null;
-        $article   = static function ($id) use (&$johnSmith): array {
+        $article   = static function (string $id) use (&$johnSmith): array {
             return [
                 'id'          => $id,
                 'isPublished' => 'true',
@@ -227,21 +226,17 @@ class ExecutorSchemaTest extends TestCase
             ];
         };
 
-        $getPic = static function ($uid, $width, $height): array {
-            return [
-                'url'    => sprintf('cdn://%s', $uid),
-                'width'  => $width,
-                'height' => $height,
-            ];
-        };
+        $getPic = static fn(int $uid, int $width, int $height): array => [
+            'url'    => "cdn://{$uid}",
+            'width'  => $width,
+            'height' => $height,
+        ];
 
         $johnSmith = [
             'id'            => 123,
             'name'          => 'John Smith',
-            'pic'           => static function ($width, $height) use ($getPic): array {
-                return $getPic(123, $width, $height);
-            },
-            'recentArticle' => $article(1),
+            'pic'           => static fn(int $width, int $height): array => $getPic(123, $width, $height),
+            'recentArticle' => $article('1'),
         ];
 
         return $article($id);

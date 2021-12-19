@@ -5,20 +5,27 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\EnumValueNode;
+use GraphQL\Language\AST\FloatValueNode;
+use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\AST;
 
 use function is_callable;
 
 /**
+ * @phpstan-import-type LeafValueNode from LeafType
  * @phpstan-type CustomScalarConfig array{
  *   name?: string|null,
  *   description?: string|null,
  *   serialize: callable(mixed): mixed,
  *   parseValue?: callable(mixed): mixed,
- *   parseLiteral?: callable(Node $valueNode, array|null $variables): mixed,
+ *   parseLiteral?: callable(LeafValueNode, array<string, mixed>|null): mixed,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
  * }
@@ -30,6 +37,7 @@ class CustomScalarType extends ScalarType
     public array $config;
 
     /**
+     * @param array<string, mixed> $config
      * @phpstan-param CustomScalarConfig $config
      */
     public function __construct(array $config)
