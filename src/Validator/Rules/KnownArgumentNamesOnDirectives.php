@@ -10,8 +10,8 @@ use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
@@ -68,7 +68,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
         foreach ($definedDirectives as $directive) {
             $directiveArgs[$directive->name] = array_map(
-                static fn (FieldArgument $arg): string => $arg->name,
+                static fn (Argument $arg): string => $arg->name,
                 $directive->args
             );
         }

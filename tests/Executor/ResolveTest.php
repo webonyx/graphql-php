@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Executor;
 
 use GraphQL\GraphQL;
 use GraphQL\Tests\Executor\TestClasses\Adder;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -14,6 +15,9 @@ use PHPUnit\Framework\TestCase;
 use function json_encode;
 use function uniqid;
 
+/**
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ */
 class ResolveTest extends TestCase
 {
     // Execute: resolve function
@@ -33,7 +37,10 @@ class ResolveTest extends TestCase
         );
     }
 
-    private function buildSchema($testField)
+    /**
+     * @param UnnamedFieldDefinitionConfig $testField
+     */
+    private function buildSchema(array $testField): Schema
     {
         return new Schema([
             'query' => new ObjectType([

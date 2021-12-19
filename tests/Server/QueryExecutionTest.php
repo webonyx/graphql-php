@@ -48,7 +48,11 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertQueryResultEquals($expected, $query);
     }
 
-    private function assertQueryResultEquals($expected, $query, $variables = null, $queryId = null)
+    /**
+     * @param array<string, mixed>      $expected
+     * @param array<string, mixed>|null $variables
+     */
+    private function assertQueryResultEquals(array $expected, string $query, ?array $variables = null, ?string $queryId = null): ExecutionResult
     {
         $result = $this->executeQuery($query, $variables, false, $queryId);
         self::assertArraySubset($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
@@ -56,14 +60,21 @@ class QueryExecutionTest extends ServerTestCase
         return $result;
     }
 
-    private function executeQuery($query, $variables = null, $readonly = false, $queryId = null)
+    /**
+     * @param array<string, mixed>|null $variables
+     */
+    private function executeQuery(string $query, ?array $variables = null, bool $readonly = false, ?string $queryId = null): ExecutionResult
     {
-        $op     = OperationParams::create(['query' => $query, 'variables' => $variables, 'queryId' => $queryId], $readonly);
-        $helper = new Helper();
-        $result = $helper->executeOperation($this->config, $op);
-        self::assertInstanceOf(ExecutionResult::class, $result);
+        $op = OperationParams::create(
+            [
+                'query' => $query,
+                'variables' => $variables,
+                'queryId' => $queryId,
+            ],
+            $readonly
+        );
 
-        return $result;
+        return (new Helper())->executeOperation($this->config, $op);
     }
 
     public function testReturnsSyntaxErrors(): void
@@ -272,14 +283,17 @@ class QueryExecutionTest extends ServerTestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-    private function executePersistedQuery($queryId, $variables = null)
+    /**
+     * @param array<string, mixed>|null $variables
+     */
+    private function executePersistedQuery(string $queryId, ?array $variables = null): ExecutionResult
     {
-        $op     = OperationParams::create(['queryId' => $queryId, 'variables' => $variables]);
-        $helper = new Helper();
-        $result = $helper->executeOperation($this->config, $op);
-        self::assertInstanceOf(ExecutionResult::class, $result);
+        $op = OperationParams::create([
+            'queryId' => $queryId,
+            'variables' => $variables,
+        ]);
 
-        return $result;
+        return (new Helper())->executeOperation($this->config, $op);
     }
 
     public function testBatchedQueriesAreDisabledByDefault(): void

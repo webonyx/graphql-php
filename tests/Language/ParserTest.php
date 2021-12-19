@@ -22,6 +22,7 @@ use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
 use function file_get_contents;
+use function is_array;
 use function sprintf;
 
 class ParserTest extends TestCase
@@ -72,14 +73,17 @@ fragment MissingOn Type
     /**
      * @see          it('parse provides useful errors')
      *
+     * @param list<int>            $expectedPositions
+     * @param list<SourceLocation> $expectedLocations
+     *
      * @dataProvider parseProvidesUsefulErrors
      */
     public function testParseProvidesUsefulErrors(
-        $str,
-        $expectedMessage,
-        $stringRepresentation,
-        $expectedPositions = null,
-        $expectedLocations = null
+        string $str,
+        string $expectedMessage,
+        string $stringRepresentation,
+        ?array $expectedPositions = null,
+        ?array $expectedLocations = null
     ): void {
         try {
             Parser::parse($str);
@@ -88,11 +92,11 @@ fragment MissingOn Type
             self::assertEquals($expectedMessage, $e->getMessage());
             self::assertEquals($stringRepresentation, (string) $e);
 
-            if ($expectedPositions) {
+            if (is_array($expectedPositions)) {
                 self::assertEquals($expectedPositions, $e->getPositions());
             }
 
-            if ($expectedLocations) {
+            if (is_array($expectedLocations)) {
                 self::assertEquals($expectedLocations, $e->getLocations());
             }
         }
@@ -145,7 +149,7 @@ fragment MissingOn Type
         Parser::parse('query Foo($x: Boolean = false @bar) { field }');
     }
 
-    private function expectSyntaxError($text, $message, $location): void
+    private function expectSyntaxError(string $text, string $message, SourceLocation $location): void
     {
         $this->expectException(SyntaxError::class);
         $this->expectExceptionMessage($message);
@@ -158,7 +162,7 @@ fragment MissingOn Type
         }
     }
 
-    private function loc($line, $column)
+    private function loc(int $line, int $column): SourceLocation
     {
         return new SourceLocation($line, $column);
     }

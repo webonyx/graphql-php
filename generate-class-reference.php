@@ -64,6 +64,7 @@ $entries = [
 ];
 
 /**
+ * @param ReflectionClass<object>                               $class
  * @param array{constants?: bool, props?: bool, methods?: bool} $options
  */
 function renderClass(ReflectionClass $class, array $options): string

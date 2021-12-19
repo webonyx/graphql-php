@@ -26,9 +26,10 @@ class AstFromValueUntypedTest extends TestCase
     }
 
     /**
-     * @param mixed[]|null $variables
+     * @param mixed                     $expected
+     * @param array<string, mixed>|null $variables
      */
-    private static function assertTestCase($valueText, $expected, ?array $variables = null): void
+    private static function assertTestCase(string $valueText, $expected, ?array $variables = null): void
     {
         self::assertEquals(
             $expected,

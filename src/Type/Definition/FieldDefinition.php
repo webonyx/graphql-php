@@ -17,22 +17,23 @@ use function is_string;
 
 /**
  * @phpstan-import-type FieldResolver from Executor
- * @phpstan-import-type FieldArgumentConfig from FieldArgument
+ * @phpstan-import-type ArgumentListConfig from Argument
+ * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
  * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int|null
  * @phpstan-type FieldDefinitionConfig array{
  *     name: string,
- *     type: (Type&OutputType)|callable(): (Type&OutputType),
+ *     type: FieldType,
  *     resolve?: FieldResolver|null,
- *     args?: array<string, FieldArgumentConfig|Type>|null,
+ *     args?: ArgumentListConfig|null,
  *     description?: string|null,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null,
  * }
  * @phpstan-type UnnamedFieldDefinitionConfig array{
- *     type: (Type&OutputType)|callable(): (Type&OutputType),
+ *     type: FieldType,
  *     resolve?: FieldResolver|null,
- *     args?: array<string, FieldArgumentConfig|Type>|null,
+ *     args?: ArgumentListConfig|null,
  *     description?: string|null,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
@@ -44,7 +45,7 @@ class FieldDefinition
 {
     public string $name;
 
-    /** @var array<int, FieldArgument> */
+    /** @var array<int, Argument> */
     public array $args;
 
     /**
@@ -82,7 +83,7 @@ class FieldDefinition
         $this->name              = $config['name'];
         $this->resolveFn         = $config['resolve'] ?? null;
         $this->args              = isset($config['args'])
-            ? FieldArgument::createMap($config['args'])
+            ? Argument::listFromConfig($config['args'])
             : [];
         $this->description       = $config['description'] ?? null;
         $this->deprecationReason = $config['deprecationReason'] ?? null;
@@ -166,10 +167,9 @@ class FieldDefinition
         return new self($field);
     }
 
-    public function getArg(string $name): ?FieldArgument
+    public function getArg(string $name): ?Argument
     {
         foreach ($this->args as $arg) {
-            /** @var FieldArgument $arg */
             if ($arg->name === $name) {
                 return $arg;
             }

@@ -7,7 +7,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
@@ -52,7 +52,7 @@ class KnownArgumentNames extends ValidationRule
                         Utils::suggestionList(
                             $node->name->value,
                             array_map(
-                                static fn (FieldArgument $arg): string => $arg->name,
+                                static fn (Argument $arg): string => $arg->name,
                                 $fieldDef->args
                             )
                         )

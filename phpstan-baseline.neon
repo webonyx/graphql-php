@@ -101,6 +101,11 @@ parameters:
 			path: src/Type/Schema.php
 
 		-
+			message: "#^Generator expects value type GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Type\\\\Definition\\\\Type given\\.$#"
+			count: 1
+			path: src/Type/Schema.php
+
+		-
 			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:getType\\(\\) should return \\(GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
 			count: 1
 			path: src/Type/Schema.php

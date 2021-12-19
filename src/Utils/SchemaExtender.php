@@ -17,10 +17,10 @@ use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -316,7 +316,7 @@ class SchemaExtender
     }
 
     /**
-     * @param array<FieldArgument> $args
+     * @param array<Argument> $args
      *
      * @return array<string, array<string, mixed>>
      */

@@ -17,9 +17,9 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\OutputType;
@@ -37,6 +37,7 @@ use function count;
  * allowing access to commonly useful contextual information from within a
  * validation rule.
  *
+ * @phpstan-import-type InputTypeAlias from InputType
  * @phpstan-type VariableUsage array{node: VariableNode, type: (Type&InputType)|null, defaultValue: mixed}
  */
 class ValidationContext extends ASTValidationContext
@@ -237,6 +238,7 @@ class ValidationContext extends ASTValidationContext
 
     /**
      * @return (Type & InputType) | null
+     * @phpstan-return InputTypeAlias
      */
     public function getInputType(): ?InputType
     {
@@ -261,7 +263,7 @@ class ValidationContext extends ASTValidationContext
         return $this->typeInfo->getDirective();
     }
 
-    public function getArgument(): ?FieldArgument
+    public function getArgument(): ?Argument
     {
         return $this->typeInfo->getArgument();
     }

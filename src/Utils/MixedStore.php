@@ -24,6 +24,7 @@ use function is_string;
  * When storing array as key, access and modification is O(N). Avoid if possible.
  *
  * @template TValue of mixed
+ * @implements ArrayAccess<mixed, TValue>
  */
 class MixedStore implements ArrayAccess
 {
@@ -33,7 +34,7 @@ class MixedStore implements ArrayAccess
     /** @var array<TValue> */
     private array $floatStore = [];
 
-    /** @var SplObjectStorage<TValue> */
+    /** @var SplObjectStorage<object, TValue> */
     private SplObjectStorage $objectStore;
 
     /** @var array<int, array<mixed>> */
@@ -68,6 +69,9 @@ class MixedStore implements ArrayAccess
         $this->objectStore = new SplObjectStorage();
     }
 
+    /**
+     * @param mixed $offset
+     */
     #[ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {
@@ -109,6 +113,11 @@ class MixedStore implements ArrayAccess
         return false;
     }
 
+    /**
+     * @param mixed $offset
+     *
+     * @return TValue|null
+     */
     #[ReturnTypeWillChange]
     public function offsetGet($offset)
     {
@@ -152,6 +161,10 @@ class MixedStore implements ArrayAccess
         return null;
     }
 
+    /**
+     * @param mixed  $offset
+     * @param TValue $value
+     */
     #[ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
     {
@@ -178,6 +191,9 @@ class MixedStore implements ArrayAccess
         }
     }
 
+    /**
+     * @param mixed $offset
+     */
     #[ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {

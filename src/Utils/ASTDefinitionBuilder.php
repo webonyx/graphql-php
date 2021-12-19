@@ -26,7 +26,6 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -92,7 +91,7 @@ class ASTDefinitionBuilder
         return new Directive([
             'name'         => $directiveNode->name->value,
             'description'  => $directiveNode->description->value ?? null,
-            'args'         => FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)),
+            'args'         => $this->makeInputValues($directiveNode->arguments),
             'isRepeatable' => $directiveNode->repeatable,
             'locations'    => $locations,
             'astNode'      => $directiveNode,

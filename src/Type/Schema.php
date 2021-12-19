@@ -147,6 +147,9 @@ class Schema
         $this->getTypeMap();
     }
 
+    /**
+     * @return Generator<Type&NamedType>
+     */
     private function resolveAdditionalTypes(): Generator
     {
         $types = $this->config->types;

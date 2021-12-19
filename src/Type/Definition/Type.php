@@ -92,8 +92,11 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param Type|callable():Type $type
+     * @param T|callable():T $type
      *
+     * @return ListOfType<T>
+     *
+     * @template T of Type
      * @api
      */
     public static function listOf($type): ListOfType
@@ -173,6 +176,8 @@ abstract class Type implements JsonSerializable
     }
 
     /**
+     * @param mixed $type
+     *
      * @api
      */
     public static function isInputType($type): bool
@@ -194,6 +199,8 @@ abstract class Type implements JsonSerializable
     }
 
     /**
+     * @param mixed $type
+     *
      * @api
      */
     public static function isOutputType($type): bool
@@ -202,6 +209,8 @@ abstract class Type implements JsonSerializable
     }
 
     /**
+     * @param mixed $type
+     *
      * @api
      */
     public static function isLeafType($type): bool
@@ -210,6 +219,8 @@ abstract class Type implements JsonSerializable
     }
 
     /**
+     * @param mixed $type
+     *
      * @api
      */
     public static function isCompositeType($type): bool
@@ -218,6 +229,8 @@ abstract class Type implements JsonSerializable
     }
 
     /**
+     * @param mixed $type
+     *
      * @api
      */
     public static function isAbstractType($type): bool

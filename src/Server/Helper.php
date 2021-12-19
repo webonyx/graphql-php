@@ -390,6 +390,9 @@ class Helper
         return $rootValue;
     }
 
+    /**
+     * @return mixed user defined
+     */
     private function resolveContextValue(
         ServerConfig $config,
         OperationParams $params,
@@ -604,6 +607,9 @@ class Helper
         return $this->doConvertToPsrResponse($result, $response, $writableBodyStream);
     }
 
+    /**
+     * @param ExecutionResult|array<ExecutionResult> $result
+     */
     private function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream): ResponseInterface
     {
         $httpStatus = $this->resolveHttpStatus($result);

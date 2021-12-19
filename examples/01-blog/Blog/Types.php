@@ -17,8 +17,6 @@ use GraphQL\Examples\Blog\Type\Scalar\UrlType;
 use GraphQL\Examples\Blog\Type\SearchResultType;
 use GraphQL\Examples\Blog\Type\StoryType;
 use GraphQL\Examples\Blog\Type\UserType;
-use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 
@@ -172,21 +170,5 @@ final class Types
     public static function string(): ScalarType
     {
         return Type::string();
-    }
-
-    /**
-     * @param Type|callable():Type $type
-     */
-    public static function listOf($type): ListOfType
-    {
-        return new ListOfType($type);
-    }
-
-    /**
-     * @param Type|callable():Type $type
-     */
-    public static function nonNull($type): NonNull
-    {
-        return new NonNull($type);
     }
 }

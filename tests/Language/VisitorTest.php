@@ -19,11 +19,6 @@ use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Tests\Validator\ValidatorTestCase;
-use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 
@@ -171,7 +166,7 @@ class VisitorTest extends ValidatorTestCase
     /**
      * @param array<string|int> $path
      *
-     * @return Node|NodeList
+     * @return Node|NodeList<Node>
      */
     private function getNodeByPath(DocumentNode $ast, array $path): object
     {
@@ -1490,9 +1485,8 @@ class VisitorTest extends ValidatorTestCase
                         $this->checkVisitorFnArgs($ast, func_get_args());
                         $parentType = $typeInfo->getParentType();
                         $type       = $typeInfo->getType();
-                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $inputType */
-                        $inputType = $typeInfo->getInputType();
-                        $visited[] = [
+                        $inputType  = $typeInfo->getInputType();
+                        $visited[]  = [
                             'enter',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
@@ -1505,9 +1499,8 @@ class VisitorTest extends ValidatorTestCase
                         $this->checkVisitorFnArgs($ast, func_get_args());
                         $parentType = $typeInfo->getParentType();
                         $type       = $typeInfo->getType();
-                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $inputType */
-                        $inputType = $typeInfo->getInputType();
-                        $visited[] = [
+                        $inputType  = $typeInfo->getInputType();
+                        $visited[]  = [
                             'leave',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
@@ -1584,9 +1577,8 @@ class VisitorTest extends ValidatorTestCase
                         $this->checkVisitorFnArgs($ast, func_get_args(), true);
                         $parentType = $typeInfo->getParentType();
                         $type       = $typeInfo->getType();
-                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $inputType */
-                        $inputType = $typeInfo->getInputType();
-                        $visited[] = [
+                        $inputType  = $typeInfo->getInputType();
+                        $visited[]  = [
                             'enter',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
@@ -1625,9 +1617,8 @@ class VisitorTest extends ValidatorTestCase
                         $this->checkVisitorFnArgs($ast, func_get_args(), true);
                         $parentType = $typeInfo->getParentType();
                         $type       = $typeInfo->getType();
-                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $inputType */
-                        $inputType = $typeInfo->getInputType();
-                        $visited[] = [
+                        $inputType  = $typeInfo->getInputType();
+                        $visited[]  = [
                             'leave',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,

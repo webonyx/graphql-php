@@ -30,6 +30,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Strongly type `PromiseAdapter::createRejected()` to require `\Throwable`
 - Move members specific to `NamedType` out of `Type`: `$name`, `$description`, `$config`, `isBuiltInType()`, `assertValid()`
 - Always convert recursively when calling `Node::toArray()`
+- Make `Directive::$config['args']` use the same definition style as `FieldDefinition::$config['args']`
+- Rename `FieldArgument` to `Argument`
 
 ### Added
 

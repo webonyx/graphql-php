@@ -7,7 +7,6 @@ namespace GraphQL\Tests\Validator;
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -95,11 +94,10 @@ class QuerySecuritySchema
             'name'      => 'foo',
             'locations' => [DirectiveLocation::FIELD],
             'args'      => [
-                new FieldArgument([
-                    'name'         => 'bar',
+                'bar' => [
                     'type'         => Type::nonNull(Type::boolean()),
                     'defaultValue' => ' ',
-                ]),
+                ],
             ],
         ]);
     }

@@ -30,6 +30,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
@@ -926,6 +927,7 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Complete a list value by completing each item in the list with the inner type.
      *
+     * @param ListOfType<Type             &OutputType> $returnType
      * @param ArrayObject<int, FieldNode> $fieldNodes
      * @param list<string|int>            $path
      * @param iterable<mixed>             $results

@@ -12,10 +12,15 @@ use function get_object_vars;
 use function is_array;
 use function is_scalar;
 
+/**
+ * @phpstan-type LocationArray array{start: int, end: int}
+ */
 class TestUtils
 {
     /**
-     * @return mixed[]
+     * Convert node to array, preserving null keys.
+     *
+     * @return array<string, mixed>
      */
     public static function nodeToArray(Node $node): array
     {
@@ -51,7 +56,7 @@ class TestUtils
     }
 
     /**
-     * @return int[]
+     * @phpstan-return LocationArray
      */
     public static function locationToArray(Location $loc): array
     {
@@ -62,10 +67,13 @@ class TestUtils
     }
 
     /**
-     * @return int[]
+     * @phpstan-return LocationArray
      */
     public static function locArray(int $start, int $end): array
     {
-        return ['start' => $start, 'end' => $end];
+        return [
+            'start' => $start,
+            'end' => $end,
+        ];
     }
 }

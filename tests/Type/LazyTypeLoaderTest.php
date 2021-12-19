@@ -16,19 +16,19 @@ use GraphQL\Type\Schema;
  */
 final class LazyTypeLoaderTest extends TypeLoaderTest
 {
-    /** @var callable */
+    /** @var callable(): InterfaceType */
     private $node;
 
-    /** @var callable */
+    /** @var callable(): ObjectType */
     private $content;
 
-    /** @var callable */
+    /** @var callable(): ObjectType */
     private $blogStory;
 
-    /** @var callable */
+    /** @var callable(): ObjectType */
     private $postStoryMutation;
 
-    /** @var callable */
+    /** @var callable(): InputObjectType */
     private $postStoryMutationInput;
 
     /** @var array<string, Type> */
@@ -229,7 +229,6 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
         $node = $schema->getType('Node');
         self::assertInstanceOf(InterfaceType::class, $node);
         $resolvedNode = Schema::resolveType($this->node);
-        self::assertInstanceOf(InterfaceType::class, $resolvedNode);
         self::assertSame($resolvedNode, $node);
         self::assertEquals(['Node'], $this->calls);
 
@@ -242,7 +241,6 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
         self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
 
         $resolvedBlogStory = Schema::resolveType($this->blogStory);
-        self::assertInstanceOf(ObjectType::class, $resolvedBlogStory);
 
         self::assertTrue($schema->isSubType($resolvedNode, $resolvedBlogStory));
         self::assertEquals(

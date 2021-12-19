@@ -28,10 +28,10 @@ use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\DirectiveLocation;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectField;
@@ -201,7 +201,7 @@ class SchemaValidationContext
     }
 
     /**
-     * @param Type|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|FieldArgument $object
+     * @param Type|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|Argument $object
      */
     private function validateName(object $object): void
     {

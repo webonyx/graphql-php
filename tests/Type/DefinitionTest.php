@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Type;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Generator;
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
@@ -19,6 +20,7 @@ use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
@@ -235,6 +237,8 @@ final class DefinitionTest extends TestCase
     }
 
     /**
+     * @see describe('Type System: Enums', () => {
+     *
      * @see it('defines an enum type with deprecated value')
      */
     public function testDefinesEnumTypeWithDeprecatedValue(): void
@@ -297,6 +301,71 @@ final class DefinitionTest extends TestCase
         self::assertEquals(count($expected), count($actual));
         self::assertArraySubset($expected[0], (array) $actual[0]);
         self::assertArraySubset($expected[1], (array) $actual[1]);
+    }
+
+    /**
+     * @see it('accepts a well defined Enum type with empty value definition')
+     */
+    public function testAcceptsAWellDefinedEnumTypeWithEmptyValueDefinition(): void
+    {
+        $enumType = new EnumType([
+            'name'   => 'SomeEnum',
+            'values' => [
+                'FOO' => [],
+                'BAR' => [],
+            ],
+        ]);
+        self::assertEquals('FOO', $enumType->getValue('FOO')->value);
+        self::assertEquals('BAR', $enumType->getValue('BAR')->value);
+    }
+
+    /**
+     * @see it('rejects an Enum type with invalid name', () => {
+     */
+    public function testRejectsAnEnumTypeWithInvalidName(): void
+    {
+        $enumType = new EnumType([
+            'name'   => 'bad-name',
+            'values' => [],
+        ]);
+
+        self::expectExceptionObject(new Error(
+            'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "bad-name" does not.'
+        ));
+        $enumType->assertValid();
+    }
+
+    /**
+     * @see it('accepts a well defined Enum type with internal value definition')
+     */
+    public function testAcceptsAWellDefinedEnumTypeWithInternalValueDefinition(): void
+    {
+        $enumType = new EnumType([
+            'name'   => 'SomeEnum',
+            'values' => [
+                'FOO' => ['value' => 10],
+                'BAR' => ['value' => 20],
+            ],
+        ]);
+        self::assertEquals(10, $enumType->getValue('FOO')->value);
+        self::assertEquals(20, $enumType->getValue('BAR')->value);
+    }
+
+    /**
+     * @see it('rejects an Enum type with incorrectly typed value definition')
+     */
+    public function testRejectsAnEnumTypeWithIncorrectlyTypedValues(): void
+    {
+        // @phpstan-ignore-next-line intentionally wrong
+        $enumType = new EnumType([
+            'name'   => 'SomeEnum',
+            'values' => [['FOO' => 10]],
+        ]);
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'SomeEnum values must be an array with value names as keys or values.'
+        ));
+        $enumType->assertValid();
     }
 
     /**
@@ -921,12 +990,13 @@ final class DefinitionTest extends TestCase
     public function testAcceptsALambdaAsAnObjectFieldResolver(): void
     {
         $this->expectNotToPerformAssertions();
-        // should not throw:
-        $this->schemaWithObjectWithFieldResolver(static function (): void {
-        });
+        $this->schemaWithObjectWithFieldResolver(static fn () => null);
     }
 
-    private function schemaWithObjectWithFieldResolver($resolveValue)
+    /**
+     * @param mixed $resolveValue
+     */
+    private function schemaWithObjectWithFieldResolver($resolveValue): Schema
     {
         $BadResolverType = new ObjectType([
             'name'   => 'BadResolver',
@@ -1061,12 +1131,14 @@ final class DefinitionTest extends TestCase
         $objType->assertValid();
     }
 
-    private function schemaWithFieldType($type)
+    private function schemaWithFieldType(Type $type): Schema
     {
         $schema = new Schema([
             'query' => new ObjectType([
                 'name'   => 'Query',
-                'fields' => ['field' => ['type' => $type]],
+                'fields' => [
+                    'field' => ['type' => $type],
+                ],
             ]),
             'types' => [$type],
         ]);
@@ -1651,57 +1723,6 @@ final class DefinitionTest extends TestCase
     }
 
     /**
-     * @see it('accepts a well defined Enum type with empty value definition')
-     */
-    public function testAcceptsAWellDefinedEnumTypeWithEmptyValueDefinition(): void
-    {
-        $enumType = new EnumType([
-            'name'   => 'SomeEnum',
-            'values' => [
-                'FOO' => [],
-                'BAR' => [],
-            ],
-        ]);
-        self::assertEquals('FOO', $enumType->getValue('FOO')->value);
-        self::assertEquals('BAR', $enumType->getValue('BAR')->value);
-    }
-
-    // Type System: Enum types must be well defined
-
-    /**
-     * @see it('accepts a well defined Enum type with internal value definition')
-     */
-    public function testAcceptsAWellDefinedEnumTypeWithInternalValueDefinition(): void
-    {
-        $enumType = new EnumType([
-            'name'   => 'SomeEnum',
-            'values' => [
-                'FOO' => ['value' => 10],
-                'BAR' => ['value' => 20],
-            ],
-        ]);
-        self::assertEquals(10, $enumType->getValue('FOO')->value);
-        self::assertEquals(20, $enumType->getValue('BAR')->value);
-    }
-
-    /**
-     * @see it('rejects an Enum type with incorrectly typed values')
-     */
-    public function testRejectsAnEnumTypeWithIncorrectlyTypedValues(): void
-    {
-        // @phpstan-ignore-next-line intentionally wrong
-        $enumType = new EnumType([
-            'name'   => 'SomeEnum',
-            'values' => [['FOO' => 10]],
-        ]);
-
-        $this->expectExceptionObject(new InvariantViolation(
-            'SomeEnum values must be an array with value names as keys or values.'
-        ));
-        $enumType->assertValid();
-    }
-
-    /**
      * @see it('rejects a Schema which redefines a built-in type')
      */
     public function testRejectsASchemaWhichRedefinesABuiltInType(): void
@@ -1843,15 +1864,15 @@ final class DefinitionTest extends TestCase
         self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 
-    /**
-     * @see it('allows a type to define its fields as invokable class returning array field definition to be lazy loaded')
-     */
     public function testAllowsTypeWhichDefinesItFieldsAsInvokableClassReturningFieldDefinitionAsArray(): void
     {
         $objType = new ObjectType([
             'name'   => 'SomeObject',
             'fields' => [
                 'f' => new class {
+                    /**
+                     * @return array{type: ScalarType}
+                     */
                     public function __invoke(): array
                     {
                         return ['type' => Type::string()];
@@ -1865,9 +1886,6 @@ final class DefinitionTest extends TestCase
         self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 
-    /**
-     * @see it('does not resolve field definitions if they are not accessed')
-     */
     public function testFieldClosureNotExecutedIfNotAccessed(): void
     {
         $resolvedCount = 0;
@@ -1996,15 +2014,14 @@ final class DefinitionTest extends TestCase
             ],
         ]);
 
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeObject.f args must be an array.'
-        );
+        ));
 
         $objType->assertValid();
     }
 
-    public function testReturningFieldsUsingYield()
+    public function testReturningFieldsUsingYield(): void
     {
         $type = new ObjectType([
             'name'   => 'Query',

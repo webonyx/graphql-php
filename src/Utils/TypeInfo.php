@@ -20,10 +20,10 @@ use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\HasFieldsType;
 use GraphQL\Type\Definition\ImplementingType;
@@ -44,6 +44,9 @@ use GraphQL\Type\Schema;
 use function array_pop;
 use function count;
 
+/**
+ * @phpstan-import-type InputTypeAlias from InputType
+ */
 class TypeInfo
 {
     private Schema $schema;
@@ -65,7 +68,7 @@ class TypeInfo
 
     private ?Directive $directive = null;
 
-    private ?FieldArgument $argument = null;
+    private ?Argument $argument = null;
 
     /** @var mixed */
     private $enumValue;
@@ -166,7 +169,7 @@ class TypeInfo
         return $this->inputTypeStack[count($this->inputTypeStack) - 2] ?? null;
     }
 
-    public function getArgument(): ?FieldArgument
+    public function getArgument(): ?Argument
     {
         return $this->argument;
     }
@@ -388,7 +391,7 @@ class TypeInfo
     }
 
     /**
-     * @return (Type & InputType) | null
+     * @phpstan-return InputTypeAlias|null
      */
     public function getInputType(): ?InputType
     {

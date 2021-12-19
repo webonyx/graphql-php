@@ -29,8 +29,10 @@ class StarWarsQueryTest extends TestCase
 
     /**
      * Helper function to test a query and the expected response.
+     *
+     * @param array<string, mixed> $expected
      */
-    private static function assertValidQuery($query, $expected): void
+    private static function assertValidQuery(string $query, array $expected): void
     {
         self::assertEquals(
             ['data' => $expected],
@@ -172,8 +174,11 @@ class StarWarsQueryTest extends TestCase
 
     /**
      * Helper function to test a query with params and the expected response.
+     *
+     * @param array<string, mixed> $params
+     * @param array<string, mixed> $expected
      */
-    private static function assertValidQueryWithParams($query, $params, $expected): void
+    private static function assertValidQueryWithParams(string $query, array $params, array $expected): void
     {
         self::assertEquals(
             ['data' => $expected],

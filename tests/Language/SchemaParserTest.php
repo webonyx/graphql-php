@@ -12,6 +12,9 @@ use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @phpstan-import-type LocationArray from TestUtils
+ */
 class SchemaParserTest extends TestCase
 {
     use ArraySubsetAsserts;
@@ -56,7 +59,12 @@ type Hello {
         self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
-    private function nameNode($name, $loc)
+    /**
+     * @phpstan-param LocationArray $loc
+     *
+     * @return array<string, mixed>
+     */
+    private function nameNode(string $name, array $loc): array
     {
         return [
             'kind'  => NodeKind::NAME,
@@ -65,12 +73,27 @@ type Hello {
         ];
     }
 
-    private function fieldNode($name, $type, $loc)
+    /**
+     * @param array<string, mixed> $name
+     * @param array<string, mixed> $type
+     * @phpstan-param LocationArray $loc
+     *
+     * @return array<string, mixed>
+     */
+    private function fieldNode(array $name, array $type, array $loc): array
     {
         return $this->fieldNodeWithArgs($name, $type, [], $loc);
     }
 
-    private function fieldNodeWithArgs($name, $type, $args, $loc)
+    /**
+     * @param array<string, mixed> $name
+     * @param array<string, mixed> $type
+     * @param array<int, mixed>    $args
+     * @phpstan-param LocationArray $loc
+     *
+     * @return array<string, mixed>
+     */
+    private function fieldNodeWithArgs(array $name, array $type, array $args, array $loc): array
     {
         return [
             'kind'        => NodeKind::FIELD_DEFINITION,
@@ -83,7 +106,12 @@ type Hello {
         ];
     }
 
-    private function typeNode($name, $loc)
+    /**
+     * @phpstan-param LocationArray $loc
+     *
+     * @return array<string, mixed>
+     */
+    private function typeNode(string $name, array $loc): array
     {
         return [
             'kind' => NodeKind::NAMED_TYPE,
@@ -377,7 +405,7 @@ extend type Hello {
         );
     }
 
-    private function expectSyntaxError($text, $message, $location): void
+    private function expectSyntaxError(string $text, string $message, SourceLocation $location): void
     {
         $this->expectException(SyntaxError::class);
         $this->expectExceptionMessage($message);
@@ -390,7 +418,7 @@ extend type Hello {
         }
     }
 
-    private function loc($line, $column)
+    private function loc(int $line, int $column): SourceLocation
     {
         return new SourceLocation($line, $column);
     }
@@ -766,7 +794,12 @@ type Hello {
         self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
-    private function enumValueNode($name, $loc)
+    /**
+     * @phpstan-param LocationArray $loc
+     *
+     * @return array<string, mixed>
+     */
+    private function enumValueNode(string $name, array $loc): array
     {
         return [
             'kind'        => NodeKind::ENUM_VALUE_DEFINITION,
@@ -894,7 +927,15 @@ type Hello {
         self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
-    private function inputValueNode($name, $type, $defaultValue, $loc)
+    /**
+     * @param array<string, mixed> $name
+     * @param array<string, mixed> $type
+     * @param mixed                $defaultValue
+     * @phpstan-param LocationArray $loc
+     *
+     * @return array<string, mixed>
+     */
+    private function inputValueNode(array $name, array $type, $defaultValue, array $loc): array
     {
         return [
             'kind'         => NodeKind::INPUT_VALUE_DEFINITION,

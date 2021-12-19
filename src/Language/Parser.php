@@ -256,6 +256,8 @@ class Parser
      *
      * @phpstan-param array{string, ParserOptions} $arguments
      *
+     * @return Node|NodeList<Node>
+     *
      * @throws SyntaxError
      */
     public static function __callStatic(string $name, array $arguments)
@@ -271,36 +273,36 @@ class Parser
             case 'objectField':
             case 'directives':
             case 'directive':
-                $type = $parser->{'parse' . $name}(false);
+                $parsed = $parser->{'parse' . $name}(false);
                 break;
             case 'constArguments':
-                $type = $parser->parseArguments(true);
+                $parsed = $parser->parseArguments(true);
                 break;
             case 'constValueLiteral':
-                $type = $parser->parseValueLiteral(true);
+                $parsed = $parser->parseValueLiteral(true);
                 break;
             case 'constArray':
-                $type = $parser->parseArray(true);
+                $parsed = $parser->parseArray(true);
                 break;
             case 'constObject':
-                $type = $parser->parseObject(true);
+                $parsed = $parser->parseObject(true);
                 break;
             case 'constObjectField':
-                $type = $parser->parseObjectField(true);
+                $parsed = $parser->parseObjectField(true);
                 break;
             case 'constDirectives':
-                $type = $parser->parseDirectives(true);
+                $parsed = $parser->parseDirectives(true);
                 break;
             case 'constDirective':
-                $type = $parser->parseDirective(true);
+                $parsed = $parser->parseDirective(true);
                 break;
             default:
-                $type = $parser->{'parse' . $name}();
+                $parsed = $parser->{'parse' . $name}();
         }
 
         $parser->expect(Token::EOF);
 
-        return $type;
+        return $parsed;
     }
 
     private Lexer $lexer;

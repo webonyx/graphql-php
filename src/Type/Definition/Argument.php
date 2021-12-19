@@ -13,20 +13,25 @@ use function array_key_exists;
 use function is_array;
 
 /**
- * @phpstan-type OptionalNameFieldArgumentConfig array{
+ * @phpstan-import-type InputTypeAlias from InputType
+ * @phpstan-type ArgumentType (Type&InputType)|callable(): (Type&InputType)
+ * @phpstan-type UnnamedArgumentConfig array{
  *     name?: string,
+ *     type: ArgumentType,
  *     defaultValue?: mixed,
  *     description?: string|null,
  *     astNode?: InputValueDefinitionNode|null,
  * }
- * @phpstan-type FieldArgumentConfig array{
+ * @phpstan-type ArgumentConfig array{
  *     name: string,
+ *     type: ArgumentType,
  *     defaultValue?: mixed,
  *     description?: string|null,
  *     astNode?: InputValueDefinitionNode|null,
  * }
+ * @phpstan-type ArgumentListConfig iterable<ArgumentConfig|ArgumentType>|iterable<UnnamedArgumentConfig>
  */
-class FieldArgument
+class Argument
 {
     public string $name;
 
@@ -37,14 +42,14 @@ class FieldArgument
 
     public ?InputValueDefinitionNode $astNode;
 
-    /** @var FieldArgumentConfig */
+    /** @var ArgumentConfig */
     public array $config;
 
     /** @var Type&InputType */
     private Type $type;
 
     /**
-     * @param FieldArgumentConfig $config
+     * @param ArgumentConfig $config
      */
     public function __construct(array $config)
     {
@@ -57,26 +62,28 @@ class FieldArgument
     }
 
     /**
-     * @param array<string, FieldArgumentConfig|Type> $config
+     * @phpstan-param ArgumentListConfig $config
      *
-     * @return array<int, FieldArgument>
+     * @return array<int, self>
      */
-    public static function createMap(array $config): array
+    public static function listFromConfig(iterable $config): array
     {
-        $map = [];
+        $list = [];
+
         foreach ($config as $name => $argConfig) {
             if (! is_array($argConfig)) {
                 $argConfig = ['type' => $argConfig];
             }
 
-            $map[] = new self($argConfig + ['name' => $name]);
+            $list[] = new self($argConfig + ['name' => $name]);
         }
 
-        return $map;
+        return $list;
     }
 
     /**
      * @return Type&InputType
+     * @phpstan-return InputTypeAlias
      */
     public function getType(): Type
     {

@@ -52,10 +52,15 @@ class StarWarsIntrospectionTest extends TestCase
 
     /**
      * Helper function to test a query and the expected response.
+     *
+     * @param array<string, mixed> $expected
      */
-    private static function assertValidQuery($query, $expected): void
+    private static function assertValidQuery(string $query, array $expected): void
     {
-        self::assertEquals(['data' => $expected], GraphQL::executeQuery(StarWarsSchema::build(), $query)->toArray());
+        self::assertEquals(
+            ['data' => $expected],
+            GraphQL::executeQuery(StarWarsSchema::build(), $query)->toArray()
+        );
     }
 
     /**
