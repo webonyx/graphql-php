@@ -69,7 +69,7 @@ final class DefinitionTest extends TestCase
         $this->interfaceType   = new InterfaceType(['name' => 'Interface', 'fields' => ['irrelevant' => Type::int()]]);
         $this->unionType       = new UnionType(['name' => 'Union', 'types' => [$this->objectType]]);
         $this->enumType        = new EnumType(['name' => 'Enum', 'values' => ['IRRELEVANT']]);
-        $this->inputObjectType = new InputObjectType(['name' => 'InputObject']);
+        $this->inputObjectType = new InputObjectType(['name' => 'InputObject', 'fields' => []]);
 
         $this->objectWithIsTypeOf = new ObjectType([
             'name'   => 'ObjectWithIsTypeOf',
@@ -1556,9 +1556,7 @@ final class DefinitionTest extends TestCase
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
             'fields' => [
-                $fieldName => static function (): Type {
-                    return Type::string();
-                },
+                $fieldName => static fn (): Type => Type::string(),
             ],
         ]);
 
@@ -1574,12 +1572,12 @@ final class DefinitionTest extends TestCase
         // @phpstan-ignore-next-line intentionally wrong
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
-            'fields' => new stdClass(),
+            'fields' => 123,
         ]);
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'SomeInputObject fields must be an iterable or a callable which returns an iterable.'
+            'SomeInputObject fields must be an iterable or a callable which returns an iterable, got: 123.'
         );
         $inputObjType->assertValid();
     }
@@ -1597,7 +1595,7 @@ final class DefinitionTest extends TestCase
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'SomeInputObject fields must be an iterable or a callable which returns an iterable.'
+            'SomeInputObject fields must be an iterable or a callable which returns an iterable, got: null.'
         );
         $inputObjType->assertValid();
     }

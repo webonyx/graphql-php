@@ -300,7 +300,7 @@ class ExecutorLazySchemaTest extends TestCase
             case 'DeeperObject':
                 return $this->deeperObjectType ??= new ObjectType([
                     'name'   => 'DeeperObject',
-                    'fields' => fn(): array => [
+                    'fields' => fn (): array => [
                         'scalar' => ['type' => $this->loadType('SomeScalar')],
                     ],
                 ]);
@@ -308,9 +308,9 @@ class ExecutorLazySchemaTest extends TestCase
             case 'SomeScalar':
                 return $this->someScalarType ??= new CustomScalarType([
                     'name'         => 'SomeScalar',
-                    'serialize'    => static fn($value) => $value,
-                    'parseValue'   => static fn($value) => $value,
-                    'parseLiteral' => static fn() => null,
+                    'serialize'    => static fn ($value) => $value,
+                    'parseValue'   => static fn ($value) => $value,
+                    'parseLiteral' => static fn () => null,
                 ]);
 
             case 'SomeUnion':

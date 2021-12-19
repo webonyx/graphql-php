@@ -21,6 +21,13 @@ use function array_key_exists;
  *   type: ArgumentType,
  *   astNode?: InputValueDefinitionNode|null,
  * }
+ * @phpstan-type UnnamedInputObjectFieldConfig array{
+ *   name?: string,
+ *   defaultValue?: mixed,
+ *   description?: string|null,
+ *   type: ArgumentType,
+ *   astNode?: InputValueDefinitionNode|null,
+ * }
  */
 class InputObjectField
 {

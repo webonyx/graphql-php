@@ -5,15 +5,9 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\BooleanValueNode;
-use GraphQL\Language\AST\EnumValueNode;
-use GraphQL\Language\AST\FloatValueNode;
-use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
-use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\AST;
 
 use function is_callable;

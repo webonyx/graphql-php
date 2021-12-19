@@ -10,7 +10,6 @@ use GraphQL\Error\DebugFlag;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
-use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
@@ -51,7 +50,7 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @param mixed $testData
+     * @param mixed                $testData
      * @param array<string, mixed> $expected
      */
     private function checkHandlesNullableLists($testData, array $expected): void
@@ -61,9 +60,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @param Type&OutputType $testType
-     * @param mixed $testData
-     * @param array<string, mixed>$expected
+     * @param Type                 &OutputType $testType
+     * @param mixed                $testData
+     * @param array<string, mixed> $expected
      */
     private function check(Type $testType, $testData, array $expected, int $debug = DebugFlag::NONE): void
     {
@@ -246,10 +245,10 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @param mixed $testData
+     * @param mixed                $testData
      * @param array<string, mixed> $expected
      */
-    private function checkHandlesNonNullableLists($testData,array $expected, int $debug = DebugFlag::NONE): void
+    private function checkHandlesNonNullableLists($testData, array $expected, int $debug = DebugFlag::NONE): void
     {
         $testType = Type::nonNull(Type::listOf(Type::int()));
         $this->check($testType, $testData, $expected, $debug);
@@ -407,10 +406,10 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @param mixed $testData
+     * @param mixed                $testData
      * @param array<string, mixed> $expected
      */
-    private function checkHandlesListOfNonNulls($testData,array $expected, int $debug = DebugFlag::NONE): void
+    private function checkHandlesListOfNonNulls($testData, array $expected, int $debug = DebugFlag::NONE): void
     {
         $testType = Type::listOf(Type::nonNull(Type::int()));
         $this->check($testType, $testData, $expected, $debug);
@@ -579,10 +578,10 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @param mixed $testData
+     * @param mixed                $testData
      * @param array<string, mixed> $expected
      */
-    public function checkHandlesNonNullListOfNonNulls($testData,array $expected, int $debug = DebugFlag::NONE): void
+    public function checkHandlesNonNullListOfNonNulls($testData, array $expected, int $debug = DebugFlag::NONE): void
     {
         $testType = Type::nonNull(Type::listOf(Type::nonNull(Type::int())));
         $this->check($testType, $testData, $expected, $debug);

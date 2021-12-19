@@ -107,7 +107,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
             }
 
             foreach ($types as $type) {
-                // @phpstan-ignore-next-line type might not match, actually checked during schema validation
                 $this->types[] = Schema::resolveType($type);
             }
         }

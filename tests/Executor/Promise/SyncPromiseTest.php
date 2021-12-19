@@ -24,11 +24,11 @@ class SyncPromiseTest extends TestCase
      */
     public function fulfilledPromiseResolveData(): iterable
     {
-        $onFulfilledReturnsNull = static fn() => null;
+        $onFulfilledReturnsNull = static fn () => null;
 
-        $onFulfilledReturnsSameValue = static fn($value) => $value;
+        $onFulfilledReturnsSameValue = static fn ($value) => $value;
 
-        $onFulfilledReturnsOtherValue = static fn($value): string => 'other-' . $value;
+        $onFulfilledReturnsOtherValue = static fn ($value): string => 'other-' . $value;
 
         $onFulfilledThrows = static function ($value): void {
             throw new Exception('onFulfilled throws this!');
@@ -87,6 +87,7 @@ class SyncPromiseTest extends TestCase
 
     /**
      * @param mixed $expectedNextValue
+     *
      * @dataProvider fulfilledPromiseResolveData
      */
     public function testFulfilledPromise(
@@ -185,13 +186,7 @@ class SyncPromiseTest extends TestCase
     }
 
     /**
-     * @return iterable<array{
-     *   \Exception,
-     *   ?callable,
-     *   ?string,
-     *   ?string,
-     *   string,
-     * }>
+     * @return iterable<array{Exception, ?callable, ?string, ?string, string}>
      */
     public function rejectedPromiseData(): iterable
     {
@@ -225,11 +220,11 @@ class SyncPromiseTest extends TestCase
      * @dataProvider rejectedPromiseData
      */
     public function testRejectedPromiseCannotChangeReason(
-        Exception $rejectedReason,
+        Throwable $rejectedReason,
         ?callable $onRejected,
-        ?string   $expectedNextValue,
-        ?string   $expectedNextReason,
-        string    $expectedNextState
+        ?string $expectedNextValue,
+        ?string $expectedNextReason,
+        string $expectedNextState
     ): void {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
@@ -246,11 +241,11 @@ class SyncPromiseTest extends TestCase
      * @dataProvider rejectedPromiseData
      */
     public function testRejectedPromiseCannotBeResolved(
-        Exception $rejectedReason,
+        Throwable $rejectedReason,
         ?callable $onRejected,
-        ?string   $expectedNextValue,
-        ?string   $expectedNextReason,
-        string    $expectedNextState
+        ?string $expectedNextValue,
+        ?string $expectedNextReason,
+        string $expectedNextState
     ): void {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
@@ -267,11 +262,11 @@ class SyncPromiseTest extends TestCase
      * @dataProvider rejectedPromiseData
      */
     public function testRejectedPromise(
-        Exception $rejectedReason,
+        Throwable $rejectedReason,
         ?callable $onRejected,
-        ?string   $expectedNextValue,
-        ?string   $expectedNextReason,
-        string    $expectedNextState
+        ?string $expectedNextValue,
+        ?string $expectedNextReason,
+        string $expectedNextState
     ): void {
         $promise = new SyncPromise();
         self::assertEquals(SyncPromise::PENDING, $promise->state);
@@ -316,7 +311,7 @@ class SyncPromiseTest extends TestCase
         }
 
         self::assertFalse($onFulfilledCalled);
-        self::assertValidPromise($nextPromise,  $expectedNextValue,$expectedNextReason, $expectedNextState);
+        self::assertValidPromise($nextPromise, $expectedNextValue, $expectedNextReason, $expectedNextState);
 
         $nextPromise2 = $promise->then(null, $onRejected);
         $nextPromise3 = $promise->then(null, $onRejected);
@@ -327,8 +322,8 @@ class SyncPromiseTest extends TestCase
 
         SyncPromise::runQueue();
 
-        self::assertValidPromise($nextPromise2,  $expectedNextValue,$expectedNextReason, $expectedNextState);
-        self::assertValidPromise($nextPromise3,  $expectedNextValue,$expectedNextReason, $expectedNextState);
+        self::assertValidPromise($nextPromise2, $expectedNextValue, $expectedNextReason, $expectedNextState);
+        self::assertValidPromise($nextPromise3, $expectedNextValue, $expectedNextReason, $expectedNextState);
     }
 
     public function testPendingPromise(): void
@@ -354,12 +349,12 @@ class SyncPromiseTest extends TestCase
         $otherPromise->resolve('the value');
         self::assertEquals(SyncPromise::FULFILLED, $otherPromise->state);
         self::assertEquals(SyncPromise::PENDING, $promise->state);
-        self::assertValidPromise($promise, 'the value',null, SyncPromise::FULFILLED);
+        self::assertValidPromise($promise, 'the value', null, SyncPromise::FULFILLED);
 
         $promise = new SyncPromise();
         $promise->resolve('resolved!');
 
-        self::assertValidPromise($promise,  'resolved!',null, SyncPromise::FULFILLED);
+        self::assertValidPromise($promise, 'resolved!', null, SyncPromise::FULFILLED);
 
         // Test rejections
         $promise = new SyncPromise();
@@ -374,7 +369,7 @@ class SyncPromiseTest extends TestCase
         }
 
         $promise->reject(new Exception('Rejected Reason'));
-        self::assertValidPromise($promise,  null,'Rejected Reason', SyncPromise::REJECTED);
+        self::assertValidPromise($promise, null, 'Rejected Reason', SyncPromise::REJECTED);
 
         $promise  = new SyncPromise();
         $promise2 = $promise->then(
@@ -384,12 +379,12 @@ class SyncPromiseTest extends TestCase
             }
         );
         $promise->reject(new Exception('Rejected Again'));
-        self::assertValidPromise($promise2,  'value', null,SyncPromise::FULFILLED);
+        self::assertValidPromise($promise2, 'value', null, SyncPromise::FULFILLED);
 
         $promise  = new SyncPromise();
         $promise2 = $promise->then();
         $promise->reject(new Exception('Rejected Once Again'));
-        self::assertValidPromise($promise2,  null, 'Rejected Once Again',SyncPromise::REJECTED);
+        self::assertValidPromise($promise2, null, 'Rejected Once Again', SyncPromise::REJECTED);
     }
 
     public function testPendingPromiseThen(): void
@@ -438,7 +433,7 @@ class SyncPromiseTest extends TestCase
         self::assertEquals(SyncPromise::getQueue()->count(), 0);
         self::assertEquals($onFulfilledCount, 3);
         self::assertEquals($onRejectedCount, 0);
-        self::assertValidPromise($nextPromise, 1,null,  SyncPromise::FULFILLED);
+        self::assertValidPromise($nextPromise, 1, null, SyncPromise::FULFILLED);
         self::assertValidPromise($nextPromise2, 1, null, SyncPromise::FULFILLED);
         self::assertValidPromise($nextPromise3, 2, null, SyncPromise::FULFILLED);
         self::assertValidPromise($nextPromise4, 3, null, SyncPromise::FULFILLED);

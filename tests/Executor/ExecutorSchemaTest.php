@@ -12,8 +12,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-use function sprintf;
-
 /**
  * describe('Execute: Handles execution with a complex schema', () => {
  */
@@ -26,7 +24,7 @@ class ExecutorSchemaTest extends TestCase
     {
         $BlogSerializableValueType = new CustomScalarType([
             'name'         => 'JsonSerializableValueScalar',
-            'serialize'    => static fn($value) => $value,
+            'serialize'    => static fn ($value) => $value,
         ]);
 
         $BlogArticle = null;
@@ -48,10 +46,10 @@ class ExecutorSchemaTest extends TestCase
                     'pic'           => [
                         'args'    => [
                             'width' => ['type' => Type::int()],
-                            'height' => ['type' => Type::int()]
+                            'height' => ['type' => Type::int()],
                         ],
                         'type'    => $BlogImage,
-                        'resolve' => static fn(array $obj, array $args) => $obj['pic']($args['width'], $args['height']),
+                        'resolve' => static fn (array $obj, array $args) => $obj['pic']($args['width'], $args['height']),
                     ],
                     'recentArticle' => $BlogArticle,
                 ];
@@ -77,11 +75,11 @@ class ExecutorSchemaTest extends TestCase
                 'article' => [
                     'type'    => $BlogArticle,
                     'args'    => ['id' => ['type' => Type::id()]],
-                    'resolve' => fn($rootValue, array $args): array => $this->article($args['id']),
+                    'resolve' => fn ($rootValue, array $args): array => $this->article($args['id']),
                 ],
                 'feed'    => [
                     'type'    => Type::listOf($BlogArticle),
-                    'resolve' => fn(): array => [
+                    'resolve' => fn (): array => [
                         $this->article('1'),
                         $this->article('2'),
                         $this->article('3'),
@@ -226,7 +224,7 @@ class ExecutorSchemaTest extends TestCase
             ];
         };
 
-        $getPic = static fn(int $uid, int $width, int $height): array => [
+        $getPic = static fn (int $uid, int $width, int $height): array => [
             'url'    => "cdn://{$uid}",
             'width'  => $width,
             'height' => $height,
@@ -235,7 +233,7 @@ class ExecutorSchemaTest extends TestCase
         $johnSmith = [
             'id'            => 123,
             'name'          => 'John Smith',
-            'pic'           => static fn(int $width, int $height): array => $getPic(123, $width, $height),
+            'pic'           => static fn (int $width, int $height): array => $getPic(123, $width, $height),
             'recentArticle' => $article('1'),
         ];
 
