@@ -655,4 +655,40 @@ class EnumTypeTest extends TestCase
             GraphQL::executeQuery($this->schema, $query, null, null, $variables)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
+
+    public function testLazilyDefineValuesAsCallable(): void
+    {
+        $called = 0;
+
+        $ColorType = new EnumType([
+            'name'   => 'Color',
+            'values' => static function () use (&$called): iterable {
+                $called++;
+                yield 'RED' => ['value' => 0];
+            },
+        ]);
+
+        $QueryType = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'colorEnum' => [
+                    'type'  => $ColorType,
+                    'args'  => [
+                        'fromEnum' => ['type' => $ColorType],
+                    ],
+                    'resolve' => static function ($rootValue, array $args) {
+                        return $args['fromEnum'];
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $QueryType]);
+
+        self::assertEquals(
+            ['data' => ['colorEnum' => 'RED']],
+            GraphQL::executeQuery($schema, '{ colorEnum(fromEnum: RED) }')->toArray()
+        );
+        self::assertSame(1, $called);
+    }
 }
