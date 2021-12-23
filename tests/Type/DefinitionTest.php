@@ -1684,6 +1684,19 @@ final class DefinitionTest extends TestCase
         self::assertEquals(20, $enumType->getValue('BAR')->value);
     }
 
+    public function testAcceptsACallableAsEnumValues(): void
+    {
+        $enumType = new EnumType([
+            'name'   => 'SomeEnum',
+            'values' => static function (): iterable {
+                yield 'FOO' => ['value' => 10];
+                yield 'BAR' => ['value' => 20];
+            },
+        ]);
+        self::assertEquals(10, $enumType->getValue('FOO')->value);
+        self::assertEquals(20, $enumType->getValue('BAR')->value);
+    }
+
     /**
      * @see it('rejects an Enum type with incorrectly typed values')
      */
@@ -1697,6 +1710,20 @@ final class DefinitionTest extends TestCase
 
         $this->expectExceptionObject(new InvariantViolation(
             'SomeEnum values must be an array with value names as keys or values.'
+        ));
+        $enumType->assertValid();
+    }
+
+    public function testRejectsAnEnumTypeWithIncorrectlyTypedValues2(): void
+    {
+        // @phpstan-ignore-next-line intentionally wrong
+        $enumType = new EnumType([
+            'name'   => 'SomeEnum',
+            'values' => 'FOO',
+        ]);
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'SomeEnum values must be an iterable or callable, got: FOO'
         ));
         $enumType->assertValid();
     }

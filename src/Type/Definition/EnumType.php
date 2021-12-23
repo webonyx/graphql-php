@@ -15,6 +15,7 @@ use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 
 use function is_array;
+use function is_callable;
 use function is_iterable;
 use function is_string;
 
@@ -26,10 +27,11 @@ use function is_string;
  *   description?: string|null,
  *   astNode?: EnumValueDefinitionNode|null,
  * }
+ * @phpstan-type EnumValues iterable<string, PartialEnumValueConfig>|iterable<string, mixed>|iterable<int, string>
  * @phpstan-type EnumTypeConfig array{
  *   name?: string|null,
  *   description?: string|null,
- *   values: iterable<string, PartialEnumValueConfig>|iterable<string, mixed>|iterable<int, string>,
+ *   values: EnumValues|callable(): EnumValues,
  *   astNode?: EnumTypeDefinitionNode|null,
  *   extensionASTNodes?: array<int, EnumTypeExtensionNode>|null,
  * }
@@ -96,8 +98,13 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         if (! isset($this->values)) {
             $this->values = [];
 
+            $values = $this->config['values'];
+            if (is_callable($values)) {
+                $values = $values();
+            }
+
             // We are just assuming the config option is set correctly here, validation happens in assertValid()
-            foreach ($this->config['values'] as $name => $value) {
+            foreach ($values as $name => $value) {
                 if (is_string($name)) {
                     if (is_array($value)) {
                         $value += ['name' => $name, 'value' => $name];
@@ -183,10 +190,10 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
         $values = $this->config['values'] ?? null;
         // @phpstan-ignore-next-line should not happen if used correctly
-        if (! is_iterable($values)) {
+        if (! is_iterable($values) && ! is_callable($values)) {
             $notIterable = Utils::printSafe($values);
 
-            throw new InvariantViolation("{$this->name} values must be an iterable, got: {$notIterable}");
+            throw new InvariantViolation("{$this->name} values must be an iterable or callable, got: {$notIterable}");
         }
 
         $this->getValues();
