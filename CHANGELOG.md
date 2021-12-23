@@ -41,6 +41,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Add validation rule `UniqueEnumValueNames`
 - Add SDL validation rule `UniqueOperationTypes` (#995)
 - Add ability to remove custom validation rules after adding them via `DocumentValidator::removeRule()`
+- Allow lazy enum values
 
 ### Optimized
 

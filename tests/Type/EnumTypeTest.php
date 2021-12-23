@@ -685,10 +685,16 @@ class EnumTypeTest extends TestCase
 
         $schema = new Schema(['query' => $QueryType]);
 
+        self::assertSame(0, $called, 'Should not eagerly call enum values during schema construction');
+
+        $query = '{ colorEnum(fromEnum: RED) }';
         self::assertEquals(
             ['data' => ['colorEnum' => 'RED']],
-            GraphQL::executeQuery($schema, '{ colorEnum(fromEnum: RED) }')->toArray()
+            GraphQL::executeQuery($schema, $query)->toArray()
         );
-        self::assertSame(1, $called);
+        GraphQL::executeQuery($schema, $query);
+
+        // @phpstan-ignore-next-line $called is mutated
+        self::assertSame(1, $called, 'Should call enum values callable exactly once');
     }
 }
