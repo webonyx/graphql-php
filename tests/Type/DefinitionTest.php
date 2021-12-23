@@ -368,6 +368,19 @@ final class DefinitionTest extends TestCase
         $enumType->assertValid();
     }
 
+    public function testAcceptsACallableAsEnumValues(): void
+    {
+        $enumType = new EnumType([
+            'name'   => 'SomeEnum',
+            'values' => static function (): iterable {
+                yield 'FOO' => ['value' => 10];
+                yield 'BAR' => ['value' => 20];
+            },
+        ]);
+        self::assertEquals(10, $enumType->getValue('FOO')->value);
+        self::assertEquals(20, $enumType->getValue('BAR')->value);
+    }
+
     /**
      * @see it('defines an object type with deprecated field')
      */
