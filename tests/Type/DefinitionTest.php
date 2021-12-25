@@ -8,6 +8,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Generator;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -25,7 +26,6 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
 
@@ -33,7 +33,7 @@ use function count;
 use function json_encode;
 use function sprintf;
 
-final class DefinitionTest extends TestCase
+final class DefinitionTest extends TestCaseBase
 {
     use ArraySubsetAsserts;
 
@@ -914,7 +914,6 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAnObjectTypeWithFieldArgs(): void
     {
-        $this->expectNotToPerformAssertions();
         $objType = new ObjectType([
             'name'   => 'SomeObject',
             'fields' => [
@@ -926,8 +925,8 @@ final class DefinitionTest extends TestCase
                 ],
             ],
         ]);
-        // Should not throw:
         $objType->assertValid();
+        self::assertDidNotCrash();
     }
 
     // Object interfaces must be array
@@ -1002,8 +1001,8 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsALambdaAsAnObjectFieldResolver(): void
     {
-        $this->expectNotToPerformAssertions();
         $this->schemaWithObjectWithFieldResolver(static fn () => null);
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1065,13 +1064,11 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAnInterfaceTypeDefiningResolveType(): void
     {
-        $this->expectNotToPerformAssertions();
         $AnotherInterfaceType = new InterfaceType([
             'name'   => 'AnotherInterface',
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
 
-        // Should not throw:
         $this->schemaWithFieldType(
             new ObjectType([
                 'name'       => 'SomeObject',
@@ -1079,6 +1076,7 @@ final class DefinitionTest extends TestCase
                 'fields'     => ['f' => ['type' => Type::string()]],
             ])
         );
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1165,13 +1163,11 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAnInterfaceWithImplementingTypeDefiningIsTypeOf(): void
     {
-        $this->expectNotToPerformAssertions();
         $InterfaceTypeWithoutResolveType = new InterfaceType([
             'name'   => 'InterfaceTypeWithoutResolveType',
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
 
-        // Should not throw:
         $this->schemaWithFieldType(
             new ObjectType([
                 'name'       => 'SomeObject',
@@ -1179,6 +1175,7 @@ final class DefinitionTest extends TestCase
                 'fields'     => ['f' => ['type' => Type::string()]],
             ])
         );
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1186,13 +1183,11 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAnInterfaceTypeDefiningResolveTypeWithImplementingTypeDefiningIsTypeOf(): void
     {
-        $this->expectNotToPerformAssertions();
         $AnotherInterfaceType = new InterfaceType([
             'name'   => 'AnotherInterface',
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
 
-        // Should not throw:
         $this->schemaWithFieldType(
             new ObjectType([
                 'name'       => 'SomeObject',
@@ -1200,6 +1195,7 @@ final class DefinitionTest extends TestCase
                 'fields'     => ['f' => ['type' => Type::string()]],
             ])
         );
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1227,14 +1223,13 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAUnionTypeDefiningResolveType(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         $this->schemaWithFieldType(
             new UnionType([
                 'name'  => 'SomeUnion',
                 'types' => [$this->objectType],
             ])
         );
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1242,14 +1237,13 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAUnionOfObjectTypesDefiningIsTypeOf(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         $this->schemaWithFieldType(
             new UnionType([
                 'name'  => 'SomeUnion',
                 'types' => [$this->objectWithIsTypeOf],
             ])
         );
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1257,14 +1251,13 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAUnionTypeDefiningResolveTypeOfObjectTypesDefiningIsTypeOf(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         $this->schemaWithFieldType(
             new UnionType([
                 'name'  => 'SomeUnion',
                 'types' => [$this->objectWithIsTypeOf],
             ])
         );
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1290,8 +1283,6 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAScalarTypeDefiningSerialize(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'      => 'SomeScalar',
@@ -1300,6 +1291,7 @@ final class DefinitionTest extends TestCase
                 },
             ])
         );
+        self::assertDidNotCrash();
     }
 
     // Type System: Scalar types must be serializable
@@ -1345,8 +1337,6 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAScalarTypeDefiningParseValueAndParseLiteral(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'         => 'SomeScalar',
@@ -1358,6 +1348,7 @@ final class DefinitionTest extends TestCase
                 },
             ])
         );
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1425,14 +1416,13 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAnObjectTypeWithAnIsTypeOfFunction(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw
         $this->schemaWithFieldType(
             new ObjectType([
                 'name'   => 'AnotherObject',
                 'fields' => ['f' => ['type' => Type::string()]],
             ])
         );
+        self::assertDidNotCrash();
     }
 
     // Type System: Object types must be assertable
@@ -1460,14 +1450,13 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAUnionTypeWithArrayTypes(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         $this->schemaWithFieldType(
             new UnionType([
                 'name'  => 'SomeUnion',
                 'types' => [$this->objectType],
             ])
         );
+        self::assertDidNotCrash();
     }
 
     // Type System: Union types must be array
@@ -1477,7 +1466,6 @@ final class DefinitionTest extends TestCase
      */
     public function testAcceptsAUnionTypeWithFunctionReturningAnArrayOfTypes(): void
     {
-        $this->expectNotToPerformAssertions();
         $this->schemaWithFieldType(
             new UnionType([
                 'name'  => 'SomeUnion',
@@ -1486,6 +1474,7 @@ final class DefinitionTest extends TestCase
                 },
             ])
         );
+        self::assertDidNotCrash();
     }
 
     /**

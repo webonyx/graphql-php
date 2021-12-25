@@ -6,12 +6,12 @@ namespace GraphQL\Tests\Executor\Promise;
 
 use Exception;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
-use PHPUnit\Framework\TestCase;
+use GraphQL\Tests\TestCaseBase;
 use Throwable;
 
 use function uniqid;
 
-class SyncPromiseTest extends TestCase
+class SyncPromiseTest extends TestCaseBase
 {
     /**
      * @return iterable<array{
@@ -441,8 +441,7 @@ class SyncPromiseTest extends TestCase
 
     public function testRunEmptyQueue(): void
     {
-        $this->expectNotToPerformAssertions();
-
         SyncPromise::runQueue();
+        self::assertDidNotCrash();
     }
 }

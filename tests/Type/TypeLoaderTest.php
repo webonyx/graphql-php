@@ -6,14 +6,14 @@ namespace GraphQL\Tests\Type;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 use TypeError;
 
-abstract class TypeLoaderTest extends TestCase
+abstract class TypeLoaderTest extends TestCaseBase
 {
     use ArraySubsetAsserts;
 
@@ -34,7 +34,6 @@ abstract class TypeLoaderTest extends TestCase
 
     public function testSchemaAcceptsTypeLoader(): void
     {
-        $this->expectNotToPerformAssertions();
         new Schema([
             'query'      => new ObjectType([
                 'name'   => 'Query',
@@ -43,6 +42,7 @@ abstract class TypeLoaderTest extends TestCase
             'typeLoader' => static function (): void {
             },
         ]);
+        self::assertDidNotCrash();
     }
 
     public function testSchemaRejectsNonCallableTypeLoader(): void

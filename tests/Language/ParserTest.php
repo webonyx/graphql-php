@@ -18,14 +18,14 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Utils\Utils;
-use PHPUnit\Framework\TestCase;
 
 use function file_get_contents;
 use function is_array;
 use function sprintf;
 
-class ParserTest extends TestCase
+class ParserTest extends TestCaseBase
 {
     /**
      * @return array<int, array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}>
@@ -123,9 +123,8 @@ fragment MissingOn Type
      */
     public function testParsesVariableInlineValues(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Following line should not throw:
         Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
+        self::assertDidNotCrash();
     }
 
     /**
@@ -145,8 +144,8 @@ fragment MissingOn Type
      */
     public function testParsesVariableDefinitionDirectives(): void
     {
-        $this->expectNotToPerformAssertions();
         Parser::parse('query Foo($x: Boolean = false @bar) { field }');
+        self::assertDidNotCrash();
     }
 
     private function expectSyntaxError(string $text, string $message, SourceLocation $location): void
@@ -282,13 +281,12 @@ GRAPHQL
      */
     public function testParsessAnonymousMutationOperations(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         Parser::parse('
           mutation {
             mutationField
           }
         ');
+        self::assertDidNotCrash();
     }
 
     /**
@@ -296,13 +294,12 @@ GRAPHQL
      */
     public function testParsesAnonymousSubscriptionOperations(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         Parser::parse('
           subscription {
             subscriptionField
           }
         ');
+        self::assertDidNotCrash();
     }
 
     /**
@@ -310,13 +307,12 @@ GRAPHQL
      */
     public function testParsesNamedMutationOperations(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         Parser::parse('
           mutation Foo {
             mutationField
           }
         ');
+        self::assertDidNotCrash();
     }
 
     /**
@@ -324,12 +320,12 @@ GRAPHQL
      */
     public function testParsesNamedSubscriptionOperations(): void
     {
-        $this->expectNotToPerformAssertions();
         Parser::parse('
           subscription Foo {
             subscriptionField
           }
         ');
+        self::assertDidNotCrash();
     }
 
     /**
