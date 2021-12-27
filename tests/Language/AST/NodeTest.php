@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language\AST;
 
+use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\Parser;
+use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 
+use function json_decode;
 use function json_encode;
 
 class NodeTest extends TestCase
@@ -52,10 +56,15 @@ class NodeTest extends TestCase
 
     public function testJsonSerialize(): void
     {
-        self::assertJsonStringEqualsJsonString(
-            /** @lang JSON */            '{"kind":"Name","value":"foo"}',
-            json_encode(new NameNode(['value' => 'foo']))
-        );
+        $json = /** @lang JSON */ '{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}}}';
+        $node = new NonNullTypeNode([
+            'type' => new NamedTypeNode([
+                'name' => new NameNode(['value' => 'Foo']),
+            ]),
+        ]);
+
+        self::assertJsonStringEqualsJsonString($json, json_encode($node));
+        self::assertEquals($node, AST::fromArray(json_decode($json, true)));
     }
 
     public function testToString(): void
