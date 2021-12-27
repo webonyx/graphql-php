@@ -9,4 +9,8 @@ $finder = PhpCsFixer\Finder::create()
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
 
-return config($finder);
+return config($finder, [
+    'no_superfluous_phpdoc_tags' => [
+        'allow_mixed' => true,
+    ],
+]);
