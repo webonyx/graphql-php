@@ -8,7 +8,6 @@ use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
@@ -357,7 +356,7 @@ GRAPHQL
                     'kind'                => NodeKind::OPERATION_DEFINITION,
                     'loc'                 => $loc(0, 40),
                     'operation'           => 'query',
-                    'name'                => null,
+                    // 'name'                => undefined,
                     'variableDefinitions' => [],
                     'directives'          => [],
                     'selectionSet'        => [
@@ -367,7 +366,7 @@ GRAPHQL
                             [
                                 'kind'         => NodeKind::FIELD,
                                 'loc'          => $loc(4, 38),
-                                'alias'        => null,
+                                // 'alias'        => undefined,
                                 'name'         => [
                                     'kind'  => NodeKind::NAME,
                                     'loc'   => $loc(4, 8),
@@ -397,7 +396,7 @@ GRAPHQL
                                         [
                                             'kind'         => NodeKind::FIELD,
                                             'loc'          => $loc(22, 24),
-                                            'alias'        => null,
+                                            // 'alias'        => undefined,
                                             'name'         => [
                                                 'kind'  => NodeKind::NAME,
                                                 'loc'   => $loc(22, 24),
@@ -405,12 +404,12 @@ GRAPHQL
                                             ],
                                             'arguments'    => [],
                                             'directives'   => [],
-                                            'selectionSet' => null,
+                                            // 'selectionSet' => undefined,
                                         ],
                                         [
                                             'kind'         => NodeKind::FIELD,
                                             'loc'          => $loc(30, 34),
-                                            'alias'        => null,
+                                            // 'alias'        => undefined,
                                             'name'         => [
                                                 'kind'  => NodeKind::NAME,
                                                 'loc'   => $loc(30, 34),
@@ -418,7 +417,7 @@ GRAPHQL
                                             ],
                                             'arguments'    => [],
                                             'directives'   => [],
-                                            'selectionSet' => null,
+                                            // 'selectionSet' => undefined,
                                         ],
                                     ],
                                 ],
@@ -429,15 +428,7 @@ GRAPHQL
             ],
         ];
 
-        self::assertEquals($expected, self::nodeToArray($result));
-    }
-
-    /**
-     * @return mixed[]
-     */
-    public static function nodeToArray(Node $node): array
-    {
-        return TestUtils::nodeToArray($node);
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -468,7 +459,7 @@ GRAPHQL
                     'kind'                => NodeKind::OPERATION_DEFINITION,
                     'loc'                 => $loc(0, 29),
                     'operation'           => 'query',
-                    'name'                => null,
+                    // 'name'                => undefined,
                     'variableDefinitions' => [],
                     'directives'          => [],
                     'selectionSet'        => [
@@ -478,7 +469,7 @@ GRAPHQL
                             [
                                 'kind'         => NodeKind::FIELD,
                                 'loc'          => $loc(10, 27),
-                                'alias'        => null,
+                                // 'alias'        => undefined,
                                 'name'         => [
                                     'kind'  => NodeKind::NAME,
                                     'loc'   => $loc(10, 14),
@@ -493,7 +484,7 @@ GRAPHQL
                                         [
                                             'kind'         => NodeKind::FIELD,
                                             'loc'          => $loc(21, 23),
-                                            'alias'        => null,
+                                            // 'alias'        => undefined,
                                             'name'         => [
                                                 'kind'  => NodeKind::NAME,
                                                 'loc'   => $loc(21, 23),
@@ -501,7 +492,7 @@ GRAPHQL
                                             ],
                                             'arguments'    => [],
                                             'directives'   => [],
-                                            'selectionSet' => null,
+                                            // 'selectionSet' => undefined,
                                         ],
                                     ],
                                 ],
@@ -512,7 +503,7 @@ GRAPHQL
             ],
         ];
 
-        self::assertEquals($expected, self::nodeToArray($result));
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -584,7 +575,7 @@ GRAPHQL
                 'kind' => NodeKind::NULL,
                 'loc'  => ['start' => 0, 'end' => 4],
             ],
-            self::nodeToArray(Parser::parseValue('null'))
+            Parser::parseValue('null')->toArray()
         );
     }
 
@@ -611,7 +602,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            self::nodeToArray(Parser::parseValue('[123 "abc"]'))
+            Parser::parseValue('[123 "abc"]')->toArray()
         );
     }
 
@@ -630,7 +621,7 @@ GRAPHQL
                     'value' => 'String',
                 ],
             ],
-            self::nodeToArray(Parser::parseType('String'))
+            Parser::parseType('String')->toArray()
         );
     }
 
@@ -649,7 +640,7 @@ GRAPHQL
                     'value' => 'MyType',
                 ],
             ],
-            self::nodeToArray(Parser::parseType('MyType'))
+            Parser::parseType('MyType')->toArray()
         );
     }
 
@@ -672,7 +663,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            self::nodeToArray(Parser::parseType('[MyType]'))
+            Parser::parseType('[MyType]')->toArray()
         );
     }
 
@@ -695,7 +686,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            self::nodeToArray(Parser::parseType('MyType!'))
+            Parser::parseType('MyType!')->toArray()
         );
     }
 
@@ -722,7 +713,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            self::nodeToArray(Parser::parseType('[MyType!]'))
+            Parser::parseType('[MyType!]')->toArray()
         );
     }
 

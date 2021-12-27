@@ -10,6 +10,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -51,12 +52,12 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(1, 31),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 31),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -102,7 +103,7 @@ type Hello {
             'type'        => $type,
             'directives'  => [],
             'loc'         => $loc,
-            'description' => null,
+            // 'description' => undefined,
         ];
     }
 
@@ -161,7 +162,7 @@ type Hello {
             ],
             'loc'         => $loc(0, 45),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -208,7 +209,7 @@ type Hello {
             ],
             'loc'         => $loc(0, 85),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -246,7 +247,7 @@ extend type Hello {
             ],
             'loc'         => $loc(0, 39),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -276,7 +277,7 @@ extend type Hello {
             ],
             'loc'         => $loc(0, 37),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -306,7 +307,7 @@ extend type Hello {
             ],
             'loc'         => $loc(0, 42),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -526,13 +527,13 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(1, 32),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 32),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -564,13 +565,13 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(0, 50),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 50),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -602,13 +603,13 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(0, 45),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 45),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -641,13 +642,13 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(0, 48),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 48),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -680,13 +681,13 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(0, 53),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 53),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -719,12 +720,12 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(0, 50),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 50),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -757,12 +758,12 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(0, 55),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 55),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -785,13 +786,13 @@ type Hello {
                     'directives'  => [],
                     'values'      => [$this->enumValueNode('WORLD', $loc(13, 18))],
                     'loc'         => $loc(0, 20),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 20),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -806,7 +807,7 @@ type Hello {
             'name'        => $this->nameNode($name, $loc),
             'directives'  => [],
             'loc'         => $loc,
-            'description' => null,
+            // 'description' => undefined,
         ];
     }
 
@@ -833,13 +834,13 @@ type Hello {
                         $this->enumValueNode('RLD', $loc(17, 20)),
                     ],
                     'loc'         => $loc(0, 22),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 22),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -872,12 +873,12 @@ interface Hello {
                     ],
                     'interfaces'  => [],
                     'loc'         => $loc(1, 36),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 36),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -910,7 +911,7 @@ type Hello {
                                 $this->inputValueNode(
                                     $this->nameNode('flag', $loc(22, 26)),
                                     $this->typeNode('Boolean', $loc(28, 35)),
-                                    null,
+                                    Utils::undefined(),
                                     $loc(22, 35)
                                 ),
                             ],
@@ -918,13 +919,13 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(1, 46),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 46),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -937,15 +938,20 @@ type Hello {
      */
     private function inputValueNode(array $name, array $type, $defaultValue, array $loc): array
     {
-        return [
-            'kind'         => NodeKind::INPUT_VALUE_DEFINITION,
-            'name'         => $name,
-            'type'         => $type,
-            'defaultValue' => $defaultValue,
-            'directives'   => [],
-            'loc'          => $loc,
-            'description'  => null,
+        $node = [
+            'kind' => NodeKind::INPUT_VALUE_DEFINITION,
+            'name' => $name,
+            'type' => $type,
+            'directives' => [],
+            'loc' => $loc,
+            // 'description'  => undefined,
         ];
+
+        if ($defaultValue !== Utils::undefined()) {
+            $node['defaultValue'] = $defaultValue;
+        }
+
+        return $node;
     }
 
     /**
@@ -986,12 +992,12 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(1, 53),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 53),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -1031,7 +1037,7 @@ type Hello {
                                         ),
                                         'loc' => $loc(30, 38),
                                     ],
-                                    null,
+                                    Utils::undefined(),
                                     $loc(22, 38)
                                 ),
                             ],
@@ -1039,13 +1045,13 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(1, 49),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 49),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -1078,13 +1084,13 @@ type Hello {
                                 $this->inputValueNode(
                                     $this->nameNode('argOne', $loc(22, 28)),
                                     $this->typeNode('Boolean', $loc(30, 37)),
-                                    null,
+                                    Utils::undefined(),
                                     $loc(22, 37)
                                 ),
                                 $this->inputValueNode(
                                     $this->nameNode('argTwo', $loc(39, 45)),
                                     $this->typeNode('Int', $loc(47, 50)),
-                                    null,
+                                    Utils::undefined(),
                                     $loc(39, 50)
                                 ),
                             ],
@@ -1092,13 +1098,13 @@ type Hello {
                         ),
                     ],
                     'loc'         => $loc(1, 61),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 61),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -1121,13 +1127,13 @@ type Hello {
                     'directives'  => [],
                     'types'       => [$this->typeNode('World', $loc(14, 19))],
                     'loc'         => $loc(0, 19),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 19),
         ];
 
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -1153,12 +1159,12 @@ type Hello {
                         $this->typeNode('Rld', $loc(19, 22)),
                     ],
                     'loc'         => $loc(0, 22),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 22),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -1180,12 +1186,12 @@ type Hello {
                         $this->typeNode('Rld', ['start' => 21, 'end' => 24]),
                     ],
                     'loc'         => ['start' => 0, 'end' => 24],
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => ['start' => 0, 'end' => 24],
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -1255,12 +1261,12 @@ type Hello {
                     'name'        => $this->nameNode('Hello', $loc(7, 12)),
                     'directives'  => [],
                     'loc'         => $loc(0, 12),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 12),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -1288,17 +1294,17 @@ input Hello {
                         $this->inputValueNode(
                             $this->nameNode('world', $loc(17, 22)),
                             $this->typeNode('String', $loc(24, 30)),
-                            null,
+                            Utils::undefined(),
                             $loc(17, 30)
                         ),
                     ],
                     'loc'         => $loc(1, 32),
-                    'description' => null,
+                    // 'description' => undefined,
                 ],
             ],
             'loc'         => $loc(0, 32),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -1334,7 +1340,7 @@ input Hello {
                 [
                     'kind'        => NodeKind::DIRECTIVE_DEFINITION,
                     'name'        => $this->nameNode('foo', $loc(11, 14)),
-                    'description' => null,
+                    // 'description' => undefined,
                     'arguments'  => [],
                     'repeatable' => false,
                     'locations'      => [
@@ -1354,7 +1360,7 @@ input Hello {
             ],
             'loc'         => $loc(0, 36),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
@@ -1374,7 +1380,7 @@ input Hello {
                 [
                     'kind'        => NodeKind::DIRECTIVE_DEFINITION,
                     'name'        => $this->nameNode('foo', $loc(11, 14)),
-                    'description' => null,
+                    // 'description' => undefined,
                     'arguments'  => [],
                     'repeatable' => true,
                     'locations'      => [
@@ -1394,7 +1400,7 @@ input Hello {
             ],
             'loc'         => $loc(0, 47),
         ];
-        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, $doc->toArray());
     }
 
     /**
