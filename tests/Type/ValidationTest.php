@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use GraphQL\Type\Definition\NullableType;
 use function array_map;
 use function array_merge;
 use Closure;
@@ -153,7 +154,10 @@ class ValidationTest extends TestCaseBase
                 $types
             ),
             array_map(
-                static fn (Type $type): NonNull => Type::nonNull($type),
+                static function (Type $type): NonNull {
+                    /** @var Type&NullableType $type */
+                    return Type::nonNull($type);
+                },
                 $types
             ),
             array_map(
@@ -352,7 +356,7 @@ class ValidationTest extends TestCaseBase
     /**
      * @param array<Error> $errors
      *
-     * @return array<int, array{message: string, locations: array<int, array{line: int, column: int}>}>
+     * @return array<int, array{message: string, locations?: array<int, array{line: int, column: int}>}>
      */
     private function formatErrors(array $errors, bool $withLocation = true): array
     {
@@ -815,7 +819,11 @@ class ValidationTest extends TestCaseBase
 
         foreach ($badUnionMemberTypes as $memberType) {
             $badSchema = $this->schemaWithFieldType(
-                new UnionType(['name' => 'BadUnion', 'types' => [$memberType]])
+                // @phpstan-ignore-next-line intentionally wrong
+                new UnionType([
+                    'name' => 'BadUnion',
+                    'types' => [$memberType]
+                ])
             );
             $this->assertMatchesValidationMessage(
                 $badSchema->validate(),
@@ -1661,10 +1669,13 @@ class ValidationTest extends TestCaseBase
 
     private function schemaWithInputFieldOfType(Type $inputFieldType): Schema
     {
+        // @phpstan-ignore-next-line intentionally wrong
         $badInputObjectType = new InputObjectType([
             'name' => 'BadInputObject',
             'fields' => [
-                'badField' => ['type' => $inputFieldType],
+                'badField' => [
+                    'type' => $inputFieldType
+                ],
             ],
         ]);
 
@@ -2958,6 +2969,7 @@ class ValidationTest extends TestCaseBase
                 ],
             ],
         ]);
+        // @phpstan-ignore-next-line intentionally wrong
         $directive = new Directive([
             'name' => 'test',
             'args' => [

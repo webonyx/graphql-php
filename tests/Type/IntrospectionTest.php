@@ -1000,8 +1000,7 @@ class IntrospectionTest extends TestCase
         ];
 
         $result = GraphQL::executeQuery($schema, $request)->toArray();
-        $result = $result['data']['__type'];
-        self::assertEquals($expectedFragment, $result);
+        self::assertEquals($expectedFragment, $result['data']['__type'] ?? null);
     }
 
     /**
