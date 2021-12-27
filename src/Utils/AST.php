@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use function array_key_exists;
 use ArrayAccess;
+use function count;
 use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -39,11 +41,6 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use Throwable;
-use Traversable;
-
-use function array_key_exists;
-use function count;
 use function is_array;
 use function is_bool;
 use function is_float;
@@ -51,9 +48,11 @@ use function is_int;
 use function is_object;
 use function is_string;
 use function property_exists;
+use Throwable;
+use Traversable;
 
 /**
- * Various utilities dealing with AST
+ * Various utilities dealing with AST.
  */
 class AST
 {
@@ -85,12 +84,12 @@ class AST
     public static function fromArray(array $node): Node
     {
         $kind = $node['kind'] ?? null;
-        if ($kind === null) {
+        if (null === $kind) {
             throw new InvariantViolation('Node is missing kind:' . Utils::printSafeJson($node));
         }
 
         $class = NodeKind::CLASS_MAP[$kind] ?? null;
-        if ($class === null) {
+        if (null === $class) {
             throw new InvariantViolation('Node has unexpected kind:' . Utils::printSafeJson($node));
         }
 
@@ -101,12 +100,12 @@ class AST
         }
 
         foreach ($node as $key => $value) {
-            if ($key === 'loc' || $key === 'kind') {
+            if ('loc' === $key || 'kind' === $key) {
                 continue;
             }
 
             if (is_array($value)) {
-                if (isset($value[0]) || count($value) === 0) {
+                if (isset($value[0]) || 0 === count($value)) {
                     $value = new NodeList($value);
                 } else {
                     $value = self::fromArray($value);
@@ -120,7 +119,7 @@ class AST
     }
 
     /**
-     * Convert AST node to serializable array
+     * Convert AST node to serializable array.
      *
      * @return array<string, mixed>
      *
@@ -167,7 +166,7 @@ class AST
             return $astValue;
         }
 
-        if ($value === null) {
+        if (null === $value) {
             return new NullValueNode([]);
         }
 
@@ -179,7 +178,7 @@ class AST
                 $valuesNodes = [];
                 foreach ($value as $item) {
                     $itemNode = self::astFromValue($item, $itemType);
-                    if ($itemNode === null) {
+                    if (null === $itemNode) {
                         continue;
                     }
 
@@ -195,13 +194,13 @@ class AST
         // Populate the fields of the input object by creating ASTs from each value
         // in the PHP object according to the fields in the input type.
         if ($type instanceof InputObjectType) {
-            $isArray     = is_array($value);
+            $isArray = is_array($value);
             $isArrayLike = $isArray || $value instanceof ArrayAccess;
             if (! $isArrayLike && ! is_object($value)) {
                 return null;
             }
 
-            $fields     = $type->getFields();
+            $fields = $type->getFields();
             $fieldNodes = [];
             foreach ($fields as $fieldName => $field) {
                 if ($isArrayLike) {
@@ -212,7 +211,7 @@ class AST
 
                 // Have to check additionally if key exists, since we differentiate between
                 // "no key" and "value is null":
-                if ($fieldValue !== null) {
+                if (null !== $fieldValue) {
                     $fieldExists = true;
                 } elseif ($isArray) {
                     $fieldExists = array_key_exists($fieldName, $value);
@@ -228,12 +227,12 @@ class AST
 
                 $fieldNode = self::astFromValue($fieldValue, $field->getType());
 
-                if ($fieldNode === null) {
+                if (null === $fieldNode) {
                     continue;
                 }
 
                 $fieldNodes[] = new ObjectFieldNode([
-                    'name'  => new NameNode(['value' => $fieldName]),
+                    'name' => new NameNode(['value' => $fieldName]),
                     'value' => $fieldNode,
                 ]);
             }
@@ -305,9 +304,9 @@ class AST
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $valueNode
      * @param array<string, mixed>|null                                                                                                                $variables
      *
-     * @return mixed
-     *
      * @throws Exception
+     *
+     * @return mixed
      *
      * @api
      */
@@ -315,7 +314,7 @@ class AST
     {
         $undefined = Utils::undefined();
 
-        if ($valueNode === null) {
+        if (null === $valueNode) {
             // When there is no AST, then there is also no value.
             // Importantly, this is different from returning the GraphQL null value.
             return $undefined;
@@ -354,7 +353,7 @@ class AST
 
             if ($valueNode instanceof ListValueNode) {
                 $coercedValues = [];
-                $itemNodes     = $valueNode->values;
+                $itemNodes = $valueNode->values;
                 foreach ($itemNodes as $itemNode) {
                     if (self::isMissingVariable($itemNode, $variables)) {
                         // If an array contains a missing variable, it is either coerced to
@@ -395,7 +394,7 @@ class AST
             }
 
             $coercedObj = [];
-            $fields     = $type->getFields();
+            $fields = $type->getFields();
 
             $fieldNodes = [];
             foreach ($valueNode->fields as $field) {
@@ -406,7 +405,7 @@ class AST
                 $fieldName = $field->name;
                 $fieldNode = $fieldNodes[$fieldName] ?? null;
 
-                if ($fieldNode === null || self::isMissingVariable($fieldNode->value, $variables)) {
+                if (null === $fieldNode || self::isMissingVariable($fieldNode->value, $variables)) {
                     if ($field->defaultValueExists()) {
                         $coercedObj[$fieldName] = $field->defaultValue;
                     } elseif ($field->getType() instanceof NonNull) {
@@ -465,8 +464,8 @@ class AST
      */
     private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
     {
-        return $valueNode instanceof VariableNode &&
-            (count($variables) === 0 || ! array_key_exists($valueNode->name->value, $variables));
+        return $valueNode instanceof VariableNode
+            && (0 === count($variables) || ! array_key_exists($valueNode->name->value, $variables));
     }
 
     /**
@@ -487,9 +486,9 @@ class AST
      *
      * @param array<string, mixed>|null $variables
      *
-     * @return mixed
-     *
      * @throws Exception
+     *
+     * @return mixed
      *
      * @api
      */
@@ -538,7 +537,7 @@ class AST
     }
 
     /**
-     * Returns type definition for given AST Type node
+     * Returns type definition for given AST Type node.
      *
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      *
@@ -551,7 +550,7 @@ class AST
         if ($inputTypeNode instanceof ListTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
-            return $innerType === null
+            return null === $innerType
                 ? null
                 : new ListOfType($innerType);
         }
@@ -559,7 +558,7 @@ class AST
         if ($inputTypeNode instanceof NonNullTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
-            return $innerType === null
+            return null === $innerType
                 ? null
                 : new NonNull($innerType);
         }
@@ -582,9 +581,9 @@ class AST
                 continue;
             }
 
-            if ($operationName === null) {
+            if (null === $operationName) {
                 // We found a second operation, so we bail instead of returning an ambiguous result.
-                if ($operation !== null) {
+                if (null !== $operation) {
                     return null;
                 }
 

@@ -12,8 +12,8 @@ use GraphQL\Type\Definition\ScalarType;
  */
 final class SomeScalarClassType extends ScalarType
 {
-    public const SERIALIZE_RETURN     = 'a constant value that is always returned from serialize';
-    public const PARSE_VALUE_RETURN   = 'a constant value that is always returned from parseValue';
+    public const SERIALIZE_RETURN = 'a constant value that is always returned from serialize';
+    public const PARSE_VALUE_RETURN = 'a constant value that is always returned from parseValue';
     public const PARSE_LITERAL_RETURN = 'a constant value that is always returned from parseLiteral';
 
     public function serialize($value): string

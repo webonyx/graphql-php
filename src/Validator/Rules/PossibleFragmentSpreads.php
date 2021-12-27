@@ -24,7 +24,7 @@ class PossibleFragmentSpreads extends ValidationRule
     {
         return [
             NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context): void {
-                $fragType   = $context->getType();
+                $fragType = $context->getType();
                 $parentType = $context->getParentType();
 
                 if (
@@ -41,14 +41,14 @@ class PossibleFragmentSpreads extends ValidationRule
                 ));
             },
             NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context): void {
-                $fragName   = $node->name->value;
-                $fragType   = $this->getFragmentType($context, $fragName);
+                $fragName = $node->name->value;
+                $fragType = $this->getFragmentType($context, $fragName);
                 $parentType = $context->getParentType();
 
                 if (
-                    $fragType === null ||
-                    $parentType === null ||
-                    $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
+                    null === $fragType
+                    || null === $parentType
+                    || $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
                 ) {
                     return;
                 }
@@ -144,7 +144,7 @@ class PossibleFragmentSpreads extends ValidationRule
     protected function getFragmentType(ValidationContext $context, string $name): ?Type
     {
         $frag = $context->getFragment($name);
-        if ($frag === null) {
+        if (null === $frag) {
             return null;
         }
 

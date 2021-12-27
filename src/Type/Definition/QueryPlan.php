@@ -4,16 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\Error;
-use GraphQL\Executor\Values;
-use GraphQL\Language\AST\FieldNode;
-use GraphQL\Language\AST\FragmentDefinitionNode;
-use GraphQL\Language\AST\FragmentSpreadNode;
-use GraphQL\Language\AST\InlineFragmentNode;
-use GraphQL\Language\AST\SelectionSetNode;
-use GraphQL\Type\Introspection;
-use GraphQL\Type\Schema;
-
 use function array_diff_key;
 use function array_filter;
 use function array_intersect_key;
@@ -23,6 +13,15 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
+use GraphQL\Error\Error;
+use GraphQL\Executor\Values;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Type\Introspection;
+use GraphQL\Type\Schema;
 use function in_array;
 use function is_array;
 use function is_numeric;
@@ -53,9 +52,9 @@ class QueryPlan
      */
     public function __construct(ObjectType $parentType, Schema $schema, iterable $fieldNodes, array $variableValues, array $fragments, array $options = [])
     {
-        $this->schema                 = $schema;
-        $this->variableValues         = $variableValues;
-        $this->fragments              = $fragments;
+        $this->schema = $schema;
+        $this->variableValues = $variableValues;
+        $this->fragments = $fragments;
         $this->groupImplementorFields = in_array('group-implementor-fields', $options, true);
         $this->analyzeQueryPlan($parentType, $fieldNodes);
     }
@@ -112,11 +111,11 @@ class QueryPlan
      */
     private function analyzeQueryPlan(ObjectType $parentType, iterable $fieldNodes): void
     {
-        $queryPlan    = [];
+        $queryPlan = [];
         $implementors = [];
         /** @var FieldNode $fieldNode */
         foreach ($fieldNodes as $fieldNode) {
-            if ($fieldNode->selectionSet === null) {
+            if (null === $fieldNode->selectionSet) {
                 continue;
             }
 
@@ -153,26 +152,26 @@ class QueryPlan
      * @param InterfaceType|ObjectType $parentType
      * @param array<string, mixed>     $implementors
      *
-     * @return array<mixed>
-     *
      * @throws Error
+     *
+     * @return array<mixed>
      */
     private function analyzeSelectionSet(SelectionSetNode $selectionSet, Type $parentType, array &$implementors): array
     {
-        $fields       = [];
+        $fields = [];
         $implementors = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
                 $fieldName = $selectionNode->name->value;
 
-                if ($fieldName === Introspection::TYPE_NAME_FIELD_NAME) {
+                if (Introspection::TYPE_NAME_FIELD_NAME === $fieldName) {
                     continue;
                 }
 
-                $type          = $parentType->getField($fieldName);
+                $type = $parentType->getField($fieldName);
                 $selectionType = $type->getType();
 
-                $subfields       = [];
+                $subfields = [];
                 $subImplementors = [];
                 if (isset($selectionNode->selectionSet)) {
                     $subfields = $this->analyzeSubFields($selectionType, $selectionNode->selectionSet, $subImplementors);
@@ -189,15 +188,15 @@ class QueryPlan
             } elseif ($selectionNode instanceof FragmentSpreadNode) {
                 $spreadName = $selectionNode->name->value;
                 if (isset($this->fragments[$spreadName])) {
-                    $fragment  = $this->fragments[$spreadName];
-                    $type      = $this->schema->getType($fragment->typeCondition->name->value);
+                    $fragment = $this->fragments[$spreadName];
+                    $type = $this->schema->getType($fragment->typeCondition->name->value);
                     $subfields = $this->analyzeSubFields($type, $fragment->selectionSet);
-                    $fields    = $this->mergeFields($parentType, $type, $fields, $subfields, $implementors);
+                    $fields = $this->mergeFields($parentType, $type, $fields, $subfields, $implementors);
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
-                $type      = $this->schema->getType($selectionNode->typeCondition->name->value);
+                $type = $this->schema->getType($selectionNode->typeCondition->name->value);
                 $subfields = $this->analyzeSubFields($type, $selectionNode->selectionSet);
-                $fields    = $this->mergeFields($parentType, $type, $fields, $subfields, $implementors);
+                $fields = $this->mergeFields($parentType, $type, $fields, $subfields, $implementors);
             }
         }
 
@@ -215,7 +214,7 @@ class QueryPlan
 
         $subfields = [];
         if ($type instanceof ObjectType || $type instanceof AbstractType) {
-            $subfields                = $this->analyzeSelectionSet($selectionSet, $type, $implementors);
+            $subfields = $this->analyzeSelectionSet($selectionSet, $type, $implementors);
             $this->types[$type->name] = array_unique(array_merge(
                 array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
                 array_keys($subfields)
@@ -238,7 +237,7 @@ class QueryPlan
     {
         if ($this->groupImplementorFields && $parentType instanceof AbstractType && ! $type instanceof AbstractType) {
             $implementors[$type->name] = [
-                'type'   => $type,
+                'type' => $type,
                 'fields' => $this->arrayMergeDeep(
                     $implementors[$type->name]['fields'] ?? [],
                     array_diff_key($subfields, $fields)
@@ -261,7 +260,7 @@ class QueryPlan
 
     /**
      * similar to array_merge_recursive this merges nested arrays, but handles non array values differently
-     * while array_merge_recursive tries to merge non array values, in this implementation they will be overwritten
+     * while array_merge_recursive tries to merge non array values, in this implementation they will be overwritten.
      *
      * @see https://stackoverflow.com/a/25712428
      *
@@ -274,7 +273,7 @@ class QueryPlan
     {
         $merged = $array1;
 
-        foreach ($array2 as $key => & $value) {
+        foreach ($array2 as $key => &$value) {
             if (is_numeric($key)) {
                 if (! in_array($value, $merged, true)) {
                     $merged[] = $value;

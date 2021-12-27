@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use function array_pop;
+use function array_slice;
+use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -11,10 +14,6 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
-
-use function array_pop;
-use function array_slice;
-use function count;
 use function implode;
 
 class NoFragmentCycles extends ValidationRule
@@ -44,7 +43,7 @@ class NoFragmentCycles extends ValidationRule
             NodeKind::OPERATION_DEFINITION => static function (): VisitorOperation {
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION  => function (FragmentDefinitionNode $node) use ($context): VisitorOperation {
+            NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) use ($context): VisitorOperation {
                 $this->detectCycleRecursive($node, $context);
 
                 return Visitor::skipNode();
@@ -58,30 +57,30 @@ class NoFragmentCycles extends ValidationRule
             return;
         }
 
-        $fragmentName                      = $fragment->name->value;
+        $fragmentName = $fragment->name->value;
         $this->visitedFrags[$fragmentName] = true;
 
         $spreadNodes = $context->getFragmentSpreads($fragment);
 
-        if (count($spreadNodes) === 0) {
+        if (0 === count($spreadNodes)) {
             return;
         }
 
         $this->spreadPathIndexByName[$fragmentName] = count($this->spreadPath);
 
-        for ($i = 0; $i < count($spreadNodes); $i++) {
+        for ($i = 0; $i < count($spreadNodes); ++$i) {
             $spreadNode = $spreadNodes[$i];
             $spreadName = $spreadNode->name->value;
             $cycleIndex = $this->spreadPathIndexByName[$spreadName] ?? null;
 
             $this->spreadPath[] = $spreadNode;
-            if ($cycleIndex === null) {
+            if (null === $cycleIndex) {
                 $spreadFragment = $context->getFragment($spreadName);
-                if ($spreadFragment !== null) {
+                if (null !== $spreadFragment) {
                     $this->detectCycleRecursive($spreadFragment, $context);
                 }
             } else {
-                $cyclePath     = array_slice($this->spreadPath, $cycleIndex);
+                $cyclePath = array_slice($this->spreadPath, $cycleIndex);
                 $fragmentNames = [];
                 foreach (array_slice($cyclePath, 0, -1) as $frag) {
                     $fragmentNames[] = $frag->name->value;

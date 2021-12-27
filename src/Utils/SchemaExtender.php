@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -34,11 +38,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
-
-use function array_keys;
-use function array_map;
-use function array_merge;
-use function count;
 
 /**
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
@@ -291,7 +290,7 @@ class SchemaExtender
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
                 foreach ($extension->interfaces as $namedType) {
                     /** @var InterfaceType $interface we know this, but PHP templates cannot express it */
-                    $interface    = static::$astBuilder->buildType($namedType);
+                    $interface = static::$astBuilder->buildType($namedType);
                     $interfaces[] = $interface;
                 }
             }
@@ -325,9 +324,9 @@ class SchemaExtender
         $extended = [];
         foreach ($args as $arg) {
             $def = [
-                'type'        => static::extendType($arg->getType()),
+                'type' => static::extendType($arg->getType()),
                 'description' => $arg->description,
-                'astNode'     => $arg->astNode,
+                'astNode' => $arg->astNode,
             ];
 
             if ($arg->defaultValueExists()) {
@@ -343,9 +342,9 @@ class SchemaExtender
     /**
      * @param InterfaceType|ObjectType $type
      *
-     * @return array<string, array<string, mixed>>
-     *
      * @throws Error
+     *
+     * @return array<string, array<string, mixed>>
      */
     protected static function extendFieldMap(Type $type): array
     {
@@ -416,13 +415,13 @@ class SchemaExtender
 
     protected static function isSpecifiedScalarType(Type $type): bool
     {
-        return $type instanceof NamedType &&
-            (
-                $type->name === Type::STRING ||
-                $type->name === Type::INT ||
-                $type->name === Type::FLOAT ||
-                $type->name === Type::BOOLEAN ||
-                $type->name === Type::ID
+        return $type instanceof NamedType
+            && (
+                Type::STRING === $type->name
+                || Type::INT === $type->name
+                || Type::FLOAT === $type->name
+                || Type::BOOLEAN === $type->name
+                || Type::ID === $type->name
             );
     }
 
@@ -469,7 +468,7 @@ class SchemaExtender
      */
     protected static function extendMaybeNamedType(?Type $type = null): ?Type
     {
-        if ($type !== null) {
+        if (null !== $type) {
             return static::extendNamedType($type);
         }
 
@@ -527,9 +526,9 @@ class SchemaExtender
         }
 
         /** @var array<string, Node&TypeDefinitionNode> $typeDefinitionMap */
-        $typeDefinitionMap         = [];
+        $typeDefinitionMap = [];
         static::$typeExtensionsMap = [];
-        $directiveDefinitions      = [];
+        $directiveDefinitions = [];
         /** @var SchemaDefinitionNode|null $schemaDef */
         $schemaDef = null;
         /** @var array<int, SchemaTypeExtensionNode> $schemaExtensions */
@@ -551,24 +550,24 @@ class SchemaExtender
                     $type = null;
                 }
 
-                if ($type !== null) {
+                if (null !== $type) {
                     throw new Error('Type "' . $typeName . '" already exists in the schema. It cannot also be defined in this type definition.', [$def]);
                 }
 
                 $typeDefinitionMap[$typeName] = $def;
             } elseif ($def instanceof TypeExtensionNode) {
                 $extendedTypeName = $def->name->value;
-                $existingType     = $schema->getType($extendedTypeName);
-                if ($existingType === null) {
+                $existingType = $schema->getType($extendedTypeName);
+                if (null === $existingType) {
                     throw new Error('Cannot extend type "' . $extendedTypeName . '" because it does not exist in the existing schema.', [$def]);
                 }
 
                 static::assertTypeMatchesExtension($existingType, $def);
                 static::$typeExtensionsMap[$extendedTypeName][] = $def;
             } elseif ($def instanceof DirectiveDefinitionNode) {
-                $directiveName     = $def->name->value;
+                $directiveName = $def->name->value;
                 $existingDirective = $schema->getDirective($directiveName);
-                if ($existingDirective !== null) {
+                if (null !== $existingDirective) {
                     throw new Error('Directive "' . $directiveName . '" already exists in the schema. It cannot be redefined.', [$def]);
                 }
 
@@ -577,11 +576,11 @@ class SchemaExtender
         }
 
         if (
-            count(static::$typeExtensionsMap) === 0
-            && count($typeDefinitionMap) === 0
-            && count($directiveDefinitions) === 0
-            && count($schemaExtensions) === 0
-            && $schemaDef === null
+            0 === count(static::$typeExtensionsMap)
+            && 0 === count($typeDefinitionMap)
+            && 0 === count($directiveDefinitions)
+            && 0 === count($schemaExtensions)
+            && null === $schemaDef
         ) {
             return $schema;
         }
@@ -590,7 +589,7 @@ class SchemaExtender
             $typeDefinitionMap,
             static function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
-                if ($existingType !== null) {
+                if (null !== $existingType) {
                     return static::extendNamedType($existingType);
                 }
 
@@ -607,7 +606,7 @@ class SchemaExtender
             'subscription' => static::extendMaybeNamedType($schema->getSubscriptionType()),
         ];
 
-        if ($schemaDef !== null) {
+        if (null !== $schemaDef) {
             foreach ($schemaDef->operationTypes as $operationType) {
                 $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
             }

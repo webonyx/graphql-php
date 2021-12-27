@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace GraphQL\Language\AST;
 
+use function array_merge;
+use function array_splice;
 use ArrayAccess;
+use function count;
 use Countable;
 use GraphQL\Utils\AST;
+use function is_array;
+use function iterator_to_array;
 use IteratorAggregate;
 use ReturnTypeWillChange;
 use Traversable;
-
-use function array_merge;
-use function array_splice;
-use function count;
-use function is_array;
-use function iterator_to_array;
 
 /**
  * @template T of Node
@@ -91,7 +90,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
         }
 
         // Happens when a Node is pushed via []=
-        if ($offset === null) {
+        if (null === $offset) {
             $this->nodes[] = $value;
 
             return;

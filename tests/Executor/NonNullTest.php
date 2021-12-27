@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use function count;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Deferred;
@@ -16,12 +17,10 @@ use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use PHPUnit\Framework\ExpectationFailedException;
-use PHPUnit\Framework\TestCase;
-
-use function count;
 use function is_string;
 use function json_encode;
+use PHPUnit\Framework\ExpectationFailedException;
+use PHPUnit\Framework\TestCase;
 
 class NonNullTest extends TestCase
 {
@@ -33,10 +32,10 @@ class NonNullTest extends TestCase
     /** @var Exception */
     public $syncNonNullError;
 
-    /** @var  Exception */
+    /** @var Exception */
     public $promiseError;
 
-    /** @var  Exception */
+    /** @var Exception */
     public $promiseNonNullError;
 
     /** @var callable[] */
@@ -53,35 +52,35 @@ class NonNullTest extends TestCase
 
     public function setUp(): void
     {
-        $this->syncError           = new UserError('sync');
-        $this->syncNonNullError    = new UserError('syncNonNull');
-        $this->promiseError        = new UserError('promise');
+        $this->syncError = new UserError('sync');
+        $this->syncNonNullError = new UserError('syncNonNull');
+        $this->promiseError = new UserError('promise');
         $this->promiseNonNullError = new UserError('promiseNonNull');
 
         $this->throwingData = [
-            'sync'               => function (): void {
+            'sync' => function (): void {
                 throw $this->syncError;
             },
-            'syncNonNull'        => function (): void {
+            'syncNonNull' => function (): void {
                 throw $this->syncNonNullError;
             },
-            'promise'            => function (): Deferred {
+            'promise' => function (): Deferred {
                 return new Deferred(function (): void {
                     throw $this->promiseError;
                 });
             },
-            'promiseNonNull'     => function (): Deferred {
+            'promiseNonNull' => function (): Deferred {
                 return new Deferred(function (): void {
                     throw $this->promiseNonNullError;
                 });
             },
-            'syncNest'           => function (): array {
+            'syncNest' => function (): array {
                 return $this->throwingData;
             },
-            'syncNonNullNest'    => function (): array {
+            'syncNonNullNest' => function (): array {
                 return $this->throwingData;
             },
-            'promiseNest'        => function (): Deferred {
+            'promiseNest' => function (): Deferred {
                 return new Deferred(function (): array {
                     return $this->throwingData;
                 });
@@ -94,29 +93,29 @@ class NonNullTest extends TestCase
         ];
 
         $this->nullingData = [
-            'sync'               => static function () {
+            'sync' => static function () {
                 return null;
             },
-            'syncNonNull'        => static function () {
+            'syncNonNull' => static function () {
                 return null;
             },
-            'promise'            => static function (): Deferred {
+            'promise' => static function (): Deferred {
                 return new Deferred(static function () {
                     return null;
                 });
             },
-            'promiseNonNull'     => static function (): Deferred {
+            'promiseNonNull' => static function (): Deferred {
                 return new Deferred(static function () {
                     return null;
                 });
             },
-            'syncNest'           => function (): array {
+            'syncNest' => function (): array {
                 return $this->nullingData;
             },
-            'syncNonNullNest'    => function (): array {
+            'syncNonNullNest' => function (): array {
                 return $this->nullingData;
             },
-            'promiseNest'        => function (): Deferred {
+            'promiseNest' => function (): Deferred {
                 return new Deferred(function (): array {
                     return $this->nullingData;
                 });
@@ -129,16 +128,16 @@ class NonNullTest extends TestCase
         ];
 
         $dataType = new ObjectType([
-            'name'   => 'DataType',
+            'name' => 'DataType',
             'fields' => static function () use (&$dataType): array {
                 return [
-                    'sync'               => ['type' => Type::string()],
-                    'syncNonNull'        => ['type' => Type::nonNull(Type::string())],
-                    'promise'            => Type::string(),
-                    'promiseNonNull'     => Type::nonNull(Type::string()),
-                    'syncNest'           => $dataType,
-                    'syncNonNullNest'    => Type::nonNull($dataType),
-                    'promiseNest'        => $dataType,
+                    'sync' => ['type' => Type::string()],
+                    'syncNonNull' => ['type' => Type::nonNull(Type::string())],
+                    'promise' => Type::string(),
+                    'promiseNonNull' => Type::nonNull(Type::string()),
+                    'syncNest' => $dataType,
+                    'syncNonNullNest' => Type::nonNull($dataType),
+                    'promiseNest' => $dataType,
                     'promiseNonNullNest' => Type::nonNull($dataType),
                 ];
             },
@@ -186,7 +185,7 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => ['sync' => null],
+            'data' => ['sync' => null],
             'errors' => [
                 ErrorHelper::create(
                     $this->syncError->getMessage(),
@@ -211,7 +210,7 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => ['promise' => null],
+            'data' => ['promise' => null],
             'errors' => [
                 ErrorHelper::create(
                     $this->promiseError->getMessage(),
@@ -240,7 +239,7 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => ['syncNest' => null],
+            'data' => ['syncNest' => null],
             'errors' => [
                 ErrorHelper::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)]),
             ],
@@ -264,7 +263,7 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => ['syncNest' => null],
+            'data' => ['syncNest' => null],
             'errors' => [
                 ErrorHelper::create($this->promiseNonNullError->getMessage(), [new SourceLocation(4, 11)]),
             ],
@@ -289,7 +288,7 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => ['promiseNest' => null],
+            'data' => ['promiseNest' => null],
             'errors' => [
                 ErrorHelper::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)]),
             ],
@@ -314,7 +313,7 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => ['promiseNest' => null],
+            'data' => ['promiseNest' => null],
             'errors' => [
                 ErrorHelper::create($this->promiseNonNullError->getMessage(), [new SourceLocation(4, 11)]),
             ],
@@ -363,28 +362,28 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => [
-                'syncNest'    => [
-                    'sync'        => null,
-                    'promise'     => null,
-                    'syncNest'    => [
-                        'sync'    => null,
+            'data' => [
+                'syncNest' => [
+                    'sync' => null,
+                    'promise' => null,
+                    'syncNest' => [
+                        'sync' => null,
                         'promise' => null,
                     ],
                     'promiseNest' => [
-                        'sync'    => null,
+                        'sync' => null,
                         'promise' => null,
                     ],
                 ],
                 'promiseNest' => [
-                    'sync'        => null,
-                    'promise'     => null,
-                    'syncNest'    => [
-                        'sync'    => null,
+                    'sync' => null,
+                    'promise' => null,
+                    'syncNest' => [
+                        'sync' => null,
                         'promise' => null,
                     ],
                     'promiseNest' => [
-                        'sync'    => null,
+                        'sync' => null,
                         'promise' => null,
                     ],
                 ],
@@ -480,10 +479,10 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => [
-                'syncNest'           => null,
-                'promiseNest'        => null,
-                'anotherNest'        => null,
+            'data' => [
+                'syncNest' => null,
+                'promiseNest' => null,
+                'anotherNest' => null,
                 'anotherPromiseNest' => null,
             ],
             'errors' => [
@@ -552,10 +551,10 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => ['syncNest' => null],
+            'data' => ['syncNest' => null],
             'errors' => [
                 [
-                    'locations'    => [['line' => 4, 'column' => 11]],
+                    'locations' => [['line' => 4, 'column' => 11]],
                     'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".'],
                 ],
             ],
@@ -579,10 +578,10 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => ['syncNest' => null],
+            'data' => ['syncNest' => null],
             'errors' => [
                 [
-                    'locations'    => [['line' => 4, 'column' => 11]],
+                    'locations' => [['line' => 4, 'column' => 11]],
                     'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".'],
                 ],
             ],
@@ -607,10 +606,10 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => ['promiseNest' => null],
+            'data' => ['promiseNest' => null],
             'errors' => [
                 [
-                    'locations'    => [['line' => 4, 'column' => 11]],
+                    'locations' => [['line' => 4, 'column' => 11]],
                     'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".'],
                 ],
             ],
@@ -635,10 +634,10 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => ['promiseNest' => null],
+            'data' => ['promiseNest' => null],
             'errors' => [
                 [
-                    'locations'    => [['line' => 4, 'column' => 11]],
+                    'locations' => [['line' => 4, 'column' => 11]],
                     'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".'],
                 ],
             ],
@@ -685,27 +684,27 @@ class NonNullTest extends TestCase
 
         $expected = [
             'data' => [
-                'syncNest'    => [
-                    'sync'        => null,
-                    'promise'     => null,
-                    'syncNest'    => [
-                        'sync'    => null,
+                'syncNest' => [
+                    'sync' => null,
+                    'promise' => null,
+                    'syncNest' => [
+                        'sync' => null,
                         'promise' => null,
                     ],
                     'promiseNest' => [
-                        'sync'    => null,
+                        'sync' => null,
                         'promise' => null,
                     ],
                 ],
                 'promiseNest' => [
-                    'sync'        => null,
-                    'promise'     => null,
-                    'syncNest'    => [
-                        'sync'    => null,
+                    'sync' => null,
+                    'promise' => null,
+                    'syncNest' => [
+                        'sync' => null,
                         'promise' => null,
                     ],
                     'promiseNest' => [
-                        'sync'    => null,
+                        'sync' => null,
                         'promise' => null,
                     ],
                 ],
@@ -773,10 +772,10 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data'   => [
-                'syncNest'           => null,
-                'promiseNest'        => null,
-                'anotherNest'        => null,
+            'data' => [
+                'syncNest' => null,
+                'promiseNest' => null,
+                'anotherNest' => null,
                 'anotherPromiseNest' => null,
             ],
             'errors' => [
@@ -819,7 +818,7 @@ class NonNullTest extends TestCase
                 ErrorHelper::create($this->syncNonNullError->getMessage(), [new SourceLocation(2, 17)]),
             ],
         ];
-        $actual   = Executor::execute($this->schema, Parser::parse($doc), $this->throwingData)->toArray();
+        $actual = Executor::execute($this->schema, Parser::parse($doc), $this->throwingData)->toArray();
         self::assertArraySubset($expected, $actual);
     }
 
@@ -889,8 +888,8 @@ class NonNullTest extends TestCase
      */
     public function testFieldErrorWhenMissingNonNullArg(): void
     {
-      // Note: validation should identify this issue first (missing args rule)
-      // however execution should still protect against this.
+        // Note: validation should identify this issue first (missing args rule)
+        // however execution should still protect against this.
         $result = Executor::execute(
             $this->schemaWithNonNullArg,
             Parser::parse('
@@ -918,8 +917,8 @@ class NonNullTest extends TestCase
      */
     public function testFieldErrorWhenNonNullArgProvidedNull(): void
     {
-      // Note: validation should identify this issue first (values of correct
-      // type rule) however execution should still protect against this.
+        // Note: validation should identify this issue first (values of correct
+        // type rule) however execution should still protect against this.
         $result = Executor::execute(
             $this->schemaWithNonNullArg,
             Parser::parse('
@@ -947,8 +946,8 @@ class NonNullTest extends TestCase
      */
     public function testFieldErrorWhenNonNullArgNotProvidedVariableValue(): void
     {
-      // Note: validation should identify this issue first (variables in allowed
-      // position rule) however execution should still protect against this.
+        // Note: validation should identify this issue first (variables in allowed
+        // position rule) however execution should still protect against this.
         $result = Executor::execute(
             $this->schemaWithNonNullArg,
             Parser::parse('
@@ -965,9 +964,9 @@ class NonNullTest extends TestCase
             'data' => ['withNonNullArg' => null],
             'errors' => [
                 [
-                    'message' => 'Argument "cannotBeNull" of required type "String!" was ' .
-                      'provided the variable "$testVar" which was not provided a ' .
-                      'runtime value.',
+                    'message' => 'Argument "cannotBeNull" of required type "String!" was '
+                      . 'provided the variable "$testVar" which was not provided a '
+                      . 'runtime value.',
                     'locations' => [['line' => 3, 'column' => 42]],
                     'path' => ['withNonNullArg'],
                 ],
@@ -1037,7 +1036,7 @@ class NonNullTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'locations'    => [['line' => 2, 'column' => 17]],
+                    'locations' => [['line' => 2, 'column' => 17]],
                     'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".'],
                 ],
             ],
@@ -1059,7 +1058,7 @@ class NonNullTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'locations'    => [['line' => 2, 'column' => 17]],
+                    'locations' => [['line' => 2, 'column' => 17]],
                     'extensions' => ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".'],
                 ],
             ],

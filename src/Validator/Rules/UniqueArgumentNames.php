@@ -40,13 +40,13 @@ class UniqueArgumentNames extends ValidationRule
         $this->knownArgNames = [];
 
         return [
-            NodeKind::FIELD     => function (): void {
+            NodeKind::FIELD => function (): void {
                 $this->knownArgNames = [];
             },
             NodeKind::DIRECTIVE => function (): void {
                 $this->knownArgNames = [];
             },
-            NodeKind::ARGUMENT  => function (ArgumentNode $node) use ($context): VisitorOperation {
+            NodeKind::ARGUMENT => function (ArgumentNode $node) use ($context): VisitorOperation {
                 $argName = $node->name->value;
                 if ($this->knownArgNames[$argName] ?? false) {
                     $context->reportError(new Error(

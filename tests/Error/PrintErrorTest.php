@@ -26,7 +26,7 @@ class PrintErrorTest extends TestCase
             [0]
         );
 
-        $actual   = FormattedError::printError($singleDigit);
+        $actual = FormattedError::printError($singleDigit);
         $expected = 'Single digit line number with no padding
 
 Test (9:1)
@@ -41,8 +41,8 @@ Test (9:1)
             new Source("*\n", 'Test', new SourceLocation(9, 1)),
             [0]
         );
-        $actual      = FormattedError::printError($doubleDigit);
-        $expected    = 'Left padded first line number
+        $actual = FormattedError::printError($doubleDigit);
+        $expected = 'Left padded first line number
 
 Test (9:1)
  9: *
@@ -66,7 +66,7 @@ Test (9:1)
 
         /** @var ObjectTypeDefinitionNode $objectDefinitionA */
         $objectDefinitionA = $sourceA->definitions[0];
-        $fieldTypeA        = $objectDefinitionA->fields[0]->type;
+        $fieldTypeA = $objectDefinitionA->fields[0]->type;
 
         $sourceB = Parser::parse(new Source(
             'type Foo {
@@ -77,7 +77,7 @@ Test (9:1)
 
         /** @var ObjectTypeDefinitionNode $objectDefinitionB */
         $objectDefinitionB = $sourceB->definitions[0];
-        $fieldTypeB        = $objectDefinitionB->fields[0]->type;
+        $fieldTypeB = $objectDefinitionB->fields[0]->type;
 
         $error = new Error(
             'Example error with two nodes',

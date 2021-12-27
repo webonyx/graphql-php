@@ -21,7 +21,7 @@ class ComplexScalar extends ScalarType
 
     public function serialize($value): string
     {
-        if ($value === 'DeserializedValue') {
+        if ('DeserializedValue' === $value) {
             return 'SerializedValue';
         }
 
@@ -30,7 +30,7 @@ class ComplexScalar extends ScalarType
 
     public function parseValue($value): string
     {
-        if ($value === 'SerializedValue') {
+        if ('SerializedValue' === $value) {
             return 'DeserializedValue';
         }
 
@@ -39,7 +39,7 @@ class ComplexScalar extends ScalarType
 
     public function parseLiteral(Node $valueNode, ?array $variables = null): string
     {
-        if ($valueNode->value === 'SerializedValue') {
+        if ('SerializedValue' === $valueNode->value) {
             return 'DeserializedValue';
         }
 

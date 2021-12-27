@@ -13,7 +13,6 @@ use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
-
 use function is_array;
 use function is_callable;
 use function is_iterable;
@@ -73,9 +72,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         $config['name'] ??= $this->tryInferName();
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        $this->name              = $config['name'];
-        $this->description       = $config['description'] ?? null;
-        $this->astNode           = $config['astNode'] ?? null;
+        $this->name = $config['name'];
+        $this->description = $config['description'] ?? null;
+        $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
         $this->config = $config;

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use function count;
 use Exception;
+use function get_class;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -40,9 +42,6 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
-
-use function count;
-use function get_class;
 use function in_array;
 
 /**
@@ -65,9 +64,9 @@ class KnownDirectives extends ValidationRule
      */
     public function getASTVisitor(ASTValidationContext $context): array
     {
-        $locationsMap      = [];
-        $schema            = $context->getSchema();
-        $definedDirectives = $schema === null
+        $locationsMap = [];
+        $schema = $context->getSchema();
+        $definedDirectives = null === $schema
             ? Directive::getInternalDirectives()
             : $schema->getDirectives();
 
@@ -101,10 +100,10 @@ class KnownDirectives extends ValidationRule
                 $context,
                 $locationsMap
             ): void {
-                $name      = $node->name->value;
+                $name = $node->name->value;
                 $locations = $locationsMap[$name] ?? null;
 
-                if ($locations === null) {
+                if (null === $locations) {
                     $context->reportError(new Error(
                         static::unknownDirectiveMessage($name),
                         [$node]
@@ -115,7 +114,7 @@ class KnownDirectives extends ValidationRule
 
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if ($candidateLocation === '' || in_array($candidateLocation, $locations, true)) {
+                if ('' === $candidateLocation || in_array($candidateLocation, $locations, true)) {
                     return;
                 }
 

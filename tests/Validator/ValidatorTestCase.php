@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
+use function array_map;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\DirectiveLocation;
@@ -20,8 +21,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\ValidationRule;
 use PHPUnit\Framework\TestCase;
-
-use function array_map;
 
 abstract class ValidatorTestCase extends TestCase
 {
@@ -51,7 +50,7 @@ abstract class ValidatorTestCase extends TestCase
         $FurColor = null;
 
         $Being = new InterfaceType([
-            'name'   => 'Being',
+            'name' => 'Being',
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
@@ -61,7 +60,7 @@ abstract class ValidatorTestCase extends TestCase
         ]);
 
         $Pet = new InterfaceType([
-            'name'   => 'Pet',
+            'name' => 'Pet',
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
@@ -71,7 +70,7 @@ abstract class ValidatorTestCase extends TestCase
         ]);
 
         $Canine = new InterfaceType([
-            'name'   => 'Canine',
+            'name' => 'Canine',
             'fields' => static function (): array {
                 return [
                     'name' => [
@@ -83,33 +82,33 @@ abstract class ValidatorTestCase extends TestCase
         ]);
 
         $DogCommand = new EnumType([
-            'name'   => 'DogCommand',
+            'name' => 'DogCommand',
             'values' => [
-                'SIT'  => ['value' => 0],
+                'SIT' => ['value' => 0],
                 'HEEL' => ['value' => 1],
                 'DOWN' => ['value' => 2],
             ],
         ]);
 
         $Dog = new ObjectType([
-            'name'       => 'Dog',
-            'fields'     => [
-                'name'            => [
+            'name' => 'Dog',
+            'fields' => [
+                'name' => [
                     'type' => Type::string(),
                     'args' => ['surname' => ['type' => Type::boolean()]],
                 ],
-                'nickname'        => ['type' => Type::string()],
-                'barkVolume'      => ['type' => Type::int()],
-                'barks'           => ['type' => Type::boolean()],
+                'nickname' => ['type' => Type::string()],
+                'barkVolume' => ['type' => Type::int()],
+                'barks' => ['type' => Type::boolean()],
                 'doesKnowCommand' => [
                     'type' => Type::boolean(),
                     'args' => ['dogCommand' => ['type' => $DogCommand]],
                 ],
-                'isHousetrained'  => [
+                'isHousetrained' => [
                     'type' => Type::boolean(),
                     'args' => ['atOtherHomes' => ['type' => Type::boolean(), 'defaultValue' => true]],
                 ],
-                'isAtLocation'    => [
+                'isAtLocation' => [
                     'type' => Type::boolean(),
                     'args' => ['x' => ['type' => Type::int()], 'y' => ['type' => Type::int()]],
                 ],
@@ -118,29 +117,29 @@ abstract class ValidatorTestCase extends TestCase
         ]);
 
         $Cat = new ObjectType([
-            'name'       => 'Cat',
-            'fields'     => static function () use (&$FurColor): array {
+            'name' => 'Cat',
+            'fields' => static function () use (&$FurColor): array {
                 return [
-                    'name'       => [
+                    'name' => [
                         'type' => Type::string(),
                         'args' => ['surname' => ['type' => Type::boolean()]],
                     ],
-                    'nickname'   => ['type' => Type::string()],
-                    'meows'      => ['type' => Type::boolean()],
+                    'nickname' => ['type' => Type::string()],
+                    'meows' => ['type' => Type::boolean()],
                     'meowVolume' => ['type' => Type::int()],
-                    'furColor'   => $FurColor,
+                    'furColor' => $FurColor,
                 ];
             },
             'interfaces' => [$Being, $Pet],
         ]);
 
         $CatOrDog = new UnionType([
-            'name'  => 'CatOrDog',
+            'name' => 'CatOrDog',
             'types' => [$Dog, $Cat],
         ]);
 
         $Intelligent = new InterfaceType([
-            'name'   => 'Intelligent',
+            'name' => 'Intelligent',
             'fields' => [
                 'iq' => ['type' => Type::int()],
             ],
@@ -148,27 +147,27 @@ abstract class ValidatorTestCase extends TestCase
 
         $Human = null;
         $Human = new ObjectType([
-            'name'       => 'Human',
+            'name' => 'Human',
             'interfaces' => [$Being, $Intelligent],
-            'fields'     => static function () use (&$Human, $Pet): array {
+            'fields' => static function () use (&$Human, $Pet): array {
                 return [
-                    'name'      => [
+                    'name' => [
                         'type' => Type::string(),
                         'args' => ['surname' => ['type' => Type::boolean()]],
                     ],
-                    'pets'      => ['type' => Type::listOf($Pet)],
+                    'pets' => ['type' => Type::listOf($Pet)],
                     'relatives' => ['type' => Type::listOf($Human)],
-                    'iq'        => ['type' => Type::int()],
+                    'iq' => ['type' => Type::int()],
                 ];
             },
         ]);
 
         $Alien = new ObjectType([
-            'name'       => 'Alien',
+            'name' => 'Alien',
             'interfaces' => [$Being, $Intelligent],
-            'fields'     => [
-                'iq'      => ['type' => Type::int()],
-                'name'    => [
+            'fields' => [
+                'iq' => ['type' => Type::int()],
+                'name' => [
                     'type' => Type::string(),
                     'args' => ['surname' => ['type' => Type::boolean()]],
                 ],
@@ -177,73 +176,73 @@ abstract class ValidatorTestCase extends TestCase
         ]);
 
         $DogOrHuman = new UnionType([
-            'name'  => 'DogOrHuman',
+            'name' => 'DogOrHuman',
             'types' => [$Dog, $Human],
         ]);
 
         $HumanOrAlien = new UnionType([
-            'name'  => 'HumanOrAlien',
+            'name' => 'HumanOrAlien',
             'types' => [$Human, $Alien],
         ]);
 
         $FurColor = new EnumType([
-            'name'   => 'FurColor',
+            'name' => 'FurColor',
             'values' => [
-                'BROWN'   => ['value' => 0],
-                'BLACK'   => ['value' => 1],
-                'TAN'     => ['value' => 2],
+                'BROWN' => ['value' => 0],
+                'BLACK' => ['value' => 1],
+                'TAN' => ['value' => 2],
                 'SPOTTED' => ['value' => 3],
-                'NO_FUR'  => ['value' => null],
+                'NO_FUR' => ['value' => null],
             ],
         ]);
 
         $ComplexInput = new InputObjectType([
-            'name'   => 'ComplexInput',
+            'name' => 'ComplexInput',
             'fields' => [
-                'requiredField'   => ['type' => Type::nonNull(Type::boolean())],
-                'nonNullField'    => ['type' => Type::nonNull(Type::boolean()), 'defaultValue' => false],
-                'intField'        => ['type' => Type::int()],
-                'stringField'     => ['type' => Type::string()],
-                'booleanField'    => ['type' => Type::boolean()],
+                'requiredField' => ['type' => Type::nonNull(Type::boolean())],
+                'nonNullField' => ['type' => Type::nonNull(Type::boolean()), 'defaultValue' => false],
+                'intField' => ['type' => Type::int()],
+                'stringField' => ['type' => Type::string()],
+                'booleanField' => ['type' => Type::boolean()],
                 'stringListField' => ['type' => Type::listOf(Type::string())],
             ],
         ]);
 
         $ComplicatedArgs = new ObjectType([
-            'name'   => 'ComplicatedArgs',
+            'name' => 'ComplicatedArgs',
             // TODO List
             // TODO Coercion
             // TODO NotNulls
             'fields' => [
-                'intArgField'               => [
+                'intArgField' => [
                     'type' => Type::string(),
                     'args' => ['intArg' => ['type' => Type::int()]],
                 ],
-                'nonNullIntArgField'        => [
+                'nonNullIntArgField' => [
                     'type' => Type::string(),
                     'args' => ['nonNullIntArg' => ['type' => Type::nonNull(Type::int())]],
                 ],
-                'stringArgField'            => [
+                'stringArgField' => [
                     'type' => Type::string(),
                     'args' => ['stringArg' => ['type' => Type::string()]],
                 ],
-                'booleanArgField'           => [
+                'booleanArgField' => [
                     'type' => Type::string(),
                     'args' => ['booleanArg' => ['type' => Type::boolean()]],
                 ],
-                'enumArgField'              => [
+                'enumArgField' => [
                     'type' => Type::string(),
                     'args' => ['enumArg' => ['type' => $FurColor]],
                 ],
-                'floatArgField'             => [
+                'floatArgField' => [
                     'type' => Type::string(),
                     'args' => ['floatArg' => ['type' => Type::float()]],
                 ],
-                'idArgField'                => [
+                'idArgField' => [
                     'type' => Type::string(),
                     'args' => ['idArg' => ['type' => Type::id()]],
                 ],
-                'stringListArgField'        => [
+                'stringListArgField' => [
                     'type' => Type::string(),
                     'args' => ['stringListArg' => ['type' => Type::listOf(Type::string())]],
                 ],
@@ -255,11 +254,11 @@ abstract class ValidatorTestCase extends TestCase
                         ],
                     ],
                 ],
-                'complexArgField'           => [
+                'complexArgField' => [
                     'type' => Type::string(),
                     'args' => ['complexArg' => ['type' => $ComplexInput]],
                 ],
-                'multipleReqs'              => [
+                'multipleReqs' => [
                     'type' => Type::string(),
                     'args' => [
                         'req1' => ['type' => Type::nonNull(Type::int())],
@@ -269,33 +268,33 @@ abstract class ValidatorTestCase extends TestCase
                 'nonNullFieldWithDefault' => [
                     'type' => Type::string(),
                     'args' => [
-                        'arg' => [ 'type' => Type::nonNull(Type::int()), 'defaultValue' => 0 ],
+                        'arg' => ['type' => Type::nonNull(Type::int()), 'defaultValue' => 0],
                     ],
                 ],
-                'multipleOpts'              => [
+                'multipleOpts' => [
                     'type' => Type::string(),
                     'args' => [
                         'opt1' => [
-                            'type'         => Type::int(),
+                            'type' => Type::int(),
                             'defaultValue' => 0,
                         ],
                         'opt2' => [
-                            'type'         => Type::int(),
+                            'type' => Type::int(),
                             'defaultValue' => 0,
                         ],
                     ],
                 ],
-                'multipleOptAndReq'         => [
+                'multipleOptAndReq' => [
                     'type' => Type::string(),
                     'args' => [
                         'req1' => ['type' => Type::nonNull(Type::int())],
                         'req2' => ['type' => Type::nonNull(Type::int())],
                         'opt1' => [
-                            'type'         => Type::int(),
+                            'type' => Type::int(),
                             'defaultValue' => 0,
                         ],
                         'opt2' => [
-                            'type'         => Type::int(),
+                            'type' => Type::int(),
                             'defaultValue' => 0,
                         ],
                     ],
@@ -304,53 +303,53 @@ abstract class ValidatorTestCase extends TestCase
         ]);
 
         $invalidScalar = new CustomScalarType([
-            'name'         => 'Invalid',
-            'serialize'    => static function ($value) {
+            'name' => 'Invalid',
+            'serialize' => static function ($value) {
                 return $value;
             },
             'parseLiteral' => static function ($node): void {
                 throw new Error('Invalid scalar is always invalid: ' . $node->value);
             },
-            'parseValue'   => static function ($node): void {
+            'parseValue' => static function ($node): void {
                 throw new Error('Invalid scalar is always invalid: ' . $node);
             },
         ]);
 
         $anyScalar = new CustomScalarType([
-            'name'         => 'Any',
-            'serialize'    => static function ($value) {
+            'name' => 'Any',
+            'serialize' => static function ($value) {
                 return $value;
             },
             'parseLiteral' => static function ($node) {
                 return $node;
             }, // Allows any value
-            'parseValue'   => static function ($value) {
+            'parseValue' => static function ($value) {
                 return $value;
             }, // Allows any value
         ]);
 
         $queryRoot = new ObjectType([
-            'name'   => 'QueryRoot',
+            'name' => 'QueryRoot',
             'fields' => [
-                'human'           => [
+                'human' => [
                     'args' => ['id' => ['type' => Type::id()]],
                     'type' => $Human,
                 ],
-                'alien'           => ['type' => $Alien],
-                'dog'             => ['type' => $Dog],
-                'cat'             => ['type' => $Cat],
-                'pet'             => ['type' => $Pet],
-                'catOrDog'        => ['type' => $CatOrDog],
-                'dogOrHuman'      => ['type' => $DogOrHuman],
-                'humanOrAlien'    => ['type' => $HumanOrAlien],
+                'alien' => ['type' => $Alien],
+                'dog' => ['type' => $Dog],
+                'cat' => ['type' => $Cat],
+                'pet' => ['type' => $Pet],
+                'catOrDog' => ['type' => $CatOrDog],
+                'dogOrHuman' => ['type' => $DogOrHuman],
+                'humanOrAlien' => ['type' => $HumanOrAlien],
                 'complicatedArgs' => ['type' => $ComplicatedArgs],
-                'invalidArg'      => [
+                'invalidArg' => [
                     'args' => [
                         'arg' => ['type' => $invalidScalar],
                     ],
                     'type' => Type::string(),
                 ],
-                'anyArg'          => [
+                'anyArg' => [
                     'args' => ['arg' => ['type' => $anyScalar]],
                     'type' => Type::string(),
                 ],
@@ -358,62 +357,62 @@ abstract class ValidatorTestCase extends TestCase
         ]);
 
         $subscriptionRoot = new ObjectType([
-            'name'   => 'SubscriptionRoot',
+            'name' => 'SubscriptionRoot',
             'fields' => [
-                'catSubscribe'  => ['type' => $Cat],
+                'catSubscribe' => ['type' => $Cat],
                 'barkSubscribe' => ['type' => $Dog],
             ],
         ]);
 
         return new Schema([
-            'query'        => $queryRoot,
+            'query' => $queryRoot,
             'subscription' => $subscriptionRoot,
-            'directives'   => [
+            'directives' => [
                 Directive::includeDirective(),
                 Directive::skipDirective(),
                 Directive::deprecatedDirective(),
                 new Directive([
-                    'name'      => 'directive',
+                    'name' => 'directive',
                     'locations' => [DirectiveLocation::FIELD],
                 ]),
                 new Directive([
-                    'name'      => 'directiveA',
+                    'name' => 'directiveA',
                     'locations' => [DirectiveLocation::FIELD],
                 ]),
                 new Directive([
-                    'name'      => 'directiveB',
+                    'name' => 'directiveB',
                     'locations' => [DirectiveLocation::FIELD],
                 ]),
                 new Directive([
-                    'name'      => 'onQuery',
+                    'name' => 'onQuery',
                     'locations' => [DirectiveLocation::QUERY],
                 ]),
                 new Directive([
-                    'name'      => 'onMutation',
+                    'name' => 'onMutation',
                     'locations' => [DirectiveLocation::MUTATION],
                 ]),
                 new Directive([
-                    'name'      => 'onSubscription',
+                    'name' => 'onSubscription',
                     'locations' => [DirectiveLocation::SUBSCRIPTION],
                 ]),
                 new Directive([
-                    'name'      => 'onField',
+                    'name' => 'onField',
                     'locations' => [DirectiveLocation::FIELD],
                 ]),
                 new Directive([
-                    'name'      => 'onFragmentDefinition',
+                    'name' => 'onFragmentDefinition',
                     'locations' => [DirectiveLocation::FRAGMENT_DEFINITION],
                 ]),
                 new Directive([
-                    'name'      => 'onFragmentSpread',
+                    'name' => 'onFragmentSpread',
                     'locations' => [DirectiveLocation::FRAGMENT_SPREAD],
                 ]),
                 new Directive([
-                    'name'      => 'onInlineFragment',
+                    'name' => 'onInlineFragment',
                     'locations' => [DirectiveLocation::INLINE_FRAGMENT],
                 ]),
                 new Directive([
-                    'name'      => 'onVariableDefinition',
+                    'name' => 'onVariableDefinition',
                     'locations' => [DirectiveLocation::VARIABLE_DEFINITION],
                 ]),
             ],

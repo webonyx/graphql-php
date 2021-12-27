@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
-use ArrayAccess;
-use InvalidArgumentException;
-use ReturnTypeWillChange;
-use SplObjectStorage;
-
 use function array_key_exists;
 use function array_search;
 use function array_splice;
+use ArrayAccess;
+use InvalidArgumentException;
 use function is_array;
 use function is_float;
 use function is_int;
 use function is_object;
 use function is_string;
+use ReturnTypeWillChange;
+use SplObjectStorage;
 
 /**
  * Similar to PHP array, but allows any type of data to act as key (including arrays, objects, scalars).
@@ -75,11 +74,11 @@ class MixedStore implements ArrayAccess
     #[ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {
-        if ($offset === false) {
+        if (false === $offset) {
             return $this->falseValueIsSet;
         }
 
-        if ($offset === true) {
+        if (true === $offset) {
             return $this->trueValueIsSet;
         }
 
@@ -98,7 +97,7 @@ class MixedStore implements ArrayAccess
         if (is_array($offset)) {
             foreach ($this->arrayKeys as $index => $entry) {
                 if ($entry === $offset) {
-                    $this->lastArrayKey   = $offset;
+                    $this->lastArrayKey = $offset;
                     $this->lastArrayValue = $this->arrayValues[$index];
 
                     return true;
@@ -106,7 +105,7 @@ class MixedStore implements ArrayAccess
             }
         }
 
-        if ($offset === null) {
+        if (null === $offset) {
             return $this->nullValueIsSet;
         }
 
@@ -121,11 +120,11 @@ class MixedStore implements ArrayAccess
     #[ReturnTypeWillChange]
     public function offsetGet($offset)
     {
-        if ($offset === true) {
+        if (true === $offset) {
             return $this->trueValue;
         }
 
-        if ($offset === false) {
+        if (false === $offset) {
             return $this->falseValue;
         }
 
@@ -154,7 +153,7 @@ class MixedStore implements ArrayAccess
             }
         }
 
-        if ($offset === null) {
+        if (null === $offset) {
             return $this->nullValue;
         }
 
@@ -168,11 +167,11 @@ class MixedStore implements ArrayAccess
     #[ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
     {
-        if ($offset === false) {
-            $this->falseValue      = $value;
+        if (false === $offset) {
+            $this->falseValue = $value;
             $this->falseValueIsSet = true;
-        } elseif ($offset === true) {
-            $this->trueValue      = $value;
+        } elseif (true === $offset) {
+            $this->trueValue = $value;
             $this->trueValueIsSet = true;
         } elseif (is_int($offset) || is_string($offset)) {
             $this->standardStore[$offset] = $value;
@@ -181,10 +180,10 @@ class MixedStore implements ArrayAccess
         } elseif (is_object($offset)) {
             $this->objectStore[$offset] = $value;
         } elseif (is_array($offset)) {
-            $this->arrayKeys[]   = $offset;
+            $this->arrayKeys[] = $offset;
             $this->arrayValues[] = $value;
-        } elseif ($offset === null) {
-            $this->nullValue      = $value;
+        } elseif (null === $offset) {
+            $this->nullValue = $value;
             $this->nullValueIsSet = true;
         } else {
             throw new InvalidArgumentException('Unexpected offset type: ' . Utils::printSafe($offset));
@@ -197,11 +196,11 @@ class MixedStore implements ArrayAccess
     #[ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {
-        if ($offset === true) {
-            $this->trueValue      = null;
+        if (true === $offset) {
+            $this->trueValue = null;
             $this->trueValueIsSet = false;
-        } elseif ($offset === false) {
-            $this->falseValue      = null;
+        } elseif (false === $offset) {
+            $this->falseValue = null;
             $this->falseValueIsSet = false;
         } elseif (is_int($offset) || is_string($offset)) {
             unset($this->standardStore[$offset]);
@@ -212,12 +211,12 @@ class MixedStore implements ArrayAccess
         } elseif (is_array($offset)) {
             $index = array_search($offset, $this->arrayKeys, true);
 
-            if ($index !== false) {
+            if (false !== $index) {
                 array_splice($this->arrayKeys, $index, 1);
                 array_splice($this->arrayValues, $index, 1);
             }
-        } elseif ($offset === null) {
-            $this->nullValue      = null;
+        } elseif (null === $offset) {
+            $this->nullValue = null;
             $this->nullValueIsSet = false;
         }
     }

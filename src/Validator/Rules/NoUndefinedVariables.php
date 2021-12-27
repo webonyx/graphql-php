@@ -30,7 +30,7 @@ class NoUndefinedVariables extends ValidationRule
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
-                        $node    = $usage['node'];
+                        $node = $usage['node'];
                         $varName = $node->name->value;
 
                         if (isset($variableNameDefined[$varName])) {
@@ -40,7 +40,7 @@ class NoUndefinedVariables extends ValidationRule
                         $context->reportError(new Error(
                             static::undefinedVarMessage(
                                 $varName,
-                                $operation->name !== null
+                                null !== $operation->name
                                     ? $operation->name->value
                                     : null
                             ),
@@ -49,7 +49,7 @@ class NoUndefinedVariables extends ValidationRule
                     }
                 },
             ],
-            NodeKind::VARIABLE_DEFINITION  => static function (VariableDefinitionNode $def) use (&$variableNameDefined): void {
+            NodeKind::VARIABLE_DEFINITION => static function (VariableDefinitionNode $def) use (&$variableNameDefined): void {
                 $variableNameDefined[$def->variable->name->value] = true;
             },
         ];
@@ -57,7 +57,7 @@ class NoUndefinedVariables extends ValidationRule
 
     public static function undefinedVarMessage(string $varName, ?string $opName): string
     {
-        return $opName === null
+        return null === $opName
             ? 'Variable "$' . $varName . '" is not defined by operation "' . $opName . '".'
             : 'Variable "$' . $varName . '" is not defined.';
     }

@@ -70,7 +70,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     {
         self::markTestSkipped('Missing implementation for SDL validation for now');
         $schema = BuildSchema::build('type Query { foo: String }');
-        $query  = '
+        $query = '
       query ($id: ID, $float: Float, $int: Int) {
         __typename
       }
@@ -188,52 +188,52 @@ class KnownTypeNamesTest extends ValidatorTestCase
             null,
             [
                 [
-                    'message' =>  'Unknown type "C". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 5, 'column' => 36 ]],
+                    'message' => 'Unknown type "C". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 5, 'column' => 36]],
                 ],
                 [
-                    'message' =>  'Unknown type "D". Did you mean "A", "B", or "ID"?',
-                    'locations' =>  [[ 'line' => 6, 'column' => 16 ]],
+                    'message' => 'Unknown type "D". Did you mean "A", "B", or "ID"?',
+                    'locations' => [['line' => 6, 'column' => 16]],
                 ],
                 [
-                    'message' =>  'Unknown type "E". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 6, 'column' => 20 ]],
+                    'message' => 'Unknown type "E". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 6, 'column' => 20]],
                 ],
                 [
-                    'message' =>  'Unknown type "F". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 9, 'column' => 27 ]],
+                    'message' => 'Unknown type "F". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 9, 'column' => 27]],
                 ],
                 [
-                    'message' =>  'Unknown type "G". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 9, 'column' => 31 ]],
+                    'message' => 'Unknown type "G". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 9, 'column' => 31]],
                 ],
                 [
-                    'message' =>  'Unknown type "H". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 12, 'column' => 16 ]],
+                    'message' => 'Unknown type "H". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 12, 'column' => 16]],
                 ],
                 [
-                    'message' =>  'Unknown type "I". Did you mean "A", "B", or "ID"?',
-                    'locations' =>  [[ 'line' => 12, 'column' => 20 ]],
+                    'message' => 'Unknown type "I". Did you mean "A", "B", or "ID"?',
+                    'locations' => [['line' => 12, 'column' => 20]],
                 ],
                 [
-                    'message' =>  'Unknown type "J". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 16, 'column' => 14 ]],
+                    'message' => 'Unknown type "J". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 16, 'column' => 14]],
                 ],
                 [
-                    'message' =>  'Unknown type "K". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 19, 'column' => 37 ]],
+                    'message' => 'Unknown type "K". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 19, 'column' => 37]],
                 ],
                 [
-                    'message' =>  'Unknown type "L". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 22, 'column' => 18 ]],
+                    'message' => 'Unknown type "L". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 22, 'column' => 18]],
                 ],
                 [
-                    'message' =>  'Unknown type "M". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 23, 'column' => 21 ]],
+                    'message' => 'Unknown type "M". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 23, 'column' => 21]],
                 ],
                 [
-                    'message' =>  'Unknown type "N". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 24, 'column' => 25 ]],
+                    'message' => 'Unknown type "N". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 24, 'column' => 25]],
                 ],
             ]
         );
@@ -259,8 +259,8 @@ class KnownTypeNamesTest extends ValidatorTestCase
             null,
             [
                 [
-                    'message' =>  'Unknown type "Foo".',
-                    'locations' =>  [[ 'line' => 7, 'column' => 16 ]],
+                    'message' => 'Unknown type "Foo".',
+                    'locations' => [['line' => 7, 'column' => 16]],
                 ],
             ]
         );
@@ -272,7 +272,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     public function testReferenceStandardTypesInsideExtensionDocument(): void
     {
         $schema = BuildSchema::build('type Foo');
-        $sdl    = '
+        $sdl = '
         type SomeType {
           string: String
           int: Int
@@ -296,7 +296,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     public function testReferenceTypesInsideExtensionDocument(): void
     {
         $schema = BuildSchema::build('type Foo');
-        $sdl    = '
+        $sdl = '
         type QueryRoot {
           foo: Foo
           bar: Bar
@@ -323,7 +323,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     {
         self::markTestSkipped('Missing implementation for SDL validation for now');
         $schema = BuildSchema::build('type A');
-        $sdl    = '
+        $sdl = '
         
         type B
 
@@ -356,52 +356,52 @@ class KnownTypeNamesTest extends ValidatorTestCase
             $schema,
             [
                 [
-                    'message' =>  'Unknown type "C". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 5, 'column' => 36 ]],
+                    'message' => 'Unknown type "C". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 5, 'column' => 36]],
                 ],
                 [
-                    'message' =>  'Unknown type "D". Did you mean "A", "B", or "ID"?',
-                    'locations' =>  [[ 'line' => 6, 'column' => 16 ]],
+                    'message' => 'Unknown type "D". Did you mean "A", "B", or "ID"?',
+                    'locations' => [['line' => 6, 'column' => 16]],
                 ],
                 [
-                    'message' =>  'Unknown type "E". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 6, 'column' => 20 ]],
+                    'message' => 'Unknown type "E". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 6, 'column' => 20]],
                 ],
                 [
-                    'message' =>  'Unknown type "F". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 9, 'column' => 27 ]],
+                    'message' => 'Unknown type "F". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 9, 'column' => 27]],
                 ],
                 [
-                    'message' =>  'Unknown type "G". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 9, 'column' => 31 ]],
+                    'message' => 'Unknown type "G". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 9, 'column' => 31]],
                 ],
                 [
-                    'message' =>  'Unknown type "H". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 12, 'column' => 16 ]],
+                    'message' => 'Unknown type "H". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 12, 'column' => 16]],
                 ],
                 [
-                    'message' =>  'Unknown type "I". Did you mean "A", "B", or "ID"?',
-                    'locations' =>  [[ 'line' => 12, 'column' => 20 ]],
+                    'message' => 'Unknown type "I". Did you mean "A", "B", or "ID"?',
+                    'locations' => [['line' => 12, 'column' => 20]],
                 ],
                 [
-                    'message' =>  'Unknown type "J". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 16, 'column' => 14 ]],
+                    'message' => 'Unknown type "J". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 16, 'column' => 14]],
                 ],
                 [
-                    'message' =>  'Unknown type "K". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 19, 'column' => 37 ]],
+                    'message' => 'Unknown type "K". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 19, 'column' => 37]],
                 ],
                 [
-                    'message' =>  'Unknown type "L". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 22, 'column' => 18 ]],
+                    'message' => 'Unknown type "L". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 22, 'column' => 18]],
                 ],
                 [
-                    'message' =>  'Unknown type "M". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 23, 'column' => 21 ]],
+                    'message' => 'Unknown type "M". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 23, 'column' => 21]],
                 ],
                 [
-                    'message' =>  'Unknown type "N". Did you mean "A" or "B"?',
-                    'locations' =>  [[ 'line' => 24, 'column' => 25 ]],
+                    'message' => 'Unknown type "N". Did you mean "A" or "B"?',
+                    'locations' => [['line' => 24, 'column' => 25]],
                 ],
             ]
         );

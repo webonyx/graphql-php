@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\QueryDepth;
-
 use function sprintf;
 use function str_replace;
 
@@ -30,16 +29,16 @@ class QueryDepthTest extends QuerySecurityTestCase
     {
         $templates = [
             'human' => ' { firstName%s } ',
-            'dog'   => ' dogs { name%s } ',
+            'dog' => ' dogs { name%s } ',
         ];
 
         $part = $templates['human'];
 
         for ($i = 1; $i <= $depth; ++$i) {
-            $key      = $i % 2 === 1 ? 'human' : 'dog';
+            $key = 1 === $i % 2 ? 'human' : 'dog';
             $template = $templates[$key];
 
-            $part = sprintf($part, ($key === 'human' ? ' owner ' : '') . $template);
+            $part = sprintf($part, ('human' === $key ? ' owner ' : '') . $template);
         }
 
         return str_replace('%s', '', $part);

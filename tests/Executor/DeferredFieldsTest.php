@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use function array_filter;
+use function count;
 use GraphQL\Deferred;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
@@ -11,12 +13,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use PHPUnit\Framework\TestCase;
-
-use function array_filter;
-use function count;
 use function in_array;
 use function json_encode;
+use PHPUnit\Framework\TestCase;
 
 class DeferredFieldsTest extends TestCase
 {
@@ -96,11 +95,11 @@ class DeferredFieldsTest extends TestCase
         ];
 
         $this->userType = new ObjectType([
-            'name'   => 'User',
+            'name' => 'User',
             'fields' => function (): array {
                 return [
-                    'name'       => [
-                        'type'    => Type::string(),
+                    'name' => [
+                        'type' => Type::string(),
                         'resolve' => function ($user, $args, $context, ResolveInfo $info) {
                             $this->paths[] = $info->path;
 
@@ -108,7 +107,7 @@ class DeferredFieldsTest extends TestCase
                         },
                     ],
                     'bestFriend' => [
-                        'type'    => $this->userType,
+                        'type' => $this->userType,
                         'resolve' => function ($user, $args, $context, ResolveInfo $info): Deferred {
                             $this->paths[] = $info->path;
 
@@ -124,10 +123,10 @@ class DeferredFieldsTest extends TestCase
         ]);
 
         $this->storyType = new ObjectType([
-            'name'   => 'Story',
+            'name' => 'Story',
             'fields' => [
-                'title'  => [
-                    'type'    => Type::string(),
+                'title' => [
+                    'type' => Type::string(),
                     'resolve' => function ($story, $args, $context, ResolveInfo $info) {
                         $this->paths[] = $info->path;
 
@@ -135,7 +134,7 @@ class DeferredFieldsTest extends TestCase
                     },
                 ],
                 'author' => [
-                    'type'    => $this->userType,
+                    'type' => $this->userType,
                     'resolve' => function ($story, $args, $context, ResolveInfo $info): Deferred {
                         $this->paths[] = $info->path;
 
@@ -150,10 +149,10 @@ class DeferredFieldsTest extends TestCase
         ]);
 
         $this->categoryType = new ObjectType([
-            'name'   => 'Category',
+            'name' => 'Category',
             'fields' => [
                 'name' => [
-                    'type'    => Type::string(),
+                    'type' => Type::string(),
                     'resolve' => function ($category, array $args, $context, ResolveInfo $info) {
                         $this->paths[] = $info->path;
 
@@ -161,8 +160,8 @@ class DeferredFieldsTest extends TestCase
                     },
                 ],
 
-                'stories'  => [
-                    'type'    => Type::listOf($this->storyType),
+                'stories' => [
+                    'type' => Type::listOf($this->storyType),
                     'resolve' => function ($category, array $args, $context, ResolveInfo $info): array {
                         $this->paths[] = $info->path;
 
@@ -173,7 +172,7 @@ class DeferredFieldsTest extends TestCase
                     },
                 ],
                 'topStory' => [
-                    'type'    => $this->storyType,
+                    'type' => $this->storyType,
                     'resolve' => function ($category, array $args, $context, ResolveInfo $info): Deferred {
                         $this->paths[] = $info->path;
 
@@ -191,7 +190,7 @@ class DeferredFieldsTest extends TestCase
 
                         return new Deferred(function () use ($category): Deferred {
                             $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStoryAuthor1';
-                            $story         = $this->findStoryById($category['topStoryId']);
+                            $story = $this->findStoryById($category['topStoryId']);
 
                             return new Deferred(function () use ($category, $story) {
                                 $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStoryAuthor2';
@@ -205,10 +204,10 @@ class DeferredFieldsTest extends TestCase
         ]);
 
         $this->queryType = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => [
-                'topStories'       => [
-                    'type'    => Type::listOf($this->storyType),
+                'topStories' => [
+                    'type' => Type::listOf($this->storyType),
                     'resolve' => function ($rootValue, array $args, $context, ResolveInfo $info): array {
                         $this->paths[] = $info->path;
 
@@ -219,15 +218,15 @@ class DeferredFieldsTest extends TestCase
                     },
                 ],
                 'featuredCategory' => [
-                    'type'    => $this->categoryType,
+                    'type' => $this->categoryType,
                     'resolve' => function ($rootValue, array $args, $context, ResolveInfo $info): array {
                         $this->paths[] = $info->path;
 
                         return $this->categoryDataSource[0];
                     },
                 ],
-                'categories'       => [
-                    'type'    => Type::listOf($this->categoryType),
+                'categories' => [
+                    'type' => Type::listOf($this->categoryType),
                     'resolve' => function ($rootValue, array $args, $context, ResolveInfo $info): array {
                         $this->paths[] = $info->path;
 
@@ -267,7 +266,7 @@ class DeferredFieldsTest extends TestCase
 
         $expected = [
             'data' => [
-                'topStories'       => [
+                'topStories' => [
                     ['title' => 'Story #1', 'author' => ['name' => 'John']],
                     ['title' => 'Story #3', 'author' => ['name' => 'Joe']],
                     ['title' => 'Story #5', 'author' => ['name' => 'John']],
@@ -418,19 +417,19 @@ class DeferredFieldsTest extends TestCase
     public function testComplexRecursiveDeferredFields(): void
     {
         $complexType = new ObjectType([
-            'name'   => 'ComplexType',
+            'name' => 'ComplexType',
             'fields' => function () use (&$complexType): array {
                 return [
-                    'sync'         => [
-                        'type'    => Type::string(),
+                    'sync' => [
+                        'type' => Type::string(),
                         'resolve' => function ($complexType, $args, $context, ResolveInfo $info): string {
                             $this->paths[] = $info->path;
 
                             return 'sync';
                         },
                     ],
-                    'deferred'     => [
-                        'type'    => Type::string(),
+                    'deferred' => [
+                        'type' => Type::string(),
                         'resolve' => function ($complexType, $args, $context, ResolveInfo $info): Deferred {
                             $this->paths[] = $info->path;
 
@@ -441,8 +440,8 @@ class DeferredFieldsTest extends TestCase
                             });
                         },
                     ],
-                    'nest'         => [
-                        'type'    => $complexType,
+                    'nest' => [
+                        'type' => $complexType,
                         'resolve' => function ($complexType, $args, $context, ResolveInfo $info): array {
                             $this->paths[] = $info->path;
 
@@ -450,7 +449,7 @@ class DeferredFieldsTest extends TestCase
                         },
                     ],
                     'deferredNest' => [
-                        'type'    => $complexType,
+                        'type' => $complexType,
                         'resolve' => function ($complexType, $args, $context, ResolveInfo $info): Deferred {
                             $this->paths[] = $info->path;
 
@@ -467,7 +466,7 @@ class DeferredFieldsTest extends TestCase
 
         $schema = new Schema(['query' => $complexType]);
 
-        $query    = Parser::parse('
+        $query = Parser::parse('
             {
                 nest {
                     sync
@@ -495,30 +494,30 @@ class DeferredFieldsTest extends TestCase
                 }
             }
         ');
-        $result   = Executor::execute($schema, $query);
+        $result = Executor::execute($schema, $query);
         $expected = [
             'data' => [
-                'nest'         => [
-                    'sync'         => 'sync',
-                    'deferred'     => 'deferred',
-                    'nest'         => [
-                        'sync'     => 'sync',
+                'nest' => [
+                    'sync' => 'sync',
+                    'deferred' => 'deferred',
+                    'nest' => [
+                        'sync' => 'sync',
                         'deferred' => 'deferred',
                     ],
                     'deferredNest' => [
-                        'sync'     => 'sync',
+                        'sync' => 'sync',
                         'deferred' => 'deferred',
                     ],
                 ],
                 'deferredNest' => [
-                    'sync'         => 'sync',
-                    'deferred'     => 'deferred',
-                    'nest'         => [
-                        'sync'     => 'sync',
+                    'sync' => 'sync',
+                    'deferred' => 'deferred',
+                    'nest' => [
+                        'sync' => 'sync',
                         'deferred' => 'deferred',
                     ],
                     'deferredNest' => [
-                        'sync'     => 'sync',
+                        'sync' => 'sync',
                         'deferred' => 'deferred',
                     ],
                 ],
@@ -599,7 +598,7 @@ class DeferredFieldsTest extends TestCase
         $story2 = ['title' => 'Story #3', 'author' => $author3];
         $story3 = ['title' => 'Story #9', 'author' => $author2];
 
-        $result   = Executor::execute($schema, $query);
+        $result = Executor::execute($schema, $query);
         $expected = [
             'data' => [
                 'categories' => [

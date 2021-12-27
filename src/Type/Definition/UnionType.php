@@ -9,7 +9,6 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
-
 use function is_callable;
 use function is_iterable;
 use function is_string;
@@ -60,9 +59,9 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         $config['name'] ??= $this->tryInferName();
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        $this->name              = $config['name'];
-        $this->description       = $config['description'] ?? $this->description ?? null;
-        $this->astNode           = $config['astNode'] ?? null;
+        $this->name = $config['name'];
+        $this->description = $config['description'] ?? $this->description ?? null;
+        $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
         $this->config = $config;
@@ -85,9 +84,9 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     }
 
     /**
-     * @return array<int, ObjectType>
-     *
      * @throws InvariantViolation
+     *
+     * @return array<int, ObjectType>
      */
     public function getTypes(): array
     {

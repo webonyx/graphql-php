@@ -9,9 +9,9 @@ namespace GraphQL\Error;
  */
 final class DebugFlag
 {
-    public const NONE                        = 0;
-    public const INCLUDE_DEBUG_MESSAGE       = 1;
-    public const INCLUDE_TRACE               = 2;
+    public const NONE = 0;
+    public const INCLUDE_DEBUG_MESSAGE = 1;
+    public const INCLUDE_TRACE = 2;
     public const RETHROW_INTERNAL_EXCEPTIONS = 4;
-    public const RETHROW_UNSAFE_EXCEPTIONS   = 8;
+    public const RETHROW_UNSAFE_EXCEPTIONS = 8;
 }

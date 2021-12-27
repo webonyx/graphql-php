@@ -31,8 +31,8 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
         parent::setUp();
 
         $this->node = new InterfaceType([
-            'name'        => 'Node',
-            'fields'      => function (): array {
+            'name' => 'Node',
+            'fields' => function (): array {
                 $this->calls[] = 'Node.fields';
 
                 return [
@@ -43,25 +43,25 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
         ]);
 
         $this->content = new InterfaceType([
-            'name'        => 'Content',
-            'fields'      => function (): array {
+            'name' => 'Content',
+            'fields' => function (): array {
                 $this->calls[] = 'Content.fields';
 
                 return [
                     'title' => Type::string(),
-                    'body'  => Type::string(),
+                    'body' => Type::string(),
                 ];
             },
             'resolveType' => static fn (): ?ObjectType => null,
         ]);
 
         $this->blogStory = new ObjectType([
-            'name'       => 'BlogStory',
+            'name' => 'BlogStory',
             'interfaces' => [
                 $this->node,
                 $this->content,
             ],
-            'fields'     => function (): array {
+            'fields' => function (): array {
                 $this->calls[] = 'BlogStory.fields';
 
                 return [
@@ -73,19 +73,19 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
         ]);
 
         $this->query = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => function (): array {
                 $this->calls[] = 'Query.fields';
 
                 return [
                     'latestContent' => $this->content,
-                    'node'          => $this->node,
+                    'node' => $this->node,
                 ];
             },
         ]);
 
         $this->mutation = new ObjectType([
-            'name'   => 'Mutation',
+            'name' => 'Mutation',
             'fields' => function (): array {
                 $this->calls[] = 'Mutation.fields';
 
@@ -93,7 +93,7 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
                     'postStory' => [
                         'type' => $this->postStoryMutation,
                         'args' => [
-                            'input'           => Type::nonNull($this->postStoryMutationInput),
+                            'input' => Type::nonNull($this->postStoryMutationInput),
                             'clientRequestId' => Type::string(),
                         ],
                     ],
@@ -102,18 +102,18 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
         ]);
 
         $this->postStoryMutation = new ObjectType([
-            'name'   => 'PostStoryMutation',
+            'name' => 'PostStoryMutation',
             'fields' => [
                 'story' => $this->blogStory,
             ],
         ]);
 
         $this->postStoryMutationInput = new InputObjectType([
-            'name'   => 'PostStoryMutationInput',
+            'name' => 'PostStoryMutationInput',
             'fields' => [
-                'title'    => Type::string(),
-                'body'     => Type::string(),
-                'author'   => Type::id(),
+                'title' => Type::string(),
+                'body' => Type::string(),
+                'author' => Type::id(),
                 'category' => Type::id(),
             ],
         ]);
@@ -152,9 +152,9 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
     public function testWorksWithoutTypeLoader(): void
     {
         $schema = new Schema([
-            'query'    => $this->query,
+            'query' => $this->query,
             'mutation' => $this->mutation,
-            'types'    => [$this->blogStory],
+            'types' => [$this->blogStory],
         ]);
 
         $expected = [
@@ -175,12 +175,12 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
         self::assertSame($this->postStoryMutationInput, $schema->getType('PostStoryMutationInput'));
 
         $expectedTypeMap = [
-            'Query'                  => $this->query,
-            'Mutation'               => $this->mutation,
-            'Node'                   => $this->node,
-            'String'                 => Type::string(),
-            'Content'                => $this->content,
-            'BlogStory'              => $this->blogStory,
+            'Query' => $this->query,
+            'Mutation' => $this->mutation,
+            'Node' => $this->node,
+            'String' => Type::string(),
+            'Content' => $this->content,
+            'BlogStory' => $this->blogStory,
             'PostStoryMutationInput' => $this->postStoryMutationInput,
         ];
 
@@ -190,8 +190,8 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
     public function testWorksWithTypeLoader(): void
     {
         $schema = new Schema([
-            'query'      => $this->query,
-            'mutation'   => $this->mutation,
+            'query' => $this->query,
+            'mutation' => $this->mutation,
             'typeLoader' => $this->typeLoader,
         ]);
         self::assertEquals([], $this->calls);
@@ -223,7 +223,7 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
     public function testFailsOnInvalidLoad(): void
     {
         $schema = new Schema([
-            'query'      => $this->query,
+            'query' => $this->query,
             'typeLoader' => fn (): Type => $this->content,
         ]);
 

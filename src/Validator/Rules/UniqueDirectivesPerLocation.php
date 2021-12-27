@@ -15,7 +15,7 @@ use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
 /**
- * Unique directive names per location
+ * Unique directive names per location.
  *
  * A GraphQL document is only valid if all non-repeatable directives at
  * a given location are uniquely named.
@@ -41,8 +41,8 @@ class UniqueDirectivesPerLocation extends ValidationRule
     {
         $uniqueDirectiveMap = [];
 
-        $schema            = $context->getSchema();
-        $definedDirectives = $schema !== null
+        $schema = $context->getSchema();
+        $definedDirectives = null !== $schema
             ? $schema->getDirectives()
             : Directive::getInternalDirectives();
         foreach ($definedDirectives as $directive) {

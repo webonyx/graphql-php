@@ -6,7 +6,6 @@ namespace GraphQL\Examples\Blog\Type\Field;
 
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
 use GraphQL\Examples\Blog\Types;
-
 use function mb_substr;
 use function nl2br;
 use function strip_tags;
@@ -45,9 +44,10 @@ class HtmlField
                         if ($safeText !== $text) {
                             // Text was truncated, so just show what's safe:
                             return nl2br($safeText);
-                        } else {
-                            return $html;
                         }
+
+                            return $html;
+
                     case ContentFormatType::FORMAT_TEXT:
                     default:
                         return $safeText;

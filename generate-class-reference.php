@@ -49,10 +49,10 @@ $entries = [
     ExecutionResult::class => [],
     PromiseAdapter::class => [],
     DocumentValidator::class => [],
-    Error::class           => ['constants' => true],
-    Warning::class         => ['constants' => true],
+    Error::class => ['constants' => true],
+    Warning::class => ['constants' => true],
     ClientAware::class => [],
-    DebugFlag::class       => ['constants' => true],
+    DebugFlag::class => ['constants' => true],
     FormattedError::class => [],
     StandardServer::class => [],
     ServerConfig::class => [],
@@ -70,7 +70,7 @@ $entries = [
 function renderClass(ReflectionClass $class, array $options): string
 {
     $classDocs = unwrapDocblock(unpadDocblock($class->getDocComment()));
-    $content   = '';
+    $content = '';
     $className = $class->getName();
 
     if ($options['constants'] ?? false) {
@@ -81,7 +81,7 @@ function renderClass(ReflectionClass $class, array $options): string
 
         if (count($constants) > 0) {
             $constants = "```php\n" . implode("\n", $constants) . "\n```";
-            $content  .= "### $className Constants\n\n$constants\n\n";
+            $content .= "### $className Constants\n\n$constants\n\n";
         }
     }
 
@@ -96,7 +96,7 @@ function renderClass(ReflectionClass $class, array $options): string
         }
 
         if (count($props) > 0) {
-            $props    = "```php\n" . implode("\n\n", $props) . "\n```";
+            $props = "```php\n" . implode("\n\n", $props) . "\n```";
             $content .= "### $className Props\n\n$props\n\n";
         }
     }
@@ -112,7 +112,7 @@ function renderClass(ReflectionClass $class, array $options): string
         }
 
         if (count($methods) > 0) {
-            $methods  = implode("\n\n", $methods);
+            $methods = implode("\n\n", $methods);
             $content .= "### $className Methods\n\n{$methods}\n\n";
         }
     }
@@ -128,13 +128,13 @@ function renderClass(ReflectionClass $class, array $options): string
 
 function renderMethod(ReflectionMethod $method): string
 {
-    $args    = array_map(
+    $args = array_map(
         static function (ReflectionParameter $p): string {
             $type = ltrim($p->getType() . ' ');
-            $def  = $type . '$' . $p->getName();
+            $def = $type . '$' . $p->getName();
 
             if ($p->isDefaultValueAvailable()) {
-                $val  = $p->isDefaultValueConstant()
+                $val = $p->isDefaultValueConstant()
                     ? $p->getDefaultValueConstantName()
                     : $p->getDefaultValue();
                 $def .= ' = ' . VarExporter::export($val);
@@ -150,14 +150,14 @@ function renderMethod(ReflectionMethod $method): string
     }
 
     $returnType = $method->getReturnType();
-    $def        = "function {$method->getName()}($argsStr)";
-    $def        = $method->isStatic()
+    $def = "function {$method->getName()}($argsStr)";
+    $def = $method->isStatic()
         ? "static $def"
         : $def;
-    $def        = $returnType instanceof ReflectionType
+    $def = $returnType instanceof ReflectionType
         ? "$def: $returnType"
         : $def;
-    $docBlock   = unpadDocblock($method->getDocComment());
+    $docBlock = unpadDocblock($method->getDocComment());
 
     return <<<TEMPLATE
 ```php
@@ -219,7 +219,7 @@ function isApi(Reflector $reflector): bool
         return false;
     }
 
-    return preg_match('~[\r\n ]+\* @api~', $comment) === 1;
+    return 1 === preg_match('~[\r\n ]+\* @api~', $comment);
 }
 
 file_put_contents($outputFile, '');

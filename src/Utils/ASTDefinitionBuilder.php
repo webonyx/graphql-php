@@ -32,11 +32,10 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-use Throwable;
-
 use function is_array;
 use function is_string;
 use function sprintf;
+use Throwable;
 
 /**
  * @phpstan-import-type FieldMapConfig from FieldDefinition
@@ -74,8 +73,8 @@ class ASTDefinitionBuilder
         callable $resolveType,
         ?callable $typeConfigDecorator = null
     ) {
-        $this->typeDefinitionsMap  = $typeDefinitionsMap;
-        $this->resolveType         = $resolveType;
+        $this->typeDefinitionsMap = $typeDefinitionsMap;
+        $this->resolveType = $resolveType;
         $this->typeConfigDecorator = $typeConfigDecorator;
 
         $this->cache = Type::getAllBuiltInTypes();
@@ -89,12 +88,12 @@ class ASTDefinitionBuilder
         }
 
         return new Directive([
-            'name'         => $directiveNode->name->value,
-            'description'  => $directiveNode->description->value ?? null,
-            'args'         => $this->makeInputValues($directiveNode->arguments),
+            'name' => $directiveNode->name->value,
+            'description' => $directiveNode->description->value ?? null,
+            'args' => $this->makeInputValues($directiveNode->arguments),
             'isRepeatable' => $directiveNode->repeatable,
-            'locations'    => $locations,
-            'astNode'      => $directiveNode,
+            'locations' => $locations,
+            'astNode' => $directiveNode,
         ]);
     }
 
@@ -207,9 +206,9 @@ class ASTDefinitionBuilder
     /**
      * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|EnumTypeDefinitionNode|ScalarTypeDefinitionNode|InputObjectTypeDefinitionNode|UnionTypeDefinitionNode $def
      *
-     * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
-     *
      * @throws Error
+     *
+     * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
      */
     private function makeSchemaDef(Node $def): Type
     {
@@ -237,11 +236,11 @@ class ASTDefinitionBuilder
     private function makeTypeDef(ObjectTypeDefinitionNode $def): ObjectType
     {
         return new ObjectType([
-            'name'        => $def->name->value,
+            'name' => $def->name->value,
             'description' => $def->description->value ?? null,
-            'fields'      => fn (): array => $this->makeFieldDefMap($def),
-            'interfaces'  => fn (): array => $this->makeImplementedInterfaces($def),
-            'astNode'     => $def,
+            'fields' => fn (): array => $this->makeFieldDefMap($def),
+            'interfaces' => fn (): array => $this->makeImplementedInterfaces($def),
+            'astNode' => $def,
         ]);
     }
 
@@ -269,11 +268,11 @@ class ASTDefinitionBuilder
             // Note: While this could make assertions to get the correctly typed
             // value, that would throw immediately while type system validation
             // with validateSchema() will produce more actionable results.
-            'type'              => $this->buildWrappedType($field->type),
-            'description'       => $field->description->value ?? null,
-            'args'              => $this->makeInputValues($field->arguments),
+            'type' => $this->buildWrappedType($field->type),
+            'description' => $field->description->value ?? null,
+            'args' => $this->makeInputValues($field->arguments),
             'deprecationReason' => $this->getDeprecationReason($field),
-            'astNode'           => $field,
+            'astNode' => $field,
         ];
     }
 
@@ -316,11 +315,11 @@ class ASTDefinitionBuilder
     private function makeInterfaceDef(InterfaceTypeDefinitionNode $def): InterfaceType
     {
         return new InterfaceType([
-            'name'        => $def->name->value,
+            'name' => $def->name->value,
             'description' => $def->description->value ?? null,
-            'fields'      => fn (): array => $this->makeFieldDefMap($def),
-            'interfaces'  => fn (): array => $this->makeImplementedInterfaces($def),
-            'astNode'     => $def,
+            'fields' => fn (): array => $this->makeFieldDefMap($def),
+            'interfaces' => fn (): array => $this->makeImplementedInterfaces($def),
+            'astNode' => $def,
         ]);
     }
 
@@ -336,22 +335,22 @@ class ASTDefinitionBuilder
         }
 
         return new EnumType([
-            'name'        => $def->name->value,
+            'name' => $def->name->value,
             'description' => $def->description->value ?? null,
-            'values'      => $values,
-            'astNode'     => $def,
+            'values' => $values,
+            'astNode' => $def,
         ]);
     }
 
     private function makeUnionDef(UnionTypeDefinitionNode $def): UnionType
     {
         return new UnionType([
-            'name'        => $def->name->value,
+            'name' => $def->name->value,
             'description' => $def->description->value ?? null,
             // Note: While this could make assertions to get the correctly typed
             // values below, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
-            'types'       =>  function () use ($def): array {
+            'types' => function () use ($def): array {
                 $types = [];
                 foreach ($def->types as $type) {
                     $types[] = $this->buildType($type);
@@ -359,36 +358,36 @@ class ASTDefinitionBuilder
 
                 return $types;
             },
-            'astNode'     => $def,
+            'astNode' => $def,
         ]);
     }
 
     private function makeScalarDef(ScalarTypeDefinitionNode $def): CustomScalarType
     {
         return new CustomScalarType([
-            'name'        => $def->name->value,
+            'name' => $def->name->value,
             'description' => $def->description->value ?? null,
-            'astNode'     => $def,
-            'serialize'   => static fn ($value) => $value,
+            'astNode' => $def,
+            'serialize' => static fn ($value) => $value,
         ]);
     }
 
     private function makeInputObjectDef(InputObjectTypeDefinitionNode $def): InputObjectType
     {
         return new InputObjectType([
-            'name'        => $def->name->value,
+            'name' => $def->name->value,
             'description' => $def->description->value ?? null,
-            'fields'      => fn (): array => $this->makeInputValues($def->fields),
-            'astNode'     => $def,
+            'fields' => fn (): array => $this->makeInputValues($def->fields),
+            'astNode' => $def,
         ]);
     }
 
     /**
      * @param array<string, mixed> $config
      *
-     * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
-     *
      * @throws Error
+     *
+     * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
      */
     private function makeSchemaDefFromConfig(Node $def, array $config): Type
     {
@@ -430,7 +429,7 @@ class ASTDefinitionBuilder
             'astNode' => $value,
         ];
 
-        if ($value->defaultValue !== null) {
+        if (null !== $value->defaultValue) {
             $config['defaultValue'] = $value->defaultValue;
         }
 

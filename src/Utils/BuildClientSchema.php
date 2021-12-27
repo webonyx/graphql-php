@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use function array_key_exists;
+use function array_map;
+use function array_merge;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -26,10 +29,6 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\TypeKind;
-
-use function array_key_exists;
-use function array_map;
-use function array_merge;
 use function json_encode;
 
 /**
@@ -67,7 +66,7 @@ class BuildClientSchema
     public function __construct(array $introspectionQuery, array $options = [])
     {
         $this->introspection = $introspectionQuery;
-        $this->options       = $options;
+        $this->options = $options;
     }
 
     /**
@@ -156,7 +155,7 @@ class BuildClientSchema
     private function getType(array $typeRef): Type
     {
         if (isset($typeRef['kind'])) {
-            if ($typeRef['kind'] === TypeKind::LIST) {
+            if (TypeKind::LIST === $typeRef['kind']) {
                 if (! isset($typeRef['ofType'])) {
                     throw new InvariantViolation('Decorated type deeper than introspection query.');
                 }
@@ -164,7 +163,7 @@ class BuildClientSchema
                 return new ListOfType($this->getType($typeRef['ofType']));
             }
 
-            if ($typeRef['kind'] === TypeKind::NON_NULL) {
+            if (TypeKind::NON_NULL === $typeRef['kind']) {
                 if (! isset($typeRef['ofType'])) {
                     throw new InvariantViolation('Decorated type deeper than introspection query.');
                 }
@@ -317,9 +316,9 @@ class BuildClientSchema
     {
         // TODO: Temporary workaround until GraphQL ecosystem will fully support 'interfaces' on interface types.
         if (
-            array_key_exists('interfaces', $implementingIntrospection) &&
-            $implementingIntrospection['interfaces'] === null &&
-            $implementingIntrospection['kind'] === TypeKind::INTERFACE
+            array_key_exists('interfaces', $implementingIntrospection)
+            && null === $implementingIntrospection['interfaces']
+            && TypeKind::INTERFACE === $implementingIntrospection['kind']
         ) {
             return [];
         }

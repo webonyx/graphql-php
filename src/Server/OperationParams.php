@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace GraphQL\Server;
 
 use function array_change_key_case;
+use const CASE_LOWER;
 use function is_string;
 use function json_decode;
-use function json_last_error;
-
-use const CASE_LOWER;
 use const JSON_ERROR_NONE;
+use function json_last_error;
 
 /**
  * Structure representing parsed HTTP parameters for GraphQL operation.
@@ -30,6 +29,7 @@ class OperationParams
      * - documentId
      *
      * @api
+     *
      * @var mixed should be string|null
      */
     public $queryId;
@@ -38,6 +38,7 @@ class OperationParams
      * A document containing GraphQL operations and fragments to execute.
      *
      * @api
+     *
      * @var mixed should be string|null
      */
     public $query;
@@ -46,6 +47,7 @@ class OperationParams
      * The name of the operation in the document to execute.
      *
      * @api
+     *
      * @var mixed should be string|null
      */
     public $operation;
@@ -54,6 +56,7 @@ class OperationParams
      * Values for any variables defined by the operation.
      *
      * @api
+     *
      * @var mixed should be array<string, mixed>
      */
     public $variables;
@@ -62,6 +65,7 @@ class OperationParams
      * Reserved for implementors to extend the protocol however they see fit.
      *
      * @api
+     *
      * @var mixed should be array<string, mixed>
      */
     public $extensions;
@@ -77,12 +81,13 @@ class OperationParams
      * The raw params used to construct this instance.
      *
      * @api
+     *
      * @var array<string, mixed>
      */
     public array $originalInput;
 
     /**
-     * Creates an instance from given array
+     * Creates an instance from given array.
      *
      * @param array<string, mixed> $params
      *
@@ -92,7 +97,7 @@ class OperationParams
     {
         $instance = new static();
 
-        $params                  = array_change_key_case($params, CASE_LOWER);
+        $params = array_change_key_case($params, CASE_LOWER);
         $instance->originalInput = $params;
 
         $params += [
@@ -106,25 +111,25 @@ class OperationParams
         ];
 
         foreach ($params as &$value) {
-            if ($value !== '') {
+            if ('' !== $value) {
                 continue;
             }
 
             $value = null;
         }
 
-        $instance->query      = $params['query'];
-        $instance->queryId    = $params['queryid'] ?? $params['documentid'] ?? $params['id'];
-        $instance->operation  = $params['operationname'];
-        $instance->variables  = static::decodeIfJSON($params['variables']);
+        $instance->query = $params['query'];
+        $instance->queryId = $params['queryid'] ?? $params['documentid'] ?? $params['id'];
+        $instance->operation = $params['operationname'];
+        $instance->variables = static::decodeIfJSON($params['variables']);
         $instance->extensions = static::decodeIfJSON($params['extensions']);
-        $instance->readOnly   = $readonly;
+        $instance->readOnly = $readonly;
 
         // Apollo server/client compatibility
         if (
             isset($instance->extensions['persistedQuery']['sha256Hash'])
-            && $instance->query === null
-            && $instance->queryId === null
+            && null === $instance->query
+            && null === $instance->queryId
         ) {
             $instance->queryId = $instance->extensions['persistedQuery']['sha256Hash'];
         }
@@ -146,7 +151,7 @@ class OperationParams
         }
 
         $decoded = json_decode($value, true);
-        if (json_last_error() === JSON_ERROR_NONE) {
+        if (JSON_ERROR_NONE === json_last_error()) {
             return $decoded;
         }
 

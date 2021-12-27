@@ -35,10 +35,10 @@ class StandardTypesTest extends TestCase
         self::assertSame(self::$originalStandardTypes, $originalTypes);
 
         $newBooleanType = $this->createCustomScalarType(Type::BOOLEAN);
-        $newFloatType   = $this->createCustomScalarType(Type::FLOAT);
-        $newIDType      = $this->createCustomScalarType(Type::ID);
-        $newIntType     = $this->createCustomScalarType(Type::INT);
-        $newStringType  = $this->createCustomScalarType(Type::STRING);
+        $newFloatType = $this->createCustomScalarType(Type::FLOAT);
+        $newIDType = $this->createCustomScalarType(Type::ID);
+        $newIntType = $this->createCustomScalarType(Type::INT);
+        $newStringType = $this->createCustomScalarType(Type::STRING);
 
         Type::overrideStandardTypes([
             $newBooleanType,
@@ -70,7 +70,7 @@ class StandardTypesTest extends TestCase
         self::assertCount(5, $originalTypes);
         self::assertSame(self::$originalStandardTypes, $originalTypes);
 
-        $newIDType     = $this->createCustomScalarType(Type::ID);
+        $newIDType = $this->createCustomScalarType(Type::ID);
         $newStringType = $this->createCustomScalarType(Type::STRING);
 
         Type::overrideStandardTypes([

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use function acos;
+use function array_key_exists;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
@@ -16,9 +18,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
-
-use function acos;
-use function array_key_exists;
 
 /**
  * @see describe('Execute: Handles inputs', () => {
@@ -46,7 +45,7 @@ class VariablesTest extends TestCase
         self::assertEquals($expected, $result->toArray());
 
         // properly parses single value to list:
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
         {
           fieldWithObjectInput(input: {a: "foo", b: "bar", c: "baz"})
         }
@@ -55,7 +54,7 @@ class VariablesTest extends TestCase
 
         self::assertEquals($expected, $result->toArray());
 
-        $result   = $this->executeQuery(
+        $result = $this->executeQuery(
             '
             query ($input: TestInputObject) {
               fieldWithObjectInput(input: $input)
@@ -68,7 +67,7 @@ class VariablesTest extends TestCase
         self::assertEquals($expected, $result->toArray());
 
         // properly parses null value to null
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
         {
           fieldWithObjectInput(input: {a: null, b: null, c: "C", d: null})
         }
@@ -78,7 +77,7 @@ class VariablesTest extends TestCase
         self::assertEquals($expected, $result->toArray());
 
         // properly parses null value in list
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
         {
           fieldWithObjectInput(input: {b: ["A",null,"C"], c: "C"})
         }
@@ -95,11 +94,11 @@ class VariablesTest extends TestCase
         ');
 
         $expected = [
-            'data'   => ['fieldWithObjectInput' => null],
+            'data' => ['fieldWithObjectInput' => null],
             'errors' => [
                 [
-                    'message'   => 'Argument "input" has invalid value ["foo", "bar", "baz"].',
-                    'path'      => ['fieldWithObjectInput'],
+                    'message' => 'Argument "input" has invalid value ["foo", "bar", "baz"].',
+                    'path' => ['fieldWithObjectInput'],
                     'locations' => [['line' => 3, 'column' => 39]],
                 ],
             ],
@@ -137,7 +136,7 @@ class VariablesTest extends TestCase
         $ComplexScalarType = ComplexScalar::create();
 
         $TestInputObject = new InputObjectType([
-            'name'   => 'TestInputObject',
+            'name' => 'TestInputObject',
             'fields' => [
                 'a' => ['type' => Type::string()],
                 'b' => ['type' => Type::listOf(Type::string())],
@@ -147,7 +146,7 @@ class VariablesTest extends TestCase
         ]);
 
         $TestNestedInputObject = new InputObjectType([
-            'name'   => 'TestNestedInputObject',
+            'name' => 'TestNestedInputObject',
             'fields' => [
                 'na' => ['type' => Type::nonNull($TestInputObject)],
                 'nb' => ['type' => Type::nonNull(Type::string())],
@@ -157,38 +156,38 @@ class VariablesTest extends TestCase
         $TestEnum = new EnumType([
             'name' => 'TestEnum',
             'values' => [
-                'NULL' => [ 'value' => null ],
-                'NAN' => [ 'value' => acos(8) ],
-                'FALSE' => [ 'value' => false ],
-                'CUSTOM' => [ 'value' => 'custom value' ],
+                'NULL' => ['value' => null],
+                'NAN' => ['value' => acos(8)],
+                'FALSE' => ['value' => false],
+                'CUSTOM' => ['value' => 'custom value'],
                 'DEFAULT_VALUE' => [],
             ],
         ]);
 
         $TestType = new ObjectType([
-            'name'   => 'TestType',
+            'name' => 'TestType',
             'fields' => [
-                'fieldWithEnumInput'              => $this->fieldWithInputArg(['type' => $TestEnum]),
-                'fieldWithNonNullableEnumInput'   => $this->fieldWithInputArg(['type' => Type::nonNull($TestEnum)]),
-                'fieldWithObjectInput'            => $this->fieldWithInputArg(['type' => $TestInputObject]),
-                'fieldWithNullableStringInput'    => $this->fieldWithInputArg(['type' => Type::string()]),
+                'fieldWithEnumInput' => $this->fieldWithInputArg(['type' => $TestEnum]),
+                'fieldWithNonNullableEnumInput' => $this->fieldWithInputArg(['type' => Type::nonNull($TestEnum)]),
+                'fieldWithObjectInput' => $this->fieldWithInputArg(['type' => $TestInputObject]),
+                'fieldWithNullableStringInput' => $this->fieldWithInputArg(['type' => Type::string()]),
                 'fieldWithNonNullableStringInput' => $this->fieldWithInputArg(['type' => Type::nonNull(Type::string())]),
-                'fieldWithDefaultArgumentValue'   => $this->fieldWithInputArg([
-                    'type'         => Type::string(),
+                'fieldWithDefaultArgumentValue' => $this->fieldWithInputArg([
+                    'type' => Type::string(),
                     'defaultValue' => 'Hello World',
                 ]),
                 'fieldWithNonNullableStringInputAndDefaultArgumentValue' => $this->fieldWithInputArg([
                     'type' => Type::nonNull(Type::string()),
                     'defaultValue' => 'Hello World',
                 ]),
-                'fieldWithNestedInputObject'      => $this->fieldWithInputArg([
-                    'type'         => $TestNestedInputObject,
+                'fieldWithNestedInputObject' => $this->fieldWithInputArg([
+                    'type' => $TestNestedInputObject,
                     'defaultValue' => 'Hello World',
                 ]),
-                'list'                            => $this->fieldWithInputArg(['type' => Type::listOf(Type::string())]),
-                'nnList'                          => $this->fieldWithInputArg(['type' => Type::nonNull(Type::listOf(Type::string()))]),
-                'listNN'                          => $this->fieldWithInputArg(['type' => Type::listOf(Type::nonNull(Type::string()))]),
-                'nnListNN'                        => $this->fieldWithInputArg(['type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string())))]),
+                'list' => $this->fieldWithInputArg(['type' => Type::listOf(Type::string())]),
+                'nnList' => $this->fieldWithInputArg(['type' => Type::nonNull(Type::listOf(Type::string()))]),
+                'listNN' => $this->fieldWithInputArg(['type' => Type::listOf(Type::nonNull(Type::string()))]),
+                'nnListNN' => $this->fieldWithInputArg(['type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string())))]),
             ],
         ]);
 
@@ -203,14 +202,14 @@ class VariablesTest extends TestCase
     private function fieldWithInputArg(array $inputArg): array
     {
         return [
-            'type'    => Type::string(),
-            'args'    => ['input' => $inputArg],
+            'type' => Type::string(),
+            'args' => ['input' => $inputArg],
             'resolve' => static function ($_, $args): ?string {
                 if (isset($args['input'])) {
                     return Utils::printSafeJson($args['input']);
                 }
 
-                if (array_key_exists('input', $args) && $args['input'] === null) {
+                if (array_key_exists('input', $args) && null === $args['input']) {
                     return 'null';
                 }
 
@@ -237,7 +236,7 @@ class VariablesTest extends TestCase
         );
 
         // uses undefined when variable not provided
-        $result   = $this->executeQuery(
+        $result = $this->executeQuery(
             '
           query q($input: String) {
             fieldWithNullableStringInput(input: $input)
@@ -325,23 +324,22 @@ class VariablesTest extends TestCase
         );
 
         // executes with complex scalar input:
-        $params   = ['input' => ['c' => 'foo', 'd' => 'SerializedValue']];
-        $result   = $this->executeQuery($doc, $params);
+        $params = ['input' => ['c' => 'foo', 'd' => 'SerializedValue']];
+        $result = $this->executeQuery($doc, $params);
         $expected = [
             'data' => ['fieldWithObjectInput' => '{"c":"foo","d":"DeserializedValue"}'],
         ];
         self::assertEquals($expected, $result->toArray());
 
         // errors on null for nested non-null:
-        $params   = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => null]];
-        $result   = $this->executeQuery($doc, $params);
+        $params = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => null]];
+        $result = $this->executeQuery($doc, $params);
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" got invalid value ' .
-                        '{"a":"foo","b":"bar","c":null}; ' .
-                        'Expected non-nullable type String! not to be null at value.c.',
+                    'message' => 'Variable "$input" got invalid value '
+                        . '{"a":"foo","b":"bar","c":null}; '
+                        . 'Expected non-nullable type String! not to be null at value.c.',
                     'locations' => [['line' => 2, 'column' => 21]],
                 ],
             ],
@@ -350,14 +348,13 @@ class VariablesTest extends TestCase
         self::assertEquals($expected, $result->toArray());
 
         // errors on incorrect type:
-        $params   = ['input' => 'foo bar'];
-        $result   = $this->executeQuery($doc, $params);
+        $params = ['input' => 'foo bar'];
+        $result = $this->executeQuery($doc, $params);
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" got invalid value "foo bar"; ' .
-                        'Expected type TestInputObject to be an object.',
+                    'message' => 'Variable "$input" got invalid value "foo bar"; '
+                        . 'Expected type TestInputObject to be an object.',
                     'locations' => [['line' => 2, 'column' => 21]],
                 ],
             ],
@@ -367,13 +364,12 @@ class VariablesTest extends TestCase
         // errors on omission of nested non-null:
         $params = ['input' => ['a' => 'foo', 'b' => 'bar']];
 
-        $result   = $this->executeQuery($doc, $params);
+        $result = $this->executeQuery($doc, $params);
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" got invalid value {"a":"foo","b":"bar"}; ' .
-                        'Field value.c of required type String! was not provided.',
+                    'message' => 'Variable "$input" got invalid value {"a":"foo","b":"bar"}; '
+                        . 'Field value.c of required type String! was not provided.',
                     'locations' => [['line' => 2, 'column' => 21]],
                 ],
             ],
@@ -386,21 +382,19 @@ class VariablesTest extends TestCase
             fieldWithNestedObjectInput(input: $input)
           }
         ';
-        $params    = ['input' => ['na' => ['a' => 'foo']]];
+        $params = ['input' => ['na' => ['a' => 'foo']]];
 
-        $result   = $this->executeQuery($nestedDoc, $params);
+        $result = $this->executeQuery($nestedDoc, $params);
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" got invalid value {"na":{"a":"foo"}}; ' .
-                        'Field value.na.c of required type String! was not provided.',
+                    'message' => 'Variable "$input" got invalid value {"na":{"a":"foo"}}; '
+                        . 'Field value.na.c of required type String! was not provided.',
                     'locations' => [['line' => 2, 'column' => 19]],
                 ],
                 [
-                    'message'   =>
-                        'Variable "$input" got invalid value {"na":{"a":"foo"}}; ' .
-                        'Field value.nb of required type String! was not provided.',
+                    'message' => 'Variable "$input" got invalid value {"na":{"a":"foo"}}; '
+                        . 'Field value.nb of required type String! was not provided.',
                     'locations' => [['line' => 2, 'column' => 19]],
                 ],
             ],
@@ -408,15 +402,14 @@ class VariablesTest extends TestCase
         self::assertEquals($expected, $result->toArray());
 
         // errors on addition of unknown input field
-        $params   = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => 'baz', 'extra' => 'dog']];
-        $result   = $this->executeQuery($doc, $params);
+        $params = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => 'baz', 'extra' => 'dog']];
+        $result = $this->executeQuery($doc, $params);
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" got invalid value ' .
-                        '{"a":"foo","b":"bar","c":"baz","extra":"dog"}; ' .
-                        'Field "extra" is not defined by type TestInputObject.',
+                    'message' => 'Variable "$input" got invalid value '
+                        . '{"a":"foo","b":"bar","c":"baz","extra":"dog"}; '
+                        . 'Field "extra" is not defined by type TestInputObject.',
                     'locations' => [['line' => 2, 'column' => 21]],
                 ],
             ],
@@ -443,7 +436,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * Describe: Handles custom enum values
+     * Describe: Handles custom enum values.
      */
 
     /**
@@ -491,7 +484,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * Describe: Handles nullable scalars
+     * Describe: Handles nullable scalars.
      */
 
     /**
@@ -499,7 +492,7 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNullableInputsToBeOmitted(): void
     {
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
       {
         fieldWithNullableStringInput
       }
@@ -516,7 +509,7 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNullableInputsToBeOmittedInAVariable(): void
     {
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
       query SetsNullable($value: String) {
         fieldWithNullableStringInput(input: $value)
       }
@@ -531,7 +524,7 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNullableInputsToBeOmittedInAnUnlistedVariable(): void
     {
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
       query SetsNullable {
         fieldWithNullableStringInput(input: $value)
       }
@@ -547,7 +540,7 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNullableInputsToBeSetToNullInAVariable(): void
     {
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
       query SetsNullable($value: String) {
         fieldWithNullableStringInput(input: $value)
       }
@@ -562,12 +555,12 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNullableInputsToBeSetToAValueInAVariable(): void
     {
-        $doc      = '
+        $doc = '
       query SetsNullable($value: String) {
         fieldWithNullableStringInput(input: $value)
       }
         ';
-        $result   = $this->executeQuery($doc, ['value' => 'a']);
+        $result = $this->executeQuery($doc, ['value' => 'a']);
         $expected = ['data' => ['fieldWithNullableStringInput' => '"a"']];
         self::assertEquals($expected, $result->toArray());
     }
@@ -577,7 +570,7 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNullableInputsToBeSetToAValueDirectly(): void
     {
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
       {
         fieldWithNullableStringInput(input: "a")
       }
@@ -591,7 +584,7 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNonNullableInputsToBeOmittedGivenADefault(): void
     {
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
         query SetsNonNullable($value: String = "default") {
           fieldWithNonNullableStringInput(input: $value)
         }
@@ -616,7 +609,7 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message'   => 'Variable "$value" of required type "String!" was not provided.',
+                    'message' => 'Variable "$value" of required type "String!" was not provided.',
                     'locations' => [['line' => 2, 'column' => 31]],
                 ],
             ],
@@ -629,17 +622,17 @@ class VariablesTest extends TestCase
      */
     public function testDoesNotAllowNonNullableInputsToBeSetToNullInAVariable(): void
     {
-        $doc      = '
+        $doc = '
         query SetsNonNullable($value: String!) {
           fieldWithNonNullableStringInput(input: $value)
         }
         ';
-        $result   = $this->executeQuery($doc, ['value' => null]);
+        $result = $this->executeQuery($doc, ['value' => null]);
         $expected = [
             'errors' => [
                 [
-                    'message'    => 'Variable "$value" of non-null type "String!" must not be null.',
-                    'locations'  => [['line' => 2, 'column' => 31]],
+                    'message' => 'Variable "$value" of non-null type "String!" must not be null.',
+                    'locations' => [['line' => 2, 'column' => 31]],
                 ],
             ],
         ];
@@ -651,12 +644,12 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNonNullableInputsToBeSetToAValueInAVariable(): void
     {
-        $doc      = '
+        $doc = '
         query SetsNonNullable($value: String!) {
           fieldWithNonNullableStringInput(input: $value)
         }
         ';
-        $result   = $this->executeQuery($doc, ['value' => 'a']);
+        $result = $this->executeQuery($doc, ['value' => 'a']);
         $expected = ['data' => ['fieldWithNonNullableStringInput' => '"a"']];
         self::assertEquals($expected, $result->toArray());
     }
@@ -666,7 +659,7 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNonNullableInputsToBeSetToAValueDirectly(): void
     {
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
       {
         fieldWithNonNullableStringInput(input: "a")
       }
@@ -680,18 +673,18 @@ class VariablesTest extends TestCase
      */
     public function testReportsErrorForMissingNonNullableInputs(): void
     {
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
       {
         fieldWithNonNullableStringInput
       }
         ');
         $expected = [
-            'data'   => ['fieldWithNonNullableStringInput' => null],
+            'data' => ['fieldWithNonNullableStringInput' => null],
             'errors' => [
                 [
-                    'message'   => 'Argument "input" of required type "String!" was not provided.',
+                    'message' => 'Argument "input" of required type "String!" was not provided.',
                     'locations' => [['line' => 3, 'column' => 9]],
-                    'path'      => ['fieldWithNonNullableStringInput'],
+                    'path' => ['fieldWithNonNullableStringInput'],
                 ],
             ],
         ];
@@ -705,19 +698,19 @@ class VariablesTest extends TestCase
      */
     public function testReportsErrorForArrayPassedIntoStringInput(): void
     {
-        $doc       = '
+        $doc = '
         query SetsNonNullable($value: String!) {
           fieldWithNonNullableStringInput(input: $value)
         }
         ';
         $variables = ['value' => [1, 2, 3]];
-        $result    = $this->executeQuery($doc, $variables);
+        $result = $this->executeQuery($doc, $variables);
 
         $expected = [
             'errors' => [
                 [
-                    'message'   => 'Variable "$value" got invalid value [1,2,3]; Expected type ' .
-                        'String; String cannot represent a non string value: [1,2,3]',
+                    'message' => 'Variable "$value" got invalid value [1,2,3]; Expected type '
+                        . 'String; String cannot represent a non string value: [1,2,3]',
                     'locations' => [
                         ['line' => 2, 'column' => 31],
                     ],
@@ -737,19 +730,19 @@ class VariablesTest extends TestCase
         // and are being run against a new schema which have introduced a breaking
         // change to make a formerly non-required argument required, this asserts
         // failure before allowing the underlying code to receive a non-null value.
-        $result   = $this->executeQuery('
+        $result = $this->executeQuery('
       {
         fieldWithNonNullableStringInput(input: $foo)
       }
         ');
         $expected = [
-            'data'   => ['fieldWithNonNullableStringInput' => null],
+            'data' => ['fieldWithNonNullableStringInput' => null],
             'errors' => [
                 [
-                    'message'   => 'Argument "input" of required type "String!" was provided the ' .
-                        'variable "$foo" which was not provided a runtime value.',
+                    'message' => 'Argument "input" of required type "String!" was provided the '
+                        . 'variable "$foo" which was not provided a runtime value.',
                     'locations' => [['line' => 3, 'column' => 48]],
-                    'path'      => ['fieldWithNonNullableStringInput'],
+                    'path' => ['fieldWithNonNullableStringInput'],
                 ],
             ],
         ];
@@ -761,12 +754,12 @@ class VariablesTest extends TestCase
      */
     public function testAllowsListsToBeNull(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String]) {
           list(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => null]);
+        $result = $this->executeQuery($doc, ['input' => null]);
         $expected = ['data' => ['list' => 'null']];
 
         self::assertEquals($expected, $result->toArray());
@@ -777,12 +770,12 @@ class VariablesTest extends TestCase
      */
     public function testAllowsListsToContainValues(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String]) {
           list(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => ['A']]);
+        $result = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['list' => '["A"]']];
         self::assertEquals($expected, $result->toArray());
     }
@@ -792,12 +785,12 @@ class VariablesTest extends TestCase
      */
     public function testAllowsListsToContainNull(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String]) {
           list(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
+        $result = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
         $expected = ['data' => ['list' => '["A",null,"B"]']];
         self::assertEquals($expected, $result->toArray());
     }
@@ -807,17 +800,17 @@ class VariablesTest extends TestCase
      */
     public function testDoesNotAllowNonNullListsToBeNull(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String]!) {
           nnList(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => null]);
+        $result = $this->executeQuery($doc, ['input' => null]);
         $expected = [
             'errors' => [
                 [
-                    'message'    => 'Variable "$input" of non-null type "[String]!" must not be null.',
-                    'locations'  => [['line' => 2, 'column' => 17]],
+                    'message' => 'Variable "$input" of non-null type "[String]!" must not be null.',
+                    'locations' => [['line' => 2, 'column' => 17]],
                 ],
             ],
         ];
@@ -829,12 +822,12 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNonNullListsToContainValues(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String]!) {
           nnList(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => ['A']]);
+        $result = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['nnList' => '["A"]']];
         self::assertEquals($expected, $result->toArray());
     }
@@ -844,12 +837,12 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNonNullListsToContainNull(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String]!) {
           nnList(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
+        $result = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
         $expected = ['data' => ['nnList' => '["A",null,"B"]']];
         self::assertEquals($expected, $result->toArray());
     }
@@ -859,12 +852,12 @@ class VariablesTest extends TestCase
      */
     public function testAllowsListsOfNonNullsToBeNull(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String!]) {
           listNN(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => null]);
+        $result = $this->executeQuery($doc, ['input' => null]);
         $expected = ['data' => ['listNN' => 'null']];
         self::assertEquals($expected, $result->toArray());
     }
@@ -874,12 +867,12 @@ class VariablesTest extends TestCase
      */
     public function testAllowsListsOfNonNullsToContainValues(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String!]) {
           listNN(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => ['A']]);
+        $result = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['listNN' => '["A"]']];
         self::assertEquals($expected, $result->toArray());
     }
@@ -889,17 +882,17 @@ class VariablesTest extends TestCase
      */
     public function testDoesNotAllowListsOfNonNullsToContainNull(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String!]) {
           listNN(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
+        $result = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
         $expected = [
             'errors' => [
                 [
-                    'message'   => 'Variable "$input" got invalid value ["A",null,"B"]; ' .
-                        'Expected non-nullable type String! not to be null at value[1].',
+                    'message' => 'Variable "$input" got invalid value ["A",null,"B"]; '
+                        . 'Expected non-nullable type String! not to be null at value[1].',
                     'locations' => [['line' => 2, 'column' => 17]],
                 ],
             ],
@@ -912,17 +905,17 @@ class VariablesTest extends TestCase
      */
     public function testDoesNotAllowNonNullListsOfNonNullsToBeNull(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String!]!) {
           nnListNN(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => null]);
+        $result = $this->executeQuery($doc, ['input' => null]);
         $expected = [
             'errors' => [
                 [
-                    'message'    => 'Variable "$input" of non-null type "[String!]!" must not be null.',
-                    'locations'  => [['line' => 2, 'column' => 17]],
+                    'message' => 'Variable "$input" of non-null type "[String!]!" must not be null.',
+                    'locations' => [['line' => 2, 'column' => 17]],
                 ],
             ],
         ];
@@ -934,12 +927,12 @@ class VariablesTest extends TestCase
      */
     public function testAllowsNonNullListsOfNonNullsToContainValues(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String!]!) {
           nnListNN(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => ['A']]);
+        $result = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['nnListNN' => '["A"]']];
         self::assertEquals($expected, $result->toArray());
     }
@@ -951,17 +944,17 @@ class VariablesTest extends TestCase
      */
     public function testDoesNotAllowNonNullListsOfNonNullsToContainNull(): void
     {
-        $doc      = '
+        $doc = '
         query q($input:[String!]!) {
           nnListNN(input: $input)
         }
         ';
-        $result   = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
+        $result = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
         $expected = [
             'errors' => [
                 [
-                    'message'   => 'Variable "$input" got invalid value ["A",null,"B"]; ' .
-                        'Expected non-nullable type String! not to be null at value[1].',
+                    'message' => 'Variable "$input" got invalid value ["A",null,"B"]; '
+                        . 'Expected non-nullable type String! not to be null at value[1].',
                     'locations' => [['line' => 2, 'column' => 17]],
                 ],
             ],
@@ -974,18 +967,18 @@ class VariablesTest extends TestCase
      */
     public function testDoesNotAllowInvalidTypesToBeUsedAsValues(): void
     {
-        $doc      = '
+        $doc = '
         query q($input: TestType!) {
           fieldWithObjectInput(input: $input)
         }
         ';
-        $vars     = ['input' => ['list' => ['A', 'B']]];
-        $result   = $this->executeQuery($doc, $vars);
+        $vars = ['input' => ['list' => ['A', 'B']]];
+        $result = $this->executeQuery($doc, $vars);
         $expected = [
             'errors' => [
                 [
-                    'message'   => 'Variable "$input" expected value of type "TestType!" which cannot ' .
-                        'be used as an input type.',
+                    'message' => 'Variable "$input" expected value of type "TestType!" which cannot '
+                        . 'be used as an input type.',
                     'locations' => [['line' => 2, 'column' => 25]],
                 ],
             ],
@@ -998,19 +991,19 @@ class VariablesTest extends TestCase
      */
     public function testDoesNotAllowUnknownTypesToBeUsedAsValues(): void
     {
-        $doc  = '
+        $doc = '
         query q($input: UnknownType!) {
           fieldWithObjectInput(input: $input)
         }
         ';
         $vars = ['input' => 'whoknows'];
 
-        $result   = $this->executeQuery($doc, $vars);
+        $result = $this->executeQuery($doc, $vars);
         $expected = [
             'errors' => [
                 [
-                    'message'   => 'Variable "$input" expected value of type "UnknownType!" which ' .
-                        'cannot be used as an input type.',
+                    'message' => 'Variable "$input" expected value of type "UnknownType!" which '
+                        . 'cannot be used as an input type.',
                     'locations' => [['line' => 2, 'column' => 25]],
                 ],
             ],
@@ -1058,12 +1051,12 @@ class VariablesTest extends TestCase
         }');
 
         $expected = [
-            'data'   => ['fieldWithDefaultArgumentValue' => null],
+            'data' => ['fieldWithDefaultArgumentValue' => null],
             'errors' => [
                 [
-                    'message'   => 'Argument "input" has invalid value WRONG_TYPE.',
+                    'message' => 'Argument "input" has invalid value WRONG_TYPE.',
                     'locations' => [['line' => 2, 'column' => 50]],
-                    'path'      => ['fieldWithDefaultArgumentValue'],
+                    'path' => ['fieldWithDefaultArgumentValue'],
                 ],
             ],
         ];

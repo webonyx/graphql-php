@@ -10,7 +10,6 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
-
 use function is_int;
 use function is_object;
 use function is_string;
@@ -20,8 +19,8 @@ class IDType extends ScalarType
 {
     public string $name = 'ID';
 
-    public ?string $description =
-        'The `ID` scalar type represents a unique identifier, often used to
+    public ?string $description
+        = 'The `ID` scalar type represents a unique identifier, often used to
 refetch an object or as key for a cache. The ID type appears in a JSON
 response as a String; however, it is not intended to be human-readable.
 When expected as an input type, any string (such as `"4"`) or integer

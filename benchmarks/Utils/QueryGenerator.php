@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Benchmarks\Utils;
 
+use function count;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
@@ -17,8 +18,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
-
-use function count;
 use function max;
 use function round;
 
@@ -45,7 +44,7 @@ class QueryGenerator
             $totalFields += count($type->getFieldNames());
         }
 
-        $this->maxLeafFields     = max(1, (int) round($totalFields * $percentOfLeafFields));
+        $this->maxLeafFields = max(1, (int) round($totalFields * $percentOfLeafFields));
         $this->currentLeafFields = 0;
     }
 
@@ -80,7 +79,7 @@ class QueryGenerator
                 'directives' => new NodeList([]),
             ]),
         ];
-        $this->currentLeafFields++;
+        ++$this->currentLeafFields;
 
         foreach ($fields as $field) {
             if ($this->currentLeafFields >= $this->maxLeafFields) {
@@ -93,7 +92,7 @@ class QueryGenerator
                 $selectionSet = $this->buildSelectionSet($type->getFields());
             } else {
                 $selectionSet = null;
-                $this->currentLeafFields++;
+                ++$this->currentLeafFields;
             }
 
             $selections[] = new FieldNode([

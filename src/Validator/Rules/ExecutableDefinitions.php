@@ -14,7 +14,7 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
 /**
- * Executable definitions
+ * Executable definitions.
  *
  * A GraphQL document is only valid for execution if all definitions are either
  * operation or fragment definitions.

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Language\AST;
 
-use GraphQL\Utils\Utils;
-use JsonSerializable;
-
 use function count;
 use function get_object_vars;
+use GraphQL\Utils\Utils;
 use function json_encode;
+use JsonSerializable;
 
 /**
  * type Node = NameNode
@@ -33,7 +32,7 @@ use function json_encode;
  * | ObjectFieldNode
  * | DirectiveNode
  * | ListTypeNode
- * | NonNullTypeNode
+ * | NonNullTypeNode.
  */
 abstract class Node implements JsonSerializable
 {
@@ -46,7 +45,7 @@ abstract class Node implements JsonSerializable
      */
     public function __construct(array $vars)
     {
-        if (count($vars) === 0) {
+        if (0 === count($vars)) {
             return;
         }
 
@@ -97,7 +96,7 @@ abstract class Node implements JsonSerializable
     /**
      * Improves upon the default serialization by:
      * - excluding null values
-     * - excluding large reference values such as @see Location::$source
+     * - excluding large reference values such as @see Location::$source.
      *
      * @return array<string, mixed>
      */
@@ -122,7 +121,7 @@ abstract class Node implements JsonSerializable
         $result = [];
 
         foreach (get_object_vars($node) as $prop => $propValue) {
-            if ($propValue === null) {
+            if (null === $propValue) {
                 continue;
             }
 

@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
+use function array_map;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\SingleFieldSubscription;
-
-use function array_map;
 
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper

@@ -12,7 +12,6 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Schema;
-
 use function is_array;
 use function is_object;
 
@@ -174,7 +173,7 @@ class Executor
     public static function defaultFieldResolver($objectValue, array $args, $contextValue, ResolveInfo $info)
     {
         $fieldName = $info->fieldName;
-        $property  = null;
+        $property = null;
 
         if (is_array($objectValue) || $objectValue instanceof ArrayAccess) {
             if (isset($objectValue[$fieldName])) {

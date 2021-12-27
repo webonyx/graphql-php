@@ -26,13 +26,13 @@ class NoUnusedVariables extends ValidationRule
                 },
                 'leave' => function (OperationDefinitionNode $operation) use ($context): void {
                     $variableNameUsed = [];
-                    $usages           = $context->getRecursiveVariableUsages($operation);
-                    $opName           = $operation->name !== null
+                    $usages = $context->getRecursiveVariableUsages($operation);
+                    $opName = null !== $operation->name
                         ? $operation->name->value
                         : null;
 
                     foreach ($usages as $usage) {
-                        $node                                 = $usage['node'];
+                        $node = $usage['node'];
                         $variableNameUsed[$node->name->value] = true;
                     }
 
@@ -50,7 +50,7 @@ class NoUnusedVariables extends ValidationRule
                     }
                 },
             ],
-            NodeKind::VARIABLE_DEFINITION  => function ($def): void {
+            NodeKind::VARIABLE_DEFINITION => function ($def): void {
                 $this->variableDefs[] = $def;
             },
         ];
@@ -58,7 +58,7 @@ class NoUnusedVariables extends ValidationRule
 
     public static function unusedVariableMessage(string $varName, ?string $opName = null): string
     {
-        return $opName !== null
+        return null !== $opName
             ? "Variable \"\${$varName}\" is never used in operation \"{$opName}\"."
             : "Variable \"\${$varName}\" is never used.";
     }

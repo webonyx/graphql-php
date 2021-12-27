@@ -58,7 +58,7 @@ class ReactPromiseAdapterTest extends TestCase
     {
         $reactAdapter = new ReactPromiseAdapter();
         $reactPromise = new FulfilledPromise(1);
-        $promise      = $reactAdapter->convertThenable($reactPromise);
+        $promise = $reactAdapter->convertThenable($reactPromise);
 
         $result = null;
 
@@ -75,7 +75,7 @@ class ReactPromiseAdapterTest extends TestCase
 
     public function testCreate(): void
     {
-        $reactAdapter    = new ReactPromiseAdapter();
+        $reactAdapter = new ReactPromiseAdapter();
         $resolvedPromise = $reactAdapter->create(static function ($resolve): void {
             $resolve(1);
         });
@@ -93,7 +93,7 @@ class ReactPromiseAdapterTest extends TestCase
 
     public function testCreateFulfilled(): void
     {
-        $reactAdapter     = new ReactPromiseAdapter();
+        $reactAdapter = new ReactPromiseAdapter();
         $fulfilledPromise = $reactAdapter->createFulfilled(1);
 
         self::assertInstanceOf(FulfilledPromise::class, $fulfilledPromise->adoptedPromise);
@@ -109,7 +109,7 @@ class ReactPromiseAdapterTest extends TestCase
 
     public function testCreateRejected(): void
     {
-        $reactAdapter    = new ReactPromiseAdapter();
+        $reactAdapter = new ReactPromiseAdapter();
         $rejectedPromise = $reactAdapter->createRejected(new Exception('I am a bad promise'));
 
         self::assertInstanceOf(RejectedPromise::class, $rejectedPromise->adoptedPromise);
@@ -130,7 +130,7 @@ class ReactPromiseAdapterTest extends TestCase
     public function testAll(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
-        $promises     = [new FulfilledPromise(1), new FulfilledPromise(2), new FulfilledPromise(3)];
+        $promises = [new FulfilledPromise(1), new FulfilledPromise(2), new FulfilledPromise(3)];
 
         $allPromise = $reactAdapter->all($promises);
 
@@ -148,9 +148,9 @@ class ReactPromiseAdapterTest extends TestCase
     public function testAllShouldPreserveTheOrderOfTheArrayWhenResolvingAsyncPromises(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
-        $deferred     = new Deferred();
-        $promises     = [new FulfilledPromise(1), $deferred->promise(), new FulfilledPromise(3)];
-        $result       = null;
+        $deferred = new Deferred();
+        $promises = [new FulfilledPromise(1), $deferred->promise(), new FulfilledPromise(3)];
+        $result = null;
 
         $reactAdapter->all($promises)->then(static function ($values) use (&$result): void {
             $result = $values;

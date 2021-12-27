@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
-
 use function is_array;
 
 class UnresolvedFieldDefinition
@@ -15,7 +14,7 @@ class UnresolvedFieldDefinition
 
     private string $name;
 
-    /** @var callable(): (FieldDefinition|array<string, mixed>|Type) $resolver */
+    /** @var callable(): (FieldDefinition|array<string, mixed>|Type) */
     private $resolver;
 
     /**
@@ -25,8 +24,8 @@ class UnresolvedFieldDefinition
     public function __construct(Type $parentType, string $name, callable $resolver)
     {
         $this->parentType = $parentType;
-        $this->name       = $name;
-        $this->resolver   = $resolver;
+        $this->name = $name;
+        $this->resolver = $resolver;
     }
 
     public function getName(): string

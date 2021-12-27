@@ -8,7 +8,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
-
 use function is_array;
 use function is_callable;
 use function is_iterable;
@@ -54,9 +53,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         $config['name'] ??= $this->tryInferName();
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        $this->name              = $config['name'];
-        $this->description       = $config['description'] ?? null;
-        $this->astNode           = $config['astNode'] ?? null;
+        $this->name = $config['name'];
+        $this->description = $config['description'] ?? null;
+        $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
         $this->config = $config;
@@ -69,7 +68,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         $field = $this->findField($name);
 
-        Utils::invariant($field !== null, 'Field "%s" is not defined for type "%s"', $name, $this->name);
+        Utils::invariant(null !== $field, 'Field "%s" is not defined for type "%s"', $name, $this->name);
 
         return $field;
     }

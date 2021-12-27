@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use function array_flip;
+use function array_key_exists;
+use function array_keys;
+use function array_merge;
+use function class_alias;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -18,14 +23,8 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use TypeError;
-
-use function array_flip;
-use function array_key_exists;
-use function array_keys;
-use function array_merge;
-use function class_alias;
 use function sprintf;
+use TypeError;
 
 /**
  * Utility for finding breaking/dangerous changes between two schemas.
@@ -38,27 +37,27 @@ use function sprintf;
  */
 class BreakingChangesFinder
 {
-    public const BREAKING_CHANGE_FIELD_CHANGED_KIND            = 'FIELD_CHANGED_KIND';
-    public const BREAKING_CHANGE_FIELD_REMOVED                 = 'FIELD_REMOVED';
-    public const BREAKING_CHANGE_TYPE_CHANGED_KIND             = 'TYPE_CHANGED_KIND';
-    public const BREAKING_CHANGE_TYPE_REMOVED                  = 'TYPE_REMOVED';
-    public const BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION       = 'TYPE_REMOVED_FROM_UNION';
-    public const BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM       = 'VALUE_REMOVED_FROM_ENUM';
-    public const BREAKING_CHANGE_ARG_REMOVED                   = 'ARG_REMOVED';
-    public const BREAKING_CHANGE_ARG_CHANGED_KIND              = 'ARG_CHANGED_KIND';
-    public const BREAKING_CHANGE_REQUIRED_ARG_ADDED            = 'REQUIRED_ARG_ADDED';
-    public const BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED    = 'REQUIRED_INPUT_FIELD_ADDED';
+    public const BREAKING_CHANGE_FIELD_CHANGED_KIND = 'FIELD_CHANGED_KIND';
+    public const BREAKING_CHANGE_FIELD_REMOVED = 'FIELD_REMOVED';
+    public const BREAKING_CHANGE_TYPE_CHANGED_KIND = 'TYPE_CHANGED_KIND';
+    public const BREAKING_CHANGE_TYPE_REMOVED = 'TYPE_REMOVED';
+    public const BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION = 'TYPE_REMOVED_FROM_UNION';
+    public const BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM = 'VALUE_REMOVED_FROM_ENUM';
+    public const BREAKING_CHANGE_ARG_REMOVED = 'ARG_REMOVED';
+    public const BREAKING_CHANGE_ARG_CHANGED_KIND = 'ARG_CHANGED_KIND';
+    public const BREAKING_CHANGE_REQUIRED_ARG_ADDED = 'REQUIRED_ARG_ADDED';
+    public const BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED = 'REQUIRED_INPUT_FIELD_ADDED';
     public const BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED = 'IMPLEMENTED_INTERFACE_REMOVED';
-    public const BREAKING_CHANGE_DIRECTIVE_REMOVED             = 'DIRECTIVE_REMOVED';
-    public const BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED         = 'DIRECTIVE_ARG_REMOVED';
-    public const BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED    = 'DIRECTIVE_LOCATION_REMOVED';
-    public const BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED  = 'REQUIRED_DIRECTIVE_ARG_ADDED';
-    public const DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED    = 'ARG_DEFAULT_VALUE_CHANGE';
-    public const DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM          = 'VALUE_ADDED_TO_ENUM';
-    public const DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED  = 'IMPLEMENTED_INTERFACE_ADDED';
-    public const DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION          = 'TYPE_ADDED_TO_UNION';
-    public const DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED   = 'OPTIONAL_INPUT_FIELD_ADDED';
-    public const DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED           = 'OPTIONAL_ARG_ADDED';
+    public const BREAKING_CHANGE_DIRECTIVE_REMOVED = 'DIRECTIVE_REMOVED';
+    public const BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED = 'DIRECTIVE_ARG_REMOVED';
+    public const BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED = 'DIRECTIVE_LOCATION_REMOVED';
+    public const BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED = 'REQUIRED_DIRECTIVE_ARG_ADDED';
+    public const DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED = 'ARG_DEFAULT_VALUE_CHANGE';
+    public const DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM = 'VALUE_ADDED_TO_ENUM';
+    public const DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED = 'IMPLEMENTED_INTERFACE_ADDED';
+    public const DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION = 'TYPE_ADDED_TO_UNION';
+    public const DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED = 'OPTIONAL_INPUT_FIELD_ADDED';
+    public const DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED = 'OPTIONAL_ARG_ADDED';
 
     /**
      * Given two schemas, returns an Array containing descriptions of all the types
@@ -104,7 +103,7 @@ class BreakingChangesFinder
             }
 
             $breakingChanges[] = [
-                'type'        => self::BREAKING_CHANGE_TYPE_REMOVED,
+                'type' => self::BREAKING_CHANGE_TYPE_REMOVED,
                 'description' => "${typeName} was removed.",
             ];
         }
@@ -142,8 +141,8 @@ class BreakingChangesFinder
 
             $schemaATypeKindName = self::typeKindName($schemaAType);
             $schemaBTypeKindName = self::typeKindName($schemaBType);
-            $breakingChanges[]   = [
-                'type'        => self::BREAKING_CHANGE_TYPE_CHANGED_KIND,
+            $breakingChanges[] = [
+                'type' => self::BREAKING_CHANGE_TYPE_CHANGED_KIND,
                 'description' => "${typeName} changed from ${schemaATypeKindName} to ${schemaBTypeKindName}.",
             ];
         }
@@ -197,9 +196,9 @@ class BreakingChangesFinder
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType) ||
-                ! ($newType instanceof ObjectType || $newType instanceof InterfaceType) ||
-                ! ($newType instanceof $oldType)
+                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
+                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                || ! ($newType instanceof $oldType)
             ) {
                 continue;
             }
@@ -210,19 +209,19 @@ class BreakingChangesFinder
                 // Check if the field is missing on the type in the new schema.
                 if (! isset($newTypeFieldsDef[$fieldName])) {
                     $breakingChanges[] = [
-                        'type'        => self::BREAKING_CHANGE_FIELD_REMOVED,
+                        'type' => self::BREAKING_CHANGE_FIELD_REMOVED,
                         'description' => "${typeName}.${fieldName} was removed.",
                     ];
                 } else {
                     $oldFieldType = $oldTypeFieldsDef[$fieldName]->getType();
                     $newFieldType = $newTypeFieldsDef[$fieldName]->getType();
-                    $isSafe       = self::isChangeSafeForObjectOrInterfaceField(
+                    $isSafe = self::isChangeSafeForObjectOrInterfaceField(
                         $oldFieldType,
                         $newFieldType
                     );
                     if (! $isSafe) {
                         $breakingChanges[] = [
-                            'type'        => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                            'type' => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                             'description' => "{$typeName}.{$fieldName} changed type from {$oldFieldType} to {$newFieldType}.",
                         ];
                     }
@@ -275,7 +274,7 @@ class BreakingChangesFinder
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
 
-        $breakingChanges  = [];
+        $breakingChanges = [];
         $dangerousChanges = [];
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
@@ -288,7 +287,7 @@ class BreakingChangesFinder
             foreach (array_keys($oldTypeFieldsDef) as $fieldName) {
                 if (! isset($newTypeFieldsDef[$fieldName])) {
                     $breakingChanges[] = [
-                        'type'        => self::BREAKING_CHANGE_FIELD_REMOVED,
+                        'type' => self::BREAKING_CHANGE_FIELD_REMOVED,
                         'description' => "${typeName}.${fieldName} was removed.",
                     ];
                 } else {
@@ -313,7 +312,7 @@ class BreakingChangesFinder
                         }
 
                         $breakingChanges[] = [
-                            'type'        => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                            'type' => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                             'description' => "${typeName}.${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}.",
                         ];
                     }
@@ -329,12 +328,12 @@ class BreakingChangesFinder
                 $newTypeName = $newType->name;
                 if ($fieldDef->isRequired()) {
                     $breakingChanges[] = [
-                        'type'        => self::BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED,
+                        'type' => self::BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED,
                         'description' => "A required field ${fieldName} on input type ${newTypeName} was added.",
                     ];
                 } else {
                     $dangerousChanges[] = [
-                        'type'        => self::DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED,
+                        'type' => self::DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED,
                         'description' => "An optional field ${fieldName} on input type ${newTypeName} was added.",
                     ];
                 }
@@ -342,7 +341,7 @@ class BreakingChangesFinder
         }
 
         return [
-            'breakingChanges'  => $breakingChanges,
+            'breakingChanges' => $breakingChanges,
             'dangerousChanges' => $dangerousChanges,
         ];
     }
@@ -414,7 +413,7 @@ class BreakingChangesFinder
                 }
 
                 $typesRemovedFromUnion[] = [
-                    'type'        => self::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
+                    'type' => self::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
                     'description' => sprintf('%s was removed from union type %s.', $type->name, $typeName),
                 ];
             }
@@ -454,7 +453,7 @@ class BreakingChangesFinder
                 }
 
                 $valuesRemovedFromEnums[] = [
-                    'type'        => self::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
+                    'type' => self::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
                     'description' => sprintf('%s was removed from enum type %s.', $value->name, $typeName),
                 ];
             }
@@ -478,15 +477,15 @@ class BreakingChangesFinder
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
 
-        $breakingChanges  = [];
+        $breakingChanges = [];
         $dangerousChanges = [];
 
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType) ||
-                ! ($newType instanceof ObjectType || $newType instanceof InterfaceType) ||
-                ! ($newType instanceof $oldType)
+                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
+                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                || ! ($newType instanceof $oldType)
             ) {
                 continue;
             }
@@ -500,35 +499,35 @@ class BreakingChangesFinder
                 }
 
                 foreach ($oldField->args as $oldArgDef) {
-                    $newArgs   = $newTypeFields[$fieldName]->args;
+                    $newArgs = $newTypeFields[$fieldName]->args;
                     $newArgDef = Utils::find(
                         $newArgs,
                         static function ($arg) use ($oldArgDef): bool {
                             return $arg->name === $oldArgDef->name;
                         }
                     );
-                    if ($newArgDef !== null) {
-                        $isSafe     = self::isChangeSafeForInputObjectFieldOrFieldArg(
+                    if (null !== $newArgDef) {
+                        $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg(
                             $oldArgDef->getType(),
                             $newArgDef->getType()
                         );
                         $oldArgType = $oldArgDef->getType();
                         $oldArgName = $oldArgDef->name;
                         if (! $isSafe) {
-                            $newArgType        = $newArgDef->getType();
+                            $newArgType = $newArgDef->getType();
                             $breakingChanges[] = [
-                                'type'        => self::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                                'type' => self::BREAKING_CHANGE_ARG_CHANGED_KIND,
                                 'description' => "${typeName}.${fieldName} arg ${oldArgName} has changed type from ${oldArgType} to ${newArgType}",
                             ];
                         } elseif ($oldArgDef->defaultValueExists() && $oldArgDef->defaultValue !== $newArgDef->defaultValue) {
                             $dangerousChanges[] = [
-                                'type'        => self::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
+                                'type' => self::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
                                 'description' => "${typeName}.${fieldName} arg ${oldArgName} has changed defaultValue",
                             ];
                         }
                     } else {
                         $breakingChanges[] = [
-                            'type'        => self::BREAKING_CHANGE_ARG_REMOVED,
+                            'type' => self::BREAKING_CHANGE_ARG_REMOVED,
                             'description' => sprintf(
                                 '%s.%s arg %s was removed',
                                 $typeName,
@@ -540,7 +539,7 @@ class BreakingChangesFinder
 
                     // Check if arg was added to the field
                     foreach ($newTypeFields[$fieldName]->args as $newTypeFieldArgDef) {
-                        $oldArgs   = $oldTypeFields[$fieldName]->args;
+                        $oldArgs = $oldTypeFields[$fieldName]->args;
                         $oldArgDef = Utils::find(
                             $oldArgs,
                             static function ($arg) use ($newTypeFieldArgDef): bool {
@@ -548,20 +547,20 @@ class BreakingChangesFinder
                             }
                         );
 
-                        if ($oldArgDef !== null) {
+                        if (null !== $oldArgDef) {
                             continue;
                         }
 
                         $newTypeName = $newType->name;
-                        $newArgName  = $newTypeFieldArgDef->name;
+                        $newArgName = $newTypeFieldArgDef->name;
                         if ($newTypeFieldArgDef->isRequired()) {
                             $breakingChanges[] = [
-                                'type'        => self::BREAKING_CHANGE_REQUIRED_ARG_ADDED,
+                                'type' => self::BREAKING_CHANGE_REQUIRED_ARG_ADDED,
                                 'description' => "A required arg ${newArgName} on ${newTypeName}.${fieldName} was added",
                             ];
                         } else {
                             $dangerousChanges[] = [
-                                'type'        => self::DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED,
+                                'type' => self::DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED,
                                 'description' => "An optional arg ${newArgName} on ${newTypeName}.${fieldName} was added",
                             ];
                         }
@@ -571,7 +570,7 @@ class BreakingChangesFinder
         }
 
         return [
-            'breakingChanges'  => $breakingChanges,
+            'breakingChanges' => $breakingChanges,
             'dangerousChanges' => $dangerousChanges,
         ];
     }
@@ -583,8 +582,8 @@ class BreakingChangesFinder
         Schema $oldSchema,
         Schema $newSchema
     ): array {
-        $oldTypeMap      = $oldSchema->getTypeMap();
-        $newTypeMap      = $newSchema->getTypeMap();
+        $oldTypeMap = $oldSchema->getTypeMap();
+        $newTypeMap = $newSchema->getTypeMap();
         $breakingChanges = [];
 
         foreach ($oldTypeMap as $typeName => $oldType) {
@@ -602,12 +601,12 @@ class BreakingChangesFinder
                         return $interface->name === $oldInterface->name;
                     }
                 );
-                if ($interface !== null) {
+                if (null !== $interface) {
                     continue;
                 }
 
                 $breakingChanges[] = [
-                    'type'        => self::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
+                    'type' => self::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
                     'description' => sprintf('%s no longer implements interface %s.', $typeName, $oldInterface->name),
                 ];
             }
@@ -630,7 +629,7 @@ class BreakingChangesFinder
             }
 
             $removedDirectives[] = [
-                'type'        => self::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                'type' => self::BREAKING_CHANGE_DIRECTIVE_REMOVED,
                 'description' => sprintf('%s was removed', $directive->name),
             ];
         }
@@ -656,7 +655,7 @@ class BreakingChangesFinder
      */
     public static function findRemovedDirectiveArgs(Schema $oldSchema, Schema $newSchema): array
     {
-        $removedDirectiveArgs  = [];
+        $removedDirectiveArgs = [];
         $oldSchemaDirectiveMap = self::getDirectiveMapForSchema($oldSchema);
 
         foreach ($newSchema->getDirectives() as $newDirective) {
@@ -671,7 +670,7 @@ class BreakingChangesFinder
                 ) as $arg
             ) {
                 $removedDirectiveArgs[] = [
-                    'type'        => self::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
+                    'type' => self::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
                     'description' => sprintf('%s was removed from %s', $arg->name, $newDirective->name),
                 ];
             }
@@ -686,7 +685,7 @@ class BreakingChangesFinder
     public static function findRemovedArgsForDirectives(Directive $oldDirective, Directive $newDirective): array
     {
         $removedArgs = [];
-        $newArgMap   = self::getArgumentMapForDirective($newDirective);
+        $newArgMap = self::getArgumentMapForDirective($newDirective);
         foreach ($oldDirective->args as $arg) {
             if (isset($newArgMap[$arg->name])) {
                 continue;
@@ -716,7 +715,7 @@ class BreakingChangesFinder
      */
     public static function findAddedNonNullDirectiveArgs(Schema $oldSchema, Schema $newSchema): array
     {
-        $addedNonNullableArgs  = [];
+        $addedNonNullableArgs = [];
         $oldSchemaDirectiveMap = self::getDirectiveMapForSchema($oldSchema);
 
         foreach ($newSchema->getDirectives() as $newDirective) {
@@ -735,7 +734,7 @@ class BreakingChangesFinder
                 }
 
                 $addedNonNullableArgs[] = [
-                    'type'        => self::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
+                    'type' => self::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
                     'description' => sprintf(
                         'A required arg %s on directive %s was added',
                         $arg->name,
@@ -771,7 +770,7 @@ class BreakingChangesFinder
      */
     public static function findRemovedDirectiveLocations(Schema $oldSchema, Schema $newSchema): array
     {
-        $removedLocations      = [];
+        $removedLocations = [];
         $oldSchemaDirectiveMap = self::getDirectiveMapForSchema($oldSchema);
 
         foreach ($newSchema->getDirectives() as $newDirective) {
@@ -786,7 +785,7 @@ class BreakingChangesFinder
                 ) as $location
             ) {
                 $removedLocations[] = [
-                    'type'        => self::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
+                    'type' => self::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
                     'description' => sprintf('%s was removed from %s', $location, $newDirective->name),
                 ];
             }
@@ -801,7 +800,7 @@ class BreakingChangesFinder
     public static function findRemovedLocationsForDirective(Directive $oldDirective, Directive $newDirective): array
     {
         $removedLocations = [];
-        $newLocationSet   = array_flip($newDirective->locations);
+        $newLocationSet = array_flip($newDirective->locations);
         foreach ($oldDirective->locations as $oldLocation) {
             if (array_key_exists($oldLocation, $newLocationSet)) {
                 continue;
@@ -861,7 +860,7 @@ class BreakingChangesFinder
                 }
 
                 $valuesAddedToEnums[] = [
-                    'type'        => self::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
+                    'type' => self::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
                     'description' => sprintf('%s was added to enum type %s.', $value->name, $typeName),
                 ];
             }
@@ -877,8 +876,8 @@ class BreakingChangesFinder
         Schema $oldSchema,
         Schema $newSchema
     ): array {
-        $oldTypeMap                   = $oldSchema->getTypeMap();
-        $newTypeMap                   = $newSchema->getTypeMap();
+        $oldTypeMap = $oldSchema->getTypeMap();
+        $newTypeMap = $newSchema->getTypeMap();
         $interfacesAddedToObjectTypes = [];
 
         foreach ($newTypeMap as $typeName => $newType) {
@@ -900,12 +899,12 @@ class BreakingChangesFinder
                     }
                 );
 
-                if ($interface !== null) {
+                if (null !== $interface) {
                     continue;
                 }
 
                 $interfacesAddedToObjectTypes[] = [
-                    'type'        => self::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
+                    'type' => self::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
                     'description' => sprintf(
                         '%s added to interfaces implemented by %s.',
                         $newInterface->name,
@@ -949,7 +948,7 @@ class BreakingChangesFinder
                 }
 
                 $typesAddedToUnion[] = [
-                    'type'        => self::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
+                    'type' => self::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
                     'description' => sprintf('%s was added to union type %s.', $type->name, $typeName),
                 ];
             }

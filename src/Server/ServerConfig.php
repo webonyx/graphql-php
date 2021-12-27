@@ -12,7 +12,6 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\Rules\ValidationRule;
-
 use function is_array;
 use function is_callable;
 
@@ -93,7 +92,7 @@ class ServerConfig
 
     private ?Schema $schema = null;
 
-    /** @var mixed|callable(self $config, OperationParams $params, DocumentNode $doc): mixed|null */
+    /** @var mixed|callable(self, OperationParams $params, DocumentNode $doc): mixed|null */
     private $context = null;
 
     /**
@@ -205,7 +204,7 @@ class ServerConfig
     public function setValidationRules($validationRules): self
     {
         // @phpstan-ignore-next-line necessary until we can use proper union types
-        if (! is_array($validationRules) && ! is_callable($validationRules) && $validationRules !== null) {
+        if (! is_array($validationRules) && ! is_callable($validationRules) && null !== $validationRules) {
             $invalidValidationRules = Utils::printSafe($validationRules);
 
             throw new InvariantViolation("Server config expects array of validation rules or callable returning such array, but got {$invalidValidationRules}");

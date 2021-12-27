@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use function array_map;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -16,12 +17,10 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
-
-use function array_map;
 use function in_array;
 
 /**
- * Known argument names on directives
+ * Known argument names on directives.
  *
  * A GraphQL directive is only valid if all supplied arguments are defined by
  * that field.
@@ -39,7 +38,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
         if (isset($suggestedArgs[0])) {
             $suggestions = Utils::quotedOrList($suggestedArgs);
-            $message    .= " Did you mean {$suggestions}?";
+            $message .= " Did you mean {$suggestions}?";
         }
 
         return $message;
@@ -60,9 +59,9 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
      */
     public function getASTVisitor(ASTValidationContext $context): array
     {
-        $directiveArgs     = [];
-        $schema            = $context->getSchema();
-        $definedDirectives = $schema !== null
+        $directiveArgs = [];
+        $schema = $context->getSchema();
+        $definedDirectives = null !== $schema
             ? $schema->getDirectives()
             : Directive::getInternalDirectives();
 
@@ -80,7 +79,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
             }
 
             $name = $def->name->value;
-            if ($def->arguments !== null) {
+            if (null !== $def->arguments) {
                 $argNames = [];
                 foreach ($def->arguments as $arg) {
                     $argNames[] = $arg->name->value;
@@ -95,9 +94,9 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         return [
             NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context): VisitorOperation {
                 $directiveName = $directiveNode->name->value;
-                $knownArgs     = $directiveArgs[$directiveName] ?? null;
+                $knownArgs = $directiveArgs[$directiveName] ?? null;
 
-                if ($directiveNode->arguments === null || $knownArgs === null) {
+                if (null === $directiveNode->arguments || null === $knownArgs) {
                     return Visitor::skipNode();
                 }
 

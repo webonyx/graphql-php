@@ -4,15 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Error;
 
-use Countable;
-use ErrorException;
-use GraphQL\Executor\ExecutionResult;
-use GraphQL\Language\AST\Node;
-use GraphQL\Language\Source;
-use GraphQL\Language\SourceLocation;
-use GraphQL\Type\Definition\Type;
-use Throwable;
-
 use function addcslashes;
 use function array_filter;
 use function array_intersect_key;
@@ -20,8 +11,15 @@ use function array_map;
 use function array_merge;
 use function array_shift;
 use function count;
+use Countable;
+use ErrorException;
 use function get_class;
 use function gettype;
+use GraphQL\Executor\ExecutionResult;
+use GraphQL\Language\AST\Node;
+use GraphQL\Language\Source;
+use GraphQL\Language\SourceLocation;
+use GraphQL\Type\Definition\Type;
 use function implode;
 use function is_array;
 use function is_bool;
@@ -32,6 +30,7 @@ use function mb_strlen;
 use function preg_split;
 use function str_repeat;
 use function strlen;
+use Throwable;
 
 /**
  * This class is used for [default error formatting](error-handling.md).
@@ -68,14 +67,14 @@ class FormattedError
     public static function printError(Error $error): string
     {
         $printedLocations = [];
-        if (count($error->nodes ?? []) !== 0) {
+        if (0 !== count($error->nodes ?? [])) {
             /** @var Node $node */
             foreach ($error->nodes as $node) {
-                if ($node->loc === null) {
+                if (null === $node->loc) {
                     continue;
                 }
 
-                if ($node->loc->source === null) {
+                if (null === $node->loc->source) {
                     continue;
                 }
 
@@ -84,14 +83,14 @@ class FormattedError
                     $node->loc->source->getLocation($node->loc->start)
                 );
             }
-        } elseif ($error->getSource() !== null && count($error->getLocations()) !== 0) {
+        } elseif (null !== $error->getSource() && 0 !== count($error->getLocations())) {
             $source = $error->getSource();
             foreach ($error->getLocations() as $location) {
                 $printedLocations[] = self::highlightSourceAtLocation($source, $location);
             }
         }
 
-        return count($printedLocations) === 0
+        return 0 === count($printedLocations)
             ? $error->getMessage()
             : implode("\n\n", array_merge([$error->getMessage()], $printedLocations)) . "\n";
     }
@@ -102,16 +101,16 @@ class FormattedError
      */
     private static function highlightSourceAtLocation(Source $source, SourceLocation $location): string
     {
-        $line          = $location->line;
-        $lineOffset    = $source->locationOffset->line - 1;
-        $columnOffset  = self::getColumnOffset($source, $location);
-        $contextLine   = $line + $lineOffset;
+        $line = $location->line;
+        $lineOffset = $source->locationOffset->line - 1;
+        $columnOffset = self::getColumnOffset($source, $location);
+        $contextLine = $line + $lineOffset;
         $contextColumn = $location->column + $columnOffset;
-        $prevLineNum   = (string) ($contextLine - 1);
-        $lineNum       = (string) $contextLine;
-        $nextLineNum   = (string) ($contextLine + 1);
-        $padLen        = strlen($nextLineNum);
-        $lines         = preg_split('/\r\n|[\n\r]/', $source->body);
+        $prevLineNum = (string) ($contextLine - 1);
+        $lineNum = (string) $contextLine;
+        $nextLineNum = (string) ($contextLine + 1);
+        $padLen = strlen($nextLineNum);
+        $lines = preg_split('/\r\n|[\n\r]/', $source->body);
 
         $lines[0] = self::whitespace($source->locationOffset->column - 1) . $lines[0];
 
@@ -128,7 +127,7 @@ class FormattedError
 
     private static function getColumnOffset(Source $source, SourceLocation $location): int
     {
-        return $location->line === 1
+        return 1 === $location->line
             ? $source->locationOffset->column - 1
             : 0;
     }
@@ -174,7 +173,7 @@ class FormattedError
                 $formattedError['locations'] = $locations;
             }
 
-            if ($exception->path !== null && count($exception->path) > 0) {
+            if (null !== $exception->path && count($exception->path) > 0) {
                 $formattedError['path'] = $exception->path;
             }
         }
@@ -186,7 +185,7 @@ class FormattedError
             }
         }
 
-        if ($debugFlag !== DebugFlag::NONE) {
+        if (DebugFlag::NONE !== $debugFlag) {
             $formattedError = self::addDebugEntries($formattedError, $exception, $debugFlag);
         }
 
@@ -197,30 +196,29 @@ class FormattedError
      * Decorates spec-compliant $formattedError with debug entries according to $debug flags.
      *
      * @param int                 $debugFlag      For available flags @see \GraphQL\Error\DebugFlag
-     *
      * @param FormattedErrorArray $formattedError
      *
      * @return FormattedErrorArray
      */
     public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag): array
     {
-        if ($debugFlag === DebugFlag::NONE) {
+        if (DebugFlag::NONE === $debugFlag) {
             return $formattedError;
         }
 
-        if (( $debugFlag & DebugFlag::RETHROW_INTERNAL_EXCEPTIONS) !== 0) {
+        if (($debugFlag & DebugFlag::RETHROW_INTERNAL_EXCEPTIONS) !== 0) {
             if (! $e instanceof Error) {
                 throw $e;
             }
 
-            if ($e->getPrevious() !== null) {
+            if (null !== $e->getPrevious()) {
                 throw $e->getPrevious();
             }
         }
 
         $isUnsafe = ! $e instanceof ClientAware || ! $e->isClientSafe();
 
-        if (($debugFlag & DebugFlag::RETHROW_UNSAFE_EXCEPTIONS) !== 0 && $isUnsafe && $e->getPrevious() !== null) {
+        if (($debugFlag & DebugFlag::RETHROW_UNSAFE_EXCEPTIONS) !== 0 && $isUnsafe && null !== $e->getPrevious()) {
             throw $e->getPrevious();
         }
 
@@ -234,7 +232,7 @@ class FormattedError
                 $formattedError['extensions']['line'] = $e->getLine();
             }
 
-            $isTrivial = $e instanceof Error && $e->getPrevious() === null;
+            $isTrivial = $e instanceof Error && null === $e->getPrevious();
 
             if (! $isTrivial) {
                 $formattedError['extensions']['trace'] = static::toSafeTrace($e->getPrevious() ?? $e);
@@ -255,7 +253,7 @@ class FormattedError
     {
         $formatter ??= [self::class, 'createFromException'];
 
-        if ($debug !== DebugFlag::NONE) {
+        if (DebugFlag::NONE !== $debug) {
             $formatter = static fn (Throwable $e): array => self::addDebugEntries($formatter($e), $e, $debug);
         }
 
@@ -279,9 +277,9 @@ class FormattedError
         $trace = $error->getTrace();
 
         if (
-            isset($trace[0]['function']) && isset($trace[0]['class']) &&
+            isset($trace[0]['function']) && isset($trace[0]['class'])
             // Remove invariant entries as they don't provide much value:
-            ($trace[0]['class'] . '::' . $trace[0]['function'] === 'GraphQL\Utils\Utils::invariant')
+            && ('GraphQL\Utils\Utils::invariant' === $trace[0]['class'] . '::' . $trace[0]['function'])
         ) {
             array_shift($trace);
         } elseif (! isset($trace[0]['file'])) {
@@ -294,8 +292,8 @@ class FormattedError
                 $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
 
                 if (isset($err['function'])) {
-                    $func    = $err['function'];
-                    $args    = array_map([self::class, 'printVar'], $err['args'] ?? []);
+                    $func = $err['function'];
+                    $args = array_map([self::class, 'printVar'], $err['args'] ?? []);
                     $funcStr = $func . '(' . implode(', ', $args) . ')';
 
                     if (isset($err['class'])) {
@@ -328,7 +326,7 @@ class FormattedError
             return 'array(' . count($var) . ')';
         }
 
-        if ($var === '') {
+        if ('' === $var) {
             return '(empty string)';
         }
 
@@ -344,7 +342,7 @@ class FormattedError
             return (string) $var;
         }
 
-        if ($var === null) {
+        if (null === $var) {
             return 'null';
         }
 

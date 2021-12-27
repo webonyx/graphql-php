@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace GraphQL\Error;
 
+use function count;
 use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
+use function is_array;
+use function iterator_to_array;
 use JsonSerializable;
 use ReturnTypeWillChange;
 use Throwable;
 use Traversable;
-
-use function count;
-use function is_array;
-use function iterator_to_array;
 
 /**
  * Describes an Error found during the parse, validate, or
@@ -93,15 +92,15 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             $this->nodes = iterator_to_array($nodes);
         } elseif (is_array($nodes)) {
             $this->nodes = $nodes;
-        } elseif ($nodes !== null) {
+        } elseif (null !== $nodes) {
             $this->nodes = [$nodes];
         } else {
             $this->nodes = null;
         }
 
-        $this->source    = $source;
+        $this->source = $source;
         $this->positions = $positions;
-        $this->path      = $path;
+        $this->path = $path;
 
         if (is_array($extensions) && count($extensions) > 0) {
             $this->extensions = $extensions;
@@ -113,7 +112,7 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-        } elseif ($previous !== null) {
+        } elseif (null !== $previous) {
             $this->isClientSafe = false;
         } else {
             $this->isClientSafe = true;
@@ -137,31 +136,31 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             }
 
             $nodes ??= $error->getNodes();
-            $path  ??= $error->getPath();
+            $path ??= $error->getPath();
         }
 
-        $source        = null;
+        $source = null;
         $originalError = null;
-        $positions     = [];
-        $extensions    = [];
+        $positions = [];
+        $extensions = [];
 
         if ($error instanceof self) {
-            $message       = $error->getMessage();
+            $message = $error->getMessage();
             $originalError = $error;
-            $source        = $error->getSource();
-            $positions     = $error->getPositions();
-            $extensions    = $error->getExtensions();
+            $source = $error->getSource();
+            $positions = $error->getPositions();
+            $extensions = $error->getExtensions();
         } elseif ($error instanceof InvariantViolation) {
-            $message       = $error->getMessage();
+            $message = $error->getMessage();
             $originalError = $error->getPrevious() ?? $error;
         } elseif ($error instanceof Throwable) {
-            $message       = $error->getMessage();
+            $message = $error->getMessage();
             $originalError = $error;
         } else {
             $message = (string) $error;
         }
 
-        $nonEmptyMessage = $message === '' || $message === null
+        $nonEmptyMessage = '' === $message || null === $message
             ? 'An unknown error occurred.'
             : $message;
 
@@ -178,12 +177,12 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
 
     protected function isLocated(): bool
     {
-        $path  = $this->getPath();
+        $path = $this->getPath();
         $nodes = $this->getNodes();
 
-        return $path !== null
+        return null !== $path
             && count($path) > 0
-            && $nodes !== null
+            && null !== $nodes
             && count($nodes) > 0;
     }
 
@@ -210,7 +209,7 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             if (isset($this->nodes)) {
                 foreach ($this->nodes as $node) {
                     $start = $node->loc->start ?? null;
-                    if ($start === null) {
+                    if (null === $start) {
                         continue;
                     }
 
@@ -241,15 +240,15 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
     {
         if (! isset($this->locations)) {
             $positions = $this->getPositions();
-            $source    = $this->getSource();
-            $nodes     = $this->getNodes();
+            $source = $this->getSource();
+            $nodes = $this->getNodes();
 
             $this->locations = [];
-            if ($source !== null && count($positions) !== 0) {
+            if (null !== $source && 0 !== count($positions)) {
                 foreach ($positions as $position) {
                     $this->locations[] = $source->getLocation($position);
                 }
-            } elseif ($nodes !== null && count($nodes) !== 0) {
+            } elseif (null !== $nodes && 0 !== count($nodes)) {
                 foreach ($nodes as $node) {
                     if (! isset($node->loc->source)) {
                         continue;
@@ -293,12 +292,12 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
     }
 
     /**
-     * Specify data which should be serialized to JSON
+     * Specify data which should be serialized to JSON.
      *
-     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @see http://php.net/manual/en/jsonserializable.jsonserialize.php
      *
      * @return array<string, mixed> data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
+     * which is a value of any type other than a resource
      */
     #[ReturnTypeWillChange]
     public function jsonSerialize(): array

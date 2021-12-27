@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use function floor;
 use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
-
-use function floor;
 use function is_bool;
 use function is_float;
 use function is_int;
@@ -28,8 +27,8 @@ class IntType extends ScalarType
 
     public string $name = Type::INT;
 
-    public ?string $description =
-        'The `Int` scalar type represents non-fractional signed whole numeric
+    public ?string $description
+        = 'The `Int` scalar type represents non-fractional signed whole numeric
 values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
     public function serialize($value): int
@@ -43,17 +42,17 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             ? (float) $value
             : null;
 
-        if ($float === null || floor($float) !== $float) {
+        if (null === $float || floor($float) !== $float) {
             throw new SerializationError(
-                'Int cannot represent non-integer value: ' .
-                Utils::printSafe($value)
+                'Int cannot represent non-integer value: '
+                . Utils::printSafe($value)
             );
         }
 
         if ($float > self::MAX_INT || $float < self::MIN_INT) {
             throw new SerializationError(
-                'Int cannot represent non 32-bit signed integer value: ' .
-                Utils::printSafe($value)
+                'Int cannot represent non 32-bit signed integer value: '
+                . Utils::printSafe($value)
             );
         }
 
@@ -66,15 +65,15 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
         if (! $isInt) {
             throw new Error(
-                'Int cannot represent non-integer value: ' .
-                Utils::printSafe($value)
+                'Int cannot represent non-integer value: '
+                . Utils::printSafe($value)
             );
         }
 
         if ($value > self::MAX_INT || $value < self::MIN_INT) {
             throw new Error(
-                'Int cannot represent non 32-bit signed integer value: ' .
-                Utils::printSafe($value)
+                'Int cannot represent non 32-bit signed integer value: '
+                . Utils::printSafe($value)
             );
         }
 

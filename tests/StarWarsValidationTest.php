@@ -19,7 +19,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testValidatesAComplexButValidQuery(): void
     {
-        $query  = '
+        $query = '
         query NestedQueryWithFragment {
           hero {
             ...NameAndAppearances
@@ -48,7 +48,7 @@ class StarWarsValidationTest extends TestCase
      */
     private function validationErrors(string $query): array
     {
-        $ast    = Parser::parse($query);
+        $ast = Parser::parse($query);
         $schema = StarWarsSchema::build();
 
         return DocumentValidator::validate($schema, $ast);
@@ -59,7 +59,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testThatNonExistentFieldsAreInvalid(): void
     {
-        $query  = '
+        $query = '
         query HeroSpaceshipQuery {
           hero {
             favoriteSpaceship
@@ -90,7 +90,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testDisallowsFieldsOnScalars(): void
     {
-        $query  = '
+        $query = '
         query HeroFieldsOnScalarQuery {
           hero {
             name {
@@ -108,7 +108,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testDisallowsObjectFieldsOnInterfaces(): void
     {
-        $query  = '
+        $query = '
         query DroidFieldOnCharacter {
           hero {
             name
@@ -125,7 +125,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testAllowsObjectFieldsInFragments(): void
     {
-        $query  = '
+        $query = '
         query DroidFieldInFragment {
           hero {
             name
@@ -146,7 +146,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testAllowsObjectFieldsInInlineFragments(): void
     {
-        $query  = '
+        $query = '
         query DroidFieldInFragment {
           hero {
             name

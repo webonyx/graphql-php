@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use function array_key_exists;
+use function array_keys;
+use function array_map;
+use function array_merge;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Type\Definition\EnumType;
@@ -14,16 +18,11 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use function is_array;
+use function is_string;
 use stdClass;
 use Throwable;
 use Traversable;
-
-use function array_key_exists;
-use function array_keys;
-use function array_map;
-use function array_merge;
-use function is_array;
-use function is_string;
 
 /**
  * Coerces a PHP value given a GraphQL Type.
@@ -51,7 +50,7 @@ class Value
     public static function coerceValue($value, InputType $type, ?VariableDefinitionNode $blameNode = null, ?array $path = null): array
     {
         if ($type instanceof NonNull) {
-            if ($value === null) {
+            if (null === $value) {
                 return self::ofErrors([
                     self::coercionError(
                         "Expected non-nullable type {$type} not to be null",
@@ -64,7 +63,7 @@ class Value
             return self::coerceValue($value, $type->getWrappedType(), $blameNode, $path);
         }
 
-        if ($value === null) {
+        if (null === $value) {
             // Explicitly return the value null.
             return self::ofValue(null);
         }
@@ -100,7 +99,7 @@ class Value
                     )
                 );
 
-                $didYouMean = $suggestions === []
+                $didYouMean = [] === $suggestions
                     ? null
                     : 'did you mean ' . Utils::orList($suggestions) . '?';
 
@@ -119,7 +118,7 @@ class Value
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
             if (is_array($value) || $value instanceof Traversable) {
-                $errors       = [];
+                $errors = [];
                 $coercedValue = [];
                 foreach ($value as $index => $itemValue) {
                     $coercedItem = self::coerceValue(
@@ -136,7 +135,7 @@ class Value
                     }
                 }
 
-                return $errors === []
+                return [] === $errors
                     ? self::ofValue($coercedValue)
                     : self::ofErrors($errors);
             }
@@ -163,12 +162,12 @@ class Value
             ]);
         }
 
-        $errors       = [];
+        $errors = [];
         $coercedValue = [];
-        $fields       = $type->getFields();
+        $fields = $type->getFields();
         foreach ($fields as $fieldName => $field) {
             if (array_key_exists($fieldName, $value)) {
-                $fieldValue   = $value[$fieldName];
+                $fieldValue = $value[$fieldName];
                 $coercedField = self::coerceValue(
                     $fieldValue,
                     $field->getType(),
@@ -185,7 +184,7 @@ class Value
                 $coercedValue[$fieldName] = $field->defaultValue;
             } elseif ($field->getType() instanceof NonNull) {
                 $fieldPath = self::printPath(self::atPath($path, $fieldName));
-                $errors    = self::add(
+                $errors = self::add(
                     $errors,
                     self::coercionError(
                         "Field {$fieldPath} of required type {$field->getType()->toString()} was not provided",
@@ -205,10 +204,10 @@ class Value
                 (string) $fieldName,
                 array_keys($fields)
             );
-            $didYouMean  = $suggestions === []
+            $didYouMean = [] === $suggestions
                 ? null
                 : 'did you mean ' . Utils::orList($suggestions) . '?';
-            $errors      = self::add(
+            $errors = self::add(
                 $errors,
                 self::coercionError(
                     "Field \"{$fieldName}\" is not defined by type {$type->name}",
@@ -219,7 +218,7 @@ class Value
             );
         }
 
-        return $errors === []
+        return [] === $errors
             ? self::ofValue($coercedValue)
             : self::ofErrors($errors);
     }
@@ -247,10 +246,10 @@ class Value
         $pathStr = self::printPath($path);
 
         $fullMessage = $message
-            . ($pathStr === ''
+            . ('' === $pathStr
                 ? ''
                 : ' at ' . $pathStr)
-            . ($subMessage === null || $subMessage === ''
+            . (null === $subMessage || '' === $subMessage
                 ? '.'
                 : '; ' . $subMessage);
 
@@ -271,19 +270,19 @@ class Value
      */
     private static function printPath(?array $path = null): string
     {
-        if ($path === null) {
+        if (null === $path) {
             return '';
         }
 
         $pathStr = '';
         do {
-            $key     = $path['key'];
+            $key = $path['key'];
             $pathStr = (is_string($key)
                     ? ".{$key}"
                     : "[{$key}]")
                 . $pathStr;
-            $path    = $path['prev'];
-        } while ($path !== null);
+            $path = $path['prev'];
+        } while (null !== $path);
 
         return "value{$pathStr}";
     }

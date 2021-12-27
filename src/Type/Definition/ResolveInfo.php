@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use function array_merge_recursive;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -11,8 +12,6 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Schema;
-
-use function array_merge_recursive;
 
 /**
  * Structure containing information useful for field resolution process.
@@ -46,6 +45,7 @@ class ResolveInfo
      * AST of all nodes referencing this field in the query.
      *
      * @api
+     *
      * @var iterable<int, FieldNode>
      */
     public iterable $fieldNodes = [];
@@ -61,6 +61,7 @@ class ResolveInfo
      * Path to this field from the very root value.
      *
      * @api
+     *
      * @var array<int, string|int>
      */
     public array $path;
@@ -76,6 +77,7 @@ class ResolveInfo
      * AST of all fragments defined in query.
      *
      * @api
+     *
      * @var array<string, FragmentDefinitionNode>
      */
     public array $fragments = [];
@@ -84,6 +86,7 @@ class ResolveInfo
      * Root value passed to query execution.
      *
      * @api
+     *
      * @var mixed
      */
     public $rootValue;
@@ -99,6 +102,7 @@ class ResolveInfo
      * Array of variables passed to query execution.
      *
      * @api
+     *
      * @var array<string, mixed>
      */
     public array $variableValues = [];
@@ -127,16 +131,16 @@ class ResolveInfo
         array $variableValues
     ) {
         $this->fieldDefinition = $fieldDefinition;
-        $this->fieldName       = $fieldDefinition->name;
-        $this->returnType      = $fieldDefinition->getType();
-        $this->fieldNodes      = $fieldNodes;
-        $this->parentType      = $parentType;
-        $this->path            = $path;
-        $this->schema          = $schema;
-        $this->fragments       = $fragments;
-        $this->rootValue       = $rootValue;
-        $this->operation       = $operation;
-        $this->variableValues  = $variableValues;
+        $this->fieldName = $fieldDefinition->name;
+        $this->returnType = $fieldDefinition->getType();
+        $this->fieldNodes = $fieldNodes;
+        $this->parentType = $parentType;
+        $this->path = $path;
+        $this->schema = $schema;
+        $this->fragments = $fragments;
+        $this->rootValue = $rootValue;
+        $this->operation = $operation;
+        $this->variableValues = $variableValues;
     }
 
     /**
@@ -182,7 +186,7 @@ class ResolveInfo
 
         /** @var FieldNode $fieldNode */
         foreach ($this->fieldNodes as $fieldNode) {
-            if ($fieldNode->selectionSet === null) {
+            if (null === $fieldNode->selectionSet) {
                 continue;
             }
 
@@ -222,7 +226,7 @@ class ResolveInfo
         $fields = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
-                $fields[$selectionNode->name->value] = $descend > 0 && $selectionNode->selectionSet !== null
+                $fields[$selectionNode->name->value] = $descend > 0 && null !== $selectionNode->selectionSet
                     ? $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
                     : true;
             } elseif ($selectionNode instanceof FragmentSpreadNode) {
@@ -230,7 +234,7 @@ class ResolveInfo
                 if (isset($this->fragments[$spreadName])) {
                     /** @var FragmentDefinitionNode $fragment */
                     $fragment = $this->fragments[$spreadName];
-                    $fields   = array_merge_recursive(
+                    $fields = array_merge_recursive(
                         $this->foldSelectionSet($fragment->selectionSet, $descend),
                         $fields
                     );

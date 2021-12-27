@@ -16,7 +16,7 @@ use function rand;
 
 /**
  * This is just a simple in-memory data holder for the sake of example.
- * Data layer for real app may use Doctrine or query the database directly (e.g. in CQRS style)
+ * Data layer for real app may use Doctrine or query the database directly (e.g. in CQRS style).
  */
 class DataSource
 {
@@ -183,7 +183,7 @@ class DataSource
      */
     public static function findStories(int $limit, ?int $afterId = null): array
     {
-        $start = $afterId !== null
+        $start = null !== $afterId
             ? (int) array_search($afterId, array_keys(self::$stories), true) + 1
             : 0;
 
@@ -197,7 +197,7 @@ class DataSource
     {
         $storyComments = self::$storyComments[$storyId] ?? [];
 
-        $start         = isset($afterId)
+        $start = isset($afterId)
             ? (int) array_search($afterId, $storyComments, true) + 1
             : 0;
         $storyComments = array_slice($storyComments, $start, $limit);
@@ -215,7 +215,7 @@ class DataSource
     {
         $commentReplies = self::$commentReplies[$commentId] ?? [];
 
-        $start          = isset($afterId)
+        $start = isset($afterId)
             ? (int) array_search($afterId, $commentReplies, true) + 1
             : 0;
         $commentReplies = array_slice($commentReplies, $start, $limit);

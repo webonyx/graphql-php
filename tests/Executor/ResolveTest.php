@@ -10,9 +10,8 @@ use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use PHPUnit\Framework\TestCase;
-
 use function json_encode;
+use PHPUnit\Framework\TestCase;
 use function uniqid;
 
 /**
@@ -44,7 +43,7 @@ class ResolveTest extends TestCase
     {
         return new Schema([
             'query' => new ObjectType([
-                'name'   => 'Query',
+                'name' => 'Query',
                 'fields' => ['test' => $testField],
             ]),
         ]);
@@ -55,7 +54,7 @@ class ResolveTest extends TestCase
      */
     public function testDefaultFunctionCallsClosures(): void
     {
-        $schema  = $this->buildSchema(['type' => Type::string()]);
+        $schema = $this->buildSchema(['type' => Type::string()]);
         $_secret = 'secretValue' . uniqid();
 
         $source = [
@@ -93,8 +92,8 @@ class ResolveTest extends TestCase
     public function testUsesProvidedResolveFunction(): void
     {
         $schema = $this->buildSchema([
-            'type'    => Type::string(),
-            'args'    => [
+            'type' => Type::string(),
+            'args' => [
                 'aStr' => ['type' => Type::string()],
                 'aInt' => ['type' => Type::int()],
             ],

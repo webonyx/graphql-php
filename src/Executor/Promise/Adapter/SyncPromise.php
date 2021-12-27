@@ -6,15 +6,14 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use Exception;
 use GraphQL\Utils\Utils;
+use function is_object;
+use function method_exists;
 use SplQueue;
 use Throwable;
 
-use function is_object;
-use function method_exists;
-
 /**
  * Simplistic (yet full-featured) implementation of Promises A+ spec for regular PHP `sync` mode
- * (using queue to defer promises execution)
+ * (using queue to defer promises execution).
  *
  * Note:
  * Library users are not supposed to use SyncPromise class in their resolvers.
@@ -26,9 +25,9 @@ use function method_exists;
  */
 class SyncPromise
 {
-    public const PENDING   = 'pending';
+    public const PENDING = 'pending';
     public const FULFILLED = 'fulfilled';
-    public const REJECTED  = 'rejected';
+    public const REJECTED = 'rejected';
 
     public string $state = self::PENDING;
 
@@ -36,7 +35,7 @@ class SyncPromise
     public $result;
 
     /**
-     * Promises created in `then` method of this promise and awaiting resolution of this promise
+     * Promises created in `then` method of this promise and awaiting resolution of this promise.
      *
      * @var array<
      *     int,
@@ -63,7 +62,7 @@ class SyncPromise
      */
     public function __construct(?callable $executor = null)
     {
-        if ($executor === null) {
+        if (null === $executor) {
             return;
         }
 
@@ -100,7 +99,7 @@ class SyncPromise
                     return $this;
                 }
 
-                $this->state  = self::FULFILLED;
+                $this->state = self::FULFILLED;
                 $this->result = $value;
                 $this->enqueueWaitingPromises();
                 break;
@@ -121,7 +120,7 @@ class SyncPromise
     {
         switch ($this->state) {
             case self::PENDING:
-                $this->state  = self::REJECTED;
+                $this->state = self::REJECTED;
                 $this->result = $reason;
                 $this->enqueueWaitingPromises();
                 break;
@@ -141,7 +140,7 @@ class SyncPromise
     private function enqueueWaitingPromises(): void
     {
         Utils::invariant(
-            $this->state !== self::PENDING,
+            self::PENDING !== $this->state,
             'Cannot enqueue derived promises when parent is still pending'
         );
 
@@ -150,15 +149,15 @@ class SyncPromise
                 /** @var self $promise */
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
-                if ($this->state === self::FULFILLED) {
+                if (self::FULFILLED === $this->state) {
                     try {
-                        $promise->resolve($onFulfilled === null ? $this->result : $onFulfilled($this->result));
+                        $promise->resolve(null === $onFulfilled ? $this->result : $onFulfilled($this->result));
                     } catch (Throwable $e) {
                         $promise->reject($e);
                     }
-                } elseif ($this->state === self::REJECTED) {
+                } elseif (self::REJECTED === $this->state) {
                     try {
-                        if ($onRejected === null) {
+                        if (null === $onRejected) {
                             $promise->reject($this->result);
                         } else {
                             $promise->resolve($onRejected($this->result));
@@ -189,18 +188,18 @@ class SyncPromise
      */
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
     {
-        if ($this->state === self::REJECTED && $onRejected === null) {
+        if (self::REJECTED === $this->state && null === $onRejected) {
             return $this;
         }
 
-        if ($this->state === self::FULFILLED && $onFulfilled === null) {
+        if (self::FULFILLED === $this->state && null === $onFulfilled) {
             return $this;
         }
 
-        $tmp             = new self();
+        $tmp = new self();
         $this->waiting[] = [$tmp, $onFulfilled, $onRejected];
 
-        if ($this->state !== self::PENDING) {
+        if (self::PENDING !== $this->state) {
             $this->enqueueWaitingPromises();
         }
 
