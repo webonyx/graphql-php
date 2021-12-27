@@ -7,7 +7,7 @@ namespace GraphQL\Language\AST;
 /**
  * export type TypeNode = NamedTypeNode
  * | ListTypeNode
- * | NonNullTypeNode
+ * | NonNullTypeNode.
  */
 interface TypeNode
 {

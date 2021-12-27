@@ -11,28 +11,28 @@ namespace GraphQL\Language;
 class Token
 {
     // Each kind of token.
-    public const SOF          = '<SOF>';
-    public const EOF          = '<EOF>';
-    public const BANG         = '!';
-    public const DOLLAR       = '$';
-    public const AMP          = '&';
-    public const PAREN_L      = '(';
-    public const PAREN_R      = ')';
-    public const SPREAD       = '...';
-    public const COLON        = ':';
-    public const EQUALS       = '=';
-    public const AT           = '@';
-    public const BRACKET_L    = '[';
-    public const BRACKET_R    = ']';
-    public const BRACE_L      = '{';
-    public const PIPE         = '|';
-    public const BRACE_R      = '}';
-    public const NAME         = 'Name';
-    public const INT          = 'Int';
-    public const FLOAT        = 'Float';
-    public const STRING       = 'String';
+    public const SOF = '<SOF>';
+    public const EOF = '<EOF>';
+    public const BANG = '!';
+    public const DOLLAR = '$';
+    public const AMP = '&';
+    public const PAREN_L = '(';
+    public const PAREN_R = ')';
+    public const SPREAD = '...';
+    public const COLON = ':';
+    public const EQUALS = '=';
+    public const AT = '@';
+    public const BRACKET_L = '[';
+    public const BRACKET_R = ']';
+    public const BRACE_L = '{';
+    public const PIPE = '|';
+    public const BRACE_R = '}';
+    public const NAME = 'Name';
+    public const INT = 'Int';
+    public const FLOAT = 'Float';
+    public const STRING = 'String';
     public const BLOCK_STRING = 'BlockString';
-    public const COMMENT      = 'Comment';
+    public const COMMENT = 'Comment';
 
     /**
      * The kind of Token (see one of constants above).
@@ -72,19 +72,19 @@ class Token
 
     public function __construct(string $kind, int $start, int $end, int $line, int $column, ?Token $previous = null, ?string $value = null)
     {
-        $this->kind   = $kind;
-        $this->start  = $start;
-        $this->end    = $end;
-        $this->line   = $line;
+        $this->kind = $kind;
+        $this->start = $start;
+        $this->end = $end;
+        $this->line = $line;
         $this->column = $column;
-        $this->prev   = $previous;
-        $this->value  = $value;
+        $this->prev = $previous;
+        $this->value = $value;
     }
 
     public function getDescription(): string
     {
         return $this->kind
-            . ($this->value === null
+            . (null === $this->value
                 ? ''
                 : ' "' . $this->value . '"');
     }
@@ -100,9 +100,9 @@ class Token
     public function toArray(): array
     {
         return [
-            'kind'   => $this->kind,
-            'value'  => $this->value,
-            'line'   => $this->line,
+            'kind' => $this->kind,
+            'value' => $this->value,
+            'line' => $this->line,
             'column' => $this->column,
         ];
     }

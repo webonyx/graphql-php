@@ -25,7 +25,7 @@ class UniqueOperationNames extends ValidationRule
             NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) use ($context): VisitorOperation {
                 $operationName = $node->name;
 
-                if ($operationName !== null) {
+                if (null !== $operationName) {
                     if (! isset($this->knownOperationNames[$operationName->value])) {
                         $this->knownOperationNames[$operationName->value] = $operationName;
                     } else {
@@ -38,7 +38,7 @@ class UniqueOperationNames extends ValidationRule
 
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION  => static function (): VisitorOperation {
+            NodeKind::FRAGMENT_DEFINITION => static function (): VisitorOperation {
                 return Visitor::skipNode();
             },
         ];

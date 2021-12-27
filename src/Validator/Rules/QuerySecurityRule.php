@@ -104,16 +104,16 @@ abstract class QuerySecurityRule extends ValidationRule
         ?ArrayObject $astAndDefs = null
     ): ArrayObject {
         $_visitedFragmentNames = $visitedFragmentNames ?? new ArrayObject();
-        $_astAndDefs           = $astAndDefs ?? new ArrayObject();
+        $_astAndDefs = $astAndDefs ?? new ArrayObject();
 
         foreach ($selectionSet->selections as $selection) {
             switch (true) {
                 case $selection instanceof FieldNode:
                     $fieldName = $selection->name->value;
-                    $fieldDef  = null;
+                    $fieldDef = null;
                     if ($parentType instanceof HasFieldsType) {
-                        $schemaMetaFieldDef   = Introspection::schemaMetaFieldDef();
-                        $typeMetaFieldDef     = Introspection::typeMetaFieldDef();
+                        $schemaMetaFieldDef = Introspection::schemaMetaFieldDef();
+                        $typeMetaFieldDef = Introspection::typeMetaFieldDef();
                         $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
 
                         $queryType = $context->getSchema()->getQueryType();
@@ -154,7 +154,7 @@ abstract class QuerySecurityRule extends ValidationRule
 
                         $fragment = $context->getFragment($fragName);
 
-                        if ($fragment !== null) {
+                        if (null !== $fragment) {
                             $_astAndDefs = $this->collectFieldASTsAndDefs(
                                 $context,
                                 TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition),
@@ -176,7 +176,7 @@ abstract class QuerySecurityRule extends ValidationRule
     {
         $fieldName = $node->name->value;
 
-        return $node->alias === null
+        return null === $node->alias
             ? $fieldName
             : $node->alias->value;
     }

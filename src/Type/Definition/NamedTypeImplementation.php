@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use ReflectionClass;
-
 use function array_key_exists;
 use function preg_replace;
+use ReflectionClass;
 
 /**
  * @see NamedType
@@ -33,9 +32,9 @@ trait NamedTypeImplementation
         // QueryType -> Type
         // SomeOtherType -> SomeOther
         $reflection = new ReflectionClass($this);
-        $name       = $reflection->getShortName();
+        $name = $reflection->getShortName();
 
-        if ($reflection->getNamespaceName() !== __NAMESPACE__) {
+        if (__NAMESPACE__ !== $reflection->getNamespaceName()) {
             return preg_replace('~Type$~', '', $name);
         }
 

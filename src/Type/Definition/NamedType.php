@@ -16,7 +16,7 @@ use GraphQL\Language\AST\TypeExtensionNode;
  * | InterfaceType
  * | UnionType
  * | EnumType
- * | InputObjectType;
+ * | InputObjectType;.
  *
  * @property string $name
  * @property string|null $description

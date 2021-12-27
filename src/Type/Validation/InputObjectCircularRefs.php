@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Validation;
 
+use function array_map;
+use function array_pop;
+use function array_slice;
+use function count;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\SchemaValidationContext;
-
-use function array_map;
-use function array_pop;
-use function array_slice;
-use function count;
 use function implode;
 
 class InputObjectCircularRefs
@@ -54,7 +53,7 @@ class InputObjectCircularRefs
             return;
         }
 
-        $this->visitedTypes[$inputObj->name]             = true;
+        $this->visitedTypes[$inputObj->name] = true;
         $this->fieldPathIndexByTypeName[$inputObj->name] = count($this->fieldPath);
 
         $fieldMap = $inputObj->getFields();
@@ -73,7 +72,7 @@ class InputObjectCircularRefs
                         $this->validate($fieldType);
                     } else {
                         $cycleIndex = $this->fieldPathIndexByTypeName[$fieldType->name];
-                        $cyclePath  = array_slice($this->fieldPath, $cycleIndex);
+                        $cyclePath = array_slice($this->fieldPath, $cycleIndex);
                         $fieldNames = array_map(
                             static fn (InputObjectField $field): string => $field->name,
                             $cyclePath

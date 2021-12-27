@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Utils\Utils;
-
 use function array_keys;
+use GraphQL\Utils\Utils;
 
 /**
  * @see HasFieldsType

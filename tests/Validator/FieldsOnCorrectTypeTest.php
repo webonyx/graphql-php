@@ -358,8 +358,8 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testWorksWithNoSmallNumbersOfTypeSuggestions(): void
     {
-        $expected = 'Cannot query field "f" on type "T". ' .
-            'Did you mean to use an inline fragment on "A" or "B"?';
+        $expected = 'Cannot query field "f" on type "T". '
+            . 'Did you mean to use an inline fragment on "A" or "B"?';
 
         self::assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], []));
     }
@@ -369,8 +369,8 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testWorksWithNoSmallNumbersOfFieldSuggestions(): void
     {
-        $expected = 'Cannot query field "f" on type "T". ' .
-            'Did you mean "z" or "y"?';
+        $expected = 'Cannot query field "f" on type "T". '
+            . 'Did you mean "z" or "y"?';
 
         self::assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], ['z', 'y']));
     }
@@ -380,8 +380,8 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testOnlyShowsOneSetOfSuggestionsAtATimePreferringTypes(): void
     {
-        $expected = 'Cannot query field "f" on type "T". ' .
-            'Did you mean to use an inline fragment on "A" or "B"?';
+        $expected = 'Cannot query field "f" on type "T". '
+            . 'Did you mean to use an inline fragment on "A" or "B"?';
 
         self::assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], ['z', 'y']));
     }
@@ -391,8 +391,8 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testLimitsLotsOfTypeSuggestions(): void
     {
-        $expected = 'Cannot query field "f" on type "T". ' .
-            'Did you mean to use an inline fragment on "A", "B", "C", "D", or "E"?';
+        $expected = 'Cannot query field "f" on type "T". '
+            . 'Did you mean to use an inline fragment on "A", "B", "C", "D", or "E"?';
 
         self::assertEquals(
             $expected,
@@ -410,8 +410,8 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testLimitsLotsOfFieldSuggestions(): void
     {
-        $expected = 'Cannot query field "f" on type "T". ' .
-            'Did you mean "z", "y", "x", "w", or "v"?';
+        $expected = 'Cannot query field "f" on type "T". '
+            . 'Did you mean "z", "y", "x", "w", or "v"?';
 
         self::assertEquals(
             $expected,

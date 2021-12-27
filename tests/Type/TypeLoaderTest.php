@@ -35,8 +35,8 @@ abstract class TypeLoaderTest extends TestCaseBase
     public function testSchemaAcceptsTypeLoader(): void
     {
         new Schema([
-            'query'      => new ObjectType([
-                'name'   => 'Query',
+            'query' => new ObjectType([
+                'name' => 'Query',
                 'fields' => ['a' => Type::string()],
             ]),
             'typeLoader' => static function (): void {
@@ -51,8 +51,8 @@ abstract class TypeLoaderTest extends TestCaseBase
         $this->expectExceptionMessageMatches('/callable.*, array given/');
 
         new Schema([
-            'query'      => new ObjectType([
-                'name'   => 'Query',
+            'query' => new ObjectType([
+                'name' => 'Query',
                 'fields' => ['a' => Type::string()],
             ]),
             'typeLoader' => [],
@@ -62,7 +62,7 @@ abstract class TypeLoaderTest extends TestCaseBase
     public function testOnlyCallsLoaderOnce(): void
     {
         $schema = new Schema([
-            'query'      => $this->query,
+            'query' => $this->query,
             'typeLoader' => $this->typeLoader,
         ]);
 
@@ -76,7 +76,7 @@ abstract class TypeLoaderTest extends TestCaseBase
     public function testIgnoresNonExistentType(): void
     {
         $schema = new Schema([
-            'query'      => $this->query,
+            'query' => $this->query,
             'typeLoader' => static function (): void {
             },
         ]);
@@ -89,7 +89,7 @@ abstract class TypeLoaderTest extends TestCaseBase
         $notType = new stdClass();
 
         $schema = new Schema([
-            'query'      => $this->query,
+            'query' => $this->query,
             'typeLoader' => static fn (): stdClass => $notType,
         ]);
 

@@ -18,7 +18,7 @@ final class DirectiveTest extends TestCase
      */
     public function testDefinesADirectiveWithNoArgs(): void
     {
-        $name      = 'Foo';
+        $name = 'Foo';
         $locations = [DirectiveLocation::QUERY];
 
         $directive = new Directive([

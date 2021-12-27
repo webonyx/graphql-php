@@ -11,7 +11,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-
 use function sprintf;
 
 class GraphQLTest extends TestCase
@@ -19,7 +18,7 @@ class GraphQLTest extends TestCase
     public function testPromiseToExecute(): void
     {
         $promiseAdapter = new SyncPromiseAdapter();
-        $schema         = new Schema(
+        $schema = new Schema(
             [
                 'query' => new ObjectType(
                     [
@@ -43,7 +42,7 @@ class GraphQLTest extends TestCase
         );
 
         $promise = GraphQL::promiseToExecute($promiseAdapter, $schema, '{ sayHi(name: "John") }');
-        $result  = $promiseAdapter->wait($promise);
+        $result = $promiseAdapter->wait($promise);
         self::assertSame(['data' => ['sayHi' => 'Hi John!']], $result->toArray());
     }
 }

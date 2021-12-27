@@ -322,7 +322,6 @@ class UniqueOperationTypesTest extends ValidatorTestCase
                         ['line' => 16, 'column' => 9],
                     ],
                 ],
-
             ],
         );
     }
@@ -333,7 +332,7 @@ class UniqueOperationTypesTest extends ValidatorTestCase
     public function testDefineSchemaInsideExtensionSdl(): void
     {
         $schema = BuildSchema::build('type Foo');
-        $sdl    = '
+        $sdl = '
       schema {
         query: Foo
         mutation: Foo
@@ -350,7 +349,7 @@ class UniqueOperationTypesTest extends ValidatorTestCase
     public function testDefineAndExtendSchemaInsideExtensionSdl(): void
     {
         $schema = BuildSchema::build('type Foo');
-        $sdl    = '
+        $sdl = '
       schema { query: Foo }
       extend schema { mutation: Foo }
       extend schema { subscription: Foo }
@@ -365,7 +364,7 @@ class UniqueOperationTypesTest extends ValidatorTestCase
     public function testAddingNewOperationTypesToExistingSchema(): void
     {
         $schema = BuildSchema::build('type Query');
-        $sdl    = '
+        $sdl = '
       extend schema { mutation: Foo }
       extend schema { subscription: Foo }
         ';

@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace GraphQL\Tests;
 
 use GraphQL\Utils\Utils;
-use PHPUnit\Framework\TestCase;
-
 use function mb_check_encoding;
+use PHPUnit\Framework\TestCase;
 
 final class UtilsTest extends TestCase
 {
@@ -51,7 +50,8 @@ final class UtilsTest extends TestCase
     public function testPrintSafeJson(): void
     {
         self::assertJsonStringEqualsJsonString(
-            /** @lang JSON */            '{"foo":1}',
+            /** @lang JSON */ 
+            '{"foo":1}',
             Utils::printSafeJson((object) ['foo' => 1])
         );
     }

@@ -15,7 +15,7 @@ final class NodeListTest extends TestCase
     {
         $nameNode = new NameNode(['value' => 'bar']);
 
-        $key      = 'foo';
+        $key = 'foo';
         $nodeList = new NodeList([$key => $nameNode->toArray()]);
 
         self::assertEquals($nameNode, $nodeList[$key]);

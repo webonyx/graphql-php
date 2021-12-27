@@ -198,8 +198,6 @@ static function listOf($type): GraphQL\Type\Definition\ListOfType
 
 ```php
 /**
- * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
- * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
  * @param (NullableType&Type)|callable():(NullableType&Type) $type
  *
  * @api

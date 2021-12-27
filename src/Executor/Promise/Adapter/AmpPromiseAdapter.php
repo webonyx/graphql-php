@@ -6,14 +6,13 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use Amp\Deferred;
 use Amp\Failure;
+use function Amp\Promise\all;
 use Amp\Promise as AmpPromise;
 use Amp\Success;
+use function array_replace;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use Throwable;
-
-use function Amp\Promise\all;
-use function array_replace;
 
 class AmpPromiseAdapter implements PromiseAdapter
 {
@@ -29,13 +28,13 @@ class AmpPromiseAdapter implements PromiseAdapter
 
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
-        $deferred  = new Deferred();
+        $deferred = new Deferred();
         $onResolve = static function (?Throwable $reason, $value) use ($onFulfilled, $onRejected, $deferred): void {
-            if ($reason === null && $onFulfilled !== null) {
+            if (null === $reason && null !== $onFulfilled) {
                 self::resolveWithCallable($deferred, $onFulfilled, $value);
-            } elseif ($reason === null) {
+            } elseif (null === $reason) {
                 $deferred->resolve($value);
-            } elseif ($onRejected !== null) {
+            } elseif (null !== $onRejected) {
                 self::resolveWithCallable($deferred, $onRejected, $reason);
             } else {
                 $deferred->fail($reason);
@@ -94,7 +93,7 @@ class AmpPromiseAdapter implements PromiseAdapter
         $deferred = new Deferred();
 
         $onResolve = static function (?Throwable $reason, ?array $values) use ($promisesOrValues, $deferred): void {
-            if ($reason === null) {
+            if (null === $reason) {
                 $deferred->resolve(array_replace($promisesOrValues, $values));
 
                 return;

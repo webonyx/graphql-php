@@ -15,17 +15,17 @@ class PairSet
 
     public function has(string $a, string $b, bool $areMutuallyExclusive): bool
     {
-        $first  = $this->data[$a] ?? null;
-        $result = $first !== null && isset($first[$b]) ? $first[$b] : null;
-        if ($result === null) {
+        $first = $this->data[$a] ?? null;
+        $result = null !== $first && isset($first[$b]) ? $first[$b] : null;
+        if (null === $result) {
             return false;
         }
 
         // areMutuallyExclusive being false is a superset of being true,
         // hence if we want to know if this PairSet "has" these two with no
         // exclusivity, we have to ensure it was added as such.
-        if ($areMutuallyExclusive === false) {
-            return $result === false;
+        if (false === $areMutuallyExclusive) {
+            return false === $result;
         }
 
         return true;
@@ -39,7 +39,7 @@ class PairSet
 
     private function pairSetAdd(string $a, string $b, bool $areMutuallyExclusive): void
     {
-        $this->data[$a]   ??= [];
+        $this->data[$a] ??= [];
         $this->data[$a][$b] = $areMutuallyExclusive;
     }
 }

@@ -7,11 +7,10 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Utils\Utils;
-
 use function is_string;
 
 /**
- * Scalar Type Definition
+ * Scalar Type Definition.
  *
  * The leaf values of any request and input values to arguments are
  * Scalars (or Enums) and are defined with a name and a series of coercion
@@ -55,9 +54,9 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
         $config['name'] ??= $this->tryInferName();
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        $this->name              = $config['name'];
-        $this->description       = $config['description'] ?? $this->description ?? null;
-        $this->astNode           = $config['astNode'] ?? null;
+        $this->name = $config['name'];
+        $this->description = $config['description'] ?? $this->description ?? null;
+        $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
         $this->config = $config;

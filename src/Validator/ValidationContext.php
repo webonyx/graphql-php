@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator;
 
+use function array_merge;
+use function array_pop;
+use function count;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
@@ -27,10 +30,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use SplObjectStorage;
-
-use function array_merge;
-use function array_pop;
-use function count;
 
 /**
  * An instance of this class is passed as the "this" context to all validators,
@@ -62,11 +61,11 @@ class ValidationContext extends ASTValidationContext
     public function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)
     {
         parent::__construct($ast, $schema);
-        $this->typeInfo                       = $typeInfo;
-        $this->fragmentSpreads                = new SplObjectStorage();
+        $this->typeInfo = $typeInfo;
+        $this->fragmentSpreads = new SplObjectStorage();
         $this->recursivelyReferencedFragments = new SplObjectStorage();
-        $this->variableUsages                 = new SplObjectStorage();
-        $this->recursiveVariableUsages        = new SplObjectStorage();
+        $this->variableUsages = new SplObjectStorage();
+        $this->recursiveVariableUsages = new SplObjectStorage();
     }
 
     /**
@@ -76,8 +75,8 @@ class ValidationContext extends ASTValidationContext
     {
         $usages = $this->recursiveVariableUsages[$operation] ?? null;
 
-        if ($usages === null) {
-            $usages    = $this->getVariableUsages($operation);
+        if (null === $usages) {
+            $usages = $this->getVariableUsages($operation);
             $fragments = $this->getRecursivelyReferencedFragments($operation);
 
             $allUsages = [$usages];
@@ -85,7 +84,7 @@ class ValidationContext extends ASTValidationContext
                 $allUsages[] = $this->getVariableUsages($fragment);
             }
 
-            $usages                                    = array_merge(...$allUsages);
+            $usages = array_merge(...$allUsages);
             $this->recursiveVariableUsages[$operation] = $usages;
         }
 
@@ -100,7 +99,7 @@ class ValidationContext extends ASTValidationContext
     private function getVariableUsages(HasSelectionSet $node): array
     {
         if (! isset($this->variableUsages[$node])) {
-            $usages   = [];
+            $usages = [];
             $typeInfo = new TypeInfo($this->schema);
             Visitor::visit(
                 $node,
@@ -108,7 +107,7 @@ class ValidationContext extends ASTValidationContext
                     $typeInfo,
                     [
                         NodeKind::VARIABLE_DEFINITION => static fn (): bool => false,
-                        NodeKind::VARIABLE            => static function (VariableNode $variable) use (
+                        NodeKind::VARIABLE => static function (VariableNode $variable) use (
                             &$usages,
                             $typeInfo
                         ): void {
@@ -135,12 +134,12 @@ class ValidationContext extends ASTValidationContext
     {
         $fragments = $this->recursivelyReferencedFragments[$operation] ?? null;
 
-        if ($fragments === null) {
-            $fragments      = [];
+        if (null === $fragments) {
+            $fragments = [];
             $collectedNames = [];
-            $nodesToVisit   = [$operation];
+            $nodesToVisit = [$operation];
             while (count($nodesToVisit) > 0) {
-                $node    = array_pop($nodesToVisit);
+                $node = array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 foreach ($spreads as $spread) {
                     $fragName = $spread->name->value;
@@ -150,12 +149,12 @@ class ValidationContext extends ASTValidationContext
                     }
 
                     $collectedNames[$fragName] = true;
-                    $fragment                  = $this->getFragment($fragName);
-                    if ($fragment === null) {
+                    $fragment = $this->getFragment($fragName);
+                    if (null === $fragment) {
                         continue;
                     }
 
-                    $fragments[]    = $fragment;
+                    $fragments[] = $fragment;
                     $nodesToVisit[] = $fragment;
                 }
             }
@@ -174,7 +173,7 @@ class ValidationContext extends ASTValidationContext
     public function getFragmentSpreads(HasSelectionSet $node): array
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
-        if ($spreads === null) {
+        if (null === $spreads) {
             $spreads = [];
 
             /** @var array<int, SelectionSetNode> $setsToVisit */
@@ -182,12 +181,12 @@ class ValidationContext extends ASTValidationContext
             while (count($setsToVisit) > 0) {
                 $set = array_pop($setsToVisit);
 
-                for ($i = 0, $selectionCount = count($set->selections); $i < $selectionCount; $i++) {
+                for ($i = 0, $selectionCount = count($set->selections); $i < $selectionCount; ++$i) {
                     $selection = $set->selections[$i];
                     if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
                     } elseif ($selection instanceof FieldNode || $selection instanceof InlineFragmentNode) {
-                        if ($selection->selectionSet !== null) {
+                        if (null !== $selection->selectionSet) {
                             $setsToVisit[] = $selection->selectionSet;
                         }
                     } else {

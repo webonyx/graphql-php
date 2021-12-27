@@ -11,10 +11,9 @@ use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
+use function json_encode;
 use Nyholm\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
-
-use function json_encode;
 
 class StandardServerTest extends ServerTestCase
 {
@@ -25,7 +24,7 @@ class StandardServerTest extends ServerTestCase
 
     public function setUp(): void
     {
-        $schema       = $this->buildSchema();
+        $schema = $this->buildSchema();
         $this->config = ServerConfig::create()
             ->setSchema($schema);
     }
@@ -35,9 +34,9 @@ class StandardServerTest extends ServerTestCase
         $body = json_encode(['query' => '{f1}']);
 
         $parsedBody = $this->parseRawRequest('application/json', $body);
-        $server     = new StandardServer($this->config);
+        $server = new StandardServer($this->config);
 
-        $result   = $server->executeRequest($parsedBody);
+        $result = $server->executeRequest($parsedBody);
         $expected = [
             'data' => ['f1' => 'f1'],
         ];
@@ -47,7 +46,7 @@ class StandardServerTest extends ServerTestCase
 
     private function parseRawRequest(string $contentType, string $content, string $method = 'POST'): OperationParams
     {
-        $_SERVER['CONTENT_TYPE']   = $contentType;
+        $_SERVER['CONTENT_TYPE'] = $contentType;
         $_SERVER['REQUEST_METHOD'] = $method;
 
         $helper = new Helper();
@@ -96,7 +95,7 @@ class StandardServerTest extends ServerTestCase
     public function testMultipleOperationPsrRequestExecution(): void
     {
         $body = [
-            'query'         => 'query firstOp {fieldWithPhpError} query secondOp {f1}',
+            'query' => 'query firstOp {fieldWithPhpError} query secondOp {f1}',
             'operationName' => 'secondOp',
         ];
 

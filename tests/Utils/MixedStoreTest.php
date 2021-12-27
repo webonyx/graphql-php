@@ -56,9 +56,9 @@ class MixedStoreTest extends TestCase
      */
     private function assertAcceptsKeyValue($key, $value): void
     {
-        $safeKey   = Utils::printSafe($key);
+        $safeKey = Utils::printSafe($key);
         $safeValue = Utils::printSafe($value);
-        $message   = "Failed assertion that MixedStore accepts key {$safeKey} with value {$safeValue}";
+        $message = "Failed assertion that MixedStore accepts key {$safeKey} with value {$safeValue}";
 
         self::assertFalse($this->mixedStore->offsetExists($key), $message);
 
@@ -78,8 +78,8 @@ class MixedStoreTest extends TestCase
      */
     private function assertProvidesArrayAccess($key, $value): void
     {
-        $err = 'Failed assertion that MixedStore provides array access for key ' .
-            Utils::printSafe($key) . ' with value ' . Utils::printSafe($value);
+        $err = 'Failed assertion that MixedStore provides array access for key '
+            . Utils::printSafe($key) . ' with value ' . Utils::printSafe($value);
 
         self::assertFalse(isset($this->mixedStore[$key]), $err);
         $this->mixedStore[$key] = $value;

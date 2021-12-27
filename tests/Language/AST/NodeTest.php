@@ -9,16 +9,15 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
-use PHPUnit\Framework\TestCase;
-
 use function json_decode;
 use function json_encode;
+use PHPUnit\Framework\TestCase;
 
 class NodeTest extends TestCase
 {
     public function testCloneDeep(): void
     {
-        $node  = Parser::objectTypeDefinition('
+        $node = Parser::objectTypeDefinition('
         type Test {
             id(arg: Int): ID!
         }
@@ -29,19 +28,19 @@ class NodeTest extends TestCase
         self::assertNotSameButEquals($node->name, $clone->name);
         self::assertNotSameButEquals($node->directives, $clone->directives);
 
-        $nodeFields  = $node->fields;
+        $nodeFields = $node->fields;
         $cloneFields = $clone->fields;
         self::assertNotSameButEquals($nodeFields, $cloneFields);
 
-        $nodeId  = $nodeFields[0];
+        $nodeId = $nodeFields[0];
         $cloneId = $cloneFields[0];
         self::assertNotSameButEquals($nodeId, $cloneId);
 
-        $nodeIdArgs  = $nodeId->arguments;
+        $nodeIdArgs = $nodeId->arguments;
         $cloneIdArgs = $cloneId->arguments;
         self::assertNotSameButEquals($nodeIdArgs, $cloneIdArgs);
 
-        $nodeArg  = $nodeIdArgs[0];
+        $nodeArg = $nodeIdArgs[0];
         $cloneArg = $cloneIdArgs[0];
         self::assertNotSameButEquals($nodeArg, $cloneArg);
 
@@ -70,7 +69,8 @@ class NodeTest extends TestCase
     public function testToString(): void
     {
         self::assertJsonStringEqualsJsonString(
-            /** @lang JSON */            '{"kind":"Name","value":"foo"}',
+            /** @lang JSON */ 
+            '{"kind":"Name","value":"foo"}',
             (string) new NameNode(['value' => 'foo'])
         );
     }

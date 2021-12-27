@@ -10,17 +10,16 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Utils\Utils;
+use function is_array;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Throwable;
 
-use function is_array;
-
 /**
  * GraphQL server compatible with both: [express-graphql](https://github.com/graphql/express-graphql)
  * and [Apollo Server](https://github.com/apollographql/graphql-server).
- * Usage Example:
+ * Usage Example:.
  *
  *     $server = new StandardServer([
  *       'schema' => $mySchema
@@ -58,12 +57,12 @@ class StandardServer
         $response = [
             'errors' => [FormattedError::createFromException($error, $debug)],
         ];
-        $helper   = new Helper();
+        $helper = new Helper();
         $helper->emitResponse($response, 500, $exitWhenDone);
     }
 
     /**
-     * Creates new instance of a standard GraphQL HTTP server
+     * Creates new instance of a standard GraphQL HTTP server.
      *
      * @param ServerConfig|array<string, mixed> $config
      *
@@ -85,7 +84,7 @@ class StandardServer
     }
 
     /**
-     * Parses HTTP request, executes and emits response (using standard PHP `header` function and `echo`)
+     * Parses HTTP request, executes and emits response (using standard PHP `header` function and `echo`).
      *
      * By default (when $parsedBody is not set) it uses PHP globals to parse a request.
      * It is possible to implement request parsing elsewhere (e.g. using framework Request instance)
@@ -116,15 +115,15 @@ class StandardServer
      *
      * @param OperationParams|array<OperationParams> $parsedBody
      *
-     * @return ExecutionResult|array<int, ExecutionResult>|Promise
-     *
      * @throws InvariantViolation
+     *
+     * @return ExecutionResult|array<int, ExecutionResult>|Promise
      *
      * @api
      */
     public function executeRequest($parsedBody = null)
     {
-        if ($parsedBody === null) {
+        if (null === $parsedBody) {
             $parsedBody = $this->helper->parseHttpRequest();
         }
 
@@ -157,7 +156,7 @@ class StandardServer
 
     /**
      * Executes GraphQL operation and returns execution result
-     * (or promise when promise adapter is different from SyncPromiseAdapter)
+     * (or promise when promise adapter is different from SyncPromiseAdapter).
      *
      * @return ExecutionResult|array<int, ExecutionResult>|Promise
      *
@@ -172,7 +171,7 @@ class StandardServer
 
     /**
      * Returns an instance of Server helper, which contains most of the actual logic for
-     * parsing / validating / executing request (which could be re-used by other server implementations)
+     * parsing / validating / executing request (which could be re-used by other server implementations).
      *
      * @api
      */

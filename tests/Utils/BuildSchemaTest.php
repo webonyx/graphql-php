@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use function array_keys;
 use Closure;
+use function count;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
@@ -24,9 +26,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
-
-use function array_keys;
-use function count;
 
 /**
  * @phpstan-import-type BuildSchemaOptions from BuildSchema
@@ -82,7 +81,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleType(): void
     {
-        $body   = '
+        $body = '
 type HelloScalars {
   str: String
   int: Int
@@ -119,7 +118,7 @@ type HelloScalars {
      */
     private function cycleOutput(string $body, array $options = []): string
     {
-        $ast    = Parser::parse($body);
+        $ast = Parser::parse($body);
         $schema = BuildSchema::buildAST($ast, null, $options);
 
         return "\n" . SchemaPrinter::doPrint($schema);
@@ -130,7 +129,7 @@ type HelloScalars {
      */
     public function testWithDirectives(): void
     {
-        $body   = '
+        $body = '
 directive @foo(arg: Int) on FIELD
 
 directive @repeatableFoo(arg: Int) repeatable on FIELD
@@ -180,7 +179,7 @@ type Query {
      */
     public function testMaintainsSkipAndInclude(): void
     {
-        $body   = '
+        $body = '
 type Query {
   str: String
 }
@@ -197,7 +196,7 @@ type Query {
      */
     public function testOverridingDirectivesExcludesSpecified(): void
     {
-        $body   = '
+        $body = '
 directive @skip on FIELD
 directive @include on FIELD
 directive @deprecated on FIELD_DEFINITION
@@ -218,7 +217,7 @@ type Query {
      */
     public function testAddingDirectivesMaintainsSkipAndInclude(): void
     {
-        $body   = '
+        $body = '
       directive @foo(arg: Int) on FIELD
 
       type Query {
@@ -237,7 +236,7 @@ type Query {
      */
     public function testTypeModifiers(): void
     {
-        $body   = '
+        $body = '
 type HelloScalars {
   nonNullStr: String!
   listOfStrs: [String]
@@ -255,7 +254,7 @@ type HelloScalars {
      */
     public function testRecursiveType(): void
     {
-        $body   = '
+        $body = '
 type Query {
   str: String
   recurse: Query
@@ -270,7 +269,7 @@ type Query {
      */
     public function testTwoTypesCircular(): void
     {
-        $body   = '
+        $body = '
 schema {
   query: TypeOne
 }
@@ -294,7 +293,7 @@ type TypeTwo {
      */
     public function testSingleArgumentField(): void
     {
-        $body   = '
+        $body = '
 type Query {
   str(int: Int): String
   floatToStr(float: Float): String
@@ -312,7 +311,7 @@ type Query {
      */
     public function testSimpleTypeWithMultipleArguments(): void
     {
-        $body   = '
+        $body = '
 type Query {
   str(int: Int, bool: Boolean): String
 }
@@ -326,7 +325,7 @@ type Query {
      */
     public function testSimpleTypeWithInterface(): void
     {
-        $body   = '
+        $body = '
 type Query implements WorldInterface {
   str: String
 }
@@ -344,7 +343,7 @@ interface WorldInterface {
      */
     public function testSimpleInterfaceHierarchy(): void
     {
-        $body   = '
+        $body = '
 interface Child implements Parent {
   str: String
 }
@@ -366,7 +365,7 @@ interface Parent {
      */
     public function testSimpleOutputEnum(): void
     {
-        $body   = '
+        $body = '
 enum Hello {
   WORLD
 }
@@ -384,7 +383,7 @@ type Query {
      */
     public function testSimpleInputEnum(): void
     {
-        $body   = '
+        $body = '
 enum Hello {
   WORLD
 }
@@ -402,7 +401,7 @@ type Query {
      */
     public function testMultipleValueEnum(): void
     {
-        $body   = '
+        $body = '
 enum Hello {
   WO
   RLD
@@ -421,7 +420,7 @@ type Query {
      */
     public function testSimpleUnion(): void
     {
-        $body   = '
+        $body = '
 union Hello = World
 
 type Query {
@@ -441,7 +440,7 @@ type World {
      */
     public function testMultipleUnion(): void
     {
-        $body   = '
+        $body = '
 union Hello = WorldOne | WorldTwo
 
 type Query {
@@ -481,7 +480,7 @@ type WorldTwo {
      */
     public function testCustomScalar(): void
     {
-        $body   = '
+        $body = '
 scalar CustomScalar
 
 type Query {
@@ -497,7 +496,7 @@ type Query {
      */
     public function testInputObject(): void
     {
-        $body   = '
+        $body = '
 input Input {
   int: Int
 }
@@ -515,7 +514,7 @@ type Query {
      */
     public function testSimpleArgumentFieldWithDefault(): void
     {
-        $body   = '
+        $body = '
 type Query {
   str(int: Int = 2): String
 }
@@ -529,7 +528,7 @@ type Query {
      */
     public function testCustomScalarArgumentFieldWithDefault(): void
     {
-        $body   = '
+        $body = '
 scalar CustomScalar
 
 type Query {
@@ -545,7 +544,7 @@ type Query {
      */
     public function testSimpleTypeWithMutation(): void
     {
-        $body   = '
+        $body = '
 schema {
   query: HelloScalars
   mutation: Mutation
@@ -570,7 +569,7 @@ type Mutation {
      */
     public function testSimpleTypeWithSubscription(): void
     {
-        $body   = '
+        $body = '
 schema {
   query: HelloScalars
   subscription: Subscription
@@ -595,7 +594,7 @@ type Subscription {
      */
     public function testUnreferencedTypeImplementingReferencedInterface(): void
     {
-        $body   = '
+        $body = '
 type Concrete implements Iface {
   key: String
 }
@@ -617,7 +616,7 @@ type Query {
      */
     public function testUnreferencedInterfaceImplementingReferencedInterface(): void
     {
-        $body   = '
+        $body = '
 interface Child implements Parent {
   key: String
 }
@@ -639,7 +638,7 @@ type Query {
      */
     public function testUnreferencedTypeImplementingReferencedUnion(): void
     {
-        $body   = '
+        $body = '
 type Concrete {
   key: String
 }
@@ -659,7 +658,7 @@ union Union = Concrete
      */
     public function testSupportsDeprecated(): void
     {
-        $body   = '
+        $body = '
 enum MyEnum {
   VALUE
   OLD_VALUE @deprecated
@@ -675,7 +674,7 @@ type Query {
         $output = $this->cycleOutput($body);
         self::assertEquals($output, $body);
 
-        $ast    = Parser::parse($body);
+        $ast = Parser::parse($body);
         $schema = BuildSchema::buildAST($ast);
 
         /** @var EnumType $myEnum */
@@ -693,7 +692,7 @@ type Query {
         self::assertEquals('Terrible reasons', $otherValue->deprecationReason);
 
         /** @var ObjectType $queryType */
-        $queryType  = $schema->getType('Query');
+        $queryType = $schema->getType('Query');
         $rootFields = $queryType->getFields();
         self::assertEquals($rootFields['field1']->isDeprecated(), true);
         self::assertEquals($rootFields['field1']->deprecationReason, 'No longer supported');
@@ -738,7 +737,7 @@ type Query {
 
       directive @test(arg: TestScalar) on FIELD
     ');
-        $schema    = BuildSchema::buildAST($schemaAST);
+        $schema = BuildSchema::buildAST($schemaAST);
 
         /** @var ObjectType $query */
         $query = $schema->getType('Query');
@@ -753,18 +752,18 @@ type Query {
         /** @var ObjectType $testType */
         $testType = $schema->getType('TestType');
         /** @var ScalarType $testScalar */
-        $testScalar    = $schema->getType('TestScalar');
+        $testScalar = $schema->getType('TestScalar');
         $testDirective = $schema->getDirective('test');
 
-        $inner = Printer::doPrint($schema->getAstNode()) . "\n" .
-            Printer::doPrint($query->astNode) . "\n" .
-            Printer::doPrint($testInput->astNode) . "\n" .
-            Printer::doPrint($testEnum->astNode) . "\n" .
-            Printer::doPrint($testUnion->astNode) . "\n" .
-            Printer::doPrint($testInterface->astNode) . "\n" .
-            Printer::doPrint($testType->astNode) . "\n" .
-            Printer::doPrint($testScalar->astNode) . "\n" .
-            Printer::doPrint($testDirective->astNode);
+        $inner = Printer::doPrint($schema->getAstNode()) . "\n"
+            . Printer::doPrint($query->astNode) . "\n"
+            . Printer::doPrint($testInput->astNode) . "\n"
+            . Printer::doPrint($testEnum->astNode) . "\n"
+            . Printer::doPrint($testUnion->astNode) . "\n"
+            . Printer::doPrint($testInterface->astNode) . "\n"
+            . Printer::doPrint($testType->astNode) . "\n"
+            . Printer::doPrint($testScalar->astNode) . "\n"
+            . Printer::doPrint($testDirective->astNode);
 
         $restoredIDL = SchemaPrinter::doPrint(BuildSchema::build($inner));
 
@@ -907,14 +906,14 @@ interface Hello {
   world: String
 }
 ';
-        $doc  = Parser::parse($body);
+        $doc = Parser::parse($body);
 
         $decorated = [];
-        $calls     = [];
+        $calls = [];
 
         $typeConfigDecorator = static function ($defaultConfig, $node, $allNodesMap) use (&$decorated, &$calls) {
             $decorated[] = $defaultConfig['name'];
-            $calls[]     = [$defaultConfig, $node, $allNodesMap];
+            $calls[] = [$defaultConfig, $node, $allNodesMap];
 
             return ['description' => 'My description of ' . $node->name->value] + $defaultConfig;
         };
@@ -937,14 +936,14 @@ interface Hello {
         self::assertInstanceOf(EnumTypeDefinitionNode::class, $node);
         self::assertEquals('Color', $defaultConfig['name']);
         $enumValue = [
-            'description'       => '',
+            'description' => '',
             'deprecationReason' => '',
         ];
         self::assertArraySubset(
             [
-                'RED'   => $enumValue,
+                'RED' => $enumValue,
                 'GREEN' => $enumValue,
-                'BLUE'  => $enumValue,
+                'BLUE' => $enumValue,
             ],
             $defaultConfig['values']
         );
@@ -965,7 +964,7 @@ interface Hello {
 
     public function testCreatesTypesLazily(): void
     {
-        $body    = '
+        $body = '
 schema {
   query: Query
 }
@@ -990,7 +989,7 @@ type World implements Hello {
   world: String
 }
 ';
-        $doc     = Parser::parse($body);
+        $doc = Parser::parse($body);
         $created = [];
 
         $typeConfigDecorator = static function ($config, $node) use (&$created) {

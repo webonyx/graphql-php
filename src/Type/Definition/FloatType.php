@@ -10,7 +10,6 @@ use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
-
 use function is_bool;
 use function is_finite;
 use function is_float;
@@ -21,8 +20,8 @@ class FloatType extends ScalarType
 {
     public string $name = Type::FLOAT;
 
-    public ?string $description =
-        'The `Float` scalar type represents signed double-precision fractional
+    public ?string $description
+        = 'The `Float` scalar type represents signed double-precision fractional
 values as specified by
 [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point). ';
 
@@ -32,10 +31,10 @@ values as specified by
             ? (float) $value
             : null;
 
-        if ($float === null || ! is_finite($float)) {
+        if (null === $float || ! is_finite($float)) {
             throw new SerializationError(
-                'Float cannot represent non numeric value: ' .
-                Utils::printSafe($value)
+                'Float cannot represent non numeric value: '
+                . Utils::printSafe($value)
             );
         }
 
@@ -48,10 +47,10 @@ values as specified by
             ? (float) $value
             : null;
 
-        if ($float === null || ! is_finite($float)) {
+        if (null === $float || ! is_finite($float)) {
             throw new Error(
-                'Float cannot represent non numeric value: ' .
-                Utils::printSafe($value)
+                'Float cannot represent non numeric value: '
+                . Utils::printSafe($value)
             );
         }
 

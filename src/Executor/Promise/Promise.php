@@ -10,7 +10,7 @@ use GraphQL\Utils\Utils;
 use React\Promise\PromiseInterface as ReactPromise;
 
 /**
- * Convenience wrapper for promises represented by Promise Adapter
+ * Convenience wrapper for promises represented by Promise Adapter.
  */
 class Promise
 {
@@ -27,7 +27,7 @@ class Promise
         Utils::invariant(! $adoptedPromise instanceof self, 'Expecting promise from adapted system, got ' . self::class);
 
         $this->adoptedPromise = $adoptedPromise;
-        $this->adapter        = $adapter;
+        $this->adapter = $adapter;
     }
 
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null): Promise

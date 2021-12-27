@@ -61,7 +61,7 @@ class QueryDepth extends QuerySecurityRule
         switch (true) {
             case $node instanceof FieldNode:
                 // node has children?
-                if ($node->selectionSet !== null) {
+                if (null !== $node->selectionSet) {
                     // update maxDepth if needed
                     if ($depth > $maxDepth) {
                         $maxDepth = $depth;
@@ -80,7 +80,7 @@ class QueryDepth extends QuerySecurityRule
             case $node instanceof FragmentSpreadNode:
                 $fragment = $this->getFragment($node);
 
-                if ($fragment !== null) {
+                if (null !== $fragment) {
                     $maxDepth = $this->fieldDepth($fragment, $depth, $maxDepth);
                 }
 
@@ -107,6 +107,6 @@ class QueryDepth extends QuerySecurityRule
 
     protected function isEnabled(): bool
     {
-        return $this->maxQueryDepth !== self::DISABLED;
+        return self::DISABLED !== $this->maxQueryDepth;
     }
 }

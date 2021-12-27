@@ -8,21 +8,20 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\RequestError;
+use function http_build_query;
 use InvalidArgumentException;
+use function json_encode;
 use Nyholm\Psr7\Request;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\Uri;
 use PHPUnit\Framework\TestCase;
 
-use function http_build_query;
-use function json_encode;
-
 class RequestParsingTest extends TestCase
 {
     public function testParsesGraphqlRequest(): void
     {
-        $query  = '{my query}';
+        $query = '{my query}';
         $parsed = [
             'raw' => $this->parseRawRequest('application/graphql', $query),
             'psr' => $this->parsePsrRequest('application/graphql', $query),
@@ -39,7 +38,7 @@ class RequestParsingTest extends TestCase
      */
     private function parseRawRequest(?string $contentType, string $content, string $method = 'POST')
     {
-        $_SERVER['CONTENT_TYPE']   = $contentType;
+        $_SERVER['CONTENT_TYPE'] = $contentType;
         $_SERVER['REQUEST_METHOD'] = $method;
 
         $helper = new Helper();
@@ -86,13 +85,13 @@ class RequestParsingTest extends TestCase
 
     public function testParsesUrlencodedRequest(): void
     {
-        $query     = '{my query}';
+        $query = '{my query}';
         $variables = ['test' => '1', 'test2' => '2'];
         $operation = 'op';
 
-        $post   = [
-            'query'         => $query,
-            'variables'     => $variables,
+        $post = [
+            'query' => $query,
+            'variables' => $variables,
             'operationName' => $operation,
         ];
         $parsed = [
@@ -115,9 +114,9 @@ class RequestParsingTest extends TestCase
      */
     private function parseRawFormUrlencodedRequest($postValue)
     {
-        $_SERVER['CONTENT_TYPE']   = 'application/x-www-form-urlencoded';
+        $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $_POST                     = $postValue;
+        $_POST = $postValue;
 
         $helper = new Helper();
 
@@ -168,13 +167,13 @@ class RequestParsingTest extends TestCase
 
     public function testParsesGetRequest(): void
     {
-        $query     = '{my query}';
+        $query = '{my query}';
         $variables = ['test' => '1', 'test2' => '2'];
         $operation = 'op';
 
-        $get    = [
-            'query'         => $query,
-            'variables'     => $variables,
+        $get = [
+            'query' => $query,
+            'variables' => $variables,
             'operationName' => $operation,
         ];
         $parsed = [
@@ -194,7 +193,7 @@ class RequestParsingTest extends TestCase
     private function parseRawGetRequest($getValue): OperationParams
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_GET                      = $getValue;
+        $_GET = $getValue;
 
         $helper = new Helper();
 
@@ -219,13 +218,13 @@ class RequestParsingTest extends TestCase
 
     public function testParsesMultipartFormdataRequest(): void
     {
-        $query     = '{my query}';
+        $query = '{my query}';
         $variables = ['test' => '1', 'test2' => '2'];
         $operation = 'op';
 
-        $post   = [
-            'query'         => $query,
-            'variables'     => $variables,
+        $post = [
+            'query' => $query,
+            'variables' => $variables,
             'operationName' => $operation,
         ];
         $parsed = [
@@ -246,9 +245,9 @@ class RequestParsingTest extends TestCase
      */
     private function parseRawMultipartFormDataRequest($postValue)
     {
-        $_SERVER['CONTENT_TYPE']   = 'multipart/form-data; boundary=----FormBoundary';
+        $_SERVER['CONTENT_TYPE'] = 'multipart/form-data; boundary=----FormBoundary';
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $_POST                     = $postValue;
+        $_POST = $postValue;
 
         $helper = new Helper();
 
@@ -278,13 +277,13 @@ class RequestParsingTest extends TestCase
 
     public function testParsesJSONRequest(): void
     {
-        $query     = '{my query}';
+        $query = '{my query}';
         $variables = ['test' => 1, 'test2' => 2];
         $operation = 'op';
 
-        $body   = [
-            'query'         => $query,
-            'variables'     => $variables,
+        $body = [
+            'query' => $query,
+            'variables' => $variables,
             'operationName' => $operation,
         ];
         $parsed = [
@@ -299,15 +298,15 @@ class RequestParsingTest extends TestCase
 
     public function testParsesParamsAsJSON(): void
     {
-        $query      = '{my query}';
-        $variables  = ['test1' => 1, 'test2' => 2];
+        $query = '{my query}';
+        $variables = ['test1' => 1, 'test2' => 2];
         $extensions = ['test3' => 3, 'test4' => 4];
-        $operation  = 'op';
+        $operation = 'op';
 
-        $body   = [
-            'query'         => $query,
-            'extensions'    => json_encode($extensions),
-            'variables'     => json_encode($variables),
+        $body = [
+            'query' => $query,
+            'extensions' => json_encode($extensions),
+            'variables' => json_encode($variables),
             'operationName' => $operation,
         ];
         $parsed = [
@@ -322,13 +321,13 @@ class RequestParsingTest extends TestCase
 
     public function testIgnoresInvalidVariablesJson(): void
     {
-        $query     = '{my query}';
+        $query = '{my query}';
         $variables = '"some invalid json';
         $operation = 'op';
 
-        $body   = [
-            'query'         => $query,
-            'variables'     => $variables,
+        $body = [
+            'query' => $query,
+            'variables' => $variables,
             'operationName' => $operation,
         ];
         $parsed = [
@@ -343,14 +342,14 @@ class RequestParsingTest extends TestCase
 
     public function testParsesApolloPersistedQueryJSONRequest(): void
     {
-        $queryId    = 'my-query-id';
+        $queryId = 'my-query-id';
         $extensions = ['persistedQuery' => ['sha256Hash' => $queryId]];
-        $variables  = ['test' => 1, 'test2' => 2];
-        $operation  = 'op';
+        $variables = ['test' => 1, 'test2' => 2];
+        $operation = 'op';
 
-        $body   = [
-            'extensions'    => $extensions,
-            'variables'     => $variables,
+        $body = [
+            'extensions' => $extensions,
+            'variables' => $variables,
             'operationName' => $operation,
         ];
         $parsed = [
@@ -365,15 +364,15 @@ class RequestParsingTest extends TestCase
 
     public function testParsesBatchJSONRequest(): void
     {
-        $body   = [
+        $body = [
             [
-                'query'         => '{my query}',
-                'variables'     => ['test' => 1, 'test2' => 2],
+                'query' => '{my query}',
+                'variables' => ['test' => 1, 'test2' => 2],
                 'operationName' => 'op',
             ],
             [
-                'queryId'       => 'my-query-id',
-                'variables'     => ['test' => 1, 'test2' => 2],
+                'queryId' => 'my-query-id',
+                'variables' => ['test' => 1, 'test2' => 2],
                 'operationName' => 'op2',
             ],
         ];
@@ -458,7 +457,7 @@ class RequestParsingTest extends TestCase
     public function testFailsParsingInvalidContentTypeRaw(): void
     {
         $contentType = 'not-supported-content-type';
-        $body        = 'test';
+        $body = 'test';
 
         $this->expectException(RequestError::class);
         $this->expectExceptionMessage('Unexpected content type: "not-supported-content-type"');
@@ -468,7 +467,7 @@ class RequestParsingTest extends TestCase
     public function testFailsParsingInvalidContentTypePsr(): void
     {
         $contentType = 'not-supported-content-type';
-        $body        = 'test';
+        $body = 'test';
 
         $this->expectException(RequestError::class);
         $this->expectExceptionMessage('Unexpected content type: "not-supported-content-type"');

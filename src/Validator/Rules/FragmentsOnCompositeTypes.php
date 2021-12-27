@@ -18,13 +18,13 @@ class FragmentsOnCompositeTypes extends ValidationRule
     public function getVisitor(ValidationContext $context): array
     {
         return [
-            NodeKind::INLINE_FRAGMENT     => static function (InlineFragmentNode $node) use ($context): void {
-                if ($node->typeCondition === null) {
+            NodeKind::INLINE_FRAGMENT => static function (InlineFragmentNode $node) use ($context): void {
+                if (null === $node->typeCondition) {
                     return;
                 }
 
                 $type = TypeInfo::typeFromAST($context->getSchema(), $node->typeCondition);
-                if ($type === null || Type::isCompositeType($type)) {
+                if (null === $type || Type::isCompositeType($type)) {
                     return;
                 }
 
@@ -36,7 +36,7 @@ class FragmentsOnCompositeTypes extends ValidationRule
             NodeKind::FRAGMENT_DEFINITION => static function (FragmentDefinitionNode $node) use ($context): void {
                 $type = TypeInfo::typeFromAST($context->getSchema(), $node->typeCondition);
 
-                if ($type === null || Type::isCompositeType($type)) {
+                if (null === $type || Type::isCompositeType($type)) {
                     return;
                 }
 

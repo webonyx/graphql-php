@@ -18,7 +18,7 @@ use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
 /**
- * Provided required arguments on directives
+ * Provided required arguments on directives.
  *
  * A directive is only valid if all required (non-null without a
  * default value) field arguments have been provided.
@@ -47,9 +47,9 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
      */
     public function getASTVisitor(ASTValidationContext $context): array
     {
-        $requiredArgsMap   = [];
-        $schema            = $context->getSchema();
-        $definedDirectives = $schema === null
+        $requiredArgsMap = [];
+        $schema = $context->getSchema();
+        $definedDirectives = null === $schema
             ? Directive::getInternalDirectives()
             : $schema->getDirectives();
 
@@ -91,8 +91,8 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                 // Validate on leave to allow for deeper errors to appear first.
                 'leave' => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context): ?string {
                     $directiveName = $directiveNode->name->value;
-                    $requiredArgs  = $requiredArgsMap[$directiveName] ?? null;
-                    if ($requiredArgs === null || $requiredArgs === []) {
+                    $requiredArgs = $requiredArgsMap[$directiveName] ?? null;
+                    if (null === $requiredArgs || [] === $requiredArgs) {
                         return null;
                     }
 

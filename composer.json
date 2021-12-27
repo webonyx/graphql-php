@@ -18,6 +18,7 @@
     "dms/phpunit-arraysubset-asserts": "^0.3",
     "doctrine/coding-standard": "^9",
     "ergebnis/composer-normalize": "^2.16",
+    "mll-lab/php-cs-fixer-config": "^4.4",
     "nyholm/psr7": "^1.4",
     "phpbench/phpbench": "^1.2",
     "phpstan/extension-installer": "^1.1",
@@ -53,10 +54,9 @@
   "scripts": {
     "baseline": "phpstan --ansi --generate-baseline",
     "bench": "phpbench run",
-    "check": "composer lint && composer stan && composer test",
+    "check": "composer fix && composer stan && composer test",
     "docs": "php generate-class-reference.php",
-    "fix": "phpcbf",
-    "lint": "phpcs",
+    "fix": "php-cs-fixer fix",
     "stan": "phpstan --ansi",
     "test": "phpunit"
   }

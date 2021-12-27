@@ -22,7 +22,7 @@ class ProvidedRequiredArguments extends ValidationRule
                 'leave' => static function (FieldNode $fieldNode) use ($context): ?VisitorOperation {
                     $fieldDef = $context->getFieldDef();
 
-                    if ($fieldDef === null) {
+                    if (null === $fieldDef) {
                         return Visitor::skipNode();
                     }
 
@@ -35,7 +35,7 @@ class ProvidedRequiredArguments extends ValidationRule
 
                     foreach ($fieldDef->args as $argDef) {
                         $argNode = $argNodeMap[$argDef->name] ?? null;
-                        if ($argNode !== null || ! $argDef->isRequired()) {
+                        if (null !== $argNode || ! $argDef->isRequired()) {
                             continue;
                         }
 

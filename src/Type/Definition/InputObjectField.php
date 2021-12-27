@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use function array_key_exists;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
-
-use function array_key_exists;
 
 /**
  * @phpstan-import-type InputTypeAlias from InputType
@@ -51,9 +50,9 @@ class InputObjectField
      */
     public function __construct(array $config)
     {
-        $this->name         = $config['name'];
+        $this->name = $config['name'];
         $this->defaultValue = $config['defaultValue'] ?? null;
-        $this->description  = $config['description'] ?? null;
+        $this->description = $config['description'] ?? null;
         // Do nothing for type, it is lazy loaded in getType()
         $this->astNode = $config['astNode'] ?? null;
 
@@ -93,7 +92,7 @@ class InputObjectField
     public function assertValid(Type $parentType): void
     {
         $error = Utils::isValidNameError($this->name);
-        if ($error !== null) {
+        if (null !== $error) {
             throw new InvariantViolation("{$parentType->name}.{$this->name}: {$error->getMessage()}");
         }
 

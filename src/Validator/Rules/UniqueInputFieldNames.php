@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use function array_pop;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
@@ -13,8 +14,6 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
-
-use function array_pop;
 
 /**
  * @phpstan-import-type VisitorArray from Visitor
@@ -42,14 +41,14 @@ class UniqueInputFieldNames extends ValidationRule
      */
     public function getASTVisitor(ASTValidationContext $context): array
     {
-        $this->knownNames     = [];
+        $this->knownNames = [];
         $this->knownNameStack = [];
 
         return [
-            NodeKind::OBJECT       => [
+            NodeKind::OBJECT => [
                 'enter' => function (): void {
                     $this->knownNameStack[] = $this->knownNames;
-                    $this->knownNames       = [];
+                    $this->knownNames = [];
                 },
                 'leave' => function (): void {
                     $this->knownNames = array_pop($this->knownNameStack);

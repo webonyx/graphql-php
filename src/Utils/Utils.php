@@ -4,13 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
-use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\Warning;
-use GraphQL\Language\AST\Node;
-use GraphQL\Type\Definition\Type;
-use stdClass;
-
 use function array_keys;
 use function array_map;
 use function array_reduce;
@@ -23,6 +16,11 @@ use function func_get_args;
 use function func_num_args;
 use function get_class;
 use function gettype;
+use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
+use GraphQL\Language\AST\Node;
+use GraphQL\Type\Definition\Type;
 use function is_array;
 use function is_object;
 use function is_scalar;
@@ -39,6 +37,7 @@ use function preg_match;
 use function property_exists;
 use function range;
 use function sprintf;
+use stdClass;
 use function strtolower;
 use function unpack;
 
@@ -52,7 +51,7 @@ class Utils
     }
 
     /**
-     * Check if the value is invalid
+     * Check if the value is invalid.
      *
      * @param mixed $value
      */
@@ -167,19 +166,19 @@ class Utils
             return json_encode($var);
         }
 
-        if ($var === '') {
+        if ('' === $var) {
             return '(empty string)';
         }
 
-        if ($var === null) {
+        if (null === $var) {
             return 'null';
         }
 
-        if ($var === false) {
+        if (false === $var) {
             return 'false';
         }
 
-        if ($var === true) {
+        if (true === $var) {
             return 'true';
         }
 
@@ -215,19 +214,19 @@ class Utils
             return json_encode($var);
         }
 
-        if ($var === '') {
+        if ('' === $var) {
             return '(empty string)';
         }
 
-        if ($var === null) {
+        if (null === $var) {
             return 'null';
         }
 
-        if ($var === false) {
+        if (false === $var) {
             return 'false';
         }
 
-        if ($var === true) {
+        if (true === $var) {
             return 'true';
         }
 
@@ -247,7 +246,7 @@ class Utils
      */
     public static function chr(int $ord, string $encoding = 'UTF-8'): string
     {
-        if ($encoding === 'UCS-4BE') {
+        if ('UCS-4BE' === $encoding) {
             return pack('N', $ord);
         }
 
@@ -263,7 +262,7 @@ class Utils
             return ord($char);
         }
 
-        if ($encoding !== 'UCS-4BE') {
+        if ('UCS-4BE' !== $encoding) {
             $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
         }
 
@@ -271,7 +270,7 @@ class Utils
     }
 
     /**
-     * Returns UTF-8 char code at given $positing of the $string
+     * Returns UTF-8 char code at given $positing of the $string.
      *
      * @param string $string
      * @param int    $position
@@ -290,7 +289,7 @@ class Utils
      */
     public static function printCharCode($code): string
     {
-        if ($code === null) {
+        if (null === $code) {
             return '<EOF>';
         }
 
@@ -309,7 +308,7 @@ class Utils
     public static function assertValidName(string $name): void
     {
         $error = self::isValidNameError($name);
-        if ($error !== null) {
+        if (null !== $error) {
             throw $error;
         }
     }
@@ -319,7 +318,7 @@ class Utils
      */
     public static function isValidNameError(string $name, ?Node $node = null): ?Error
     {
-        if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
+        if (isset($name[1]) && '_' === $name[0] && '_' === $name[1]) {
             return new Error(
                 'Name "' . $name . '" must not begin with "__", which is reserved by GraphQL introspection.',
                 $node
@@ -354,25 +353,25 @@ class Utils
      */
     public static function orList(array $items): string
     {
-        if (count($items) === 0) {
+        if (0 === count($items)) {
             return '';
         }
 
-        $selected       = array_slice($items, 0, 5);
+        $selected = array_slice($items, 0, 5);
         $selectedLength = count($selected);
-        $firstSelected  = $selected[0];
+        $firstSelected = $selected[0];
 
-        if ($selectedLength === 1) {
+        if (1 === $selectedLength) {
             return $firstSelected;
         }
 
         return array_reduce(
             range(1, $selectedLength - 1),
             static function ($list, $index) use ($selected, $selectedLength): string {
-                return $list .
-                    ($selectedLength > 2 ? ', ' : ' ') .
-                    ($index === $selectedLength - 1 ? 'or ' : '') .
-                    $selected[$index];
+                return $list
+                    . ($selectedLength > 2 ? ', ' : ' ')
+                    . ($index === $selectedLength - 1 ? 'or ' : '')
+                    . $selected[$index];
             },
             $firstSelected
         );
@@ -393,7 +392,7 @@ class Utils
     public static function suggestionList(string $input, array $options): array
     {
         $optionsByDistance = [];
-        $threshold         = mb_strlen($input) * 0.4 + 1;
+        $threshold = mb_strlen($input) * 0.4 + 1;
         foreach ($options as $option) {
             if ($input === $option) {
                 $distance = 0;

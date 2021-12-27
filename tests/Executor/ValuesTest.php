@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use function count;
 use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\NamedTypeNode;
@@ -15,8 +16,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-
-use function count;
 use function var_export;
 
 class ValuesTest extends TestCase
@@ -59,16 +58,16 @@ class ValuesTest extends TestCase
     {
         return self::$schema ??= new Schema([
             'query' => new ObjectType([
-                'name'   => 'Query',
+                'name' => 'Query',
                 'fields' => [
                     'test' => [
                         'type' => Type::boolean(),
                         'args' => [
-                            'idInput'     => Type::id(),
-                            'boolInput'   => Type::boolean(),
-                            'intInput'    => Type::int(),
+                            'idInput' => Type::id(),
+                            'boolInput' => Type::boolean(),
+                            'intInput' => Type::int(),
                             'stringInput' => Type::string(),
-                            'floatInput'  => Type::float(),
+                            'floatInput' => Type::float(),
                         ],
                     ],
                 ],
@@ -81,25 +80,25 @@ class ValuesTest extends TestCase
      */
     private static function getVariableDefinitionNodes(): NodeList
     {
-        $idInputDefinition     = new VariableDefinitionNode([
+        $idInputDefinition = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'idInput'])]),
-            'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'ID'])]),
+            'type' => new NamedTypeNode(['name' => new NameNode(['value' => 'ID'])]),
         ]);
-        $boolInputDefinition   = new VariableDefinitionNode([
+        $boolInputDefinition = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'boolInput'])]),
-            'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'Boolean'])]),
+            'type' => new NamedTypeNode(['name' => new NameNode(['value' => 'Boolean'])]),
         ]);
-        $intInputDefinition    = new VariableDefinitionNode([
+        $intInputDefinition = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'intInput'])]),
-            'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'Int'])]),
+            'type' => new NamedTypeNode(['name' => new NameNode(['value' => 'Int'])]),
         ]);
         $stringInputDefinition = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'stringInput'])]),
-            'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'String'])]),
+            'type' => new NamedTypeNode(['name' => new NameNode(['value' => 'String'])]),
         ]);
-        $floatInputDefinition  = new VariableDefinitionNode([
+        $floatInputDefinition = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'floatInput'])]),
-            'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'Float'])]),
+            'type' => new NamedTypeNode(['name' => new NameNode(['value' => 'Float'])]),
         ]);
 
         return new NodeList([$idInputDefinition, $boolInputDefinition, $intInputDefinition, $stringInputDefinition, $floatInputDefinition]);
@@ -162,7 +161,7 @@ class ValuesTest extends TestCase
     }
 
     /**
-     * Helpers for running test cases and making assertions
+     * Helpers for running test cases and making assertions.
      */
     public function testStringForBooleanVariableThrowsError(): void
     {

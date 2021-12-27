@@ -195,7 +195,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
     public function testAddingNewValueToTheTypeInsideExistingSchema(): void
     {
         $schema = BuildSchema::build('enum SomeEnum');
-        $sdl    = '
+        $sdl = '
       extend enum SomeEnum {
         FOO
       }
@@ -218,7 +218,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         FOO
       }
             ');
-        $sdl    = '
+        $sdl = '
       extend enum SomeEnum {
         FOO
       }
@@ -256,7 +256,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         $schema = BuildSchema::build('
       enum SomeEnum
             ');
-        $sdl    = '
+        $sdl = '
       extend enum SomeEnum {
         FOO
       }

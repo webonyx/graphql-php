@@ -41,26 +41,20 @@ we instead use [the PHP native `nowdoc` syntax](https://www.php.net/manual/en/la
 If the string contents are in a specific grammar, use an appropriate tag such as `GRAPHQL`, `PHP` or `JSON`:
 
 ```php
-        self::assertSomePrintedOutputExactlyMatches(
-            <<<'GRAPHQL'
-            type Foo {
-              bar: Baz
-            }
+self::assertSomePrintedOutputExactlyMatches(
+    <<<'GRAPHQL'
+    type Foo {
+      bar: Baz
+    }
 
-            GRAPHQL,
-            $output
-        );
+    GRAPHQL,
+    $output
+);
 ```
 
 ## Coding Standard
 
-We check and fix the coding standard with [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer).
-
-Run the inspections:
-
-```sh
-composer lint
-```
+We format the code automatically with [php-cs-fixer](https://github.com/friendsofphp/php-cs-fixer).
 
 Apply automatic code style fixes:
 

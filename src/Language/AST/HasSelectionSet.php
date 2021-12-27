@@ -6,7 +6,7 @@ namespace GraphQL\Language\AST;
 
 /**
  * export type DefinitionNode = OperationDefinitionNode
- *                        | FragmentDefinitionNode
+ *                        | FragmentDefinitionNode.
  *
  * @property SelectionSetNode $selectionSet
  */

@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor;
 
+use function array_map;
+use function count;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use JsonSerializable;
-// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
 use ReturnTypeWillChange;
 use Throwable;
-
-use function array_map;
-use function count;
 
 /**
  * Returned after [query execution](executing-queries.md).
  * Represents both - result of successful execution and of a failed one
- * (with errors collected in `errors` prop)
+ * (with errors collected in `errors` prop).
  *
  * Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
  * serializable array using `toArray()`.
@@ -39,6 +37,7 @@ class ExecutionResult implements JsonSerializable
      * Data collected from resolvers during query execution.
      *
      * @api
+     *
      * @var array<string, mixed>|null
      */
     public ?array $data = null;
@@ -50,6 +49,7 @@ class ExecutionResult implements JsonSerializable
      * contain original exception.
      *
      * @api
+     *
      * @var array<Error>
      */
     public array $errors = [];
@@ -58,6 +58,7 @@ class ExecutionResult implements JsonSerializable
      * User-defined serializable array of extensions included in serialized result.
      *
      * @api
+     *
      * @var array<string, mixed>|null
      */
     public ?array $extensions = null;
@@ -81,13 +82,13 @@ class ExecutionResult implements JsonSerializable
      */
     public function __construct(?array $data = null, array $errors = [], array $extensions = [])
     {
-        $this->data       = $data;
-        $this->errors     = $errors;
+        $this->data = $data;
+        $this->errors = $errors;
         $this->extensions = $extensions;
     }
 
     /**
-     * Define custom error formatting (must conform to http://facebook.github.io/graphql/#sec-Errors)
+     * Define custom error formatting (must conform to http://facebook.github.io/graphql/#sec-Errors).
      *
      * Expected signature is: function (GraphQL\Error\Error $error): array
      *
@@ -168,16 +169,16 @@ class ExecutionResult implements JsonSerializable
             );
 
             // While we know that there were errors initially, they might have been discarded
-            if ($handledErrors !== []) {
+            if ([] !== $handledErrors) {
                 $result['errors'] = $handledErrors;
             }
         }
 
-        if ($this->data !== null) {
+        if (null !== $this->data) {
             $result['data'] = $this->data;
         }
 
-        if ($this->extensions !== null && count($this->extensions) > 0) {
+        if (null !== $this->extensions && count($this->extensions) > 0) {
             $result['extensions'] = $this->extensions;
         }
 

@@ -26,7 +26,7 @@ class SchemaPrinterTest extends TestCase
     private static function assertPrintedSchemaEquals(string $expected, Schema $schema): void
     {
         $printedSchema = SchemaPrinter::doPrint($schema);
-        $cycledSchema  = SchemaPrinter::doPrint(BuildSchema::build($printedSchema));
+        $cycledSchema = SchemaPrinter::doPrint(BuildSchema::build($printedSchema));
 
         self::assertEquals($printedSchema, $cycledSchema);
         self::assertEquals($expected, $printedSchema);
@@ -211,10 +211,10 @@ class SchemaPrinterTest extends TestCase
     public function testPrintObjectField(): void
     {
         $fooType = new ObjectType([
-            'name'   => 'Foo',
+            'name' => 'Foo',
             'fields' => ['str' => ['type' => Type::string()]],
         ]);
-        $schema  = new Schema(['types' => [$fooType]]);
+        $schema = new Schema(['types' => [$fooType]]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -358,8 +358,8 @@ class SchemaPrinterTest extends TestCase
         $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => [
-                'argOne'   => ['type' => Type::int(), 'defaultValue' => 1],
-                'argTwo'   => ['type' => Type::string()],
+                'argOne' => ['type' => Type::int(), 'defaultValue' => 1],
+                'argTwo' => ['type' => Type::string()],
                 'argThree' => ['type' => Type::boolean()],
             ],
         ]);
@@ -382,8 +382,8 @@ class SchemaPrinterTest extends TestCase
         $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => [
-                'argOne'   => ['type' => Type::int()],
-                'argTwo'   => ['type' => Type::string(), 'defaultValue' => 'foo'],
+                'argOne' => ['type' => Type::int()],
+                'argTwo' => ['type' => Type::string(), 'defaultValue' => 'foo'],
                 'argThree' => ['type' => Type::boolean()],
             ],
         ]);
@@ -406,8 +406,8 @@ class SchemaPrinterTest extends TestCase
         $schema = $this->buildSingleFieldSchema([
             'type' => Type::string(),
             'args' => [
-                'argOne'   => ['type' => Type::int()],
-                'argTwo'   => ['type' => Type::string()],
+                'argOne' => ['type' => Type::int()],
+                'argTwo' => ['type' => Type::string()],
                 'argThree' => ['type' => Type::boolean(), 'defaultValue' => false],
             ],
         ]);
@@ -492,13 +492,13 @@ class SchemaPrinterTest extends TestCase
     public function testPrintInterface(): void
     {
         $fooType = new InterfaceType([
-            'name'   => 'Foo',
+            'name' => 'Foo',
             'fields' => ['str' => ['type' => Type::string()]],
         ]);
 
         $barType = new ObjectType([
-            'name'       => 'Bar',
-            'fields'     => ['str' => ['type' => Type::string()]],
+            'name' => 'Bar',
+            'fields' => ['str' => ['type' => Type::string()]],
             'interfaces' => [$fooType],
         ]);
 
@@ -525,18 +525,18 @@ class SchemaPrinterTest extends TestCase
     public function testPrintMultipleInterface(): void
     {
         $fooType = new InterfaceType([
-            'name'   => 'Foo',
+            'name' => 'Foo',
             'fields' => ['str' => ['type' => Type::string()]],
         ]);
 
         $bazType = new InterfaceType([
-            'name'   => 'Baz',
+            'name' => 'Baz',
             'fields' => ['int' => ['type' => Type::int()]],
         ]);
 
         $barType = new ObjectType([
-            'name'       => 'Bar',
-            'fields'     => [
+            'name' => 'Bar',
+            'fields' => [
                 'str' => ['type' => Type::string()],
                 'int' => ['type' => Type::int()],
             ],
@@ -572,22 +572,22 @@ class SchemaPrinterTest extends TestCase
     public function testPrintHierarchicalInterface(): void
     {
         $FooType = new InterfaceType([
-            'name'   => 'Foo',
+            'name' => 'Foo',
             'fields' => ['str' => ['type' => Type::string()]],
         ]);
 
         $BazType = new InterfaceType([
-            'name'       => 'Baz',
+            'name' => 'Baz',
             'interfaces' => [$FooType],
-            'fields'     => [
+            'fields' => [
                 'int' => ['type' => Type::int()],
                 'str' => ['type' => Type::string()],
             ],
         ]);
 
         $BarType = new ObjectType([
-            'name'       => 'Bar',
-            'fields'     => [
+            'name' => 'Bar',
+            'fields' => [
                 'str' => ['type' => Type::string()],
                 'int' => ['type' => Type::int()],
             ],
@@ -595,7 +595,7 @@ class SchemaPrinterTest extends TestCase
         ]);
 
         $query = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => ['bar' => ['type' => $BarType]],
         ]);
 
@@ -636,22 +636,22 @@ class SchemaPrinterTest extends TestCase
     public function testPrintUnions(): void
     {
         $fooType = new ObjectType([
-            'name'   => 'Foo',
+            'name' => 'Foo',
             'fields' => ['bool' => ['type' => Type::boolean()]],
         ]);
 
         $barType = new ObjectType([
-            'name'   => 'Bar',
+            'name' => 'Bar',
             'fields' => ['str' => ['type' => Type::string()]],
         ]);
 
         $singleUnion = new UnionType([
-            'name'  => 'SingleUnion',
+            'name' => 'SingleUnion',
             'types' => [$fooType],
         ]);
 
         $multipleUnion = new UnionType([
-            'name'  => 'MultipleUnion',
+            'name' => 'MultipleUnion',
             'types' => [$fooType, $barType],
         ]);
 
@@ -683,7 +683,7 @@ class SchemaPrinterTest extends TestCase
     public function testInputType(): void
     {
         $inputType = new InputObjectType([
-            'name'   => 'InputType',
+            'name' => 'InputType',
             'fields' => ['int' => ['type' => Type::int()]],
         ]);
 
@@ -727,11 +727,11 @@ class SchemaPrinterTest extends TestCase
     public function testEnum(): void
     {
         $RGBType = new EnumType([
-            'name'   => 'RGB',
+            'name' => 'RGB',
             'values' => [
-                'RED'   => [],
+                'RED' => [],
                 'GREEN' => [],
-                'BLUE'  => [],
+                'BLUE' => [],
             ],
         ]);
 
@@ -788,12 +788,12 @@ class SchemaPrinterTest extends TestCase
     public function testPrintsCustomDirectives(): void
     {
         $simpleDirective = new Directive([
-            'name'      => 'simpleDirective',
+            'name' => 'simpleDirective',
             'locations' => [DirectiveLocation::FIELD],
         ]);
 
         $complexDirective = new Directive([
-            'name'      => 'complexDirective',
+            'name' => 'complexDirective',
             'description' => 'Complex Directive',
             'args' => [
                 'stringArg' => ['type' => Type::string()],
@@ -828,7 +828,7 @@ class SchemaPrinterTest extends TestCase
     public function testPrintsAnEmptyDescription(): void
     {
         $schema = $this->buildSingleFieldSchema([
-            'type'        => Type::string(),
+            'type' => Type::string(),
             'description' => '',
         ]);
 
@@ -850,7 +850,7 @@ class SchemaPrinterTest extends TestCase
     public function testOneLinePrintsAShortDescription(): void
     {
         $schema = $this->buildSingleFieldSchema([
-            'type'        => Type::string(),
+            'type' => Type::string(),
             'description' => 'This field is awesome',
         ]);
 

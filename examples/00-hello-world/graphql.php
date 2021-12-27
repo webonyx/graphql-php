@@ -57,14 +57,14 @@ try {
         'mutation' => $mutationType,
     ]);
 
-    $rawInput       = file_get_contents('php://input');
-    $input          = json_decode($rawInput, true);
-    $query          = $input['query'];
+    $rawInput = file_get_contents('php://input');
+    $input = json_decode($rawInput, true);
+    $query = $input['query'];
     $variableValues = $input['variables'] ?? null;
 
     $rootValue = ['prefix' => 'You said: '];
-    $result    = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
-    $output    = $result->toArray();
+    $result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
+    $output = $result->toArray();
 } catch (Throwable $e) {
     $output = [
         'error' => [

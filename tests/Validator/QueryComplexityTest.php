@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
+use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
@@ -11,8 +12,6 @@ use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\ValidationContext;
-
-use function count;
 
 class QueryComplexityTest extends QuerySecurityTestCase
 {
@@ -30,7 +29,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
             $positions = [];
 
-            if ($maxComplexity < $queryComplexity && $maxComplexity !== QueryComplexity::DISABLED) {
+            if ($maxComplexity < $queryComplexity && QueryComplexity::DISABLED !== $maxComplexity) {
                 $positions = [$this->createFormattedError($maxComplexity, $queryComplexity)];
             }
 
@@ -131,7 +130,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $query = 'query MyQuery($withDogs: Boolean!, $withoutDogName: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name @skip(if:$withoutDogName) } } }';
 
         $this->getRule()->setRawVariableValues([
-            'withDogs'       => true,
+            'withDogs' => true,
             'withoutDogName' => true,
         ]);
 
@@ -174,7 +173,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $query = 'query MyQuery { human(name: INVALID_VALUE) { dogs {name} } }';
 
         $reportedError = new Error('OtherValidatorError');
-        $otherRule     = new CustomValidationRule(
+        $otherRule = new CustomValidationRule(
             'otherRule',
             static function (ValidationContext $context) use ($reportedError): array {
                 return [

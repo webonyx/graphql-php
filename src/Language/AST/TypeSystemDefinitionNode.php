@@ -9,7 +9,7 @@ namespace GraphQL\Language\AST;
  * | SchemaDefinitionNode
  * | TypeDefinitionNode
  * | TypeExtensionNode
- * | DirectiveDefinitionNode
+ * | DirectiveDefinitionNode.
  *
  * @property NameNode $name
  */

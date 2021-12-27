@@ -39,7 +39,7 @@ class ValidationTest extends ValidatorTestCase
         ';
 
         $expectedError = [
-            'message'   => 'Field "invalidArg" argument "arg" requires type Invalid, found "bad value"; Invalid scalar is always invalid: bad value',
+            'message' => 'Field "invalidArg" argument "arg" requires type Invalid, found "bad value"; Invalid scalar is always invalid: bad value',
             'locations' => [['line' => 3, 'column' => 25]],
         ];
 
@@ -56,7 +56,7 @@ class ValidationTest extends ValidatorTestCase
         $query = '{invalid}';
 
         $expectedError = [
-            'message'   => 'Cannot query field "invalid" on type "QueryRoot". Did you mean "invalidArg"?',
+            'message' => 'Cannot query field "invalid" on type "QueryRoot". Did you mean "invalidArg"?',
             'locations' => [['line' => 1, 'column' => 2]],
         ];
         $this->expectFailsCompleteValidation($query, [$expectedError]);

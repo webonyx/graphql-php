@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor\Promise;
 
+use function Amp\call;
 use Amp\Deferred;
 use Amp\Delayed;
 use Amp\Failure;
@@ -16,8 +17,6 @@ use GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Throwable;
-
-use function Amp\call;
 
 /**
  * @group AmpPromise
@@ -64,7 +63,7 @@ class AmpPromiseAdapterTest extends TestCase
     {
         $ampAdapter = new AmpPromiseAdapter();
         $ampPromise = new Success(1);
-        $promise    = $ampAdapter->convertThenable($ampPromise);
+        $promise = $ampAdapter->convertThenable($ampPromise);
 
         $result = null;
 
@@ -81,7 +80,7 @@ class AmpPromiseAdapterTest extends TestCase
 
     public function testCreate(): void
     {
-        $ampAdapter      = new AmpPromiseAdapter();
+        $ampAdapter = new AmpPromiseAdapter();
         $resolvedPromise = $ampAdapter->create(static function ($resolve): void {
             $resolve(1);
         });
@@ -99,7 +98,7 @@ class AmpPromiseAdapterTest extends TestCase
 
     public function testCreateFulfilled(): void
     {
-        $ampAdapter       = new AmpPromiseAdapter();
+        $ampAdapter = new AmpPromiseAdapter();
         $fulfilledPromise = $ampAdapter->createFulfilled(1);
 
         self::assertInstanceOf(Success::class, $fulfilledPromise->adoptedPromise);
@@ -115,7 +114,7 @@ class AmpPromiseAdapterTest extends TestCase
 
     public function testCreateRejected(): void
     {
-        $ampAdapter      = new AmpPromiseAdapter();
+        $ampAdapter = new AmpPromiseAdapter();
         $rejectedPromise = $ampAdapter->createRejected(new Exception('I am a bad promise'));
 
         self::assertInstanceOf(Failure::class, $rejectedPromise->adoptedPromise);
@@ -136,7 +135,7 @@ class AmpPromiseAdapterTest extends TestCase
     public function testAll(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
-        $promises   = [new Success(1), new Success(2), new Success(3)];
+        $promises = [new Success(1), new Success(2), new Success(3)];
 
         $allPromise = $ampAdapter->all($promises);
 
@@ -154,9 +153,9 @@ class AmpPromiseAdapterTest extends TestCase
     public function testAllShouldPreserveTheOrderOfTheArrayWhenResolvingAsyncPromises(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
-        $deferred   = new Deferred();
-        $promises   = [new Success(1), 2, $deferred->promise(), new Success(4)];
-        $result     = null;
+        $deferred = new Deferred();
+        $promises = [new Success(1), 2, $deferred->promise(), new Success(4)];
+        $result = null;
 
         $ampAdapter->all($promises)->then(static function ($values) use (&$result): void {
             $result = $values;

@@ -193,22 +193,22 @@ class ServerConfigTest extends TestCase
     public function testAcceptsArray(): void
     {
         $arr = [
-            'schema'                => new Schema([
+            'schema' => new Schema([
                 'query' => new ObjectType(['name' => 't', 'fields' => ['a' => Type::string()]]),
             ]),
-            'context'               => new stdClass(),
-            'rootValue'             => new stdClass(),
-            'errorFormatter'        => static function (): void {
+            'context' => new stdClass(),
+            'rootValue' => new stdClass(),
+            'errorFormatter' => static function (): void {
             },
-            'promiseAdapter'        => new SyncPromiseAdapter(),
-            'validationRules'       => static function (): void {
+            'promiseAdapter' => new SyncPromiseAdapter(),
+            'validationRules' => static function (): void {
             },
-            'fieldResolver'         => static function (): void {
+            'fieldResolver' => static function (): void {
             },
             'persistedQueryLoader' => static function (): void {
             },
-            'debugFlag'             => DebugFlag::INCLUDE_DEBUG_MESSAGE,
-            'queryBatching'         => true,
+            'debugFlag' => DebugFlag::INCLUDE_DEBUG_MESSAGE,
+            'queryBatching' => true,
         ];
 
         $config = ServerConfig::create($arr);
@@ -237,7 +237,7 @@ class ServerConfigTest extends TestCase
 
     public function testInvalidValidationRules(): void
     {
-        $rules  = new stdClass();
+        $rules = new stdClass();
         $config = ServerConfig::create();
 
         $this->expectException(InvariantViolation::class);

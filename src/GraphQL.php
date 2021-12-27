@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL;
 
+use function count;
 use GraphQL\Error\Error;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
@@ -20,8 +21,6 @@ use GraphQL\Type\Schema as SchemaType;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\ValidationRule;
-
-use function count;
 
 /**
  * This is the primary facade for fulfilling GraphQL operations.
@@ -132,7 +131,7 @@ class GraphQL
                 : Parser::parse(new Source($source, 'GraphQL'));
 
             // TODO this could be more elegant
-            if (count($validationRules ?? []) === 0) {
+            if (0 === count($validationRules ?? [])) {
                 /** @var QueryComplexity $queryComplexity */
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
                 $queryComplexity->setRawVariableValues($variableValues);

@@ -12,13 +12,13 @@ class RequestValidationTest extends TestCase
 {
     public function testSimpleRequestShouldValidate(): void
     {
-        $query     = '{my q}';
+        $query = '{my q}';
         $variables = ['a' => 'b', 'c' => 'd'];
         $operation = 'op';
 
         $parsedBody = OperationParams::create([
-            'query'         => $query,
-            'variables'     => $variables,
+            'query' => $query,
+            'variables' => $variables,
             'operationName' => $operation,
         ]);
 
@@ -34,13 +34,13 @@ class RequestValidationTest extends TestCase
 
     public function testRequestWithQueryIdShouldValidate(): void
     {
-        $queryId   = 'some-query-id';
+        $queryId = 'some-query-id';
         $variables = ['a' => 'b', 'c' => 'd'];
         $operation = 'op';
 
         $parsedBody = OperationParams::create([
-            'queryId'       => $queryId,
-            'variables'     => $variables,
+            'queryId' => $queryId,
+            'variables' => $variables,
             'operationName' => $operation,
         ]);
 
@@ -50,7 +50,7 @@ class RequestValidationTest extends TestCase
     public function testRequiresQueryOrQueryId(): void
     {
         $parsedBody = OperationParams::create([
-            'variables'     => ['foo' => 'bar'],
+            'variables' => ['foo' => 'bar'],
             'operationName' => 'op',
         ]);
 
@@ -97,7 +97,7 @@ class RequestValidationTest extends TestCase
     public function testFailsWhenOperationParameterIsNotString(): void
     {
         $parsedBody = OperationParams::create([
-            'query'         => '{my query}',
+            'query' => '{my query}',
             'operationName' => [],
         ]);
 
@@ -112,16 +112,16 @@ class RequestValidationTest extends TestCase
      */
     public function testIgnoresNullAndEmptyStringVariables(): void
     {
-        $query      = '{my q}';
+        $query = '{my q}';
         $parsedBody = OperationParams::create([
-            'query'     => $query,
+            'query' => $query,
             'variables' => null,
         ]);
         self::assertValid($parsedBody);
 
-        $variables  = '';
+        $variables = '';
         $parsedBody = OperationParams::create([
-            'query'     => $query,
+            'query' => $query,
             'variables' => $variables,
         ]);
         self::assertValid($parsedBody);
@@ -130,7 +130,7 @@ class RequestValidationTest extends TestCase
     public function testFailsWhenVariablesParameterIsNotObject(): void
     {
         $parsedBody = OperationParams::create([
-            'query'     => '{my query}',
+            'query' => '{my query}',
             'variables' => 0,
         ]);
 

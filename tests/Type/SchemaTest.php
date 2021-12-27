@@ -33,16 +33,16 @@ class SchemaTest extends TestCase
     public function setUp(): void
     {
         $this->interfaceType = new InterfaceType([
-            'name'   => 'Interface',
+            'name' => 'Interface',
             'fields' => ['fieldName' => ['type' => Type::string()]],
         ]);
 
         $this->implementingType = new ObjectType([
-            'name'       => 'Object',
+            'name' => 'Object',
             'interfaces' => [$this->interfaceType],
-            'fields'     => [
+            'fields' => [
                 'fieldName' => [
-                    'type'    => Type::string(),
+                    'type' => Type::string(),
                     'resolve' => static function (): string {
                         return '';
                     },
@@ -51,7 +51,7 @@ class SchemaTest extends TestCase
         ]);
 
         $this->directiveInputType = new InputObjectType([
-            'name'   => 'DirInput',
+            'name' => 'DirInput',
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -60,7 +60,7 @@ class SchemaTest extends TestCase
         ]);
 
         $this->wrappedDirectiveInputType = new InputObjectType([
-            'name'   => 'WrappedDirInput',
+            'name' => 'WrappedDirInput',
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -69,10 +69,10 @@ class SchemaTest extends TestCase
         ]);
 
         $this->directive = new Directive([
-            'name'      => 'dir',
+            'name' => 'dir',
             'locations' => ['OBJECT'],
-            'args'      => [
-                'arg'     => [
+            'args' => [
+                'arg' => [
                     'type' => $this->directiveInputType,
                 ],
                 'argList' => [
@@ -82,11 +82,11 @@ class SchemaTest extends TestCase
         ]);
 
         $this->schema = new Schema([
-            'query'      => new ObjectType([
-                'name'   => 'Query',
+            'query' => new ObjectType([
+                'name' => 'Query',
                 'fields' => [
                     'getObject' => [
-                        'type'    => $this->interfaceType,
+                        'type' => $this->interfaceType,
                         'resolve' => static function (): array {
                             return [];
                         },
@@ -109,9 +109,9 @@ class SchemaTest extends TestCase
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'Could not find possible implementing types for Interface in schema. ' .
-            'Check that schema.types is defined and is an array of all possible ' .
-            'types in the schema.'
+            'Could not find possible implementing types for Interface in schema. '
+            . 'Check that schema.types is defined and is an array of all possible '
+            . 'types in the schema.'
         );
         $this->schema->isSubType($this->interfaceType, $this->implementingType);
     }
@@ -137,7 +137,7 @@ class SchemaTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $anonymousAbstractType = new class implements AbstractType {
+        $anonymousAbstractType = new class() implements AbstractType {
             public function resolveType($objectValue, $context, ResolveInfo $info)
             {
                 return null;

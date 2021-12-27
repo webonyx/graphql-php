@@ -11,7 +11,7 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Validator\ValidationContext;
 
 /**
- * Lone anonymous operation
+ * Lone anonymous operation.
  *
  * A GraphQL document is only valid if when it contains an anonymous operation
  * (the query short-hand) that it contains only that one operation definition.
@@ -23,21 +23,21 @@ class LoneAnonymousOperation extends ValidationRule
         $operationCount = 0;
 
         return [
-            NodeKind::DOCUMENT             => static function (DocumentNode $node) use (&$operationCount): void {
+            NodeKind::DOCUMENT => static function (DocumentNode $node) use (&$operationCount): void {
                 $operationCount = 0;
                 foreach ($node->definitions as $definition) {
                     if (! ($definition instanceof OperationDefinitionNode)) {
                         continue;
                     }
 
-                    $operationCount++;
+                    ++$operationCount;
                 }
             },
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (
                 &$operationCount,
                 $context
             ): void {
-                if ($node->name !== null || $operationCount <= 1) {
+                if (null !== $node->name || $operationCount <= 1) {
                     return;
                 }
 

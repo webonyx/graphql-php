@@ -21,8 +21,8 @@ class Person
      */
     public function __construct(string $name, $pets = null, $friends = null)
     {
-        $this->name    = $name;
-        $this->pets    = $pets;
+        $this->name = $name;
+        $this->pets = $pets;
         $this->friends = $friends;
     }
 }

@@ -8,7 +8,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
 /**
- * Note: named OtherCustom vs OtherCustomType intentionally
+ * Note: named OtherCustom vs OtherCustomType intentionally.
  */
 class OtherCustom extends ObjectType
 {

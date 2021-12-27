@@ -9,7 +9,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Utils\AST;
-
 use function is_callable;
 
 /**
@@ -69,15 +68,15 @@ class CustomScalarType extends ScalarType
         // @phpstan-ignore-next-line should not happen if used correctly
         if (! isset($this->config['serialize']) || ! is_callable($this->config['serialize'])) {
             throw new InvariantViolation(
-                "{$this->name} must provide \"serialize\" function. If this custom Scalar " .
-                'is also used as an input type, ensure "parseValue" and "parseLiteral" ' .
-                'functions are also provided.'
+                "{$this->name} must provide \"serialize\" function. If this custom Scalar "
+                . 'is also used as an input type, ensure "parseValue" and "parseLiteral" '
+                . 'functions are also provided.'
             );
         }
 
-        $parseValue   = $this->config['parseValue'] ?? null;
+        $parseValue = $this->config['parseValue'] ?? null;
         $parseLiteral = $this->config['parseLiteral'] ?? null;
-        if ($parseValue === null && $parseLiteral === null) {
+        if (null === $parseValue && null === $parseLiteral) {
             return;
         }
 

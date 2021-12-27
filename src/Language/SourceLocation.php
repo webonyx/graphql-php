@@ -15,7 +15,7 @@ class SourceLocation implements JsonSerializable
 
     public function __construct(int $line, int $col)
     {
-        $this->line   = $line;
+        $this->line = $line;
         $this->column = $col;
     }
 
@@ -25,7 +25,7 @@ class SourceLocation implements JsonSerializable
     public function toArray(): array
     {
         return [
-            'line'   => $this->line,
+            'line' => $this->line,
             'column' => $this->column,
         ];
     }

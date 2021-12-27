@@ -9,7 +9,6 @@ use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
-
 use function is_object;
 use function is_scalar;
 use function is_string;
@@ -19,8 +18,8 @@ class StringType extends ScalarType
 {
     public string $name = Type::STRING;
 
-    public ?string $description =
-        'The `String` scalar type represents textual data, represented as UTF-8
+    public ?string $description
+        = 'The `String` scalar type represents textual data, represented as UTF-8
 character sequences. The String type is most often used by GraphQL to
 represent free-form human-readable text.';
 
@@ -28,7 +27,7 @@ represent free-form human-readable text.';
     {
         $canCast = is_scalar($value)
             || (is_object($value) && method_exists($value, '__toString'))
-            || $value === null;
+            || null === $value;
 
         if (! $canCast) {
             throw new SerializationError(

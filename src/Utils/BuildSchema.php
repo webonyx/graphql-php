@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use function array_map;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -15,8 +16,6 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
-
-use function array_map;
 
 /**
  * Build instance of @see \GraphQL\Type\Schema out of schema language definition (string or parsed AST).
@@ -70,9 +69,9 @@ class BuildSchema
         ?callable $typeConfigDecorator = null,
         array $options = []
     ) {
-        $this->ast                 = $ast;
+        $this->ast = $ast;
         $this->typeConfigDecorator = $typeConfigDecorator;
-        $this->options             = $options;
+        $this->options = $options;
     }
 
     /**
@@ -131,7 +130,7 @@ class BuildSchema
             DocumentValidator::assertValidSDL($this->ast);
         }
 
-        $schemaDef     = null;
+        $schemaDef = null;
         $this->nodeMap = [];
         /** @var array<int, DirectiveDefinitionNode> $directiveDefs */
         $directiveDefs = [];
@@ -154,11 +153,11 @@ class BuildSchema
             }
         }
 
-        $operationTypes = $schemaDef !== null
+        $operationTypes = null !== $schemaDef
             ? $this->getOperationTypes($schemaDef)
             : [
-                'query'        => isset($this->nodeMap['Query']) ? 'Query' : null,
-                'mutation'     => isset($this->nodeMap['Mutation']) ? 'Mutation' : null,
+                'query' => isset($this->nodeMap['Query']) ? 'Query' : null,
+                'mutation' => isset($this->nodeMap['Mutation']) ? 'Mutation' : null,
                 'subscription' => isset($this->nodeMap['Subscription']) ? 'Subscription' : null,
             ];
 
@@ -198,19 +197,19 @@ class BuildSchema
         // validation with validateSchema() will produce more actionable results.
 
         return new Schema([
-            'query'        => isset($operationTypes['query'])
+            'query' => isset($operationTypes['query'])
                 ? $definitionBuilder->buildType($operationTypes['query'])
                 : null,
-            'mutation'     => isset($operationTypes['mutation'])
+            'mutation' => isset($operationTypes['mutation'])
                 ? $definitionBuilder->buildType($operationTypes['mutation'])
                 : null,
             'subscription' => isset($operationTypes['subscription'])
                 ? $definitionBuilder->buildType($operationTypes['subscription'])
                 : null,
-            'typeLoader'   => static fn (string $name): Type => $definitionBuilder->buildType($name),
-            'directives'   => $directives,
-            'astNode'      => $schemaDef,
-            'types'        => fn (): array => array_map(
+            'typeLoader' => static fn (string $name): Type => $definitionBuilder->buildType($name),
+            'directives' => $directives,
+            'astNode' => $schemaDef,
+            'types' => fn (): array => array_map(
                 static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value),
                 $this->nodeMap,
             ),
@@ -218,16 +217,16 @@ class BuildSchema
     }
 
     /**
-     * @return array<string, string>
-     *
      * @throws Error
+     *
+     * @return array<string, string>
      */
     private function getOperationTypes(SchemaDefinitionNode $schemaDef): array
     {
         $opTypes = [];
 
         foreach ($schemaDef->operationTypes as $operationType) {
-            $typeName  = $operationType->type->name->value;
+            $typeName = $operationType->type->name->value;
             $operation = $operationType->operation;
 
             if (! isset($this->nodeMap[$typeName])) {

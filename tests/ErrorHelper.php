@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests;
 
-use GraphQL\Language\SourceLocation;
-
 use function array_map;
 use function count;
+use GraphQL\Language\SourceLocation;
 
 /**
  * @phpstan-type ErrorArray array{

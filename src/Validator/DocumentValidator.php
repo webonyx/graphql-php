@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator;
 
+use function array_merge;
+use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Visitor;
@@ -45,9 +47,6 @@ use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
-
-use function array_merge;
-use function count;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -98,11 +97,11 @@ class DocumentValidator
         ?array $rules = null,
         ?TypeInfo $typeInfo = null
     ): array {
-        if ($rules === null) {
+        if (null === $rules) {
             $rules = static::allRules();
         }
 
-        if (count($rules) === 0) {
+        if (0 === count($rules)) {
             // Skip validation if there are no rules
             return [];
         }
@@ -122,7 +121,7 @@ class DocumentValidator
     public static function allRules(): array
     {
         if (! self::$initRules) {
-            self::$rules     = array_merge(static::defaultRules(), self::securityRules(), self::$rules);
+            self::$rules = array_merge(static::defaultRules(), self::securityRules(), self::$rules);
             self::$initRules = true;
         }
 
@@ -135,32 +134,32 @@ class DocumentValidator
     public static function defaultRules(): array
     {
         return self::$defaultRules ??= [
-            ExecutableDefinitions::class        => new ExecutableDefinitions(),
-            UniqueOperationNames::class         => new UniqueOperationNames(),
-            LoneAnonymousOperation::class       => new LoneAnonymousOperation(),
-            SingleFieldSubscription::class      => new SingleFieldSubscription(),
-            KnownTypeNames::class               => new KnownTypeNames(),
-            FragmentsOnCompositeTypes::class    => new FragmentsOnCompositeTypes(),
-            VariablesAreInputTypes::class       => new VariablesAreInputTypes(),
-            ScalarLeafs::class                  => new ScalarLeafs(),
-            FieldsOnCorrectType::class          => new FieldsOnCorrectType(),
-            UniqueFragmentNames::class          => new UniqueFragmentNames(),
-            KnownFragmentNames::class           => new KnownFragmentNames(),
-            NoUnusedFragments::class            => new NoUnusedFragments(),
-            PossibleFragmentSpreads::class      => new PossibleFragmentSpreads(),
-            NoFragmentCycles::class             => new NoFragmentCycles(),
-            UniqueVariableNames::class          => new UniqueVariableNames(),
-            NoUndefinedVariables::class         => new NoUndefinedVariables(),
-            NoUnusedVariables::class            => new NoUnusedVariables(),
-            KnownDirectives::class              => new KnownDirectives(),
-            UniqueDirectivesPerLocation::class  => new UniqueDirectivesPerLocation(),
-            KnownArgumentNames::class           => new KnownArgumentNames(),
-            UniqueArgumentNames::class          => new UniqueArgumentNames(),
-            ValuesOfCorrectType::class          => new ValuesOfCorrectType(),
-            ProvidedRequiredArguments::class    => new ProvidedRequiredArguments(),
-            VariablesInAllowedPosition::class   => new VariablesInAllowedPosition(),
+            ExecutableDefinitions::class => new ExecutableDefinitions(),
+            UniqueOperationNames::class => new UniqueOperationNames(),
+            LoneAnonymousOperation::class => new LoneAnonymousOperation(),
+            SingleFieldSubscription::class => new SingleFieldSubscription(),
+            KnownTypeNames::class => new KnownTypeNames(),
+            FragmentsOnCompositeTypes::class => new FragmentsOnCompositeTypes(),
+            VariablesAreInputTypes::class => new VariablesAreInputTypes(),
+            ScalarLeafs::class => new ScalarLeafs(),
+            FieldsOnCorrectType::class => new FieldsOnCorrectType(),
+            UniqueFragmentNames::class => new UniqueFragmentNames(),
+            KnownFragmentNames::class => new KnownFragmentNames(),
+            NoUnusedFragments::class => new NoUnusedFragments(),
+            PossibleFragmentSpreads::class => new PossibleFragmentSpreads(),
+            NoFragmentCycles::class => new NoFragmentCycles(),
+            UniqueVariableNames::class => new UniqueVariableNames(),
+            NoUndefinedVariables::class => new NoUndefinedVariables(),
+            NoUnusedVariables::class => new NoUnusedVariables(),
+            KnownDirectives::class => new KnownDirectives(),
+            UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
+            KnownArgumentNames::class => new KnownArgumentNames(),
+            UniqueArgumentNames::class => new UniqueArgumentNames(),
+            ValuesOfCorrectType::class => new ValuesOfCorrectType(),
+            ProvidedRequiredArguments::class => new ProvidedRequiredArguments(),
+            VariablesInAllowedPosition::class => new VariablesInAllowedPosition(),
             OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
-            UniqueInputFieldNames::class        => new UniqueInputFieldNames(),
+            UniqueInputFieldNames::class => new UniqueInputFieldNames(),
         ];
     }
 
@@ -175,8 +174,8 @@ class DocumentValidator
 
         return self::$securityRules ??= [
             DisableIntrospection::class => new DisableIntrospection(DisableIntrospection::DISABLED), // DEFAULT DISABLED
-            QueryDepth::class           => new QueryDepth(QueryDepth::DISABLED), // default disabled
-            QueryComplexity::class      => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
+            QueryDepth::class => new QueryDepth(QueryDepth::DISABLED), // default disabled
+            QueryComplexity::class => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
         ];
     }
 
@@ -186,14 +185,14 @@ class DocumentValidator
     public static function sdlRules(): array
     {
         return self::$sdlRules ??= [
-            LoneSchemaDefinition::class                  => new LoneSchemaDefinition(),
-            UniqueOperationTypes::class                  => new UniqueOperationTypes(),
-            KnownDirectives::class                       => new KnownDirectives(),
-            KnownArgumentNamesOnDirectives::class        => new KnownArgumentNamesOnDirectives(),
-            UniqueDirectivesPerLocation::class           => new UniqueDirectivesPerLocation(),
-            UniqueArgumentNames::class                   => new UniqueArgumentNames(),
-            UniqueEnumValueNames::class                  => new UniqueEnumValueNames(),
-            UniqueInputFieldNames::class                 => new UniqueInputFieldNames(),
+            LoneSchemaDefinition::class => new LoneSchemaDefinition(),
+            UniqueOperationTypes::class => new UniqueOperationTypes(),
+            KnownDirectives::class => new KnownDirectives(),
+            KnownArgumentNamesOnDirectives::class => new KnownArgumentNamesOnDirectives(),
+            UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
+            UniqueArgumentNames::class => new UniqueArgumentNames(),
+            UniqueEnumValueNames::class => new UniqueEnumValueNames(),
+            UniqueInputFieldNames::class => new UniqueInputFieldNames(),
             ProvidedRequiredArgumentsOnDirectives::class => new ProvidedRequiredArgumentsOnDirectives(),
         ];
     }
@@ -208,7 +207,7 @@ class DocumentValidator
      */
     public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules): array
     {
-        $context  = new ValidationContext($schema, $documentNode, $typeInfo);
+        $context = new ValidationContext($schema, $documentNode, $typeInfo);
         $visitors = [];
         foreach ($rules as $rule) {
             $visitors[] = $rule->getVisitor($context);
@@ -221,7 +220,7 @@ class DocumentValidator
 
     /**
      * Returns global validation rule by name. Standard rules are named by class name, so
-     * example usage for such rules:
+     * example usage for such rules:.
      *
      * $rule = DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
      *
@@ -230,6 +229,7 @@ class DocumentValidator
      * @return T|null
      *
      * @template T of ValidationRule
+     *
      * @api
      */
     public static function getRule(string $name): ?ValidationRule
@@ -269,8 +269,8 @@ class DocumentValidator
         ?array $rules = null
     ): array {
         $usedRules = $rules ?? self::sdlRules();
-        $context   = new SDLValidationContext($documentAST, $schemaToExtend);
-        $visitors  = [];
+        $context = new SDLValidationContext($documentAST, $schemaToExtend);
+        $visitors = [];
         foreach ($usedRules as $rule) {
             $visitors[] = $rule->getSDLVisitor($context);
         }
