@@ -539,7 +539,7 @@ GRAPHQL
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
-        self::assertEquals(['start' => 0, 'end' => '6'], TestUtils::locationToArray($result->loc));
+        self::assertEquals(['start' => 0, 'end' => '6'], $result->loc->toArray());
     }
 
     /**

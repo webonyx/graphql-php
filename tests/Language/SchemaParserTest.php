@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Language;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\SyntaxError;
+use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
@@ -14,7 +15,7 @@ use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @phpstan-import-type LocationArray from TestUtils
+ * @phpstan-import-type LocationArray from Location
  */
 class SchemaParserTest extends TestCase
 {
@@ -33,7 +34,7 @@ type Hello {
 }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -133,7 +134,7 @@ type Hello {
 }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -180,7 +181,7 @@ type Hello {
 }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -224,7 +225,7 @@ extend type Hello {
 ';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -258,7 +259,7 @@ extend type Hello {
         $body = 'extend type Hello implements Greeting';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -288,7 +289,7 @@ extend type Hello {
         $body = 'extend interface Hello implements Greeting';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -504,7 +505,7 @@ type Hello {
         $doc  = Parser::parse($body);
 
         $loc = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -544,7 +545,7 @@ type Hello {
         $body = 'interface Hello implements World { field: String }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -582,7 +583,7 @@ type Hello {
         $body = 'type Hello implements World { field: String }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -620,7 +621,7 @@ type Hello {
         $body = 'type Hello implements Wo & rld { field: String }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -659,7 +660,7 @@ type Hello {
         $body = 'interface Hello implements Wo & rld { field: String }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -698,7 +699,7 @@ type Hello {
         $body = 'type Hello implements & Wo & rld { field: String }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -736,7 +737,7 @@ type Hello {
         $body = 'interface Hello implements & Wo & rld { field: String }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -774,7 +775,7 @@ type Hello {
         $body = 'enum Hello { WORLD }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -819,7 +820,7 @@ type Hello {
         $body = 'enum Hello { WO, RLD }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -854,7 +855,7 @@ interface Hello {
 }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -892,7 +893,7 @@ type Hello {
 }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -965,7 +966,7 @@ type Hello {
 }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -1011,7 +1012,7 @@ type Hello {
 }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -1065,7 +1066,7 @@ type Hello {
 }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -1115,7 +1116,7 @@ type Hello {
         $body = 'union Hello = World';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -1144,7 +1145,7 @@ type Hello {
         $body = 'union Hello = Wo | Rld';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -1250,7 +1251,7 @@ type Hello {
         $body = 'scalar Hello';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -1280,7 +1281,7 @@ input Hello {
 }';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -1331,7 +1332,7 @@ input Hello {
         $body = 'directive @foo on OBJECT | INTERFACE';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [
@@ -1371,7 +1372,7 @@ input Hello {
         $body = 'directive @foo repeatable on OBJECT | INTERFACE';
         $doc  = Parser::parse($body);
         $loc  = static function ($start, $end): array {
-            return TestUtils::locArray($start, $end);
+            return Location::create($start, $end)->toArray();
         };
 
         $expected = [

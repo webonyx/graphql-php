@@ -10,6 +10,8 @@ use GraphQL\Language\Token;
 /**
  * Contains a range of UTF-8 character offsets and token references that
  * identify the region of the source from which the AST derived.
+ *
+ * @phpstan-type LocationArray array{start: int, end: int}
  */
 class Location
 {
@@ -60,5 +62,16 @@ class Location
 
         $this->start = $startToken->start;
         $this->end   = $endToken->end;
+    }
+
+    /**
+     * @return LocationArray
+     */
+    public function toArray(): array
+    {
+        return [
+            'start' => $this->start,
+            'end'   => $this->end,
+        ];
     }
 }

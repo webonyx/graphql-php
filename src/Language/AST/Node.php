@@ -9,8 +9,6 @@ use JsonSerializable;
 
 use function count;
 use function get_object_vars;
-use function is_array;
-use function is_scalar;
 use function json_encode;
 
 /**
@@ -97,6 +95,10 @@ abstract class Node implements JsonSerializable
     }
 
     /**
+     * Improves upon the default serialization by:
+     * - excluding null values
+     * - excluding large reference values such as @see Location::$source
+     *
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
@@ -117,39 +119,24 @@ abstract class Node implements JsonSerializable
      */
     private static function recursiveToArray(Node $node): array
     {
-        $result = [
-            'kind' => $node->kind,
-        ];
-
-        if ($node->loc !== null) {
-            $result['loc'] = [
-                'start' => $node->loc->start,
-                'end'   => $node->loc->end,
-            ];
-        }
+        $result = [];
 
         foreach (get_object_vars($node) as $prop => $propValue) {
-            if (isset($result[$prop])) {
-                continue;
-            }
-
             if ($propValue === null) {
                 continue;
             }
 
-            if (is_array($propValue) || $propValue instanceof NodeList) {
+            if ($propValue instanceof NodeList) {
                 $converted = [];
                 foreach ($propValue as $item) {
-                    $converted[] = $item instanceof Node
-                        ? self::recursiveToArray($item)
-                        : (array) $item;
+                    $converted[] = self::recursiveToArray($item);
                 }
             } elseif ($propValue instanceof Node) {
                 $converted = self::recursiveToArray($propValue);
-            } elseif (is_scalar($propValue)) {
-                $converted = $propValue;
+            } elseif ($propValue instanceof Location) {
+                $converted = $propValue->toArray();
             } else {
-                $converted = null;
+                $converted = $propValue;
             }
 
             $result[$prop] = $converted;
