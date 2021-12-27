@@ -106,6 +106,7 @@ use function sprintf;
  *   Note: this feature is experimental and may change or be removed in the
  *   future.)
  * Those magic functions allow partial parsing:
+ *
  * @method static NameNode name(Source|string $source, bool[] $options = [])
  * @method static DocumentNode document(Source|string $source, bool[] $options = [])
  * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])

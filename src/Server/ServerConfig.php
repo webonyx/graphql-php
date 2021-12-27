@@ -92,7 +92,7 @@ class ServerConfig
 
     private ?Schema $schema = null;
 
-    /** @var mixed|callable(self, OperationParams $params, DocumentNode $doc): mixed|null */
+    /** @var mixed|callable(self, OperationParams, DocumentNode $doc): mixed|null */
     private $context = null;
 
     /**

@@ -50,7 +50,7 @@ final class UtilsTest extends TestCase
     public function testPrintSafeJson(): void
     {
         self::assertJsonStringEqualsJsonString(
-            /** @lang JSON */ 
+            /** @lang JSON */
             '{"foo":1}',
             Utils::printSafeJson((object) ['foo' => 1])
         );

@@ -69,7 +69,7 @@ class NodeTest extends TestCase
     public function testToString(): void
     {
         self::assertJsonStringEqualsJsonString(
-            /** @lang JSON */ 
+            /** @lang JSON */
             '{"kind":"Name","value":"foo"}',
             (string) new NameNode(['value' => 'foo'])
         );
