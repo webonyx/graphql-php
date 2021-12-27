@@ -1,0 +1,63 @@
+name: "Autoformat"
+on:
+  push:
+
+jobs:
+  composer-normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+          extensions: mbstring
+          php-version: 7.4
+
+      - run: composer install --no-interaction --no-progress --no-suggest
+
+      - run: composer normalize
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Normalize composer.json
+
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: creyD/prettier_action@v2.2
+        with:
+          prettier_options: --write --tab-width=2 *.md **/*.md
+          branch: ${{ github.head_ref }}
+          commit_message: Prettify docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  php-cs-fixer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+          extensions: mbstring
+          php-version: 7.4
+
+      - run: composer install --no-interaction --no-progress --no-suggest
+
+      - run: vendor/bin/php-cs-fixer fix
+
+#      - run: git pull
+#
+#      - uses: stefanzweifel/git-auto-commit-action@v4
+#        with:
+#          commit_message: Apply php-cs-fixer changes

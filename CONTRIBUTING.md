@@ -54,7 +54,7 @@ If the string contents are in a specific grammar, use an appropriate tag such as
 
 ## Coding Standard
 
-We check and fix the coding standard with [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer).
+We format the code automatically with [php-cs-fixer](https://github.com/friendsofphp/php-cs-fixer).
 
 Run the inspections:
 

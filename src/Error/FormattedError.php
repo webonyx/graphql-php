@@ -196,7 +196,6 @@ class FormattedError
     /**
      * Decorates spec-compliant $formattedError with debug entries according to $debug flags.
      *
-     * phpcs:disable SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectAnnotationsGroup
      * @param int                 $debugFlag      For available flags @see \GraphQL\Error\DebugFlag
      *
      * @param FormattedErrorArray $formattedError
