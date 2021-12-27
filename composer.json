@@ -54,10 +54,9 @@
   "scripts": {
     "baseline": "phpstan --ansi --generate-baseline",
     "bench": "phpbench run",
-    "check": "composer lint && composer stan && composer test",
+    "check": "composer fix && composer stan && composer test",
     "docs": "php generate-class-reference.php",
     "fix": "php-cs-fixer fix",
-    "lint": "php-cs-fixer",
     "stan": "phpstan --ansi",
     "test": "phpunit"
   }
