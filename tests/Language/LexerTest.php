@@ -33,7 +33,7 @@ class LexerTest extends TestCase
         );
     }
 
-    private function expectSyntaxError($text, $message, $location): void
+    private function expectSyntaxError(string $text, string $message, SourceLocation $location): void
     {
         $this->expectException(SyntaxError::class);
         $this->expectExceptionMessage($message);
@@ -46,17 +46,14 @@ class LexerTest extends TestCase
         }
     }
 
-    /**
-     * @param string $body
-     */
-    private function lexOne($body): Token
+    private function lexOne(string $body): Token
     {
         $lexer = new Lexer(new Source($body));
 
         return $lexer->advance();
     }
 
-    private function loc($line, $column)
+    private function loc(int $line, int $column): SourceLocation
     {
         return new SourceLocation($line, $column);
     }
@@ -413,7 +410,10 @@ class LexerTest extends TestCase
         );
     }
 
-    public function reportsUsefulStringErrors()
+    /**
+     * @return iterable<array{string, string, SourceLocation}>
+     */
+    public function reportsUsefulStringErrors(): iterable
     {
         return [
             ['"', 'Unterminated string.', $this->loc(1, 2)],
@@ -460,12 +460,15 @@ class LexerTest extends TestCase
      *
      * @dataProvider reportsUsefulStringErrors
      */
-    public function testLexReportsUsefulStringErrors($str, $expectedMessage, $location): void
+    public function testLexReportsUsefulStringErrors(string $str, string $expectedMessage, SourceLocation $location): void
     {
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
 
-    public function reportsUsefulBlockStringErrors()
+    /**
+     * @return iterable<array{string, string, SourceLocation}>
+     */
+    public function reportsUsefulBlockStringErrors(): iterable
     {
         return [
             ['"""', 'Unterminated string.', $this->loc(1, 4)],
@@ -494,7 +497,7 @@ class LexerTest extends TestCase
      *
      * @dataProvider reportsUsefulBlockStringErrors
      */
-    public function testReportsUsefulBlockStringErrors($str, $expectedMessage, $location): void
+    public function testReportsUsefulBlockStringErrors(string $str, string $expectedMessage, SourceLocation $location): void
     {
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
@@ -570,7 +573,10 @@ class LexerTest extends TestCase
         );
     }
 
-    public function reportsUsefulNumberErrors()
+    /**
+     * @return iterable<array{string, string, SourceLocation}>
+     */
+    public function reportsUsefulNumberErrors(): iterable
     {
         return [
             ['00', 'Invalid number, unexpected digit after 0: "0"', $this->loc(1, 2)],
@@ -590,7 +596,7 @@ class LexerTest extends TestCase
      *
      * @dataProvider reportsUsefulNumberErrors
      */
-    public function testReportsUsefulNumberErrors($str, $expectedMessage, $location): void
+    public function testReportsUsefulNumberErrors(string $str, string $expectedMessage, SourceLocation $location): void
     {
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
@@ -654,16 +660,16 @@ class LexerTest extends TestCase
         );
     }
 
-    public function reportsUsefulUnknownCharErrors()
+    /**
+     * @return iterable<array{string, string, SourceLocation}>
+     */
+    public function reportsUsefulUnknownCharErrors(): iterable
     {
-        $unicode1 = json_decode('"\u203B"');
-        $unicode2 = json_decode('"\u200b"');
-
         return [
             ['..', 'Cannot parse the unexpected character ".".', $this->loc(1, 1)],
             ['?', 'Cannot parse the unexpected character "?".', $this->loc(1, 1)],
-            [$unicode1, "Cannot parse the unexpected character \"\\u203b\".", $this->loc(1, 1)],
-            [$unicode2, "Cannot parse the unexpected character \"\\u200b\".", $this->loc(1, 1)],
+            [json_decode('"\u203B"'), "Cannot parse the unexpected character \"\\u203b\".", $this->loc(1, 1)],
+            [json_decode('"\u200b"'), "Cannot parse the unexpected character \"\\u200b\".", $this->loc(1, 1)],
         ];
     }
 
@@ -672,7 +678,7 @@ class LexerTest extends TestCase
      *
      * @dataProvider reportsUsefulUnknownCharErrors
      */
-    public function testReportsUsefulUnknownCharErrors($str, $expectedMessage, $location): void
+    public function testReportsUsefulUnknownCharErrors(string $str, string $expectedMessage, SourceLocation $location): void
     {
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }

@@ -145,7 +145,10 @@ class RequestParsingTest extends TestCase
         );
     }
 
-    private function parsePsrFormUrlEncodedServerRequest($postValue, bool $parsed)
+    /**
+     * @param array<string, mixed> $postValue
+     */
+    private function parsePsrFormUrlEncodedServerRequest(array $postValue, bool $parsed): OperationParams
     {
         $helper = new Helper();
 

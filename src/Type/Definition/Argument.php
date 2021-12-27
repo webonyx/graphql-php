@@ -13,14 +13,25 @@ use function array_key_exists;
 use function is_array;
 
 /**
- * @phpstan-type FieldArgumentConfig array{
- *     name: string,
+ * @phpstan-import-type InputTypeAlias from InputType
+ * @phpstan-type ArgumentType (Type&InputType)|callable(): (Type&InputType)
+ * @phpstan-type UnnamedArgumentConfig array{
+ *     name?: string,
+ *     type: ArgumentType,
  *     defaultValue?: mixed,
  *     description?: string|null,
  *     astNode?: InputValueDefinitionNode|null,
  * }
+ * @phpstan-type ArgumentConfig array{
+ *     name: string,
+ *     type: ArgumentType,
+ *     defaultValue?: mixed,
+ *     description?: string|null,
+ *     astNode?: InputValueDefinitionNode|null,
+ * }
+ * @phpstan-type ArgumentListConfig iterable<ArgumentConfig|ArgumentType>|iterable<UnnamedArgumentConfig>
  */
-class FieldArgument
+class Argument
 {
     public string $name;
 
@@ -29,48 +40,51 @@ class FieldArgument
 
     public ?string $description;
 
-    public ?InputValueDefinitionNode $astNode;
-
-    /** @var FieldArgumentConfig */
-    public array $config;
-
     /** @var Type&InputType */
     private Type $type;
 
+    public ?InputValueDefinitionNode $astNode;
+
+    /** @var ArgumentConfig */
+    public array $config;
+
     /**
-     * @param FieldArgumentConfig $config
+     * @param ArgumentConfig $config
      */
     public function __construct(array $config)
     {
         $this->name         = $config['name'];
         $this->defaultValue = $config['defaultValue'] ?? null;
         $this->description  = $config['description'] ?? null;
-        $this->astNode      = $config['astNode'] ?? null;
+        // Do nothing for type, it is lazy loaded in getType()
+        $this->astNode = $config['astNode'] ?? null;
 
         $this->config = $config;
     }
 
     /**
-     * @param array<string, FieldArgumentConfig|Type> $config
+     * @phpstan-param ArgumentListConfig $config
      *
-     * @return array<int, FieldArgument>
+     * @return array<int, self>
      */
-    public static function createMap(array $config): array
+    public static function listFromConfig(iterable $config): array
     {
-        $map = [];
+        $list = [];
+
         foreach ($config as $name => $argConfig) {
             if (! is_array($argConfig)) {
                 $argConfig = ['type' => $argConfig];
             }
 
-            $map[] = new self($argConfig + ['name' => $name]);
+            $list[] = new self($argConfig + ['name' => $name]);
         }
 
-        return $map;
+        return $list;
     }
 
     /**
      * @return Type&InputType
+     * @phpstan-return InputTypeAlias
      */
     public function getType(): Type
     {

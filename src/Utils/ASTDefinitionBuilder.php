@@ -23,12 +23,9 @@ use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
-use GraphQL\Language\BlockString;
-use GraphQL\Language\Token;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -37,9 +34,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use Throwable;
 
-use function array_reverse;
-use function count;
-use function implode;
 use function is_array;
 use function is_string;
 use function sprintf;
@@ -47,39 +41,40 @@ use function sprintf;
 /**
  * @phpstan-import-type FieldMapConfig from FieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ * @phpstan-type ResolveType callable(string, Node|null): Type
+ * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
  */
 class ASTDefinitionBuilder
 {
     /** @var array<string, Node&TypeDefinitionNode> */
     private array $typeDefinitionsMap;
 
-    /** @var array<string, bool> */
-    private array $options;
-
-    /** @var callable(string, ?Node): Type */
+    /**
+     * @var callable
+     * @phpstan-var ResolveType
+     */
     private $resolveType;
 
-    /** @var callable|null */
+    /**
+     * @var callable|null
+     * @phpstan-var TypeConfigDecorator|null
+     */
     private $typeConfigDecorator;
 
     /** @var array<string, Type> */
     private array $cache;
 
     /**
-     * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
-     * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
-     * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
-     * @param array<string, bool> $options
-     * @param callable(string, ?Node): Type $resolveType
+     * @param array<string, Node &TypeDefinitionNode> $typeDefinitionsMap
+     * @phpstan-param ResolveType $resolveType
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      */
     public function __construct(
         array $typeDefinitionsMap,
-        array $options,
         callable $resolveType,
         ?callable $typeConfigDecorator = null
     ) {
         $this->typeDefinitionsMap  = $typeDefinitionsMap;
-        $this->options             = $options;
         $this->resolveType         = $resolveType;
         $this->typeConfigDecorator = $typeConfigDecorator;
 
@@ -95,58 +90,12 @@ class ASTDefinitionBuilder
 
         return new Directive([
             'name'         => $directiveNode->name->value,
-            'description'  => $this->getDescription($directiveNode),
-            'args'         => FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)),
+            'description'  => $directiveNode->description->value ?? null,
+            'args'         => $this->makeInputValues($directiveNode->arguments),
             'isRepeatable' => $directiveNode->repeatable,
             'locations'    => $locations,
             'astNode'      => $directiveNode,
         ]);
-    }
-
-    /**
-     * Given an ast node, returns its string description.
-     */
-    private function getDescription(Node $node): ?string
-    {
-        if (isset($node->description)) {
-            return $node->description->value;
-        }
-
-        if (isset($this->options['commentDescriptions'])) {
-            $rawValue = $this->getLeadingCommentBlock($node);
-            if ($rawValue !== null) {
-                return BlockString::dedentValue("\n" . $rawValue);
-            }
-        }
-
-        return null;
-    }
-
-    private function getLeadingCommentBlock(Node $node): ?string
-    {
-        $loc = $node->loc;
-        if ($loc === null || $loc->startToken === null) {
-            return null;
-        }
-
-        $comments = [];
-        $token    = $loc->startToken->prev;
-        while (
-            $token !== null
-            && $token->kind === Token::COMMENT
-            && $token->next !== null
-            && $token->prev !== null
-            && $token->line + 1 === $token->next->line
-            && $token->line !== $token->prev->line
-        ) {
-            $value      = $token->value;
-            $comments[] = $value;
-            $token      = $token->prev;
-        }
-
-        return count($comments) > 0
-            ? implode("\n", array_reverse($comments))
-            : null;
     }
 
     /**
@@ -166,7 +115,7 @@ class ASTDefinitionBuilder
             $config = [
                 'name' => $value->name->value,
                 'type' => $type,
-                'description' => $this->getDescription($value),
+                'description' => $value->description->value ?? null,
                 'astNode' => $value,
             ];
             if (isset($value->defaultValue)) {
@@ -196,7 +145,7 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+     * @param string|(Node &NamedTypeNode)|(Node&TypeDefinitionNode) $ref
      */
     public function buildType($ref): Type
     {
@@ -239,6 +188,7 @@ class ASTDefinitionBuilder
                     );
                 }
 
+                // @phpstan-ignore-next-line should not happen, but function types are not enforced by PHP
                 if (! is_array($config) || isset($config[0])) {
                     throw new Error(
                         'Type config decorator passed to ' . static::class . ' is expected to return an array, but got ' . Utils::printSafe($config)
@@ -288,7 +238,7 @@ class ASTDefinitionBuilder
     {
         return new ObjectType([
             'name'        => $def->name->value,
-            'description' => $this->getDescription($def),
+            'description' => $def->description->value ?? null,
             'fields'      => fn (): array => $this->makeFieldDefMap($def),
             'interfaces'  => fn (): array => $this->makeImplementedInterfaces($def),
             'astNode'     => $def,
@@ -320,7 +270,7 @@ class ASTDefinitionBuilder
             // value, that would throw immediately while type system validation
             // with validateSchema() will produce more actionable results.
             'type'              => $this->buildWrappedType($field->type),
-            'description'       => $this->getDescription($field),
+            'description'       => $field->description->value ?? null,
             'args'              => $this->makeInputValues($field->arguments),
             'deprecationReason' => $this->getDeprecationReason($field),
             'astNode'           => $field,
@@ -367,7 +317,7 @@ class ASTDefinitionBuilder
     {
         return new InterfaceType([
             'name'        => $def->name->value,
-            'description' => $this->getDescription($def),
+            'description' => $def->description->value ?? null,
             'fields'      => fn (): array => $this->makeFieldDefMap($def),
             'interfaces'  => fn (): array => $this->makeImplementedInterfaces($def),
             'astNode'     => $def,
@@ -379,7 +329,7 @@ class ASTDefinitionBuilder
         $values = [];
         foreach ($def->values as $value) {
             $values[$value->name->value] = [
-                'description' => $this->getDescription($value),
+                'description' => $value->description->value ?? null,
                 'deprecationReason' => $this->getDeprecationReason($value),
                 'astNode' => $value,
             ];
@@ -387,7 +337,7 @@ class ASTDefinitionBuilder
 
         return new EnumType([
             'name'        => $def->name->value,
-            'description' => $this->getDescription($def),
+            'description' => $def->description->value ?? null,
             'values'      => $values,
             'astNode'     => $def,
         ]);
@@ -397,7 +347,7 @@ class ASTDefinitionBuilder
     {
         return new UnionType([
             'name'        => $def->name->value,
-            'description' => $this->getDescription($def),
+            'description' => $def->description->value ?? null,
             // Note: While this could make assertions to get the correctly typed
             // values below, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
@@ -417,7 +367,7 @@ class ASTDefinitionBuilder
     {
         return new CustomScalarType([
             'name'        => $def->name->value,
-            'description' => $this->getDescription($def),
+            'description' => $def->description->value ?? null,
             'astNode'     => $def,
             'serialize'   => static fn ($value) => $value,
         ]);
@@ -427,7 +377,7 @@ class ASTDefinitionBuilder
     {
         return new InputObjectType([
             'name'        => $def->name->value,
-            'description' => $this->getDescription($def),
+            'description' => $def->description->value ?? null,
             'fields'      => fn (): array => $this->makeInputValues($def->fields),
             'astNode'     => $def,
         ]);
@@ -476,7 +426,7 @@ class ASTDefinitionBuilder
         $config = [
             'name' => $value->name->value,
             'type' => $type,
-            'description' => $this->getDescription($value),
+            'description' => $value->description->value ?? null,
             'astNode' => $value,
         ];
 
@@ -493,7 +443,7 @@ class ASTDefinitionBuilder
     public function buildEnumValue(EnumValueDefinitionNode $value): array
     {
         return [
-            'description' => $this->getDescription($value),
+            'description' => $value->description->value ?? null,
             'deprecationReason' => $this->getDeprecationReason($value),
             'astNode' => $value,
         ];

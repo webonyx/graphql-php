@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -508,11 +508,10 @@ class BreakingChangesFinder
                         }
                     );
                     if ($newArgDef !== null) {
-                        $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg(
+                        $isSafe     = self::isChangeSafeForInputObjectFieldOrFieldArg(
                             $oldArgDef->getType(),
                             $newArgDef->getType()
                         );
-                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $oldArgType */
                         $oldArgType = $oldArgDef->getType();
                         $oldArgName = $oldArgDef->name;
                         if (! $isSafe) {
@@ -682,7 +681,7 @@ class BreakingChangesFinder
     }
 
     /**
-     * @return array<int, FieldArgument>
+     * @return array<int, Argument>
      */
     public static function findRemovedArgsForDirectives(Directive $oldDirective, Directive $newDirective): array
     {
@@ -700,7 +699,7 @@ class BreakingChangesFinder
     }
 
     /**
-     * @return array<string, FieldArgument>
+     * @return array<string, Argument>
      */
     private static function getArgumentMapForDirective(Directive $directive): array
     {
@@ -750,7 +749,7 @@ class BreakingChangesFinder
     }
 
     /**
-     * @return array<int, FieldArgument>
+     * @return array<int, Argument>
      */
     public static function findAddedArgsForDirective(Directive $oldDirective, Directive $newDirective): array
     {

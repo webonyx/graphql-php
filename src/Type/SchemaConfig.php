@@ -28,6 +28,7 @@ use function count;
  *     $schema = new Schema($config);
  *
  * @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
+ * @phpstan-type Types array<Type&NamedType>|(callable(): array<Type&NamedType>)
  */
 class SchemaConfig
 {
@@ -37,7 +38,10 @@ class SchemaConfig
 
     public ?ObjectType $subscription = null;
 
-    /** @var array<Type>|(callable(): array<Type>) */
+    /**
+     * @var array|callable
+     * @phpstan-var Types
+     */
     public $types = [];
 
     /** @var array<Directive>|null */
@@ -164,7 +168,8 @@ class SchemaConfig
     }
 
     /**
-     * @return array<Type>|(callable(): array<Type>)
+     * @return array|callable
+     * @phpstan-return Types
      *
      * @api
      */
@@ -174,7 +179,8 @@ class SchemaConfig
     }
 
     /**
-     * @param array<Type>|(callable(): array<Type>) $types
+     * @param array|callable $types
+     * @phpstan-param Types $types
      *
      * @api
      */

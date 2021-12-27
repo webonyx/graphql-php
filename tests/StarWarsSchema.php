@@ -4,17 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests;
 
-/**
- * This is designed to be an end-to-end test, demonstrating
- * the full GraphQL stack.
- *
- * We will create a GraphQL schema that describes the major
- * characters in the original Star Wars trilogy.
- *
- * NOTE: This may contain spoilers for the original Star
- * Wars trilogy.
- */
-
 use Exception;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -28,6 +17,13 @@ use function array_intersect_key;
 use function array_map;
 
 /**
+ * This is designed to be an end-to-end test, demonstrating the full GraphQL stack.
+ *
+ * We will create a GraphQL schema that describes the major
+ * characters in the original Star Wars trilogy.
+ *
+ * NOTE: This may contain spoilers for the original Star Wars trilogy.
+ *
  * Using our shorthand to describe type systems, the type system for our
  * Star Wars example is:
  *
@@ -93,7 +89,9 @@ class StarWarsSchema
             ],
         ]);
 
+        /** @var ObjectType $humanType */
         $humanType = null;
+        /** @var ObjectType $humanType */
         $droidType = null;
 
         /**
@@ -134,7 +132,7 @@ class StarWarsSchema
                     ],
                 ];
             },
-            'resolveType' => static function ($obj) use (&$humanType, &$droidType) {
+            'resolveType' => static function (array $obj) use (&$humanType, &$droidType): ObjectType {
                 return StarWarsData::getHuman($obj['id']) === null
                     ? $droidType
                     : $humanType;

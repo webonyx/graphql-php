@@ -31,7 +31,7 @@ class EnumTypeTest extends TestCase
     /** @var array{someRandomFunction: callable(): void} */
     private $Complex1;
 
-    /** @var ArrayObject{someRandomValue: int} */
+    /** @var ArrayObject<string, int> */
     private ArrayObject $Complex2;
 
     public function setUp(): void
@@ -300,7 +300,11 @@ class EnumTypeTest extends TestCase
         );
     }
 
-    private function expectFailure($query, $vars, $err): void
+    /**
+     * @param array<string, mixed>|null                                            $vars
+     * @param array{message: string, locations: array<int, SourceLocation>}|string $err
+     */
+    private function expectFailure(string $query, ?array $vars, $err): void
     {
         $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
         self::assertCount(1, $result->errors);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Executor;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\ComplexScalar;
@@ -20,8 +21,11 @@ use function acos;
 use function array_key_exists;
 
 /**
- * Execute: Handles inputs
- * Handles objects and nullability
+ * @see describe('Execute: Handles inputs', () => {
+ * @see describe('Handles objects and nullability
+ *
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from \GraphQL\Type\Definition\FieldDefinition
+ * @phpstan-import-type UnnamedArgumentConfig from \GraphQL\Type\Definition\Argument
  */
 class VariablesTest extends TestCase
 {
@@ -114,11 +118,18 @@ class VariablesTest extends TestCase
         );
     }
 
-    private function executeQuery($query, $variableValues = null)
+    /**
+     * @param array<string, mixed>|null $variableValues
+     */
+    private function executeQuery(string $query, ?array $variableValues = null): ExecutionResult
     {
-        $document = Parser::parse($query);
-
-        return Executor::execute($this->schema(), $document, null, null, $variableValues);
+        return Executor::execute(
+            $this->schema(),
+            Parser::parse($query),
+            null,
+            null,
+            $variableValues
+        );
     }
 
     public function schema(): Schema
@@ -184,7 +195,12 @@ class VariablesTest extends TestCase
         return new Schema(['query' => $TestType]);
     }
 
-    private function fieldWithInputArg($inputArg)
+    /**
+     * @param UnnamedArgumentConfig $inputArg
+     *
+     * @return UnnamedFieldDefinitionConfig
+     */
+    private function fieldWithInputArg(array $inputArg): array
     {
         return [
             'type'    => Type::string(),

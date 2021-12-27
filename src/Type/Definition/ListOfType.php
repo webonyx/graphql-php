@@ -7,7 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Type\Schema;
 
 /**
- * @template OfType of Type
+ * @template-covariant OfType of Type
  */
 class ListOfType extends Type implements WrappingType, OutputType, NullableType, InputType
 {

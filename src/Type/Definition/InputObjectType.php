@@ -15,14 +15,10 @@ use function is_iterable;
 use function is_string;
 
 /**
- * @phpstan-type PartialInputObjectFieldConfig array{
- *   name?: string,
- *   defaultValue?: mixed,
- *   description?: string|null,
- *   type: (Type&InputType)|callable(): (Type&InputType),
- *   astNode?: InputValueDefinitionNode|null,
- * }
- * @phpstan-type FieldConfig InputObjectField|(Type&InputType)|PartialInputObjectFieldConfig|(callable(): InputObjectField|(Type&InputType)|PartialInputObjectFieldConfig)
+ * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+ * @phpstan-type EagerFieldConfig InputObjectField|(Type&InputType)|UnnamedInputObjectFieldConfig
+ * @phpstan-type LazyFieldConfig callable(): EagerFieldConfig
+ * @phpstan-type FieldConfig EagerFieldConfig|LazyFieldConfig
  * @phpstan-type InputObjectConfig array{
  *   name?: string|null,
  *   description?: string|null,
@@ -51,7 +47,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     private array $fields;
 
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param InputObjectConfig $config
      */
     public function __construct(array $config)
     {
@@ -167,8 +163,10 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
         // @phpstan-ignore-next-line should not happen if used correctly
         if (! is_iterable($fields)) {
+            $invalidFields = Utils::printSafe($fields);
+
             throw new InvariantViolation(
-                "{$this->name} fields must be an iterable or a callable which returns an iterable."
+                "{$this->name} fields must be an iterable or a callable which returns an iterable, got: {$invalidFields}."
             );
         }
 

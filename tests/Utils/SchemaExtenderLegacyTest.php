@@ -12,7 +12,6 @@ use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -129,12 +128,7 @@ class SchemaExtenderLegacyTest extends TestCase
 
         $FooDirective = new Directive([
             'name' => 'foo',
-            'args' => [
-                new FieldArgument([
-                    'name' => 'input',
-                    'type' => $SomeInputType,
-                ]),
-            ],
+            'args' => ['input' => $SomeInputType],
             'locations' => [
                 DirectiveLocation::SCHEMA,
                 DirectiveLocation::SCALAR,

@@ -11,8 +11,8 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
@@ -106,7 +106,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                             continue;
                         }
 
-                        $argType = $arg instanceof FieldArgument
+                        $argType = $arg instanceof Argument
                             ? $arg->getType()->toString()
                             : Printer::doPrint($arg->type);
 

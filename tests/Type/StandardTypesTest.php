@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
@@ -95,27 +96,33 @@ class StandardTypesTest extends TestCase
         self::assertSame($newStringType, Type::string());
     }
 
-    public function getInvalidStandardTypes()
+    /**
+     * @return iterable<array{mixed, string}>
+     */
+    public function invalidStandardTypes(): iterable
     {
         return [
-            [null, 'Expecting instance of GraphQL\Type\Definition\Type, got null'],
-            [5, 'Expecting instance of GraphQL\Type\Definition\Type, got 5'],
-            ['', 'Expecting instance of GraphQL\Type\Definition\Type, got (empty string)'],
-            [new stdClass(), 'Expecting instance of GraphQL\Type\Definition\Type, got instance of stdClass'],
-            [[], 'Expecting instance of GraphQL\Type\Definition\Type, got []'],
+            [null, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got null'],
+            [5, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got 5'],
+            ['', 'Expecting instance of GraphQL\Type\Definition\ScalarType, got (empty string)'],
+            [new stdClass(), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got instance of stdClass'],
+            [[], 'Expecting instance of GraphQL\Type\Definition\ScalarType, got []'],
+            [new ObjectType(['name' => 'ID', 'fields' => []]), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got ID'],
             [$this->createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: ID, String, Float, Int, Boolean; got NonStandardName'],
         ];
     }
 
     /**
-     * @dataProvider getInvalidStandardTypes
+     * @param mixed $notType invalid type
+     *
+     * @dataProvider invalidStandardTypes
      */
-    public function testStandardTypesOverrideDoesSanityChecks($type, string $expectedMessage): void
+    public function testStandardTypesOverrideDoesSanityChecks($notType, string $expectedMessage): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage($expectedMessage);
 
-        Type::overrideStandardTypes([$type]);
+        Type::overrideStandardTypes([$notType]);
     }
 
     private function createCustomScalarType(string $name): CustomScalarType

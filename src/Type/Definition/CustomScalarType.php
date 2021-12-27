@@ -13,12 +13,13 @@ use GraphQL\Utils\AST;
 use function is_callable;
 
 /**
+ * @phpstan-import-type LeafValueNode from LeafType
  * @phpstan-type CustomScalarConfig array{
  *   name?: string|null,
  *   description?: string|null,
  *   serialize: callable(mixed): mixed,
  *   parseValue?: callable(mixed): mixed,
- *   parseLiteral?: callable(Node $valueNode, array|null $variables): mixed,
+ *   parseLiteral?: callable(LeafValueNode, array<string, mixed>|null): mixed,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
  * }
@@ -30,6 +31,7 @@ class CustomScalarType extends ScalarType
     public array $config;
 
     /**
+     * @param array<string, mixed> $config
      * @phpstan-param CustomScalarConfig $config
      */
     public function __construct(array $config)

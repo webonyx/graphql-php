@@ -9,22 +9,21 @@ use GraphQL\Deferred;
 
 class Root
 {
-    /** @var NumberHolder */
-    public $numberHolder;
+    public NumberHolder $numberHolder;
 
     public function __construct(float $originalNumber)
     {
         $this->numberHolder = new NumberHolder($originalNumber);
     }
 
-    public function promiseToChangeTheNumber($newNumber): Deferred
+    public function promiseToChangeTheNumber(float $newNumber): Deferred
     {
         return new Deferred(function () use ($newNumber): NumberHolder {
             return $this->immediatelyChangeTheNumber($newNumber);
         });
     }
 
-    public function immediatelyChangeTheNumber($newNumber): NumberHolder
+    public function immediatelyChangeTheNumber(float $newNumber): NumberHolder
     {
         $this->numberHolder->theNumber = $newNumber;
 

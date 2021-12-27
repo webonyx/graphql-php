@@ -95,14 +95,13 @@ class Printer
     /**
      * Recursively traverse an AST depth-first and produce a pretty string.
      */
-    public function printAST(Node $node)
+    public function printAST(Node $node): string
     {
         return $this->p($node);
     }
 
     protected function p(?Node $node, bool $isDescription = false): string
     {
-        $res = '';
         if ($node === null) {
             return '';
         }
@@ -358,7 +357,7 @@ class Printer
 
                 // Anonymous queries with no directives or variable definitions can use
                 // the query short form.
-                return (strlen($name) === 0) && (strlen($directives) === 0) && ! $varDefs && $op === 'query'
+                return (strlen($name) === 0) && (strlen($directives) === 0) && $varDefs === '' && $op === 'query'
                     ? $selectionSet
                     : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
 
@@ -453,10 +452,15 @@ class Printer
                 return '$' . $this->p($node->name);
         }
 
-        return $res;
+        return '';
     }
 
-    protected function printList(NodeList $list, $separator = ''): string
+    /**
+     * @param NodeList<TNode> $list
+     *
+     * @template TNode of Node
+     */
+    protected function printList(NodeList $list, string $separator = ''): string
     {
         $parts = [];
         foreach ($list as $item) {
@@ -468,6 +472,10 @@ class Printer
 
     /**
      * Print each item on its own line, wrapped in an indented "{ }" block.
+     *
+     * @param NodeList<TNode> $list
+     *
+     * @template TNode of Node
      */
     protected function printListBlock(NodeList $list): string
     {
@@ -492,7 +500,7 @@ class Printer
      * If maybeString is not null or empty, then wrap with start and end, otherwise
      * print an empty string.
      */
-    protected function wrap(string $start, ?string $maybeString, string $end = '')
+    protected function wrap(string $start, ?string $maybeString, string $end = ''): string
     {
         if ($maybeString === null || $maybeString === '') {
             return '';

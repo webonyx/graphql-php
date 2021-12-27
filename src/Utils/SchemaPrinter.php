@@ -7,10 +7,10 @@ namespace GraphQL\Utils;
 use GraphQL\Error\Error;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectField;
@@ -40,11 +40,7 @@ use function strlen;
 /**
  * Prints the contents of a Schema in schema definition language.
  *
- * @phpstan-type Options array{commentDescriptions?: bool}
- *
- *  - commentDescriptions:
- *      Provide true to use preceding comments as the description.
- *      This option is provided to ease adoption and will be removed in v16.
+ * @phpstan-type Options array{}
  */
 class SchemaPrinter
 {
@@ -209,18 +205,14 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool>                                                               $options
-     * @param Type|Directive|EnumValueDefinition|FieldArgument|FieldDefinition|InputObjectField $def
+     * @param array<string, bool>                                                          $options
+     * @param Type|Directive|EnumValueDefinition|Argument|FieldDefinition|InputObjectField $def
      */
     protected static function printDescription(array $options, $def, string $indentation = '', bool $firstInBlock = true): string
     {
         $description = $def->description;
         if ($description === null) {
             return '';
-        }
-
-        if (isset($options['commentDescriptions'])) {
-            return static::printDescriptionWithComments($description, $indentation, $firstInBlock);
         }
 
         $preferMultipleLines = mb_strlen($description) > 70;
@@ -247,8 +239,8 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool>       $options
-     * @param array<int, FieldArgument> $args
+     * @param array<string, bool>  $options
+     * @param array<int, Argument> $args
      * @phpstan-param Options $options
      */
     protected static function printArgs(array $options, array $args, string $indentation = ''): string
@@ -274,10 +266,10 @@ class SchemaPrinter
             implode(
                 "\n",
                 array_map(
-                    static function (FieldArgument $arg, int $i) use ($indentation, $options): string {
-                        return static::printDescription($options, $arg, '  ' . $indentation, $i === 0) . '  ' . $indentation .
-                            static::printInputValue($arg);
-                    },
+                    static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, $i === 0)
+                        . '  '
+                        . $indentation
+                        . static::printInputValue($arg),
                     $args,
                     array_keys($args)
                 )
@@ -287,11 +279,11 @@ class SchemaPrinter
     }
 
     /**
-     * @param InputObjectField|FieldArgument $arg
+     * @param InputObjectField|Argument $arg
      */
     protected static function printInputValue($arg): string
     {
-        $argDecl = $arg->name . ': ' . (string) $arg->getType();
+        $argDecl = $arg->name . ': ' . $arg->getType()->toString();
         if ($arg->defaultValueExists()) {
             $argDecl .= ' = ' . Printer::doPrint(AST::astFromValue($arg->defaultValue, $arg->getType()));
         }

@@ -9,6 +9,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -32,6 +33,7 @@ use function array_merge;
 use function json_encode;
 
 /**
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-type Options array{
  *   assumeValid?: bool,
  * }
@@ -429,8 +431,10 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeIntrospection
+     *
+     * @return array<string, UnnamedFieldDefinitionConfig>
      */
-    private function buildFieldDefMap(array $typeIntrospection)
+    private function buildFieldDefMap(array $typeIntrospection): array
     {
         if (! array_key_exists('fields', $typeIntrospection)) {
             throw new InvariantViolation('Introspection result missing fields: ' . json_encode($typeIntrospection) . '.');

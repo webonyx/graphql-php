@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace GraphQL\Language\AST;
 
 use GraphQL\Utils\Utils;
+use JsonSerializable;
 
 use function count;
 use function get_object_vars;
-use function is_array;
-use function is_scalar;
 use function json_encode;
 
 /**
@@ -36,7 +35,7 @@ use function json_encode;
  * | ListTypeNode
  * | NonNullTypeNode
  */
-abstract class Node
+abstract class Node implements JsonSerializable
 {
     public ?Location $loc = null;
 
@@ -92,70 +91,52 @@ abstract class Node
 
     public function __toString(): string
     {
-        $tmp = $this->toArray(true);
+        return json_encode($this);
+    }
 
-        return (string) json_encode($tmp);
+    /**
+     * Improves upon the default serialization by:
+     * - excluding null values
+     * - excluding large reference values such as @see Location::$source
+     *
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 
     /**
      * @return array<string, mixed>
      */
-    public function toArray(bool $recursive = false): array
+    public function toArray(): array
     {
-        if ($recursive) {
-            return $this->recursiveToArray($this);
-        }
-
-        $tmp = (array) $this;
-
-        if ($this->loc !== null) {
-            $tmp['loc'] = [
-                'start' => $this->loc->start,
-                'end'   => $this->loc->end,
-            ];
-        }
-
-        return $tmp;
+        return self::recursiveToArray($this);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function recursiveToArray(Node $node): array
+    private static function recursiveToArray(Node $node): array
     {
-        $result = [
-            'kind' => $node->kind,
-        ];
-
-        if ($node->loc !== null) {
-            $result['loc'] = [
-                'start' => $node->loc->start,
-                'end'   => $node->loc->end,
-            ];
-        }
+        $result = [];
 
         foreach (get_object_vars($node) as $prop => $propValue) {
-            if (isset($result[$prop])) {
-                continue;
-            }
-
             if ($propValue === null) {
                 continue;
             }
 
-            if (is_array($propValue) || $propValue instanceof NodeList) {
+            if ($propValue instanceof NodeList) {
                 $converted = [];
                 foreach ($propValue as $item) {
-                    $converted[] = $item instanceof Node
-                        ? $this->recursiveToArray($item)
-                        : (array) $item;
+                    $converted[] = self::recursiveToArray($item);
                 }
             } elseif ($propValue instanceof Node) {
-                $converted = $this->recursiveToArray($propValue);
-            } elseif (is_scalar($propValue)) {
-                $converted = $propValue;
+                $converted = self::recursiveToArray($propValue);
+            } elseif ($propValue instanceof Location) {
+                $converted = $propValue->toArray();
             } else {
-                $converted = null;
+                $converted = $propValue;
             }
 
             $result[$prop] = $converted;

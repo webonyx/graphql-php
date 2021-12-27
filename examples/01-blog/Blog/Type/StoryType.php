@@ -11,6 +11,7 @@ use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Type\Field\HtmlField;
 use GraphQL\Examples\Blog\Types;
+use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
@@ -26,10 +27,10 @@ class StoryType extends ObjectType
             'fields' => static fn (): array => [
                 'id' => Types::id(),
                 'author' => Types::user(),
-                'mentions' => Types::listOf(Types::mention()),
+                'mentions' => new ListOfType(Types::mention()),
                 'totalCommentCount' => Types::int(),
                 'comments' => [
-                    'type' => Types::listOf(Types::comment()),
+                    'type' => new ListOfType(Types::comment()),
                     'args' => [
                         'after' => [
                             'type' => Types::id(),
@@ -42,7 +43,7 @@ class StoryType extends ObjectType
                     ],
                 ],
                 'likes' => [
-                    'type' => Types::listOf(Types::user()),
+                    'type' => new ListOfType(Types::user()),
                     'args' => [
                         'limit' => [
                             'type' => Types::int(),
@@ -51,8 +52,8 @@ class StoryType extends ObjectType
                         ],
                     ],
                 ],
-                'likedBy' => Types::listOf(Types::user()),
-                'affordances' => Types::listOf(Types::storyAffordances()),
+                'likedBy' => new ListOfType(Types::user()),
+                'affordances' => new ListOfType(Types::storyAffordances()),
                 'hasViewerLiked' => Types::boolean(),
 
                 'body' => HtmlField::build('body'),

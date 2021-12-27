@@ -1288,8 +1288,11 @@ class ExecutorTest extends TestCase
                         'type' => $ArrayAccess,
                         'resolve' => static function (): ArrayAccess {
                             return new class implements ArrayAccess {
+                                /**
+                                 * @param mixed $offset
+                                 */
                                 #[ReturnTypeWillChange]
-                                public function offsetExists($offset)
+                                public function offsetExists($offset): bool
                                 {
                                     switch ($offset) {
                                         case 'set':
@@ -1300,8 +1303,11 @@ class ExecutorTest extends TestCase
                                     }
                                 }
 
+                                /**
+                                 * @param mixed $offset
+                                 */
                                 #[ReturnTypeWillChange]
-                                public function offsetGet($offset)
+                                public function offsetGet($offset): ?int
                                 {
                                     switch ($offset) {
                                         case 'set':
@@ -1315,11 +1321,18 @@ class ExecutorTest extends TestCase
                                     }
                                 }
 
+                                /**
+                                 * @param mixed $offset
+                                 * @param mixed $value
+                                 */
                                 #[ReturnTypeWillChange]
                                 public function offsetSet($offset, $value): void
                                 {
                                 }
 
+                                /**
+                                 * @param mixed $offset
+                                 */
                                 #[ReturnTypeWillChange]
                                 public function offsetUnset($offset): void
                                 {
@@ -1331,11 +1344,9 @@ class ExecutorTest extends TestCase
                         'type' => $ObjectField,
                         'resolve' => static function (): stdClass {
                             return new class extends stdClass {
-                                /** @var int|null */
-                                public $set = 1;
+                                public ?int $set = 1;
 
-                                /** @var int|null */
-                                public $unset;
+                                public ?int $unset;
                             };
                         },
                     ],
@@ -1343,7 +1354,7 @@ class ExecutorTest extends TestCase
                         'type' => $ObjectVirtual,
                         'resolve' => static function (): object {
                             return new class {
-                                public function __isset($name): bool
+                                public function __isset(string $name): bool
                                 {
                                     switch ($name) {
                                         case 'set':
@@ -1354,7 +1365,7 @@ class ExecutorTest extends TestCase
                                     }
                                 }
 
-                                public function __get($name): ?int
+                                public function __get(string $name): ?int
                                 {
                                     switch ($name) {
                                         case 'set':

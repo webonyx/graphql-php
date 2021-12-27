@@ -10,53 +10,40 @@ use GraphQL\Language\Token;
 /**
  * Contains a range of UTF-8 character offsets and token references that
  * identify the region of the source from which the AST derived.
+ *
+ * @phpstan-type LocationArray array{start: int, end: int}
  */
 class Location
 {
     /**
      * The character offset at which this Node begins.
-     *
-     * @var int
      */
-    public $start;
+    public int $start;
 
     /**
      * The character offset at which this Node ends.
-     *
-     * @var int
      */
-    public $end;
+    public int $end;
 
     /**
      * The Token at which this Node begins.
-     *
-     * @var Token|null
      */
-    public $startToken;
+    public ?Token $startToken;
 
     /**
      * The Token at which this Node ends.
-     *
-     * @var Token|null
      */
-    public $endToken;
+    public ?Token $endToken;
 
     /**
      * The Source document the AST represents.
-     *
-     * @var Source|null
      */
-    public $source;
+    public ?Source $source;
 
-    /**
-     * @param int $start
-     * @param int $end
-     *
-     * @return static
-     */
-    public static function create($start, $end)
+    public static function create(int $start, int $end): self
     {
-        $tmp        = new static();
+        $tmp = new static();
+
         $tmp->start = $start;
         $tmp->end   = $end;
 
@@ -75,5 +62,16 @@ class Location
 
         $this->start = $startToken->start;
         $this->end   = $endToken->end;
+    }
+
+    /**
+     * @return LocationArray
+     */
+    public function toArray(): array
+    {
+        return [
+            'start' => $this->start,
+            'end'   => $this->end,
+        ];
     }
 }

@@ -1,6 +1,6 @@
 parameters:
     # TODO increase to max
-    level: 5
+    level: 6
 
     # TODO revert this setting once we arrived at level: max
     reportUnmatchedIgnoredErrors: false
@@ -23,9 +23,7 @@ parameters:
 
         # We utilize lazy initialization of non-nullable properties
         - "~Property .+? in isset\\(\\) is not nullable~"
-        - "~Static property .+? in isset\\(\\) is not nullable~"
         - "~Property .+? on left side of \\?\\?= is not nullable~"
-        - "~Static property .+? on left side of \\?\\?= is not nullable~"
 
         # Useful/necessary in the default field resolver, deals with arbitrary user data
         -

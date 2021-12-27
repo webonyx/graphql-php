@@ -11,6 +11,7 @@ use GraphQL\Error\Warning;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -26,14 +27,13 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
-use PHPUnit\Framework\TestCase;
 use TypeError;
 
 use function array_map;
 use function array_merge;
 use function ucfirst;
 
-class ValidationTest extends TestCase
+class ValidationTest extends TestCaseBase
 {
     public ScalarType $SomeScalarType;
 
@@ -592,7 +592,6 @@ class ValidationTest extends TestCase
      */
     public function testAcceptsShorthandNotationForFields(): void
     {
-        $this->expectNotToPerformAssertions();
         $schema = $this->schemaWithFieldType(
             new ObjectType([
                 'name'   => 'SomeObject',
@@ -602,6 +601,7 @@ class ValidationTest extends TestCase
             ])
         );
         $schema->assertValid();
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1150,7 +1150,7 @@ class ValidationTest extends TestCase
     /**
      * DESCRIBE: Type System: Objects can only implement unique interfaces
      */
-    private function schemaWithObjectFieldOfType($fieldType): Schema
+    private function schemaWithObjectFieldOfType(Type $fieldType): Schema
     {
         $BadObjectType = new ObjectType([
             'name'   => 'BadObject',
@@ -1277,7 +1277,6 @@ class ValidationTest extends TestCase
      */
     public function testRejectsAnObjectImplementingTheSameInterfaceTwiceDueToExtension(): void
     {
-        $this->expectNotToPerformAssertions();
         self::markTestIncomplete('extend does not work this way (yet).');
         $schema = BuildSchema::build('
       type Query {
@@ -1466,7 +1465,7 @@ class ValidationTest extends TestCase
         }
     }
 
-    private function schemaWithInterfaceFieldOfType($fieldType): Schema
+    private function schemaWithInterfaceFieldOfType(Type $fieldType): Schema
     {
         $BadInterfaceType = new InterfaceType([
             'name'   => 'BadInterface',
@@ -1582,7 +1581,7 @@ class ValidationTest extends TestCase
         }
     }
 
-    private function schemaWithArgOfType($argType): Schema
+    private function schemaWithArgOfType(Type $argType): Schema
     {
         $BadObjectType = new ObjectType([
             'name'   => 'BadObject',
@@ -1661,7 +1660,7 @@ class ValidationTest extends TestCase
         }
     }
 
-    private function schemaWithInputFieldOfType($inputFieldType)
+    private function schemaWithInputFieldOfType(Type $inputFieldType): Schema
     {
         $badInputObjectType = new InputObjectType([
             'name'   => 'BadInputObject',

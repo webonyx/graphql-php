@@ -33,7 +33,10 @@ class ValuesTest extends TestCase
         );
     }
 
-    private function expectInputVariablesMatchOutputVariables($variables): void
+    /**
+     * @param array<string, mixed> $variables
+     */
+    private function expectInputVariablesMatchOutputVariables(array $variables): void
     {
         self::assertEquals(
             $variables,
@@ -73,6 +76,9 @@ class ValuesTest extends TestCase
         ]);
     }
 
+    /**
+     * @return NodeList<VariableDefinitionNode>
+     */
     private static function getVariableDefinitionNodes(): NodeList
     {
         $idInputDefinition     = new VariableDefinitionNode([
@@ -140,7 +146,10 @@ class ValuesTest extends TestCase
         $this->expectGraphQLError(['idInput' => true]);
     }
 
-    private function expectGraphQLError($variables): void
+    /**
+     * @param array<string, mixed> $variables
+     */
+    private function expectGraphQLError(array $variables): void
     {
         $result = $this->runTestCase($variables);
         self::assertNotNull($result[0]);

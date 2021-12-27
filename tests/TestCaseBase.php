@@ -10,6 +10,10 @@ abstract class TestCaseBase extends TestCase
 {
     /**
      * Useful to test code with no observable behaviour other than not crashing.
+     *
+     * In contrast to PHPUnit's native method, this lets the test case count towards coverage.
+     *
+     * @see TestCase::expectNotToPerformAssertions()
      */
     public static function assertDidNotCrash(): void
     {

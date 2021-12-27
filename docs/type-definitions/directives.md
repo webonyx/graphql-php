@@ -38,7 +38,6 @@ In **graphql-php** custom directive is an instance of `GraphQL\Type\Definition\D
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\FieldArgument;
 
 $trackDirective = new Directive([
     'name' => 'track',
@@ -47,12 +46,11 @@ $trackDirective = new Directive([
         DirectiveLocation::FIELD,
     ],
     'args' => [
-        new FieldArgument([
-            'name' => 'details',
+        'details' => [
             'type' => Type::string(),
             'description' => 'String with additional details of field usage scenario',
             'defaultValue' => ''
-        ])
+        ]
     ]
 ]);
 ```

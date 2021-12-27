@@ -135,7 +135,7 @@ class KnownDirectives extends ValidationRule
     }
 
     /**
-     * @param array<Node|NodeList<Node>> $ancestors
+     * @param array<Node|NodeList> $ancestors
      */
     protected function getDirectiveLocationForASTPath(array $ancestors): string
     {

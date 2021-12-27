@@ -8,7 +8,6 @@ use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
@@ -18,13 +17,14 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Utils\Utils;
-use PHPUnit\Framework\TestCase;
 
 use function file_get_contents;
+use function is_array;
 use function sprintf;
 
-class ParserTest extends TestCase
+class ParserTest extends TestCaseBase
 {
     /**
      * @return array<int, array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}>
@@ -72,14 +72,17 @@ fragment MissingOn Type
     /**
      * @see          it('parse provides useful errors')
      *
+     * @param list<int>            $expectedPositions
+     * @param list<SourceLocation> $expectedLocations
+     *
      * @dataProvider parseProvidesUsefulErrors
      */
     public function testParseProvidesUsefulErrors(
-        $str,
-        $expectedMessage,
-        $stringRepresentation,
-        $expectedPositions = null,
-        $expectedLocations = null
+        string $str,
+        string $expectedMessage,
+        string $stringRepresentation,
+        ?array $expectedPositions = null,
+        ?array $expectedLocations = null
     ): void {
         try {
             Parser::parse($str);
@@ -88,11 +91,11 @@ fragment MissingOn Type
             self::assertEquals($expectedMessage, $e->getMessage());
             self::assertEquals($stringRepresentation, (string) $e);
 
-            if ($expectedPositions) {
+            if (is_array($expectedPositions)) {
                 self::assertEquals($expectedPositions, $e->getPositions());
             }
 
-            if ($expectedLocations) {
+            if (is_array($expectedLocations)) {
                 self::assertEquals($expectedLocations, $e->getLocations());
             }
         }
@@ -119,9 +122,8 @@ fragment MissingOn Type
      */
     public function testParsesVariableInlineValues(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Following line should not throw:
         Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
+        self::assertDidNotCrash();
     }
 
     /**
@@ -141,11 +143,11 @@ fragment MissingOn Type
      */
     public function testParsesVariableDefinitionDirectives(): void
     {
-        $this->expectNotToPerformAssertions();
         Parser::parse('query Foo($x: Boolean = false @bar) { field }');
+        self::assertDidNotCrash();
     }
 
-    private function expectSyntaxError($text, $message, $location): void
+    private function expectSyntaxError(string $text, string $message, SourceLocation $location): void
     {
         $this->expectException(SyntaxError::class);
         $this->expectExceptionMessage($message);
@@ -158,7 +160,7 @@ fragment MissingOn Type
         }
     }
 
-    private function loc($line, $column)
+    private function loc(int $line, int $column): SourceLocation
     {
         return new SourceLocation($line, $column);
     }
@@ -278,13 +280,12 @@ GRAPHQL
      */
     public function testParsessAnonymousMutationOperations(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         Parser::parse('
           mutation {
             mutationField
           }
         ');
+        self::assertDidNotCrash();
     }
 
     /**
@@ -292,13 +293,12 @@ GRAPHQL
      */
     public function testParsesAnonymousSubscriptionOperations(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         Parser::parse('
           subscription {
             subscriptionField
           }
         ');
+        self::assertDidNotCrash();
     }
 
     /**
@@ -306,13 +306,12 @@ GRAPHQL
      */
     public function testParsesNamedMutationOperations(): void
     {
-        $this->expectNotToPerformAssertions();
-        // Should not throw:
         Parser::parse('
           mutation Foo {
             mutationField
           }
         ');
+        self::assertDidNotCrash();
     }
 
     /**
@@ -320,12 +319,12 @@ GRAPHQL
      */
     public function testParsesNamedSubscriptionOperations(): void
     {
-        $this->expectNotToPerformAssertions();
         Parser::parse('
           subscription Foo {
             subscriptionField
           }
         ');
+        self::assertDidNotCrash();
     }
 
     /**
@@ -357,7 +356,7 @@ GRAPHQL
                     'kind'                => NodeKind::OPERATION_DEFINITION,
                     'loc'                 => $loc(0, 40),
                     'operation'           => 'query',
-                    'name'                => null,
+                    // 'name'                => undefined,
                     'variableDefinitions' => [],
                     'directives'          => [],
                     'selectionSet'        => [
@@ -367,7 +366,7 @@ GRAPHQL
                             [
                                 'kind'         => NodeKind::FIELD,
                                 'loc'          => $loc(4, 38),
-                                'alias'        => null,
+                                // 'alias'        => undefined,
                                 'name'         => [
                                     'kind'  => NodeKind::NAME,
                                     'loc'   => $loc(4, 8),
@@ -397,7 +396,7 @@ GRAPHQL
                                         [
                                             'kind'         => NodeKind::FIELD,
                                             'loc'          => $loc(22, 24),
-                                            'alias'        => null,
+                                            // 'alias'        => undefined,
                                             'name'         => [
                                                 'kind'  => NodeKind::NAME,
                                                 'loc'   => $loc(22, 24),
@@ -405,12 +404,12 @@ GRAPHQL
                                             ],
                                             'arguments'    => [],
                                             'directives'   => [],
-                                            'selectionSet' => null,
+                                            // 'selectionSet' => undefined,
                                         ],
                                         [
                                             'kind'         => NodeKind::FIELD,
                                             'loc'          => $loc(30, 34),
-                                            'alias'        => null,
+                                            // 'alias'        => undefined,
                                             'name'         => [
                                                 'kind'  => NodeKind::NAME,
                                                 'loc'   => $loc(30, 34),
@@ -418,7 +417,7 @@ GRAPHQL
                                             ],
                                             'arguments'    => [],
                                             'directives'   => [],
-                                            'selectionSet' => null,
+                                            // 'selectionSet' => undefined,
                                         ],
                                     ],
                                 ],
@@ -429,15 +428,7 @@ GRAPHQL
             ],
         ];
 
-        self::assertEquals($expected, self::nodeToArray($result));
-    }
-
-    /**
-     * @return mixed[]
-     */
-    public static function nodeToArray(Node $node): array
-    {
-        return TestUtils::nodeToArray($node);
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -468,7 +459,7 @@ GRAPHQL
                     'kind'                => NodeKind::OPERATION_DEFINITION,
                     'loc'                 => $loc(0, 29),
                     'operation'           => 'query',
-                    'name'                => null,
+                    // 'name'                => undefined,
                     'variableDefinitions' => [],
                     'directives'          => [],
                     'selectionSet'        => [
@@ -478,7 +469,7 @@ GRAPHQL
                             [
                                 'kind'         => NodeKind::FIELD,
                                 'loc'          => $loc(10, 27),
-                                'alias'        => null,
+                                // 'alias'        => undefined,
                                 'name'         => [
                                     'kind'  => NodeKind::NAME,
                                     'loc'   => $loc(10, 14),
@@ -493,7 +484,7 @@ GRAPHQL
                                         [
                                             'kind'         => NodeKind::FIELD,
                                             'loc'          => $loc(21, 23),
-                                            'alias'        => null,
+                                            // 'alias'        => undefined,
                                             'name'         => [
                                                 'kind'  => NodeKind::NAME,
                                                 'loc'   => $loc(21, 23),
@@ -501,7 +492,7 @@ GRAPHQL
                                             ],
                                             'arguments'    => [],
                                             'directives'   => [],
-                                            'selectionSet' => null,
+                                            // 'selectionSet' => undefined,
                                         ],
                                     ],
                                 ],
@@ -512,7 +503,7 @@ GRAPHQL
             ],
         ];
 
-        self::assertEquals($expected, self::nodeToArray($result));
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -548,7 +539,7 @@ GRAPHQL
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
-        self::assertEquals(['start' => 0, 'end' => '6'], TestUtils::locationToArray($result->loc));
+        self::assertEquals(['start' => 0, 'end' => '6'], $result->loc->toArray());
     }
 
     /**
@@ -584,7 +575,7 @@ GRAPHQL
                 'kind' => NodeKind::NULL,
                 'loc'  => ['start' => 0, 'end' => 4],
             ],
-            self::nodeToArray(Parser::parseValue('null'))
+            Parser::parseValue('null')->toArray()
         );
     }
 
@@ -611,7 +602,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            self::nodeToArray(Parser::parseValue('[123 "abc"]'))
+            Parser::parseValue('[123 "abc"]')->toArray()
         );
     }
 
@@ -630,7 +621,7 @@ GRAPHQL
                     'value' => 'String',
                 ],
             ],
-            self::nodeToArray(Parser::parseType('String'))
+            Parser::parseType('String')->toArray()
         );
     }
 
@@ -649,7 +640,7 @@ GRAPHQL
                     'value' => 'MyType',
                 ],
             ],
-            self::nodeToArray(Parser::parseType('MyType'))
+            Parser::parseType('MyType')->toArray()
         );
     }
 
@@ -672,7 +663,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            self::nodeToArray(Parser::parseType('[MyType]'))
+            Parser::parseType('[MyType]')->toArray()
         );
     }
 
@@ -695,7 +686,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            self::nodeToArray(Parser::parseType('MyType!'))
+            Parser::parseType('MyType!')->toArray()
         );
     }
 
@@ -722,7 +713,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            self::nodeToArray(Parser::parseType('[MyType!]'))
+            Parser::parseType('[MyType!]')->toArray()
         );
     }
 

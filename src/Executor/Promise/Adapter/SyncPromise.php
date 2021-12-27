@@ -30,8 +30,6 @@ class SyncPromise
     public const FULFILLED = 'fulfilled';
     public const REJECTED  = 'rejected';
 
-    public static SplQueue $queue;
-
     public string $state = self::PENDING;
 
     /** @var mixed */
@@ -61,7 +59,7 @@ class SyncPromise
     }
 
     /**
-     * @param callable() : mixed $executor
+     * @param (callable(): mixed)|null $executor
      */
     public function __construct(?callable $executor = null)
     {
@@ -78,6 +76,9 @@ class SyncPromise
         });
     }
 
+    /**
+     * @param mixed $value
+     */
     public function resolve($value): self
     {
         switch ($this->state) {
@@ -172,9 +173,14 @@ class SyncPromise
         $this->waiting = [];
     }
 
+    /**
+     * @return SplQueue<callable(): void>
+     */
     public static function getQueue(): SplQueue
     {
-        return self::$queue ??= new SplQueue();
+        static $queue;
+
+        return $queue ??= new SplQueue();
     }
 
     /**

@@ -68,12 +68,9 @@ class Token
      */
     public ?Token $prev;
 
-    public ?Token $next;
+    public ?Token $next = null;
 
-    /**
-     * @param mixed $value
-     */
-    public function __construct(string $kind, int $start, int $end, int $line, int $column, ?Token $previous = null, $value = null)
+    public function __construct(string $kind, int $start, int $end, int $line, int $column, ?Token $previous = null, ?string $value = null)
     {
         $this->kind   = $kind;
         $this->start  = $start;
@@ -81,17 +78,24 @@ class Token
         $this->line   = $line;
         $this->column = $column;
         $this->prev   = $previous;
-        $this->next   = null;
         $this->value  = $value;
     }
 
     public function getDescription(): string
     {
-        return $this->kind . ($this->value === null ? '' : ' "' . $this->value . '"');
+        return $this->kind
+            . ($this->value === null
+                ? ''
+                : ' "' . $this->value . '"');
     }
 
     /**
-     * @return (string|int|null)[]
+     * @return array{
+     *   kind: string,
+     *   value: string|null,
+     *   line: int,
+     *   column: int,
+     * }
      */
     public function toArray(): array
     {

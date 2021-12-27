@@ -11,8 +11,8 @@ use stdClass;
 
 class MixedStoreTest extends TestCase
 {
-    /** @var MixedStore */
-    private $mixedStore;
+    /** @var MixedStore<mixed> */
+    private MixedStore $mixedStore;
 
     public function setUp(): void
     {
@@ -21,13 +21,19 @@ class MixedStoreTest extends TestCase
 
     public function testAcceptsNullKeys(): void
     {
-        foreach ($this->getPossibleValues() as $value) {
+        foreach ($this->possibleValues() as $value) {
             $this->assertAcceptsKeyValue(null, $value);
         }
     }
 
-    public function getPossibleValues()
+    /**
+     * @return array<int, mixed>
+     */
+    public function possibleValues(): array
     {
+        /** @var MixedStore<mixed> $mixedStore */
+        $mixedStore = new MixedStore();
+
         return [
             null,
             false,
@@ -40,24 +46,36 @@ class MixedStoreTest extends TestCase
             new stdClass(),
             static function (): void {
             },
-            new MixedStore(),
+            $mixedStore,
         ];
     }
 
+    /**
+     * @param mixed $key   anything goes
+     * @param mixed $value anything goes
+     */
     private function assertAcceptsKeyValue($key, $value): void
     {
-        $err = 'Failed assertion that MixedStore accepts key ' .
-            Utils::printSafe($key) . ' with value ' . Utils::printSafe($value);
+        $safeKey   = Utils::printSafe($key);
+        $safeValue = Utils::printSafe($value);
+        $message   = "Failed assertion that MixedStore accepts key {$safeKey} with value {$safeValue}";
 
-        self::assertFalse($this->mixedStore->offsetExists($key), $err);
+        self::assertFalse($this->mixedStore->offsetExists($key), $message);
+
         $this->mixedStore->offsetSet($key, $value);
-        self::assertTrue($this->mixedStore->offsetExists($key), $err);
-        self::assertSame($value, $this->mixedStore->offsetGet($key), $err);
+        self::assertTrue($this->mixedStore->offsetExists($key), $message);
+        self::assertSame($value, $this->mixedStore->offsetGet($key), $message);
+
         $this->mixedStore->offsetUnset($key);
-        self::assertFalse($this->mixedStore->offsetExists($key), $err);
+        self::assertFalse($this->mixedStore->offsetExists($key), $message);
+
         $this->assertProvidesArrayAccess($key, $value);
     }
 
+    /**
+     * @param mixed $key   anything goes
+     * @param mixed $value anything goes
+     */
     private function assertProvidesArrayAccess($key, $value): void
     {
         $err = 'Failed assertion that MixedStore provides array access for key ' .
@@ -74,18 +92,18 @@ class MixedStoreTest extends TestCase
 
     public function testAcceptsBoolKeys(): void
     {
-        foreach ($this->getPossibleValues() as $value) {
+        foreach ($this->possibleValues() as $value) {
             $this->assertAcceptsKeyValue(false, $value);
         }
 
-        foreach ($this->getPossibleValues() as $value) {
+        foreach ($this->possibleValues() as $value) {
             $this->assertAcceptsKeyValue(true, $value);
         }
     }
 
     public function testAcceptsIntKeys(): void
     {
-        foreach ($this->getPossibleValues() as $value) {
+        foreach ($this->possibleValues() as $value) {
             $this->assertAcceptsKeyValue(-100000, $value);
             $this->assertAcceptsKeyValue(-1, $value);
             $this->assertAcceptsKeyValue(0, $value);
@@ -96,7 +114,7 @@ class MixedStoreTest extends TestCase
 
     public function testAcceptsFloatKeys(): void
     {
-        foreach ($this->getPossibleValues() as $value) {
+        foreach ($this->possibleValues() as $value) {
             $this->assertAcceptsKeyValue(-100000.5, $value);
             $this->assertAcceptsKeyValue(-1.6, $value);
             $this->assertAcceptsKeyValue(-0.0001, $value);
@@ -109,7 +127,7 @@ class MixedStoreTest extends TestCase
 
     public function testAcceptsArrayKeys(): void
     {
-        foreach ($this->getPossibleValues() as $value) {
+        foreach ($this->possibleValues() as $value) {
             $this->assertAcceptsKeyValue([], $value);
             $this->assertAcceptsKeyValue([null], $value);
             $this->assertAcceptsKeyValue([[]], $value);
@@ -121,7 +139,7 @@ class MixedStoreTest extends TestCase
 
     public function testAcceptsObjectKeys(): void
     {
-        foreach ($this->getPossibleValues() as $value) {
+        foreach ($this->possibleValues() as $value) {
             $this->assertAcceptsKeyValue(new stdClass(), $value);
             $this->assertAcceptsKeyValue(new MixedStore(), $value);
             $this->assertAcceptsKeyValue(

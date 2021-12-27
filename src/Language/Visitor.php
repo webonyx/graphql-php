@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Language;
 
-use ArrayObject;
 use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
 use SplFixedArray;
-use stdClass;
 
 use function array_pop;
 use function count;
@@ -172,14 +170,15 @@ class Visitor
     /**
      * Visit the AST (see class description for details).
      *
-     * @param NodeList|Node|ArrayObject|stdClass $root
-     * @param VisitorArray                       $visitor
-     * @param array<string, mixed>|null          $keyMap
+     * @param NodeList<TNode>|Node      $root
+     * @param VisitorArray              $visitor
+     * @param array<string, mixed>|null $keyMap
      *
      * @return Node|mixed
      *
      * @throws Exception
      *
+     * @template TNode of Node
      * @api
      */
     public static function visit(object $root, array $visitor, ?array $keyMap = null)
@@ -501,6 +500,8 @@ class Visitor
     }
 
     /**
+     * @phpstan-param VisitorArray $visitor
+     *
      * @return callable(Node $node, string $key, Node|NodeList $parent, array<int, int|string $path, array<int, Node|NodeList> $ancestors): VisitorOperation|Node|null
      */
     public static function getVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable

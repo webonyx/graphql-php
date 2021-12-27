@@ -66,6 +66,11 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
+			message: "#^Unable to resolve the template type TCloneable in call to method static method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\)$#"
+			count: 1
+			path: src/Language/AST/Node.php
+
+		-
 			message: "#^Variable property access on TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
@@ -74,6 +79,21 @@ parameters:
 			message: "#^Array \\(array\\<array\\<string, mixed\\>\\|T of GraphQL\\\\Language\\\\AST\\\\Node\\>\\) does not accept GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 2
 			path: src/Language/AST/NodeList.php
+
+		-
+			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printList\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\DefinitionNode&GraphQL\\\\Language\\\\AST\\\\Node\\> given\\.$#"
+			count: 1
+			path: src/Language/Printer.php
+
+		-
+			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printList\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node&GraphQL\\\\Language\\\\AST\\\\ValueNode\\> given\\.$#"
+			count: 1
+			path: src/Language/Printer.php
+
+		-
+			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printListBlock\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node&GraphQL\\\\Language\\\\AST\\\\SelectionNode\\> given\\.$#"
+			count: 1
+			path: src/Language/Printer.php
 
 		-
 			message: "#^Strict comparison using \\=\\=\\= between mixed and null will always evaluate to false\\.$#"
@@ -106,6 +126,11 @@ parameters:
 			path: src/Type/Schema.php
 
 		-
+			message: "#^Generator expects value type GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Type\\\\Definition\\\\Type given\\.$#"
+			count: 1
+			path: src/Type/Schema.php
+
+		-
 			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:getType\\(\\) should return \\(GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
 			count: 1
 			path: src/Type/Schema.php
@@ -126,19 +151,39 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\CustomScalarType constructor expects array\\{name\\?\\: string\\|null, description\\?\\: string\\|null, serialize\\: callable\\(mixed\\)\\: mixed, parseValue\\?\\: callable\\(mixed\\)\\: mixed, parseLiteral\\?\\: callable\\(GraphQL\\\\Language\\\\AST\\\\Node, array\\|null\\)\\: mixed, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|null, extensionASTNodes\\?\\: array\\<GraphQL\\\\Language\\\\AST\\\\ScalarTypeExtensionNode\\>\\|null\\}, array\\{name\\: string, description\\: string\\|null, serialize\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'serialize'\\}, parseValue\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'parseValue'\\}, parseLiteral\\: array\\{GraphQL\\\\Type\\\\Definition\\\\ScalarType, 'parseLiteral'\\}, astNode\\: GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|null, extensionASTNodes\\: array\\<GraphQL\\\\Language\\\\AST\\\\TypeExtensionNode\\>\\|null\\} given\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
-
-		-
 			message: "#^Variable property access on object\\.$#"
 			count: 1
 			path: src/Utils/Utils.php
 
 		-
+			message: "#^Method GraphQL\\\\Validator\\\\Rules\\\\KnownDirectives\\:\\:getDirectiveLocationForASTPath\\(\\) has parameter \\$ancestors with generic class GraphQL\\\\Language\\\\AST\\\\NodeList but does not specify its types\\: T$#"
+			count: 1
+			path: src/Validator/Rules/KnownDirectives.php
+
+		-
 			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\}\\> does not accept array\\<int, mixed\\>\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) with int\\|string and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
+			count: 1
+			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Instanceof between mixed and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
+			count: 1
+			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Method GraphQL\\\\Tests\\\\Language\\\\VisitorTest\\:\\:getNodeByPath\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
+			count: 1
+			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Variable property access on mixed\\.$#"
+			count: 2
+			path: tests/Language/VisitorTest.php
 
 		-
 			message: "#^Property GraphQL\\\\Tests\\\\Type\\\\SchemaTest\\:\\:\\$implementingType is never read, only written\\.$#"

@@ -42,7 +42,7 @@ class AmpPromiseAdapter implements PromiseAdapter
             }
         };
 
-        /** @var AmpPromise $adoptedPromise */
+        /** @var AmpPromise<mixed> $adoptedPromise */
         $adoptedPromise = $promise->adoptedPromise;
         $adoptedPromise->onResolve($onResolve);
 
@@ -81,7 +81,7 @@ class AmpPromiseAdapter implements PromiseAdapter
 
     public function all(array $promisesOrValues): Promise
     {
-        /** @var AmpPromise[] $promises */
+        /** @var array<AmpPromise<mixed>> $promises */
         $promises = [];
         foreach ($promisesOrValues as $key => $item) {
             if ($item instanceof Promise) {
@@ -108,6 +108,14 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($deferred->promise(), $this);
     }
 
+    /**
+     * @param Deferred<TResult>            $deferred
+     * @param callable(TArgument): TResult $callback
+     * @param TArgument                    $argument
+     *
+     * @template TArgument
+     * @template TResult
+     */
     private static function resolveWithCallable(Deferred $deferred, callable $callback, $argument): void
     {
         try {

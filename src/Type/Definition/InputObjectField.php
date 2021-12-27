@@ -12,11 +12,20 @@ use GraphQL\Utils\Utils;
 use function array_key_exists;
 
 /**
+ * @phpstan-import-type InputTypeAlias from InputType
+ * @phpstan-type ArgumentType (Type&InputType)|callable(): (Type&InputType)
  * @phpstan-type InputObjectFieldConfig array{
  *   name: string,
  *   defaultValue?: mixed,
  *   description?: string|null,
- *   type: (Type&InputType)|callable(): (Type&InputType),
+ *   type: ArgumentType,
+ *   astNode?: InputValueDefinitionNode|null,
+ * }
+ * @phpstan-type UnnamedInputObjectFieldConfig array{
+ *   name?: string,
+ *   defaultValue?: mixed,
+ *   description?: string|null,
+ *   type: ArgumentType,
  *   astNode?: InputValueDefinitionNode|null,
  * }
  */
@@ -53,16 +62,13 @@ class InputObjectField
 
     /**
      * @return Type&InputType
+     * @phpstan-return InputTypeAlias
      */
     public function getType(): Type
     {
         if (! isset($this->type)) {
-            /**
-             * @see it('rejects an Input Object type with incorrectly typed fields')
-             */
-
-             // @phpstan-ignore-next-line schema validation will catch a Type that is not an InputType
-            return $this->type = Schema::resolveType($this->config['type']);
+            // @phpstan-ignore-next-line schema validation will catch a Type that is not an InputType
+            $this->type = Schema::resolveType($this->config['type']);
         }
 
         return $this->type;
