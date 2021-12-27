@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\Language\AST\IntValueNode;
 use function array_filter;
 use function array_map;
 use function array_merge;
@@ -15,6 +14,7 @@ use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\DirectiveLocation;

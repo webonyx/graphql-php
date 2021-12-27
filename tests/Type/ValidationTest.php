@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
-use GraphQL\Type\Definition\NullableType;
 use function array_map;
 use function array_merge;
 use Closure;
@@ -22,6 +21,7 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
@@ -822,7 +822,7 @@ class ValidationTest extends TestCaseBase
                 // @phpstan-ignore-next-line intentionally wrong
                 new UnionType([
                     'name' => 'BadUnion',
-                    'types' => [$memberType]
+                    'types' => [$memberType],
                 ])
             );
             $this->assertMatchesValidationMessage(
@@ -1674,7 +1674,7 @@ class ValidationTest extends TestCaseBase
             'name' => 'BadInputObject',
             'fields' => [
                 'badField' => [
-                    'type' => $inputFieldType
+                    'type' => $inputFieldType,
                 ],
             ],
         ]);
