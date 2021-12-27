@@ -256,7 +256,7 @@ class Parser
      *
      * @phpstan-param array{string, ParserOptions} $arguments
      *
-     * @return Node|NodeList
+     * @return Node|NodeList<Node>
      *
      * @throws SyntaxError
      */
@@ -427,6 +427,8 @@ class Parser
      * and ends with a lex token of closeKind. Advances the parser
      * to the next lex token after the closing token.
      *
+     * @return NodeList<Node>
+     *
      * @throws SyntaxError
      */
     private function any(string $openKind, callable $parseFn, string $closeKind): NodeList
@@ -446,6 +448,10 @@ class Parser
      * the parseFn. This list begins with a lex token of openKind
      * and ends with a lex token of closeKind. Advances the parser
      * to the next lex token after the closing token.
+     *
+     * @template TNode of Node
+     * @param callable(self): TNode $parseFn
+     * @return NodeList<TNode>
      *
      * @throws SyntaxError
      */
@@ -488,9 +494,7 @@ class Parser
         return new DocumentNode([
             'definitions' => $this->many(
                 Token::SOF,
-                function () {
-                    return $this->parseDefinition();
-                },
+                fn(): DefinitionNode => $this->parseDefinition(),
                 Token::EOF
             ),
             'loc'         => $this->loc($start),
@@ -498,7 +502,7 @@ class Parser
     }
 
     /**
-     * @return ExecutableDefinitionNode|TypeSystemDefinitionNode
+     * @return DefinitionNode&Node
      *
      * @throws SyntaxError
      */
@@ -536,6 +540,8 @@ class Parser
     }
 
     /**
+     * @return ExecutableDefinitionNode&Node
+     *
      * @throws SyntaxError
      */
     private function parseExecutableDefinition(): ExecutableDefinitionNode
@@ -560,6 +566,8 @@ class Parser
     // Implements the parsing rules in the Operations section.
 
     /**
+     * @return OperationDefinitionNode&Node
+     *
      * @throws SyntaxError
      */
     private function parseOperationDefinition(): OperationDefinitionNode
@@ -613,14 +621,15 @@ class Parser
         throw $this->unexpected($operationToken);
     }
 
+    /**
+     * @return NodeList<VariableDefinitionNode>
+     */
     private function parseVariableDefinitions(): NodeList
     {
         return $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
-                function (): VariableDefinitionNode {
-                    return $this->parseVariableDefinition();
-                },
+                fn(): VariableDefinitionNode => $this->parseVariableDefinition(),
                 Token::PAREN_R
             )
             : new NodeList([]);
@@ -670,9 +679,7 @@ class Parser
             [
                 'selections' => $this->many(
                     Token::BRACE_L,
-                    function (): SelectionNode {
-                        return $this->parseSelection();
-                    },
+                    fn(): SelectionNode => $this->parseSelection(),
                     Token::BRACE_R
                 ),
                 'loc'        => $this->loc($start),
@@ -681,10 +688,7 @@ class Parser
     }
 
     /**
-     *  Selection :
-     *   - Field
-     *   - FragmentSpread
-     *   - InlineFragment
+     * @return SelectionNode&Node
      */
     private function parseSelection(): SelectionNode
     {
@@ -721,16 +725,14 @@ class Parser
 
     /**
      * @throws SyntaxError
+     *
+     * @return NodeList<ArgumentNode>
      */
     private function parseArguments(bool $isConst): NodeList
     {
         $parseFn = $isConst
-            ? function (): ArgumentNode {
-                return $this->parseConstArgument();
-            }
-            : function (): ArgumentNode {
-                return $this->parseArgument();
-            };
+            ? fn(): ArgumentNode => $this->parseConstArgument()
+            : fn(): ArgumentNode => $this->parseArgument();
 
         return $this->peek(Token::PAREN_L)
             ? $this->many(Token::PAREN_L, $parseFn, Token::PAREN_R)
@@ -1015,6 +1017,8 @@ class Parser
 
     /**
      * @throws SyntaxError
+     *
+     * @return NodeList<DirectiveNode>
      */
     private function parseDirectives(bool $isConst): NodeList
     {
@@ -1088,19 +1092,7 @@ class Parser
     // Implements the parsing rules in the Type Definition section.
 
     /**
-     * TypeSystemDefinition :
-     *   - SchemaDefinition
-     *   - TypeDefinition
-     *   - TypeExtension
-     *   - DirectiveDefinition
-     *
-     * TypeDefinition :
-     *   - ScalarTypeDefinition
-     *   - ObjectTypeDefinition
-     *   - InterfaceTypeDefinition
-     *   - UnionTypeDefinition
-     *   - EnumTypeDefinition
-     *   - InputObjectTypeDefinition
+     * @return TypeSystemDefinitionNode&Node
      *
      * @throws SyntaxError
      */
@@ -1243,9 +1235,7 @@ class Parser
     }
 
     /**
-     * ImplementsInterfaces :
-     *   - implements `&`? NamedType
-     *   - ImplementsInterfaces & NamedType
+     * @return NodeList<NamedTypeNode>
      */
     private function parseImplementsInterfaces(): NodeList
     {
@@ -1266,6 +1256,8 @@ class Parser
     }
 
     /**
+     * @return NodeList<FieldDefinitionNode>
+     *
      * @throws SyntaxError
      */
     private function parseFieldsDefinition(): NodeList
@@ -1279,16 +1271,14 @@ class Parser
             $this->lexer->advance();
             $this->lexer->advance();
 
-            /** @phpstan-var NodeList<FieldDefinitionNode&Node> $nodeList */
+            /** @phpstan-var NodeList<FieldDefinitionNode> $nodeList */
             $nodeList = new NodeList([]);
         } else {
-            /** @phpstan-var NodeList<FieldDefinitionNode&Node> $nodeList */
+            /** @phpstan-var NodeList<FieldDefinitionNode> $nodeList */
             $nodeList = $this->peek(Token::BRACE_L)
                 ? $this->many(
                     Token::BRACE_L,
-                    function (): FieldDefinitionNode {
-                        return $this->parseFieldDefinition();
-                    },
+                    fn(): FieldDefinitionNode => $this->parseFieldDefinition(),
                     Token::BRACE_R
                 )
                 : new NodeList([]);
@@ -1321,17 +1311,16 @@ class Parser
     }
 
     /**
+     * @return NodeList<InputValueDefinitionNode>
      * @throws SyntaxError
      */
     private function parseArgumentsDefinition(): NodeList
     {
-        /** @var NodeList<InputValueDefinitionNode&Node> $nodeList */
+        /** @var NodeList<InputValueDefinitionNode> $nodeList */
         $nodeList = $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
-                function (): InputValueDefinitionNode {
-                    return $this->parseInputValueDefinition();
-                },
+                fn(): InputValueDefinitionNode => $this->parseInputValueDefinition(),
                 Token::PAREN_R
             )
             : new NodeList([]);
@@ -1414,9 +1403,7 @@ class Parser
     }
 
     /**
-     * UnionMemberTypes :
-     *   - = `|`? NamedType
-     *   - UnionMemberTypes | NamedType
+     * @return NodeList<NamedTypeNode>
      */
     private function parseUnionMemberTypes(): NodeList
     {
@@ -1455,16 +1442,16 @@ class Parser
 
     /**
      * @throws SyntaxError
+     *
+     * @return NodeList<EnumValueDefinitionNode>
      */
     private function parseEnumValuesDefinition(): NodeList
     {
-        /** @var NodeList<EnumValueDefinitionNode&Node> $nodeList */
+        /** @var NodeList<EnumValueDefinitionNode> $nodeList */
         $nodeList = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                function (): EnumValueDefinitionNode {
-                    return $this->parseEnumValueDefinition();
-                },
+                fn(): EnumValueDefinitionNode => $this->parseEnumValueDefinition(),
                 Token::BRACE_R
             )
             : new NodeList([]);
@@ -1513,10 +1500,12 @@ class Parser
 
     /**
      * @throws SyntaxError
+     *
+     * @return NodeList<InputValueDefinitionNode>
      */
     private function parseInputFieldsDefinition(): NodeList
     {
-        /** @var NodeList<InputValueDefinitionNode&Node> $nodeList */
+        /** @var NodeList<InputValueDefinitionNode> $nodeList */
         $nodeList = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
@@ -1531,13 +1520,7 @@ class Parser
     }
 
     /**
-     * TypeExtension :
-     *   - ScalarTypeExtension
-     *   - ObjectTypeExtension
-     *   - InterfaceTypeExtension
-     *   - UnionTypeExtension
-     *   - EnumTypeExtension
-     *   - InputObjectTypeDefinition
+     * @return TypeExtensionNode&Node
      *
      * @throws SyntaxError
      */
@@ -1582,10 +1565,11 @@ class Parser
         $this->expectKeyword('extend');
         $this->expectKeyword('schema');
         $directives     = $this->parseDirectives(true);
+
         $operationTypes = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                [$this, 'parseOperationTypeDefinition'],
+                fn(): OperationTypeDefinitionNode => $this->parseOperationTypeDefinition(),
                 Token::BRACE_R
             )
             : new NodeList([]);
@@ -1789,6 +1773,7 @@ class Parser
 
     /**
      * @throws SyntaxError
+     * @return NodeList<NameNode>
      */
     private function parseDirectiveLocations(): NodeList
     {

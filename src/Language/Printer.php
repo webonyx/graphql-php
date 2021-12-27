@@ -102,7 +102,6 @@ class Printer
 
     protected function p(?Node $node, bool $isDescription = false): string
     {
-        $res = '';
         if ($node === null) {
             return '';
         }
@@ -453,9 +452,13 @@ class Printer
                 return '$' . $this->p($node->name);
         }
 
-        return $res;
+        return '';
     }
 
+    /**
+     * @template TNode of Node
+     * @param NodeList<TNode> $list
+     */
     protected function printList(NodeList $list, string $separator = ''): string
     {
         $parts = [];
@@ -468,6 +471,9 @@ class Printer
 
     /**
      * Print each item on its own line, wrapped in an indented "{ }" block.
+     *
+     * @template TNode of Node
+     * @param NodeList<TNode> $list
      */
     protected function printListBlock(NodeList $list): string
     {
