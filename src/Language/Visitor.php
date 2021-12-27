@@ -170,9 +170,7 @@ class Visitor
     /**
      * Visit the AST (see class description for details).
      *
-     * @template TNode of Node
-     *
-     * @param NodeList<TNode>|Node             $root
+     * @param NodeList<TNode>|Node      $root
      * @param VisitorArray              $visitor
      * @param array<string, mixed>|null $keyMap
      *
@@ -180,6 +178,7 @@ class Visitor
      *
      * @throws Exception
      *
+     * @template TNode of Node
      * @api
      */
     public static function visit(object $root, array $visitor, ?array $keyMap = null)
