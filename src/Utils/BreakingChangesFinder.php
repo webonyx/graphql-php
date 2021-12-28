@@ -151,7 +151,7 @@ class BreakingChangesFinder
     }
 
     /**
-     * @param Type &NamedType $type
+     * @param Type&NamedType $type
      */
     private static function typeKindName(NamedType $type): string
     {

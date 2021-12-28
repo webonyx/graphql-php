@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
-use function file_get_contents;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldNode;
@@ -21,6 +20,7 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Utils\Utils;
 use function is_array;
+use function Safe\file_get_contents;
 use function sprintf;
 
 class ParserTest extends TestCaseBase

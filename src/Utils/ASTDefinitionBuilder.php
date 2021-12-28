@@ -64,7 +64,7 @@ class ASTDefinitionBuilder
     private array $cache;
 
     /**
-     * @param array<string, Node &TypeDefinitionNode> $typeDefinitionsMap
+     * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
      * @phpstan-param ResolveType $resolveType
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      */
@@ -144,7 +144,7 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param string|(Node &NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+     * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
      */
     public function buildType($ref): Type
     {
@@ -156,7 +156,7 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param (Node &NamedTypeNode)|(Node&TypeDefinitionNode)|null $typeNode
+     * @param (Node&NamedTypeNode)|(Node&TypeDefinitionNode)|null $typeNode
      *
      * @throws Error
      */

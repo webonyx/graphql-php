@@ -175,7 +175,10 @@ class ErrorTest extends TestCase
         $error = new class('msg', null, null, [], null, null, ['foo' => 'bar']) extends Error {
             public function getExtensions(): ?array
             {
-                return array_merge(parent::getExtensions(), ['subfoo' => 'subbar']);
+                $extensions = parent::getExtensions();
+                $extensions['subfoo'] = 'subbar';
+
+                return $extensions;
             }
 
             public function getPositions(): array

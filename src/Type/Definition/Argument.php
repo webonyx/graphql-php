@@ -107,7 +107,7 @@ class Argument
     }
 
     /**
-     * @param Type &NamedType $parentType
+     * @param Type&NamedType $parentType
      */
     public function assertValid(FieldDefinition $parentField, Type $parentType): void
     {

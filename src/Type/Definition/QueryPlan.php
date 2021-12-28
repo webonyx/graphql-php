@@ -225,10 +225,10 @@ class QueryPlan
     }
 
     /**
-     * @param Type                 &NamedType    $parentType
-     * @param Type                 &NamedType    $type
-     * @param array<mixed>         $fields
-     * @param array<mixed>         $subfields
+     * @param Type&NamedType $parentType
+     * @param Type&NamedType $type
+     * @param array<mixed> $fields
+     * @param array<mixed> $subfields
      * @param array<string, mixed> $implementors
      *
      * @return array<mixed>

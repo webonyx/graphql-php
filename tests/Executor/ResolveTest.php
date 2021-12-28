@@ -10,8 +10,8 @@ use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use function json_encode;
 use PHPUnit\Framework\TestCase;
+use function Safe\json_encode;
 use function uniqid;
 
 /**

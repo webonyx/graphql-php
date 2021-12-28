@@ -925,10 +925,10 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Complete a list value by completing each item in the list with the inner type.
      *
-     * @param ListOfType<Type             &OutputType> $returnType
+     * @param ListOfType<Type&OutputType> $returnType
      * @param ArrayObject<int, FieldNode> $fieldNodes
-     * @param list<string|int>            $path
-     * @param iterable<mixed>             $results
+     * @param list<string|int> $path
+     * @param iterable<mixed> $results
      *
      * @throws Exception
      *

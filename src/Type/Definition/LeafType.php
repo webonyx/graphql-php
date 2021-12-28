@@ -51,7 +51,7 @@ interface LeafType
      * Should throw an exception with a client friendly message on invalid value nodes, @see ClientAware.
      *
      * @param array<string, mixed>|null $variables
-     * @phpstan-param LeafValueNode    $valueNode
+     * @phpstan-param LeafValueNode $valueNode
      *
      * @return mixed
      */

@@ -91,8 +91,6 @@ class Executor
      * @param array<string, mixed>|null $variableValues
      * @phpstan-param FieldResolver|null $fieldResolver
      *
-     * @return ExecutionResult|array<ExecutionResult>
-     *
      * @api
      */
     public static function execute(
@@ -103,7 +101,7 @@ class Executor
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null
-    ) {
+    ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
         $result = static::promiseToExecute(

@@ -81,15 +81,15 @@ class Utils
     }
 
     /**
+     * @template TKey of array-key
+     * @template TValue
+     *
      * @param iterable<mixed> $iterable
      * @phpstan-param iterable<TKey, TValue> $iterable
      * @phpstan-param callable(TValue, TKey): bool $predicate
      *
      * @return mixed
      * @phpstan-return TValue|null
-     *
-     * @template TKey of array-key
-     * @template TValue
      */
     public static function find(iterable $iterable, callable $predicate)
     {

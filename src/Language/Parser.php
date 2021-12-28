@@ -447,13 +447,13 @@ class Parser
      * and ends with a lex token of closeKind. Advances the parser
      * to the next lex token after the closing token.
      *
+     * @template TNode of Node
+     *
      * @param callable(self): TNode $parseFn
      *
      * @throws SyntaxError
      *
      * @return NodeList<TNode>
-     *
-     * @template TNode of Node
      */
     private function many(string $openKind, callable $parseFn, string $closeKind): NodeList
     {

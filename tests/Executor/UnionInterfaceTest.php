@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
-use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
@@ -147,6 +147,16 @@ class UnionInterfaceTest extends TestCase
         $this->john = new Person('John', [$this->garfield, $this->odie], [$this->liz, $this->odie]);
     }
 
+    /**
+     * @param array<string, mixed> $expected
+     * @param mixed $result
+     */
+    protected static function assertExecutionResultEquals(array $expected, $result): void
+    {
+        self::assertInstanceOf(ExecutionResult::class, $result);
+        self::assertEquals($expected, $result->toArray());
+    }
+
     // Execute: Union and intersection types
 
     /**
@@ -236,7 +246,7 @@ class UnionInterfaceTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, Executor::execute($this->schema, $ast)->toArray());
+        self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast));
     }
 
     /**
@@ -276,7 +286,7 @@ class UnionInterfaceTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
     /**
@@ -320,7 +330,7 @@ class UnionInterfaceTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
     /**
@@ -352,7 +362,7 @@ class UnionInterfaceTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
     /**
@@ -415,7 +425,7 @@ class UnionInterfaceTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
+        self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
     /**
@@ -507,8 +517,7 @@ class UnionInterfaceTest extends TestCase
                 ],
             ],
         ];
-
-        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS));
+        self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
     /**

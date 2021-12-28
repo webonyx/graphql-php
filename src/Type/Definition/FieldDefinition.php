@@ -196,7 +196,7 @@ class FieldDefinition
     }
 
     /**
-     * @param Type &NamedType $parentType
+     * @param Type&NamedType $parentType
      *
      * @throws InvariantViolation
      */

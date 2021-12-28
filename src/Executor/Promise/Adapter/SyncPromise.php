@@ -22,6 +22,8 @@ use Throwable;
  * Root SyncPromise without explicit $executor will never resolve (actually throw while trying).
  * The whole point of Deferred is to ensure it never happens and that any resolver creates
  * at least one $executor to start the promise chain.
+ *
+ * @phpstan-type Executor callable(): mixed
  */
 class SyncPromise
 {
@@ -58,7 +60,7 @@ class SyncPromise
     }
 
     /**
-     * @param (callable(): mixed)|null $executor
+     * @param Executor|null $executor
      */
     public function __construct(?callable $executor = null)
     {
@@ -183,7 +185,7 @@ class SyncPromise
     }
 
     /**
-     * @param (callable(mixed): mixed)|null     $onFulfilled
+     * @param (callable(mixed): mixed)|null $onFulfilled
      * @param (callable(Throwable): mixed)|null $onRejected
      */
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
@@ -207,7 +209,7 @@ class SyncPromise
     }
 
     /**
-     * @param callable(Throwable) : mixed $onRejected
+     * @param callable(Throwable): mixed $onRejected
      */
     public function catch(callable $onRejected): self
     {

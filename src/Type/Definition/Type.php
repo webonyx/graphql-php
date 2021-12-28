@@ -91,11 +91,11 @@ abstract class Type implements JsonSerializable
     }
 
     /**
+     * @template T of Type
+     *
      * @param T|callable():T $type
      *
      * @return ListOfType<T>
-     *
-     * @template T of Type
      *
      * @api
      */

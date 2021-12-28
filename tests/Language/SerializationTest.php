@@ -6,7 +6,6 @@ namespace GraphQL\Tests\Language;
 
 use function array_keys;
 use function count;
-use function file_get_contents;
 use function get_class;
 use function get_object_vars;
 use GraphQL\Language\AST\Location;
@@ -17,6 +16,7 @@ use GraphQL\Utils\AST;
 use function implode;
 use function json_decode;
 use PHPUnit\Framework\TestCase;
+use function Safe\file_get_contents;
 
 class SerializationTest extends TestCase
 {

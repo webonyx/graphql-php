@@ -237,12 +237,14 @@ class ServerConfigTest extends TestCase
 
     public function testInvalidValidationRules(): void
     {
-        $rules = new stdClass();
         $config = ServerConfig::create();
+        $rules = new stdClass();
 
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Server config expects array of validation rules or callable returning such array, but got instance of stdClass');
+        $this->expectExceptionObject(new InvariantViolation(
+            'Server config expects array of validation rules or callable returning such array, but got instance of stdClass'
+        ));
 
+        // @phpstan-ignore-next-line intentionally wrong
         $config->setValidationRules($rules);
     }
 }

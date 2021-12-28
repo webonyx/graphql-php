@@ -73,7 +73,10 @@ class QueryExecutionTest extends ServerTestCase
             $readonly
         );
 
-        return (new Helper())->executeOperation($this->config, $op);
+        $result = (new Helper())->executeOperation($this->config, $op);
+        self::assertInstanceOf(ExecutionResult::class, $result);
+
+        return $result;
     }
 
     public function testReturnsSyntaxErrors(): void
@@ -292,7 +295,10 @@ class QueryExecutionTest extends ServerTestCase
             'variables' => $variables,
         ]);
 
-        return (new Helper())->executeOperation($this->config, $op);
+        $result = (new Helper())->executeOperation($this->config, $op);
+        self::assertInstanceOf(ExecutionResult::class, $result);
+
+        return $result;
     }
 
     public function testBatchedQueriesAreDisabledByDefault(): void

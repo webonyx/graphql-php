@@ -224,11 +224,11 @@ class DocumentValidator
      *
      * $rule = DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
      *
+     * @template T of ValidationRule
+     *
      * @param class-string<T> $name
      *
      * @return T|null
-     *
-     * @template T of ValidationRule
      *
      * @api
      */

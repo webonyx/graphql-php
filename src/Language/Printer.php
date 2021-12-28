@@ -455,9 +455,9 @@ class Printer
     }
 
     /**
-     * @param NodeList<TNode> $list
-     *
      * @template TNode of Node
+     *
+     * @param NodeList<TNode> $list
      */
     protected function printList(NodeList $list, string $separator = ''): string
     {
@@ -472,9 +472,9 @@ class Printer
     /**
      * Print each item on its own line, wrapped in an indented "{ }" block.
      *
-     * @param NodeList<TNode> $list
-     *
      * @template TNode of Node
+     *
+     * @param NodeList<TNode> $list
      */
     protected function printListBlock(NodeList $list): string
     {

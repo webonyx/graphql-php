@@ -160,7 +160,7 @@ EOD;
     }
 
     /**
-     * @param Type &NamedType $type
+     * @param Type&NamedType $type
      */
     public static function isIntrospectionType(NamedType $type): bool
     {

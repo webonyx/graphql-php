@@ -108,12 +108,12 @@ class AmpPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @param Deferred<TResult>            $deferred
-     * @param callable(TArgument): TResult $callback
-     * @param TArgument                    $argument
-     *
      * @template TArgument
      * @template TResult
+     *
+     * @param Deferred<TResult> $deferred
+     * @param callable(TArgument): TResult $callback
+     * @param TArgument $argument
      */
     private static function resolveWithCallable(Deferred $deferred, callable $callback, $argument): void
     {

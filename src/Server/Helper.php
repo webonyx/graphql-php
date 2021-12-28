@@ -212,7 +212,7 @@ class Helper
      *
      * @param array<OperationParams> $operations
      *
-     * @return ExecutionResult|array<int, ExecutionResult>|Promise
+     * @return array<int, ExecutionResult>|Promise
      *
      * @api
      */

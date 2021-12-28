@@ -92,7 +92,7 @@ class ValidationContext extends ASTValidationContext
     }
 
     /**
-     * @param HasSelectionSet &Node $node
+     * @param HasSelectionSet&Node $node
      *
      * @phpstan-return array<int, VariableUsage>
      */
@@ -228,7 +228,7 @@ class ValidationContext extends ASTValidationContext
     }
 
     /**
-     * @return (CompositeType & Type) | null
+     * @return (CompositeType&Type)|null
      */
     public function getParentType(): ?CompositeType
     {
@@ -236,7 +236,7 @@ class ValidationContext extends ASTValidationContext
     }
 
     /**
-     * @return (Type & InputType) | null
+     * @return (Type&InputType)|null
      * @phpstan-return InputTypeAlias
      */
     public function getInputType(): ?InputType

@@ -169,15 +169,15 @@ class Visitor
     /**
      * Visit the AST (see class description for details).
      *
-     * @param NodeList<TNode>|Node      $root
-     * @param VisitorArray              $visitor
+     * @template TNode of Node
+     *
+     * @param NodeList<TNode>|Node $root
+     * @param VisitorArray $visitor
      * @param array<string, mixed>|null $keyMap
      *
      * @throws Exception
      *
      * @return Node|mixed
-     *
-     * @template TNode of Node
      *
      * @api
      */

@@ -27,8 +27,8 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use function json_encode;
 use RuntimeException;
+use function Safe\json_encode;
 use function sprintf;
 use stdClass;
 
@@ -960,15 +960,16 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAnObjectTypeWithIncorrectlyTypedInterfaces(): void
     {
+        // @phpstan-ignore-next-line intentionally wrong
         $objType = new ObjectType([
             'name' => 'SomeObject',
             'interfaces' => new stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeObject interfaces must be an iterable or a callable which returns an iterable.'
-        );
+        ));
         $objType->assertValid();
     }
 
@@ -1108,15 +1109,16 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAnInterfaceTypeWithIncorrectlyTypedInterfaces(): void
     {
+        // @phpstan-ignore-next-line intentionally wrong
         $objType = new InterfaceType([
             'name' => 'AnotherInterface',
             'interfaces' => new stdClass(),
             'fields' => [],
         ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+
+        $this->expectExceptionObject(new InvariantViolation(
             'AnotherInterface interfaces must be an iterable or a callable which returns an iterable.'
-        );
+        ));
         $objType->assertValid();
     }
 
@@ -1201,16 +1203,17 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAnInterfaceTypeWithAnIncorrectTypeForResolveType(): void
     {
-        // Slightly deviating from the reference implementation in order to be idiomatic for PHP
-        $this->expectExceptionObject(new InvariantViolation(
-            'AnotherInterface must provide "resolveType" as a callable, but got: instance of stdClass'
-        ));
-
+        // @phpstan-ignore-next-line intentionally wrong
         $type = new InterfaceType([
             'name' => 'AnotherInterface',
             'resolveType' => new stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
+
+        // Slightly deviating from the reference implementation in order to be idiomatic for PHP
+        $this->expectExceptionObject(new InvariantViolation(
+            'AnotherInterface must provide "resolveType" as a callable, but got: instance of stdClass'
+        ));
         $type->assertValid();
     }
 
@@ -1267,7 +1270,9 @@ final class DefinitionTest extends TestCaseBase
         $this->expectExceptionObject(new InvariantViolation(
             'SomeUnion must provide "resolveType" as a callable, but got: instance of stdClass'
         ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new UnionType([
                 'name' => 'SomeUnion',
                 'resolveType' => new stdClass(),
@@ -1299,12 +1304,12 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeNotDefiningSerialize(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeScalar must provide "serialize" function. If this custom Scalar '
             . 'is also used as an input type, ensure "parseValue" and "parseLiteral" '
             . 'functions are also provided.'
-        );
+        ));
+
         $this->schemaWithFieldType(
             // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType(['name' => 'SomeScalar'])
@@ -1316,13 +1321,14 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeScalar must provide "serialize" function. If this custom Scalar '
             . 'is also used as an input type, ensure "parseValue" and "parseLiteral" '
             . 'functions are also provided.'
-        );
+        ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
                 'serialize' => new stdClass(),
@@ -1354,11 +1360,12 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningParseValueButNotParseLiteral(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
-        );
+        ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
                 'serialize' => static function (): void {
@@ -1374,11 +1381,12 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningParseLiteralButNotParseValue(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
-        );
+        ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
                 'serialize' => static function (): void {
@@ -1394,11 +1402,12 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningParseValueAndParseLiteralWithAnIncorrectType(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
-        );
+        ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
                 'serialize' => static function (): void {
@@ -1434,7 +1443,9 @@ final class DefinitionTest extends TestCaseBase
         $this->expectExceptionObject(new InvariantViolation(
             'AnotherObject must provide "isTypeOf" as a callable, but got: instance of stdClass'
         ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new ObjectType([
                 'name' => 'AnotherObject',
                 'isTypeOf' => new stdClass(),
@@ -1480,10 +1491,10 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAUnionTypeWithoutTypes(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'Must provide iterable of types or a callable which returns such an iterable for Union SomeUnion'
-        );
+        ));
+
         $this->schemaWithFieldType(
             // @phpstan-ignore-next-line intentionally wrong
             new UnionType(['name' => 'SomeUnion'])
@@ -1495,11 +1506,12 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAUnionTypeWithIncorrectlyTypedTypes(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'Must provide iterable of types or a callable which returns such an iterable for Union SomeUnion'
-        );
+        ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new UnionType([
                 'name' => 'SomeUnion',
                 'types' => (object) ['test' => $this->objectType],
