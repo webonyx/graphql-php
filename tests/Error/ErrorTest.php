@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Error;
 
-use function array_merge;
 use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;

@@ -279,6 +279,7 @@ class ExecutorLazySchemaTest extends TestCase
 
                         /** @var InterfaceType $someInterface */
                         $someInterface = $this->loadType('SomeInterface');
+
                         return [
                             $someInterface,
                         ];
@@ -295,6 +296,7 @@ class ExecutorLazySchemaTest extends TestCase
                         $someUnion = $this->loadType('SomeUnion');
                         /** @var InterfaceType $someInterface */
                         $someInterface = $this->loadType('SomeInterface');
+
                         return [
                             'union' => ['type' => $someUnion],
                             'iface' => ['type' => Type::nonNull($someInterface)],
@@ -326,6 +328,7 @@ class ExecutorLazySchemaTest extends TestCase
 
                         /** @var ObjectType $deeperObject */
                         $deeperObject = $this->loadType('DeeperObject');
+
                         return $deeperObject;
                     },
                     'types' => function (): array {
@@ -333,6 +336,7 @@ class ExecutorLazySchemaTest extends TestCase
 
                         /** @var ObjectType $deeperObject */
                         $deeperObject = $this->loadType('DeeperObject');
+
                         return [$deeperObject];
                     },
                 ]);
@@ -345,6 +349,7 @@ class ExecutorLazySchemaTest extends TestCase
 
                         /** @var ObjectType $someObject */
                         $someObject = $this->loadType('SomeObject');
+
                         return $someObject;
                     },
                     'fields' => function (): array {
