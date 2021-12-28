@@ -51,7 +51,7 @@ class BuildSchemaTest extends TestCase
 
         self::assertEquals(
             [
-                'data' => $data
+                'data' => $data,
             ],
             GraphQL::executeQuery($schema, '{ str }', $data)->toArray()
         );
