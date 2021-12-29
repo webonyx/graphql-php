@@ -114,7 +114,7 @@ class DocumentValidator
     /**
      * Returns all global validation rules.
      *
-     * @return array<class-string<ValidationRule>, ValidationRule>
+     * @return array<string, ValidationRule>
      *
      * @api
      */
@@ -219,22 +219,16 @@ class DocumentValidator
     }
 
     /**
-     * Returns global validation rule by name. Standard rules are named by class name, so
-     * example usage for such rules:.
+     * Returns global validation rule by name.
      *
-     * $rule = DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
+     * Standard rules are named by class name, so example usage for such rules:
      *
-     * @template T of ValidationRule
-     *
-     * @param class-string<T> $name
-     *
-     * @return T|null
+     * @example DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
      *
      * @api
      */
     public static function getRule(string $name): ?ValidationRule
     {
-        // @phpstan-ignore-next-line class-strings are always mapped to a matching class instance
         return static::allRules()[$name] ?? null;
     }
 

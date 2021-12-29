@@ -235,7 +235,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * as well as a list of nested fragment names referenced via fragment spreads.
      *
      * @param array<string, bool> $fragmentNames
-     * @phpstan-param FieldMap   $astAndDefs
+     * @phpstan-param FieldMap $astAndDefs
      */
     protected function internalCollectFieldsAndFragmentNames(
         ValidationContext $context,
@@ -336,7 +336,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @param array{Type, FieldNode, FieldDefinition|null} $field1
      * @param array{Type, FieldNode, FieldDefinition|null} $field2
      *
-     * @return array{array{string, string}, array{FieldNode}, array{FieldNode}}|null
+     * @phpstan-return Conflict|null
      */
     protected function findConflict(
         ValidationContext $context,
@@ -840,16 +840,12 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             ],
             array_reduce(
                 $conflicts,
-                static function ($allFields, $conflict): array {
-                    return array_merge($allFields, $conflict[1]);
-                },
+                static fn (array $allFields, array $conflict): array => array_merge($allFields, $conflict[1]),
                 [$ast1]
             ),
             array_reduce(
                 $conflicts,
-                static function ($allFields, $conflict): array {
-                    return array_merge($allFields, $conflict[2]);
-                },
+                static fn (array $allFields, array $conflict): array => array_merge($allFields, $conflict[2]),
                 [$ast2]
             ),
         ];

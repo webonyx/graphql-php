@@ -60,12 +60,9 @@ class Values
             if (! Type::isInputType($varType)) {
                 // Must use input types for variables. This should be caught during
                 // validation, however is checked again here for safety.
+                $typeStr = Printer::doPrint($varDefNode->type);
                 $errors[] = new Error(
-                    sprintf(
-                        'Variable "$%s" expected value of type "%s" which cannot be used as an input type.',
-                        $varName,
-                        Printer::doPrint($varDefNode->type)
-                    ),
+                    "Variable \"\${$varName}\" expected value of type \"{$typeStr}\" which cannot be used as an input type.",
                     [$varDefNode->type]
                 );
             } else {

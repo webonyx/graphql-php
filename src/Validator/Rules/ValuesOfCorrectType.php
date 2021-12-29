@@ -125,7 +125,7 @@ class ValuesOfCorrectType extends ValidationRule
 
                 $context->reportError(
                     new Error(
-                        "Field \"$node->name->value\" is not defined by type \"$parentType->name\".$didYouMean",
+                        "Field \"{$node->name->value}\" is not defined by type \"{$parentType->name}\".{$didYouMean}",
                         $node
                     )
                 );
