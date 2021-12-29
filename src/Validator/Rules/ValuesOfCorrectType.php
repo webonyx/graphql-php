@@ -90,14 +90,14 @@ class ValuesOfCorrectType extends ValidationRule
                 }
 
                 foreach ($inputFields as $inputFieldName => $fieldDef) {
-                    $fieldType = $fieldDef->getType();
                     if (isset($fieldNodeMap[$inputFieldName]) || ! $fieldDef->isRequired()) {
                         continue;
                     }
+                    $fieldType = Utils::printSafe($fieldDef->getType());
 
                     $context->reportError(
                         new Error(
-                            static::requiredFieldMessage($type->name, $inputFieldName, (string) $fieldType),
+                            "Field {$type->name}.{$inputFieldName} of required type {$fieldType} was not provided.",
                             $node
                         )
                     );
@@ -125,7 +125,7 @@ class ValuesOfCorrectType extends ValidationRule
 
                 $context->reportError(
                     new Error(
-                        static::unknownFieldMessage($parentType->name, $node->name->value, $didYouMean),
+                        "Field \"$node->name->value\" is not defined by type \"$parentType->name\".$didYouMean",
                         $node
                     )
                 );
@@ -146,14 +146,6 @@ class ValuesOfCorrectType extends ValidationRule
                 $this->isValidValueNode($context, $node);
             },
         ];
-    }
-
-    public static function badValueMessage(string $typeName, string $valueName, ?string $message = null): string
-    {
-        return "Expected type {$typeName}, found {$valueName}"
-            . (null !== $message && '' !== $message
-                ? "; ${message}"
-                : '.');
     }
 
     /**
@@ -205,25 +197,5 @@ class ValuesOfCorrectType extends ValidationRule
                 );
             }
         }
-    }
-
-    protected static function badArgumentValueMessage(string $typeName, string $valueName, string $fieldName, string $argName, ?string $message = null): string
-    {
-        return "Field \"{$fieldName}\" argument \"{$argName}\" requires type {$typeName}, found {$valueName}"
-            . (
-                null !== $message && '' !== $message
-                ? "; {$message}"
-                : '.'
-            );
-    }
-
-    public static function requiredFieldMessage(string $typeName, string $fieldName, string $fieldTypeName): string
-    {
-        return "Field {$typeName}.{$fieldName} of required type {$fieldTypeName} was not provided.";
-    }
-
-    public static function unknownFieldMessage(string $typeName, string $fieldName, ?string $didYouMean = null): string
-    {
-        return "Field \"{$fieldName}\" is not defined by type \"{$typeName}\".{$didYouMean}";
     }
 }

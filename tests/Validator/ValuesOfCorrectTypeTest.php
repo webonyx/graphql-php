@@ -1291,26 +1291,14 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->requiredField('ComplexInput', 'requiredField', 'Boolean!', 4, 41),
+                [
+                    'message' => 'Field ComplexInput.requiredField of required type Boolean! was not provided.',
+                    'locations' => [['line' => 4, 'column' => 41]],
+                ],
             ]
         );
 
         self::assertTrue($errors[0]->isClientSafe());
-    }
-
-    /**
-     * @phpstan-return ErrorArray
-     */
-    private function requiredField(string $typeName, string $fieldName, string $fieldTypeName, int $line, int $column): array
-    {
-        return ErrorHelper::create(
-            ValuesOfCorrectType::requiredFieldMessage(
-                $typeName,
-                $fieldName,
-                $fieldTypeName
-            ),
-            [new SourceLocation($line, $column)]
-        );
     }
 
     // DESCRIBE: Invalid input object value
@@ -1644,7 +1632,10 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->requiredField('ComplexInput', 'requiredField', 'Boolean!', 2, 55),
+                ErrorHelper::create(
+                    'Field ComplexInput.requiredField of required type Boolean! was not provided.',
+                    [new SourceLocation(2, 55)]
+                ),
             ]
         );
 
