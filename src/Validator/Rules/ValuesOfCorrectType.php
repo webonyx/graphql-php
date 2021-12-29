@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace GraphQL\Validator\Rules;
 
 use function array_keys;
-use function array_map;
 use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\EnumValueNode;
-use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListValueNode;
@@ -25,9 +23,9 @@ use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
@@ -46,28 +44,21 @@ class ValuesOfCorrectType extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array
     {
-        $fieldName = '';
-
         return [
-            NodeKind::FIELD => [
-                'enter' => static function (FieldNode $node) use (&$fieldName): void {
-                    $fieldName = $node->name->value;
-                },
-            ],
-            NodeKind::NULL => static function (NullValueNode $node) use ($context, &$fieldName): void {
+            NodeKind::NULL => static function (NullValueNode $node) use ($context): void {
                 $type = $context->getInputType();
-                if (! ($type instanceof NonNull)) {
-                    return;
+                if ($type instanceof NonNull) {
+                    $typeStr = Utils::printSafe($type);
+                    $nodeStr = Printer::doPrint($node);
+                    $context->reportError(
+                        new Error(
+                            "Expected value of type \"{$typeStr}\", found {$nodeStr}.",
+                            $node
+                        )
+                    );
                 }
-
-                $context->reportError(
-                    new Error(
-                        static::getBadValueMessage((string) $type, Printer::doPrint($node), null, $context, $fieldName),
-                        $node
-                    )
-                );
             },
-            NodeKind::LST => function (ListValueNode $node) use ($context, &$fieldName): ?VisitorOperation {
+            NodeKind::LST => function (ListValueNode $node) use ($context): ?VisitorOperation {
                 // Note: TypeInfo will traverse into a list's item type, so look to the
                 // parent input type to check if it is a list.
                 $parentType = $context->getParentInputType();
@@ -75,19 +66,17 @@ class ValuesOfCorrectType extends ValidationRule
                     ? null
                     : Type::getNullableType($parentType);
                 if (! $type instanceof ListOfType) {
-                    $this->isValidScalar($context, $node, $fieldName);
+                    $this->isValidValueNode($context, $node);
 
                     return Visitor::skipNode();
                 }
 
                 return null;
             },
-            NodeKind::OBJECT => function (ObjectValueNode $node) use ($context, &$fieldName): ?VisitorOperation {
-                // Note: TypeInfo will traverse into a list's item type, so look to the
-                // parent input type to check if it is a list.
+            NodeKind::OBJECT => function (ObjectValueNode $node) use ($context): ?VisitorOperation {
                 $type = Type::getNamedType($context->getInputType());
                 if (! $type instanceof InputObjectType) {
-                    $this->isValidScalar($context, $node, $fieldName);
+                    $this->isValidValueNode($context, $node);
 
                     return Visitor::skipNode();
                 }
@@ -131,7 +120,7 @@ class ValuesOfCorrectType extends ValidationRule
                     array_keys($parentType->getFields())
                 );
                 $didYouMean = count($suggestions) > 0
-                    ? 'Did you mean ' . Utils::orList($suggestions) . '?'
+                    ? ' Did you mean ' . Utils::quotedOrList($suggestions) . '?'
                     : null;
 
                 $context->reportError(
@@ -141,36 +130,20 @@ class ValuesOfCorrectType extends ValidationRule
                     )
                 );
             },
-            NodeKind::ENUM => function (EnumValueNode $node) use ($context, &$fieldName): void {
-                $type = Type::getNamedType($context->getInputType());
-                if (! $type instanceof EnumType) {
-                    $this->isValidScalar($context, $node, $fieldName);
-                } elseif (null === $type->getValue($node->value)) {
-                    $context->reportError(
-                        new Error(
-                            static::getBadValueMessage(
-                                $type->name,
-                                Printer::doPrint($node),
-                                $this->enumTypeSuggestion($type, $node),
-                                $context,
-                                $fieldName
-                            ),
-                            $node
-                        )
-                    );
-                }
+            NodeKind::ENUM => function (EnumValueNode $node) use ($context): void {
+                $this->isValidValueNode($context, $node);
             },
-            NodeKind::INT => function (IntValueNode $node) use ($context, &$fieldName): void {
-                $this->isValidScalar($context, $node, $fieldName);
+            NodeKind::INT => function (IntValueNode $node) use ($context): void {
+                $this->isValidValueNode($context, $node);
             },
-            NodeKind::FLOAT => function (FloatValueNode $node) use ($context, &$fieldName): void {
-                $this->isValidScalar($context, $node, $fieldName);
+            NodeKind::FLOAT => function (FloatValueNode $node) use ($context): void {
+                $this->isValidValueNode($context, $node);
             },
-            NodeKind::STRING => function (StringValueNode $node) use ($context, &$fieldName): void {
-                $this->isValidScalar($context, $node, $fieldName);
+            NodeKind::STRING => function (StringValueNode $node) use ($context): void {
+                $this->isValidValueNode($context, $node);
             },
-            NodeKind::BOOLEAN => function (BooleanValueNode $node) use ($context, &$fieldName): void {
-                $this->isValidScalar($context, $node, $fieldName);
+            NodeKind::BOOLEAN => function (BooleanValueNode $node) use ($context): void {
+                $this->isValidValueNode($context, $node);
             },
         ];
     }
@@ -186,28 +159,23 @@ class ValuesOfCorrectType extends ValidationRule
     /**
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
      */
-    protected function isValidScalar(ValidationContext $context, ValueNode $node, string $fieldName): void
+    protected function isValidValueNode(ValidationContext $context, ValueNode $node): void
     {
         // Report any error at the full type expected by the location.
         /** @var ScalarType|EnumType|InputObjectType|ListOfType<Type&InputType>|NonNull|null $locationType */
         $locationType = $context->getInputType();
-
         if (null === $locationType) {
             return;
         }
 
         $type = Type::getNamedType($locationType);
 
-        if (! $type instanceof ScalarType) {
+        if (! $type instanceof LeafType) {
+            $typeStr = Utils::printSafe($type);
+            $nodeStr = Printer::doPrint($node);
             $context->reportError(
                 new Error(
-                    static::getBadValueMessage(
-                        (string) $locationType,
-                        Printer::doPrint($node),
-                        $this->enumTypeSuggestion($type, $node),
-                        $context,
-                        $fieldName
-                    ),
+                    "Expected value of type \"{$typeStr}\", found {$nodeStr}.",
                     $node
                 )
             );
@@ -220,49 +188,26 @@ class ValuesOfCorrectType extends ValidationRule
         try {
             $type->parseLiteral($node);
         } catch (Throwable $error) {
-            // Ensure a reference to the original error is maintained.
-            $context->reportError(
-                new Error(
-                    static::getBadValueMessage(
-                        (string) $locationType,
-                        Printer::doPrint($node),
-                        $error->getMessage(),
-                        $context,
-                        $fieldName
-                    ),
-                    $node,
-                    null,
-                    [],
-                    null,
-                    $error
-                )
-            );
+            if ($error instanceof Error) {
+                $context->reportError($error);
+            } else {
+                $typeStr = Utils::printSafe($type);
+                $nodeStr = Printer::doPrint($node);
+                $context->reportError(
+                    new Error(
+                        "Expected value of type \"{$typeStr}\", found {$nodeStr}; " . $error->getMessage(),
+                        $node,
+                        null,
+                        [],
+                        null,
+                        $error // Ensure a reference to the original error is maintained.
+                    )
+                );
+            }
         }
     }
 
-    /**
-     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
-     */
-    protected function enumTypeSuggestion(Type $type, ValueNode $node): ?string
-    {
-        if ($type instanceof EnumType) {
-            $suggestions = Utils::suggestionList(
-                Printer::doPrint($node),
-                array_map(
-                    static fn (EnumValueDefinition $value): string => $value->name,
-                    $type->getValues()
-                )
-            );
-
-            return [] === $suggestions
-                ? null
-                : 'Did you mean the enum value ' . Utils::orList($suggestions) . '?';
-        }
-
-        return null;
-    }
-
-    public static function badArgumentValueMessage(string $typeName, string $valueName, string $fieldName, string $argName, ?string $message = null): string
+    protected static function badArgumentValueMessage(string $typeName, string $valueName, string $fieldName, string $argName, ?string $message = null): string
     {
         return "Field \"{$fieldName}\" argument \"{$argName}\" requires type {$typeName}, found {$valueName}"
             . (
@@ -277,30 +222,8 @@ class ValuesOfCorrectType extends ValidationRule
         return "Field {$typeName}.{$fieldName} of required type {$fieldTypeName} was not provided.";
     }
 
-    public static function unknownFieldMessage(string $typeName, string $fieldName, ?string $message = null): string
+    public static function unknownFieldMessage(string $typeName, string $fieldName, ?string $didYouMean = null): string
     {
-        return "Field \"{$fieldName}\" is not defined by type {$typeName}"
-            . (
-                null !== $message && '' !== $message
-                ? "; {$message}"
-                : '.'
-            );
-    }
-
-    protected static function getBadValueMessage(
-        string $typeName,
-        string $valueName,
-        ?string $message = null,
-        ?ValidationContext $context = null,
-        ?string $fieldName = null
-    ): string {
-        if (null !== $context) {
-            $arg = $context->getArgument();
-            if (null !== $arg) {
-                return static::badArgumentValueMessage($typeName, $valueName, $fieldName, $arg->name, $message);
-            }
-        }
-
-        return static::badValueMessage($typeName, $valueName, $message);
+        return "Field \"{$fieldName}\" is not defined by type \"{$typeName}\".{$didYouMean}";
     }
 }

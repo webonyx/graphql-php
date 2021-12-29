@@ -32,6 +32,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Always convert recursively when calling `Node::toArray()`
 - Make `Directive::$config['args']` use the same definition style as `FieldDefinition::$config['args']`
 - Rename `FieldArgument` to `Argument`
+- Make errors when parsing scalar literals more precise
 
 ### Added
 

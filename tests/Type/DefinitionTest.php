@@ -1300,23 +1300,6 @@ final class DefinitionTest extends TestCaseBase
     // Type System: Scalar types must be serializable
 
     /**
-     * @see it('rejects a Scalar type not defining serialize')
-     */
-    public function testRejectsAScalarTypeNotDefiningSerialize(): void
-    {
-        $this->expectExceptionObject(new InvariantViolation(
-            'SomeScalar must provide "serialize" function. If this custom Scalar '
-            . 'is also used as an input type, ensure "parseValue" and "parseLiteral" '
-            . 'functions are also provided.'
-        ));
-
-        $this->schemaWithFieldType(
-            // @phpstan-ignore-next-line intentionally wrong
-            new CustomScalarType(['name' => 'SomeScalar'])
-        );
-    }
-
-    /**
      * @see it('rejects a Scalar type defining serialize with an incorrect type')
      */
     public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType(): void
