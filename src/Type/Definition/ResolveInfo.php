@@ -17,6 +17,8 @@ use GraphQL\Type\Schema;
  * Structure containing information useful for field resolution process.
  *
  * Passed as 4th argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
+ *
+ * @phpstan-import-type QueryPlanOptions from QueryPlan
  */
 class ResolveInfo
 {
@@ -200,7 +202,7 @@ class ResolveInfo
     }
 
     /**
-     * @param mixed[] $options
+     * @param QueryPlanOptions $options
      */
     public function lookAhead(array $options = []): QueryPlan
     {

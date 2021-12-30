@@ -26,6 +26,11 @@ use function in_array;
 use function is_array;
 use function is_numeric;
 
+/**
+ * @phpstan-type QueryPlanOptions array{
+ *   groupImplementorFields: bool,
+ * }
+ */
 class QueryPlan
 {
     /** @var array<string, array<int, string>> */
@@ -45,17 +50,17 @@ class QueryPlan
     private bool $groupImplementorFields;
 
     /**
-     * @param iterable<FieldNode>                   $fieldNodes
-     * @param array<string, mixed>                  $variableValues
+     * @param iterable<FieldNode> $fieldNodes
+     * @param array<string, mixed> $variableValues
      * @param array<string, FragmentDefinitionNode> $fragments
-     * @param array<string>                         $options        TODO move to using key
+     * @param QueryPlanOptions $options
      */
     public function __construct(ObjectType $parentType, Schema $schema, iterable $fieldNodes, array $variableValues, array $fragments, array $options = [])
     {
         $this->schema = $schema;
         $this->variableValues = $variableValues;
         $this->fragments = $fragments;
-        $this->groupImplementorFields = in_array('group-implementor-fields', $options, true);
+        $this->groupImplementorFields = $options['groupImplementorFields'] ?? false;
         $this->analyzeQueryPlan($parentType, $fieldNodes);
     }
 

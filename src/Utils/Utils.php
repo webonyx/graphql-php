@@ -159,11 +159,11 @@ class Utils
     public static function printSafeJson($var): string
     {
         if ($var instanceof stdClass) {
-            return json_encode($var);
+            return json_encode($var, JSON_THROW_ON_ERROR);
         }
 
         if (is_array($var)) {
-            return json_encode($var);
+            return json_encode($var, JSON_THROW_ON_ERROR);
         }
 
         if ('' === $var) {
@@ -211,7 +211,7 @@ class Utils
         }
 
         if (is_array($var)) {
-            return json_encode($var);
+            return json_encode($var, JSON_THROW_ON_ERROR);
         }
 
         if ('' === $var) {
@@ -266,37 +266,30 @@ class Utils
             $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
         }
 
+        // @phpstan-ignore-next-line format string is statically known to be correct
         return unpack('N', $char)[1];
     }
 
     /**
      * Returns UTF-8 char code at given $positing of the $string.
-     *
-     * @param string $string
-     * @param int    $position
-     *
-     * @return mixed
      */
-    public static function charCodeAt($string, $position)
+    public static function charCodeAt(string $string, int $position): int
     {
         $char = mb_substr($string, $position, 1, 'UTF-8');
 
         return self::ord($char);
     }
 
-    /**
-     * @param int|null $code
-     */
-    public static function printCharCode($code): string
+    public static function printCharCode(?int $code): string
     {
         if (null === $code) {
             return '<EOF>';
         }
 
         return $code < 0x007F
-            // Trust JSON for ASCII.
-            ? json_encode(self::chr($code))
-            // Otherwise print the escaped form.
+            // Trust JSON for ASCII
+            ? json_encode(self::chr($code), JSON_THROW_ON_ERROR)
+            // Otherwise, print the escaped form
             : '"\\u' . dechex($code) . '"';
     }
 
@@ -325,6 +318,7 @@ class Utils
             );
         }
 
+        // @phpstan-ignore-next-line regex is statically known to be good
         if (! preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
             return new Error(
                 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "' . $name . '" does not.',

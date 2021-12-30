@@ -7,7 +7,6 @@ namespace GraphQL\Validator\Rules;
 use function array_keys;
 use function array_map;
 use function array_merge;
-use function array_reduce;
 use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
@@ -34,8 +33,10 @@ use function is_array;
 use SplObjectStorage;
 
 /**
- * @phpstan-type ReasonOrReasons string|array<array{string, string|array<array{string, string}>}>
- * @phpstan-type Conflict array{array{string, ReasonOrReasons}, array{FieldNode}, array{FieldNode}}
+ * ReasonOrReasons is recursive, but PHPStan does not support that.
+ * @phpstan-type ReasonOrReasons string|array<array{string, string|array<mixed>}>
+ *
+ * @phpstan-type Conflict array{array{string, ReasonOrReasons}, array<int, FieldNode>, array<int, FieldNode>}
  * @phpstan-type FieldInfo array{Type, FieldNode, FieldDefinition|null}
  * @phpstan-type FieldMap array<string, array<int, FieldInfo>>
  */
@@ -170,6 +171,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 $fragmentNames
             );
 
+            // @phpstan-ignore-next-line PHPStan messes up the types of the passed-by-reference arguments
             return $this->cachedFieldsAndFragmentNames[$selectionSet] = [$astAndDefs, array_keys($fragmentNames)];
         }
 
@@ -813,8 +815,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     }
 
     /**
-     * Given a series of Conflicts which occurred between two sub-fields, generate
-     * a single Conflict.
+     * Merge Conflicts between two sub-fields into a single Conflict.
      *
      * @phpstan-param array<int, Conflict> $conflicts
      *
@@ -830,24 +831,32 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             return null;
         }
 
+        $reasons = [];
+        foreach ($conflicts as $conflict) {
+            $reasons[]= $conflict[0];
+        }
+
+        $fields1 = [$ast1];
+        foreach ($conflicts as $conflict) {
+            foreach ($conflict[1] as $field) {
+                $fields1[]= $field;
+            }
+        }
+
+        $fields2 = [$ast2];
+        foreach ($conflicts as $conflict) {
+            foreach ($conflict[2] as $field) {
+                $fields2[]= $field;
+            }
+        }
+
         return [
             [
                 $responseName,
-                array_map(
-                    static fn (array $conflict) => $conflict[0],
-                    $conflicts
-                ),
+                $reasons,
             ],
-            array_reduce(
-                $conflicts,
-                static fn (array $allFields, array $conflict): array => array_merge($allFields, $conflict[1]),
-                [$ast1]
-            ),
-            array_reduce(
-                $conflicts,
-                static fn (array $allFields, array $conflict): array => array_merge($allFields, $conflict[2]),
-                [$ast2]
-            ),
+            $fields1,
+            $fields2
         ];
     }
 

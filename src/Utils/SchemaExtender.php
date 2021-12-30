@@ -57,7 +57,7 @@ class SchemaExtender
      *
      * @return array<TypeExtensionNode>|null
      */
-    protected static function getExtensionASTNodes(NamedType $type): ?array
+    protected static function extensionASTNodes(NamedType $type): ?array
     {
         return array_merge(
             $type->extensionASTNodes ?? [],
@@ -130,7 +130,7 @@ class SchemaExtender
             'parseValue' => [$type, 'parseValue'],
             'parseLiteral' => [$type, 'parseLiteral'],
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::getExtensionASTNodes($type),
+            'extensionASTNodes' => static::extensionASTNodes($type),
         ]);
     }
 
@@ -142,7 +142,7 @@ class SchemaExtender
             'types' => static fn (): array => static::extendUnionPossibleTypes($type),
             'resolveType' => [$type, 'resolveType'],
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::getExtensionASTNodes($type),
+            'extensionASTNodes' => static::extensionASTNodes($type),
         ]);
     }
 
@@ -153,7 +153,7 @@ class SchemaExtender
             'description' => $type->description,
             'values' => static::extendEnumValueMap($type),
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::getExtensionASTNodes($type),
+            'extensionASTNodes' => static::extensionASTNodes($type),
         ]);
     }
 
@@ -164,7 +164,7 @@ class SchemaExtender
             'description' => $type->description,
             'fields' => static fn (): array => static::extendInputFieldMap($type),
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::getExtensionASTNodes($type),
+            'extensionASTNodes' => static::extensionASTNodes($type),
         ]);
     }
 
@@ -299,18 +299,24 @@ class SchemaExtender
         return $interfaces;
     }
 
+    /**
+     * @template T of Type
+     * @param T $typeDef
+     * @return T
+     */
     protected static function extendType(Type $typeDef): Type
     {
         if ($typeDef instanceof ListOfType) {
+            // @phpstan-ignore-next-line PHPStan does not understand this is the same generic type as the input
             return Type::listOf(static::extendType($typeDef->getWrappedType()));
         }
 
         if ($typeDef instanceof NonNull) {
+            // @phpstan-ignore-next-line PHPStan does not understand this is the same generic type as the input
             return Type::nonNull(static::extendType($typeDef->getWrappedType()));
         }
 
-        /** @var NamedType&Type $typeDef */
-
+        // @phpstan-ignore-next-line PHPStan does not understand this is the same generic type as the input
         return static::extendNamedType($typeDef);
     }
 
@@ -369,7 +375,7 @@ class SchemaExtender
             /**
              * Proven by @see assertTypeMatchesExtension().
              *
-             * @var ObjectTypeExtensionNode|InputObjectTypeExtensionNode $extension
+             * @var ObjectTypeExtensionNode|InterfaceTypeExtensionNode $extension
              */
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
                 foreach ($extension->fields as $field) {
@@ -396,7 +402,7 @@ class SchemaExtender
             'isTypeOf' => [$type, 'isTypeOf'],
             'resolveField' => $type->resolveFieldFn ?? null,
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::getExtensionASTNodes($type),
+            'extensionASTNodes' => static::extensionASTNodes($type),
         ]);
     }
 
@@ -409,7 +415,7 @@ class SchemaExtender
             'fields' => static fn (): array => static::extendFieldMap($type),
             'resolveType' => [$type, 'resolveType'],
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::getExtensionASTNodes($type),
+            'extensionASTNodes' => static::extensionASTNodes($type),
         ]);
     }
 

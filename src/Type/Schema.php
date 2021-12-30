@@ -460,9 +460,6 @@ class Schema
     /**
      * Returns true if the given type is a sub type of the given abstract type.
      *
-     * @param UnionType|InterfaceType  $abstractType
-     * @param ObjectType|InterfaceType $maybeSubType
-     *
      * @api
      */
     public function isSubType(AbstractType $abstractType, ImplementingType $maybeSubType): bool

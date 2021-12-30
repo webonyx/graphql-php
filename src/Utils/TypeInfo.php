@@ -390,7 +390,7 @@ class TypeInfo
     }
 
     /**
-     * @phpstan-return InputTypeAlias|null
+     * @return (InputType&Type)|null
      */
     public function getInputType(): ?InputType
     {

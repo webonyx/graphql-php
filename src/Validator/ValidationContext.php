@@ -237,7 +237,6 @@ class ValidationContext extends ASTValidationContext
 
     /**
      * @return (Type&InputType)|null
-     * @phpstan-return InputTypeAlias
      */
     public function getInputType(): ?InputType
     {
