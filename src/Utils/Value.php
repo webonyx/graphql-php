@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
-use GraphQL\Type\Definition\NamedType;
 use function array_key_exists;
 use function array_keys;
 use function array_map;
@@ -151,7 +150,6 @@ class Value
                 : self::ofValue([$coercedItem['value']]);
         }
         /** @var InputObjectType $type we handled all other cases at this point */
-
         if ($value instanceof stdClass) {
             // Cast objects to associative array before checking the fields.
             // Note that the coerced value will be an array.

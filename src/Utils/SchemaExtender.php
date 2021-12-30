@@ -301,7 +301,9 @@ class SchemaExtender
 
     /**
      * @template T of Type
+     *
      * @param T $typeDef
+     *
      * @return T
      */
     protected static function extendType(Type $typeDef): Type

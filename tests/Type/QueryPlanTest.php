@@ -953,7 +953,7 @@ final class QueryPlanTest extends TestCase
                     'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$hasCalled, &$queryPlan) {
                         $hasCalled = true;
                         $queryPlan = $info->lookAhead([
-                            'groupImplementorFields' => true
+                            'groupImplementorFields' => true,
                         ]);
 
                         return null;

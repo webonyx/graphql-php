@@ -34,6 +34,7 @@ use SplObjectStorage;
 
 /**
  * ReasonOrReasons is recursive, but PHPStan does not support that.
+ *
  * @phpstan-type ReasonOrReasons string|array<array{string, string|array<mixed>}>
  *
  * @phpstan-type Conflict array{array{string, ReasonOrReasons}, array<int, FieldNode>, array<int, FieldNode>}
@@ -833,20 +834,20 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         $reasons = [];
         foreach ($conflicts as $conflict) {
-            $reasons[]= $conflict[0];
+            $reasons[] = $conflict[0];
         }
 
         $fields1 = [$ast1];
         foreach ($conflicts as $conflict) {
             foreach ($conflict[1] as $field) {
-                $fields1[]= $field;
+                $fields1[] = $field;
             }
         }
 
         $fields2 = [$ast2];
         foreach ($conflicts as $conflict) {
             foreach ($conflict[2] as $field) {
-                $fields2[]= $field;
+                $fields2[] = $field;
             }
         }
 
@@ -856,7 +857,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 $reasons,
             ],
             $fields1,
-            $fields2
+            $fields2,
         ];
     }
 

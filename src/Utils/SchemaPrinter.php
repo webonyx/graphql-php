@@ -252,7 +252,7 @@ class SchemaPrinter
         if (
             Utils::every(
                 $args,
-                static fn(Argument $arg): bool => 0 === strlen($arg->description ?? '')
+                static fn (Argument $arg): bool => 0 === strlen($arg->description ?? '')
             )
         ) {
             return '('
