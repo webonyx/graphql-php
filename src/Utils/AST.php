@@ -36,8 +36,10 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -49,7 +51,6 @@ use function is_object;
 use function is_string;
 use function property_exists;
 use Throwable;
-use Traversable;
 
 /**
  * Various utilities dealing with AST.
@@ -148,16 +149,17 @@ class AST
      * | Mixed         | Enum Value           |
      * | null          | NullValue            |
      *
-     * @param Type|mixed|null                                     $value
-     * @param ScalarType|EnumType|InputObjectType|ListOfType<Type &InputType>|NonNull $type
+     * @param mixed $value
+     * @param InputType&Type $type
      *
-     * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode|null
+     * @return (ValueNode&Node)|null
      *
      * @api
      */
-    public static function astFromValue($value, InputType $type)
+    public static function astFromValue($value, InputType $type): ?ValueNode
     {
         if ($type instanceof NonNull) {
+            // @phpstan-ignore-next-line wrapped type must also be input type
             $astValue = self::astFromValue($value, $type->getWrappedType());
             if ($astValue instanceof NullValueNode) {
                 return null;
@@ -170,11 +172,13 @@ class AST
             return new NullValueNode([]);
         }
 
-        // Convert PHP array to GraphQL list. If the GraphQLType is a list, but
+        // Convert PHP iterables to GraphQL list. If the GraphQLType is a list, but
         // the value is not an array, convert the value using the list's item type.
         if ($type instanceof ListOfType) {
+            /** @var InputType&Type $itemType proven in schema validation */
             $itemType = $type->getWrappedType();
-            if (is_array($value) || ($value instanceof Traversable)) {
+
+            if (is_iterable($value)) {
                 $valuesNodes = [];
                 foreach ($value as $item) {
                     $itemNode = self::astFromValue($item, $itemType);
@@ -239,6 +243,7 @@ class AST
 
             return new ObjectValueNode(['fields' => new NodeList($fieldNodes)]);
         }
+        /** @var LeafType $type other options were exhausted */
 
         // Since value is an internally represented value, it must be serialized
         // to an externally represented value before converting into an AST.
@@ -301,8 +306,8 @@ class AST
      * | Enum Value           | Mixed         |
      * | Null Value           | null          |
      *
-     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $valueNode
-     * @param array<string, mixed>|null                                                                                                                $variables
+     * @param (ValueNode&Node)|null $valueNode
+     * @param array<string, mixed>|null $variables
      *
      * @throws Exception
      *
@@ -459,8 +464,8 @@ class AST
      * Returns true if the provided valueNode is a variable which is not defined
      * in the set of variables.
      *
-     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $valueNode
-     * @param array<string, mixed>|null                                                                                                           $variables
+     * @param ValueNode&Node $valueNode
+     * @param array<string, mixed>|null $variables
      */
     private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
     {
@@ -556,6 +561,7 @@ class AST
         }
 
         if ($inputTypeNode instanceof NonNullTypeNode) {
+            /** @var (NullableType&Type)|null $innerType proven by schema validation */
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
 
             return null === $innerType

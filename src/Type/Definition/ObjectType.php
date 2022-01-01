@@ -57,7 +57,7 @@ use function is_string;
  * @phpstan-type ObjectConfig array{
  *   name?: string|null,
  *   description?: string|null,
- *   resolveField?: FieldResolver,
+ *   resolveField?: FieldResolver|null,
  *   fields: (callable(): iterable<mixed>)|iterable<mixed>,
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,

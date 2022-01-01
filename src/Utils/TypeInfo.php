@@ -366,7 +366,7 @@ class TypeInfo
      *
      * @throws InvariantViolation
      */
-    public static function typeFromAST(Schema $schema, $inputTypeNode): ?Type
+    public static function typeFromAST(Schema $schema, Node $inputTypeNode): ?Type
     {
         return AST::typeFromAST($schema, $inputTypeNode);
     }

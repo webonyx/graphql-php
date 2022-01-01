@@ -92,7 +92,7 @@ class SchemaValidationContext
     }
 
     /**
-     * @param array<Node>|Node|null $nodes
+     * @param array<Node|null>|Node|null $nodes
      */
     public function reportError(string $message, $nodes = null): void
     {
@@ -200,7 +200,7 @@ class SchemaValidationContext
     }
 
     /**
-     * @param Type|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|Argument $object
+     * @param (Type&NamedType)|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|Argument $object
      */
     private function validateName(object $object): void
     {
@@ -208,7 +208,7 @@ class SchemaValidationContext
         $error = Utils::isValidNameError($object->name, $object->astNode);
         if (
             null === $error
-            || ($object instanceof Type && $object instanceof NamedType && Introspection::isIntrospectionType($object))
+            || ($object instanceof Type && Introspection::isIntrospectionType($object))
         ) {
             return;
         }
@@ -643,13 +643,19 @@ class SchemaValidationContext
     }
 
     /**
-     * @param Schema|Type $object
+     * @param Schema|(Type&NamedType) $object
      *
      * @return NodeList<DirectiveNode>
      */
     private function getDirectives(object $object): NodeList
     {
         $directives = [];
+        /**
+         * Excluding directiveNode, since $object is not Directive.
+         *
+         * @var SchemaDefinitionNode|SchemaTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|EnumTypeDefinitionNode|EnumTypeExtensionNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode $node
+         */
+        // @phpstan-ignore-next-line union types are not pervasive
         foreach ($this->getAllNodes($object) as $node) {
             foreach ($node->directives as $directive) {
                 $directives[] = $directive;

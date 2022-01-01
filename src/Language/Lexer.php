@@ -504,7 +504,8 @@ class Lexer
                     case 117:
                         $position = $this->position;
                         [$hex] = $this->readChars(4, true);
-                        if (! preg_match('/[0-9a-fA-F]{4}/', $hex)) {
+                        // @phpstan-ignore-next-line regex is statically known to be valid
+                        if (0 === preg_match('/[0-9a-fA-F]{4}/', $hex)) {
                             throw new SyntaxError(
                                 $this->source,
                                 $position - 1,
@@ -512,13 +513,15 @@ class Lexer
                             );
                         }
 
+                        /** @var int $code since only a single char is read */
                         $code = hexdec($hex);
 
                         // UTF-16 surrogate pair detection and handling.
                         $highOrderByte = $code >> 8;
                         if (0xD8 <= $highOrderByte && $highOrderByte <= 0xDF) {
                             [$utf16Continuation] = $this->readChars(6, true);
-                            if (! preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation)) {
+                            // @phpstan-ignore-next-line regex is statically known to be valid
+                            if (0 === preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation)) {
                                 throw new SyntaxError(
                                     $this->source,
                                     $this->position - 5,

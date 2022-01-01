@@ -75,6 +75,7 @@ class Argument
                 $argConfig = ['type' => $argConfig];
             }
 
+            // @phpstan-ignore-next-line array shape matches fine
             $list[] = new self($argConfig + ['name' => $name]);
         }
 
@@ -83,7 +84,6 @@ class Argument
 
     /**
      * @return Type&InputType
-     * @phpstan-return InputTypeAlias
      */
     public function getType(): Type
     {

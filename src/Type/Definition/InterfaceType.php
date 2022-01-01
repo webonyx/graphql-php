@@ -13,12 +13,12 @@ use function is_string;
 
 /**
  * @phpstan-import-type ResolveType from AbstractType
- * @phpstan-import-type FieldMapConfig from FieldDefinition
+ * @phpstan-import-type FieldsConfig from FieldDefinition
  * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
  * @phpstan-type InterfaceConfig array{
  *   name?: string|null,
  *   description?: string|null,
- *   fields: FieldMapConfig,
+ *   fields: FieldsConfig,
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   resolveType?: ResolveType|null,
  *   astNode?: InterfaceTypeDefinitionNode|null,

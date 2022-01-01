@@ -423,7 +423,14 @@ class Schema
         if (! isset($this->implementationsMap)) {
             $this->implementationsMap = [];
 
-            /** @var array<string, array<string, Type>> $foundImplementations */
+            /** @var array<
+             *     string,
+             *     array{
+             *         objects: array<int, ObjectType>,
+             *         interfaces: array<int, InterfaceType>,
+             *     }
+             * > $foundImplementations
+             */
             $foundImplementations = [];
             foreach ($this->getTypeMap() as $type) {
                 if ($type instanceof InterfaceType) {
@@ -459,6 +466,9 @@ class Schema
 
     /**
      * Returns true if the given type is a sub type of the given abstract type.
+     *
+     * @param AbstractType&Type $abstractType
+     * @param ImplementingType&Type $maybeSubType
      *
      * @api
      */

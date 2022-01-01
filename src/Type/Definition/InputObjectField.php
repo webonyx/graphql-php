@@ -61,7 +61,6 @@ class InputObjectField
 
     /**
      * @return Type&InputType
-     * @phpstan-return InputTypeAlias
      */
     public function getType(): Type
     {

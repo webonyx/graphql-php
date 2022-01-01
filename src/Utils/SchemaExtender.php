@@ -16,6 +16,7 @@ use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
+use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
@@ -26,7 +27,9 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ImplementingType;
+use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NamedType;
@@ -41,6 +44,8 @@ use GraphQL\Validator\DocumentValidator;
 
 /**
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+ * @phpstan-import-type UnnamedArgumentConfig from Argument
+ * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
  */
 class SchemaExtender
 {
@@ -123,6 +128,9 @@ class SchemaExtender
 
     protected static function extendScalarType(ScalarType $type): CustomScalarType
     {
+        /** @var array<int, ScalarTypeExtensionNode> $extensionASTNodes */
+        $extensionASTNodes = static::extensionASTNodes($type);
+
         return new CustomScalarType([
             'name' => $type->name,
             'description' => $type->description,
@@ -130,63 +138,77 @@ class SchemaExtender
             'parseValue' => [$type, 'parseValue'],
             'parseLiteral' => [$type, 'parseLiteral'],
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::extensionASTNodes($type),
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
     protected static function extendUnionType(UnionType $type): UnionType
     {
+        /** @var array<int, UnionTypeExtensionNode> $extensionASTNodes */
+        $extensionASTNodes = static::extensionASTNodes($type);
+
         return new UnionType([
             'name' => $type->name,
             'description' => $type->description,
             'types' => static fn (): array => static::extendUnionPossibleTypes($type),
             'resolveType' => [$type, 'resolveType'],
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::extensionASTNodes($type),
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
     protected static function extendEnumType(EnumType $type): EnumType
     {
+        /** @var array<int, EnumTypeExtensionNode> $extensionASTNodes */
+        $extensionASTNodes = static::extensionASTNodes($type);
+
         return new EnumType([
             'name' => $type->name,
             'description' => $type->description,
             'values' => static::extendEnumValueMap($type),
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::extensionASTNodes($type),
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
     protected static function extendInputObjectType(InputObjectType $type): InputObjectType
     {
+        /** @var array<int, InputObjectTypeExtensionNode> $extensionASTNodes */
+        $extensionASTNodes = static::extensionASTNodes($type);
+
         return new InputObjectType([
             'name' => $type->name,
             'description' => $type->description,
             'fields' => static fn (): array => static::extendInputFieldMap($type),
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::extensionASTNodes($type),
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @return array<string, UnnamedInputObjectFieldConfig>
      */
     protected static function extendInputFieldMap(InputObjectType $type): array
     {
+        /** @var array<string, UnnamedInputObjectFieldConfig> $newFieldMap */
         $newFieldMap = [];
+
         $oldFieldMap = $type->getFields();
         foreach ($oldFieldMap as $fieldName => $field) {
-            $newFieldMap[$fieldName] = [
+            /** @var InputType&Type $extendedType proven by schema validation */
+            $extendedType = static::extendType($field->getType());
+
+            $newFieldConfig = [
                 'description' => $field->description,
-                'type' => static::extendType($field->getType()),
+                'type' => $extendedType,
                 'astNode' => $field->astNode,
             ];
 
-            if (! $field->defaultValueExists()) {
-                continue;
+            if ($field->defaultValueExists()) {
+                $newFieldConfig['defaultValue'] = $field->defaultValue;
             }
 
-            $newFieldMap[$fieldName]['defaultValue'] = $field->defaultValue;
+            $newFieldMap[$fieldName] = $newFieldConfig;
         }
 
         if (isset(static::$typeExtensionsMap[$type->name])) {
@@ -244,7 +266,7 @@ class SchemaExtender
     }
 
     /**
-     * @return array<int, Type> Should be ObjectType, will be caught in schema validation
+     * @return array<int, Type&ObjectType>
      */
     protected static function extendUnionPossibleTypes(UnionType $type): array
     {
@@ -266,13 +288,14 @@ class SchemaExtender
             }
         }
 
+        // @phpstan-ignore-next-line proven by schema validation
         return $possibleTypes;
     }
 
     /**
      * @param ObjectType|InterfaceType $type
      *
-     * @return array<int, Type> Should be InterfaceType, will be caught in schema validation
+     * @return array<int, Type&InterfaceType>
      */
     protected static function extendImplementedInterfaces(ImplementingType $type): array
     {
@@ -296,6 +319,7 @@ class SchemaExtender
             }
         }
 
+        // @phpstan-ignore-next-line will be caught in schema validation
         return $interfaces;
     }
 
@@ -325,14 +349,17 @@ class SchemaExtender
     /**
      * @param array<Argument> $args
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, UnnamedArgumentConfig>
      */
     protected static function extendArgs(array $args): array
     {
         $extended = [];
         foreach ($args as $arg) {
+            /** @var Type&InputType $extendedType proven by schema validation */
+            $extendedType = static::extendType($arg->getType());
+
             $def = [
-                'type' => static::extendType($arg->getType()),
+                'type' => $extendedType,
                 'description' => $arg->description,
                 'astNode' => $arg->astNode,
             ];
@@ -396,6 +423,9 @@ class SchemaExtender
 
     protected static function extendObjectType(ObjectType $type): ObjectType
     {
+        /** @var array<int, ObjectTypeExtensionNode> $extensionASTNodes */
+        $extensionASTNodes = static::extensionASTNodes($type);
+
         return new ObjectType([
             'name' => $type->name,
             'description' => $type->description,
@@ -404,12 +434,15 @@ class SchemaExtender
             'isTypeOf' => [$type, 'isTypeOf'],
             'resolveField' => $type->resolveFieldFn ?? null,
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::extensionASTNodes($type),
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
     protected static function extendInterfaceType(InterfaceType $type): InterfaceType
     {
+        /** @var array<int, InterfaceTypeExtensionNode> $extensionASTNodes */
+        $extensionASTNodes = static::extensionASTNodes($type);
+
         return new InterfaceType([
             'name' => $type->name,
             'description' => $type->description,
@@ -417,7 +450,7 @@ class SchemaExtender
             'fields' => static fn (): array => static::extendFieldMap($type),
             'resolveType' => [$type, 'resolveType'],
             'astNode' => $type->astNode,
-            'extensionASTNodes' => static::extensionASTNodes($type),
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 

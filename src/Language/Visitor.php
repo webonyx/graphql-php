@@ -212,12 +212,8 @@ class Visitor
                 $parent = array_pop($ancestors);
 
                 if ($isEdited) {
-                    if ($inArray) {
-                        // $node = $node; // arrays are value types in PHP
-                        if ($node instanceof NodeList) {
-                            $node = clone $node;
-                        }
-                    } else {
+                    if ($node instanceof Node || $node instanceof NodeList) {
+                        // TODO should we use cloneDeep()?
                         $node = clone $node;
                     }
 
@@ -231,6 +227,7 @@ class Visitor
                         }
 
                         if ($inArray && null === $editValue) {
+                            /** @var NodeList<Node> $node follows from $inArray */
                             $node->splice($editKey, 1);
                             ++$editOffset;
                         } else {

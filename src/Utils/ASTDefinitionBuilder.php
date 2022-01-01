@@ -27,19 +27,22 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use function is_array;
 use function is_string;
-use function sprintf;
 use Throwable;
 
 /**
- * @phpstan-import-type FieldMapConfig from FieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ * @phpstan-import-type InputObjectFieldConfig from InputObjectField
+ * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
  * @phpstan-type ResolveType callable(string, Node|null): Type
  * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
  */
@@ -100,15 +103,17 @@ class ASTDefinitionBuilder
     /**
      * @param NodeList<InputValueDefinitionNode> $values
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, UnnamedInputObjectFieldConfig>
      */
     private function makeInputValues(NodeList $values): array
     {
+        /** @var array<string, UnnamedInputObjectFieldConfig> $map */
         $map = [];
         foreach ($values as $value) {
             // Note: While this could make assertions to get the correctly typed
             // value, that would throw immediately while type system validation
             // with validateSchema() will produce more actionable results.
+            /** @var InputType&Type $type */
             $type = $this->buildWrappedType($value->type);
 
             $config = [
@@ -117,7 +122,8 @@ class ASTDefinitionBuilder
                 'description' => $value->description->value ?? null,
                 'astNode' => $value,
             ];
-            if (isset($value->defaultValue)) {
+
+            if (null !== $value->defaultValue) {
                 $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
             }
 
@@ -137,6 +143,7 @@ class ASTDefinitionBuilder
         }
 
         if ($typeNode instanceof NonNullTypeNode) {
+            // @phpstan-ignore-next-line contained type is NullableType
             return Type::nonNull($this->buildWrappedType($typeNode->type));
         }
 
@@ -204,7 +211,7 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|EnumTypeDefinitionNode|ScalarTypeDefinitionNode|InputObjectTypeDefinitionNode|UnionTypeDefinitionNode $def
+     * @param TypeDefinitionNode&Node $def
      *
      * @throws Error
      *
@@ -229,6 +236,7 @@ class ASTDefinitionBuilder
                 return $this->makeScalarDef($def);
 
             default:
+                /** @var InputObjectTypeDefinitionNode $def all implementations are known */
                 return $this->makeInputObjectDef($def);
         }
     }
@@ -264,11 +272,14 @@ class ASTDefinitionBuilder
      */
     public function buildField(FieldDefinitionNode $field): array
     {
+        // Note: While this could make assertions to get the correctly typed
+        // value, that would throw immediately while type system validation
+        // with validateSchema() will produce more actionable results.
+        /** @var Type&OutputType $type */
+        $type = $this->buildWrappedType($field->type);
+
         return [
-            // Note: While this could make assertions to get the correctly typed
-            // value, that would throw immediately while type system validation
-            // with validateSchema() will produce more actionable results.
-            'type' => $this->buildWrappedType($field->type),
+            'type' => $type,
             'description' => $field->description->value ?? null,
             'args' => $this->makeInputValues($field->arguments),
             'deprecationReason' => $this->getDeprecationReason($field),
@@ -356,6 +367,7 @@ class ASTDefinitionBuilder
                     $types[] = $this->buildType($type);
                 }
 
+                /** @var array<int, ObjectType> $types */
                 return $types;
             },
             'astNode' => $def,
@@ -393,33 +405,40 @@ class ASTDefinitionBuilder
     {
         switch (true) {
             case $def instanceof ObjectTypeDefinitionNode:
+                // @phpstan-ignore-next-line assume the config matches
                 return new ObjectType($config);
 
             case $def instanceof InterfaceTypeDefinitionNode:
+                // @phpstan-ignore-next-line assume the config matches
                 return new InterfaceType($config);
 
             case $def instanceof EnumTypeDefinitionNode:
+                // @phpstan-ignore-next-line assume the config matches
                 return new EnumType($config);
 
             case $def instanceof UnionTypeDefinitionNode:
+                // @phpstan-ignore-next-line assume the config matches
                 return new UnionType($config);
 
             case $def instanceof ScalarTypeDefinitionNode:
+                // @phpstan-ignore-next-line assume the config matches
                 return new CustomScalarType($config);
 
             case $def instanceof InputObjectTypeDefinitionNode:
+                // @phpstan-ignore-next-line assume the config matches
                 return new InputObjectType($config);
 
             default:
-                throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
+                throw new Error("Type kind of {$def->kind} not supported.");
         }
     }
 
     /**
-     * @return array<string, mixed>
+     * @return InputObjectFieldConfig
      */
     public function buildInputField(InputValueDefinitionNode $value): array
     {
+        /** @var Type&InputType $type proven during schema validation */
         $type = $this->buildWrappedType($value->type);
 
         $config = [
@@ -430,7 +449,7 @@ class ASTDefinitionBuilder
         ];
 
         if (null !== $value->defaultValue) {
-            $config['defaultValue'] = $value->defaultValue;
+            $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
         }
 
         return $config;

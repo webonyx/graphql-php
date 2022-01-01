@@ -213,6 +213,7 @@ class Printer
                 return 'fragment ' . $this->p($node->name)
                     . $this->wrap(
                         '(',
+                        // @phpstan-ignore-next-line generic type of empty NodeList is not recognized
                         $this->printList($node->variableDefinitions ?? new NodeList([]), ', '),
                         ')'
                     )
@@ -408,7 +409,7 @@ class Printer
                     return BlockString::print($node->value, $isDescription ? '' : '  ');
                 }
 
-                return json_encode($node->value);
+                return json_encode($node->value, JSON_THROW_ON_ERROR);
 
             case $node instanceof UnionTypeDefinitionNode:
                 $typesStr = $this->printList($node->types, ' | ');

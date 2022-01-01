@@ -612,7 +612,7 @@ class Helper
     {
         $httpStatus = $this->resolveHttpStatus($result);
 
-        $result = json_encode($result);
+        $result = json_encode($result, JSON_THROW_ON_ERROR);
         $writableBodyStream->write($result);
 
         return $response

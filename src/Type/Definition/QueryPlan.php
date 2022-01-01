@@ -28,7 +28,7 @@ use function is_numeric;
 
 /**
  * @phpstan-type QueryPlanOptions array{
- *   groupImplementorFields: bool,
+ *   groupImplementorFields?: bool,
  * }
  */
 class QueryPlan
@@ -154,8 +154,8 @@ class QueryPlan
     }
 
     /**
-     * @param InterfaceType|ObjectType $parentType
-     * @param array<string, mixed>     $implementors
+     * @param Type&NamedType $parentType
+     * @param array<string, mixed> $implementors
      *
      * @throws Error
      *
@@ -167,6 +167,7 @@ class QueryPlan
         $implementors = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
+                /** @var HasFieldsType&NamedType&Type $parentType ensured by query validation */
                 $fieldName = $selectionNode->name->value;
 
                 if (Introspection::TYPE_NAME_FIELD_NAME === $fieldName) {
