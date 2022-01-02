@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Type;
 
 use Generator;
-use function get_class;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
@@ -23,7 +22,6 @@ use GraphQL\Utils\InterfaceImplementations;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use function implode;
-use InvalidArgumentException;
 use function is_array;
 use function is_callable;
 use function is_iterable;
@@ -480,13 +478,8 @@ class Schema
             return $maybeSubType->implementsInterface($abstractType);
         }
 
-        // @phpstan-ignore-next-line necessary until function can be type hinted with actual union type
-        if ($abstractType instanceof UnionType) {
-            return $abstractType->isPossibleType($maybeSubType);
-        }
-
-        // @phpstan-ignore-next-line necessary until function can be type hinted with actual union type
-        throw new InvalidArgumentException('$abstractType must be of type UnionType|InterfaceType got: ' . get_class($abstractType) . '.');
+        /** @var UnionType $abstractType only other option */
+        return $abstractType->isPossibleType($maybeSubType);
     }
 
     /**

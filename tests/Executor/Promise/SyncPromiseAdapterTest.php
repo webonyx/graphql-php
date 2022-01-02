@@ -50,7 +50,6 @@ class SyncPromiseAdapterTest extends TestCase
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Expected instance of GraphQL\Deferred, got (empty string)');
-        // @phpstan-ignore-next-line purposefully wrong
         $this->promises->convertThenable('');
     }
 

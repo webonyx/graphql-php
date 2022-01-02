@@ -187,7 +187,6 @@ class ValidationTest extends TestCaseBase
                 static fn (): UnionType => new UnionType([]),
                 // @phpstan-ignore-next-line intentionally wrong
                 static fn (): InterfaceType => new InterfaceType([]),
-                // @phpstan-ignore-next-line intentionally wrong
                 static fn (): ScalarType => new CustomScalarType([]),
             ],
             'Must provide name.'

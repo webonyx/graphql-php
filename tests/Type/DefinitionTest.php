@@ -354,7 +354,6 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAnEnumTypeWithIncorrectlyTypedValues(): void
     {
-        // @phpstan-ignore-next-line intentionally wrong
         $enumType = new EnumType([
             'name' => 'SomeEnum',
             'values' => [['FOO' => 10]],
@@ -1348,7 +1347,6 @@ final class DefinitionTest extends TestCaseBase
         ));
 
         $this->schemaWithFieldType(
-            // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
                 'serialize' => static function (): void {
@@ -1369,7 +1367,6 @@ final class DefinitionTest extends TestCaseBase
         ));
 
         $this->schemaWithFieldType(
-            // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
                 'serialize' => static function (): void {

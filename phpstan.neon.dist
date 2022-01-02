@@ -1,9 +1,9 @@
 parameters:
     # TODO increase to max
-    level: 6
+    level: 7
 
     # TODO revert this setting once we arrived at level: max
-    reportUnmatchedIgnoredErrors: false
+    # reportUnmatchedIgnoredErrors: false
 
     paths:
         - benchmarks
