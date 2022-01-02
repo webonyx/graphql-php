@@ -36,7 +36,6 @@ use SplObjectStorage;
  * allowing access to commonly useful contextual information from within a
  * validation rule.
  *
- * @phpstan-import-type InputTypeAlias from InputType
  * @phpstan-type VariableUsage array{node: VariableNode, type: (Type&InputType)|null, defaultValue: mixed}
  */
 class ValidationContext extends ASTValidationContext

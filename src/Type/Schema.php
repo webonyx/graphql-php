@@ -390,17 +390,19 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
-     * @param InterfaceType|UnionType $abstractType
+     * @param AbstractType&Type $abstractType
      *
      * @return array<ObjectType>
      *
      * @api
      */
-    public function getPossibleTypes(Type $abstractType): array
+    public function getPossibleTypes(AbstractType $abstractType): array
     {
-        return $abstractType instanceof UnionType
-            ? $abstractType->getTypes()
-            : $this->getImplementations($abstractType)->objects();
+        if ($abstractType instanceof UnionType) {
+            return $abstractType->getTypes();
+        }
+        /** @var InterfaceType $abstractType only other option */
+        return $this->getImplementations($abstractType)->objects();
     }
 
     /**

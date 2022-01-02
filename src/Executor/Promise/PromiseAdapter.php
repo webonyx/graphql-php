@@ -23,7 +23,7 @@ interface PromiseAdapter
     /**
      * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance.
      *
-     * @param object $thenable
+     * @param mixed $thenable
      *
      * @api
      */

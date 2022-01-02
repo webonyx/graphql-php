@@ -84,7 +84,9 @@ class AmpPromiseAdapter implements PromiseAdapter
         $promises = [];
         foreach ($promisesOrValues as $key => $item) {
             if ($item instanceof Promise) {
-                $promises[$key] = $item->adoptedPromise;
+                /** @var AmpPromise<mixed> $ampPromise */
+                $ampPromise = $item->adoptedPromise;
+                $promises[$key] = $ampPromise;
             } elseif ($item instanceof AmpPromise) {
                 $promises[$key] = $item;
             }
@@ -126,6 +128,7 @@ class AmpPromiseAdapter implements PromiseAdapter
         }
 
         if ($result instanceof Promise) {
+            /** @var TResult $result */
             $result = $result->adoptedPromise;
         }
 

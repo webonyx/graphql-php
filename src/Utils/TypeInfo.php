@@ -43,9 +43,6 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 
-/**
- * @phpstan-import-type InputTypeAlias from InputType
- */
 class TypeInfo
 {
     private Schema $schema;

@@ -11,7 +11,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
 /**
- * @phpstan-import-type InputTypeAlias from InputType
  * @phpstan-type ArgumentType (Type&InputType)|callable(): (Type&InputType)
  * @phpstan-type InputObjectFieldConfig array{
  *   name: string,

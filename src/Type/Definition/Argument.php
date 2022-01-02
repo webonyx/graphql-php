@@ -12,7 +12,6 @@ use GraphQL\Utils\Utils;
 use function is_array;
 
 /**
- * @phpstan-import-type InputTypeAlias from InputType
  * @phpstan-type ArgumentType (Type&InputType)|callable(): (Type&InputType)
  * @phpstan-type UnnamedArgumentConfig array{
  *     name?: string,

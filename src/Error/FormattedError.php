@@ -6,7 +6,6 @@ namespace GraphQL\Error;
 
 use function addcslashes;
 use function array_filter;
-use function array_intersect_key;
 use function array_map;
 use function array_merge;
 use function array_shift;
@@ -37,12 +36,7 @@ use Throwable;
  * It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io/graphql/#sec-Errors)
  * and provides tools for error debugging.
  *
- * @phpstan-type FormattedErrorArray array{
- *   message: string,
- *   locations?: array<int, array{line: int, column: int}>,
- *   path?: array<int, int|string>,
- *   extensions?: array<string, mixed>,
- * }
+ * @phpstan-import-type SerializableError from ExecutionResult
  * @phpstan-import-type ErrorFormatter from ExecutionResult
  */
 class FormattedError
@@ -70,17 +64,15 @@ class FormattedError
         if (0 !== count($error->nodes ?? [])) {
             /** @var Node $node */
             foreach ($error->nodes as $node) {
-                if (null === $node->loc) {
+                if (! isset($node->loc->source)) {
                     continue;
                 }
 
-                if (null === $node->loc->source) {
-                    continue;
-                }
-
+                $location = $node->loc;
+                $source = $location->source;
                 $printedLocations[] = self::highlightSourceAtLocation(
-                    $node->loc->source,
-                    $node->loc->source->getLocation($node->loc->start)
+                    $source,
+                    $source->getLocation($location->start)
                 );
             }
         } elseif (null !== $error->getSource() && 0 !== count($error->getLocations())) {
@@ -110,6 +102,7 @@ class FormattedError
         $lineNum = (string) $contextLine;
         $nextLineNum = (string) ($contextLine + 1);
         $padLen = strlen($nextLineNum);
+        /** @var array<int, string> $lines regex is statically known to be correct */
         $lines = preg_split('/\r\n|[\n\r]/', $source->body);
 
         $lines[0] = self::whitespace($source->locationOffset->column - 1) . $lines[0];
@@ -150,7 +143,7 @@ class FormattedError
      *
      * For a list of available debug flags @see \GraphQL\Error\DebugFlag constants.
      *
-     * @return FormattedErrorArray
+     * @return SerializableError
      *
      * @api
      */
@@ -195,10 +188,10 @@ class FormattedError
     /**
      * Decorates spec-compliant $formattedError with debug entries according to $debug flags.
      *
-     * @param int                 $debugFlag      For available flags @see \GraphQL\Error\DebugFlag
-     * @param FormattedErrorArray $formattedError
+     * @param SerializableError $formattedError
+     * @param int $debugFlag For available flags @see \GraphQL\Error\DebugFlag
      *
-     * @return FormattedErrorArray
+     * @return SerializableError
      */
     public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag): array
     {
@@ -287,26 +280,29 @@ class FormattedError
             array_shift($trace);
         }
 
-        return array_map(
-            static function (array $err): array {
-                $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
+        $formatted = [];
+        foreach ($trace as $err) {
+            $safeErr = [
+                'file' => $err['file'],
+                'line' => $err['line'],
+            ];
 
-                if (isset($err['function'])) {
-                    $func = $err['function'];
-                    $args = array_map([self::class, 'printVar'], $err['args'] ?? []);
-                    $funcStr = $func . '(' . implode(', ', $args) . ')';
+            if (isset($err['function'])) {
+                $func = $err['function'];
+                $args = array_map([self::class, 'printVar'], $err['args'] ?? []);
+                $funcStr = $func . '(' . implode(', ', $args) . ')';
 
-                    if (isset($err['class'])) {
-                        $safeErr['call'] = $err['class'] . '::' . $funcStr;
-                    } else {
-                        $safeErr['function'] = $funcStr;
-                    }
+                if (isset($err['class'])) {
+                    $safeErr['call'] = $err['class'] . '::' . $funcStr;
+                } else {
+                    $safeErr['function'] = $funcStr;
                 }
+            }
 
-                return $safeErr;
-            },
-            $trace
-        );
+            $formatted[] = $safeErr;
+        }
+
+        return $formatted;
     }
 
     /**

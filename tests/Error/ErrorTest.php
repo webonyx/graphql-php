@@ -41,7 +41,7 @@ class ErrorTest extends TestCase
         $fieldNode = $operationDefinition->selectionSet->selections[0];
         $e = new Error('msg', [$fieldNode]);
 
-        self::assertEquals([$fieldNode], $e->nodes);
+        self::assertEquals([$fieldNode], $e->getNodes());
         self::assertEquals($source, $e->getSource());
         self::assertEquals([8], $e->getPositions());
         self::assertEquals([new SourceLocation(2, 7)], $e->getLocations());
@@ -61,7 +61,7 @@ class ErrorTest extends TestCase
         $fieldNode = $operationDefinition->selectionSet->selections[0];
         $e = new Error('msg', $fieldNode); // Non-array value.
 
-        self::assertEquals([$fieldNode], $e->nodes);
+        self::assertEquals([$fieldNode], $e->getNodes());
         self::assertEquals($source, $e->getSource());
         self::assertEquals([8], $e->getPositions());
         self::assertEquals([new SourceLocation(2, 7)], $e->getLocations());
@@ -79,7 +79,7 @@ class ErrorTest extends TestCase
         $operationNode = $ast->definitions[0];
         $e = new Error('msg', [$operationNode]);
 
-        self::assertEquals([$operationNode], $e->nodes);
+        self::assertEquals([$operationNode], $e->getNodes());
         self::assertEquals($source, $e->getSource());
         self::assertEquals([0], $e->getPositions());
         self::assertEquals([new SourceLocation(1, 1)], $e->getLocations());
@@ -95,7 +95,7 @@ class ErrorTest extends TestCase
     }');
         $e = new Error('msg', null, $source, [10]);
 
-        self::assertEquals(null, $e->nodes);
+        self::assertEquals(null, $e->getNodes());
         self::assertEquals($source, $e->getSource());
         self::assertEquals([10], $e->getPositions());
         self::assertEquals([new SourceLocation(2, 9)], $e->getLocations());

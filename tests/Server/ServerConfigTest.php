@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Server;
 use Closure;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Type\Definition\ObjectType;
@@ -16,6 +17,10 @@ use GraphQL\Validator\Rules\UniqueEnumValueNames;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
+/**
+ * @phpstan-import-type SerializableError from ExecutionResult
+ * @phpstan-import-type SerializableErrors from ExecutionResult
+ */
 class ServerConfigTest extends TestCase
 {
     public function testDefaults(): void
@@ -87,11 +92,11 @@ class ServerConfigTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return SerializableError
      */
     public static function formatError(): array
     {
-        return [];
+        return ['message' => 'irrelevant'];
     }
 
     public function testAllowsSettingErrorsHandler(): void
@@ -108,7 +113,7 @@ class ServerConfigTest extends TestCase
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return SerializableErrors
      */
     public static function handleError(): array
     {

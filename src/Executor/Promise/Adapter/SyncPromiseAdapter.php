@@ -120,16 +120,16 @@ class SyncPromiseAdapter implements PromiseAdapter
         $this->beforeWait($promise);
         $taskQueue = SyncPromise::getQueue();
 
+        /** @var SyncPromise $syncPromise */
+        $syncPromise = $promise->adoptedPromise;
+
         while (
-            SyncPromise::PENDING === $promise->adoptedPromise->state
+            SyncPromise::PENDING === $syncPromise->state
             && ! $taskQueue->isEmpty()
         ) {
             SyncPromise::runQueue();
             $this->onWait($promise);
         }
-
-        /** @var SyncPromise $syncPromise */
-        $syncPromise = $promise->adoptedPromise;
 
         if (SyncPromise::FULFILLED === $syncPromise->state) {
             return $syncPromise->result;

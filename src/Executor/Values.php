@@ -260,14 +260,13 @@ class Values
                     // usage here is of the correct type.
                     $coercedValues[$name] = $variableValues[$variableName] ?? null;
                 } else {
-                    $valueNode = $argumentValueNode;
-                    $coercedValue = AST::valueFromAST($valueNode, $argType, $variableValues);
+                    $coercedValue = AST::valueFromAST($argumentValueNode, $argType, $variableValues);
                     if (Utils::isInvalid($coercedValue)) {
                         // Note: ValuesOfCorrectType validation should catch this before
                         // execution. This is a runtime check to ensure execution does not
                         // continue with an invalid argument value.
                         throw new Error(
-                            'Argument "' . $name . '" has invalid value ' . Printer::doPrint($valueNode) . '.',
+                            'Argument "' . $name . '" has invalid value ' . Printer::doPrint($argumentValueNode) . '.',
                             [$argumentValueNode]
                         );
                     }

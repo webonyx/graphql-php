@@ -174,12 +174,9 @@ function renderProp(ReflectionProperty $prop): string
     return unpadDocblock($prop->getDocComment()) . "\n" . $signature;
 }
 
-/**
- * @param string|false $docBlock
- */
-function unwrapDocblock($docBlock): string
+function unwrapDocblock(string $docBlock): string
 {
-    if (! $docBlock) {
+    if ('' === $docBlock) {
         return '';
     }
 
@@ -196,7 +193,7 @@ function unwrapDocblock($docBlock): string
  */
 function unpadDocblock($docBlock): string
 {
-    if (! $docBlock) {
+    if (false === $docBlock) {
         return '';
     }
 
@@ -215,7 +212,7 @@ function unpadDocblock($docBlock): string
 function isApi(Reflector $reflector): bool
 {
     $comment = $reflector->getDocComment();
-    if (! $comment) {
+    if (false === $comment) {
         return false;
     }
 
