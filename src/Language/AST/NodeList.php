@@ -116,7 +116,6 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
         return new NodeList(
-            // @phpstan-ignore-next-line PHPStan seems to think $replacement must be array|string
             array_splice($this->nodes, $offset, $length, $replacement)
         );
     }

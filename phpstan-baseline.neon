@@ -71,6 +71,11 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
+			message: "#^Parameter \\#4 \\$replacement of function array_splice expects array\\|string, array\\<T of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|T of GraphQL\\\\Language\\\\AST\\\\Node\\|null given\\.$#"
+			count: 1
+			path: src/Language/AST/NodeList.php
+
+		-
 			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printList\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\DefinitionNode&GraphQL\\\\Language\\\\AST\\\\Node\\> given\\.$#"
 			count: 1
 			path: src/Language/Printer.php
