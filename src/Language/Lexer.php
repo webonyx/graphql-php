@@ -504,7 +504,7 @@ class Lexer
                     case 117:
                         $position = $this->position;
                         [$hex] = $this->readChars(4, true);
-                        if (preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
+                        if (1 !== preg_match('/[0-9a-fA-F]{4}/', $hex)) {
                             throw new SyntaxError(
                                 $this->source,
                                 $position - 1,
