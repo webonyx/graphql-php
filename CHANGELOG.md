@@ -34,6 +34,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Rename `FieldArgument` to `Argument`
 - Make errors when parsing scalar literals more precise
 - Change expected `QueryPlan` options from `['group-implementor-fields']` to `['groupImplementorFields' => true]` in `ResolveInfo::lookAhead()`
+- Always convert promises through `PromiseAdapter::convertThenable()` before calling `->then()` on them
+- Use `JSON_THROW_ON_ERROR` in `json_encode()`
 
 ### Added
 
@@ -99,6 +101,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove `ListOfType::$ofType`, `ListOfType::getOfType()` and `NonNull::getOfType()`
 - Remove option `commentDescriptions` from `BuildSchema::buildAST()`, `BuildSchema::build()` and `Printer::doPrint()`
 - Remove parameter `$options` from `ASTDefinitionBuilder`
+- Remove `FieldDefinition::create()` in favor of `new FieldDefinition()`
 
 ## 14.11.3
 

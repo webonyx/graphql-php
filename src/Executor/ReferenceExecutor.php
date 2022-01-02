@@ -248,16 +248,12 @@ class ReferenceExecutor implements ExecutorImplementation
         // Note: we deviate here from the reference implementation a bit by always returning promise
         // But for the "sync" case it is always fulfilled
 
-        if ($result instanceof Promise) {
-            return $result;
+        $promise = $this->getPromise($result);
+        if (null !== $promise) {
+            return $promise;
         }
 
-        $promiseAdapter = $this->exeContext->promiseAdapter;
-        if ($promiseAdapter->isThenable($result)) {
-            return $promiseAdapter->convertThenable($result);
-        }
-
-        return $promiseAdapter->createFulfilled($result);
+        return $this->exeContext->promiseAdapter->createFulfilled($result);
     }
 
     /**
@@ -306,14 +302,9 @@ class ReferenceExecutor implements ExecutorImplementation
                 ? $this->executeFieldsSerially($type, $rootValue, $path, $fields)
                 : $this->executeFields($type, $rootValue, $path, $fields);
 
-            if ($result instanceof Promise) {
-                return $result->then(null, [$this, 'onError']);
-            }
-
-            $promiseAdapter = $this->exeContext->promiseAdapter;
-            if ($promiseAdapter->isThenable($result)) {
-                return $promiseAdapter->convertThenable($result)
-                    ->then(null, [$this, 'onError']);
+            $promise = $this->getPromise($result);
+            if (null !== $promise) {
+                return $promise->then(null, [$this, 'onError']);
             }
 
             return $result;
