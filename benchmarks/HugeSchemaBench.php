@@ -17,8 +17,9 @@ use GraphQL\Type\SchemaConfig;
 class HugeSchemaBench
 {
     /** @var SchemaGenerator */
-    private $schemaBuilder;
+    private $schemaGenerator;
 
+    /** @var Schema */
     private $schema;
 
     /** @var string */
@@ -26,49 +27,49 @@ class HugeSchemaBench
 
     public function setUp()
     {
-        $this->schemaBuilder = new SchemaGenerator([
+        $this->schemaGenerator = new SchemaGenerator([
             'totalTypes' => 600,
             'fieldsPerType' => 8,
             'listFieldsPerType' => 2,
             'nestingLevel' => 10,
         ]);
 
-        $this->schema = $this->schemaBuilder->buildSchema();
+        $this->schema = $this->schemaGenerator->buildSchema();
 
         $queryBuilder     = new QueryGenerator($this->schema, 0.05);
         $this->smallQuery = $queryBuilder->buildQuery();
     }
 
-    public function benchSchema()
+    public function benchSchema(): void
     {
-        $this->schemaBuilder
+        $this->schemaGenerator
             ->buildSchema()
             ->getTypeMap();
     }
 
-    public function benchSchemaLazy()
+    public function benchSchemaLazy(): void
     {
         $this->createLazySchema();
     }
 
-    public function benchSmallQuery()
+    public function benchSmallQuery(): void
     {
-        $result = GraphQL::executeQuery($this->schema, $this->smallQuery);
+        GraphQL::executeQuery($this->schema, $this->smallQuery);
     }
 
-    public function benchSmallQueryLazy()
+    public function benchSmallQueryLazy(): void
     {
         $schema = $this->createLazySchema();
-        $result = GraphQL::executeQuery($schema, $this->smallQuery);
+        GraphQL::executeQuery($schema, $this->smallQuery);
     }
 
-    private function createLazySchema()
+    private function createLazySchema(): Schema
     {
         return new Schema(
             SchemaConfig::create()
-                ->setQuery($this->schemaBuilder->buildQueryType())
-                ->setTypeLoader(function ($name) {
-                    return $this->schemaBuilder->loadType($name);
+                ->setQuery($this->schemaGenerator->buildQueryType())
+                ->setTypeLoader(function (string $name): Type {
+                    return $this->schemaGenerator->loadType($name);
                 })
         );
     }

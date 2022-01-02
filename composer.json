@@ -9,7 +9,7 @@
   "homepage": "https://github.com/webonyx/graphql-php",
   "license": "MIT",
   "require": {
-    "php": "^7.1 || ^8.0",
+    "php": "^7.1 || ^8",
     "ext-json": "*",
     "ext-mbstring": "*"
   },
@@ -17,7 +17,7 @@
     "amphp/amp": "^2.3",
     "doctrine/coding-standard": "^6.0",
     "nyholm/psr7": "^1.2",
-    "phpbench/phpbench": "^0.16.10",
+    "phpbench/phpbench": "^1.2",
     "phpstan/extension-installer": "^1.0",
     "phpstan/phpstan": "0.12.82",
     "phpstan/phpstan-phpunit": "0.12.18",
@@ -51,7 +51,7 @@
   "scripts": {
     "api-docs": "php tools/gendocs.php",
     "baseline": "phpstan --ansi --generate-baseline",
-    "bench": "phpbench run .",
+    "bench": "phpbench run",
     "check": "composer lint && composer stan && composer test",
     "fix": "phpcbf && composer normalize",
     "lint": "phpcs",

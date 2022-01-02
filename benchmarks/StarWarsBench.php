@@ -16,17 +16,17 @@ class StarWarsBench
 {
     private $introQuery;
 
-    public function setIntroQuery()
+    public function setIntroQuery(): void
     {
         $this->introQuery = Introspection::getIntrospectionQuery();
     }
 
-    public function benchSchema()
+    public function benchSchema(): void
     {
         StarWarsSchema::build();
     }
 
-    public function benchHeroQuery()
+    public function benchHeroQuery(): void
     {
         $q = '
         query HeroNameQuery {
@@ -42,7 +42,7 @@ class StarWarsBench
         );
     }
 
-    public function benchNestedQuery()
+    public function benchNestedQuery(): void
     {
         $q = '
         query NestedQuery {
@@ -64,7 +64,7 @@ class StarWarsBench
         );
     }
 
-    public function benchQueryWithFragment()
+    public function benchQueryWithFragment(): void
     {
         $q = '
         query UseFragment {
@@ -88,15 +88,7 @@ class StarWarsBench
         );
     }
 
-    public function benchStarWarsIntrospectionQuery()
-    {
-        GraphQL::executeQuery(
-            StarWarsSchema::build(),
-            $this->introQuery
-        );
-    }
-
-    public function benchQueryWithInterfaceFragment()
+    public function benchQueryWithInterfaceFragment(): void
     {
         $q = '
         query UseInterfaceFragment {
@@ -116,6 +108,14 @@ class StarWarsBench
         GraphQL::executeQuery(
             StarWarsSchema::build(),
             $q
+        );
+    }
+
+    public function benchStarWarsIntrospectionQuery(): void
+    {
+        GraphQL::executeQuery(
+            StarWarsSchema::build(),
+            $this->introQuery
         );
     }
 }

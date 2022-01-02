@@ -1,19 +1,23 @@
 <?php
 
+use GraphQL\Benchmarks\HugeSchemaBench;
+use GraphQL\Benchmarks\LexerBench;
+use GraphQL\Benchmarks\StarWarsBench;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$b = new \GraphQL\Benchmarks\HugeSchemaBench();
+$b = new HugeSchemaBench();
 $b->setUp();
 $b->benchSchema();
 $b->benchSchemaLazy();
 $b->benchSmallQuery();
 $b->benchSmallQueryLazy();
 
-$b = new \GraphQL\Benchmarks\LexerBench();
+$b = new LexerBench();
 $b->setUp();
 $b->benchIntrospectionQuery();
 
-$b = new \GraphQL\Benchmarks\StarWarsBench();
+$b = new StarWarsBench();
 $b->setIntroQuery();
 $b->benchSchema();
 $b->benchHeroQuery();

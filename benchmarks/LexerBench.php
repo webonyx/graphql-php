@@ -12,9 +12,10 @@ use GraphQL\Type\Introspection;
  */
 class LexerBench
 {
+    /** @var Source */
     private $introQuery;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->introQuery = new Source(Introspection::getIntrospectionQuery());
     }
@@ -24,12 +25,12 @@ class LexerBench
      * @Revs(100)
      * @Iterations(5)
      */
-    public function benchIntrospectionQuery()
+    public function benchIntrospectionQuery(): void
     {
         $lexer = new Lexer($this->introQuery);
 
         do {
             $token = $lexer->advance();
-        } while ($token->kind !== Token::EOF);
+        } while (Token::EOF !== $token->kind);
     }
 }

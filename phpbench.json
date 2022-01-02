@@ -1,6 +1,7 @@
 {
-  "bootstrap": "vendor/autoload.php",
-  "path": "benchmarks",
-  "retry_threshold": 5,
-  "time_unit": "milliseconds"
+  "runner.bootstrap": "vendor/autoload.php",
+  "runner.path": "benchmarks",
+  "runner.file_pattern": "*Bench.php",
+  "runner.retry_threshold": 5,
+  "runner.time_unit": "milliseconds"
 }
