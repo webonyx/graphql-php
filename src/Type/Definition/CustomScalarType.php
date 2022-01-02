@@ -13,15 +13,25 @@ use GraphQL\Utils\AST;
 use function is_callable;
 
 /**
- * @phpstan-type CustomScalarConfig array{
+ * @phpstan-type InputCustomScalarConfig array{
  *   name?: string|null,
  *   description?: string|null,
  *   serialize?: callable(mixed): mixed,
+ *   parseValue: callable(mixed): mixed,
+ *   parseLiteral: callable(ValueNode&Node, array<string, mixed>|null): mixed,
+ *   astNode?: ScalarTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
+ * }
+ * @phpstan-type OutputCustomScalarConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   serialize: callable(mixed): mixed,
  *   parseValue?: callable(mixed): mixed,
  *   parseLiteral?: callable(ValueNode&Node, array<string, mixed>|null): mixed,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
  * }
+ * @phpstan-type CustomScalarConfig InputCustomScalarConfig|OutputCustomScalarConfig
  */
 class CustomScalarType extends ScalarType
 {
