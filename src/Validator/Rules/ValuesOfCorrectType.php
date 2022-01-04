@@ -22,13 +22,10 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
@@ -154,7 +151,6 @@ class ValuesOfCorrectType extends ValidationRule
     protected function isValidValueNode(ValidationContext $context, ValueNode $node): void
     {
         // Report any error at the full type expected by the location.
-        /** @var ScalarType|EnumType|InputObjectType|ListOfType<Type&InputType>|NonNull|null $locationType */
         $locationType = $context->getInputType();
         if (null === $locationType) {
             return;

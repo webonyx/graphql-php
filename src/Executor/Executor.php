@@ -23,12 +23,18 @@ use function is_object;
  */
 class Executor
 {
-    /** @var FieldResolver */
+    /**
+     * @var callable
+     * @phpstan-var FieldResolver
+     */
     private static $defaultFieldResolver = [self::class, 'defaultFieldResolver'];
 
     private static ?PromiseAdapter $defaultPromiseAdapter;
 
-    /** @var ImplementationFactory */
+    /**
+     * @var callable
+     * @phpstan-var ImplementationFactory
+     */
     private static $implementationFactory = [ReferenceExecutor::class, 'create'];
 
     /**
@@ -141,7 +147,6 @@ class Executor
         ?string $operationName = null,
         ?callable $fieldResolver = null
     ): Promise {
-        /** @var ExecutorImplementation $executor */
         $executor = (self::$implementationFactory)(
             $promiseAdapter,
             $schema,

@@ -117,8 +117,9 @@ class Value
         }
 
         if ($type instanceof ListOfType) {
-            /** @var Type&InputType $itemType known after schema validation */
             $itemType = $type->getWrappedType();
+            assert($itemType instanceof InputType, 'known through schema validation');
+
             if (is_array($value) || $value instanceof Traversable) {
                 $errors = [];
                 $coercedValue = [];
@@ -149,7 +150,9 @@ class Value
                 ? $coercedItem
                 : self::ofValue([$coercedItem['value']]);
         }
-        /** @var InputObjectType $type we handled all other cases at this point */
+
+        assert($type instanceof InputObjectType, 'we handled all other cases at this point');
+
         if ($value instanceof stdClass) {
             // Cast objects to associative array before checking the fields.
             // Note that the coerced value will be an array.

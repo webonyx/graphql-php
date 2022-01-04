@@ -41,7 +41,7 @@ class InputObjectField
 
     public ?InputValueDefinitionNode $astNode;
 
-    /** @var array<string, mixed> */
+    /** @phpstan-var InputObjectFieldConfig */
     public array $config;
 
     /**
@@ -102,6 +102,7 @@ class InputObjectField
             throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Input Type but got: {$notInputType}");
         }
 
+        // @phpstan-ignore-next-line should not happen if used properly
         if (array_key_exists('resolve', $this->config)) {
             throw new InvariantViolation("{$parentType->name}.{$this->name} field has a resolve property, but Input Types cannot define resolvers.");
         }

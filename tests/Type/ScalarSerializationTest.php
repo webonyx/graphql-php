@@ -221,8 +221,9 @@ class ScalarSerializationTest extends TestCase
     {
         $idType = Type::id();
 
-        $this->expectException(SerializationError::class);
-        $this->expectExceptionMessage($expectedError);
+        $this->expectExceptionObject(new SerializationError(
+            $expectedError
+        ));
         $idType->serialize($value);
     }
 }

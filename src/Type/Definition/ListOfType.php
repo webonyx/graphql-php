@@ -46,7 +46,8 @@ class ListOfType extends Type implements WrappingType, OutputType, NullableType,
             $type = $type->getWrappedType();
         }
 
-        /** @var Type&NamedType $type known because we unwrapped all the way down */
+        assert($type instanceof NamedType, 'known because we unwrapped all the way down');
+
         return $type;
     }
 }

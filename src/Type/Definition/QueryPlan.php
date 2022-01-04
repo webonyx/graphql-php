@@ -118,16 +118,15 @@ class QueryPlan
     {
         $queryPlan = [];
         $implementors = [];
-        /** @var FieldNode $fieldNode */
         foreach ($fieldNodes as $fieldNode) {
             if (null === $fieldNode->selectionSet) {
                 continue;
             }
 
-            /** @var ObjectType|InterfaceType $type proven because it must be a type with fields and was unwrapped */
             $type = Type::getNamedType(
                 $parentType->getField($fieldNode->name->value)->getType()
             );
+            assert($type instanceof ObjectType || $type instanceof InterfaceType, 'proven because it must be a type with fields and was unwrapped');
 
             $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type, $implementors);
 
@@ -167,7 +166,8 @@ class QueryPlan
         $implementors = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
-                /** @var HasFieldsType&NamedType&Type $parentType ensured by query validation */
+                assert($parentType instanceof HasFieldsType, 'ensured by query validation');
+
                 $fieldName = $selectionNode->name->value;
 
                 if (Introspection::TYPE_NAME_FIELD_NAME === $fieldName) {

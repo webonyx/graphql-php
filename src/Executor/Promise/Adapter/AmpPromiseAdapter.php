@@ -41,8 +41,9 @@ class AmpPromiseAdapter implements PromiseAdapter
             }
         };
 
-        /** @var AmpPromise<mixed> $adoptedPromise */
         $adoptedPromise = $promise->adoptedPromise;
+        assert($adoptedPromise instanceof AmpPromise);
+
         $adoptedPromise->onResolve($onResolve);
 
         return new Promise($deferred->promise(), $this);
@@ -84,8 +85,8 @@ class AmpPromiseAdapter implements PromiseAdapter
         $promises = [];
         foreach ($promisesOrValues as $key => $item) {
             if ($item instanceof Promise) {
-                /** @var AmpPromise<mixed> $ampPromise */
                 $ampPromise = $item->adoptedPromise;
+                assert($ampPromise instanceof AmpPromise);
                 $promises[$key] = $ampPromise;
             } elseif ($item instanceof AmpPromise) {
                 $promises[$key] = $item;

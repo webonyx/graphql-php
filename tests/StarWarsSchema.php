@@ -90,6 +90,7 @@ class StarWarsSchema
 
         /** @var ObjectType $humanType */
         $humanType = null;
+
         /** @var ObjectType $humanType */
         $droidType = null;
 

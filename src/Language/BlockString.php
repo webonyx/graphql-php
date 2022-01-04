@@ -25,8 +25,8 @@ class BlockString
     public static function dedentValue(string $rawString): string
     {
         // Expand a block string's raw value into independent lines.
-        /** @var array<int, string> $lines regex is statically known to be valid */
         $lines = preg_split('/\\r\\n|[\\n\\r]/', $rawString);
+        assert(is_array($lines), 'Should never be false given the regex is valid');
 
         // Remove common indentation from all lines but first.
         $commonIndent = self::getIndentation($rawString);

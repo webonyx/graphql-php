@@ -132,8 +132,10 @@ class BuildSchema
 
         $schemaDef = null;
         $this->nodeMap = [];
+
         /** @var array<int, DirectiveDefinitionNode> $directiveDefs */
         $directiveDefs = [];
+
         foreach ($this->ast->definitions as $definition) {
             switch (true) {
                 case $definition instanceof SchemaDefinitionNode:

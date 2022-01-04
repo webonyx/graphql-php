@@ -227,7 +227,7 @@ class Visitor
                         }
 
                         if ($inArray && null === $editValue) {
-                            /** @var NodeList<Node> $node follows from $inArray */
+                            assert($node instanceof NodeList, 'Follows from $inArray');
                             $node->splice($editKey, 1);
                             ++$editOffset;
                         } else {

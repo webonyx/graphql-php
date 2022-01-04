@@ -843,7 +843,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return $this->completeListValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
-        /** @var Type&NamedType $returnType wrapping types returned early */
+        assert($returnType instanceof NamedType, 'Wrapping types should return early');
 
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
@@ -1187,7 +1187,8 @@ class ReferenceExecutor implements ExecutorImplementation
                     );
                 });
             }
-            /** @var bool $isTypeOf promises would be returned early */
+
+            assert(is_bool($isTypeOf), 'Promise would return early');
             if (! $isTypeOf) {
                 throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
             }

@@ -76,7 +76,10 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /** @var array<int, ObjectTypeExtensionNode> */
     public array $extensionASTNodes;
 
-    /** @var callable|null */
+    /**
+     * @var callable|null
+     * @phpstan-var FieldResolver|null
+     */
     public $resolveFieldFn;
 
     /** @phpstan-var ObjectConfig */

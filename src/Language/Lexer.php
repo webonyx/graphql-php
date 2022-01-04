@@ -512,8 +512,8 @@ class Lexer
                             );
                         }
 
-                        /** @var int $code since only a single char is read */
                         $code = hexdec($hex);
+                        assert(is_int($code), 'Since only a single char is read');
 
                         // UTF-16 surrogate pair detection and handling.
                         $highOrderByte = $code >> 8;

@@ -27,8 +27,8 @@ class ReactPromiseAdapter implements PromiseAdapter
 
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
-        /** @var ReactPromiseInterface $adoptedPromise */
         $adoptedPromise = $promise->adoptedPromise;
+        assert($adoptedPromise instanceof ReactPromiseInterface);
 
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }

@@ -187,11 +187,11 @@ class Schema
     }
 
     /**
-     * @return array<Type&NamedType>
+     * @return array<string, Type&NamedType>
      */
     private function collectAllTypes(): array
     {
-        /** @var array<Type&NamedType> $typeMap */
+        /** @var array<string, Type&NamedType> $typeMap */
         $typeMap = [];
         foreach ($this->resolvedTypes as $type) {
             TypeInfo::extractTypes($type, $typeMap);
@@ -399,7 +399,9 @@ class Schema
         if ($abstractType instanceof UnionType) {
             return $abstractType->getTypes();
         }
-        /** @var InterfaceType $abstractType only other option */
+
+        assert($abstractType instanceof InterfaceType, 'only other option');
+
         return $this->getImplementations($abstractType)->objects();
     }
 
@@ -423,7 +425,8 @@ class Schema
         if (! isset($this->implementationsMap)) {
             $this->implementationsMap = [];
 
-            /** @var array<
+            /**
+             * @var array<
              *     string,
              *     array{
              *         objects: array<int, ObjectType>,
@@ -478,7 +481,8 @@ class Schema
             return $maybeSubType->implementsInterface($abstractType);
         }
 
-        /** @var UnionType $abstractType only other option */
+        assert($abstractType instanceof UnionType, 'only other option');
+
         return $abstractType->isPossibleType($maybeSubType);
     }
 

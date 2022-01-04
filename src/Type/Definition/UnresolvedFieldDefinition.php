@@ -12,7 +12,10 @@ class UnresolvedFieldDefinition
 {
     private string $name;
 
-    /** @var DefinitionResolver */
+    /**
+     * @var callable
+     * @phpstan-var DefinitionResolver
+     */
     private $definitionResolver;
 
     /**

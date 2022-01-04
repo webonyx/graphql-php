@@ -69,7 +69,7 @@ class Utils
             if (! property_exists($obj, $key)) {
                 $cls = get_class($obj);
                 Warning::warn(
-                    sprintf("Trying to set non-existing property '%s' on class '%s'", $key, $cls),
+                    "Trying to set non-existing property '{$key}' on class '{$cls}'",
                     Warning::WARNING_ASSIGN
                 );
             }

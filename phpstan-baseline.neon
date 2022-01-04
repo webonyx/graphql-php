@@ -106,6 +106,11 @@ parameters:
 			path: src/Language/Visitor.php
 
 		-
+			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition constructor expects array\\{name\\: string, value\\?\\: mixed, deprecationReason\\?\\: string\\|null, description\\?\\: string\\|null, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\|null\\}, array given\\.$#"
+			count: 1
+			path: src/Type/Definition/EnumType.php
+
+		-
 			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:getType\\(\\) should return GraphQL\\\\Type\\\\Definition\\\\OutputType&GraphQL\\\\Type\\\\Definition\\\\Type but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
 			count: 1
 			path: src/Type/Definition/FieldDefinition.php

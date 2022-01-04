@@ -148,7 +148,6 @@ class SyncPromise
 
         foreach ($this->waiting as $descriptor) {
             self::getQueue()->enqueue(function () use ($descriptor): void {
-                /** @var self $promise */
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
                 if (self::FULFILLED === $this->state) {

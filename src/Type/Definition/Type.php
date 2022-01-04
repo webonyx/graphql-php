@@ -190,10 +190,13 @@ abstract class Type implements JsonSerializable
      */
     public static function getNamedType(?Type $type): ?Type
     {
-        /** @var (Type&WrappingType)|(Type&NamedType)|null $type */
-        return $type instanceof WrappingType
-            ? $type->getInnermostType()
-            : $type;
+        if ($type instanceof WrappingType) {
+            return $type->getInnermostType();
+        }
+
+        assert($type instanceof NamedType, 'only other option');
+
+        return $type;
     }
 
     /**
@@ -243,10 +246,13 @@ abstract class Type implements JsonSerializable
      */
     public static function getNullableType(Type $type): Type
     {
-        /** @var (Type&NullableType)|(Type&NonNull) $type */
-        return $type instanceof NonNull
-            ? $type->getWrappedType()
-            : $type;
+        if ($type instanceof NonNull) {
+            return $type->getWrappedType();
+        }
+
+        assert($type instanceof NullableType, 'only other option');
+
+        return $type;
     }
 
     abstract public function toString(): string;

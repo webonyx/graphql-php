@@ -113,8 +113,8 @@ class ASTDefinitionBuilder
             // Note: While this could make assertions to get the correctly typed
             // value, that would throw immediately while type system validation
             // with validateSchema() will produce more actionable results.
-            /** @var InputType&Type $type */
             $type = $this->buildWrappedType($value->type);
+            assert($type instanceof InputType, 'proven by schema validation');
 
             $config = [
                 'name' => $value->name->value,
@@ -236,7 +236,8 @@ class ASTDefinitionBuilder
                 return $this->makeScalarDef($def);
 
             default:
-                /** @var InputObjectTypeDefinitionNode $def all implementations are known */
+                assert($def instanceof InputObjectTypeDefinitionNode, 'all implementations are known');
+
                 return $this->makeInputObjectDef($def);
         }
     }
@@ -275,8 +276,8 @@ class ASTDefinitionBuilder
         // Note: While this could make assertions to get the correctly typed
         // value, that would throw immediately while type system validation
         // with validateSchema() will produce more actionable results.
-        /** @var Type&OutputType $type */
         $type = $this->buildWrappedType($field->type);
+        assert($type instanceof OutputType, 'proven by schema validation');
 
         return [
             'type' => $type,
@@ -437,8 +438,8 @@ class ASTDefinitionBuilder
      */
     public function buildInputField(InputValueDefinitionNode $value): array
     {
-        /** @var Type&InputType $type proven during schema validation */
         $type = $this->buildWrappedType($value->type);
+        assert($type instanceof InputType, 'proven by schema validation');
 
         $config = [
             'name' => $value->name->value,

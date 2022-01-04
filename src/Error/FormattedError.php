@@ -15,7 +15,6 @@ use ErrorException;
 use function get_class;
 use function gettype;
 use GraphQL\Executor\ExecutionResult;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
@@ -61,9 +60,10 @@ class FormattedError
     public static function printError(Error $error): string
     {
         $printedLocations = [];
-        if (0 !== count($error->nodes ?? [])) {
-            /** @var Node $node */
-            foreach ($error->nodes as $node) {
+
+        $nodes = $error->nodes;
+        if (isset($nodes) && count($nodes) > 0) {
+            foreach ($nodes as $node) {
                 if (! isset($node->loc->source)) {
                     continue;
                 }
@@ -102,8 +102,9 @@ class FormattedError
         $lineNum = (string) $contextLine;
         $nextLineNum = (string) ($contextLine + 1);
         $padLen = strlen($nextLineNum);
-        /** @var array<int, string> $lines regex is statically known to be correct */
+
         $lines = preg_split('/\r\n|[\n\r]/', $source->body);
+        assert(is_array($lines), 'Should never be false given the regex is correct');
 
         $lines[0] = self::whitespace($source->locationOffset->column - 1) . $lines[0];
 

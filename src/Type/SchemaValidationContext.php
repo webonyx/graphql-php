@@ -565,13 +565,11 @@ class SchemaValidationContext
     {
         $argNodes = [];
         $fieldNode = $this->getFieldNode($type, $fieldName);
-        if (null !== $fieldNode && null !== $fieldNode->arguments) {
+        if (null !== $fieldNode) {
             foreach ($fieldNode->arguments as $node) {
-                if ($node->name->value !== $argName) {
-                    continue;
+                if ($node->name->value === $argName) {
+                    $argNodes[] = $node;
                 }
-
-                $argNodes[] = $node;
             }
         }
 

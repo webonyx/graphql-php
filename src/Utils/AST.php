@@ -175,8 +175,8 @@ class AST
         // Convert PHP iterables to GraphQL list. If the GraphQLType is a list, but
         // the value is not an array, convert the value using the list's item type.
         if ($type instanceof ListOfType) {
-            /** @var InputType&Type $itemType proven in schema validation */
             $itemType = $type->getWrappedType();
+            assert($itemType instanceof InputType, 'proven by schema validation');
 
             if (is_iterable($value)) {
                 $valuesNodes = [];
@@ -243,7 +243,8 @@ class AST
 
             return new ObjectValueNode(['fields' => new NodeList($fieldNodes)]);
         }
-        /** @var LeafType $type other options were exhausted */
+
+        assert($type instanceof LeafType, 'other options were exhausted');
 
         // Since value is an internally represented value, it must be serialized
         // to an externally represented value before converting into an AST.
@@ -561,12 +562,14 @@ class AST
         }
 
         if ($inputTypeNode instanceof NonNullTypeNode) {
-            /** @var (NullableType&Type)|null $innerType proven by schema validation */
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
+            if ($innerType === null) {
+                return null;
+            }
 
-            return null === $innerType
-                ? null
-                : new NonNull($innerType);
+            assert($innerType instanceof NullableType, 'proven by schema validation');
+
+            return new NonNull($innerType);
         }
 
         return $schema->getType($inputTypeNode->name->value);

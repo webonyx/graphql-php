@@ -43,7 +43,7 @@ class Argument
 
     public ?InputValueDefinitionNode $astNode;
 
-    /** @var ArgumentConfig */
+    /** @phpstan-var ArgumentConfig */
     public array $config;
 
     /**

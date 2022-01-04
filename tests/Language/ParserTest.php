@@ -21,7 +21,6 @@ use GraphQL\Tests\TestCaseBase;
 use GraphQL\Utils\Utils;
 use function is_array;
 use function Safe\file_get_contents;
-use function sprintf;
 
 class ParserTest extends TestCaseBase
 {
@@ -210,9 +209,9 @@ HEREDOC;
                     'arguments' => new NodeList([
                         new ArgumentNode([
                             'name' => new NameNode(['value' => 'arg']),
-                            'value' => new StringValueNode(
-                                ['value' => sprintf('Has a %s multi-byte character.', $char)]
-                            ),
+                            'value' => new StringValueNode([
+                                'value' => "Has a {$char} multi-byte character.",
+                            ]),
                         ]),
                     ]),
                     'directives' => new NodeList([]),

@@ -47,19 +47,19 @@ class TypeInfo
 {
     private Schema $schema;
 
-    /** @var array<(OutputType&Type)|null> */
+    /** @var array<int, (OutputType&Type)|null> */
     private array $typeStack = [];
 
-    /** @var array<(CompositeType&Type)|null> */
+    /** @var array<int, (CompositeType&Type)|null> */
     private array $parentTypeStack = [];
 
-    /** @var array<(InputType&Type)|null> */
+    /** @var array<int, (InputType&Type)|null> */
     private array $inputTypeStack = [];
 
-    /** @var array<FieldDefinition> */
+    /** @var array<int, FieldDefinition> */
     private array $fieldDefStack = [];
 
-    /** @var array<mixed> */
+    /** @var array<int, mixed> */
     private array $defaultValueStack = [];
 
     private ?Directive $directive = null;
@@ -87,16 +87,17 @@ class TypeInfo
      *     ...
      * ]
      *
-     * @param array<Type> $typeMap
+     * @param array<string, Type&NamedType> $typeMap
      */
     public static function extractTypes(Type $type, array &$typeMap): void
     {
-        /** @var (Type&WrappingType)|(Type&NamedType) $type */
         if ($type instanceof WrappingType) {
             self::extractTypes($type->getInnermostType(), $typeMap);
 
             return;
         }
+
+        assert($type instanceof NamedType, 'only other option');
 
         $name = $type->name;
 
@@ -148,7 +149,7 @@ class TypeInfo
     }
 
     /**
-     * @param array<Type> $typeMap
+     * @param array<string, Type&NamedType> $typeMap
      */
     public static function extractTypesFromDirectives(Directive $directive, array &$typeMap): void
     {

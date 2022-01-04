@@ -70,13 +70,16 @@ class FieldDefinition
 
     public ?FieldDefinitionNode $astNode;
 
-    /** @var ComplexityFn|null */
+    /**
+     * @var callable|null
+     * @phpstan-var ComplexityFn|null
+     */
     public $complexityFn;
 
     /**
      * Original field definition config.
      *
-     * @var FieldDefinitionConfig
+     * @phpstan-var FieldDefinitionConfig
      */
     public array $config;
 
