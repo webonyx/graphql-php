@@ -318,7 +318,7 @@ class Utils
             );
         }
 
-        if (preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name) !== 1) {
+        if (1 !== preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
             return new Error(
                 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "' . $name . '" does not.',
                 $node
