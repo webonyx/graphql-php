@@ -563,7 +563,7 @@ class AST
 
         if ($inputTypeNode instanceof NonNullTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
-            if ($innerType === null) {
+            if (null === $innerType) {
                 return null;
             }
 

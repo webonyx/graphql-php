@@ -165,7 +165,7 @@ class SchemaValidationContext
                 $argNames[$argName] = true;
 
                 // Ensure the type is an input type.
-                // @phpstan-ignore-next-line the type of $arg->getType() says it is an input type, but it might not always be true
+                // @phpstan-ignore-next-line necessary until PHP supports union types
                 if (Type::isInputType($arg->getType())) {
                     continue;
                 }

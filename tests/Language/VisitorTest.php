@@ -9,7 +9,6 @@ use function array_pop;
 use function array_slice;
 use function count;
 use function func_get_args;
-use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
@@ -232,10 +231,9 @@ class VisitorTest extends ValidatorTestCase
                 NodeKind::DOCUMENT => [
                     'enter' => function (DocumentNode $node) use ($ast): DocumentNode {
                         $this->checkVisitorFnArgs($ast, func_get_args());
-                        /** @var NodeList<DefinitionNode&Node> $definitionNodeList */
-                        $definitionNodeList = new NodeList([]);
                         $tmp = clone $node;
-                        $tmp->definitions = $definitionNodeList;
+                        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
+                        $tmp->definitions = new NodeList([]);
                         $tmp->didEnter = true;
 
                         return $tmp;

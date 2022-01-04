@@ -36,7 +36,6 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
      */
     public function getWrappedType(): Type
     {
-        // @phpstan-ignore-next-line generics in Schema::resolveType() are not recognized correctly
         return Schema::resolveType($this->wrappedType);
     }
 

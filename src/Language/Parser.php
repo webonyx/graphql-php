@@ -1229,16 +1229,14 @@ class Parser
      */
     private function parseArgumentsDefinition(): NodeList
     {
-        /** @var NodeList<InputValueDefinitionNode> $nodeList */
-        $nodeList = $this->peek(Token::PAREN_L)
+        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
+        return $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
                 fn (): InputValueDefinitionNode => $this->parseInputValueDefinition(),
                 Token::PAREN_R
             )
             : new NodeList([]);
-
-        return $nodeList;
     }
 
     private function parseInputValueDefinition(): InputValueDefinitionNode
@@ -1347,16 +1345,14 @@ class Parser
      */
     private function parseEnumValuesDefinition(): NodeList
     {
-        /** @var NodeList<EnumValueDefinitionNode> $nodeList */
-        $nodeList = $this->peek(Token::BRACE_L)
+        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
+        return $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
                 fn (): EnumValueDefinitionNode => $this->parseEnumValueDefinition(),
                 Token::BRACE_R
             )
             : new NodeList([]);
-
-        return $nodeList;
     }
 
     private function parseEnumValueDefinition(): EnumValueDefinitionNode
@@ -1397,8 +1393,8 @@ class Parser
      */
     private function parseInputFieldsDefinition(): NodeList
     {
-        /** @var NodeList<InputValueDefinitionNode> $nodeList */
-        $nodeList = $this->peek(Token::BRACE_L)
+        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
+        return $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
                 function (): InputValueDefinitionNode {
@@ -1407,8 +1403,6 @@ class Parser
                 Token::BRACE_R
             )
             : new NodeList([]);
-
-        return $nodeList;
     }
 
     /**

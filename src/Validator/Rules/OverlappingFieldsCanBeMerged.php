@@ -172,7 +172,6 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 $fragmentNames
             );
 
-            // @phpstan-ignore-next-line PHPStan messes up the types of the passed-by-reference arguments
             return $this->cachedFieldsAndFragmentNames[$selectionSet] = [$astAndDefs, array_keys($fragmentNames)];
         }
 

@@ -74,7 +74,6 @@ class Argument
                 $argConfig = ['type' => $argConfig];
             }
 
-            // @phpstan-ignore-next-line array shape matches fine
             $list[] = new self($argConfig + ['name' => $name]);
         }
 
