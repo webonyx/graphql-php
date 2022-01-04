@@ -8,12 +8,10 @@ class EnumValueDefinitionNode extends Node
 {
     public string $kind = NodeKind::ENUM_VALUE_DEFINITION;
 
-    /** @var NameNode */
-    public $name;
+    public NameNode $name;
 
     /** @var NodeList<DirectiveNode> */
-    public $directives;
+    public NodeList $directives;
 
-    /** @var StringValueNode|null */
-    public $description;
+    public ?StringValueNode $description = null;
 }

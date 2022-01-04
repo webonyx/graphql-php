@@ -8,8 +8,7 @@ class FragmentDefinitionNode extends Node implements ExecutableDefinitionNode, H
 {
     public string $kind = NodeKind::FRAGMENT_DEFINITION;
 
-    /** @var NameNode */
-    public $name;
+    public NameNode $name;
 
     /**
      * Note: fragment variable definitions are experimental and may be changed
@@ -19,14 +18,12 @@ class FragmentDefinitionNode extends Node implements ExecutableDefinitionNode, H
      *
      * @var NodeList<VariableDefinitionNode>|null
      */
-    public $variableDefinitions;
+    public ?NodeList $variableDefinitions = null;
 
-    /** @var NamedTypeNode */
-    public $typeCondition;
+    public NamedTypeNode $typeCondition;
 
     /** @var NodeList<DirectiveNode> */
-    public $directives;
+    public NodeList $directives;
 
-    /** @var SelectionSetNode */
-    public $selectionSet;
+    public SelectionSetNode $selectionSet;
 }
