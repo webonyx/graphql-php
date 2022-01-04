@@ -219,7 +219,8 @@ class TypeInfo
                     $type = $schema->getQueryType();
                 } elseif ('mutation' === $node->operation) {
                     $type = $schema->getMutationType();
-                } elseif ('subscription' === $node->operation) {
+                } else {
+                    // Only other option
                     $type = $schema->getSubscriptionType();
                 }
 
