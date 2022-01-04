@@ -104,7 +104,7 @@ class FormattedError
         $padLen = strlen($nextLineNum);
 
         $lines = preg_split('/\r\n|[\n\r]/', $source->body);
-        assert(is_array($lines), 'Should never be false given the regex is correct');
+        assert(is_array($lines), 'given the regex is valid');
 
         $lines[0] = self::whitespace($source->locationOffset->column - 1) . $lines[0];
 
