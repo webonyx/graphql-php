@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Examples\Blog;
 
-use function class_exists;
 use Closure;
 use function count;
 use Exception;
@@ -94,6 +93,8 @@ final class Types
     }
 
     /**
+     * @param class-string<Type> $classname
+     *
      * @return Closure(): Type
      */
     private static function get(string $classname): Closure
@@ -101,28 +102,20 @@ final class Types
         return static fn () => self::byClassName($classname);
     }
 
+    /**
+     * @param class-string<Type> $classname
+     */
     private static function byClassName(string $classname): Type
     {
         $parts = explode('\\', $classname);
 
         $cacheName = strtolower(preg_replace('~Type$~', '', $parts[count($parts) - 1]));
-        $type = null;
 
         if (! isset(self::$types[$cacheName])) {
-            if (class_exists($classname)) {
-                $type = new $classname();
-            }
-
-            self::$types[$cacheName] = $type;
+            return self::$types[$cacheName] = new $classname();
         }
 
-        $type = self::$types[$cacheName];
-
-        if (! $type) {
-            throw new Exception('Unknown graphql type: ' . $classname);
-        }
-
-        return $type;
+        return self::$types[$cacheName];
     }
 
     public static function byTypeName(string $shortName): Type

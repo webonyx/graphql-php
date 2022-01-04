@@ -2346,7 +2346,7 @@ static function toArray(GraphQL\Language\AST\Node $node): array
  * | null          | NullValue            |
  *
  * @param Type|mixed|null                                     $value
- * @param ScalarType|EnumType|InputObjectType|ListOfType<Type &InputType>|NonNull $type
+ * @param ScalarType|EnumType|InputObjectType|ListOfType<Type&InputType>|NonNull $type
  *
  * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode|null
  *

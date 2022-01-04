@@ -9,6 +9,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
 use function is_bool;
 use function is_float;
@@ -43,17 +44,13 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             : null;
 
         if (null === $float || floor($float) !== $float) {
-            throw new SerializationError(
-                'Int cannot represent non-integer value: '
-                . Utils::printSafe($value)
-            );
+            $notInt = Utils::printSafe($value);
+            throw new SerializationError("Int cannot represent non-integer value: {$notInt}");
         }
 
         if ($float > self::MAX_INT || $float < self::MIN_INT) {
-            throw new SerializationError(
-                'Int cannot represent non 32-bit signed integer value: '
-                . Utils::printSafe($value)
-            );
+            $outOfRangeInt = Utils::printSafe($value);
+            throw new SerializationError("Int cannot represent non 32-bit signed integer value: {$outOfRangeInt}");
         }
 
         return (int) $float;
@@ -61,20 +58,17 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
     public function parseValue($value): int
     {
-        $isInt = is_int($value) || (is_float($value) && floor($value) === $value);
+        $isInt = is_int($value)
+            || (is_float($value) && floor($value) === $value);
 
         if (! $isInt) {
-            throw new Error(
-                'Int cannot represent non-integer value: '
-                . Utils::printSafe($value)
-            );
+            $notInt = Utils::printSafe($value);
+            throw new Error("Int cannot represent non-integer value: {$notInt}");
         }
 
         if ($value > self::MAX_INT || $value < self::MIN_INT) {
-            throw new Error(
-                'Int cannot represent non 32-bit signed integer value: '
-                . Utils::printSafe($value)
-            );
+            $outOfRangeInt = Utils::printSafe($value);
+            throw new Error("Int cannot represent non 32-bit signed integer value: {$outOfRangeInt}");
         }
 
         return (int) $value;
@@ -89,7 +83,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             }
         }
 
-        // Intentionally without message, as all information already in wrapped Exception
-        throw new Error();
+        $notInt = Printer::doPrint($valueNode);
+        throw new Error("Int cannot represent non-integer value: {$notInt}", $valueNode);
     }
 }

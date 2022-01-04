@@ -11,7 +11,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
 /**
- * @phpstan-import-type InputTypeAlias from InputType
  * @phpstan-type ArgumentType (Type&InputType)|callable(): (Type&InputType)
  * @phpstan-type InputObjectFieldConfig array{
  *   name: string,
@@ -42,7 +41,7 @@ class InputObjectField
 
     public ?InputValueDefinitionNode $astNode;
 
-    /** @var array<string, mixed> */
+    /** @phpstan-var InputObjectFieldConfig */
     public array $config;
 
     /**
@@ -61,7 +60,6 @@ class InputObjectField
 
     /**
      * @return Type&InputType
-     * @phpstan-return InputTypeAlias
      */
     public function getType(): Type
     {
@@ -85,7 +83,7 @@ class InputObjectField
     }
 
     /**
-     * @param Type &NamedType $parentType
+     * @param Type&NamedType $parentType
      *
      * @throws InvariantViolation
      */
@@ -104,6 +102,7 @@ class InputObjectField
             throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Input Type but got: {$notInputType}");
         }
 
+        // @phpstan-ignore-next-line should not happen if used properly
         if (array_key_exists('resolve', $this->config)) {
             throw new InvariantViolation("{$parentType->name}.{$this->name} field has a resolve property, but Input Types cannot define resolvers.");
         }

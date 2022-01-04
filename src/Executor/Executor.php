@@ -19,16 +19,22 @@ use function is_object;
  * Implements the "Evaluating requests" section of the GraphQL specification.
  *
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
- * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed=, mixed=, ?array<mixed>=, ?string=, ?callable=): ExecutorImplementation
+ * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
  */
 class Executor
 {
-    /** @var FieldResolver */
+    /**
+     * @var callable
+     * @phpstan-var FieldResolver
+     */
     private static $defaultFieldResolver = [self::class, 'defaultFieldResolver'];
 
     private static ?PromiseAdapter $defaultPromiseAdapter;
 
-    /** @var ImplementationFactory */
+    /**
+     * @var callable
+     * @phpstan-var ImplementationFactory
+     */
     private static $implementationFactory = [ReferenceExecutor::class, 'create'];
 
     /**
@@ -91,8 +97,6 @@ class Executor
      * @param array<string, mixed>|null $variableValues
      * @phpstan-param FieldResolver|null $fieldResolver
      *
-     * @return ExecutionResult|array<ExecutionResult>
-     *
      * @api
      */
     public static function execute(
@@ -103,7 +107,7 @@ class Executor
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null
-    ) {
+    ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
         $result = static::promiseToExecute(
@@ -143,7 +147,6 @@ class Executor
         ?string $operationName = null,
         ?callable $fieldResolver = null
     ): Promise {
-        /** @var ExecutorImplementation $executor */
         $executor = (self::$implementationFactory)(
             $promiseAdapter,
             $schema,

@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 class SchemaTest extends TestCase
@@ -126,33 +124,5 @@ class SchemaTest extends TestCase
         $typeMap = $this->schema->getTypeMap();
         self::assertArrayHasKey('DirInput', $typeMap);
         self::assertArrayHasKey('WrappedDirInput', $typeMap);
-    }
-
-    // Sub Type
-
-    /**
-     * @see it('validates argument to isSubType to be of the correct type')
-     */
-    public function testThrowsInvalidArgumentExceptionWhenInvalidTypeIsPassedToIsSubType(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        $anonymousAbstractType = new class() implements AbstractType {
-            public function resolveType($objectValue, $context, ResolveInfo $info)
-            {
-                return null;
-            }
-        };
-
-        $this->schema->isSubType(
-            // @phpstan-ignore-next-line purposefully wrong
-            $anonymousAbstractType,
-            new InterfaceType([
-                'name' => 'Interface',
-                'fields' => [
-                    'irrelevant' => Type::int(),
-                ],
-            ])
-        );
     }
 }

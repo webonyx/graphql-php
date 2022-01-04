@@ -19,7 +19,7 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
     /** @var callable(): InterfaceType */
     private $node;
 
-    /** @var callable(): ObjectType */
+    /** @var callable(): InterfaceType */
     private $content;
 
     /** @var callable(): ObjectType */

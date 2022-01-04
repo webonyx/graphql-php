@@ -18,37 +18,31 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use function is_string;
-use function json_encode;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+use function Safe\json_encode;
 
 class NonNullTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @var Exception */
-    public $syncError;
+    public Exception $syncError;
 
-    /** @var Exception */
-    public $syncNonNullError;
+    public Exception $syncNonNullError;
 
-    /** @var Exception */
-    public $promiseError;
+    public Exception $promiseError;
 
-    /** @var Exception */
-    public $promiseNonNullError;
+    public Exception $promiseNonNullError;
 
-    /** @var callable[] */
-    public $throwingData;
+    /** @var array<string, callable(): mixed> */
+    public array $throwingData;
 
-    /** @var callable[] */
-    public $nullingData;
+    /** @var array<string, callable(): mixed> */
+    public array $nullingData;
 
-    /** @var Schema */
-    public $schema;
+    public Schema $schema;
 
-    /** @var Schema */
-    public $schemaWithNonNullArg;
+    public Schema $schemaWithNonNullArg;
 
     public function setUp(): void
     {
@@ -361,55 +355,55 @@ class NonNullTest extends TestCase
 
         $ast = Parser::parse($doc);
 
-        $expected = [
-            'data' => [
+        $expectedData = [
+            'syncNest' => [
+                'sync' => null,
+                'promise' => null,
                 'syncNest' => [
                     'sync' => null,
                     'promise' => null,
-                    'syncNest' => [
-                        'sync' => null,
-                        'promise' => null,
-                    ],
-                    'promiseNest' => [
-                        'sync' => null,
-                        'promise' => null,
-                    ],
                 ],
                 'promiseNest' => [
                     'sync' => null,
                     'promise' => null,
-                    'syncNest' => [
-                        'sync' => null,
-                        'promise' => null,
-                    ],
-                    'promiseNest' => [
-                        'sync' => null,
-                        'promise' => null,
-                    ],
                 ],
             ],
-            'errors' => [
-                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(4, 11)]),
-                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(7, 13)]),
-                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(11, 13)]),
-                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(16, 11)]),
-                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(19, 13)]),
-                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(5, 11)]),
-                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(8, 13)]),
-                ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(23, 13)]),
-                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(12, 13)]),
-                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(17, 11)]),
-                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(20, 13)]),
-                ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(24, 13)]),
+            'promiseNest' => [
+                'sync' => null,
+                'promise' => null,
+                'syncNest' => [
+                    'sync' => null,
+                    'promise' => null,
+                ],
+                'promiseNest' => [
+                    'sync' => null,
+                    'promise' => null,
+                ],
             ],
+        ];
+        $expectedErrors = [
+            ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(4, 11)]),
+            ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(7, 13)]),
+            ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(11, 13)]),
+            ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(16, 11)]),
+            ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(19, 13)]),
+            ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(5, 11)]),
+            ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(8, 13)]),
+            ErrorHelper::create($this->syncError->getMessage(), [new SourceLocation(23, 13)]),
+            ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(12, 13)]),
+            ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(17, 11)]),
+            ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(20, 13)]),
+            ErrorHelper::create($this->promiseError->getMessage(), [new SourceLocation(24, 13)]),
         ];
 
         $result = Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray();
 
-        self::assertEquals($expected['data'], $result['data']);
+        self::assertArrayHasKey('data', $result);
+        self::assertEquals($expectedData, $result['data']);
 
-        self::assertCount(count($expected['errors']), $result['errors']);
-        foreach ($expected['errors'] as $expectedError) {
+        self::assertArrayHasKey('errors', $result);
+        self::assertCount(count($expectedErrors), $result['errors']);
+        foreach ($expectedErrors as $expectedError) {
             $found = false;
             foreach ($result['errors'] as $error) {
                 try {

@@ -9,8 +9,8 @@ class SchemaDefinitionNode extends Node implements TypeSystemDefinitionNode
     public string $kind = NodeKind::SCHEMA_DEFINITION;
 
     /** @var NodeList<DirectiveNode> */
-    public $directives;
+    public NodeList $directives;
 
     /** @var NodeList<OperationTypeDefinitionNode> */
-    public $operationTypes;
+    public NodeList $operationTypes;
 }

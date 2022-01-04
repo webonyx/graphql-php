@@ -39,6 +39,6 @@ final class IsCompositeTypeStaticMethodTypeSpecifyingExtension implements Static
 
     public function specifyTypes(MethodReflection $staticMethodReflection, StaticCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
     {
-        return $this->typeSpecifier->create($node->args[0]->value, new ObjectType(CompositeType::class), $context);
+        return $this->typeSpecifier->create($node->getArgs()[0]->value, new ObjectType(CompositeType::class), $context);
     }
 }

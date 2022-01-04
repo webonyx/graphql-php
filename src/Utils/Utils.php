@@ -69,7 +69,7 @@ class Utils
             if (! property_exists($obj, $key)) {
                 $cls = get_class($obj);
                 Warning::warn(
-                    sprintf("Trying to set non-existing property '%s' on class '%s'", $key, $cls),
+                    "Trying to set non-existing property '{$key}' on class '{$cls}'",
                     Warning::WARNING_ASSIGN
                 );
             }
@@ -81,15 +81,15 @@ class Utils
     }
 
     /**
+     * @template TKey of array-key
+     * @template TValue
+     *
      * @param iterable<mixed> $iterable
      * @phpstan-param iterable<TKey, TValue> $iterable
      * @phpstan-param callable(TValue, TKey): bool $predicate
      *
      * @return mixed
      * @phpstan-return TValue|null
-     *
-     * @template TKey of array-key
-     * @template TValue
      */
     public static function find(iterable $iterable, callable $predicate)
     {
@@ -159,11 +159,11 @@ class Utils
     public static function printSafeJson($var): string
     {
         if ($var instanceof stdClass) {
-            return json_encode($var);
+            return json_encode($var, JSON_THROW_ON_ERROR);
         }
 
         if (is_array($var)) {
-            return json_encode($var);
+            return json_encode($var, JSON_THROW_ON_ERROR);
         }
 
         if ('' === $var) {
@@ -211,7 +211,7 @@ class Utils
         }
 
         if (is_array($var)) {
-            return json_encode($var);
+            return json_encode($var, JSON_THROW_ON_ERROR);
         }
 
         if ('' === $var) {
@@ -266,37 +266,30 @@ class Utils
             $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
         }
 
+        // @phpstan-ignore-next-line format string is statically known to be correct
         return unpack('N', $char)[1];
     }
 
     /**
      * Returns UTF-8 char code at given $positing of the $string.
-     *
-     * @param string $string
-     * @param int    $position
-     *
-     * @return mixed
      */
-    public static function charCodeAt($string, $position)
+    public static function charCodeAt(string $string, int $position): int
     {
         $char = mb_substr($string, $position, 1, 'UTF-8');
 
         return self::ord($char);
     }
 
-    /**
-     * @param int|null $code
-     */
-    public static function printCharCode($code): string
+    public static function printCharCode(?int $code): string
     {
         if (null === $code) {
             return '<EOF>';
         }
 
         return $code < 0x007F
-            // Trust JSON for ASCII.
-            ? json_encode(self::chr($code))
-            // Otherwise print the escaped form.
+            // Trust JSON for ASCII
+            ? json_encode(self::chr($code), JSON_THROW_ON_ERROR)
+            // Otherwise, print the escaped form
             : '"\\u' . dechex($code) . '"';
     }
 
@@ -325,7 +318,7 @@ class Utils
             );
         }
 
-        if (! preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
+        if (1 !== preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
             return new Error(
                 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "' . $name . '" does not.',
                 $node

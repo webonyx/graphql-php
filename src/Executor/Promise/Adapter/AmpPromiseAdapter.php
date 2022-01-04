@@ -41,8 +41,9 @@ class AmpPromiseAdapter implements PromiseAdapter
             }
         };
 
-        /** @var AmpPromise<mixed> $adoptedPromise */
         $adoptedPromise = $promise->adoptedPromise;
+        assert($adoptedPromise instanceof AmpPromise);
+
         $adoptedPromise->onResolve($onResolve);
 
         return new Promise($deferred->promise(), $this);
@@ -84,7 +85,9 @@ class AmpPromiseAdapter implements PromiseAdapter
         $promises = [];
         foreach ($promisesOrValues as $key => $item) {
             if ($item instanceof Promise) {
-                $promises[$key] = $item->adoptedPromise;
+                $ampPromise = $item->adoptedPromise;
+                assert($ampPromise instanceof AmpPromise);
+                $promises[$key] = $ampPromise;
             } elseif ($item instanceof AmpPromise) {
                 $promises[$key] = $item;
             }
@@ -108,12 +111,12 @@ class AmpPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @param Deferred<TResult>            $deferred
-     * @param callable(TArgument): TResult $callback
-     * @param TArgument                    $argument
-     *
      * @template TArgument
      * @template TResult
+     *
+     * @param Deferred<TResult> $deferred
+     * @param callable(TArgument): TResult $callback
+     * @param TArgument $argument
      */
     private static function resolveWithCallable(Deferred $deferred, callable $callback, $argument): void
     {
@@ -126,6 +129,7 @@ class AmpPromiseAdapter implements PromiseAdapter
         }
 
         if ($result instanceof Promise) {
+            /** @var TResult $result */
             $result = $result->adoptedPromise;
         }
 

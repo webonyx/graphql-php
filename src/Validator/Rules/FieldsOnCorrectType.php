@@ -10,7 +10,6 @@ use function arsort;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\HasFieldsType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\Type;
@@ -18,9 +17,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
-/**
- * @phpstan-import-type AbstractTypeAlias from AbstractType
- */
 class FieldsOnCorrectType extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array
@@ -72,7 +68,6 @@ class FieldsOnCorrectType extends ValidationRule
     protected function getSuggestedTypeNames(Schema $schema, Type $type, string $fieldName): array
     {
         if (Type::isAbstractType($type)) {
-            /** @phpstan-var AbstractTypeAlias $type proven by Type::isAbstractType() */
             $suggestedObjectTypes = [];
             $interfaceUsageCount = [];
 

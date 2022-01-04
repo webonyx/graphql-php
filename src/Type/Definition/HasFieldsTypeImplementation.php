@@ -43,11 +43,12 @@ trait HasFieldsTypeImplementation
             return null;
         }
 
-        if ($this->fields[$name] instanceof UnresolvedFieldDefinition) {
-            $this->fields[$name] = $this->fields[$name]->resolve();
+        $field = $this->fields[$name];
+        if ($field instanceof UnresolvedFieldDefinition) {
+            return $this->fields[$name] = $field->resolve();
         }
 
-        return $this->fields[$name];
+        return $field;
     }
 
     public function hasField(string $name): bool
@@ -62,13 +63,12 @@ trait HasFieldsTypeImplementation
         $this->initializeFields();
 
         foreach ($this->fields as $name => $field) {
-            if (! ($field instanceof UnresolvedFieldDefinition)) {
-                continue;
+            if ($field instanceof UnresolvedFieldDefinition) {
+                $this->fields[$name] = $field->resolve();
             }
-
-            $this->fields[$name] = $field->resolve();
         }
 
+        // @phpstan-ignore-next-line all field definitions are now resolved
         return $this->fields;
     }
 

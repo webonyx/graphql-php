@@ -89,7 +89,7 @@ class SchemaGenerator
     }
 
     /**
-     * @return array{0: ObjectType, 1: string}
+     * @return array{0: Type, 1: string}
      */
     protected function getFieldTypeAndName(int $nestingLevel, int $fieldIndex): array
     {

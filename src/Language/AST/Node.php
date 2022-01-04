@@ -63,12 +63,12 @@ abstract class Node implements JsonSerializable
     }
 
     /**
+     * @template TNode of Node
+     * @template TCloneable of TNode|NodeList<TNode>|Location|string
+     *
      * @phpstan-param TCloneable $value
      *
      * @phpstan-return TCloneable
-     *
-     * @template TNode of Node
-     * @template TCloneable of TNode|NodeList<TNode>|Location|string
      */
     protected static function cloneValue($value)
     {
@@ -90,7 +90,7 @@ abstract class Node implements JsonSerializable
 
     public function __toString(): string
     {
-        return json_encode($this);
+        return json_encode($this, JSON_THROW_ON_ERROR);
     }
 
     /**

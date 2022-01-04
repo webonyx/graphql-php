@@ -39,7 +39,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
@@ -56,7 +55,6 @@ use Throwable;
 
 /**
  * @phpstan-import-type FieldResolver from Executor
- * @phpstan-import-type AbstractTypeAlias from AbstractType
  * @phpstan-type Fields ArrayObject<string, ArrayObject<int, FieldNode>>
  */
 class ReferenceExecutor implements ExecutorImplementation
@@ -90,8 +88,8 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param mixed                $rootValue
-     * @param mixed                $contextValue
+     * @param mixed $rootValue
+     * @param mixed $contextValue
      * @param array<string, mixed> $variableValues
      * @phpstan-param FieldResolver $fieldResolver
      */
@@ -249,22 +247,30 @@ class ReferenceExecutor implements ExecutorImplementation
 
         // Note: we deviate here from the reference implementation a bit by always returning promise
         // But for the "sync" case it is always fulfilled
-        return $this->isPromise($result)
-            ? $result
-            : $this->exeContext->promiseAdapter->createFulfilled($result);
+
+        $promise = $this->getPromise($result);
+        if (null !== $promise) {
+            return $promise;
+        }
+
+        return $this->exeContext->promiseAdapter->createFulfilled($result);
     }
 
     /**
-     * @param mixed|Promise|null $data
+     * @param mixed $data
      *
      * @return ExecutionResult|Promise
      */
     protected function buildResponse($data)
     {
-        if ($this->isPromise($data)) {
-            return $data->then(function ($resolved) {
-                return $this->buildResponse($resolved);
-            });
+        if ($data instanceof Promise) {
+            return $data->then(fn ($resolved) => $this->buildResponse($resolved));
+        }
+
+        $promiseAdapter = $this->exeContext->promiseAdapter;
+        if ($promiseAdapter->isThenable($data)) {
+            return $promiseAdapter->convertThenable($data)
+                ->then(fn ($resolved) => $this->buildResponse($resolved));
         }
 
         if (null !== $data) {
@@ -295,19 +301,10 @@ class ReferenceExecutor implements ExecutorImplementation
             $result = 'mutation' === $operation->operation
                 ? $this->executeFieldsSerially($type, $rootValue, $path, $fields)
                 : $this->executeFields($type, $rootValue, $path, $fields);
-            if ($this->isPromise($result)) {
-                return $result->then(
-                    null,
-                    function ($error): ?Promise {
-                        if ($error instanceof Error) {
-                            $this->exeContext->addError($error);
 
-                            return $this->exeContext->promiseAdapter->createFulfilled(null);
-                        }
-
-                        return null;
-                    }
-                );
+            $promise = $this->getPromise($result);
+            if (null !== $promise) {
+                return $promise->then(null, [$this, 'onError']);
             }
 
             return $result;
@@ -316,6 +313,20 @@ class ReferenceExecutor implements ExecutorImplementation
 
             return null;
         }
+    }
+
+    /**
+     * @param mixed $error
+     */
+    public function onError($error): ?Promise
+    {
+        if ($error instanceof Error) {
+            $this->exeContext->addError($error);
+
+            return $this->exeContext->promiseAdapter->createFulfilled(null);
+        }
+
+        return null;
     }
 
     /**
@@ -543,10 +554,11 @@ class ReferenceExecutor implements ExecutorImplementation
             []
         );
 
-        if ($this->isPromise($result)) {
-            return $result->then(static function ($resolvedResults) {
-                return static::fixResultsIfEmptyArray($resolvedResults);
-            });
+        $promise = $this->getPromise($result);
+        if (null !== $promise) {
+            return $result->then(
+                static fn ($resolvedResults) => static::fixResultsIfEmptyArray($resolvedResults)
+            );
         }
 
         return static::fixResultsIfEmptyArray($result);
@@ -771,7 +783,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * definition.
      *
      * If the field is an abstract type, determine the runtime type of the value
-     * and then complete based on that type
+     * and then complete based on that type.
      *
      * Otherwise, the field type expects a sub-selection set, and will complete the
      * value by evaluating all sub-selections.
@@ -831,7 +843,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return $this->completeListValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
-        /** @var Type&NamedType $returnType wrapping types returned early */
+        assert($returnType instanceof NamedType, 'Wrapping types should return early');
 
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
@@ -885,8 +897,9 @@ class ReferenceExecutor implements ExecutorImplementation
             return $value;
         }
 
-        if ($this->exeContext->promiseAdapter->isThenable($value)) {
-            return $this->exeContext->promiseAdapter->convertThenable($value);
+        $promiseAdapter = $this->exeContext->promiseAdapter;
+        if ($promiseAdapter->isThenable($value)) {
+            return $promiseAdapter->convertThenable($value);
         }
 
         return null;
@@ -925,10 +938,10 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Complete a list value by completing each item in the list with the inner type.
      *
-     * @param ListOfType<Type             &OutputType> $returnType
+     * @param ListOfType<Type&OutputType> $returnType
      * @param ArrayObject<int, FieldNode> $fieldNodes
-     * @param list<string|int>            $path
-     * @param iterable<mixed>             $results
+     * @param list<string|int> $path
+     * @param iterable<mixed> $results
      *
      * @throws Exception
      *
@@ -990,10 +1003,10 @@ class ReferenceExecutor implements ExecutorImplementation
      * Complete a value of an abstract type by determining the runtime object type
      * of that value, then complete the value for that type.
      *
+     * @param AbstractType&Type $returnType
      * @param ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<string|int>           $path
-     * @param array<mixed>                $result
-     * @phpstan-param AbstractTypeAlias $returnType
+     * @param array<string|int> $path
+     * @param array<mixed> $result
      *
      * @throws Error
      *
@@ -1012,7 +1025,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if (null === $typeCandidate) {
             $runtimeType = static::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
         } elseif (is_callable($typeCandidate)) {
-            $runtimeType = Schema::resolveType($typeCandidate);
+            $runtimeType = $typeCandidate();
         } else {
             $runtimeType = $typeCandidate;
         }
@@ -1065,9 +1078,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * Otherwise, test each possible type for the abstract type by calling
      * isTypeOf for the object being coerced, returning the first type that matches.
      *
-     * @param mixed|null        $value
-     * @param mixed|null        $contextValue
-     * @param AbstractTypeAlias $abstractType
+     * @param mixed|null $value
+     * @param mixed|null $contextValue
+     * @param AbstractType&Type $abstractType
      *
      * @return Promise|Type|string|null
      */
@@ -1109,13 +1122,14 @@ class ReferenceExecutor implements ExecutorImplementation
             $promise = $this->getPromise($isTypeOfResult);
             if (null !== $promise) {
                 $promisedIsTypeOfResults[$index] = $promise;
-            } elseif ($isTypeOfResult) {
+            } elseif (true === $isTypeOfResult) {
                 return $type;
             }
         }
 
         if (count($promisedIsTypeOfResults) > 0) {
-            return $this->exeContext->promiseAdapter->all($promisedIsTypeOfResults)
+            return $this->exeContext->promiseAdapter
+                ->all($promisedIsTypeOfResults)
                 ->then(static function ($isTypeOfResults) use ($possibleTypes): ?ObjectType {
                     foreach ($isTypeOfResults as $index => $result) {
                         if ($result) {
@@ -1174,6 +1188,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 });
             }
 
+            assert(is_bool($isTypeOf), 'Promise would return early');
             if (! $isTypeOf) {
                 throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
             }
@@ -1338,9 +1353,9 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param string|ObjectType|null  $runtimeTypeOrName
-     * @param InterfaceType|UnionType $returnType
-     * @param mixed                   $result
+     * @param mixed $runtimeTypeOrName
+     * @param AbstractType&Type $returnType
+     * @param mixed $result
      */
     protected function ensureValidRuntimeType(
         $runtimeTypeOrName,
@@ -1352,48 +1367,29 @@ class ReferenceExecutor implements ExecutorImplementation
             ? $this->exeContext->schema->getType($runtimeTypeOrName)
             : $runtimeTypeOrName;
         if (! $runtimeType instanceof ObjectType) {
+            $safeResult = Utils::printSafe($result);
+            $notObjectType = Utils::printSafe($runtimeType);
+
             throw new InvariantViolation(
-                sprintf(
-                    'Abstract type %s must resolve to an Object type at '
-                    . 'runtime for field %s.%s with value "%s", received "%s". '
-                    . 'Either the %s type should provide a "resolveType" '
-                    . 'function or each possible type should provide an "isTypeOf" function.',
-                    $returnType,
-                    $info->parentType,
-                    $info->fieldName,
-                    Utils::printSafe($result),
-                    Utils::printSafe($runtimeType),
-                    $returnType
-                )
+                "Abstract type {$returnType} must resolve to an Object type at runtime for field {$info->parentType}.{$info->fieldName} with value \"{$safeResult}\", received \"{$notObjectType}\". Either the {$returnType} type should provide a \"resolveType\" function or each possible type should provide an \"isTypeOf\" function."
             );
         }
 
         if (! $this->exeContext->schema->isSubType($returnType, $runtimeType)) {
             throw new InvariantViolation(
-                sprintf('Runtime Object type "%s" is not a possible type for "%s".', $runtimeType, $returnType)
+                "Runtime Object type \"{$runtimeType}\" is not a possible type for \"{$returnType}\"."
             );
         }
 
         if (null === $this->exeContext->schema->getType($runtimeType->name)) {
             throw new InvariantViolation(
-                'Schema does not contain type "' . $runtimeType->name . '". '
-                . 'This can happen when an object type is only referenced indirectly through '
-                . 'abstract types and never directly through fields.'
-                . 'List the type in the option "types" during schema construction, '
-                . 'see https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options.'
+                "Schema does not contain type \"{$runtimeType}\". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields.List the type in the option \"types\" during schema construction, see https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options."
             );
         }
 
         if ($runtimeType !== $this->exeContext->schema->getType($runtimeType->name)) {
             throw new InvariantViolation(
-                sprintf(
-                    'Schema must contain unique named types but contains multiple types named "%s". '
-                    . 'Make sure that `resolveType` function of abstract type "%s" returns the same '
-                    . 'type instance as referenced anywhere else within the schema '
-                    . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
-                    $runtimeType,
-                    $returnType
-                )
+                "Schema must contain unique named types but contains multiple types named \"{$runtimeType}\". Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry)."
             );
         }
 

@@ -8,6 +8,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
+use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
 use function is_object;
 use function is_scalar;
@@ -41,9 +42,8 @@ represent free-form human-readable text.';
     public function parseValue($value): string
     {
         if (! is_string($value)) {
-            throw new Error(
-                'String cannot represent a non string value: ' . Utils::printSafe($value)
-            );
+            $notString = Utils::printSafe($value);
+            throw new Error("String cannot represent a non string value: {$notString}");
         }
 
         return $value;
@@ -55,7 +55,7 @@ represent free-form human-readable text.';
             return $valueNode->value;
         }
 
-        // Intentionally without message, as all information already in wrapped Exception
-        throw new Error();
+        $notString = Printer::doPrint($valueNode);
+        throw new Error("String cannot represent a non string value: {$notString}", $valueNode);
     }
 }

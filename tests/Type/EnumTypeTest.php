@@ -28,7 +28,7 @@ class EnumTypeTest extends TestCase
     private EnumType $ComplexEnum;
 
     /** @var array{someRandomFunction: callable(): void} */
-    private $Complex1;
+    private array $Complex1;
 
     /** @var ArrayObject<string, int> */
     private ArrayObject $Complex2;
@@ -293,7 +293,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: "GREEN") }',
             null,
             [
-                'message' => 'Field "colorEnum" argument "fromEnum" requires type Color, found "GREEN"; Did you mean the enum value GREEN?',
+                'message' => 'Enum "Color" cannot represent non-enum value: "GREEN". Did you mean the enum value "GREEN"?',
                 'locations' => [new SourceLocation(1, 23)],
             ]
         );
@@ -326,7 +326,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @see it('does not accept valuesNotInTheEnum')
+     * @see it('does not accept values not in the enum')
      */
     public function testDoesNotAcceptValuesNotInTheEnum(): void
     {
@@ -334,7 +334,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: GREENISH) }',
             null,
             [
-                'message' => 'Field "colorEnum" argument "fromEnum" requires type Color, found GREENISH; Did you mean the enum value GREEN?',
+                'message' => 'Value "GREENISH" does not exist in "Color" enum. Did you mean the enum value "GREEN"?',
                 'locations' => [new SourceLocation(1, 23)],
             ]
         );
@@ -349,7 +349,8 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: green) }',
             null,
             [
-                'message' => 'Field "colorEnum" argument "fromEnum" requires type Color, found green; Did you mean the enum value GREEN?',
+                // Improves upon the reference implementation
+                'message' => 'Value "green" does not exist in "Color" enum. Did you mean the enum value "GREEN"?',
                 'locations' => [new SourceLocation(1, 23)],
             ]
         );
@@ -379,7 +380,7 @@ class EnumTypeTest extends TestCase
         $this->expectFailure(
             '{ colorEnum(fromEnum: 1) }',
             null,
-            'Field "colorEnum" argument "fromEnum" requires type Color, found 1.'
+            'Enum "Color" cannot represent non-enum value: 1.'
         );
     }
 
@@ -391,7 +392,7 @@ class EnumTypeTest extends TestCase
         $this->expectFailure(
             '{ colorEnum(fromInt: GREEN) }',
             null,
-            'Field "colorEnum" argument "fromInt" requires type Int, found GREEN.'
+            'Int cannot represent non-integer value: GREEN'
         );
     }
 

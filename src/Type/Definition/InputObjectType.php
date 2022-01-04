@@ -131,9 +131,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         }
 
         if (is_array($field)) {
-            $name = $field['name'] ??= $nameOrIndex;
+            $field['name'] ??= $nameOrIndex;
 
-            if (! is_string($name)) {
+            if (! is_string($field['name'])) {
                 throw new InvariantViolation(
                     "{$this->name} fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those."
                 );

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
-use function file_get_contents;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldNode;
@@ -21,7 +20,7 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Utils\Utils;
 use function is_array;
-use function sprintf;
+use function Safe\file_get_contents;
 
 class ParserTest extends TestCaseBase
 {
@@ -210,9 +209,9 @@ HEREDOC;
                     'arguments' => new NodeList([
                         new ArgumentNode([
                             'name' => new NameNode(['value' => 'arg']),
-                            'value' => new StringValueNode(
-                                ['value' => sprintf('Has a %s multi-byte character.', $char)]
-                            ),
+                            'value' => new StringValueNode([
+                                'value' => "Has a {$char} multi-byte character.",
+                            ]),
                         ]),
                     ]),
                     'directives' => new NodeList([]),

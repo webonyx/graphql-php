@@ -8,18 +8,15 @@ class DirectiveDefinitionNode extends Node implements TypeSystemDefinitionNode
 {
     public string $kind = NodeKind::DIRECTIVE_DEFINITION;
 
-    /** @var NameNode */
-    public $name;
+    public NameNode $name;
 
-    /** @var StringValueNode|null */
-    public $description;
+    public ?StringValueNode $description = null;
 
     /** @var NodeList<InputValueDefinitionNode> */
-    public $arguments;
+    public NodeList $arguments;
 
-    /** @var bool */
-    public $repeatable;
+    public bool $repeatable;
 
     /** @var NodeList<NameNode> */
-    public $locations;
+    public NodeList $locations;
 }

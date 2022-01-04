@@ -22,7 +22,6 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -45,7 +44,7 @@ class Values
      * to match the variable definitions, an Error will be thrown.
      *
      * @param NodeList<VariableDefinitionNode> $varDefNodes
-     * @param array<string, mixed>             $rawVariableValues
+     * @param array<string, mixed> $rawVariableValues
      *
      * @return array{array<int, Error>, null}|array{null, array<string, mixed>}
      */
@@ -60,16 +59,12 @@ class Values
             if (! Type::isInputType($varType)) {
                 // Must use input types for variables. This should be caught during
                 // validation, however is checked again here for safety.
+                $typeStr = Printer::doPrint($varDefNode->type);
                 $errors[] = new Error(
-                    sprintf(
-                        'Variable "$%s" expected value of type "%s" which cannot be used as an input type.',
-                        $varName,
-                        Printer::doPrint($varDefNode->type)
-                    ),
+                    "Variable \"\${$varName}\" expected value of type \"{$typeStr}\" which cannot be used as an input type.",
                     [$varDefNode->type]
                 );
             } else {
-                /** @var InputType&Type $varType */
                 $hasValue = array_key_exists($varName, $rawVariableValues);
                 $value = $hasValue
                     ? $rawVariableValues[$varName]
@@ -140,11 +135,11 @@ class Values
      * If the directive does not exist on the node, returns undefined.
      *
      * @param FragmentSpreadNode|FieldNode|InlineFragmentNode|EnumValueDefinitionNode|FieldDefinitionNode $node
-     * @param mixed[]|null                                                                                $variableValues
+     * @param array<string, mixed>|null $variableValues
      *
      * @return array<string, mixed>|null
      */
-    public static function getDirectiveValues(Directive $directiveDef, $node, $variableValues = null): ?array
+    public static function getDirectiveValues(Directive $directiveDef, Node $node, ?array $variableValues = null): ?array
     {
         $directiveNode = Utils::find(
             $node->directives,
@@ -165,23 +160,23 @@ class Values
      * definitions and list of argument AST nodes.
      *
      * @param FieldDefinition|Directive $def
-     * @param FieldNode|DirectiveNode   $node
-     * @param mixed[]                   $variableValues
+     * @param FieldNode|DirectiveNode $node
+     * @param array<string, mixed>|null $variableValues
      *
      * @throws Error
      *
      * @return array<string, mixed>
      */
-    public static function getArgumentValues($def, $node, $variableValues = null): array
+    public static function getArgumentValues($def, Node $node, ?array $variableValues = null): array
     {
         if (0 === count($def->args)) {
             return [];
         }
 
-        $argumentNodes = $node->arguments;
         /** @var array<string, ArgumentNodeValue> $argumentValueMap */
         $argumentValueMap = [];
-        foreach ($argumentNodes as $argumentNode) {
+
+        foreach ($node->arguments as $argumentNode) {
             $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;
         }
 
@@ -189,28 +184,27 @@ class Values
     }
 
     /**
-     * @param FieldDefinition|Directive        $fieldDefinition
+     * @param FieldDefinition|Directive $def
      * @param array<string, ArgumentNodeValue> $argumentValueMap
-     * @param mixed[]                          $variableValues
-     * @param Node|null                        $referenceNode
+     * @param array<string, mixed>|null $variableValues
      *
      * @throws Error
      *
-     * @return mixed[]
+     * @return array<string, mixed>
      */
-    public static function getArgumentValuesForMap($fieldDefinition, array $argumentValueMap, $variableValues = null, $referenceNode = null): array
+    public static function getArgumentValuesForMap($def, array $argumentValueMap, ?array $variableValues = null, ?Node $referenceNode = null): array
     {
-        $argumentDefinitions = $fieldDefinition->args;
+        /** @var array<string, mixed> $coercedValues */
         $coercedValues = [];
 
-        foreach ($argumentDefinitions as $argumentDefinition) {
+        foreach ($def->args as $argumentDefinition) {
             $name = $argumentDefinition->name;
             $argType = $argumentDefinition->getType();
             $argumentValueNode = $argumentValueMap[$name] ?? null;
 
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
-                $hasValue = array_key_exists($variableName, $variableValues ?? []);
+                $hasValue = null !== $variableValues && array_key_exists($variableName, $variableValues);
                 $isNull = $hasValue
                     ? null === $variableValues[$variableName]
                     : false;
@@ -263,14 +257,14 @@ class Values
                     // usage here is of the correct type.
                     $coercedValues[$name] = $variableValues[$variableName] ?? null;
                 } else {
-                    $valueNode = $argumentValueNode;
-                    $coercedValue = AST::valueFromAST($valueNode, $argType, $variableValues);
+                    $coercedValue = AST::valueFromAST($argumentValueNode, $argType, $variableValues);
                     if (Utils::isInvalid($coercedValue)) {
                         // Note: ValuesOfCorrectType validation should catch this before
                         // execution. This is a runtime check to ensure execution does not
                         // continue with an invalid argument value.
+                        $invalidValue = Printer::doPrint($argumentValueNode);
                         throw new Error(
-                            'Argument "' . $name . '" has invalid value ' . Printer::doPrint($valueNode) . '.',
+                            "Argument \"{$name}\" has invalid value {$invalidValue}.",
                             [$argumentValueNode]
                         );
                     }
