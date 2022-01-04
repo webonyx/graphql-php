@@ -258,8 +258,8 @@ class FormattedError
      * Returns error trace as serializable array.
      *
      * @return array<int, array{
-     *     file: string,
-     *     line: int,
+     *     file?: string,
+     *     line?: int,
      *     function?: string,
      *     call?: string,
      * }>
@@ -283,10 +283,15 @@ class FormattedError
 
         $formatted = [];
         foreach ($trace as $err) {
-            $safeErr = [
-                'file' => $err['file'],
-                'line' => $err['line'],
-            ];
+            $safeErr = [];
+
+            if (isset($err['file'])) {
+                $safeErr['file'] = $err['file'];
+            }
+
+            if (isset($err['line'])) {
+                $safeErr['line'] = $err['line'];
+            }
 
             if (isset($err['function'])) {
                 $func = $err['function'];
