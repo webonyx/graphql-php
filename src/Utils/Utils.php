@@ -318,8 +318,7 @@ class Utils
             );
         }
 
-        // @phpstan-ignore-next-line regex is statically known to be good
-        if (! preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
+        if (preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name) !== 1) {
             return new Error(
                 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "' . $name . '" does not.',
                 $node
