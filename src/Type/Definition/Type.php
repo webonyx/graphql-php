@@ -194,7 +194,7 @@ abstract class Type implements JsonSerializable
             return $type->getInnermostType();
         }
 
-        assert($type instanceof NamedType, 'only other option');
+        assert($type === null || $type instanceof NamedType, 'only other option');
 
         return $type;
     }
