@@ -17,7 +17,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Use native PHP types for properties of `Type` and its subclasses
 - Throw `SerializationError` over client safe `Error` when failing to serialize leaf types
 - Move debug entries in errors under `extensions` key
-- Use native PHP types for `Schema` and `SchemaConfig`
+- Use native PHP types wherever possible
 - Always throw `RequestError` with useful message when clients provide an invalid JSON body
 - Move class `BlockString` from namespace `GraphQL\Utils` to `GraphQL\Language`
 - Return string-keyed arrays from `GraphQL::getStandardDirectives()`, `GraphQL::getStandardTypes()` and `GraphQL::getStandardValidationRules()`
@@ -36,6 +36,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Change expected `QueryPlan` options from `['group-implementor-fields']` to `['groupImplementorFields' => true]` in `ResolveInfo::lookAhead()`
 - Always convert promises through `PromiseAdapter::convertThenable()` before calling `->then()` on them
 - Use `JSON_THROW_ON_ERROR` in `json_encode()`
+- Validate some internal invariants through `assert()`
 
 ### Added
 
