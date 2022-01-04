@@ -113,8 +113,8 @@ class ASTDefinitionBuilder
             // Note: While this could make assertions to get the correctly typed
             // value, that would throw immediately while type system validation
             // with validateSchema() will produce more actionable results.
+            /** @var Type&InputType $type proven by schema validation */
             $type = $this->buildWrappedType($value->type);
-            assert($type instanceof InputType, 'proven by schema validation');
 
             $config = [
                 'name' => $value->name->value,

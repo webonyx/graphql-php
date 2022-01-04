@@ -447,18 +447,16 @@ class AST
             }
         }
 
-        if ($type instanceof ScalarType) {
-            // Scalars fulfill parsing a literal value via parseLiteral().
-            // Invalid values represent a failure to parse correctly, in which case
-            // no value is returned.
-            try {
-                return $type->parseLiteral($valueNode, $variables);
-            } catch (Throwable $error) {
-                return $undefined;
-            }
-        }
+        assert($type instanceof ScalarType, 'only remaining option');
 
-        throw new Error('Unknown type: ' . Utils::printSafe($type) . '.');
+        // Scalars fulfill parsing a literal value via parseLiteral().
+        // Invalid values represent a failure to parse correctly, in which case
+        // no value is returned.
+        try {
+            return $type->parseLiteral($valueNode, $variables);
+        } catch (Throwable $error) {
+            return $undefined;
+        }
     }
 
     /**
