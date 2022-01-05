@@ -1,7 +1,5 @@
 <?php declare(strict_types=1);
 
-use function MLL\PhpCsFixerConfig\config;
-
 $finder = PhpCsFixer\Finder::create()
     ->notPath('vendor')
     ->in(__DIR__)
@@ -9,7 +7,7 @@ $finder = PhpCsFixer\Finder::create()
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
 
-return config($finder, [
+return \MLL\PhpCsFixerConfig\risky($finder, [
     'no_superfluous_phpdoc_tags' => [
         'allow_mixed' => true,
     ],
