@@ -2,14 +2,11 @@
 
 namespace GraphQL\Type;
 
-use GraphQL\Error\InvariantViolation;
-use GraphQL\Exception\LazyException;
-use GraphQL\Language\AST\Location;
 use function array_filter;
-use function array_key_exists;
 use function array_merge;
 use function count;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
@@ -320,7 +317,7 @@ class SchemaValidationContext
                 );
             }
 
-            if (!$directiveDefinition->isRepeatable) {
+            if (! $directiveDefinition->isRepeatable) {
                 $potentiallyDuplicateDirectives[$directiveName][] = $directiveNode;
             }
         }
@@ -871,7 +868,7 @@ class SchemaValidationContext
 
         if ($namedType !== $this->schema->getType($name)) {
             $hint = null !== $this->schema->getConfig()->typeLoader
-                ? "Ensure the type loader returns the same instance. "
+                ? 'Ensure the type loader returns the same instance. '
                 : '';
 
             throw new InvariantViolation(

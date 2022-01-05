@@ -2,7 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use GraphQL\Exception\LazyException;
 use function array_keys;
 use function array_merge;
 use function array_reduce;
@@ -15,7 +14,7 @@ use function gettype;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
-use GraphQL\Exception\LazyString;
+use GraphQL\Exception\LazyException;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
