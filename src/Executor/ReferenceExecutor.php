@@ -2,6 +2,7 @@
 
 namespace GraphQL\Executor;
 
+use GraphQL\Exception\LazyException;
 use function array_keys;
 use function array_merge;
 use function array_reduce;
@@ -14,6 +15,7 @@ use function gettype;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
+use GraphQL\Exception\LazyString;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
@@ -846,15 +848,17 @@ class ReferenceExecutor implements ExecutorImplementation
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
         $schema = $this->exeContext->schema;
-        if ($returnType !== $schema->getType($returnType->name)) {
-            $hint = null !== $schema->getConfig()->typeLoader
-                ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
-                : '';
 
-            throw new InvariantViolation(
-                "Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry."
-            );
-        }
+        assert(
+            $returnType === $schema->getType($returnType->name),
+            new LazyException(function () use ($schema, $info, $returnType): string {
+                $hint = null !== $schema->getConfig()->typeLoader
+                    ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
+                    : '';
+
+                return "Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.";
+            })
+        );
 
         if ($returnType instanceof LeafType) {
             return $this->completeLeafValue($returnType, $result);

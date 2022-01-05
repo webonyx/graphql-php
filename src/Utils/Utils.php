@@ -115,20 +115,6 @@ class Utils
     }
 
     /**
-     * @param iterable<mixed> $iterable
-     */
-    public static function some($iterable, callable $predicate): bool
-    {
-        foreach ($iterable as $key => $value) {
-            if ($predicate($value, $key)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * @param mixed  $test    will be evaluated for truthy-ness
      * @param string $message
      *
