@@ -78,7 +78,7 @@ class ASTDefinitionBuilder
         $this->resolveType = $resolveType;
         $this->typeConfigDecorator = $typeConfigDecorator;
 
-        $this->cache = Type::getAllBuiltInTypes();
+        $this->cache = Type::builtInTypes();
     }
 
     public function buildDirective(DirectiveDefinitionNode $directiveNode): Directive

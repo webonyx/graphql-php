@@ -848,16 +848,16 @@ class ReferenceExecutor implements ExecutorImplementation
         // instance than `resolveType` or $field->getType() or $arg->getType()
         $schema = $this->exeContext->schema;
 
-        assert(
-            $returnType === $schema->getType($returnType->name),
-            new LazyException(function () use ($schema, $info, $returnType): string {
-                $hint = null !== $schema->getConfig()->typeLoader
-                    ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
-                    : '';
-
-                return "Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.";
-            })
-        );
+//        assert(
+//            $returnType === $schema->getType($returnType->name),
+//            new LazyException(function () use ($schema, $info, $returnType): string {
+//                $hint = null !== $schema->getConfig()->typeLoader
+//                    ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
+//                    : '';
+//
+//                return "Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.";
+//            })
+//        );
 
         if ($returnType instanceof LeafType) {
             return $this->completeLeafValue($returnType, $result);

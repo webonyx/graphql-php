@@ -25,7 +25,18 @@ use GraphQL\Type\Definition\Type;
  *     $schema = new Schema($config);
  *
  * @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
- * @phpstan-type Types array<Type&NamedType>|(callable(): array<Type&NamedType>)
+ * @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
+ * @phpstan-type SchemaConfigOptions array{
+ *   query?: ObjectType,
+ *   mutation?: ObjectType,
+ *   subscription?: ObjectType,
+ *   types?: Types,
+ *   directives?: array<Directive>,
+ *   typeLoader?: TypeLoader,
+ *   assumeValid?: bool,
+ *   astNode?: SchemaDefinitionNode,
+ *   extensionASTNodes?: array<SchemaTypeExtensionNode>,
+ * }
  */
 class SchemaConfig
 {
@@ -36,7 +47,7 @@ class SchemaConfig
     public ?ObjectType $subscription = null;
 
     /**
-     * @var array|callable
+     * @var iterable|callable
      * @phpstan-var Types
      */
     public $types = [];
@@ -61,7 +72,7 @@ class SchemaConfig
      * Converts an array of options to instance of SchemaConfig
      * (or just returns empty config when array is not passed).
      *
-     * @param array<string, mixed> $options
+     * @phpstan-param SchemaConfigOptions $options
      *
      * @api
      */

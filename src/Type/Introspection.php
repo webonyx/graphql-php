@@ -5,7 +5,6 @@ namespace GraphQL\Type;
 use function array_filter;
 use function array_key_exists;
 use function array_merge;
-use function array_values;
 use Exception;
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
@@ -229,7 +228,7 @@ EOD;
                 'types' => [
                     'description' => 'A list of all types supported by this server.',
                     'type' => new NonNull(new ListOfType(new NonNull(self::_type()))),
-                    'resolve' => static fn (Schema $schema): array => array_values($schema->getTypeMap()),
+                    'resolve' => static fn (Schema $schema): array => $schema->getTypeMap(),
                 ],
                 'queryType' => [
                     'description' => 'The type that query operations will be rooted at.',
@@ -336,7 +335,7 @@ EOD;
                                 );
                             }
 
-                            return array_values($fields);
+                            return $fields;
                         }
 
                         return null;
@@ -382,7 +381,7 @@ EOD;
                 'inputFields' => [
                     'type' => Type::listOf(Type::nonNull(self::_inputValue())),
                     'resolve' => static fn ($type): ?array => $type instanceof InputObjectType
-                        ? array_values($type->getFields())
+                        ? $type->getFields()
                         : null,
                 ],
                 'ofType' => [

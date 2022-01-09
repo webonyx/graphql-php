@@ -5,7 +5,6 @@ namespace GraphQL\Utils;
 use function array_filter;
 use function array_keys;
 use function array_map;
-use function array_values;
 use function count;
 use function explode;
 use GraphQL\Error\Error;
@@ -322,20 +321,19 @@ class SchemaPrinter
      */
     protected static function printFields(array $options, $type): string
     {
-        $fields = array_values($type->getFields());
-        $fields = array_map(
-            static function (FieldDefinition $f, int $i) use ($options): string {
-                return static::printDescription($options, $f, '  ', 0 === $i)
-                    . '  '
-                    . $f->name
-                    . static::printArgs($options, $f->args, '  ')
-                    . ': '
-                    . $f->getType()->toString()
-                    . static::printDeprecated($f);
-            },
-            $fields,
-            array_keys($fields)
-        );
+        $fields = [];
+
+        $firstInBlock = true;
+        foreach ($type->getFields() as $field) {
+            $fields[] = static::printDescription($options, $field, '  ', $firstInBlock)
+                . '  '
+                . $field->name
+                . static::printArgs($options, $field->args, '  ')
+                . ': '
+                . $field->getType()->toString()
+                . static::printDeprecated($field);
+            $firstInBlock = false;
+        }
 
         return self::printBlock($fields);
     }

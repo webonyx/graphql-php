@@ -852,6 +852,18 @@ final class DefinitionTest extends TestCaseBase
         self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 
+    public function testAcceptsAnObjectTypeWithShorthandNotationForFields(): void
+    {
+        $objType = new ObjectType([
+            'name' => 'SomeObject',
+            'fields' => [
+                'f' => Type::string(),
+            ],
+        ]);
+        $objType->assertValid();
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
     /**
      * @see it('rejects an Object type field with undefined config')
      */

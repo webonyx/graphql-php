@@ -41,6 +41,6 @@ trait NamedTypeImplementation
 
     public function isBuiltInType(): bool
     {
-        return array_key_exists($this->name, Type::getAllBuiltInTypes());
+        return array_key_exists($this->name, Type::builtInTypes());
     }
 }

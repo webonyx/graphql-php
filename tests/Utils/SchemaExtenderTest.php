@@ -226,9 +226,7 @@ class SchemaExtenderTest extends TestCase
         /** @var array<Node&DefinitionNode> $extraDefinitions */
         $extraDefinitions = array_values(array_filter(
             iterator_to_array($ast->definitions->getIterator()),
-            function (Node $node): bool {
-                return ! in_array(Printer::doPrint($node), $this->testSchemaDefinitions, true);
-            }
+            fn (Node $node): bool => ! in_array(Printer::doPrint($node), $this->testSchemaDefinitions, true)
         ));
         /** @phpstan-var NodeList<DefinitionNode&Node> $definitionNodeList */
         $definitionNodeList = new NodeList($extraDefinitions);
