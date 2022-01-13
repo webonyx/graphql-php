@@ -195,7 +195,7 @@ class BuildSchema
         // Note: While this could make early assertions to get the correctly
         // typed values below, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
-
+        // @phpstan-ignore-next-line
         return new Schema([
             'query' => isset($operationTypes['query'])
                 ? $definitionBuilder->buildType($operationTypes['query'])

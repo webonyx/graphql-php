@@ -15,6 +15,7 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
@@ -213,11 +214,12 @@ class ExecutorLazySchemaTest extends TestCase
 
     public function testSimpleQuery(): void
     {
+        $query = $this->loadType('Query');
+        self::assertInstanceOf(ObjectType::class, $query);
+
         $schema = new Schema([
-            'query' => $this->loadType('Query'),
-            'typeLoader' => function ($name) {
-                return $this->loadType($name, true);
-            },
+            'query' => $query,
+            'typeLoader' => fn (string $name) => $this->loadType($name, true),
         ]);
 
         $query = '{ object { string } }';
@@ -239,6 +241,9 @@ class ExecutorLazySchemaTest extends TestCase
         self::assertEquals($expectedExecutorCalls, $this->calls);
     }
 
+    /**
+     * @return (Type&NamedType)|null
+     */
     public function loadType(string $name, bool $isExecutorCall = false): ?Type
     {
         if ($isExecutorCall) {
@@ -366,9 +371,12 @@ class ExecutorLazySchemaTest extends TestCase
 
     public function testDeepQuery(): void
     {
+        $query = $this->loadType('Query');
+        self::assertInstanceOf(ObjectType::class, $query);
+
         $schema = new Schema([
-            'query' => $this->loadType('Query'),
-            'typeLoader' => fn (string $name): Type => $this->loadType($name, true),
+            'query' => $query,
+            'typeLoader' => fn (string $name) => $this->loadType($name, true),
         ]);
 
         $query = '{ object { object { object { string } } } }';
@@ -404,11 +412,12 @@ class ExecutorLazySchemaTest extends TestCase
 
     public function testResolveUnion(): void
     {
+        $query = $this->loadType('Query');
+        self::assertInstanceOf(ObjectType::class, $query);
+
         $schema = new Schema([
-            'query' => $this->loadType('Query'),
-            'typeLoader' => function ($name) {
-                return $this->loadType($name, true);
-            },
+            'query' => $query,
+            'typeLoader' => fn (string $name) => $this->loadType($name, true),
         ]);
 
         $query = '

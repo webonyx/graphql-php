@@ -14,6 +14,7 @@ use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
@@ -44,6 +45,7 @@ use GraphQL\Validator\DocumentValidator;
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
  * @phpstan-import-type UnnamedArgumentConfig from Argument
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+ * @phpstan-import-type OperationType from OperationDefinitionNode
  */
 class SchemaExtender
 {
@@ -636,6 +638,7 @@ class SchemaExtender
 
         static::$extendTypeCache = [];
 
+        /** @var array<OperationType, ObjectType> $operationTypes */
         $operationTypes = [
             'query' => static::extendMaybeNamedType($schema->getQueryType()),
             'mutation' => static::extendMaybeNamedType($schema->getMutationType()),
@@ -671,6 +674,8 @@ class SchemaExtender
         foreach ($typeDefinitionMap as $type) {
             $types[] = static::$astBuilder->buildType($type);
         }
+
+        /** @var array<OperationType, ObjectType> $operationTypes */
 
         return new Schema([
             'query' => $operationTypes['query'],

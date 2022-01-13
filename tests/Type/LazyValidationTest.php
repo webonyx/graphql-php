@@ -15,30 +15,21 @@ class LazyValidationTest extends ValidationTest
     public function testRejectsDifferentInstancesOfTheSameType(): void
     {
         // Invalid: always creates new instance vs returning one from registry
-        $typeLoader = static function ($name): ?ObjectType {
-            switch ($name) {
-                case 'Query':
-                    return new ObjectType([
-                        'name' => 'Query',
-                        'fields' => [
-                            'test' => Type::string(),
-                        ],
-                    ]);
-
-                default:
-                    return null;
-            }
-        };
+        $typeLoader = static fn (): ObjectType => new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'test' => Type::string(),
+            ],
+        ]);
 
         $schema = new Schema([
-            'query' => $typeLoader('Query'),
+            'query' => $typeLoader(),
             'typeLoader' => $typeLoader,
         ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'Type loader returns different instance for Query than field/argument definitions. '
-            . 'Make sure you always return the same instance for the same type name.'
-        );
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'Type loader returns different instance for Query than field/argument definitions. Make sure you always return the same instance for the same type name.'
+        ));
         $schema->assertValid();
     }
 }

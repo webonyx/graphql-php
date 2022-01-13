@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Type;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Tests\TestCaseBase;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -19,7 +20,7 @@ abstract class TypeLoaderTest extends TestCaseBase
 
     protected ObjectType $mutation;
 
-    /** @var callable(string): ?Type */
+    /** @var callable(string): ?(Type&NamedType) */
     protected $typeLoader;
 
     /** @var array<int, string> */
@@ -37,8 +38,7 @@ abstract class TypeLoaderTest extends TestCaseBase
                 'name' => 'Query',
                 'fields' => ['a' => Type::string()],
             ]),
-            'typeLoader' => static function (): void {
-            },
+            'typeLoader' => static fn () => null,
         ]);
         self::assertDidNotCrash();
     }
@@ -48,6 +48,7 @@ abstract class TypeLoaderTest extends TestCaseBase
         $this->expectException(TypeError::class);
         $this->expectExceptionMessageMatches('/callable.*, array given/');
 
+        // @phpstan-ignore-next-line intentionally wrong
         new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
@@ -75,8 +76,7 @@ abstract class TypeLoaderTest extends TestCaseBase
     {
         $schema = new Schema([
             'query' => $this->query,
-            'typeLoader' => static function (): void {
-            },
+            'typeLoader' => static fn () => null,
         ]);
 
         self::assertNull($schema->getType('NonExistingType'));
@@ -86,6 +86,7 @@ abstract class TypeLoaderTest extends TestCaseBase
     {
         $notType = new stdClass();
 
+        // @phpstan-ignore-next-line intentionally wrong
         $schema = new Schema([
             'query' => $this->query,
             'typeLoader' => static fn (): stdClass => $notType,

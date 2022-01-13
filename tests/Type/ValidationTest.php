@@ -447,7 +447,9 @@ class ValidationTest extends TestCaseBase
     {
         $this->expectException(\AssertionError::class);
         $this->expectErrorMessage('Expected type to be either a Type or a callable returning a type, got: instance of stdClass');
-        $schema = new Schema([
+
+        // @phpstan-ignore-next-line intentionally wrong
+        new Schema([
             'query' => $this->SomeObjectType,
             'types' => [
                 (object) ['name' => 'SomeType'],
@@ -462,7 +464,9 @@ class ValidationTest extends TestCaseBase
     {
         $this->expectException(\AssertionError::class);
         $this->expectErrorMessage('Expected type to be either a Type or a callable returning a type, got: instance of GraphQL\Type\Definition\Directive');
-        $schema = new Schema([
+
+        // @phpstan-ignore-next-line intentionally wrong
+        new Schema([
             'query' => $this->SomeObjectType,
             'types' => [
                 $this->SomeDirective,
@@ -475,6 +479,7 @@ class ValidationTest extends TestCaseBase
      */
     public function testRejectsASchemaWhoseDirectivesAreIncorrectlyTyped(): void
     {
+        // @phpstan-ignore-next-line intentionally wrong
         $schema = new Schema([
             'query' => $this->SomeObjectType,
             'directives' => [null, 'somedirective', $this->SomeScalarType],
@@ -585,19 +590,25 @@ class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but '
-                        . '"bad-name-with-dashes" does not.',
+                    'message' => 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "bad-name-with-dashes" does not.',
                 ],
             ]
         );
     }
 
-    protected function schemaWithFieldType(Type $type): Schema
+    /**
+     * @param mixed $type should be Type&OutputType but can be wrong for test purposes
+     */
+    protected function schemaWithFieldType($type): Schema
     {
         return new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'fields' => ['f' => ['type' => $type]],
+                'fields' => [
+                    'f' => [
+                        'type' => $type,
+                    ],
+                ],
             ]),
             'types' => [$type],
         ]);
@@ -1283,11 +1294,14 @@ class ValidationTest extends TestCaseBase
         $this->expectErrorMessage('Expected type to be either a Type or a callable returning a type, got: null');
 
         new Schema([
+            // @phpstan-ignore-next-line intentionally wrong
             'query' => new ObjectType([
                 'name' => 'BadObject',
                 'interfaces' => [null],
                 'fields' => [
-                    'f' => ['type' => Type::string()],
+                    'f' => [
+                        'type' => Type::string(),
+                    ],
                 ],
             ]),
         ]);

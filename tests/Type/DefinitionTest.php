@@ -18,6 +18,7 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
@@ -1151,6 +1152,9 @@ final class DefinitionTest extends TestCaseBase
         $objType->assertValid();
     }
 
+    /**
+     * @param Type&NamedType $type
+     */
     private function schemaWithFieldType(Type $type): Schema
     {
         $schema = new Schema([

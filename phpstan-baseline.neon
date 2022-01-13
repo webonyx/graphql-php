@@ -46,6 +46,11 @@ parameters:
 			path: examples/01-blog/Blog/Types.php
 
 		-
+			message: "#^Parameter \\#1 \\$message of method Exception\\:\\:__construct\\(\\) expects string, GraphQL\\\\Exception\\\\LazyException given\\.$#"
+			count: 1
+			path: src/Exception/LazyException.php
+
+		-
 			message: "#^SplObjectStorage\\<GraphQL\\\\Type\\\\Definition\\\\ObjectType, SplObjectStorage\\<ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>, ArrayObject\\<string, ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>\\>\\>\\> does not accept SplObjectStorage\\<ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>, ArrayObject\\<string, ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>\\>\\>\\|SplObjectStorage\\<object, mixed\\>\\.$#"
 			count: 1
 			path: src/Executor/ReferenceExecutor.php
@@ -131,13 +136,13 @@ parameters:
 			path: src/Type/Definition/NonNull.php
 
 		-
-			message: "#^Array \\(array\\<string, GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\>\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\Type\\:\\:\\$name\\.$#"
 			count: 1
 			path: src/Type/Schema.php
 
 		-
-			message: "#^Generator expects value type GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Type\\\\Definition\\\\Type given\\.$#"
-			count: 1
+			message: "#^Array \\(array\\<string, GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\>\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			count: 2
 			path: src/Type/Schema.php
 
 		-
@@ -151,6 +156,11 @@ parameters:
 			path: src/Type/Schema.php
 
 		-
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
+			count: 1
+			path: src/Type/Schema.php
+
+		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\|GraphQL\\\\Language\\\\AST\\\\BooleanValueNode\\|GraphQL\\\\Language\\\\AST\\\\DirectiveDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\DirectiveNode\\|GraphQL\\\\Language\\\\AST\\\\DocumentNode\\|GraphQL\\\\Language\\\\AST\\\\EnumTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\EnumTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueNode\\|GraphQL\\\\Language\\\\AST\\\\FieldDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\FieldNode\\|GraphQL\\\\Language\\\\AST\\\\FloatValueNode\\|GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\FragmentSpreadNode\\|GraphQL\\\\Language\\\\AST\\\\InlineFragmentNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\IntValueNode\\|GraphQL\\\\Language\\\\AST\\\\ListTypeNode\\|GraphQL\\\\Language\\\\AST\\\\ListValueNode\\|GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\|GraphQL\\\\Language\\\\AST\\\\NameNode\\|GraphQL\\\\Language\\\\AST\\\\NonNullTypeNode\\|GraphQL\\\\Language\\\\AST\\\\NullValueNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectFieldNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectValueNode\\|GraphQL\\\\Language\\\\AST\\\\OperationDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ScalarTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\SchemaDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|GraphQL\\\\Language\\\\AST\\\\StringValueNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\VariableDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\VariableNode\\.$#"
 			count: 1
 			path: src/Utils/AST.php
@@ -159,6 +169,16 @@ parameters:
 			message: "#^Variable property access on mixed\\.$#"
 			count: 1
 			path: src/Utils/AST.php
+
+		-
+			message: "#^Parameter \\#2 \\$resolveType of class GraphQL\\\\Utils\\\\ASTDefinitionBuilder constructor expects callable\\(string, GraphQL\\\\Language\\\\AST\\\\Node\\|null\\)\\: GraphQL\\\\Type\\\\Definition\\\\Type&GraphQL\\\\Type\\\\Definition\\\\NamedType, Closure\\(string\\)\\: \\*NEVER\\* given\\.$#"
+			count: 1
+			path: src/Utils/BuildSchema.php
+
+		-
+			message: "#^Parameter \\#2 \\$resolveType of class GraphQL\\\\Utils\\\\ASTDefinitionBuilder constructor expects callable\\(string, GraphQL\\\\Language\\\\AST\\\\Node\\|null\\)\\: GraphQL\\\\Type\\\\Definition\\\\Type&GraphQL\\\\Type\\\\Definition\\\\NamedType, Closure\\(string\\)\\: GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type given\\.$#"
+			count: 1
+			path: src/Utils/SchemaExtender.php
 
 		-
 			message: "#^Variable property access on object\\.$#"

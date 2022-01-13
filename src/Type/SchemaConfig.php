@@ -34,7 +34,7 @@ use GraphQL\Type\Definition\Type;
  *   directives?: array<Directive>,
  *   typeLoader?: TypeLoader,
  *   assumeValid?: bool,
- *   astNode?: SchemaDefinitionNode,
+ *   astNode?: SchemaDefinitionNode|null,
  *   extensionASTNodes?: array<SchemaTypeExtensionNode>,
  * }
  */

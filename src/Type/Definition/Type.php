@@ -99,7 +99,7 @@ abstract class Type implements JsonSerializable
     /**
      * Returns all builtin in types including base scalar and introspection types.
      *
-     * @return array<string, Type>
+     * @return array<string, Type&NamedType>
      */
     public static function builtInTypes(): array
     {

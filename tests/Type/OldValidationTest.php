@@ -45,11 +45,11 @@ class OldValidationTest extends ValidationTest
     }
 
     /**
-     * @param array<int, Closure(): Type> $closures
+     * @param array<int, callable(): Type> $callables
      */
-    private function assertEachCallableThrows(array $closures, string $expectedError): void
+    private function assertEachCallableThrows(array $callables, string $expectedError): void
     {
-        foreach ($closures as $index => $factory) {
+        foreach ($callables as $index => $factory) {
             try {
                 $factory();
                 self::fail("Expected exception not thrown for entry {$index}");
