@@ -35,7 +35,7 @@ class LazyValidationTest extends ValidationTest
     public function testRejectsDifferentFieldTypeInstance(): void
     {
         $typeLoader = static function (string $name) use (&$query): ObjectType {
-            if ($name === 'Query') {
+            if ('Query' === $name) {
                 return $query;
             }
 
@@ -49,7 +49,7 @@ class LazyValidationTest extends ValidationTest
 
         $query = new ObjectType([
             'name' => 'Query',
-            'fields' => static fn(): array => [
+            'fields' => static fn (): array => [
                 'test' => $typeLoader('Test'),
             ],
         ]);

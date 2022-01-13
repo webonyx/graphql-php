@@ -4,7 +4,6 @@ namespace GraphQL\Tests\Executor;
 
 use function count;
 use GraphQL\Error\DebugFlag;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
@@ -174,8 +173,8 @@ class ExecutorLazySchemaTest extends TestCase
         ';
         $data = [
             'object' => [
-                'string' => 'test'
-            ]
+                'string' => 'test',
+            ],
         ];
         $result = Executor::execute(
             $schema,
@@ -217,8 +216,8 @@ class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'Query.fields';
 
                         return [
-                            'object' => fn() => $this->loadType('SomeObject'),
-                            'other' => fn() => $this->loadType('OtherObject'),
+                            'object' => fn () => $this->loadType('SomeObject'),
+                            'other' => fn () => $this->loadType('OtherObject'),
                         ];
                     },
                 ]);
@@ -230,8 +229,8 @@ class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'SomeObject.fields';
 
                         return [
-                            'string' => fn() => Type::string(),
-                            'object' => fn() => $this->someObjectType,
+                            'string' => fn () => Type::string(),
+                            'object' => fn () => $this->someObjectType,
                         ];
                     },
                     'interfaces' => function (): array {
@@ -253,8 +252,8 @@ class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'OtherObject.fields';
 
                         return [
-                            'union' => fn() => $this->loadType('SomeUnion'),
-                            'iface' => fn() => Type::nonNull($this->loadType('SomeInterface')),
+                            'union' => fn () => $this->loadType('SomeUnion'),
+                            'iface' => fn () => Type::nonNull($this->loadType('SomeInterface')),
                         ];
                     },
                 ]);
@@ -266,7 +265,7 @@ class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'DeeperObject.fields';
 
                         return [
-                            'scalar' => fn() => $this->loadType('SomeScalar'),
+                            'scalar' => fn () => $this->loadType('SomeScalar'),
                         ];
                     },
                 ]);
@@ -315,7 +314,7 @@ class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'SomeInterface.fields';
 
                         return [
-                            'string' => static fn() => Type::string(),
+                            'string' => static fn () => Type::string(),
                         ];
                     },
                 ]);
