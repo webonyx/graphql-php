@@ -12,9 +12,8 @@ use GraphQL\Type\Schema;
  */
 class LazyValidationTest extends ValidationTest
 {
-    public function testRejectsDifferentInstancesOfTheSameType(): void
+    public function testRejectsDifferentQueryInstance(): void
     {
-        // Invalid: always creates new instance vs returning one from registry
         $typeLoader = static fn (): ObjectType => new ObjectType([
             'name' => 'Query',
             'fields' => [
@@ -29,6 +28,39 @@ class LazyValidationTest extends ValidationTest
 
         $this->expectExceptionObject(new InvariantViolation(
             'Type loader returns different instance for Query than field/argument definitions. Make sure you always return the same instance for the same type name.'
+        ));
+        $schema->assertValid();
+    }
+
+    public function testRejectsDifferentFieldTypeInstance(): void
+    {
+        $typeLoader = static function (string $name) use (&$query): ObjectType {
+            if ($name === 'Query') {
+                return $query;
+            }
+
+            return new ObjectType([
+                'name' => 'Test',
+                'fields' => [
+                    'test' => Type::string(),
+                ],
+            ]);
+        };
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => static fn(): array => [
+                'test' => $typeLoader('Test'),
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $query,
+            'typeLoader' => $typeLoader,
+        ]);
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'Type loader returned duplicate type in schema at Query.test: Test. See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.'
         ));
         $schema->assertValid();
     }

@@ -866,6 +866,7 @@ class SchemaValidationContext
         $namedType = Type::getNamedType($type);
         $name = $namedType->name;
 
+        // TODO does this really ensure every usage of the type is unique?
         if ($namedType !== $this->schema->getType($name)) {
             $hint = null !== $this->schema->getConfig()->typeLoader
                 ? 'Ensure the type loader returns the same instance. '

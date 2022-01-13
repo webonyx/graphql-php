@@ -1382,17 +1382,18 @@ class ReferenceExecutor implements ExecutorImplementation
             );
         }
 
-        if (null === $this->exeContext->schema->getType($runtimeType->name)) {
-            throw new InvariantViolation(
-                "Schema does not contain type \"{$runtimeType}\". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields.List the type in the option \"types\" during schema construction, see https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options."
-            );
-        }
-
-        if ($runtimeType !== $this->exeContext->schema->getType($runtimeType->name)) {
-            throw new InvariantViolation(
-                "Schema must contain unique named types but contains multiple types named \"{$runtimeType}\". Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry)."
-            );
-        }
+        // TODO replace with assert() or remove entirely
+//        if (null === $this->exeContext->schema->getType($runtimeType->name)) {
+//            throw new InvariantViolation(
+//                "Schema does not contain type \"{$runtimeType}\". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields. List the type in the option \"types\" during schema construction, see https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options."
+//            );
+//        }
+//
+//        if ($runtimeType !== $this->exeContext->schema->getType($runtimeType->name)) {
+//            throw new InvariantViolation(
+//                "Schema must contain unique named types but contains multiple types named \"{$runtimeType}\". Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry)."
+//            );
+//        }
 
         return $runtimeType;
     }
