@@ -131,11 +131,6 @@ parameters:
 			path: src/Type/Definition/NonNull.php
 
 		-
-			message: "#^Array \\(array\\<string, GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\>\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
-			count: 1
-			path: src/Type/Schema.php
-
-		-
 			message: "#^Generator expects value type GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Type\\\\Definition\\\\Type given\\.$#"
 			count: 1
 			path: src/Type/Schema.php
@@ -147,6 +142,11 @@ parameters:
 
 		-
 			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\) should return T of GraphQL\\\\Type\\\\Definition\\\\Type but returns \\(callable&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|T of GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			count: 1
+			path: src/Type/Schema.php
+
+		-
+			message: "#^Property GraphQL\\\\Type\\\\Schema\\:\\:\\$resolvedTypes \\(array\\<string, GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\>\\) does not accept array\\<string, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
 			count: 1
 			path: src/Type/Schema.php
 

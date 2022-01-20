@@ -112,6 +112,9 @@ class BuildClientSchema
             }
 
             $name = $typeIntrospection['name'];
+            if (! is_string($name)) {
+                throw self::invalidOrIncompleteIntrospectionResult($typeIntrospection);
+            }
 
             // Use the built-in singleton types to avoid reconstruction
             $this->typeMap[$name] = $builtInTypes[$name]
