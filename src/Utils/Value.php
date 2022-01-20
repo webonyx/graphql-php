@@ -40,7 +40,7 @@ class Value
      * Given a type and any value, return a runtime value coerced to match the type.
      *
      * @param mixed $value
-     * @param InputType&Type $type
+     * @param InputType|Type $type
      * @phpstan-param Path|null $path
      *
      * @phpstan-return CoercedValue|CoercedErrors

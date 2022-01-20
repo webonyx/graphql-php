@@ -148,7 +148,7 @@ class AST
      * | null          | NullValue            |
      *
      * @param mixed $value
-     * @param InputType&Type $type
+     * @param InputType|Type $type
      *
      * @return (ValueNode&Node)|null
      *
@@ -459,7 +459,7 @@ class AST
      * Returns true if the provided valueNode is a variable which is not defined
      * in the set of variables.
      *
-     * @param ValueNode&Node $valueNode
+     * @param ValueNode|Node $valueNode
      * @param array<string, mixed>|null $variables
      */
     private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool

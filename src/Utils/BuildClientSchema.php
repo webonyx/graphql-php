@@ -180,7 +180,7 @@ class BuildClientSchema
     }
 
     /**
-     * @return NamedType&Type
+     * @return NamedType|Type
      */
     private function getNamedType(string $typeName): NamedType
     {
@@ -206,7 +206,7 @@ class BuildClientSchema
     /**
      * @param array<string, mixed> $typeRef
      *
-     * @return Type&InputType
+     * @return Type|InputType
      */
     private function getInputType(array $typeRef): InputType
     {
@@ -256,7 +256,7 @@ class BuildClientSchema
     /**
      * @param array<string, mixed> $type
      *
-     * @return Type&NamedType
+     * @return Type|NamedType
      */
     private function buildType(array $type): NamedType
     {

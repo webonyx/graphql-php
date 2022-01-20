@@ -56,7 +56,7 @@ class SchemaExtender
     protected static ASTDefinitionBuilder $astBuilder;
 
     /**
-     * @param Type&NamedType $type
+     * @param Type|NamedType $type
      *
      * @return array<TypeExtensionNode>|null
      */
@@ -69,7 +69,7 @@ class SchemaExtender
     }
 
     /**
-     * @param Type&NamedType $type
+     * @param Type|NamedType $type
      *
      * @throws Error
      */
@@ -459,9 +459,9 @@ class SchemaExtender
     /**
      * @template T of Type
      *
-     * @param T&NamedType $type
+     * @param T|NamedType $type
      *
-     * @return T&NamedType
+     * @return T|NamedType
      */
     protected static function extendNamedType(Type $type): Type
     {

@@ -36,7 +36,7 @@ class Argument
 
     public ?string $description;
 
-    /** @var Type&InputType */
+    /** @var Type|InputType */
     private Type $type;
 
     public ?InputValueDefinitionNode $astNode;
@@ -79,7 +79,7 @@ class Argument
     }
 
     /**
-     * @return Type&InputType
+     * @return Type|InputType
      */
     public function getType(): Type
     {
@@ -103,7 +103,7 @@ class Argument
     }
 
     /**
-     * @param Type&NamedType $parentType
+     * @param Type|NamedType $parentType
      */
     public function assertValid(FieldDefinition $parentField, Type $parentType): void
     {

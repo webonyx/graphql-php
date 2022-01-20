@@ -34,7 +34,7 @@ class InputObjectField
 
     public ?string $description;
 
-    /** @var Type&InputType */
+    /** @var Type|InputType */
     private Type $type;
 
     public ?InputValueDefinitionNode $astNode;
@@ -57,7 +57,7 @@ class InputObjectField
     }
 
     /**
-     * @return Type&InputType
+     * @return Type|InputType
      */
     public function getType(): Type
     {
@@ -81,7 +81,7 @@ class InputObjectField
     }
 
     /**
-     * @param Type&NamedType $parentType
+     * @param Type|NamedType $parentType
      *
      * @throws InvariantViolation
      */

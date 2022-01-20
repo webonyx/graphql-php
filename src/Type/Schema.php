@@ -383,7 +383,7 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
-     * @param AbstractType&Type $abstractType
+     * @param AbstractType|Type $abstractType
      *
      * @return array<ObjectType>
      *
@@ -465,8 +465,8 @@ class Schema
     /**
      * Returns true if the given type is a sub type of the given abstract type.
      *
-     * @param AbstractType&Type $abstractType
-     * @param ImplementingType&Type $maybeSubType
+     * @param AbstractType|Type $abstractType
+     * @param ImplementingType|Type $maybeSubType
      *
      * @api
      */

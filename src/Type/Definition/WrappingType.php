@@ -12,7 +12,7 @@ interface WrappingType
     /**
      * Return the innermost wrapped type, which is guaranteed to be a named type.
      *
-     * @return Type&NamedType
+     * @return Type|NamedType
      */
     public function getInnermostType(): NamedType;
 }

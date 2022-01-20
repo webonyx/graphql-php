@@ -60,8 +60,8 @@ class PossibleFragmentSpreads extends ValidationRule
     }
 
     /**
-     * @param CompositeType&Type $fragType
-     * @param CompositeType&Type $parentType
+     * @param CompositeType|Type $fragType
+     * @param CompositeType|Type $parentType
      */
     protected function doTypesOverlap(Schema $schema, CompositeType $fragType, CompositeType $parentType): bool
     {

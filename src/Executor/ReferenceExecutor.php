@@ -1001,7 +1001,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * Complete a value of an abstract type by determining the runtime object type
      * of that value, then complete the value for that type.
      *
-     * @param AbstractType&Type $returnType
+     * @param AbstractType|Type $returnType
      * @param ArrayObject<int, FieldNode> $fieldNodes
      * @param array<string|int> $path
      * @param array<mixed> $result
@@ -1078,7 +1078,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed|null $value
      * @param mixed|null $contextValue
-     * @param AbstractType&Type $abstractType
+     * @param AbstractType|Type $abstractType
      *
      * @return Promise|Type|string|null
      */
@@ -1350,7 +1350,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param mixed $runtimeTypeOrName
-     * @param AbstractType&Type $returnType
+     * @param AbstractType|Type $returnType
      * @param mixed $result
      */
     protected function ensureValidRuntimeType(

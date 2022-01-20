@@ -30,7 +30,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     }
 
     /**
-     * @return NullableType&Type
+     * @return NullableType|Type
      */
     public function getWrappedType(): Type
     {

@@ -238,7 +238,7 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @return Type&NullableType
+     * @return Type|NullableType
      *
      * @api
      */

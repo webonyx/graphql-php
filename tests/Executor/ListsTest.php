@@ -58,7 +58,7 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @param Type&OutputType $testType
+     * @param Type|OutputType $testType
      * @param mixed $testData
      * @param array<string, mixed> $expected
      */

@@ -111,7 +111,7 @@ class ASTDefinitionBuilder
             // Note: While this could make assertions to get the correctly typed
             // value, that would throw immediately while type system validation
             // with validateSchema() will produce more actionable results.
-            /** @var Type&InputType $type */
+            /** @var Type|InputType $type */
             $type = $this->buildWrappedType($value->type);
 
             $config = [
@@ -209,7 +209,7 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param TypeDefinitionNode&Node $def
+     * @param TypeDefinitionNode|Node $def
      *
      * @throws Error
      *
@@ -274,7 +274,7 @@ class ASTDefinitionBuilder
         // Note: While this could make assertions to get the correctly typed
         // value, that would throw immediately while type system validation
         // with validateSchema() will produce more actionable results.
-        /** @var OutputType&Type $type */
+        /** @var OutputType|Type $type */
         $type = $this->buildWrappedType($field->type);
 
         return [
