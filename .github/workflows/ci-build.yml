@@ -68,7 +68,7 @@ jobs:
     - name: Install PHP
       uses: shivammathur/setup-php@2.9.0
       with:
-        php-version: 8.1
+        php-version: 7.4
         coverage: none
         extensions: json, mbstring
 
@@ -99,7 +99,7 @@ jobs:
     - name: Install PHP
       uses: shivammathur/setup-php@2.9.0
       with:
-        php-version: 8.1
+        php-version: 7.4
         coverage: none
         extensions: json, mbstring
 
@@ -132,7 +132,7 @@ jobs:
     - name: Install PHP
       uses: shivammathur/setup-php@2.9.0
       with:
-        php-version: 8.1
+        php-version: 7.4
         coverage: pcov
         extensions: json, mbstring
 
