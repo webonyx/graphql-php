@@ -81,7 +81,7 @@ class FieldDefinition
      */
     public array $config;
 
-    /** @var Type|OutputType */
+    /** @var Type&OutputType */
     private Type $type;
 
     /**
@@ -184,7 +184,7 @@ class FieldDefinition
     }
 
     /**
-     * @return Type|OutputType
+     * @return Type&OutputType
      */
     public function getType(): Type
     {
@@ -197,7 +197,7 @@ class FieldDefinition
     }
 
     /**
-     * @param Type|NamedType $parentType
+     * @param Type&NamedType $parentType
      *
      * @throws InvariantViolation
      */

@@ -488,7 +488,7 @@ class Parser
     }
 
     /**
-     * @return DefinitionNode|Node
+     * @return DefinitionNode&Node
      */
     private function parseDefinition(): DefinitionNode
     {
@@ -524,7 +524,7 @@ class Parser
     }
 
     /**
-     * @return ExecutableDefinitionNode|Node
+     * @return ExecutableDefinitionNode&Node
      */
     private function parseExecutableDefinition(): ExecutableDefinitionNode
     {
@@ -548,7 +548,7 @@ class Parser
     // Implements the parsing rules in the Operations section.
 
     /**
-     * @return OperationDefinitionNode|Node
+     * @return OperationDefinitionNode&Node
      */
     private function parseOperationDefinition(): OperationDefinitionNode
     {
@@ -660,7 +660,7 @@ class Parser
     }
 
     /**
-     * @return SelectionNode|Node
+     * @return SelectionNode&Node
      */
     private function parseSelection(): SelectionNode
     {
@@ -1023,7 +1023,7 @@ class Parser
     // Implements the parsing rules in the Type Definition section.
 
     /**
-     * @return TypeSystemDefinitionNode|Node
+     * @return TypeSystemDefinitionNode&Node
      */
     private function parseTypeSystemDefinition(): TypeSystemDefinitionNode
     {
@@ -1404,7 +1404,7 @@ class Parser
     }
 
     /**
-     * @return TypeExtensionNode|Node
+     * @return TypeExtensionNode&Node
      */
     private function parseTypeExtension(): TypeExtensionNode
     {

@@ -153,7 +153,7 @@ class ValidationTest extends TestCaseBase
             ),
             array_map(
                 static function (Type $type): NonNull {
-                    /** @var Type|NullableType $type */
+                    /** @var Type&NullableType $type */
                     return Type::nonNull($type);
                 },
                 $types

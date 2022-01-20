@@ -645,7 +645,7 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
-     * @param Type|NamedType $shouldBeInterface
+     * @param Type                     &NamedType $shouldBeInterface
      */
     private function getImplementsInterfaceNode(ImplementingType $type, NamedType $shouldBeInterface): ?NamedTypeNode
     {
@@ -656,7 +656,7 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
-     * @param Type|NamedType $shouldBeInterface
+     * @param Type                     &NamedType $shouldBeInterface
      *
      * @return array<int, NamedTypeNode>
      */

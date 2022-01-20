@@ -89,7 +89,7 @@ class ValidationContext extends ASTValidationContext
     }
 
     /**
-     * @param HasSelectionSet|Node $node
+     * @param HasSelectionSet&Node $node
      *
      * @phpstan-return array<int, VariableUsage>
      */
