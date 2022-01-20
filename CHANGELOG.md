@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.11.4
+
+Fixed:
+- Fix repeatable directive validation for AST
+
 #### 14.11.3
 
 Fixed:
