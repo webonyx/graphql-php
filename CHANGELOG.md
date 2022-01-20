@@ -104,6 +104,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove parameter `$options` from `ASTDefinitionBuilder`
 - Remove `FieldDefinition::create()` in favor of `new FieldDefinition()`
 
+## 14.11.4
+
+### Fixed
+
+- Fix repeatable directive validation for AST
+
 ## 14.11.3
 
 ### Fixed
