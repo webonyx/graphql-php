@@ -48,11 +48,9 @@ class UniqueDirectivesPerLocation extends ValidationRule
 
         $astDefinitions = $context->getDocument()->definitions;
         foreach ($astDefinitions as $definition) {
-            if (! ($definition instanceof DirectiveDefinitionNode)) {
-                continue;
+            if ($definition instanceof DirectiveDefinitionNode) {
+                $uniqueDirectiveMap[$definition->name->value] = $definition->repeatable;
             }
-
-            $uniqueDirectiveMap[$definition->name->value] = $definition->repeatable;
         }
 
         return [
@@ -66,17 +64,15 @@ class UniqueDirectivesPerLocation extends ValidationRule
                 foreach ($node->directives as $directive) {
                     $directiveName = $directive->name->value;
 
-                    if (! isset($uniqueDirectiveMap[$directiveName])) {
-                        continue;
-                    }
-
-                    if (isset($knownDirectives[$directiveName])) {
-                        $context->reportError(new Error(
-                            static::duplicateDirectiveMessage($directiveName),
-                            [$knownDirectives[$directiveName], $directive]
-                        ));
-                    } else {
-                        $knownDirectives[$directiveName] = $directive;
+                    if (isset($uniqueDirectiveMap[$directiveName])) {
+                        if (isset($knownDirectives[$directiveName])) {
+                            $context->reportError(new Error(
+                                static::duplicateDirectiveMessage($directiveName),
+                                [$knownDirectives[$directiveName], $directive]
+                            ));
+                        } else {
+                            $knownDirectives[$directiveName] = $directive;
+                        }
                     }
                 }
             },

@@ -134,11 +134,9 @@ class GraphQL
                 $queryComplexity->setRawVariableValues($variableValues);
             } else {
                 foreach ($validationRules as $rule) {
-                    if (! ($rule instanceof QueryComplexity)) {
-                        continue;
+                    if ($rule instanceof QueryComplexity) {
+                        $rule->setRawVariableValues($variableValues);
                     }
-
-                    $rule->setRawVariableValues($variableValues);
                 }
             }
 

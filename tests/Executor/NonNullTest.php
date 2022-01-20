@@ -409,7 +409,6 @@ class NonNullTest extends TestCase
                     $found = true;
                     break;
                 } catch (ExpectationFailedException $e) {
-                    continue;
                 }
             }
 

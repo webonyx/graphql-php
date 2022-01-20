@@ -109,11 +109,9 @@ class OperationParams
         ];
 
         foreach ($params as &$value) {
-            if ('' !== $value) {
-                continue;
+            if ('' === $value) {
+                $value = null;
             }
-
-            $value = null;
         }
 
         $instance->query = $params['query'];

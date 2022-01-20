@@ -248,12 +248,10 @@ class TypeInfo
                 $argType = null;
                 if (null !== $fieldOrDirective) {
                     foreach ($fieldOrDirective->args as $arg) {
-                        if ($arg->name !== $node->name->value) {
-                            continue;
+                        if ($arg->name === $node->name->value) {
+                            $argDef = $arg;
+                            $argType = $arg->getType();
                         }
-
-                        $argDef = $arg;
-                        $argType = $arg->getType();
                     }
                 }
 

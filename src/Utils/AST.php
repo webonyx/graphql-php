@@ -180,11 +180,9 @@ class AST
                 $valuesNodes = [];
                 foreach ($value as $item) {
                     $itemNode = self::astFromValue($item, $itemType);
-                    if (null === $itemNode) {
-                        continue;
+                    if (null !== $itemNode) {
+                        $valuesNodes[] = $itemNode;
                     }
-
-                    $valuesNodes[] = $itemNode;
                 }
 
                 return new ListValueNode(['values' => new NodeList($valuesNodes)]);

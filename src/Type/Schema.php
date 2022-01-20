@@ -23,7 +23,6 @@ use function implode;
 use function is_array;
 use function is_callable;
 use function is_iterable;
-use function sprintf;
 
 /**
  * Schema Definition (see [schema definition docs](schema-definition.md)).
@@ -197,11 +196,9 @@ class Schema
 
         foreach ($this->getDirectives() as $directive) {
             // @phpstan-ignore-next-line generics are not strictly enforceable, error will be caught during schema validation
-            if (! $directive instanceof Directive) {
-                continue;
+            if ($directive instanceof Directive) {
+                TypeInfo::extractTypesFromDirectives($directive, $typeMap);
             }
-
-            TypeInfo::extractTypesFromDirectives($directive, $typeMap);
         }
 
         // When types are set as array they are resolved in constructor
@@ -531,17 +528,12 @@ class Schema
             $type->assertValid();
 
             // Make sure type loader returns the same instance as registered in other places of schema
-            if (null === $this->config->typeLoader) {
-                continue;
+            if (isset($this->config->typeLoader)) {
+                Utils::invariant(
+                    $this->loadType($name) === $type,
+                    "Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name."
+                );
             }
-
-            Utils::invariant(
-                $this->loadType($name) === $type,
-                sprintf(
-                    'Type loader returns different instance for %s than field/argument definitions. Make sure you always return the same instance for the same type name.',
-                    $name
-                )
-            );
         }
     }
 
