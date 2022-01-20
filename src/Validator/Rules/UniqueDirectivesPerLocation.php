@@ -42,18 +42,22 @@ class UniqueDirectivesPerLocation extends ValidationRule
             ? $schema->getDirectives()
             : Directive::getInternalDirectives();
         foreach ($definedDirectives as $directive) {
-            if (! $directive->isRepeatable) {
-                $uniqueDirectiveMap[$directive->name] = true;
+            if ($directive->isRepeatable) {
+                continue;
             }
+
+            $uniqueDirectiveMap[$directive->name] = true;
         }
 
         $astDefinitions = $context->getDocument()->definitions;
         foreach ($astDefinitions as $definition) {
-            if ($definition instanceof DirectiveDefinitionNode
-                && ! $definition->repeatable
+            if (! ($definition instanceof DirectiveDefinitionNode)
+                || $definition->repeatable
             ) {
-                $uniqueDirectiveMap[$definition->name->value] = true;
+                continue;
             }
+
+            $uniqueDirectiveMap[$definition->name->value] = true;
         }
 
         return [
