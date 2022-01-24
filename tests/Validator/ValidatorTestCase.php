@@ -373,15 +373,20 @@ abstract class ValidatorTestCase extends TestCase
                 Directive::deprecatedDirective(),
                 new Directive([
                     'name' => 'directive',
-                    'locations' => [DirectiveLocation::FIELD],
+                    'locations' => [DirectiveLocation::FIELD, DirectiveLocation::FRAGMENT_DEFINITION],
                 ]),
                 new Directive([
                     'name' => 'directiveA',
-                    'locations' => [DirectiveLocation::FIELD],
+                    'locations' => [DirectiveLocation::FIELD, DirectiveLocation::FRAGMENT_DEFINITION],
                 ]),
                 new Directive([
                     'name' => 'directiveB',
-                    'locations' => [DirectiveLocation::FIELD],
+                    'locations' => [DirectiveLocation::FIELD, DirectiveLocation::FRAGMENT_DEFINITION],
+                ]),
+                new Directive([
+                    'name' => 'repeatable',
+                    'locations' => [DirectiveLocation::FIELD, DirectiveLocation::FRAGMENT_DEFINITION],
+                    'isRepeatable' => true,
                 ]),
                 new Directive([
                     'name' => 'onQuery',

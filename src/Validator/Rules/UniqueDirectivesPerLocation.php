@@ -36,6 +36,7 @@ class UniqueDirectivesPerLocation extends ValidationRule
      */
     public function getASTVisitor(ASTValidationContext $context): array
     {
+        /** @var array<string, true> $uniqueDirectiveMap */
         $uniqueDirectiveMap = [];
 
         $schema = $context->getSchema();
@@ -43,13 +44,17 @@ class UniqueDirectivesPerLocation extends ValidationRule
             ? $schema->getDirectives()
             : Directive::getInternalDirectives();
         foreach ($definedDirectives as $directive) {
-            $uniqueDirectiveMap[$directive->name] = ! $directive->isRepeatable;
+            if (! $directive->isRepeatable) {
+                $uniqueDirectiveMap[$directive->name] = true;
+            }
         }
 
         $astDefinitions = $context->getDocument()->definitions;
         foreach ($astDefinitions as $definition) {
-            if ($definition instanceof DirectiveDefinitionNode) {
-                $uniqueDirectiveMap[$definition->name->value] = $definition->repeatable;
+            if ($definition instanceof DirectiveDefinitionNode
+                && ! $definition->repeatable
+            ) {
+                $uniqueDirectiveMap[$definition->name->value] = true;
             }
         }
 

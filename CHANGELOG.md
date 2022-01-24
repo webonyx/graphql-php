@@ -64,7 +64,6 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Allow directives on variable definitions
 - Handle `null` parent of list in `ValuesOfCorrectType::getVisitor`
 - Allow sending both `query` and `queryId`, ignore `queryId` in that case
-- Fix `extend()` to preserve `repeatable` (#931)
 - Preserve extended methods from class-based types in `SchemaExtender::extend()`
 - Fix printing of empty types (#940)
 - Clone `NodeList` in `Node::cloneDeep()`
@@ -104,6 +103,18 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove option `commentDescriptions` from `BuildSchema::buildAST()`, `BuildSchema::build()` and `Printer::doPrint()`
 - Remove parameter `$options` from `ASTDefinitionBuilder`
 - Remove `FieldDefinition::create()` in favor of `new FieldDefinition()`
+
+## 14.11.5
+
+### Fixed
+
+- Fix `extend()` to preserve `repeatable` (#931)
+
+## 14.11.4
+
+### Fixed
+
+- Fix repeatable directive validation for AST
 
 ## 14.11.3
 
