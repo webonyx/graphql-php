@@ -44,9 +44,9 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "GraphQL\\Tests\\": "tests/",
       "GraphQL\\Benchmarks\\": "benchmarks/",
-      "GraphQL\\Examples\\Blog\\": "examples/01-blog/Blog/"
+      "GraphQL\\Examples\\Blog\\": "examples/01-blog/Blog/",
+      "GraphQL\\Tests\\": "tests/"
     }
   },
   "config": {
