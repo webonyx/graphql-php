@@ -2,11 +2,6 @@
 
 #### Unreleased
 
-#### 14.11.6
-
-Fixed:
-- Correct broken release
-
 #### 14.11.5
 
 Fixed:
