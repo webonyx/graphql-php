@@ -57,12 +57,12 @@
     "sort-packages": true
   },
   "scripts": {
-    "baseline": "phpstan --ansi --generate-baseline",
+    "baseline": "phpstan --generate-baseline",
     "bench": "phpbench run",
     "check": "composer fix && composer stan && composer test",
     "docs": "php generate-class-reference.php",
     "fix": "php-cs-fixer fix",
-    "stan": "phpstan --ansi",
+    "stan": "phpstan",
     "test": "phpunit"
   }
 }
