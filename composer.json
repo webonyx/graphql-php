@@ -16,7 +16,6 @@
   "require-dev": {
     "amphp/amp": "^2.6",
     "dms/phpunit-arraysubset-asserts": "^0.3",
-    "doctrine/coding-standard": "^9",
     "ergebnis/composer-normalize": "^2.16",
     "friendsofphp/php-cs-fixer": "3.4.*",
     "mll-lab/php-cs-fixer-config": "^4.4",
