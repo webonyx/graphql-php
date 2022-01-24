@@ -696,10 +696,6 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
 
     private function getSchema(): Schema
     {
-        $StringBox = null;
-        $IntBox = null;
-        $SomeBox = null;
-
         $SomeBox = new InterfaceType([
             'name' => 'SomeBox',
             'fields' => static function () use (&$SomeBox): array {
@@ -714,6 +710,8 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
             'name' => 'StringBox',
             'interfaces' => [$SomeBox],
             'fields' => static function () use (&$StringBox, &$IntBox): array {
+                assert($StringBox instanceof ObjectType);
+
                 return [
                     'scalar' => ['type' => Type::string()],
                     'deepBox' => ['type' => $StringBox],

@@ -297,12 +297,10 @@ class TypeInfo
 
             case $node instanceof EnumValueNode:
                 $enumType = Type::getNamedType($this->getInputType());
-                $enumValue = null;
-                if ($enumType instanceof EnumType) {
-                    $this->enumValue = $enumType->getValue($node->value);
-                }
 
-                $this->enumValue = $enumValue;
+                $this->enumValue = $enumType instanceof EnumType
+                    ? $enumType->getValue($node->value)
+                    : null;
                 break;
         }
     }
