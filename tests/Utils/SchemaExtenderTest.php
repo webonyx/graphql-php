@@ -2042,7 +2042,7 @@ extend type Query {
     /**
      * @see https://github.com/webonyx/graphql-php/pull/929
      */
-    public function testPreservesRepeatableInDirective(): void
+    public function testPreservesRepeatableInDirective() : void
     {
         $schema = BuildSchema::build('
             directive @test(arg: Int) repeatable on FIELD | SCALAR
