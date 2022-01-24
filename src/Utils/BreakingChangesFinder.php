@@ -6,7 +6,6 @@ use function array_flip;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
-use function class_alias;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -96,14 +95,12 @@ class BreakingChangesFinder
 
         $breakingChanges = [];
         foreach (array_keys($oldTypeMap) as $typeName) {
-            if (isset($newTypeMap[$typeName])) {
-                continue;
+            if (! isset($newTypeMap[$typeName])) {
+                $breakingChanges[] = [
+                    'type' => self::BREAKING_CHANGE_TYPE_REMOVED,
+                    'description' => "${typeName} was removed.",
+                ];
             }
-
-            $breakingChanges[] = [
-                'type' => self::BREAKING_CHANGE_TYPE_REMOVED,
-                'description' => "${typeName} was removed.",
-            ];
         }
 
         return $breakingChanges;
@@ -406,14 +403,12 @@ class BreakingChangesFinder
             }
 
             foreach ($oldType->getTypes() as $type) {
-                if (isset($typeNamesInNewUnion[$type->name])) {
-                    continue;
+                if (! isset($typeNamesInNewUnion[$type->name])) {
+                    $typesRemovedFromUnion[] = [
+                        'type' => self::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
+                        'description' => sprintf('%s was removed from union type %s.', $type->name, $typeName),
+                    ];
                 }
-
-                $typesRemovedFromUnion[] = [
-                    'type' => self::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
-                    'description' => sprintf('%s was removed from union type %s.', $type->name, $typeName),
-                ];
             }
         }
 
@@ -446,14 +441,12 @@ class BreakingChangesFinder
             }
 
             foreach ($oldType->getValues() as $value) {
-                if (isset($valuesInNewEnum[$value->name])) {
-                    continue;
+                if (! isset($valuesInNewEnum[$value->name])) {
+                    $valuesRemovedFromEnums[] = [
+                        'type' => self::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
+                        'description' => sprintf('%s was removed from enum type %s.', $value->name, $typeName),
+                    ];
                 }
-
-                $valuesRemovedFromEnums[] = [
-                    'type' => self::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
-                    'description' => sprintf('%s was removed from enum type %s.', $value->name, $typeName),
-                ];
             }
         }
 
@@ -599,14 +592,12 @@ class BreakingChangesFinder
                         return $interface->name === $oldInterface->name;
                     }
                 );
-                if (null !== $interface) {
-                    continue;
+                if (null === $interface) {
+                    $breakingChanges[] = [
+                        'type' => self::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
+                        'description' => sprintf('%s no longer implements interface %s.', $typeName, $oldInterface->name),
+                    ];
                 }
-
-                $breakingChanges[] = [
-                    'type' => self::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
-                    'description' => sprintf('%s no longer implements interface %s.', $typeName, $oldInterface->name),
-                ];
             }
         }
 
@@ -622,14 +613,12 @@ class BreakingChangesFinder
 
         $newSchemaDirectiveMap = self::getDirectiveMapForSchema($newSchema);
         foreach ($oldSchema->getDirectives() as $directive) {
-            if (isset($newSchemaDirectiveMap[$directive->name])) {
-                continue;
+            if (! isset($newSchemaDirectiveMap[$directive->name])) {
+                $removedDirectives[] = [
+                    'type' => self::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                    'description' => sprintf('%s was removed', $directive->name),
+                ];
             }
-
-            $removedDirectives[] = [
-                'type' => self::BREAKING_CHANGE_DIRECTIVE_REMOVED,
-                'description' => sprintf('%s was removed', $directive->name),
-            ];
         }
 
         return $removedDirectives;
@@ -685,11 +674,9 @@ class BreakingChangesFinder
         $removedArgs = [];
         $newArgMap = self::getArgumentMapForDirective($newDirective);
         foreach ($oldDirective->args as $arg) {
-            if (isset($newArgMap[$arg->name])) {
-                continue;
+            if (! isset($newArgMap[$arg->name])) {
+                $removedArgs[] = $arg;
             }
-
-            $removedArgs[] = $arg;
         }
 
         return $removedArgs;
@@ -727,18 +714,12 @@ class BreakingChangesFinder
                     $newDirective
                 ) as $arg
             ) {
-                if (! $arg->isRequired()) {
-                    continue;
+                if ($arg->isRequired()) {
+                    $addedNonNullableArgs[] = [
+                        'type' => self::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
+                        'description' => "A required arg {$arg->name} on directive {$newDirective->name} was added",
+                    ];
                 }
-
-                $addedNonNullableArgs[] = [
-                    'type' => self::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
-                    'description' => sprintf(
-                        'A required arg %s on directive %s was added',
-                        $arg->name,
-                        $newDirective->name
-                    ),
-                ];
             }
         }
 
@@ -753,11 +734,9 @@ class BreakingChangesFinder
         $addedArgs = [];
         $oldArgMap = self::getArgumentMapForDirective($oldDirective);
         foreach ($newDirective->args as $arg) {
-            if (isset($oldArgMap[$arg->name])) {
-                continue;
+            if (! isset($oldArgMap[$arg->name])) {
+                $addedArgs[] = $arg;
             }
-
-            $addedArgs[] = $arg;
         }
 
         return $addedArgs;
@@ -800,11 +779,9 @@ class BreakingChangesFinder
         $removedLocations = [];
         $newLocationSet = array_flip($newDirective->locations);
         foreach ($oldDirective->locations as $oldLocation) {
-            if (array_key_exists($oldLocation, $newLocationSet)) {
-                continue;
+            if (! array_key_exists($oldLocation, $newLocationSet)) {
+                $removedLocations[] = $oldLocation;
             }
-
-            $removedLocations[] = $oldLocation;
         }
 
         return $removedLocations;
@@ -853,14 +830,12 @@ class BreakingChangesFinder
             }
 
             foreach ($newType->getValues() as $value) {
-                if (isset($valuesInOldEnum[$value->name])) {
-                    continue;
+                if (! isset($valuesInOldEnum[$value->name])) {
+                    $valuesAddedToEnums[] = [
+                        'type' => self::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
+                        'description' => "{$value->name} was added to enum type {$typeName}.",
+                    ];
                 }
-
-                $valuesAddedToEnums[] = [
-                    'type' => self::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
-                    'description' => sprintf('%s was added to enum type %s.', $value->name, $typeName),
-                ];
             }
         }
 
@@ -897,18 +872,16 @@ class BreakingChangesFinder
                     }
                 );
 
-                if (null !== $interface) {
-                    continue;
+                if (null === $interface) {
+                    $interfacesAddedToObjectTypes[] = [
+                        'type' => self::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
+                        'description' => sprintf(
+                            '%s added to interfaces implemented by %s.',
+                            $newInterface->name,
+                            $typeName
+                        ),
+                    ];
                 }
-
-                $interfacesAddedToObjectTypes[] = [
-                    'type' => self::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
-                    'description' => sprintf(
-                        '%s added to interfaces implemented by %s.',
-                        $newInterface->name,
-                        $typeName
-                    ),
-                ];
             }
         }
 
@@ -941,19 +914,15 @@ class BreakingChangesFinder
             }
 
             foreach ($newType->getTypes() as $type) {
-                if (isset($typeNamesInOldUnion[$type->name])) {
-                    continue;
+                if (! isset($typeNamesInOldUnion[$type->name])) {
+                    $typesAddedToUnion[] = [
+                        'type' => self::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
+                        'description' => sprintf('%s was added to union type %s.', $type->name, $typeName),
+                    ];
                 }
-
-                $typesAddedToUnion[] = [
-                    'type' => self::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
-                    'description' => sprintf('%s was added to union type %s.', $type->name, $typeName),
-                ];
             }
         }
 
         return $typesAddedToUnion;
     }
 }
-
-class_alias(BreakingChangesFinder::class, 'GraphQL\Utils\FindBreakingChanges');

@@ -57,11 +57,9 @@ class ReactPromiseAdapter implements PromiseAdapter
         // TODO: rework with generators when PHP minimum required version is changed to 5.5+
 
         foreach ($promisesOrValues as &$promiseOrValue) {
-            if (! ($promiseOrValue instanceof Promise)) {
-                continue;
+            if ($promiseOrValue instanceof Promise) {
+                $promiseOrValue = $promiseOrValue->adoptedPromise;
             }
-
-            $promiseOrValue = $promiseOrValue->adoptedPromise;
         }
 
         $promise = all($promisesOrValues)->then(static function ($values) use ($promisesOrValues): array {

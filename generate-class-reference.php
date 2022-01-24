@@ -86,11 +86,9 @@ function renderClass(ReflectionClass $class, array $options): string
     if ($options['props'] ?? true) {
         $props = [];
         foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-            if (! isApi($property)) {
-                continue;
+            if (isApi($property)) {
+                $props[] = renderProp($property);
             }
-
-            $props[] = renderProp($property);
         }
 
         if (count($props) > 0) {
@@ -102,11 +100,9 @@ function renderClass(ReflectionClass $class, array $options): string
     if ($options['methods'] ?? true) {
         $methods = [];
         foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            if (! isApi($method)) {
-                continue;
+            if (isApi($method)) {
+                $methods[] = renderMethod($method);
             }
-
-            $methods[] = renderMethod($method);
         }
 
         if (count($methods) > 0) {

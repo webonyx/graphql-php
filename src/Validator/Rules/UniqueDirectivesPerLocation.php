@@ -69,17 +69,15 @@ class UniqueDirectivesPerLocation extends ValidationRule
                 foreach ($node->directives as $directive) {
                     $directiveName = $directive->name->value;
 
-                    if (! isset($uniqueDirectiveMap[$directiveName])) {
-                        continue;
-                    }
-
-                    if (isset($knownDirectives[$directiveName])) {
-                        $context->reportError(new Error(
-                            static::duplicateDirectiveMessage($directiveName),
-                            [$knownDirectives[$directiveName], $directive]
-                        ));
-                    } else {
-                        $knownDirectives[$directiveName] = $directive;
+                    if (isset($uniqueDirectiveMap[$directiveName])) {
+                        if (isset($knownDirectives[$directiveName])) {
+                            $context->reportError(new Error(
+                                static::duplicateDirectiveMessage($directiveName),
+                                [$knownDirectives[$directiveName], $directive]
+                            ));
+                        } else {
+                            $knownDirectives[$directiveName] = $directive;
+                        }
                     }
                 }
             },

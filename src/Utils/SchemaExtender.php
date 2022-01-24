@@ -649,12 +649,10 @@ class SchemaExtender
         }
 
         foreach ($schemaExtensions as $schemaExtension) {
-            if (! isset($schemaExtension->operationTypes)) {
-                continue;
-            }
-
-            foreach ($schemaExtension->operationTypes as $operationType) {
-                $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
+            if (isset($schemaExtension->operationTypes)) {
+                foreach ($schemaExtension->operationTypes as $operationType) {
+                    $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
+                }
             }
         }
 

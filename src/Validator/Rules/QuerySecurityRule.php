@@ -71,11 +71,9 @@ abstract class QuerySecurityRule extends ValidationRule
         // Importantly this does not include inline fragments.
         $definitions = $context->getDocument()->definitions;
         foreach ($definitions as $node) {
-            if (! ($node instanceof FragmentDefinitionNode)) {
-                continue;
+            if ($node instanceof FragmentDefinitionNode) {
+                $this->fragments[$node->name->value] = $node;
             }
-
-            $this->fragments[$node->name->value] = $node;
         }
     }
 
