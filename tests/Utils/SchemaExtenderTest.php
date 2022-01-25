@@ -559,6 +559,13 @@ EOF
         self::assertCount(0, $testInput->extensionASTNodes);
         self::assertCount(0, $testInterface->extensionASTNodes);
 
+        self::assertNotNull($testInput->astNode);
+        self::assertNotNull($testEnum->astNode);
+        self::assertNotNull($testUnion->astNode);
+        self::assertNotNull($testInterface->astNode);
+        self::assertNotNull($testType->astNode);
+        self::assertNotNull($testDirective->astNode);
+
         $restoredExtensionAST = new DocumentNode([
             'definitions' => new NodeList(array_merge(
                 $query->extensionASTNodes,
@@ -583,22 +590,26 @@ EOF
             SchemaPrinter::doPrint($extendedTwiceSchema)
         );
 
-        $newField = $query->getField('newField');
+        self::assertASTMatches('newField(testArg: TestInput): TestEnum', $query->getField('newField')->astNode);
+        self::assertASTMatches('testArg: TestInput', $query->getField('newField')->args[0]->astNode);
+        self::assertASTMatches('oneMoreNewField: TestUnion', $query->getField('oneMoreNewField')->astNode);
+        self::assertASTMatches('NEW_VALUE', $someEnum->getValue('NEW_VALUE')->astNode ?? null);
+        self::assertASTMatches('ONE_MORE_NEW_VALUE', $someEnum->getValue('ONE_MORE_NEW_VALUE')->astNode ?? null);
+        self::assertASTMatches('newField: String', $someInput->getField('newField')->astNode);
+        self::assertASTMatches('oneMoreNewField: String', $someInput->getField('oneMoreNewField')->astNode);
+        self::assertASTMatches('newField: String', $someInterface->getField('newField')->astNode);
+        self::assertASTMatches('oneMoreNewField: String', $someInterface->getField('oneMoreNewField')->astNode);
+        self::assertASTMatches('testInputField: TestEnum', $testInput->getField('testInputField')->astNode);
+        self::assertASTMatches('TEST_VALUE', $testEnum->getValue('TEST_VALUE')->astNode ?? null);
+        self::assertASTMatches('interfaceField: String', $testInterface->getField('interfaceField')->astNode);
+        self::assertASTMatches('interfaceField: String', $testType->getField('interfaceField')->astNode);
+        self::assertASTMatches('arg: Int', $testDirective->args[0]->astNode);
+    }
 
-        self::assertSame(Printer::doPrint($newField->astNode), 'newField(testArg: TestInput): TestEnum');
-        self::assertSame(Printer::doPrint($newField->args[0]->astNode), 'testArg: TestInput');
-        self::assertSame(Printer::doPrint($query->getField('oneMoreNewField')->astNode), 'oneMoreNewField: TestUnion');
-        self::assertSame(Printer::doPrint($someEnum->getValue('NEW_VALUE')->astNode), 'NEW_VALUE');
-        self::assertSame(Printer::doPrint($someEnum->getValue('ONE_MORE_NEW_VALUE')->astNode), 'ONE_MORE_NEW_VALUE');
-        self::assertSame(Printer::doPrint($someInput->getField('newField')->astNode), 'newField: String');
-        self::assertSame(Printer::doPrint($someInput->getField('oneMoreNewField')->astNode), 'oneMoreNewField: String');
-        self::assertSame(Printer::doPrint($someInterface->getField('newField')->astNode), 'newField: String');
-        self::assertSame(Printer::doPrint($someInterface->getField('oneMoreNewField')->astNode), 'oneMoreNewField: String');
-        self::assertSame(Printer::doPrint($testInput->getField('testInputField')->astNode), 'testInputField: TestEnum');
-        self::assertSame(Printer::doPrint($testEnum->getValue('TEST_VALUE')->astNode), 'TEST_VALUE');
-        self::assertSame(Printer::doPrint($testInterface->getField('interfaceField')->astNode), 'interfaceField: String');
-        self::assertSame(Printer::doPrint($testType->getField('interfaceField')->astNode), 'interfaceField: String');
-        self::assertSame(Printer::doPrint($testDirective->args[0]->astNode), 'arg: Int');
+    protected static function assertASTMatches(string $expected, ?Node $node): void
+    {
+        self::assertInstanceOf(Node::class, $node);
+        self::assertSame($expected, Printer::doPrint($node));
     }
 
     /**
