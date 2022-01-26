@@ -37,6 +37,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Always convert promises through `PromiseAdapter::convertThenable()` before calling `->then()` on them
 - Use `JSON_THROW_ON_ERROR` in `json_encode()`
 - Validate some internal invariants through `assert()`
+- Throw if `Introspection::fromSchema()` returns no data
 
 ### Added
 
@@ -103,6 +104,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove option `commentDescriptions` from `BuildSchema::buildAST()`, `BuildSchema::build()` and `Printer::doPrint()`
 - Remove parameter `$options` from `ASTDefinitionBuilder`
 - Remove `FieldDefinition::create()` in favor of `new FieldDefinition()`
+- Remove `GraphQL\Exception\InvalidArgument`
 
 ## 14.11.5
 
