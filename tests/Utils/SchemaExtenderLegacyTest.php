@@ -73,6 +73,8 @@ class SchemaExtenderLegacyTest extends TestCase
             'name' => 'Foo',
             'interfaces' => [$AnotherInterfaceType, $SomeInterfaceType],
             'fields' => static function () use ($AnotherInterfaceType, &$FooType): array {
+                assert($FooType instanceof ObjectType);
+
                 return [
                     'name' => ['type' => Type::string()],
                     'some' => ['type' => $AnotherInterfaceType],

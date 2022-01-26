@@ -18,6 +18,7 @@ use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeInterfaceClassType;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeObjectClassType;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeScalarClassType;
@@ -40,10 +41,9 @@ use GraphQL\Utils\SchemaPrinter;
 use function implode;
 use function in_array;
 use function iterator_to_array;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-class SchemaExtenderTest extends TestCase
+class SchemaExtenderTest extends TestCaseBase
 {
     protected Schema $testSchema;
 
@@ -604,12 +604,6 @@ EOF
         self::assertASTMatches('interfaceField: String', $testInterface->getField('interfaceField')->astNode);
         self::assertASTMatches('interfaceField: String', $testType->getField('interfaceField')->astNode);
         self::assertASTMatches('arg: Int', $testDirective->args[0]->astNode);
-    }
-
-    protected static function assertASTMatches(string $expected, ?Node $node): void
-    {
-        self::assertInstanceOf(Node::class, $node);
-        self::assertSame($expected, Printer::doPrint($node));
     }
 
     /**
