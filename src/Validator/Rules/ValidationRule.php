@@ -4,7 +4,7 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\SDLValidationContext;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * @phpstan-import-type VisitorArray from Visitor
@@ -23,7 +23,7 @@ abstract class ValidationRule
      *
      * @phpstan-return VisitorArray
      */
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [];
     }

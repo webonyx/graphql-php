@@ -288,7 +288,9 @@ class SchemaPrinter
     {
         $argDecl = $arg->name . ': ' . $arg->getType()->toString();
         if ($arg->defaultValueExists()) {
-            $argDecl .= ' = ' . Printer::doPrint(AST::astFromValue($arg->defaultValue, $arg->getType()));
+            $argDecl .= ' = ' . Printer::doPrint(
+                AST::astFromValue($arg->defaultValue, $arg->getType())
+            );
         }
 
         return $argDecl;

@@ -131,6 +131,7 @@ class GraphQL
             if (null === $validationRules || 0 === count($validationRules)) {
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
                 assert($queryComplexity instanceof QueryComplexity, 'should not register a different rule for QueryComplexity');
+
                 $queryComplexity->setRawVariableValues($variableValues);
             } else {
                 foreach ($validationRules as $rule) {

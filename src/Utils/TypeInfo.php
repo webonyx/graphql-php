@@ -45,7 +45,7 @@ class TypeInfo
 {
     private Schema $schema;
 
-    /** @var array<int, (OutputType&Type)|null> */
+    /** @var array<int, Type|null> */
     private array $typeStack = [];
 
     /** @var array<int, (CompositeType&Type)|null> */
@@ -54,7 +54,7 @@ class TypeInfo
     /** @var array<int, (InputType&Type)|null> */
     private array $inputTypeStack = [];
 
-    /** @var array<int, FieldDefinition> */
+    /** @var array<int, FieldDefinition|null> */
     private array $fieldDefStack = [];
 
     /** @var array<int, mixed> */
@@ -193,18 +193,17 @@ class TypeInfo
 
             case $node instanceof FieldNode:
                 $parentType = $this->getParentType();
-                $fieldDef = null;
-                if (null !== $parentType) {
-                    $fieldDef = self::getFieldDefinition($schema, $parentType, $node);
-                }
 
-                $fieldType = null;
-                if (null !== $fieldDef) {
-                    $fieldType = $fieldDef->getType();
-                }
+                $fieldDef = null === $parentType
+                    ? null
+                    : self::getFieldDefinition($schema, $parentType, $node);
+
+                $fieldType = null === $fieldDef
+                    ? null
+                    : $fieldDef->getType();
 
                 $this->fieldDefStack[] = $fieldDef;
-                $this->typeStack[] = Type::isOutputType($fieldType) ? $fieldType : null;
+                $this->typeStack[] = $fieldType;
                 break;
 
             case $node instanceof DirectiveNode:
@@ -306,9 +305,9 @@ class TypeInfo
     }
 
     /**
-     * @return (Type & OutputType) | null
+     * @return Type|null
      */
-    public function getType(): ?OutputType
+    public function getType(): ?Type
     {
         return $this->typeStack[count($this->typeStack) - 1] ?? null;
     }

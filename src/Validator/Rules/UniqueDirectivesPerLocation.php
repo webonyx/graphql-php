@@ -7,9 +7,9 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Validator\ASTValidationContext;
-use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\SDLValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * Unique directive names per location.
@@ -21,7 +21,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class UniqueDirectivesPerLocation extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
@@ -34,7 +34,7 @@ class UniqueDirectivesPerLocation extends ValidationRule
     /**
      * @phpstan-return VisitorArray
      */
-    public function getASTVisitor(ASTValidationContext $context): array
+    public function getASTVisitor(ValidationContext $context): array
     {
         /** @var array<string, true> $uniqueDirectiveMap */
         $uniqueDirectiveMap = [];

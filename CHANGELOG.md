@@ -38,6 +38,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Use `JSON_THROW_ON_ERROR` in `json_encode()`
 - Validate some internal invariants through `assert()`
 - Throw if `Introspection::fromSchema()` returns no data
+- Reorganize abstract class `ASTValidationContext` to interface `ValidationContext`
 
 ### Added
 
@@ -68,6 +69,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Preserve extended methods from class-based types in `SchemaExtender::extend()`
 - Fix printing of empty types (#940)
 - Clone `NodeList` in `Node::cloneDeep()`
+- Avoid crash on typeless inline fragment when using `QueryComplexity` rule
 
 ### Removed
 

@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\Validator\ValidationContext;
 use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
@@ -9,7 +10,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class QueryComplexityTest extends QuerySecurityTestCase
 {
@@ -38,6 +39,13 @@ class QueryComplexityTest extends QuerySecurityTestCase
     public function testInlineFragmentQueries(): void
     {
         $query = 'query MyQuery { human { ... on Human { firstName } } }';
+
+        $this->assertDocumentValidators($query, 2, 3);
+    }
+
+    public function testTypelessInlineFragmentQueries(): void
+    {
+        $query = 'query MyQuery { human { ... { firstName } } }';
 
         $this->assertDocumentValidators($query, 2, 3);
     }

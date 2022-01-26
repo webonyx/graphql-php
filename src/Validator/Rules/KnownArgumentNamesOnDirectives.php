@@ -12,9 +12,9 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ASTValidationContext;
-use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\SDLValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 use function in_array;
 
 /**
@@ -47,7 +47,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         return $this->getASTVisitor($context);
     }
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
@@ -55,7 +55,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
     /**
      * @phpstan-return VisitorArray
      */
-    public function getASTVisitor(ASTValidationContext $context): array
+    public function getASTVisitor(ValidationContext $context): array
     {
         $directiveArgs = [];
         $schema = $context->getSchema();

@@ -8,9 +8,9 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ASTValidationContext;
-use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\SDLValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * @phpstan-import-type VisitorArray from Visitor
@@ -25,7 +25,7 @@ class UniqueArgumentNames extends ValidationRule
         return $this->getASTVisitor($context);
     }
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
@@ -33,7 +33,7 @@ class UniqueArgumentNames extends ValidationRule
     /**
      * @phpstan-return VisitorArray
      */
-    public function getASTVisitor(ASTValidationContext $context): array
+    public function getASTVisitor(ValidationContext $context): array
     {
         $this->knownArgNames = [];
 

@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Server;
 
+use GraphQL\Validator\ValidationContext;
 use function count;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
@@ -17,7 +18,7 @@ use GraphQL\Server\RequestError;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 use function sprintf;
 use stdClass;
 

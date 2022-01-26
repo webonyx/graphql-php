@@ -16,7 +16,7 @@ use function is_string;
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type ArgumentListConfig from Argument
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
- * @phpstan-type ComplexityFn callable(int, array<string, mixed>): (int|null)
+ * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int
  * @phpstan-type FieldDefinitionConfig array{
  *     name: string,
  *     type: FieldType,

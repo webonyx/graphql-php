@@ -8,11 +8,11 @@ use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class VariablesAreInputTypes extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::VARIABLE_DEFINITION => static function (VariableDefinitionNode $node) use ($context): void {
