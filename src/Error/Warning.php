@@ -3,7 +3,8 @@
 namespace GraphQL\Error;
 
 use const E_USER_WARNING;
-use GraphQL\Exception\InvalidArgument;
+use function gettype;
+use InvalidArgumentException;
 use function is_int;
 use function trigger_error;
 
@@ -70,7 +71,8 @@ final class Warning
         } elseif (is_int($suppress)) {
             self::$enableWarnings &= ~$suppress;
         } else {
-            throw InvalidArgument::fromExpectedTypeAndArgument('bool|int', $suppress);
+            $type = gettype($suppress);
+            throw new InvalidArgumentException("Expected type bool|int, got {$type}.");
         }
     }
 
@@ -95,7 +97,8 @@ final class Warning
         } elseif (is_int($enable)) {
             self::$enableWarnings |= $enable;
         } else {
-            throw InvalidArgument::fromExpectedTypeAndArgument('bool|int', $enable);
+            $type = gettype($enable);
+            throw new InvalidArgumentException("Expected type bool|int, got {$type}.");
         }
     }
 

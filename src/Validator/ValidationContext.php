@@ -5,7 +5,6 @@ namespace GraphQL\Validator;
 use function array_merge;
 use function array_pop;
 use function count;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
@@ -182,12 +181,13 @@ class ValidationContext extends ASTValidationContext
                     $selection = $set->selections[$i];
                     if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
-                    } elseif ($selection instanceof FieldNode || $selection instanceof InlineFragmentNode) {
-                        if (null !== $selection->selectionSet) {
-                            $setsToVisit[] = $selection->selectionSet;
-                        }
                     } else {
-                        throw InvariantViolation::shouldNotHappen();
+                        assert($selection instanceof FieldNode || $selection instanceof InlineFragmentNode);
+
+                        $selectionSet = $selection->selectionSet;
+                        if (null !== $selectionSet) {
+                            $setsToVisit[] = $selectionSet;
+                        }
                     }
                 }
             }
