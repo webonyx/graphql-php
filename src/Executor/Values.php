@@ -249,14 +249,13 @@ class Values
                     $coercedValues[$name] = null;
                 } elseif ($argumentValueNode instanceof VariableNode) {
                     $variableName = $argumentValueNode->name->value;
-                    Utils::invariant(null !== $variableValues, 'Must exist for hasValue to be true.');
                     // Note: This does no further checking that this variable is correct.
                     // This assumes that this query has been validated and the variable
                     // usage here is of the correct type.
                     $coercedValues[$name] = $variableValues[$variableName] ?? null;
                 } else {
                     $coercedValue = AST::valueFromAST($argumentValueNode, $argType, $variableValues);
-                    if (Utils::isInvalid($coercedValue)) {
+                    if (Utils::undefined() === $coercedValue) {
                         // Note: ValuesOfCorrectType validation should catch this before
                         // execution. This is a runtime check to ensure execution does not
                         // continue with an invalid argument value.

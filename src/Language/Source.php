@@ -36,15 +36,6 @@ class Source
             ? 'GraphQL request'
             : $name;
         $this->locationOffset = $location ?? new SourceLocation(1, 1);
-
-        Utils::invariant(
-            $this->locationOffset->line > 0,
-            'line in locationOffset is 1-indexed and must be positive'
-        );
-        Utils::invariant(
-            $this->locationOffset->column > 0,
-            'column in locationOffset is 1-indexed and must be positive'
-        );
     }
 
     public function getLocation(int $position): SourceLocation

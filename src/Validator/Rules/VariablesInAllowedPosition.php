@@ -92,7 +92,7 @@ class VariablesInAllowedPosition extends ValidationRule
     {
         if ($locationType instanceof NonNull && ! $varType instanceof NonNull) {
             $hasNonNullVariableDefaultValue = null !== $varDefaultValue && ! $varDefaultValue instanceof NullValueNode;
-            $hasLocationDefaultValue = ! Utils::isInvalid($locationDefaultValue);
+            $hasLocationDefaultValue = !(Utils::undefined() === $locationDefaultValue);
             if (! $hasNonNullVariableDefaultValue && ! $hasLocationDefaultValue) {
                 return false;
             }

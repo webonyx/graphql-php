@@ -2,6 +2,7 @@
 
 namespace GraphQL\Utils;
 
+use GraphQL\Error\InvariantViolation;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -518,7 +519,9 @@ class SchemaExtender
             $schema->getDirectives()
         );
 
-        Utils::invariant(count($directives) > 0, 'schema must have default directives');
+        if(count($directives) === 0) {
+            throw new InvariantViolation('Schema must have default directives.');
+        }
 
         foreach ($directiveDefinitions as $directive) {
             $directives[] = static::$astBuilder->buildDirective($directive);

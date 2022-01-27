@@ -215,8 +215,8 @@ class ReferenceExecutor implements ExecutorImplementation
             return $errors;
         }
 
-        Utils::invariant($operation, 'Has operation if no errors.');
-        Utils::invariant(null !== $variableValues, 'Has variables if no errors.');
+        assert($operation instanceof OperationDefinitionNode, 'Has operation if no errors.');
+        assert(is_array($variableValues), 'Has variables if no errors.');
 
         return new ExecutionContext(
             $schema,

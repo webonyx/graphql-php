@@ -31,7 +31,7 @@ class QueryGenerator
     {
         $this->schema = $schema;
 
-        Utils::invariant(0 < $percentOfLeafFields && $percentOfLeafFields <= 1);
+        assert(0 < $percentOfLeafFields && $percentOfLeafFields <= 1);
 
         $totalFields = 0;
         foreach ($schema->getTypeMap() as $type) {

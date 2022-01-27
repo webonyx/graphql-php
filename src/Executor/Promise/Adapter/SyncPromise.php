@@ -3,6 +3,7 @@
 namespace GraphQL\Executor\Promise\Adapter;
 
 use Exception;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 use function is_object;
 use function method_exists;
@@ -139,10 +140,9 @@ class SyncPromise
 
     private function enqueueWaitingPromises(): void
     {
-        Utils::invariant(
-            self::PENDING !== $this->state,
-            'Cannot enqueue derived promises when parent is still pending'
-        );
+        if (self::PENDING === $this->state) {
+            throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
+        }
 
         foreach ($this->waiting as $descriptor) {
             self::getQueue()->enqueue(function () use ($descriptor): void {
