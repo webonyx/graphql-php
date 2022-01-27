@@ -2,8 +2,8 @@
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
 use function array_key_exists;
+use GraphQL\Error\InvariantViolation;
 use function preg_replace;
 use ReflectionClass;
 

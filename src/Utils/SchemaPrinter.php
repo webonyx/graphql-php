@@ -2,8 +2,6 @@
 
 namespace GraphQL\Utils;
 
-use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\StringValueNode;
 use function array_filter;
 use function array_keys;
 use function array_map;
@@ -11,6 +9,8 @@ use function array_values;
 use function count;
 use function explode;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Argument;

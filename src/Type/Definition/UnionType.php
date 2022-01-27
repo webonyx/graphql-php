@@ -9,7 +9,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function is_callable;
 use function is_iterable;
-use function is_string;
 
 /**
  * @phpstan-import-type ResolveType from AbstractType

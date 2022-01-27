@@ -340,7 +340,7 @@ class AST
         if ($valueNode instanceof VariableNode) {
             $variableName = $valueNode->name->value;
 
-            if ($variables === null || ! array_key_exists($variableName, $variables)) {
+            if (null === $variables || ! array_key_exists($variableName, $variables)) {
                 // No valid return value.
                 return $undefined;
             }
@@ -466,7 +466,7 @@ class AST
     private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
     {
         return $valueNode instanceof VariableNode
-            && ($variables === null || ! array_key_exists($valueNode->name->value, $variables));
+            && (null === $variables || ! array_key_exists($valueNode->name->value, $variables));
     }
 
     /**

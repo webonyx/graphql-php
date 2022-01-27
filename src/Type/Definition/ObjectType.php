@@ -9,7 +9,6 @@ use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
 use function is_callable;
-use function is_string;
 
 /**
  * Object Type Definition.

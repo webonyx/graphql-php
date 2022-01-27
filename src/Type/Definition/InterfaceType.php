@@ -7,7 +7,6 @@ use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Utils\Utils;
 use function is_callable;
-use function is_string;
 
 /**
  * @phpstan-import-type ResolveType from AbstractType

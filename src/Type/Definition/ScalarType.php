@@ -5,7 +5,6 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Utils\Utils;
-use function is_string;
 
 /**
  * Scalar Type Definition.

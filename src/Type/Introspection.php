@@ -370,7 +370,7 @@ GRAPHQL;
                     'args' => [
                         'includeDeprecated' => [
                             'type' => Type::boolean(),
-                            'defaultValue' => false
+                            'defaultValue' => false,
                         ],
                     ],
                     'resolve' => static function ($type, $args): ?array {
