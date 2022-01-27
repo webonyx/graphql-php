@@ -2,7 +2,6 @@
 
 namespace GraphQL\Language;
 
-use GraphQL\Utils\Utils;
 use function json_decode;
 use function mb_strlen;
 use function mb_substr;

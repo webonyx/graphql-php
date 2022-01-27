@@ -2,12 +2,12 @@
 
 namespace GraphQL\Utils;
 
-use GraphQL\Error\InvariantViolation;
 use function array_keys;
 use function array_map;
 use function array_merge;
 use function count;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
@@ -519,7 +519,7 @@ class SchemaExtender
             $schema->getDirectives()
         );
 
-        if(count($directives) === 0) {
+        if (0 === count($directives)) {
             throw new InvariantViolation('Schema must have default directives.');
         }
 

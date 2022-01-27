@@ -5,7 +5,6 @@ namespace GraphQL\Executor\Promise;
 use Amp\Promise as AmpPromise;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
-use GraphQL\Utils\Utils;
 use React\Promise\PromiseInterface as ReactPromise;
 
 /**

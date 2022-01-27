@@ -4,7 +4,6 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use Exception;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Utils\Utils;
 use function is_object;
 use function method_exists;
 use SplQueue;
