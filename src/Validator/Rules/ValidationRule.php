@@ -3,8 +3,8 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Language\Visitor;
-use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\QueryValidationContext;
+use GraphQL\Validator\SDLValidationContext;
 
 /**
  * @phpstan-import-type VisitorArray from Visitor

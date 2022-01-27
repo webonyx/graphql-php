@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Validator\ValidationContext;
 use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
@@ -10,7 +9,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
-use GraphQL\Validator\QueryValidationContext;
+use GraphQL\Validator\ValidationContext;
 
 class QueryComplexityTest extends QuerySecurityTestCase
 {

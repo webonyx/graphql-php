@@ -8,7 +8,6 @@ use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\ExecutableDefinitions;
-use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\ValidationContext;
 
 final class CustomRuleTest extends ValidatorTestCase

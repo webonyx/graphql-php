@@ -91,8 +91,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected function findConflictsWithinSelectionSet(
         QueryValidationContext $context,
-        ?Type                  $parentType,
-        SelectionSetNode       $selectionSet
+        ?Type $parentType,
+        SelectionSetNode $selectionSet
     ): array {
         [$fieldMap, $fragmentNames] = $this->getFieldsAndFragmentNames(
             $context,
@@ -152,8 +152,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected function getFieldsAndFragmentNames(
         QueryValidationContext $context,
-        ?Type                  $parentType,
-        SelectionSetNode       $selectionSet
+        ?Type $parentType,
+        SelectionSetNode $selectionSet
     ): array {
         if (! isset($this->cachedFieldsAndFragmentNames[$selectionSet])) {
             /** @phpstan-var FieldMap $astAndDefs */
@@ -239,10 +239,10 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected function internalCollectFieldsAndFragmentNames(
         QueryValidationContext $context,
-        ?Type                  $parentType,
-        SelectionSetNode       $selectionSet,
-        array                  &$astAndDefs,
-        array                  &$fragmentNames
+        ?Type $parentType,
+        SelectionSetNode $selectionSet,
+        array &$astAndDefs,
+        array &$fragmentNames
     ): void {
         foreach ($selectionSet->selections as $selection) {
             switch (true) {
@@ -294,8 +294,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected function collectConflictsWithin(
         QueryValidationContext $context,
-        array                  &$conflicts,
-        array                  $fieldMap
+        array &$conflicts,
+        array $fieldMap
     ): void {
         // A field map is a keyed collection, where each key represents a response
         // name and the value at that key is a list of all fields which provide that
@@ -338,10 +338,10 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected function findConflict(
         QueryValidationContext $context,
-        bool                   $parentFieldsAreMutuallyExclusive,
-        string                 $responseName,
-        array                  $field1,
-        array                  $field2
+        bool $parentFieldsAreMutuallyExclusive,
+        string $responseName,
+        array $field1,
+        array $field2
     ): ?array {
         [$parentType1, $ast1, $def1] = $field1;
         [$parentType2, $ast2, $def2] = $field2;
@@ -508,11 +508,11 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected function findConflictsBetweenSubSelectionSets(
         QueryValidationContext $context,
-        bool                   $areMutuallyExclusive,
-        ?Type                  $parentType1,
-        SelectionSetNode       $selectionSet1,
-        ?Type                  $parentType2,
-        SelectionSetNode       $selectionSet2
+        bool $areMutuallyExclusive,
+        ?Type $parentType1,
+        SelectionSetNode $selectionSet1,
+        ?Type $parentType2,
+        SelectionSetNode $selectionSet2
     ): array {
         $conflicts = [];
 
@@ -601,10 +601,10 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected function collectConflictsBetween(
         QueryValidationContext $context,
-        array                  &$conflicts,
-        bool                   $parentFieldsAreMutuallyExclusive,
-        array                  $fieldMap1,
-        array                  $fieldMap2
+        array &$conflicts,
+        bool $parentFieldsAreMutuallyExclusive,
+        array $fieldMap1,
+        array $fieldMap2
     ): void {
         // A field map is a keyed collection, where each key represents a response
         // name and the value at that key is a list of all fields which provide that
@@ -646,11 +646,11 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected function collectConflictsBetweenFieldsAndFragment(
         QueryValidationContext $context,
-        array                  &$conflicts,
-        array                  &$comparedFragments,
-        bool                   $areMutuallyExclusive,
-        array                  $fieldMap,
-        string                 $fragmentName
+        array &$conflicts,
+        array &$comparedFragments,
+        bool $areMutuallyExclusive,
+        array $fieldMap,
+        string $fragmentName
     ): void {
         if (isset($comparedFragments[$fragmentName])) {
             return;
@@ -729,10 +729,10 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected function collectConflictsBetweenFragments(
         QueryValidationContext $context,
-        array                  &$conflicts,
-        bool                   $areMutuallyExclusive,
-        string                 $fragmentName1,
-        string                 $fragmentName2
+        array &$conflicts,
+        bool $areMutuallyExclusive,
+        string $fragmentName1,
+        string $fragmentName2
     ): void {
         // No need to compare a fragment to itself.
         if ($fragmentName1 === $fragmentName2) {

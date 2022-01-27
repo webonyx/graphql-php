@@ -259,7 +259,7 @@ class DocumentValidator
     ): array {
         $rules ??= self::sdlRules();
 
-        if (count($rules) === 0) {
+        if (0 === count($rules)) {
             return [];
         }
 

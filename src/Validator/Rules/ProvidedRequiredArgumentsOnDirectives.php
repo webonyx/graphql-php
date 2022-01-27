@@ -11,9 +11,9 @@ use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Validator\ValidationContext;
-use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\QueryValidationContext;
+use GraphQL\Validator\SDLValidationContext;
+use GraphQL\Validator\ValidationContext;
 
 /**
  * Provided required arguments on directives.

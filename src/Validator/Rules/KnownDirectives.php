@@ -37,9 +37,9 @@ use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Validator\ValidationContext;
-use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\QueryValidationContext;
+use GraphQL\Validator\SDLValidationContext;
+use GraphQL\Validator\ValidationContext;
 use function in_array;
 
 /**

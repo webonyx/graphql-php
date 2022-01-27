@@ -94,10 +94,10 @@ abstract class QuerySecurityRule extends ValidationRule
      */
     protected function collectFieldASTsAndDefs(
         QueryValidationContext $context,
-        ?Type                  $parentType,
-        SelectionSetNode       $selectionSet,
-        ?ArrayObject           $visitedFragmentNames = null,
-        ?ArrayObject           $astAndDefs = null
+        ?Type $parentType,
+        SelectionSetNode $selectionSet,
+        ?ArrayObject $visitedFragmentNames = null,
+        ?ArrayObject $astAndDefs = null
     ): ArrayObject {
         $visitedFragmentNames ??= new ArrayObject();
         $astAndDefs ??= new ArrayObject();
@@ -132,7 +132,7 @@ abstract class QuerySecurityRule extends ValidationRule
                     break;
                 case $selection instanceof InlineFragmentNode:
                     $typeCondition = $selection->typeCondition;
-                    $fragmentParentType = $typeCondition === null
+                    $fragmentParentType = null === $typeCondition
                         ? $parentType
                         : TypeInfo::typeFromAST($context->getSchema(), $typeCondition);
                     $astAndDefs = $this->collectFieldASTsAndDefs(

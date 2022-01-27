@@ -12,9 +12,9 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ValidationContext;
-use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\QueryValidationContext;
+use GraphQL\Validator\SDLValidationContext;
+use GraphQL\Validator\ValidationContext;
 use function in_array;
 
 /**

@@ -7,9 +7,9 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Validator\ValidationContext;
-use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\QueryValidationContext;
+use GraphQL\Validator\SDLValidationContext;
+use GraphQL\Validator\ValidationContext;
 
 /**
  * Unique directive names per location.

@@ -2,10 +2,10 @@
 
 namespace GraphQL\Validator;
 
-use GraphQL\Error\Error;
 use function array_merge;
 use function array_pop;
 use function count;
+use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
@@ -23,7 +23,6 @@ use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputType;
-use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
@@ -247,9 +246,6 @@ class QueryValidationContext implements ValidationContext
         return $this->fragments[$name] ?? null;
     }
 
-    /**
-     * @return Type|null
-     */
     public function getType(): ?Type
     {
         return $this->typeInfo->getType();

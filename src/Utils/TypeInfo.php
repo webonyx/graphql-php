@@ -34,7 +34,6 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
@@ -304,9 +303,6 @@ class TypeInfo
         }
     }
 
-    /**
-     * @return Type|null
-     */
     public function getType(): ?Type
     {
         return $this->typeStack[count($this->typeStack) - 1] ?? null;
