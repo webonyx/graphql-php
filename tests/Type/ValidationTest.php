@@ -187,7 +187,7 @@ class ValidationTest extends TestCaseBase
                 static fn (): InterfaceType => new InterfaceType([]),
                 static fn (): ScalarType => new CustomScalarType([]),
             ],
-            'Must provide name.'
+            'Must provide name for Type.'
         );
     }
 

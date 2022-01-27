@@ -45,7 +45,7 @@ class Argument
     public array $config;
 
     /**
-     * @param ArgumentConfig $config
+     * @phpstan-param ArgumentConfig $config
      */
     public function __construct(array $config)
     {
@@ -104,14 +104,14 @@ class Argument
 
     /**
      * @param Type&NamedType $parentType
+     *
+     * @throws InvariantViolation
      */
     public function assertValid(FieldDefinition $parentField, Type $parentType): void
     {
         $error = Utils::isValidNameError($this->name);
         if (null !== $error) {
-            throw new InvariantViolation(
-                "{$parentType->name}.{$parentField->name}({$this->name}:) {$error->getMessage()}"
-            );
+            throw new InvariantViolation("{$parentType->name}.{$parentField->name}({$this->name}:) {$error->getMessage()}");
         }
 
         $type = Type::getNamedType($this->getType());
@@ -119,9 +119,7 @@ class Argument
         if (! $type instanceof InputType) {
             $notInputType = Utils::printSafe($this->type);
 
-            throw new InvariantViolation(
-                "{$parentType->name}.{$parentField->name}({$this->name}): argument type must be Input Type but got: {$notInputType}"
-            );
+            throw new InvariantViolation("{$parentType->name}.{$parentField->name}({$this->name}): argument type must be Input Type but got: {$notInputType}");
         }
     }
 }

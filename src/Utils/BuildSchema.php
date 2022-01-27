@@ -241,6 +241,6 @@ class BuildSchema
 
     public static function unknownType(string $typeName): Error
     {
-        return new Error('Unknown type: "' . $typeName . '".');
+        return new Error("Unknown type: \"{$typeName}\".");
     }
 }

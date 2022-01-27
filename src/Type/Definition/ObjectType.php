@@ -88,10 +88,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      */
     public function __construct(array $config)
     {
-        $config['name'] ??= $this->tryInferName();
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
-
-        $this->name = $config['name'];
+        $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? null;
         $this->resolveFieldFn = $config['resolveField'] ?? null;
         $this->astNode = $config['astNode'] ?? null;

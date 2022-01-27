@@ -12,16 +12,16 @@ use GraphQL\Utils\Utils;
  * @phpstan-type ArgumentType (Type&InputType)|callable(): (Type&InputType)
  * @phpstan-type InputObjectFieldConfig array{
  *   name: string,
+ *   type: ArgumentType,
  *   defaultValue?: mixed,
  *   description?: string|null,
- *   type: ArgumentType,
  *   astNode?: InputValueDefinitionNode|null,
  * }
  * @phpstan-type UnnamedInputObjectFieldConfig array{
  *   name?: string,
+ *   type: ArgumentType,
  *   defaultValue?: mixed,
  *   description?: string|null,
- *   type: ArgumentType,
  *   astNode?: InputValueDefinitionNode|null,
  * }
  */

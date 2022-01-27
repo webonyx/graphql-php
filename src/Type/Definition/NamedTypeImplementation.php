@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use function array_key_exists;
 use function preg_replace;
 use ReflectionClass;
@@ -20,7 +21,7 @@ trait NamedTypeImplementation
         return $this->name;
     }
 
-    protected function tryInferName(): ?string
+    protected function inferName(): string
     {
         if (isset($this->name)) {
             return $this->name;
@@ -36,7 +37,7 @@ trait NamedTypeImplementation
             return preg_replace('~Type$~', '', $name);
         }
 
-        return null;
+        throw new InvariantViolation('Must provide name for Type.');
     }
 
     public function isBuiltInType(): bool

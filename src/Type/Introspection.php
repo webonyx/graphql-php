@@ -368,7 +368,10 @@ GRAPHQL;
                 'enumValues' => [
                     'type' => Type::listOf(Type::nonNull(self::_enumValue())),
                     'args' => [
-                        'includeDeprecated' => ['type' => Type::boolean(), 'defaultValue' => false],
+                        'includeDeprecated' => [
+                            'type' => Type::boolean(),
+                            'defaultValue' => false
+                        ],
                     ],
                     'resolve' => static function ($type, $args): ?array {
                         if ($type instanceof EnumType) {
@@ -515,12 +518,20 @@ GRAPHQL;
                         'type' => Type::string(),
                         'description' => 'A GraphQL-formatted string representing the default value for this input value.',
                         /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): ?string => $inputValue->defaultValueExists()
-                            ? Printer::doPrint(AST::astFromValue(
-                                $inputValue->defaultValue,
-                                $inputValue->getType()
-                            ))
-                            : null,
+                        'resolve' => static function ($inputValue): ?string {
+                            if ($inputValue->defaultValueExists()) {
+                                $defaultValueAST = AST::astFromValue($inputValue->defaultValue, $inputValue->getType());
+
+                                if (null === $defaultValueAST) {
+                                    $inconvertibleDefaultValue = Utils::printSafe($inputValue->defaultValue);
+                                    throw new InvariantViolation("Unable to convert defaultValue of argument {$inputValue->name} into AST: {$inconvertibleDefaultValue}.");
+                                }
+
+                                return Printer::doPrint($defaultValueAST);
+                            }
+
+                            return null;
+                        },
                     ],
                 ];
             },
@@ -706,7 +717,7 @@ GRAPHQL;
                     'type' => Type::nonNull(Type::string()),
                 ],
             ],
-            'resolve' => static fn ($source, array $args, $context, ResolveInfo $info): Type => $info->schema->getType($args['name']),
+            'resolve' => static fn ($source, array $args, $context, ResolveInfo $info): ?Type => $info->schema->getType($args['name']),
         ]);
     }
 

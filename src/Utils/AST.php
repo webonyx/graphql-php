@@ -157,13 +157,14 @@ class AST
     public static function astFromValue($value, InputType $type): ?ValueNode
     {
         if ($type instanceof NonNull) {
-            // @phpstan-ignore-next-line wrapped type must also be input type
-            $astValue = self::astFromValue($value, $type->getWrappedType());
-            if ($astValue instanceof NullValueNode) {
-                return null;
-            }
+            $wrappedType = $type->getWrappedType();
+            assert($wrappedType instanceof InputType);
 
-            return $astValue;
+            $astValue = self::astFromValue($value, $wrappedType);
+
+            return $astValue instanceof NullValueNode
+                ? null
+                : $astValue;
         }
 
         if (null === $value) {
@@ -339,7 +340,7 @@ class AST
         if ($valueNode instanceof VariableNode) {
             $variableName = $valueNode->name->value;
 
-            if (($variables ?? []) === [] || ! array_key_exists($variableName, $variables)) {
+            if ($variables === null || ! array_key_exists($variableName, $variables)) {
                 // No valid return value.
                 return $undefined;
             }
@@ -465,7 +466,7 @@ class AST
     private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
     {
         return $valueNode instanceof VariableNode
-            && (0 === count($variables) || ! array_key_exists($valueNode->name->value, $variables));
+            && ($variables === null || ! array_key_exists($valueNode->name->value, $variables));
     }
 
     /**
