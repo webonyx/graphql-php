@@ -14,7 +14,7 @@ use GraphQL\Language\DirectiveLocation;
  *   args?: ArgumentListConfig|null,
  *   locations: array<string>,
  *   isRepeatable?: bool|null,
- *   astNode?: DirectiveDefinitionNode|null,
+ *   astNode?: DirectiveDefinitionNode|null
  * }
  */
 class Directive

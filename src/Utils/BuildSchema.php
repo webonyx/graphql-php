@@ -23,7 +23,7 @@ use GraphQL\Validator\DocumentValidator;
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
  * @phpstan-type BuildSchemaOptions array{
  *   assumeValid?: bool,
- *   assumeValidSDL?: bool,
+ *   assumeValidSDL?: bool
  * }
  *
  * - assumeValid:

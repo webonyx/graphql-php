@@ -29,7 +29,7 @@ use TypeError;
  * @phpstan-type Change array{type: string, description: string}
  * @phpstan-type Changes array{
  *     breakingChanges: array<int, Change>,
- *     dangerousChanges: array<int, Change>,
+ *     dangerousChanges: array<int, Change>
  * }
  */
 class BreakingChangesFinder
