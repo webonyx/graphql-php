@@ -23,7 +23,7 @@ use function is_string;
  *   value?: mixed,
  *   deprecationReason?: string|null,
  *   description?: string|null,
- *   astNode?: EnumValueDefinitionNode|null,
+ *   astNode?: EnumValueDefinitionNode|null
  * }
  * @phpstan-type EnumValues iterable<string, PartialEnumValueConfig>|iterable<string, mixed>|iterable<int, string>
  * @phpstan-type EnumTypeConfig array{
@@ -31,7 +31,7 @@ use function is_string;
  *   description?: string|null,
  *   values: EnumValues|callable(): EnumValues,
  *   astNode?: EnumTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, EnumTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<int, EnumTypeExtensionNode>|null
  * }
  */
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType

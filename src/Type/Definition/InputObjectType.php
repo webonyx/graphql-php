@@ -21,7 +21,7 @@ use function is_string;
  *   description?: string|null,
  *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
  *   astNode?: InputObjectTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, InputObjectTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<int, InputObjectTypeExtensionNode>|null
  * }
  */
 class InputObjectType extends Type implements InputType, NullableType, NamedType

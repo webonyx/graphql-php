@@ -20,7 +20,7 @@ use function is_string;
  *   types: iterable<ObjectTypeReference>|callable(): iterable<ObjectTypeReference>,
  *   resolveType?: ResolveType|null,
  *   astNode?: UnionTypeDefinitionNode|null,
- *   extensionASTNodes?: array<UnionTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<UnionTypeExtensionNode>|null
  * }
  */
 class UnionType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType

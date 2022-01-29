@@ -33,7 +33,7 @@ use function json_encode;
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
  * @phpstan-type Options array{
- *   assumeValid?: bool,
+ *   assumeValid?: bool
  * }
  *
  *    - assumeValid:

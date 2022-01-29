@@ -18,7 +18,7 @@ use function is_callable;
  *   parseValue: callable(mixed): mixed,
  *   parseLiteral: callable(ValueNode&Node, array<string, mixed>|null): mixed,
  *   astNode?: ScalarTypeDefinitionNode|null,
- *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
  * @phpstan-type OutputCustomScalarConfig array{
  *   name?: string|null,
@@ -27,7 +27,7 @@ use function is_callable;
  *   parseValue?: callable(mixed): mixed,
  *   parseLiteral?: callable(ValueNode&Node, array<string, mixed>|null): mixed,
  *   astNode?: ScalarTypeDefinitionNode|null,
- *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
  * @phpstan-type CustomScalarConfig InputCustomScalarConfig|OutputCustomScalarConfig
  */

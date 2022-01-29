@@ -25,7 +25,7 @@ use function is_string;
  *     description?: string|null,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
- *     complexity?: ComplexityFn|null,
+ *     complexity?: ComplexityFn|null
  * }
  * @phpstan-type UnnamedFieldDefinitionConfig array{
  *     type: FieldType,
@@ -34,7 +34,7 @@ use function is_string;
  *     description?: string|null,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
- *     complexity?: ComplexityFn|null,
+ *     complexity?: ComplexityFn|null
  * }
  * @phpstan-type FieldsConfig iterable<mixed>|(callable(): iterable<mixed>)
  */

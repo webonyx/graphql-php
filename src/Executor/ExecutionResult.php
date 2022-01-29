@@ -23,13 +23,13 @@ use Throwable;
  *   message: string,
  *   locations?: array<int, array{line: int, column: int}>,
  *   path?: array<int, int|string>,
- *   extensions?: array<string, mixed>,
+ *   extensions?: array<string, mixed>
  * }
  * @phpstan-type SerializableErrors array<int, SerializableError>
  * @phpstan-type SerializableResult array{
  *     data?: array<string, mixed>,
  *     errors?: SerializableErrors,
- *     extensions?: array<string, mixed>,
+ *     extensions?: array<string, mixed>
  * }
  * @phpstan-type ErrorFormatter callable(Throwable): SerializableError
  * @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
