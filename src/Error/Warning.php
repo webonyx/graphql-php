@@ -14,6 +14,7 @@ use function trigger_error;
  * Also, it is possible to override warning handler (which is **trigger_error()** by default).
  *
  * @phpstan-type WarningHandler callable(string $errorMessage, int $warningId, ?int $messageLevel): void
+ * @psalm-type WarningHandler callable(string, int, int|null): void
  */
 final class Warning
 {
