@@ -19,6 +19,8 @@ use Throwable;
  * Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
  * serializable array using `toArray()`.
  *
+ * @see Throwable
+ *
  * @phpstan-type SerializableError array{
  *   message: string,
  *   locations?: array<int, array{line: int, column: int}>,
