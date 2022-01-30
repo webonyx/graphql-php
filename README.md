@@ -3,6 +3,7 @@
 [![CI](https://github.com/webonyx/graphql-php/workflows/CI/badge.svg)](https://github.com/webonyx/graphql-php/actions?query=workflow:CI+branch:master)
 [![Coverage Status](https://codecov.io/gh/webonyx/graphql-php/branch/master/graph/badge.svg)](https://codecov.io/gh/webonyx/graphql-php/branch/master)
 [![Latest Stable Version](https://poser.pugx.org/webonyx/graphql-php/version)](https://packagist.org/packages/webonyx/graphql-php)
+[![Shepherd Type][shepherd image]][shepherd link]
 
 This is a PHP implementation of the GraphQL [specification](https://github.com/graphql/graphql-spec)
 based on the [reference implementation in JavaScript](https://github.com/graphql/graphql-js).
@@ -61,3 +62,6 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 ## License
 
 See [LICENSE](LICENSE).
+
+[shepherd image]: https://shepherd.dev/github/webonyx/graphql-php/coverage.svg
+[shepherd link]: https://shepherd.dev/github/webonyx/graphql-php

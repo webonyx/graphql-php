@@ -34,3 +34,34 @@ jobs:
 
       - name: "Run a static analysis with phpstan/phpstan"
         run: "vendor/bin/phpstan --error-format=checkstyle | cs2pr"
+
+  static-analysis-psalm:
+    name: "Static Analysis with Psalm"
+    runs-on: "ubuntu-20.04"
+
+    strategy:
+      matrix:
+        php-version:
+          - "8.1"
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v2"
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          coverage: "none"
+          php-version: "${{ matrix.php-version }}"
+          tools: "cs2pr"
+
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v2"
+
+      - name: "Run a static analysis with vimeo/psalm"
+        run: "vendor/bin/psalm --output-format=github --shepherd --report=results.sarif"
+
+      - name: "Upload Security Analysis results to GitHub"
+        uses: "github/codeql-action/upload-sarif@v1"
+        with:
+          sarif_file: results.sarif
