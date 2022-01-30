@@ -38,7 +38,7 @@ use function is_string;
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
  * }
- * @phpstan-type FieldsConfig iterable<mixed>|(callable(): iterable<mixed>)
+ * @phpstan-type FieldsConfig iterable<mixed>|callable(): iterable<mixed>
  */
 /*
  * TODO check if newer versions of PHPStan can handle the full definition, it currently crashes when it is used
