@@ -37,7 +37,7 @@ use function strlen;
 /**
  * Prints the contents of a Schema in schema definition language.
  *
- * @phpstan-type Options array{}
+ * @phpstan-type Options array<string, bool>
  */
 class SchemaPrinter
 {
