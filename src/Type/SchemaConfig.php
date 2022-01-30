@@ -26,7 +26,7 @@ use GraphQL\Type\Definition\Type;
  *
  * @see Type, NamedType
  *
- * @phpstan-type TypeLoader callable(string $typeName):(Type&NamedType)|null
+ * @phpstan-type TypeLoader callable(string $typeName):((Type&NamedType)|null)
  * @phpstan-type Types array<Type&NamedType>|callable():array<Type&NamedType>
  */
 class SchemaConfig

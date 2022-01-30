@@ -335,6 +335,10 @@ class Schema
 
         $type = $typeLoader($typeName);
 
+        if (null === $type) {
+            return null;
+        }
+
         // @phpstan-ignore-next-line not strictly enforceable unless PHP gets function types
         if (! $type instanceof Type) {
             throw new InvariantViolation(self::typeLoaderNotType($type));
