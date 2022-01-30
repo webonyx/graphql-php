@@ -13,6 +13,8 @@ use function is_iterable;
 use function is_string;
 
 /**
+ * @see Executor
+ *
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type ArgumentListConfig from Argument
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
