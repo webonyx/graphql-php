@@ -38,6 +38,8 @@ use function is_string;
 use Throwable;
 
 /**
+ * @see FieldDefinition, InputObjectField
+ *
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type InputObjectFieldConfig from InputObjectField
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
