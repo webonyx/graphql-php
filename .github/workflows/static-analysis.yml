@@ -59,9 +59,4 @@ jobs:
         uses: "ramsey/composer-install@v2"
 
       - name: "Run a static analysis with vimeo/psalm"
-        run: "vendor/bin/psalm --output-format=github --shepherd --report=results.sarif"
-
-      - name: "Upload Security Analysis results to GitHub"
-        uses: "github/codeql-action/upload-sarif@v1"
-        with:
-          sarif_file: results.sarif
+        run: "vendor/bin/psalm --output-format=github --shepherd"
