@@ -258,6 +258,7 @@ class Visitor
                         : $parent->{$key}
                     )
                     : $newRoot;
+                /** @psalm-suppress ParadoxicalCondition We don't have `undefined` in php */
                 if (null === $node || $node === $UNDEFINED) {
                     continue;
                 }

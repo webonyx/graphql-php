@@ -19,6 +19,8 @@ use Throwable;
  * Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
  * serializable array using `toArray()`.
  *
+ * @see Throwable
+ *
  * @phpstan-type SerializableError array{
  *   message: string,
  *   locations?: array<int, array{line: int, column: int}>,
@@ -33,6 +35,9 @@ use Throwable;
  * }
  * @phpstan-type ErrorFormatter callable(Throwable): SerializableError
  * @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
+ *
+ * @see https://github.com/vimeo/psalm/issues/6928
+ * @psalm-type ErrorsHandler callable(Error[], ErrorFormatter): SerializableErrors
  */
 class ExecutionResult implements JsonSerializable
 {

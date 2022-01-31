@@ -7,6 +7,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
@@ -18,6 +19,8 @@ use function is_iterable;
 use function is_string;
 
 /**
+ * @see EnumValueDefinitionNode
+ *
  * @phpstan-type PartialEnumValueConfig array{
  *   name?: string,
  *   value?: mixed,
