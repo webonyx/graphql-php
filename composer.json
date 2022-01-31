@@ -60,12 +60,12 @@
     "sort-packages": true
   },
   "scripts": {
-    "baseline": "phpstan --generate-baseline",
+    "baseline": "phpstan --generate-baseline && psalm --set-baseline",
     "bench": "phpbench run",
     "check": "composer fix && composer stan && composer test",
     "docs": "php generate-class-reference.php",
     "fix": "php-cs-fixer fix",
-    "stan": "phpstan",
+    "stan": "phpstan && psalm",
     "test": "phpunit"
   }
 }
