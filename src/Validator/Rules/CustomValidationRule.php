@@ -9,8 +9,8 @@ use GraphQL\Validator\ValidationContext;
 /**
  * @see Node, VisitorOperation
  *
- * @phpstan-type VisitorFnValue array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
- * @phpstan-type VisitorFn callable(ValidationContext):VisitorFnValue
+ * @phpstan-type VisitorFnResult array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
+ * @phpstan-type VisitorFn callable(ValidationContext):VisitorFnResult
  */
 class CustomValidationRule extends ValidationRule
 {
