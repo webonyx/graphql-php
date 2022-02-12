@@ -146,7 +146,7 @@ class ASTDefinitionBuilder
             return Type::nonNull($this->buildWrappedType($typeNode->type));
         }
 
-        return $this->buildType($typeNode); // TODO: getNamedType()
+        return $this->buildType($typeNode);
     }
 
     /**
@@ -327,7 +327,7 @@ class ASTDefinitionBuilder
 
         $interfaces = [];
         foreach ($def->interfaces as $interface) {
-            $interfaces[] = $this->buildType($interface); // TODO: getNamedType($interface)
+            $interfaces[] = $this->buildType($interface);
         }
 
         // @phpstan-ignore-next-line generic type will be validated during schema validation
@@ -375,7 +375,7 @@ class ASTDefinitionBuilder
             'types' => function () use ($def): array {
                 $types = [];
                 foreach ($def->types as $type) {
-                    $types[] = $this->buildType($type); // TODO: getNamedType($type)
+                    $types[] = $this->buildType($type);
                 }
 
                 /** @var array<int, ObjectType> $types */

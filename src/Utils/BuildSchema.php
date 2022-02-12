@@ -210,8 +210,8 @@ class BuildSchema
             'typeLoader' => static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name),
             'directives' => $directives,
             'astNode' => $schemaDef,
-            'types' => fn (): array => array_map( // TODO: $definitionBuilder->buildAllTypes()?
-                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value), // TODO: buildTypeFromTypeDefinition()?
+            'types' => fn (): array => array_map(
+                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value),
                 $this->nodeMap,
             ),
         ]);

@@ -272,7 +272,7 @@ class SchemaExtender
                 assert($extension instanceof UnionTypeExtensionNode, 'proven by assertTypeMatchesExtension()');
 
                 foreach ($extension->types as $namedType) {
-                    $possibleTypes[] = static::$astBuilder->buildType($namedType); // TODO: getNamedType($namedType)
+                    $possibleTypes[] = static::$astBuilder->buildType($namedType);
                 }
             }
         }
@@ -301,7 +301,7 @@ class SchemaExtender
                 );
 
                 foreach ($extension->interfaces as $namedType) {
-                    $interface = static::$astBuilder->buildType($namedType); // TODO: getNamedType($namedType)
+                    $interface = static::$astBuilder->buildType($namedType);
                     assert($interface instanceof InterfaceType, 'we know this, but PHP templates cannot express it');
 
                     $interfaces[] = $interface;
