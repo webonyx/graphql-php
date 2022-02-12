@@ -156,10 +156,9 @@ class BuildSchema
         $operationTypes = null !== $schemaDef
             ? $this->getOperationTypes($schemaDef)
             : [
-                // TODO: simplify
-                'query' => isset($this->nodeMap['Query']) ? 'Query' : null,
-                'mutation' => isset($this->nodeMap['Mutation']) ? 'Mutation' : null,
-                'subscription' => isset($this->nodeMap['Subscription']) ? 'Subscription' : null,
+                'query' => 'Query',
+                'mutation' => 'Mutation',
+                'subscription' => 'Subscription',
             ];
 
         $definitionBuilder = new ASTDefinitionBuilder(
@@ -199,13 +198,13 @@ class BuildSchema
 
         return new Schema([
             'query' => isset($operationTypes['query'])
-                ? $definitionBuilder->buildType($operationTypes['query'])
+                ? $definitionBuilder->maybeBuildType($operationTypes['query'])
                 : null,
             'mutation' => isset($operationTypes['mutation'])
-                ? $definitionBuilder->buildType($operationTypes['mutation'])
+                ? $definitionBuilder->maybeBuildType($operationTypes['mutation'])
                 : null,
             'subscription' => isset($operationTypes['subscription'])
-                ? $definitionBuilder->buildType($operationTypes['subscription'])
+                ? $definitionBuilder->maybeBuildType($operationTypes['subscription'])
                 : null,
             'typeLoader' => static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name),
             'directives' => $directives,
