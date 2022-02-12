@@ -123,4 +123,12 @@ class SchemaTest extends TestCase
         self::assertArrayHasKey('DirInput', $typeMap);
         self::assertArrayHasKey('WrappedDirInput', $typeMap);
     }
+
+    /**
+     * @see https://github.com/webonyx/graphql-php/issues/997
+     */
+    public function testSchemaReturnsNullForNonexistentType(): void
+    {
+        self::assertNull($this->schema->getType('UnknownType'));
+    }
 }
