@@ -211,7 +211,7 @@ class BuildSchema
             'directives' => $directives,
             'astNode' => $schemaDef,
             'types' => fn (): array => array_map( // TODO: $definitionBuilder->buildAllTypes()?
-                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildTypeFromName($def->name->value), // TODO: buildTypeFromTypeDefinition()?
+                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value), // TODO: buildTypeFromTypeDefinition()?
                 $this->nodeMap,
             ),
         ]);

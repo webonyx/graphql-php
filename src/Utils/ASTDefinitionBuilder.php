@@ -146,20 +146,20 @@ class ASTDefinitionBuilder
             return Type::nonNull($this->buildWrappedType($typeNode->type));
         }
 
-        return $this->buildTypeFromNamedType($typeNode); // TODO: getNamedType()
+        return $this->buildType($typeNode); // TODO: getNamedType()
     }
 
-//    /**
-//     * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
-//     */
-//    public function buildType($ref): Type
-//    {
-//        if (is_string($ref)) {
-//            return $this->internalBuildType($ref);
-//        }
-//
-//        return $this->internalBuildType($ref->name->value, $ref);
-//    }
+    /**
+     * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+     */
+    public function buildType($ref): Type
+    {
+        if (is_string($ref)) {
+            return $this->internalBuildType($ref);
+        }
+
+        return $this->internalBuildType($ref->name->value, $ref);
+    }
 
     /**
      * Calling this method is an equivalent of `typeMap[typeName]` in `graphql-js`.
@@ -169,25 +169,7 @@ class ASTDefinitionBuilder
      */
     public function maybeBuildType(string $name): ?Type
     {
-        return isset($this->typeDefinitionsMap[$name]) ? $this->buildTypeFromName($name) : null;
-    }
-
-    public function buildTypeFromName(string $name): Type
-    {
-        return $this->internalBuildType($name);
-    }
-
-    public function buildTypeFromNamedType(NamedTypeNode $node): Type
-    {
-        return $this->internalBuildType($node->name->value);
-    }
-
-    /**
-     * @param TypeDefinitionNode&Node $node
-     */
-    public function buildTypeFromTypeDefinition(TypeDefinitionNode $node): Type
-    {
-        return $this->internalBuildType($node->name->value, $node);
+        return isset($this->typeDefinitionsMap[$name]) ? $this->buildType($name) : null;
     }
 
     /**
@@ -345,7 +327,7 @@ class ASTDefinitionBuilder
 
         $interfaces = [];
         foreach ($def->interfaces as $interface) {
-            $interfaces[] = $this->buildTypeFromNamedType($interface); // TODO: getNamedType($interface)
+            $interfaces[] = $this->buildType($interface); // TODO: getNamedType($interface)
         }
 
         // @phpstan-ignore-next-line generic type will be validated during schema validation
@@ -393,7 +375,7 @@ class ASTDefinitionBuilder
             'types' => function () use ($def): array {
                 $types = [];
                 foreach ($def->types as $type) {
-                    $types[] = $this->buildTypeFromNamedType($type); // TODO: getNamedType($type)
+                    $types[] = $this->buildType($type); // TODO: getNamedType($type)
                 }
 
                 /** @var array<int, ObjectType> $types */
