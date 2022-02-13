@@ -158,7 +158,6 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             $fields = $fields();
         }
 
-        // @phpstan-ignore-next-line should not happen if used correctly
         if (! is_iterable($fields)) {
             $invalidFields = Utils::printSafe($fields);
 

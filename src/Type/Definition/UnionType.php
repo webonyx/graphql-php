@@ -96,7 +96,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
                 $types = $types();
             }
 
-            // @phpstan-ignore-next-line should not happen if used correctly
             if (! is_iterable($types)) {
                 throw new InvariantViolation(
                     "Must provide iterable of types or a callable which returns such an iterable for Union {$this->name}."

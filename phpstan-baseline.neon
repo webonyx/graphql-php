@@ -51,16 +51,6 @@ parameters:
 			path: src/Executor/ReferenceExecutor.php
 
 		-
-			message: "#^Method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\) should return TCloneable of GraphQL\\\\Language\\\\AST\\\\Location\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\<TNode of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|string\\|TNode of GraphQL\\\\Language\\\\AST\\\\Node but returns GraphQL\\\\Language\\\\AST\\\\Location\\|string\\.$#"
-			count: 1
-			path: src/Language/AST/Node.php
-
-		-
-			message: "#^Method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\) should return TCloneable of GraphQL\\\\Language\\\\AST\\\\Location\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\<TNode of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|string\\|TNode of GraphQL\\\\Language\\\\AST\\\\Node but returns TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
-			count: 1
-			path: src/Language/AST/Node.php
-
-		-
 			message: "#^Unable to resolve the template type TCloneable in call to method static method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\)$#"
 			count: 1
 			path: src/Language/AST/Node.php
@@ -69,11 +59,6 @@ parameters:
 			message: "#^Variable property access on TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
-
-		-
-			message: "#^Parameter \\#4 \\$replacement of function array_splice expects array\\|string, array\\<T of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|T of GraphQL\\\\Language\\\\AST\\\\Node\\|null given\\.$#"
-			count: 1
-			path: src/Language/AST/NodeList.php
 
 		-
 			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printList\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\DefinitionNode&GraphQL\\\\Language\\\\AST\\\\Node\\> given\\.$#"
