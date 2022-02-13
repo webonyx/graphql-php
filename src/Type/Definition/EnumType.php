@@ -196,7 +196,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         Utils::assertValidName($this->name);
 
         $values = $this->config['values'] ?? null;
-        // @phpstan-ignore-next-line should not happen if used correctly
         if (! is_iterable($values) && ! is_callable($values)) {
             $notIterable = Utils::printSafe($values);
 
