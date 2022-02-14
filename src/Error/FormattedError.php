@@ -291,16 +291,14 @@ class FormattedError
                 $safeErr['line'] = $err['line'];
             }
 
-            if (isset($err['function'])) {
-                $func = $err['function'];
-                $args = array_map([self::class, 'printVar'], $err['args'] ?? []);
-                $funcStr = $func . '(' . implode(', ', $args) . ')';
+            $func = $err['function'];
+            $args = array_map([self::class, 'printVar'], $err['args'] ?? []);
+            $funcStr = $func . '(' . implode(', ', $args) . ')';
 
-                if (isset($err['class'])) {
-                    $safeErr['call'] = $err['class'] . '::' . $funcStr;
-                } else {
-                    $safeErr['function'] = $funcStr;
-                }
+            if (isset($err['class'])) {
+                $safeErr['call'] = $err['class'] . '::' . $funcStr;
+            } else {
+                $safeErr['function'] = $funcStr;
             }
 
             $formatted[] = $safeErr;
