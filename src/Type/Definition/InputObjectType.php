@@ -63,7 +63,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         $field = $this->findField($name);
 
-        if ($field === null) {
+        if (null === $field) {
             throw new InvariantViolation("Field \"{$name}\" is not defined for type \"{$this->name}\"");
         }
 

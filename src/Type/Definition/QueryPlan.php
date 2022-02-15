@@ -201,7 +201,7 @@ class QueryPlan
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
                 $typeCondition = $selectionNode->typeCondition;
-                $type = $typeCondition === null
+                $type = null === $typeCondition
                     ? $parentType
                     : $this->schema->getType($typeCondition->name->value);
                 assert($type instanceof Type, 'ensured by query validation');
