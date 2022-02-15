@@ -15,14 +15,14 @@ use GraphQL\Utils\Utils;
  *   type: ArgumentType,
  *   defaultValue?: mixed,
  *   description?: string|null,
- *   astNode?: InputValueDefinitionNode|null,
+ *   astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type UnnamedInputObjectFieldConfig array{
  *   name?: string,
  *   type: ArgumentType,
  *   defaultValue?: mixed,
  *   description?: string|null,
- *   astNode?: InputValueDefinitionNode|null,
+ *   astNode?: InputValueDefinitionNode|null
  * }
  */
 class InputObjectField

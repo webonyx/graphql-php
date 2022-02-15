@@ -40,6 +40,7 @@ use function strlen;
  * Prints the contents of a Schema in schema definition language.
  *
  * @phpstan-type Options array{}
+ * @psalm-type Options array<never, never>
  */
 class SchemaPrinter
 {

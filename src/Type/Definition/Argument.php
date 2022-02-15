@@ -16,14 +16,14 @@ use function is_array;
  *     type: ArgumentType,
  *     defaultValue?: mixed,
  *     description?: string|null,
- *     astNode?: InputValueDefinitionNode|null,
+ *     astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type ArgumentConfig array{
  *     name: string,
  *     type: ArgumentType,
  *     defaultValue?: mixed,
  *     description?: string|null,
- *     astNode?: InputValueDefinitionNode|null,
+ *     astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type ArgumentListConfig iterable<ArgumentConfig|ArgumentType>|iterable<UnnamedArgumentConfig>
  */

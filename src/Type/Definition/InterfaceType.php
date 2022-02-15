@@ -19,7 +19,7 @@ use function is_callable;
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   resolveType?: ResolveType|null,
  *   astNode?: InterfaceTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, InterfaceTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<int, InterfaceTypeExtensionNode>|null
  * }
  */
 class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType

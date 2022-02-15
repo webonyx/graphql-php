@@ -34,10 +34,11 @@ use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use function is_array;
-use function is_string;
 use Throwable;
 
 /**
+ * @see FieldDefinition, InputObjectField
+ *
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type InputObjectFieldConfig from InputObjectField
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
@@ -158,6 +159,19 @@ class ASTDefinitionBuilder
         }
 
         return $this->internalBuildType($ref->name->value, $ref);
+    }
+
+    /**
+     * Calling this method is an equivalent of `typeMap[typeName]` in `graphql-js`.
+     * It is legal to access a type from the map of already-built types that doesn't exist in the map.
+     * Since we build types lazily, and we don't have a such map of built types,
+     * this method provides a way to build a type that may not exist in the SDL definitions and returns null instead.
+     */
+    public function maybeBuildType(string $name): ?Type
+    {
+        return isset($this->typeDefinitionsMap[$name])
+            ? $this->buildType($name)
+            : null;
     }
 
     /**

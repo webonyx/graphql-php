@@ -37,6 +37,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Always convert promises through `PromiseAdapter::convertThenable()` before calling `->then()` on them
 - Use `JSON_THROW_ON_ERROR` in `json_encode()`
 - Validate some internal invariants through `assert()`
+- `PromiseAdapter::all()` accepts `iterable`
 - Throw if `Introspection::fromSchema()` returns no data
 - Reorganize abstract class `ASTValidationContext` to interface `ValidationContext`
 
@@ -69,6 +70,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Preserve extended methods from class-based types in `SchemaExtender::extend()`
 - Fix printing of empty types (#940)
 - Clone `NodeList` in `Node::cloneDeep()`
+- Calling `Schema::getType()` on a schema built from SDL returns `null` for unknown types (#1068)
 - Avoid crash on typeless inline fragment when using `QueryComplexity` rule
 
 ### Removed

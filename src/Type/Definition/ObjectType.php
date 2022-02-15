@@ -59,7 +59,7 @@ use function is_callable;
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
  *   astNode?: ObjectTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, ObjectTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<int, ObjectTypeExtensionNode>|null
  * }
  */
 class ObjectType extends Type implements OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType

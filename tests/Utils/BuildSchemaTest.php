@@ -943,6 +943,15 @@ type Query {
 ', null, ['assumeValidSDL' => true])->assertValid();
     }
 
+    /**
+     * @see https://github.com/webonyx/graphql-php/issues/997
+     */
+    public function testBuiltSchemaReturnsNullForNonexistentType(): void
+    {
+        $schema = BuildSchema::build('type KnownType');
+        self::assertNull($schema->getType('UnknownType'));
+    }
+
     public function testSupportsTypeConfigDecorator(): void
     {
         $body = '

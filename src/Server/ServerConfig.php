@@ -26,9 +26,11 @@ use function is_callable;
  *
  *     $server = new GraphQL\Server\StandardServer($config);
  *
+ * @see ExecutionResult
+ *
  * @phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
  * @phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
- * @phpstan-type ValidationRulesOption array<ValidationRule>|(callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>)|null
+ * @phpstan-type ValidationRulesOption array<ValidationRule>|null|callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>
  * @phpstan-import-type ErrorsHandler from ExecutionResult
  * @phpstan-import-type ErrorFormatter from ExecutionResult
  */

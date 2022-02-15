@@ -28,7 +28,7 @@ use GraphQL\Utils\Utils;
  *   name?: string|null,
  *   description?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
- *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
  */
 abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NullableType, NamedType

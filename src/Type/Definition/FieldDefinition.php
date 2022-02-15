@@ -13,6 +13,8 @@ use function is_iterable;
 use function is_string;
 
 /**
+ * @see Executor
+ *
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type ArgumentListConfig from Argument
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
@@ -25,7 +27,7 @@ use function is_string;
  *     description?: string|null,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
- *     complexity?: ComplexityFn|null,
+ *     complexity?: ComplexityFn|null
  * }
  * @phpstan-type UnnamedFieldDefinitionConfig array{
  *     type: FieldType,
@@ -34,9 +36,9 @@ use function is_string;
  *     description?: string|null,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
- *     complexity?: ComplexityFn|null,
+ *     complexity?: ComplexityFn|null
  * }
- * @phpstan-type FieldsConfig iterable<mixed>|(callable(): iterable<mixed>)
+ * @phpstan-type FieldsConfig iterable<mixed>|callable(): iterable<mixed>
  */
 /*
  * TODO check if newer versions of PHPStan can handle the full definition, it currently crashes when it is used

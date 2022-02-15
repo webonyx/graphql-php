@@ -26,7 +26,7 @@ use function is_numeric;
 
 /**
  * @phpstan-type QueryPlanOptions array{
- *   groupImplementorFields?: bool,
+ *   groupImplementorFields?: bool
  * }
  */
 class QueryPlan

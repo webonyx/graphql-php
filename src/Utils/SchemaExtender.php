@@ -581,11 +581,7 @@ class SchemaExtender
             } elseif ($def instanceof TypeDefinitionNode) {
                 $typeName = $def->name->value;
 
-                try {
-                    $type = $schema->getType($typeName);
-                } catch (Error $error) {
-                    $type = null;
-                }
+                $type = $schema->getType($typeName);
 
                 if (null !== $type) {
                     throw new Error("Type \"{$typeName}\" already exists in the schema. It cannot also be defined in this type definition.", [$def]);
