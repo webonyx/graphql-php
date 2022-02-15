@@ -37,6 +37,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Always convert promises through `PromiseAdapter::convertThenable()` before calling `->then()` on them
 - Use `JSON_THROW_ON_ERROR` in `json_encode()`
 - Validate some internal invariants through `assert()`
+- `PromiseAdapter::all()` accepts `iterable`
 
 ### Added
 
