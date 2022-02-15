@@ -529,6 +529,8 @@ class ReferenceExecutor implements ExecutorImplementation
             array_keys($fields->getArrayCopy()),
             function ($results, $responseName) use ($path, $parentType, $rootValue, $fields) {
                 $fieldNodes = $fields[$responseName];
+                assert($fieldNodes instanceof ArrayObject, 'The keys of $fields populate $responseName');
+
                 $fieldPath = $path;
                 $fieldPath[] = $responseName;
                 $result = $this->resolveField($parentType, $rootValue, $fieldNodes, $fieldPath);
@@ -579,6 +581,8 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         $exeContext = $this->exeContext;
         $fieldNode = $fieldNodes[0];
+        assert($fieldNode instanceof FieldNode, '$fieldNodes is non-empty');
+
         $fieldName = $fieldNode->name->value;
         $fieldDef = $this->getFieldDef($exeContext->schema, $parentType, $fieldName);
         if (null === $fieldDef) {

@@ -34,7 +34,7 @@ trait NamedTypeImplementation
         $name = $reflection->getShortName();
 
         if (__NAMESPACE__ !== $reflection->getNamespaceName()) {
-            $withoutPrefixType = preg_replace('/Type$/', '', $name);
+            $withoutPrefixType = preg_replace('~Type$~', '', $name);
             assert(is_string($withoutPrefixType), 'regex is statically known to be correct');
 
             return $withoutPrefixType;

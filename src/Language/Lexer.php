@@ -134,24 +134,18 @@ class Lexer
         switch ($code) {
             case self::TOKEN_BANG:
                 return new Token(Token::BANG, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_HASH: // #
                 $this->moveStringCursor(-1, -1 * $bytes);
 
                 return $this->readComment($line, $col, $prev);
-
             case self::TOKEN_DOLLAR:
                 return new Token(Token::DOLLAR, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_AMP:
                 return new Token(Token::AMP, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_PAREN_L:
                 return new Token(Token::PAREN_L, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_PAREN_R:
                 return new Token(Token::PAREN_R, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_DOT: // .
                 [, $charCode1] = $this->readChar(true);
                 [, $charCode2] = $this->readChar(true);
@@ -163,28 +157,20 @@ class Lexer
                 break;
             case self::TOKEN_COLON:
                 return new Token(Token::COLON, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_EQUALS:
                 return new Token(Token::EQUALS, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_AT:
                 return new Token(Token::AT, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_BRACKET_L:
                 return new Token(Token::BRACKET_L, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_BRACKET_R:
                 return new Token(Token::BRACKET_R, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_BRACE_L:
                 return new Token(Token::BRACE_L, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_PIPE:
                 return new Token(Token::PIPE, $position, $position + 1, $line, $col, $prev);
-
             case self::TOKEN_BRACE_R:
                 return new Token(Token::BRACE_R, $position, $position + 1, $line, $col, $prev);
-
             // A-Z
             case 65:
             case 66:
@@ -212,9 +198,9 @@ class Lexer
             case 88:
             case 89:
             case 90:
-                // _
+            // _
             case 95:
-                // a-z
+            // a-z
             case 97:
             case 98:
             case 99:
@@ -243,10 +229,9 @@ class Lexer
             case 122:
                 return $this->moveStringCursor(-1, -1 * $bytes)
                     ->readName($line, $col, $prev);
-
             // -
             case 45:
-                // 0-9
+            // 0-9
             case 48:
             case 49:
             case 50:
@@ -259,11 +244,11 @@ class Lexer
             case 57:
                 return $this->moveStringCursor(-1, -1 * $bytes)
                     ->readNumber($line, $col, $prev);
-
             // "
             case 34:
                 [, $nextCode] = $this->readChar();
-                [, $nextNextCode] = $this->moveStringCursor(1, 1)->readChar();
+                [, $nextNextCode] = $this->moveStringCursor(1, 1)
+                    ->readChar();
 
                 if (34 === $nextCode && 34 === $nextNextCode) {
                     return $this->moveStringCursor(-2, (-1 * $bytes) - 1)
@@ -281,7 +266,7 @@ class Lexer
         );
     }
 
-    private function unexpectedCharacterMessage(int $code): string
+    private function unexpectedCharacterMessage(?int $code): string
     {
         // SourceCharacter
         if ($code < 0x0020 && 0x0009 !== $code && 0x000A !== $code && 0x000D !== $code) {
@@ -289,8 +274,7 @@ class Lexer
         }
 
         if (39 === $code) {
-            return "Unexpected single quote character ('), did you mean to use "
-                . 'a double quote (")?';
+            return 'Unexpected single quote character (\'), did you mean to use a double quote (")?';
         }
 
         return 'Cannot parse the unexpected character ' . Utils::printCharCode($code) . '.';
@@ -534,6 +518,9 @@ class Lexer
 
                         $value .= Utils::chr($code);
                         break;
+                    // null means EOF, will delegate to general handling of unterminated strings
+                    case null:
+                        continue 2;
                     default:
                         throw new SyntaxError(
                             $this->source,

@@ -203,9 +203,7 @@ class Values
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
                 $hasValue = null !== $variableValues && array_key_exists($variableName, $variableValues);
-                $isNull = $hasValue
-                    ? null === $variableValues[$variableName]
-                    : false;
+                $isNull = $hasValue && null === $variableValues[$variableName];
             } else {
                 $hasValue = null !== $argumentValueNode;
                 $isNull = $argumentValueNode instanceof NullValueNode;
@@ -243,6 +241,8 @@ class Values
                     $referenceNode
                 );
             } elseif ($hasValue) {
+                assert($argumentValueNode instanceof Node);
+
                 if ($argumentValueNode instanceof NullValueNode) {
                     // If the explicit value `null` was provided, an entry in the coerced
                     // values must exist as the value `null`.

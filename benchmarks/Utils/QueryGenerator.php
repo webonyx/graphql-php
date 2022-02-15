@@ -46,6 +46,7 @@ class QueryGenerator
     public function buildQuery(): string
     {
         $queryType = $this->schema->getQueryType();
+        assert($queryType instanceof ObjectType);
 
         $ast = new DocumentNode([
             'definitions' => new NodeList([

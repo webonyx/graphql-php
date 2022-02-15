@@ -183,6 +183,15 @@ class Visitor
     {
         $visitorKeys = $keyMap ?? self::VISITOR_KEYS;
 
+        /**
+         * array{
+         *   inArray: bool,
+         *   index: int,
+         *   keys: Node|NodeList|mixed,
+         *   edits: array<int, array{mixed, mixed}>,
+         *   prev: array<string, mixed>
+         * }|null.
+         */
         $stack = null;
         $inArray = $root instanceof NodeList;
         $keys = [$root];
@@ -193,8 +202,6 @@ class Visitor
         $ancestors = [];
         $newRoot = $root;
 
-        $UNDEFINED = null;
-
         do {
             ++$index;
             $isLeaving = $index === count($keys);
@@ -204,7 +211,7 @@ class Visitor
 
             if ($isLeaving) {
                 $key = [] === $ancestors
-                    ? $UNDEFINED
+                    ? null
                     : $path[count($path) - 1];
                 $node = $parent;
                 $parent = array_pop($ancestors);
@@ -238,28 +245,30 @@ class Visitor
                     }
                 }
 
-                $index = $stack['index'];
-                $keys = $stack['keys'];
-                $edits = $stack['edits'];
-                $inArray = $stack['inArray'];
-                $stack = $stack['prev'];
+                assert(is_array($stack), 'should only get here if the stack was already populated');
+                [
+                    'index' => $index,
+                    'keys' => $keys,
+                    'edits' => $edits,
+                    'inArray' => $inArray,
+                    'prev' => $stack,
+                ] = $stack;
             } else {
                 $key = null !== $parent
                     ? (
                         $inArray
-                        ? $index
-                        : $keys[$index]
+                            ? $index
+                            : $keys[$index]
                     )
-                    : $UNDEFINED;
+                    : null;
                 $node = null !== $parent
                     ? (
                         $parent instanceof NodeList || is_array($parent)
-                        ? $parent[$key]
-                        : $parent->{$key}
+                            ? $parent[$key]
+                            : $parent->{$key}
                     )
                     : $newRoot;
-                /** @psalm-suppress ParadoxicalCondition We don't have `undefined` in php */
-                if (null === $node || $node === $UNDEFINED) {
+                if (null === $node) {
                     continue;
                 }
 
