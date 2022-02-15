@@ -194,11 +194,18 @@ class QueryPlan
                 if (isset($this->fragments[$spreadName])) {
                     $fragment = $this->fragments[$spreadName];
                     $type = $this->schema->getType($fragment->typeCondition->name->value);
+                    assert($type instanceof Type, 'ensured by query validation');
+
                     $subfields = $this->analyzeSubFields($type, $fragment->selectionSet);
                     $fields = $this->mergeFields($parentType, $type, $fields, $subfields, $implementors);
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
-                $type = $this->schema->getType($selectionNode->typeCondition->name->value);
+                $typeCondition = $selectionNode->typeCondition;
+                $type = $typeCondition === null
+                    ? $parentType
+                    : $this->schema->getType($typeCondition->name->value);
+                assert($type instanceof Type, 'ensured by query validation');
+
                 $subfields = $this->analyzeSubFields($type, $selectionNode->selectionSet);
                 $fields = $this->mergeFields($parentType, $type, $fields, $subfields, $implementors);
             }

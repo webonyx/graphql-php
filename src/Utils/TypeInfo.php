@@ -226,10 +226,7 @@ class TypeInfo
                 $typeConditionNode = $node->typeCondition;
                 $outputType = null === $typeConditionNode
                     ? Type::getNamedType($this->getType())
-                    : self::typeFromAST(
-                        $schema,
-                        $typeConditionNode
-                    );
+                    : self::typeFromAST($schema, $typeConditionNode);
                 $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null;
                 break;
 

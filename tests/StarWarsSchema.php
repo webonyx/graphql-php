@@ -89,7 +89,7 @@ class StarWarsSchema
         /** @var ObjectType $humanType */
         $humanType = null;
 
-        /** @var ObjectType $humanType */
+        /** @var ObjectType $droidType */
         $droidType = null;
 
         /**

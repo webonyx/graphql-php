@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use function array_keys;
 use GraphQL\Utils\Utils;
 
@@ -28,9 +29,13 @@ trait HasFieldsTypeImplementation
 
     public function getField(string $name): FieldDefinition
     {
-        Utils::invariant($this->hasField($name), 'Field "%s" is not defined for type "%s"', $name, $this->name);
+        $field = $this->findField($name);
 
-        return $this->findField($name);
+        if ($field === null) {
+            throw new InvariantViolation("Field \"{$name}\" is not defined for type \"{$this->name}\"");
+        }
+
+        return $field;
     }
 
     public function findField(string $name): ?FieldDefinition

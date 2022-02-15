@@ -101,7 +101,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      *
      * @throws InvariantViolation
      *
-     * @return $this
+     * @return self
      */
     public static function assertObjectType($type): self
     {
