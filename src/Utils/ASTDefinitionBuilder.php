@@ -169,7 +169,9 @@ class ASTDefinitionBuilder
      */
     public function maybeBuildType(string $name): ?Type
     {
-        return isset($this->typeDefinitionsMap[$name]) ? $this->buildType($name) : null;
+        return isset($this->typeDefinitionsMap[$name])
+            ? $this->buildType($name)
+            : null
     }
 
     /**
