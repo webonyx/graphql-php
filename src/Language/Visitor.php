@@ -184,15 +184,13 @@ class Visitor
         $visitorKeys = $keyMap ?? self::VISITOR_KEYS;
 
         /**
-         * array{
+         * @var list<array{
          *   inArray: bool,
          *   index: int,
          *   keys: Node|NodeList|mixed,
          *   edits: array<int, array{mixed, mixed}>,
-         *   prev: array<string, mixed>
-         * }|null.
-         */
-        $stack = null;
+         * }> $stack */
+        $stack = [];
         $inArray = $root instanceof NodeList;
         $keys = [$root];
         $index = -1;
@@ -245,14 +243,13 @@ class Visitor
                     }
                 }
 
-                assert(is_array($stack), 'should only get here if the stack was already populated');
+                // @phpstan-ignore-next-line the stack is guaranteed to be non-empty at this point
                 [
                     'index' => $index,
                     'keys' => $keys,
                     'edits' => $edits,
                     'inArray' => $inArray,
-                    'prev' => $stack,
-                ] = $stack;
+                ] = array_pop($stack);
             } else {
                 $key = null !== $parent
                     ? (
@@ -327,12 +324,11 @@ class Visitor
             if ($isLeaving) {
                 array_pop($path);
             } else {
-                $stack = [
+                $stack []= [
                     'inArray' => $inArray,
                     'index' => $index,
                     'keys' => $keys,
                     'edits' => $edits,
-                    'prev' => $stack,
                 ];
                 $inArray = $node instanceof NodeList || is_array($node);
 
@@ -345,7 +341,7 @@ class Visitor
 
                 $parent = $node;
             }
-        } while ($stack);
+        } while (count($stack) > 0);
 
         if (count($edits) > 0) {
             $newRoot = $edits[0][1];
