@@ -324,7 +324,7 @@ class Visitor
             if ($isLeaving) {
                 array_pop($path);
             } else {
-                $stack []= [
+                $stack[] = [
                     'inArray' => $inArray,
                     'index' => $index,
                     'keys' => $keys,
