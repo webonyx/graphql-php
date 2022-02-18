@@ -2,7 +2,6 @@
 
 namespace GraphQL\Language;
 
-use GraphQL\Language\AST\TypeSystemExtensionNode;
 use function count;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
@@ -53,6 +52,7 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\TypeSystemDefinitionNode;
+use GraphQL\Language\AST\TypeSystemExtensionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\ValueNode;
