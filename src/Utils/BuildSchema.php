@@ -140,8 +140,7 @@ class BuildSchema
                     $schemaDef = $definition;
                     break;
                 case $definition instanceof TypeDefinitionNode:
-                    $typeName = $definition->name->value;
-                    $this->nodeMap[$typeName] = $definition;
+                    $this->nodeMap[$definition->name->value] = $definition;
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
                     $directiveDefs[] = $definition;
