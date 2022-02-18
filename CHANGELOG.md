@@ -54,6 +54,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Add ability to remove custom validation rules after adding them via `DocumentValidator::removeRule()`
 - Allow lazy enum values
 - Make `Node` implement `JsonSerializable`
+- Add SDL validation rule `UniqueTypeNames` (#998)
 - Add support for SDL validation to `KnownTypeNames` rule (#999)
 
 ### Optimized
