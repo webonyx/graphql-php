@@ -191,11 +191,11 @@ class TypeInfo
             case $node instanceof FieldNode:
                 $parentType = $this->getParentType();
 
-                $fieldDef = null === $parentType
+                $fieldDef = $parentType === null
                     ? null
                     : self::getFieldDefinition($schema, $parentType, $node);
 
-                $fieldType = null === $fieldDef
+                $fieldType = $fieldDef === null
                     ? null
                     : $fieldDef->getType();
 
@@ -209,9 +209,9 @@ class TypeInfo
 
             case $node instanceof OperationDefinitionNode:
                 $type = null;
-                if ('query' === $node->operation) {
+                if ($node->operation === 'query') {
                     $type = $schema->getQueryType();
-                } elseif ('mutation' === $node->operation) {
+                } elseif ($node->operation === 'mutation') {
                     $type = $schema->getMutationType();
                 } else {
                     // Only other option
@@ -224,7 +224,7 @@ class TypeInfo
             case $node instanceof InlineFragmentNode:
             case $node instanceof FragmentDefinitionNode:
                 $typeConditionNode = $node->typeCondition;
-                $outputType = null === $typeConditionNode
+                $outputType = $typeConditionNode === null
                     ? Type::getNamedType($this->getType())
                     : self::typeFromAST($schema, $typeConditionNode);
                 $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null;
@@ -239,7 +239,7 @@ class TypeInfo
                 $fieldOrDirective = $this->getDirective() ?? $this->getFieldDef();
                 $argDef = null;
                 $argType = null;
-                if (null !== $fieldOrDirective) {
+                if ($fieldOrDirective !== null) {
                     foreach ($fieldOrDirective->args as $arg) {
                         if ($arg->name === $node->name->value) {
                             $argDef = $arg;
@@ -249,7 +249,7 @@ class TypeInfo
                 }
 
                 $this->argument = $argDef;
-                $this->defaultValueStack[] = null !== $argDef && $argDef->defaultValueExists()
+                $this->defaultValueStack[] = $argDef !== null && $argDef->defaultValueExists()
                     ? $argDef->defaultValue
                     : Utils::undefined();
                 $this->inputTypeStack[] = Type::isInputType($argType) ? $argType : null;
@@ -275,12 +275,12 @@ class TypeInfo
                 if ($objectType instanceof InputObjectType) {
                     $tmp = $objectType->getFields();
                     $inputField = $tmp[$node->name->value] ?? null;
-                    $inputFieldType = null === $inputField
+                    $inputFieldType = $inputField === null
                         ? null
                         : $inputField->getType();
                 }
 
-                $this->defaultValueStack[] = null !== $inputField && $inputField->defaultValueExists()
+                $this->defaultValueStack[] = $inputField !== null && $inputField->defaultValueExists()
                     ? $inputField->defaultValue
                     : Utils::undefined();
                 $this->inputTypeStack[] = Type::isInputType($inputFieldType)

@@ -97,7 +97,7 @@ class DocumentValidator
     ): array {
         $rules ??= static::allRules();
 
-        if (0 === count($rules)) {
+        if (count($rules) === 0) {
             return [];
         }
 
@@ -259,7 +259,7 @@ class DocumentValidator
     ): array {
         $rules ??= self::sdlRules();
 
-        if (0 === count($rules)) {
+        if (count($rules) === 0) {
             return [];
         }
 

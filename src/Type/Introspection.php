@@ -194,7 +194,7 @@ GRAPHQL;
         );
 
         $data = $result->data;
-        if (null === $data) {
+        if ($data === null) {
             $serialized = json_encode($result, JSON_THROW_ON_ERROR);
             throw new InvariantViolation("Introspection query returned no data: {$serialized}");
         }
@@ -522,7 +522,7 @@ GRAPHQL;
                             if ($inputValue->defaultValueExists()) {
                                 $defaultValueAST = AST::astFromValue($inputValue->defaultValue, $inputValue->getType());
 
-                                if (null === $defaultValueAST) {
+                                if ($defaultValueAST === null) {
                                     $inconvertibleDefaultValue = Utils::printSafe($inputValue->defaultValue);
                                     throw new InvariantViolation("Unable to convert defaultValue of argument {$inputValue->name} into AST: {$inconvertibleDefaultValue}.");
                                 }

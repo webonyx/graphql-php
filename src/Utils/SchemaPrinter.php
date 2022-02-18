@@ -294,7 +294,7 @@ class SchemaPrinter
         if ($arg->defaultValueExists()) {
             $defaultValueAST = AST::astFromValue($arg->defaultValue, $arg->getType());
 
-            if (null === $defaultValueAST) {
+            if ($defaultValueAST === null) {
                 $inconvertibleDefaultValue = Utils::printSafe($arg->defaultValue);
                 throw new InvariantViolation("Unable to convert defaultValue of argument {$arg->name} into AST: {$inconvertibleDefaultValue}.");
             }
