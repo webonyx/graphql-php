@@ -622,7 +622,7 @@ class SchemaExtender
             $typeDefinitionMap,
             static function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
-                if (null === $existingType) {
+                if ($existingType === null) {
                     throw new InvariantViolation('Unknown type: "' . $typeName . '".');
                 }
 

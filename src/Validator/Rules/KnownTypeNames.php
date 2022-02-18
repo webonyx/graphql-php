@@ -12,9 +12,9 @@ use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeSystemDefinitionNode;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ASTValidationContext;
-use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\QueryValidationContext;
+use GraphQL\Validator\SDLValidationContext;
+use GraphQL\Validator\ValidationContext;
 use function in_array;
 
 /**
@@ -40,7 +40,7 @@ class KnownTypeNames extends ValidationRule
     /**
      * @phpstan-return VisitorArray
      */
-    public function getASTVisitor(ASTValidationContext $context): array
+    public function getASTVisitor(ValidationContext $context): array
     {
         /** @var array<int, string> $definedTypes */
         $definedTypes = [];
@@ -61,17 +61,17 @@ class KnownTypeNames extends ValidationRule
                     return;
                 }
 
-                if (null !== $schema && $schema->hasType($typeName)) {
+                if ($schema !== null && $schema->hasType($typeName)) {
                     return;
                 }
 
                 $definitionNode = $ancestors[2] ?? $parent;
-                $isSDL = null !== $definitionNode && self::isSDLNode($definitionNode);
+                $isSDL = $definitionNode !== null && self::isSDLNode($definitionNode);
                 if ($isSDL && in_array($typeName, $standardTypeNames, true)) {
                     return;
                 }
 
-                $existingTypesMap = null !== $schema
+                $existingTypesMap = $schema !== null
                     ? $schema->getTypeMap()
                     : [];
                 $typeNames = [
