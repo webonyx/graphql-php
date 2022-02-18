@@ -18,9 +18,8 @@ class UniqueTypeNamesTest extends ValidatorTestCase
         $this->expectSDLErrorsFromRule(new UniqueTypeNames(), $sdlString, $schema, $errors);
     }
 
-    // Validate: Unique type names
-
     /**
+     * @see describe('Validate: Unique type names')
      * @see it('no types')
      */
     public function testNoTypes(): void
