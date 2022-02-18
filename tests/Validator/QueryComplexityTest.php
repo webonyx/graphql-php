@@ -27,7 +27,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
             $positions = [];
 
-            if ($maxComplexity < $queryComplexity && QueryComplexity::DISABLED !== $maxComplexity) {
+            if ($maxComplexity < $queryComplexity && $maxComplexity !== QueryComplexity::DISABLED) {
                 $positions = [$this->createFormattedError($maxComplexity, $queryComplexity)];
             }
 

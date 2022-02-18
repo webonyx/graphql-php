@@ -721,7 +721,7 @@ class LexerTest extends TestCase
             // Lexer advances over ignored comment tokens to make writing parsers
             // easier, but will include them in the linked list result.
             self::assertNotEquals('Comment', $endToken->kind);
-        } while ('<EOF>' !== $endToken->kind);
+        } while ($endToken->kind !== '<EOF>');
 
         self::assertEquals(null, $startToken->prev);
         self::assertEquals(null, $endToken->next);

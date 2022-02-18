@@ -379,7 +379,7 @@ class Parser
     private function expectKeyword(string $value): void
     {
         $token = $this->lexer->token;
-        if (Token::NAME !== $token->kind || $token->value !== $value) {
+        if ($token->kind !== Token::NAME || $token->value !== $value) {
             throw new SyntaxError(
                 $this->lexer->source,
                 $token->start,
@@ -397,7 +397,7 @@ class Parser
     private function expectOptionalKeyword(string $value): bool
     {
         $token = $this->lexer->token;
-        if (Token::NAME === $token->kind && $token->value === $value) {
+        if ($token->kind === Token::NAME && $token->value === $value) {
             $this->lexer->advance();
 
             return true;
@@ -793,7 +793,7 @@ class Parser
 
     private function parseFragmentName(): NameNode
     {
-        if ('on' === $this->lexer->token->value) {
+        if ($this->lexer->token->value === 'on') {
             throw $this->unexpected();
         }
 
@@ -853,16 +853,16 @@ class Parser
                 return $this->parseStringLiteral();
 
             case Token::NAME:
-                if ('true' === $token->value || 'false' === $token->value) {
+                if ($token->value === 'true' || $token->value === 'false') {
                     $this->lexer->advance();
 
                     return new BooleanValueNode([
-                        'value' => 'true' === $token->value,
+                        'value' => $token->value === 'true',
                         'loc' => $this->loc($token),
                     ]);
                 }
 
-                if ('null' === $token->value) {
+                if ($token->value === 'null') {
                     $this->lexer->advance();
 
                     return new NullValueNode([
@@ -894,7 +894,7 @@ class Parser
 
         return new StringValueNode([
             'value' => $token->value,
-            'block' => Token::BLOCK_STRING === $token->kind,
+            'block' => $token->kind === Token::BLOCK_STRING,
             'loc' => $this->loc($token),
         ]);
     }
@@ -1032,7 +1032,7 @@ class Parser
             ? $this->lexer->lookahead()
             : $this->lexer->token;
 
-        if (Token::NAME === $keywordToken->kind) {
+        if ($keywordToken->kind === Token::NAME) {
             switch ($keywordToken->value) {
                 case 'schema':
                     return $this->parseSchemaDefinition();
@@ -1181,7 +1181,7 @@ class Parser
         if (
             ($this->lexer->options['allowLegacySDLEmptyFields'] ?? false)
             && $this->peek(Token::BRACE_L)
-            && Token::BRACE_R === $this->lexer->lookahead()->kind
+            && $this->lexer->lookahead()->kind === Token::BRACE_R
         ) {
             $this->lexer->advance();
             $this->lexer->advance();
@@ -1410,7 +1410,7 @@ class Parser
     {
         $keywordToken = $this->lexer->lookahead();
 
-        if (Token::NAME === $keywordToken->kind) {
+        if ($keywordToken->kind === Token::NAME) {
             switch ($keywordToken->value) {
                 case 'schema':
                     return $this->parseSchemaTypeExtension();
@@ -1452,7 +1452,7 @@ class Parser
                 Token::BRACE_R
             )
             : new NodeList([]);
-        if (0 === count($directives) && 0 === count($operationTypes)) {
+        if (count($directives) === 0 && count($operationTypes) === 0) {
             $this->unexpected();
         }
 
@@ -1470,7 +1470,7 @@ class Parser
         $this->expectKeyword('scalar');
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
-        if (0 === count($directives)) {
+        if (count($directives) === 0) {
             throw $this->unexpected();
         }
 
@@ -1492,9 +1492,9 @@ class Parser
         $fields = $this->parseFieldsDefinition();
 
         if (
-            0 === count($interfaces)
-            && 0 === count($directives)
-            && 0 === count($fields)
+            count($interfaces) === 0
+            && count($directives) === 0
+            && count($fields) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1518,9 +1518,9 @@ class Parser
         $directives = $this->parseDirectives(true);
         $fields = $this->parseFieldsDefinition();
         if (
-            0 === count($interfaces)
-            && 0 === count($directives)
-            && 0 === count($fields)
+            count($interfaces) === 0
+            && count($directives) === 0
+            && count($fields) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1547,7 +1547,7 @@ class Parser
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
         $types = $this->parseUnionMemberTypes();
-        if (0 === count($directives) && 0 === count($types)) {
+        if (count($directives) === 0 && count($types) === 0) {
             throw $this->unexpected();
         }
 
@@ -1568,8 +1568,8 @@ class Parser
         $directives = $this->parseDirectives(true);
         $values = $this->parseEnumValuesDefinition();
         if (
-            0 === count($directives)
-            && 0 === count($values)
+            count($directives) === 0
+            && count($values) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1591,8 +1591,8 @@ class Parser
         $directives = $this->parseDirectives(true);
         $fields = $this->parseInputFieldsDefinition();
         if (
-            0 === count($directives)
-            && 0 === count($fields)
+            count($directives) === 0
+            && count($fields) === 0
         ) {
             throw $this->unexpected();
         }

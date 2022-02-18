@@ -30,7 +30,7 @@ try {
     // Prepare context that will be available in all field resolvers (as 3rd argument):
     $appContext = new AppContext();
     $currentlyLoggedInUser = DataSource::findUser(1);
-    assert(null !== $currentlyLoggedInUser);
+    assert($currentlyLoggedInUser !== null);
     $appContext->viewer = $currentlyLoggedInUser;
     $appContext->rootUrl = 'http://localhost:8080';
     $appContext->request = $_REQUEST;

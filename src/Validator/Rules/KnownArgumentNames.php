@@ -27,12 +27,12 @@ class KnownArgumentNames extends ValidationRule
         return $knownArgumentNamesOnDirectives->getVisitor($context) + [
             NodeKind::ARGUMENT => static function (ArgumentNode $node) use ($context): void {
                 $argDef = $context->getArgument();
-                if (null !== $argDef) {
+                if ($argDef !== null) {
                     return;
                 }
 
                 $fieldDef = $context->getFieldDef();
-                if (null === $fieldDef) {
+                if ($fieldDef === null) {
                     return;
                 }
 

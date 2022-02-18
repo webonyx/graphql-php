@@ -194,7 +194,7 @@ class DeferredFieldsTest extends TestCase
                             return new Deferred(function () use ($category, $story) {
                                 $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStoryAuthor2';
 
-                                if (null === $story) {
+                                if ($story === null) {
                                     return null;
                                 }
 

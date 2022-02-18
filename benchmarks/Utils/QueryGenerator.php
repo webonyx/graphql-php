@@ -30,7 +30,7 @@ class QueryGenerator
     {
         $this->schema = $schema;
 
-        assert(0 < $percentOfLeafFields && $percentOfLeafFields <= 1);
+        assert($percentOfLeafFields > 0 && $percentOfLeafFields <= 1);
 
         $totalFields = 0;
         foreach ($schema->getTypeMap() as $type) {

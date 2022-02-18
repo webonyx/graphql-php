@@ -40,7 +40,7 @@ class UniqueDirectivesPerLocation extends ValidationRule
         $uniqueDirectiveMap = [];
 
         $schema = $context->getSchema();
-        $definedDirectives = null !== $schema
+        $definedDirectives = $schema !== null
             ? $schema->getDirectives()
             : Directive::getInternalDirectives();
         foreach ($definedDirectives as $directive) {

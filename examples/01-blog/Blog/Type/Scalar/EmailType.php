@@ -54,6 +54,6 @@ class EmailType extends ScalarType
      */
     private function isEmail($value): bool
     {
-        return false !== filter_var($value, FILTER_VALIDATE_EMAIL);
+        return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
     }
 }

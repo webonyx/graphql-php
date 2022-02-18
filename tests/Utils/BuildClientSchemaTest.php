@@ -650,7 +650,7 @@ SDL;
         $introspection['__schema']['types'] = array_filter(
             $introspection['__schema']['types'],
             static function (array $type): bool {
-                return 'Query' !== $type['name'];
+                return $type['name'] !== 'Query';
             }
         );
 
@@ -675,7 +675,7 @@ SDL;
         $introspection['__schema']['types'] = array_filter(
             $introspection['__schema']['types'],
             static function (array $type): bool {
-                return 'Float' !== $type['name'];
+                return $type['name'] !== 'Float';
             }
         );
 
@@ -708,7 +708,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('Query' === $type['name']) {
+            if ($type['name'] === 'Query') {
                 $queryTypeIntrospection = &$type;
             }
         }
@@ -728,7 +728,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('Query' === $type['name']) {
+            if ($type['name'] === 'Query') {
                 $queryTypeIntrospection = &$type;
             }
         }
@@ -748,7 +748,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('Query' === $type['name']) {
+            if ($type['name'] === 'Query') {
                 $queryTypeIntrospection = &$type;
             }
         }
@@ -771,7 +771,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('Query' === $type['name']) {
+            if ($type['name'] === 'Query') {
                 $queryTypeIntrospection = &$type;
             }
         }
@@ -795,7 +795,7 @@ SDL;
         $introspection = Introspection::fromSchema($dummySchema);
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('SomeInterface' === $type['name']) {
+            if ($type['name'] === 'SomeInterface') {
                 $queryTypeIntrospection = &$type;
             }
         }
@@ -819,7 +819,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('Query' === $type['name']) {
+            if ($type['name'] === 'Query') {
                 $queryTypeIntrospection = &$type;
             }
         }
@@ -842,7 +842,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('Query' === $type['name']) {
+            if ($type['name'] === 'Query') {
                 $queryTypeIntrospection = &$type;
             }
         }
@@ -866,7 +866,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('Query' === $type['name']) {
+            if ($type['name'] === 'Query') {
                 $queryTypeIntrospection = &$type;
             }
         }
@@ -890,7 +890,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('Query' === $type['name']) {
+            if ($type['name'] === 'Query') {
                 $queryTypeIntrospection = &$type;
             }
         }
@@ -914,7 +914,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $someUnionIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('SomeUnion' === $type['name']) {
+            if ($type['name'] === 'SomeUnion') {
                 $someUnionIntrospection = &$type;
             }
         }
@@ -937,7 +937,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $someEnumIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('SomeEnum' === $type['name']) {
+            if ($type['name'] === 'SomeEnum') {
                 $someEnumIntrospection = &$type;
             }
         }
@@ -960,7 +960,7 @@ SDL;
         $introspection = Introspection::fromSchema(self::dummySchema());
         $someInputObjectIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ('SomeInputObject' === $type['name']) {
+            if ($type['name'] === 'SomeInputObject') {
                 $someInputObjectIntrospection = &$type;
             }
         }

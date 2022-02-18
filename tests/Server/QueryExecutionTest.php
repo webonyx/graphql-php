@@ -421,14 +421,14 @@ class QueryExecutionTest extends ServerTestCase
     {
         $this->config
             ->setPersistedQueryLoader(static function ($queryId) {
-                if ('some-id' === $queryId) {
+                if ($queryId === 'some-id') {
                     return '{invalid}';
                 }
 
                 return '{invalid2}';
             })
             ->setValidationRules(static function (OperationParams $params): array {
-                if ('some-id' === $params->queryId) {
+                if ($params->queryId === 'some-id') {
                     return [];
                 }
 

@@ -38,7 +38,7 @@ class KnownTypeNames extends ValidationRule
                 $schema = $context->getSchema();
                 $typeName = $node->name->value;
                 $type = $schema->getType($typeName);
-                if (null !== $type) {
+                if ($type !== null) {
                     return;
                 }
 

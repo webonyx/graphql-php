@@ -32,7 +32,7 @@ final class IsCompositeTypeStaticMethodTypeSpecifyingExtension implements Static
     public function isStaticMethodSupported(MethodReflection $staticMethodReflection, StaticCall $node, TypeSpecifierContext $context): bool
     {
         // The $context argument tells us if we're in an if condition or not (as in this case).
-        return 'isCompositeType' === $staticMethodReflection->getName() && ! $context->null();
+        return $staticMethodReflection->getName() === 'isCompositeType' && ! $context->null();
     }
 
     public function specifyTypes(MethodReflection $staticMethodReflection, StaticCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes

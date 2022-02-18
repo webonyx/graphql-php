@@ -177,16 +177,16 @@ class ExecutionResult implements JsonSerializable
             );
 
             // While we know that there were errors initially, they might have been discarded
-            if ([] !== $handledErrors) {
+            if ($handledErrors !== []) {
                 $result['errors'] = $handledErrors;
             }
         }
 
-        if (null !== $this->data) {
+        if ($this->data !== null) {
             $result['data'] = $this->data;
         }
 
-        if (null !== $this->extensions && count($this->extensions) > 0) {
+        if ($this->extensions !== null && count($this->extensions) > 0) {
             $result['extensions'] = $this->extensions;
         }
 

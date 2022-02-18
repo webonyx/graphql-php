@@ -103,7 +103,7 @@ class QueryValidationContext implements ValidationContext
     {
         $usages = $this->recursiveVariableUsages[$operation] ?? null;
 
-        if (null === $usages) {
+        if ($usages === null) {
             $usages = $this->getVariableUsages($operation);
             $fragments = $this->getRecursivelyReferencedFragments($operation);
 
@@ -162,7 +162,7 @@ class QueryValidationContext implements ValidationContext
     {
         $fragments = $this->recursivelyReferencedFragments[$operation] ?? null;
 
-        if (null === $fragments) {
+        if ($fragments === null) {
             $fragments = [];
             $collectedNames = [];
             $nodesToVisit = [$operation];
@@ -178,7 +178,7 @@ class QueryValidationContext implements ValidationContext
 
                     $collectedNames[$fragName] = true;
                     $fragment = $this->getFragment($fragName);
-                    if (null === $fragment) {
+                    if ($fragment === null) {
                         continue;
                     }
 
@@ -201,7 +201,7 @@ class QueryValidationContext implements ValidationContext
     public function getFragmentSpreads(HasSelectionSet $node): array
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
-        if (null === $spreads) {
+        if ($spreads === null) {
             $spreads = [];
 
             /** @var array<int, SelectionSetNode> $setsToVisit */
@@ -217,7 +217,7 @@ class QueryValidationContext implements ValidationContext
                         assert($selection instanceof FieldNode || $selection instanceof InlineFragmentNode);
 
                         $selectionSet = $selection->selectionSet;
-                        if (null !== $selectionSet) {
+                        if ($selectionSet !== null) {
                             $setsToVisit[] = $selectionSet;
                         }
                     }

@@ -117,7 +117,7 @@ class QueryPlan
         $queryPlan = [];
         $implementors = [];
         foreach ($fieldNodes as $fieldNode) {
-            if (null === $fieldNode->selectionSet) {
+            if ($fieldNode->selectionSet === null) {
                 continue;
             }
 
@@ -168,7 +168,7 @@ class QueryPlan
 
                 $fieldName = $selectionNode->name->value;
 
-                if (Introspection::TYPE_NAME_FIELD_NAME === $fieldName) {
+                if ($fieldName === Introspection::TYPE_NAME_FIELD_NAME) {
                     continue;
                 }
 
@@ -201,7 +201,7 @@ class QueryPlan
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
                 $typeCondition = $selectionNode->typeCondition;
-                $type = null === $typeCondition
+                $type = $typeCondition === null
                     ? $parentType
                     : $this->schema->getType($typeCondition->name->value);
                 assert($type instanceof Type, 'ensured by query validation');

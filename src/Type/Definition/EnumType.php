@@ -220,7 +220,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             )
         );
 
-        return [] === $suggestions
+        return $suggestions === []
             ? null
             : ' Did you mean the enum value ' . Utils::quotedOrList($suggestions) . '?';
     }

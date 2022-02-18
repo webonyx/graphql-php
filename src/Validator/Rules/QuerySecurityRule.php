@@ -135,7 +135,7 @@ abstract class QuerySecurityRule extends ValidationRule
                     break;
                 case $selection instanceof InlineFragmentNode:
                     $typeCondition = $selection->typeCondition;
-                    $fragmentParentType = null === $typeCondition
+                    $fragmentParentType = $typeCondition === null
                         ? $parentType
                         : TypeInfo::typeFromAST($context->getSchema(), $typeCondition);
                     $astAndDefs = $this->collectFieldASTsAndDefs(
@@ -154,7 +154,7 @@ abstract class QuerySecurityRule extends ValidationRule
 
                         $fragment = $context->getFragment($fragName);
 
-                        if (null !== $fragment) {
+                        if ($fragment !== null) {
                             $astAndDefs = $this->collectFieldASTsAndDefs(
                                 $context,
                                 TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition),
@@ -176,7 +176,7 @@ abstract class QuerySecurityRule extends ValidationRule
     {
         $fieldName = $node->name->value;
 
-        return null === $node->alias
+        return $node->alias === null
             ? $fieldName
             : $node->alias->value;
     }

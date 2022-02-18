@@ -153,7 +153,7 @@ class BuildSchema
             }
         }
 
-        $operationTypes = null !== $schemaDef
+        $operationTypes = $schemaDef !== null
             ? $this->getOperationTypes($schemaDef)
             : [
                 'query' => 'Query',

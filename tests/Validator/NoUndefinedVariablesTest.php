@@ -189,7 +189,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     {
         $locs = [new SourceLocation($line, $column)];
 
-        if (null !== $l2 && null !== $c2) {
+        if ($l2 !== null && $c2 !== null) {
             $locs[] = new SourceLocation($l2, $c2);
         }
 

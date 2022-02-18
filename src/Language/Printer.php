@@ -99,7 +99,7 @@ class Printer
 
     protected function p(?Node $node, bool $isDescription = false): string
     {
-        if (null === $node) {
+        if ($node === null) {
             return '';
         }
 
@@ -119,7 +119,7 @@ class Printer
                 }
 
                 $noIndent = Utils::every($argStrings, static function (string $arg): bool {
-                    return false === strpos($arg, "\n");
+                    return strpos($arg, "\n") === false;
                 });
 
                 return $this->addDescription($node->description, 'directive @'
@@ -176,7 +176,7 @@ class Printer
                 }
 
                 $noIndent = Utils::every($argStrings, static function (string $arg): bool {
-                    return false === strpos($arg, "\n");
+                    return strpos($arg, "\n") === false;
                 });
 
                 return $this->addDescription(
@@ -355,7 +355,7 @@ class Printer
 
                 // Anonymous queries with no directives or variable definitions can use
                 // the query short form.
-                return (0 === strlen($name)) && (0 === strlen($directives)) && '' === $varDefs && 'query' === $op
+                return (strlen($name) === 0) && (strlen($directives) === 0) && $varDefs === '' && $op === 'query'
                     ? $selectionSet
                     : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
 
@@ -477,7 +477,7 @@ class Printer
      */
     protected function printListBlock(NodeList $list): string
     {
-        if (0 === count($list)) {
+        if (count($list) === 0) {
             return '';
         }
 
@@ -500,7 +500,7 @@ class Printer
      */
     protected function wrap(string $start, ?string $maybeString, string $end = ''): string
     {
-        if (null === $maybeString || '' === $maybeString) {
+        if ($maybeString === null || $maybeString === '') {
             return '';
         }
 
@@ -509,7 +509,7 @@ class Printer
 
     protected function indent(string $string): string
     {
-        if ('' === $string) {
+        if ($string === '') {
             return '';
         }
 

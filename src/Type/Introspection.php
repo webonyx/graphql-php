@@ -194,7 +194,7 @@ GRAPHQL;
         );
 
         $data = $result->data;
-        if (null === $data) {
+        if ($data === null) {
             $serialized = json_encode($result, JSON_THROW_ON_ERROR);
             throw new InvariantViolation("Introspection query returned no data: {$serialized}");
         }
@@ -342,8 +342,8 @@ GRAPHQL;
                             if (! ($args['includeDeprecated'] ?? false)) {
                                 $fields = array_filter(
                                     $fields,
-                                    static fn (FieldDefinition $field): bool => null === $field->deprecationReason
-                                        || '' === $field->deprecationReason
+                                    static fn (FieldDefinition $field): bool => $field->deprecationReason === null
+                                        || $field->deprecationReason === ''
                                 );
                             }
 
@@ -381,8 +381,8 @@ GRAPHQL;
                                 return array_filter(
                                     $values,
                                     static function (EnumValueDefinition $value): bool {
-                                        return null === $value->deprecationReason
-                                            || '' === $value->deprecationReason;
+                                        return $value->deprecationReason === null
+                                            || $value->deprecationReason === '';
                                     }
                                 );
                             }
@@ -478,8 +478,8 @@ GRAPHQL;
                 ],
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
-                    'resolve' => static fn (FieldDefinition $field): bool => null !== $field->deprecationReason
-                        && '' !== $field->deprecationReason,
+                    'resolve' => static fn (FieldDefinition $field): bool => $field->deprecationReason !== null
+                        && $field->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),
@@ -522,7 +522,7 @@ GRAPHQL;
                             if ($inputValue->defaultValueExists()) {
                                 $defaultValueAST = AST::astFromValue($inputValue->defaultValue, $inputValue->getType());
 
-                                if (null === $defaultValueAST) {
+                                if ($defaultValueAST === null) {
                                     $inconvertibleDefaultValue = Utils::printSafe($inputValue->defaultValue);
                                     throw new InvariantViolation("Unable to convert defaultValue of argument {$inputValue->name} into AST: {$inconvertibleDefaultValue}.");
                                 }
@@ -557,8 +557,8 @@ GRAPHQL;
                 ],
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
-                    'resolve' => static fn (EnumValueDefinition $enumValue): bool => null !== $enumValue->deprecationReason
-                        && '' !== $enumValue->deprecationReason,
+                    'resolve' => static fn (EnumValueDefinition $enumValue): bool => $enumValue->deprecationReason !== null
+                        && $enumValue->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),

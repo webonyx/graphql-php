@@ -66,9 +66,9 @@ final class Warning
      */
     public static function suppress($suppress = true): void
     {
-        if (true === $suppress) {
+        if ($suppress === true) {
             self::$enableWarnings = 0;
-        } elseif (false === $suppress) {
+        } elseif ($suppress === false) {
             self::$enableWarnings = self::ALL;
         // @phpstan-ignore-next-line necessary until we can use proper unions
         } elseif (is_int($suppress)) {
@@ -92,9 +92,9 @@ final class Warning
      */
     public static function enable($enable = true): void
     {
-        if (true === $enable) {
+        if ($enable === true) {
             self::$enableWarnings = self::ALL;
-        } elseif (false === $enable) {
+        } elseif ($enable === false) {
             self::$enableWarnings = 0;
         // @phpstan-ignore-next-line necessary until we can use proper unions
         } elseif (is_int($enable)) {
@@ -109,7 +109,7 @@ final class Warning
     {
         $messageLevel ??= E_USER_WARNING;
 
-        if (null !== self::$warningHandler) {
+        if (self::$warningHandler !== null) {
             (self::$warningHandler)($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0 && ! isset(self::$warned[$warningId])) {
             self::$warned[$warningId] = true;
@@ -121,7 +121,7 @@ final class Warning
     {
         $messageLevel ??= E_USER_WARNING;
 
-        if (null !== self::$warningHandler) {
+        if (self::$warningHandler !== null) {
             (self::$warningHandler)($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0) {
             trigger_error($errorMessage, $messageLevel);
