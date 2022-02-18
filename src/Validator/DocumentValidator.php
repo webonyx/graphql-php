@@ -40,6 +40,7 @@ use GraphQL\Validator\Rules\UniqueFragmentNames;
 use GraphQL\Validator\Rules\UniqueInputFieldNames;
 use GraphQL\Validator\Rules\UniqueOperationNames;
 use GraphQL\Validator\Rules\UniqueOperationTypes;
+use GraphQL\Validator\Rules\UniqueTypeNames;
 use GraphQL\Validator\Rules\UniqueVariableNames;
 use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
@@ -201,6 +202,7 @@ class DocumentValidator
         return self::$sdlRules ??= [
             LoneSchemaDefinition::class => new LoneSchemaDefinition(),
             UniqueOperationTypes::class => new UniqueOperationTypes(),
+            UniqueTypeNames::class => new UniqueTypeNames(),
             KnownDirectives::class => new KnownDirectives(),
             KnownArgumentNamesOnDirectives::class => new KnownArgumentNamesOnDirectives(),
             UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),

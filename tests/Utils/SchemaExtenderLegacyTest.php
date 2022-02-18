@@ -29,7 +29,6 @@ use PHPUnit\Framework\TestCase;
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
  * TODO align with:
  *   - https://github.com/graphql/graphql-js/commit/c1745228b2ae5ec89b8de36ea766d544607e21ea
- *   - https://github.com/graphql/graphql-js/commit/257797a0ebdddd3da6e75b7c237fdc12a1a7c75a
  *   - https://github.com/graphql/graphql-js/commit/3b9ea61f2348215dee755f779caef83df749d2bb
  *   - https://github.com/graphql/graphql-js/commit/e6a3f08cc92594f68a6e61d3d4b46a6d279f845e.
  */
@@ -261,84 +260,6 @@ class SchemaExtenderLegacyTest extends TestCase
             self::fail();
         } catch (Error $error) {
             self::assertEquals($existingFieldError('SomeInput', 'fooArg'), $error->getMessage());
-        }
-    }
-
-    // Extract check for unique type names into separate rule
-
-    /**
-     * @see it('does not allow replacing an existing type')
-     */
-    public function testDoesNotAllowReplacingAnExistingType(): void
-    {
-        $existingTypeError = static function ($type): string {
-            return 'Type "' . $type . '" already exists in the schema. It cannot also be defined in this type definition.';
-        };
-
-        $typeSDL = '
-            type Bar
-        ';
-
-        try {
-            $this->extendTestSchema($typeSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('Bar'), $error->getMessage());
-        }
-
-        $scalarSDL = '
-          scalar SomeScalar
-        ';
-
-        try {
-            $this->extendTestSchema($scalarSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeScalar'), $error->getMessage());
-        }
-
-        $interfaceSDL = '
-          interface SomeInterface
-        ';
-
-        try {
-            $this->extendTestSchema($interfaceSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeInterface'), $error->getMessage());
-        }
-
-        $enumSDL = '
-          enum SomeEnum
-        ';
-
-        try {
-            $this->extendTestSchema($enumSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeEnum'), $error->getMessage());
-        }
-
-        $unionSDL = '
-          union SomeUnion
-        ';
-
-        try {
-            $this->extendTestSchema($unionSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeUnion'), $error->getMessage());
-        }
-
-        $inputSDL = '
-          input SomeInput
-        ';
-
-        try {
-            $this->extendTestSchema($inputSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeInput'), $error->getMessage());
         }
     }
 
