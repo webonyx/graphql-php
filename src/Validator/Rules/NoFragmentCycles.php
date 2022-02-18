@@ -11,7 +11,7 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 use function implode;
 
 class NoFragmentCycles extends ValidationRule
@@ -25,7 +25,7 @@ class NoFragmentCycles extends ValidationRule
     /** @var array<string, int|null> */
     protected array $spreadPathIndexByName;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         // Tracks already visited fragments to maintain O(N) and to ensure that cycles
         // are not redundantly reported.
@@ -49,7 +49,7 @@ class NoFragmentCycles extends ValidationRule
         ];
     }
 
-    protected function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context): void
+    protected function detectCycleRecursive(FragmentDefinitionNode $fragment, QueryValidationContext $context): void
     {
         if (isset($this->visitedFrags[$fragment->name->value])) {
             return;

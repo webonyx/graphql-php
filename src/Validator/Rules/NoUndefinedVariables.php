@@ -6,7 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * A GraphQL operation is only valid if all variables encountered, both directly
@@ -14,7 +14,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class NoUndefinedVariables extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         /** @var array<string, true> $variableNameDefined */
         $variableNameDefined = [];

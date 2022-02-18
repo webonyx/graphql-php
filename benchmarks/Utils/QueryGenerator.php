@@ -15,7 +15,6 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\Utils;
 use function max;
 use function round;
 
@@ -31,7 +30,7 @@ class QueryGenerator
     {
         $this->schema = $schema;
 
-        Utils::invariant($percentOfLeafFields > 0 && $percentOfLeafFields <= 1);
+        assert(0 < $percentOfLeafFields && $percentOfLeafFields <= 1);
 
         $totalFields = 0;
         foreach ($schema->getTypeMap() as $type) {
@@ -47,6 +46,7 @@ class QueryGenerator
     public function buildQuery(): string
     {
         $queryType = $this->schema->getQueryType();
+        assert($queryType instanceof ObjectType);
 
         $ast = new DocumentNode([
             'definitions' => new NodeList([

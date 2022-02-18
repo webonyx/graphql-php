@@ -6,7 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * Lone anonymous operation.
@@ -16,7 +16,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class LoneAnonymousOperation extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $operationCount = 0;
 

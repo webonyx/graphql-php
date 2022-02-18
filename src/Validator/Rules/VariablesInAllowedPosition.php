@@ -14,7 +14,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class VariablesInAllowedPosition extends ValidationRule
 {
@@ -25,7 +25,7 @@ class VariablesInAllowedPosition extends ValidationRule
      */
     protected array $varDefMap;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::OPERATION_DEFINITION => [
@@ -42,7 +42,7 @@ class VariablesInAllowedPosition extends ValidationRule
                         $varName = $node->name->value;
                         $varDef = $this->varDefMap[$varName] ?? null;
 
-                        if ($varDef === null || $type === null) {
+                        if (null === $varDef || null === $type) {
                             continue;
                         }
 
@@ -54,7 +54,7 @@ class VariablesInAllowedPosition extends ValidationRule
                         $schema = $context->getSchema();
                         $varType = TypeInfo::typeFromAST($schema, $varDef->type);
 
-                        if ($varType !== null && ! $this->allowedVariableUsage($schema, $varType, $varDef->defaultValue, $type, $defaultValue)) {
+                        if (null !== $varType && ! $this->allowedVariableUsage($schema, $varType, $varDef->defaultValue, $type, $defaultValue)) {
                             $context->reportError(new Error(
                                 static::badVarPosMessage($varName, $varType->toString(), $type->toString()),
                                 [$varDef, $node]
@@ -91,8 +91,8 @@ class VariablesInAllowedPosition extends ValidationRule
     protected function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
     {
         if ($locationType instanceof NonNull && ! $varType instanceof NonNull) {
-            $hasNonNullVariableDefaultValue = $varDefaultValue !== null && ! $varDefaultValue instanceof NullValueNode;
-            $hasLocationDefaultValue = ! Utils::isInvalid($locationDefaultValue);
+            $hasNonNullVariableDefaultValue = null !== $varDefaultValue && ! $varDefaultValue instanceof NullValueNode;
+            $hasLocationDefaultValue = ! (Utils::undefined() === $locationDefaultValue);
             if (! $hasNonNullVariableDefaultValue && ! $hasLocationDefaultValue) {
                 return false;
             }

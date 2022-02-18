@@ -89,7 +89,7 @@ class StarWarsSchema
         /** @var ObjectType $humanType */
         $humanType = null;
 
-        /** @var ObjectType $humanType */
+        /** @var ObjectType $droidType */
         $droidType = null;
 
         /**
@@ -107,6 +107,8 @@ class StarWarsSchema
             'name' => 'Character',
             'description' => 'A character in the Star Wars Trilogy',
             'fields' => static function () use (&$characterInterface, $episodeEnum): array {
+                assert($characterInterface instanceof InterfaceType);
+
                 return [
                     'id' => [
                         'type' => Type::nonNull(Type::string()),

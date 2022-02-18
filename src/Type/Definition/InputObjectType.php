@@ -48,10 +48,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     public function __construct(array $config)
     {
-        $config['name'] ??= $this->tryInferName();
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
-
-        $this->name = $config['name'];
+        $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
@@ -66,7 +63,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         $field = $this->findField($name);
 
-        Utils::invariant($field !== null, 'Field "%s" is not defined for type "%s"', $name, $this->name);
+        if (null === $field) {
+            throw new InvariantViolation("Field \"{$name}\" is not defined for type \"{$this->name}\"");
+        }
 
         return $field;
     }

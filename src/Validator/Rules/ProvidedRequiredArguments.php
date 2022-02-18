@@ -7,11 +7,11 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class ProvidedRequiredArguments extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $providedRequiredArgumentsOnDirectives = new ProvidedRequiredArgumentsOnDirectives();
 

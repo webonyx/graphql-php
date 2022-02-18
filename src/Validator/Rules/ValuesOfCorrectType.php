@@ -26,7 +26,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 use Throwable;
 
 /**
@@ -37,7 +37,7 @@ use Throwable;
  */
 class ValuesOfCorrectType extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::NULL => static function (NullValueNode $node) use ($context): void {
@@ -145,7 +145,7 @@ class ValuesOfCorrectType extends ValidationRule
     /**
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
      */
-    protected function isValidValueNode(ValidationContext $context, ValueNode $node): void
+    protected function isValidValueNode(QueryValidationContext $context, ValueNode $node): void
     {
         // Report any error at the full type expected by the location.
         $locationType = $context->getInputType();

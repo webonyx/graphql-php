@@ -5,7 +5,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class DisableIntrospection extends QuerySecurityRule
 {
@@ -23,7 +23,7 @@ class DisableIntrospection extends QuerySecurityRule
         $this->isEnabled = $enabled;
     }
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return $this->invokeIfNeeded(
             $context,

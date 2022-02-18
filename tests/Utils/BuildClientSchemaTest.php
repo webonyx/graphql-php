@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Utils;
 use function array_filter;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
@@ -25,6 +26,7 @@ class BuildClientSchemaTest extends TestCase
 
         $serverSchema = BuildSchema::build($sdl);
         $initialIntrospection = Introspection::fromSchema($serverSchema, $options);
+
         $clientSchema = BuildClientSchema::build($initialIntrospection);
         $secondIntrospection = Introspection::fromSchema($clientSchema, $options);
 
@@ -405,9 +407,10 @@ SDL;
         ]);
 
         $introspection = Introspection::fromSchema($schema);
-        $clientSchema = BuildClientSchema::build($introspection);
 
+        $clientSchema = BuildClientSchema::build($introspection);
         $introspectionFromClientSchema = Introspection::fromSchema($clientSchema);
+
         self::assertSame($introspection, $introspectionFromClientSchema);
 
         $clientFoodEnum = $clientSchema->getType('Food');
@@ -416,6 +419,7 @@ SDL;
         self::assertCount(3, $clientFoodEnum->getValues());
 
         $vegetables = $clientFoodEnum->getValue('VEGETABLES');
+        self::assertInstanceOf(EnumValueDefinition::class, $vegetables);
 
         // Client types do not get server-only values, so `value` mirrors `name`,
         // rather than using the integers defined in the "server" schema.
@@ -426,9 +430,11 @@ SDL;
         self::assertNull($vegetables->astNode);
 
         $fruits = $clientFoodEnum->getValue('FRUITS');
+        self::assertInstanceOf(EnumValueDefinition::class, $fruits);
         self::assertNull($fruits->description);
 
         $oils = $clientFoodEnum->getValue('OILS');
+        self::assertInstanceOf(EnumValueDefinition::class, $oils);
         self::assertTrue($oils->isDeprecated());
         self::assertSame('Too fatty', $oils->deprecationReason);
     }

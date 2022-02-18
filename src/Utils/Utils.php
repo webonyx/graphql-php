@@ -49,16 +49,6 @@ class Utils
     }
 
     /**
-     * Check if the value is invalid.
-     *
-     * @param mixed $value
-     */
-    public static function isInvalid($value): bool
-    {
-        return self::undefined() === $value;
-    }
-
-    /**
      * @param array<string, mixed> $vars
      */
     public static function assign(object $obj, array $vars): object
@@ -112,20 +102,6 @@ class Utils
         }
 
         return true;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     */
-    public static function some($iterable, callable $predicate): bool
-    {
-        foreach ($iterable as $key => $value) {
-            if ($predicate($value, $key)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

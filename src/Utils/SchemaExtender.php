@@ -7,6 +7,7 @@ use function array_map;
 use function array_merge;
 use function count;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
@@ -448,11 +449,11 @@ class SchemaExtender
     {
         return $type instanceof NamedType
             && (
-                $type->name === Type::STRING
-                || $type->name === Type::INT
-                || $type->name === Type::FLOAT
-                || $type->name === Type::BOOLEAN
-                || $type->name === Type::ID
+                Type::STRING === $type->name
+                || Type::INT === $type->name
+                || Type::FLOAT === $type->name
+                || Type::BOOLEAN === $type->name
+                || Type::ID === $type->name
             );
     }
 
@@ -499,7 +500,7 @@ class SchemaExtender
      */
     protected static function extendMaybeNamedType(?Type $type = null): ?Type
     {
-        if ($type !== null) {
+        if (null !== $type) {
             return static::extendNamedType($type);
         }
 
@@ -518,7 +519,9 @@ class SchemaExtender
             $schema->getDirectives()
         );
 
-        Utils::invariant(count($directives) > 0, 'schema must have default directives');
+        if (0 === count($directives)) {
+            throw new InvariantViolation('Schema must have default directives.');
+        }
 
         foreach ($directiveDefinitions as $directive) {
             $directives[] = static::$astBuilder->buildDirective($directive);
@@ -576,21 +579,19 @@ class SchemaExtender
             } elseif ($def instanceof SchemaTypeExtensionNode) {
                 $schemaExtensions[] = $def;
             } elseif ($def instanceof TypeDefinitionNode) {
-                $typeName = isset($def->name)
-                    ? $def->name->value
-                    : null;
+                $typeName = $def->name->value;
 
                 $type = $schema->getType($typeName);
 
-                if ($type !== null) {
-                    throw new Error('Type "' . $typeName . '" already exists in the schema. It cannot also be defined in this type definition.', [$def]);
+                if (null !== $type) {
+                    throw new Error("Type \"{$typeName}\" already exists in the schema. It cannot also be defined in this type definition.", [$def]);
                 }
 
                 $typeDefinitionMap[$typeName] = $def;
             } elseif ($def instanceof TypeExtensionNode) {
                 $extendedTypeName = $def->name->value;
                 $existingType = $schema->getType($extendedTypeName);
-                if ($existingType === null) {
+                if (null === $existingType) {
                     throw new Error('Cannot extend type "' . $extendedTypeName . '" because it does not exist in the existing schema.', [$def]);
                 }
 
@@ -599,7 +600,7 @@ class SchemaExtender
             } elseif ($def instanceof DirectiveDefinitionNode) {
                 $directiveName = $def->name->value;
                 $existingDirective = $schema->getDirective($directiveName);
-                if ($existingDirective !== null) {
+                if (null !== $existingDirective) {
                     throw new Error('Directive "' . $directiveName . '" already exists in the schema. It cannot be redefined.', [$def]);
                 }
 
@@ -608,11 +609,11 @@ class SchemaExtender
         }
 
         if (
-            count(static::$typeExtensionsMap) === 0
-            && count($typeDefinitionMap) === 0
-            && count($directiveDefinitions) === 0
-            && count($schemaExtensions) === 0
-            && $schemaDef === null
+            0 === count(static::$typeExtensionsMap)
+            && 0 === count($typeDefinitionMap)
+            && 0 === count($directiveDefinitions)
+            && 0 === count($schemaExtensions)
+            && null === $schemaDef
         ) {
             return $schema;
         }
@@ -621,7 +622,7 @@ class SchemaExtender
             $typeDefinitionMap,
             static function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
-                if ($existingType !== null) {
+                if (null !== $existingType) {
                     return static::extendNamedType($existingType);
                 }
 
@@ -638,7 +639,7 @@ class SchemaExtender
             'subscription' => static::extendMaybeNamedType($schema->getSubscriptionType()),
         ];
 
-        if ($schemaDef !== null) {
+        if (null !== $schemaDef) {
             foreach ($schemaDef->operationTypes as $operationType) {
                 $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
             }

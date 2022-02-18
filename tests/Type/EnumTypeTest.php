@@ -10,6 +10,7 @@ use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\Type\TestClasses\OtherEnumType;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
@@ -538,6 +539,7 @@ class EnumTypeTest extends TestCase
     public function testPresentsGetValueAPIForComplexEnums(): void
     {
         $oneValue = $this->ComplexEnum->getValue('ONE');
+        self::assertInstanceOf(EnumValueDefinition::class, $oneValue);
         self::assertEquals('ONE', $oneValue->name);
         self::assertEquals($this->Complex1, $oneValue->value);
     }

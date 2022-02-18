@@ -21,7 +21,7 @@ class LexerTest extends TestCase
     /**
      * @see it('disallows uncommon control characters')
      */
-    public function testDissallowsUncommonControlCharacters(): void
+    public function testDisallowsUncommonControlCharacters(): void
     {
         $this->expectSyntaxError(
             Utils::chr(0x0007),
@@ -434,6 +434,7 @@ class LexerTest extends TestCase
             ['"null-byte is not \u0000 end of file"', 'Invalid character within String: "\\u0000"', $this->loc(1, 19)],
             ['"multi' . "\n" . 'line"', 'Unterminated string.', $this->loc(1, 7)],
             ['"multi' . "\r" . 'line"', 'Unterminated string.', $this->loc(1, 7)],
+            ['"bad esc \\', 'Unterminated string.', $this->loc(1, 11)],
             ['"bad \\z esc"', 'Invalid character escape sequence: \\z', $this->loc(1, 7)],
             ['"bad \\x esc"', 'Invalid character escape sequence: \\x', $this->loc(1, 7)],
             ['"bad \\u1 esc"', 'Invalid character escape sequence: \\u1 es', $this->loc(1, 7)],

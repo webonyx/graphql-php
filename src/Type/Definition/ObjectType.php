@@ -9,7 +9,6 @@ use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
 use function is_callable;
-use function is_string;
 
 /**
  * Object Type Definition.
@@ -88,10 +87,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      */
     public function __construct(array $config)
     {
-        $config['name'] ??= $this->tryInferName();
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
-
-        $this->name = $config['name'];
+        $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? null;
         $this->resolveFieldFn = $config['resolveField'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
@@ -104,15 +100,13 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      * @param mixed $type
      *
      * @throws InvariantViolation
-     *
-     * @return $this
      */
     public static function assertObjectType($type): self
     {
-        Utils::invariant(
-            $type instanceof self,
-            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL Object type.'
-        );
+        if (! ($type instanceof self)) {
+            $notObjectType = Utils::printSafe($type);
+            throw new InvariantViolation("Expected {$notObjectType} to be a GraphQL Object type.");
+        }
 
         return $type;
     }

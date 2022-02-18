@@ -10,7 +10,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class QueryDepth extends QuerySecurityRule
 {
@@ -21,7 +21,7 @@ class QueryDepth extends QuerySecurityRule
         $this->setMaxQueryDepth($maxQueryDepth);
     }
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return $this->invokeIfNeeded(
             $context,

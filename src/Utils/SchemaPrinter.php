@@ -9,6 +9,8 @@ use function array_values;
 use function count;
 use function explode;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Argument;
@@ -287,9 +289,17 @@ class SchemaPrinter
      */
     protected static function printInputValue($arg): string
     {
-        $argDecl = $arg->name . ': ' . $arg->getType()->toString();
+        $argDecl = "{$arg->name}: {$arg->getType()->toString()}";
+
         if ($arg->defaultValueExists()) {
-            $argDecl .= ' = ' . Printer::doPrint(AST::astFromValue($arg->defaultValue, $arg->getType()));
+            $defaultValueAST = AST::astFromValue($arg->defaultValue, $arg->getType());
+
+            if (null === $defaultValueAST) {
+                $inconvertibleDefaultValue = Utils::printSafe($arg->defaultValue);
+                throw new InvariantViolation("Unable to convert defaultValue of argument {$arg->name} into AST: {$inconvertibleDefaultValue}.");
+            }
+
+            $argDecl .= ' = ' . Printer::doPrint($defaultValueAST);
         }
 
         return $argDecl;
@@ -301,7 +311,8 @@ class SchemaPrinter
      */
     protected static function printScalar(ScalarType $type, array $options): string
     {
-        return sprintf('%sscalar %s', static::printDescription($options, $type), $type->name);
+        return static::printDescription($options, $type)
+            . "scalar {$type->name}";
     }
 
     /**
@@ -311,7 +322,7 @@ class SchemaPrinter
     protected static function printObject(ObjectType $type, array $options): string
     {
         return static::printDescription($options, $type)
-            . sprintf('type %s', $type->name)
+            . "type {$type->name}"
             . self::printImplementedInterfaces($type)
             . static::printFields($options, $type);
     }
@@ -355,8 +366,12 @@ class SchemaPrinter
             return ' @deprecated';
         }
 
-        return ' @deprecated(reason: '
-            . Printer::doPrint(AST::astFromValue($reason, Type::string())) . ')';
+        $reasonAST = AST::astFromValue($reason, Type::string());
+        assert($reasonAST instanceof StringValueNode);
+
+        $reasonASTString = Printer::doPrint($reasonAST);
+
+        return " @deprecated(reason: {$reasonASTString})";
     }
 
     protected static function printImplementedInterfaces(ImplementingType $type): string

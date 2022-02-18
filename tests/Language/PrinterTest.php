@@ -7,12 +7,12 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
-use PHPUnit\Framework\TestCase;
 use function Safe\file_get_contents;
 
-class PrinterTest extends TestCase
+class PrinterTest extends TestCaseBase
 {
     /**
      * @see it('does not alter ast')
@@ -225,7 +225,7 @@ EOT;
 
     public function testPrintPrimitives(): void
     {
-        self::assertSame('3', Printer::doPrint(AST::astFromValue(3, Type::int())));
-        self::assertSame('3.14', Printer::doPrint(AST::astFromValue(3.14, Type::float())));
+        self::assertASTMatches('3', AST::astFromValue(3, Type::int()));
+        self::assertASTMatches('3.14', AST::astFromValue(3.14, Type::float()));
     }
 }
