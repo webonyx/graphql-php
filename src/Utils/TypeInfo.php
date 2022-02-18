@@ -34,7 +34,6 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
@@ -45,7 +44,7 @@ class TypeInfo
 {
     private Schema $schema;
 
-    /** @var array<int, (OutputType&Type)|null> */
+    /** @var array<int, Type|null> */
     private array $typeStack = [];
 
     /** @var array<int, (CompositeType&Type)|null> */
@@ -54,7 +53,7 @@ class TypeInfo
     /** @var array<int, (InputType&Type)|null> */
     private array $inputTypeStack = [];
 
-    /** @var array<int, FieldDefinition> */
+    /** @var array<int, FieldDefinition|null> */
     private array $fieldDefStack = [];
 
     /** @var array<int, mixed> */
@@ -100,11 +99,9 @@ class TypeInfo
         $name = $type->name;
 
         if (isset($typeMap[$name])) {
-            Utils::invariant(
-                $typeMap[$name] === $type,
-                'Schema must contain unique named types but contains multiple types named "' . $type . '" '
-                . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
-            );
+            if ($typeMap[$name] !== $type) {
+                throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
+            }
 
             return;
         }
@@ -193,18 +190,17 @@ class TypeInfo
 
             case $node instanceof FieldNode:
                 $parentType = $this->getParentType();
-                $fieldDef = null;
-                if (null !== $parentType) {
-                    $fieldDef = self::getFieldDefinition($schema, $parentType, $node);
-                }
 
-                $fieldType = null;
-                if (null !== $fieldDef) {
-                    $fieldType = $fieldDef->getType();
-                }
+                $fieldDef = null === $parentType
+                    ? null
+                    : self::getFieldDefinition($schema, $parentType, $node);
+
+                $fieldType = null === $fieldDef
+                    ? null
+                    : $fieldDef->getType();
 
                 $this->fieldDefStack[] = $fieldDef;
-                $this->typeStack[] = Type::isOutputType($fieldType) ? $fieldType : null;
+                $this->typeStack[] = $fieldType;
                 break;
 
             case $node instanceof DirectiveNode:
@@ -230,10 +226,7 @@ class TypeInfo
                 $typeConditionNode = $node->typeCondition;
                 $outputType = null === $typeConditionNode
                     ? Type::getNamedType($this->getType())
-                    : self::typeFromAST(
-                        $schema,
-                        $typeConditionNode
-                    );
+                    : self::typeFromAST($schema, $typeConditionNode);
                 $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null;
                 break;
 
@@ -297,20 +290,15 @@ class TypeInfo
 
             case $node instanceof EnumValueNode:
                 $enumType = Type::getNamedType($this->getInputType());
-                $enumValue = null;
-                if ($enumType instanceof EnumType) {
-                    $this->enumValue = $enumType->getValue($node->value);
-                }
 
-                $this->enumValue = $enumValue;
+                $this->enumValue = $enumType instanceof EnumType
+                    ? $enumType->getValue($node->value)
+                    : null;
                 break;
         }
     }
 
-    /**
-     * @return (Type & OutputType) | null
-     */
-    public function getType(): ?OutputType
+    public function getType(): ?Type
     {
         return $this->typeStack[count($this->typeStack) - 1] ?? null;
     }

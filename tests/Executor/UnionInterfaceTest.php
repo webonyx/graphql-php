@@ -42,6 +42,8 @@ class UnionInterfaceTest extends TestCase
         $LifeType = new InterfaceType([
             'name' => 'Life',
             'fields' => static function () use (&$LifeType): array {
+                assert($LifeType instanceof InterfaceType);
+
                 return [
                     'progeny' => ['type' => Type::listOf($LifeType)],
                 ];
@@ -52,6 +54,8 @@ class UnionInterfaceTest extends TestCase
             'name' => 'Mammal',
             'interfaces' => [$LifeType],
             'fields' => static function () use (&$MammalType): array {
+                assert($MammalType instanceof InterfaceType);
+
                 return [
                     'progeny' => ['type' => Type::listOf($MammalType)],
                     'mother' => ['type' => &$MammalType],
@@ -64,6 +68,8 @@ class UnionInterfaceTest extends TestCase
             'name' => 'Dog',
             'interfaces' => [$MammalType, $LifeType, $NamedType],
             'fields' => static function () use (&$DogType): array {
+                assert($DogType instanceof ObjectType);
+
                 return [
                     'name' => ['type' => Type::string()],
                     'woofs' => ['type' => Type::boolean()],
@@ -81,6 +87,8 @@ class UnionInterfaceTest extends TestCase
             'name' => 'Cat',
             'interfaces' => [$MammalType, $LifeType, $NamedType],
             'fields' => static function () use (&$CatType): array {
+                assert($CatType instanceof ObjectType);
+
                 return [
                     'name' => ['type' => Type::string()],
                     'meows' => ['type' => Type::boolean()],
@@ -114,6 +122,8 @@ class UnionInterfaceTest extends TestCase
             'name' => 'Person',
             'interfaces' => [$NamedType, $MammalType, $LifeType],
             'fields' => static function () use (&$PetType, &$NamedType, &$PersonType): array {
+                assert($PersonType instanceof ObjectType);
+
                 return [
                     'name' => ['type' => Type::string()],
                     'pets' => ['type' => Type::listOf($PetType)],

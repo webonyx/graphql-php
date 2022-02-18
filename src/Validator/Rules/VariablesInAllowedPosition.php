@@ -14,7 +14,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class VariablesInAllowedPosition extends ValidationRule
 {
@@ -25,7 +25,7 @@ class VariablesInAllowedPosition extends ValidationRule
      */
     protected array $varDefMap;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::OPERATION_DEFINITION => [
@@ -92,7 +92,7 @@ class VariablesInAllowedPosition extends ValidationRule
     {
         if ($locationType instanceof NonNull && ! $varType instanceof NonNull) {
             $hasNonNullVariableDefaultValue = null !== $varDefaultValue && ! $varDefaultValue instanceof NullValueNode;
-            $hasLocationDefaultValue = ! Utils::isInvalid($locationDefaultValue);
+            $hasLocationDefaultValue = ! (Utils::undefined() === $locationDefaultValue);
             if (! $hasNonNullVariableDefaultValue && ! $hasLocationDefaultValue) {
                 return false;
             }

@@ -20,7 +20,7 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 use function implode;
 
 /**
@@ -39,14 +39,14 @@ class QueryComplexity extends QuerySecurityRule
     /** @phpstan-var ASTAndDefs */
     protected ArrayObject $fieldNodeAndDefs;
 
-    protected ValidationContext $context;
+    protected QueryValidationContext $context;
 
     public function __construct(int $maxQueryComplexity)
     {
         $this->setMaxQueryComplexity($maxQueryComplexity);
     }
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $this->context = $context;
 
@@ -236,7 +236,7 @@ class QueryComplexity extends QuerySecurityRule
                 $rawVariableValues
             );
 
-            if (count($errors ?? []) > 0) {
+            if (is_array($errors) && count($errors) > 0) {
                 throw new Error(implode(
                     "\n\n",
                     array_map(

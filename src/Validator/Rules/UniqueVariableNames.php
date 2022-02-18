@@ -6,14 +6,14 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\VariableDefinitionNode;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class UniqueVariableNames extends ValidationRule
 {
     /** @var array<string, NameNode> */
     protected array $knownVariableNames;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $this->knownVariableNames = [];
 

@@ -42,9 +42,7 @@ $type = new ObjectType([
                     'defaultValue' => 10
                 ]
             ],
-            'complexity' => function($childrenComplexity, $args) {
-                return $childrenComplexity * $args['limit'];
-            }
+            'complexity' => fn (int $childrenComplexity, array $args): int => $childrenComplexity * $args['limit'],
         ]
     ]
 ]);

@@ -175,7 +175,11 @@ function unwrapDocblock(string $docBlock): string
     }
 
     $content = preg_replace('~([\r\n]) \* (.*)~i', '$1$2', $docBlock); // strip *
+    assert(is_string($content), 'regex is statically known to be valid');
+
     $content = preg_replace('~([\r\n])[\* ]+([\r\n])~i', '$1$2', $content); // strip single-liner *
+    assert(is_string($content), 'regex is statically known to be valid');
+
     $content = substr($content, 3); // strip leading /**
     $content = substr($content, 0, -2); // strip trailing */
 
