@@ -43,7 +43,7 @@ abstract class Node implements JsonSerializable
      */
     public function __construct(array $vars)
     {
-        if (0 === count($vars)) {
+        if (count($vars) === 0) {
             return;
         }
 
@@ -119,7 +119,7 @@ abstract class Node implements JsonSerializable
         $result = [];
 
         foreach (get_object_vars($node) as $prop => $propValue) {
-            if (null === $propValue) {
+            if ($propValue === null) {
                 continue;
             }
 

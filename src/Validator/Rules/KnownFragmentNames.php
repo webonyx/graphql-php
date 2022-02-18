@@ -5,17 +5,17 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class KnownFragmentNames extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::FRAGMENT_SPREAD => static function (FragmentSpreadNode $node) use ($context): void {
                 $fragmentName = $node->name->value;
                 $fragment = $context->getFragment($fragmentName);
-                if (null !== $fragment) {
+                if ($fragment !== null) {
                     return;
                 }
 

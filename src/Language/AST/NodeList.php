@@ -90,7 +90,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
         }
 
         // Happens when a Node is pushed via []=
-        if (null === $offset) {
+        if ($offset === null) {
             $this->nodes[] = $value;
 
             return;

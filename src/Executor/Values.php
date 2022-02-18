@@ -68,11 +68,11 @@ class Values
                     ? $rawVariableValues[$varName]
                     : Utils::undefined();
 
-                if (! $hasValue && (null !== $varDefNode->defaultValue)) {
+                if (! $hasValue && ($varDefNode->defaultValue !== null)) {
                     // If no value was provided to a variable with a default value,
                     // use the default value.
                     $coercedValues[$varName] = AST::valueFromAST($varDefNode->defaultValue, $varType);
-                } elseif ((! $hasValue || null === $value) && ($varType instanceof NonNull)) {
+                } elseif ((! $hasValue || $value === null) && ($varType instanceof NonNull)) {
                     // If no value or a nullish value was provided to a variable with a
                     // non-null type (required), produce an error.
                     $errors[] = new Error(
@@ -86,7 +86,7 @@ class Values
                         [$varDefNode]
                     );
                 } elseif ($hasValue) {
-                    if (null === $value) {
+                    if ($value === null) {
                         // If the explicit value `null` was provided, an entry in the coerced
                         // values must exist as the value `null`.
                         $coercedValues[$varName] = null;
@@ -96,7 +96,7 @@ class Values
                         $coerced = Value::coerceValue($value, $varType, $varDefNode);
 
                         $coercionErrors = $coerced['errors'];
-                        if (null !== $coercionErrors) {
+                        if ($coercionErrors !== null) {
                             foreach ($coercionErrors as $error) {
                                 $invalidValue = Utils::printSafeJson($value);
 
@@ -146,7 +146,7 @@ class Values
             }
         );
 
-        if (null !== $directiveNode) {
+        if ($directiveNode !== null) {
             return self::getArgumentValues($directiveDef, $directiveNode, $variableValues);
         }
 
@@ -167,7 +167,7 @@ class Values
      */
     public static function getArgumentValues($def, Node $node, ?array $variableValues = null): array
     {
-        if (0 === count($def->args)) {
+        if (count($def->args) === 0) {
             return [];
         }
 
@@ -202,12 +202,10 @@ class Values
 
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
-                $hasValue = null !== $variableValues && array_key_exists($variableName, $variableValues);
-                $isNull = $hasValue
-                    ? null === $variableValues[$variableName]
-                    : false;
+                $hasValue = $variableValues !== null && array_key_exists($variableName, $variableValues);
+                $isNull = $hasValue && $variableValues[$variableName] === null;
             } else {
-                $hasValue = null !== $argumentValueNode;
+                $hasValue = $argumentValueNode !== null;
                 $isNull = $argumentValueNode instanceof NullValueNode;
             }
 
@@ -243,20 +241,21 @@ class Values
                     $referenceNode
                 );
             } elseif ($hasValue) {
+                assert($argumentValueNode instanceof Node);
+
                 if ($argumentValueNode instanceof NullValueNode) {
                     // If the explicit value `null` was provided, an entry in the coerced
                     // values must exist as the value `null`.
                     $coercedValues[$name] = null;
                 } elseif ($argumentValueNode instanceof VariableNode) {
                     $variableName = $argumentValueNode->name->value;
-                    Utils::invariant(null !== $variableValues, 'Must exist for hasValue to be true.');
                     // Note: This does no further checking that this variable is correct.
                     // This assumes that this query has been validated and the variable
                     // usage here is of the correct type.
                     $coercedValues[$name] = $variableValues[$variableName] ?? null;
                 } else {
                     $coercedValue = AST::valueFromAST($argumentValueNode, $argType, $variableValues);
-                    if (Utils::isInvalid($coercedValue)) {
+                    if (Utils::undefined() === $coercedValue) {
                         // Note: ValuesOfCorrectType validation should catch this before
                         // execution. This is a runtime check to ensure execution does not
                         // continue with an invalid argument value.

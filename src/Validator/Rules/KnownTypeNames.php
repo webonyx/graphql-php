@@ -10,7 +10,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * Known type names.
@@ -20,7 +20,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownTypeNames extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $skip = static function (): VisitorOperation {
             return Visitor::skipNode();
@@ -38,7 +38,7 @@ class KnownTypeNames extends ValidationRule
                 $schema = $context->getSchema();
                 $typeName = $node->name->value;
                 $type = $schema->getType($typeName);
-                if (null !== $type) {
+                if ($type !== null) {
                     return;
                 }
 

@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Language;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
@@ -15,6 +16,7 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Language\Token;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Utils\Utils;
 use function is_array;
@@ -249,7 +251,7 @@ HEREDOC;
         ];
         foreach ($nonKeywords as $keyword) {
             $fragmentName = $keyword;
-            if ('on' === $keyword) {
+            if ($keyword === 'on') {
                 $fragmentName = 'a';
             }
 
@@ -536,7 +538,10 @@ GRAPHQL
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
-        self::assertEquals(['start' => 0, 'end' => '6'], $result->loc->toArray());
+        $location = $result->loc;
+
+        self::assertInstanceOf(Location::class, $location);
+        self::assertEquals(['start' => 0, 'end' => '6'], $location->toArray());
     }
 
     /**
@@ -546,7 +551,10 @@ GRAPHQL
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
-        self::assertEquals($source, $result->loc->source);
+        $location = $result->loc;
+
+        self::assertInstanceOf(Location::class, $location);
+        self::assertEquals($source, $location->source);
     }
 
     // Describe: parseType
@@ -558,8 +566,17 @@ GRAPHQL
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
-        self::assertEquals('<SOF>', $result->loc->startToken->kind);
-        self::assertEquals('<EOF>', $result->loc->endToken->kind);
+
+        $location = $result->loc;
+        self::assertInstanceOf(Location::class, $location);
+
+        $startToken = $location->startToken;
+        self::assertInstanceOf(Token::class, $startToken);
+        self::assertEquals('<SOF>', $startToken->kind);
+
+        $endToken = $location->endToken;
+        self::assertInstanceOf(Token::class, $endToken);
+        self::assertEquals('<EOF>', $endToken->kind);
     }
 
     /**

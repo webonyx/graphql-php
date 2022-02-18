@@ -104,8 +104,8 @@ class SyncPromiseAdapterTest extends TestCase
 
         SyncPromise::runQueue();
 
-        if (SyncPromise::PENDING !== $expectedNextState) {
-            if (null === $expectedNextReason) {
+        if ($expectedNextState !== SyncPromise::PENDING) {
+            if ($expectedNextReason === null) {
                 self::assertTrue($onFulfilledCalled);
                 self::assertFalse($onRejectedCalled);
             } else {

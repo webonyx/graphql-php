@@ -97,17 +97,17 @@ class Schema
         // No need to check for the existence of the root query type
         // since we already validated the schema thus it must exist.
         $query = $config->query;
-        if (null !== $query) {
+        if ($query !== null) {
             $this->resolvedTypes[$query->name] = $query;
         }
 
         $mutation = $config->mutation;
-        if (null !== $mutation) {
+        if ($mutation !== null) {
             $this->resolvedTypes[$mutation->name] = $mutation;
         }
 
         $subscription = $config->subscription;
-        if (null !== $subscription) {
+        if ($subscription !== null) {
             $this->resolvedTypes[$subscription->name] = $subscription;
         }
 
@@ -116,10 +116,9 @@ class Schema
             foreach ($this->resolveAdditionalTypes() as $type) {
                 $typeName = $type->name;
                 if (isset($this->resolvedTypes[$typeName])) {
-                    Utils::invariant(
-                        $type === $this->resolvedTypes[$typeName],
-                        'Schema must contain unique named types but contains multiple types named "' . $type . '" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
-                    );
+                    if ($type !== $this->resolvedTypes[$typeName]) {
+                        throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
+                    }
                 }
 
                 $this->resolvedTypes[$typeName] = $type;
@@ -307,7 +306,7 @@ class Schema
             $type = Type::getStandardTypes()[$name]
                 ?? $this->loadType($name);
 
-            if (null === $type) {
+            if ($type === null) {
                 return null;
             }
 
@@ -319,7 +318,7 @@ class Schema
 
     public function hasType(string $name): bool
     {
-        return null !== $this->getType($name);
+        return $this->getType($name) !== null;
     }
 
     /**
@@ -329,13 +328,13 @@ class Schema
     {
         $typeLoader = $this->config->typeLoader;
 
-        if (null === $typeLoader) {
+        if ($typeLoader === null) {
             return $this->defaultTypeLoader($typeName);
         }
 
         $type = $typeLoader($typeName);
 
-        if (null === $type) {
+        if ($type === null) {
             return null;
         }
 
@@ -515,7 +514,7 @@ class Schema
     {
         $errors = $this->validate();
 
-        if ([] !== $errors) {
+        if ($errors !== []) {
             throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
@@ -529,10 +528,9 @@ class Schema
 
             // Make sure type loader returns the same instance as registered in other places of schema
             if (isset($this->config->typeLoader)) {
-                Utils::invariant(
-                    $this->loadType($name) === $type,
-                    "Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name."
-                );
+                if ($this->loadType($name) !== $type) {
+                    throw new InvariantViolation("Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name.");
+                }
             }
         }
     }

@@ -70,7 +70,7 @@ class SchemaGenerator
         }
 
         ++$this->typeIndex;
-        if (null === $typeName) {
+        if ($typeName === null) {
             $typeName = 'Level_' . $nestingLevel . '_Type' . $this->typeIndex;
         }
 

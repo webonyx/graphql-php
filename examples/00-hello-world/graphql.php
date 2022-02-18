@@ -56,7 +56,7 @@ try {
     ]);
 
     $rawInput = file_get_contents('php://input');
-    if (false === $rawInput) {
+    if ($rawInput === false) {
         throw new RuntimeException('Failed to get php://input');
     }
 

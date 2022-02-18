@@ -21,7 +21,7 @@ class UniqueOperationTypes extends ValidationRule
     {
         $schema = $context->getSchema();
         $definedOperationTypes = [];
-        $existingOperationTypes = null !== $schema
+        $existingOperationTypes = $schema !== null
             ? [
                 'query' => $schema->getQueryType(),
                 'mutation' => $schema->getMutationType(),
@@ -44,7 +44,7 @@ class UniqueOperationTypes extends ValidationRule
                             $operationType,
                         ),
                     );
-                } elseif (null !== $alreadyDefinedOperationType) {
+                } elseif ($alreadyDefinedOperationType !== null) {
                     $context->reportError(
                         new Error(
                             "There can be only one ${operation} type in schema.",

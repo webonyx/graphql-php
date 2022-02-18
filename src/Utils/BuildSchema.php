@@ -148,7 +148,7 @@ class BuildSchema
             }
         }
 
-        $operationTypes = null !== $schemaDef
+        $operationTypes = $schemaDef !== null
             ? $this->getOperationTypes($schemaDef)
             : [
                 'query' => 'Query',
@@ -236,6 +236,6 @@ class BuildSchema
 
     public static function unknownType(string $typeName): Error
     {
-        return new Error('Unknown type: "' . $typeName . '".');
+        return new Error("Unknown type: \"{$typeName}\".");
     }
 }

@@ -109,7 +109,7 @@ class OperationParams
         ];
 
         foreach ($params as &$value) {
-            if ('' === $value) {
+            if ($value === '') {
                 $value = null;
             }
         }
@@ -124,8 +124,8 @@ class OperationParams
         // Apollo server/client compatibility
         if (
             isset($instance->extensions['persistedQuery']['sha256Hash'])
-            && null === $instance->query
-            && null === $instance->queryId
+            && $instance->query === null
+            && $instance->queryId === null
         ) {
             $instance->queryId = $instance->extensions['persistedQuery']['sha256Hash'];
         }
@@ -147,7 +147,7 @@ class OperationParams
         }
 
         $decoded = json_decode($value, true);
-        if (JSON_ERROR_NONE === json_last_error()) {
+        if (json_last_error() === JSON_ERROR_NONE) {
             return $decoded;
         }
 

@@ -88,7 +88,7 @@ class CustomScalarType extends ScalarType
 
         $parseValue = $this->config['parseValue'] ?? null;
         $parseLiteral = $this->config['parseLiteral'] ?? null;
-        if (null === $parseValue && null === $parseLiteral) {
+        if ($parseValue === null && $parseLiteral === null) {
             return;
         }
 

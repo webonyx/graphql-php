@@ -115,7 +115,7 @@ class SyncPromiseTest extends TestCaseBase
             }
         );
 
-        if (null !== $onFulfilled) {
+        if ($onFulfilled !== null) {
             self::assertNotSame($promise, $nextPromise);
             self::assertEquals(SyncPromise::PENDING, $nextPromise->state);
         } else {
@@ -129,7 +129,7 @@ class SyncPromiseTest extends TestCaseBase
         $nextPromise2 = $promise->then($onFulfilled);
         $nextPromise3 = $promise->then($onFulfilled);
 
-        if (null !== $onFulfilled) {
+        if ($onFulfilled !== null) {
             self::assertNotSame($nextPromise, $nextPromise2);
         }
 
@@ -169,7 +169,7 @@ class SyncPromiseTest extends TestCaseBase
 
         SyncPromise::runQueue();
 
-        if (null === $expectedNextReason) {
+        if ($expectedNextReason === null) {
             self::assertTrue($onFulfilledCalled);
             self::assertFalse($onRejectedCalled);
         } else {
@@ -300,7 +300,7 @@ class SyncPromiseTest extends TestCaseBase
             $onRejected
         );
 
-        if (null !== $onRejected) {
+        if ($onRejected !== null) {
             self::assertNotSame($promise, $nextPromise);
             self::assertEquals(SyncPromise::PENDING, $nextPromise->state);
         } else {
@@ -313,7 +313,7 @@ class SyncPromiseTest extends TestCaseBase
         $nextPromise2 = $promise->then(null, $onRejected);
         $nextPromise3 = $promise->then(null, $onRejected);
 
-        if (null !== $onRejected) {
+        if ($onRejected !== null) {
             self::assertNotSame($nextPromise, $nextPromise2);
         }
 

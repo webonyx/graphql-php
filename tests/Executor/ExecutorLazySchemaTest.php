@@ -368,7 +368,7 @@ class ExecutorLazySchemaTest extends TestCase
     {
         $schema = new Schema([
             'query' => $this->loadType('Query'),
-            'typeLoader' => fn (string $name): Type => $this->loadType($name, true),
+            'typeLoader' => fn (string $name): ?Type => $this->loadType($name, true),
         ]);
 
         $query = '{ object { object { object { string } } } }';

@@ -154,7 +154,7 @@ class StarWarsData
      */
     public static function getHero(?int $episode): array
     {
-        if (5 === $episode) {
+        if ($episode === 5) {
             // Luke is the hero of Episode V.
             return self::luke();
         }

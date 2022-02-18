@@ -56,7 +56,7 @@ class BlockString
     {
         $strLength = mb_strlen($str);
         for ($i = 0; $i < $strLength; ++$i) {
-            if (' ' !== $str[$i] && '\t' !== $str[$i]) {
+            if ($str[$i] !== ' ' && $str[$i] !== '\t') {
                 return false;
             }
         }
@@ -75,7 +75,7 @@ class BlockString
         for ($i = 0; $i < $valueLength; ++$i) {
             switch (Utils::charCodeAt($value, $i)) {
                 case 13: //  \r
-                    if (10 === Utils::charCodeAt($value, $i + 1)) {
+                    if (Utils::charCodeAt($value, $i + 1) === 10) {
                         ++$i; // skip \r\n as one symbol
                     }
                 // falls through
@@ -93,7 +93,7 @@ class BlockString
                     if (
                         $isEmptyLine
                         && ! $isFirstLine
-                        && (null === $commonIndent || $indent < $commonIndent)
+                        && ($commonIndent === null || $indent < $commonIndent)
                     ) {
                         $commonIndent = $indent;
                     }
@@ -116,10 +116,10 @@ class BlockString
         bool $preferMultipleLines = false
     ): string {
         $valueLength = mb_strlen($value);
-        $isSingleLine = false === strpos($value, "\n");
-        $hasLeadingSpace = '' !== $value && (' ' === $value[0] || '\t' === $value[0]);
-        $hasTrailingQuote = '' !== $value && '"' === $value[$valueLength - 1];
-        $hasTrailingSlash = '' !== $value && '\\' === $value[$valueLength - 1];
+        $isSingleLine = strpos($value, "\n") === false;
+        $hasLeadingSpace = $value !== '' && ($value[0] === ' ' || $value[0] === '\t');
+        $hasTrailingQuote = $value !== '' && $value[$valueLength - 1] === '"';
+        $hasTrailingSlash = $value !== '' && $value[$valueLength - 1] === '\\';
         $printAsMultipleLines
             = ! $isSingleLine
             || $hasTrailingQuote
@@ -135,7 +135,7 @@ class BlockString
             $result .= "\n" . $indentation;
         }
 
-        $result .= '' !== $indentation
+        $result .= $indentation !== ''
             ? str_replace("\n", "\n" . $indentation, $value)
             : $value;
         if ($printAsMultipleLines) {
