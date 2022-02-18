@@ -5,7 +5,8 @@ namespace GraphQL\Language\AST;
 /**
  * export type DefinitionNode =
  *   | ExecutableDefinitionNode
- *   | TypeSystemDefinitionNode;.
+ *   | TypeSystemDefinitionNode
+ *   | TypeSystemExtensionNode;
  */
 interface DefinitionNode
 {

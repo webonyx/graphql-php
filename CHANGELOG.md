@@ -38,6 +38,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Use `JSON_THROW_ON_ERROR` in `json_encode()`
 - Validate some internal invariants through `assert()`
 - `PromiseAdapter::all()` accepts `iterable`
+- Reorganize AST interfaces related to schema and type extensions
 
 ### Added
 

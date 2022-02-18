@@ -2,6 +2,7 @@
 
 namespace GraphQL\Language;
 
+use GraphQL\Language\AST\TypeSystemExtensionNode;
 use function count;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
@@ -45,7 +46,7 @@ use GraphQL\Language\AST\OperationTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
@@ -161,7 +162,7 @@ use function sprintf;
  * @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, bool[] $options = [])
  * @method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
- * @method static SchemaTypeExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
+ * @method static SchemaExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
  * @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
  * @method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, bool[] $options = [])
  * @method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, bool[] $options = [])
@@ -508,10 +509,12 @@ class Parser
                 case 'union':
                 case 'enum':
                 case 'input':
-                case 'extend':
                 case 'directive':
                     // Note: The schema definition language is an experimental addition.
                     return $this->parseTypeSystemDefinition();
+
+                case 'extend':
+                    return $this->parseTypeSystemExtension();
             }
         } elseif ($this->peek(Token::BRACE_L)) {
             return $this->parseExecutableDefinition();
@@ -1055,9 +1058,6 @@ class Parser
                 case 'input':
                     return $this->parseInputObjectTypeDefinition();
 
-                case 'extend':
-                    return $this->parseTypeExtension();
-
                 case 'directive':
                     return $this->parseDirectiveDefinition();
             }
@@ -1404,9 +1404,9 @@ class Parser
     }
 
     /**
-     * @return TypeExtensionNode&Node
+     * @return TypeSystemExtensionNode&Node
      */
-    private function parseTypeExtension(): TypeExtensionNode
+    private function parseTypeSystemExtension(): TypeSystemExtensionNode
     {
         $keywordToken = $this->lexer->lookahead();
 
@@ -1438,7 +1438,7 @@ class Parser
         throw $this->unexpected($keywordToken);
     }
 
-    private function parseSchemaTypeExtension(): SchemaTypeExtensionNode
+    private function parseSchemaTypeExtension(): SchemaExtensionNode
     {
         $start = $this->lexer->token;
         $this->expectKeyword('extend');
@@ -1456,7 +1456,7 @@ class Parser
             $this->unexpected();
         }
 
-        return new SchemaTypeExtensionNode([
+        return new SchemaExtensionNode([
             'directives' => $directives,
             'operationTypes' => $operationTypes,
             'loc' => $this->loc($start),

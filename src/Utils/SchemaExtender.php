@@ -16,7 +16,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
@@ -567,13 +567,13 @@ class SchemaExtender
         /** @var SchemaDefinitionNode|null $schemaDef */
         $schemaDef = null;
 
-        /** @var array<int, SchemaTypeExtensionNode> $schemaExtensions */
+        /** @var array<int, SchemaExtensionNode> $schemaExtensions */
         $schemaExtensions = [];
 
         foreach ($documentAST->definitions as $def) {
             if ($def instanceof SchemaDefinitionNode) {
                 $schemaDef = $def;
-            } elseif ($def instanceof SchemaTypeExtensionNode) {
+            } elseif ($def instanceof SchemaExtensionNode) {
                 $schemaExtensions[] = $def;
             } elseif ($def instanceof TypeDefinitionNode) {
                 $typeName = isset($def->name)
