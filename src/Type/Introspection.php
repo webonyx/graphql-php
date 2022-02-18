@@ -331,8 +331,8 @@ EOD;
                             if (! ($args['includeDeprecated'] ?? false)) {
                                 $fields = array_filter(
                                     $fields,
-                                    static fn (FieldDefinition $field): bool => null === $field->deprecationReason
-                                        || '' === $field->deprecationReason
+                                    static fn (FieldDefinition $field): bool => $field->deprecationReason === null
+                                        || $field->deprecationReason === ''
                                 );
                             }
 
@@ -367,8 +367,8 @@ EOD;
                                 return array_filter(
                                     $values,
                                     static function (EnumValueDefinition $value): bool {
-                                        return null === $value->deprecationReason
-                                            || '' === $value->deprecationReason;
+                                        return $value->deprecationReason === null
+                                            || $value->deprecationReason === '';
                                     }
                                 );
                             }
@@ -464,8 +464,8 @@ EOD;
                 ],
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
-                    'resolve' => static fn (FieldDefinition $field): bool => null !== $field->deprecationReason
-                        && '' !== $field->deprecationReason,
+                    'resolve' => static fn (FieldDefinition $field): bool => $field->deprecationReason !== null
+                        && $field->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),
@@ -535,8 +535,8 @@ EOD;
                 ],
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
-                    'resolve' => static fn (EnumValueDefinition $enumValue): bool => null !== $enumValue->deprecationReason
-                        && '' !== $enumValue->deprecationReason,
+                    'resolve' => static fn (EnumValueDefinition $enumValue): bool => $enumValue->deprecationReason !== null
+                        && $enumValue->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),

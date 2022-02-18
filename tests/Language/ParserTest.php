@@ -249,7 +249,7 @@ HEREDOC;
         ];
         foreach ($nonKeywords as $keyword) {
             $fragmentName = $keyword;
-            if ('on' === $keyword) {
+            if ($keyword === 'on') {
                 $fragmentName = 'a';
             }
 

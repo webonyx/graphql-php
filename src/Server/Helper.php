@@ -68,28 +68,28 @@ class Helper
         $bodyParams = [];
         $urlParams = $_GET;
 
-        if ('POST' === $method) {
+        if ($method === 'POST') {
             $contentType = $_SERVER['CONTENT_TYPE'] ?? null;
 
-            if (null === $contentType) {
+            if ($contentType === null) {
                 throw new RequestError('Missing "Content-Type" header');
             }
 
-            if (false !== stripos($contentType, 'application/graphql')) {
-                $rawBody = null === $readRawBodyFn
+            if (stripos($contentType, 'application/graphql') !== false) {
+                $rawBody = $readRawBodyFn === null
                     ? $this->readRawBody()
                     : $readRawBodyFn();
                 $bodyParams = ['query' => $rawBody];
-            } elseif (false !== stripos($contentType, 'application/json')) {
-                $rawBody = null === $readRawBodyFn
+            } elseif (stripos($contentType, 'application/json') !== false) {
+                $rawBody = $readRawBodyFn === null
                     ? $this->readRawBody()
                     : $readRawBodyFn();
                 $bodyParams = $this->decodeJson($rawBody);
 
                 $this->assertJsonObjectOrArray($bodyParams);
-            } elseif (false !== stripos($contentType, 'application/x-www-form-urlencoded')) {
+            } elseif (stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
                 $bodyParams = $_POST;
-            } elseif (false !== stripos($contentType, 'multipart/form-data')) {
+            } elseif (stripos($contentType, 'multipart/form-data') !== false) {
                 $bodyParams = $_POST;
             } else {
                 throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType));
@@ -116,11 +116,11 @@ class Helper
      */
     public function parseRequestParams(string $method, array $bodyParams, array $queryParams)
     {
-        if ('GET' === $method) {
+        if ($method === 'GET') {
             return OperationParams::create($queryParams, true);
         }
 
-        if ('POST' === $method) {
+        if ($method === 'POST') {
             if (isset($bodyParams[0])) {
                 $operations = [];
                 foreach ($bodyParams as $entry) {
@@ -149,7 +149,7 @@ class Helper
         $errors = [];
         $query = $params->query ?? '';
         $queryId = $params->queryId ?? '';
-        if ('' === $query && '' === $queryId) {
+        if ($query === '' && $queryId === '') {
             $errors[] = new RequestError('GraphQL Request must include at least one of those two parameters: "query" or "queryId"');
         }
 
@@ -167,14 +167,14 @@ class Helper
             );
         }
 
-        if (null !== $params->operation && ! is_string($params->operation)) {
+        if ($params->operation !== null && ! is_string($params->operation)) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "operation" must be string, but got '
                 . Utils::printSafeJson($params->operation)
             );
         }
 
-        if (null !== $params->variables && (! is_array($params->variables) || isset($params->variables[0]))) {
+        if ($params->variables !== null && (! is_array($params->variables) || isset($params->variables[0]))) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "variables" must be object or JSON string parsed to object, but got '
                 . Utils::printSafeJson($params->originalInput['variables'])
@@ -240,7 +240,7 @@ class Helper
         bool $isBatch = false
     ): Promise {
         try {
-            if (null === $config->getSchema()) {
+            if ($config->getSchema() === null) {
                 throw new InvariantViolation('Schema is required for the server');
             }
 
@@ -261,7 +261,7 @@ class Helper
                 );
             }
 
-            $doc = null !== $op->queryId && null === $op->query
+            $doc = $op->queryId !== null && $op->query === null
                 ? $this->loadPersistedQuery($config, $op)
                 : $op->query;
 
@@ -271,12 +271,12 @@ class Helper
 
             $operationAST = AST::getOperationAST($doc, $op->operation);
 
-            if (null === $operationAST) {
+            if ($operationAST === null) {
                 throw new RequestError('Failed to determine operation type');
             }
 
             $operationType = $operationAST->operation;
-            if ('query' !== $operationType && $op->readOnly) {
+            if ($operationType !== 'query' && $op->readOnly) {
                 throw new RequestError('GET supports only query operation');
             }
 
@@ -326,7 +326,7 @@ class Helper
     {
         $loader = $config->getPersistedQueryLoader();
 
-        if (null === $loader) {
+        if ($loader === null) {
             throw new RequestError('Persisted queries are not supported by this server');
         }
 
@@ -359,7 +359,7 @@ class Helper
         }
 
         // @phpstan-ignore-next-line unless PHP gains function types, we have to check this at runtime
-        if (null !== $validationRules && ! is_array($validationRules)) {
+        if ($validationRules !== null && ! is_array($validationRules)) {
             throw new InvariantViolation(
                 'Expecting validation rules to be array or callable returning array, but got: ' . Utils::printSafe($validationRules)
             );
@@ -448,7 +448,7 @@ class Helper
     private function readRawBody(): string
     {
         $body = file_get_contents('php://input');
-        if (false === $body) {
+        if ($body === false) {
             throw new RequestError('Could not read body.');
         }
 
@@ -481,7 +481,7 @@ class Helper
                 );
             }
 
-            if (null === $result->data && count($result->errors) > 0) {
+            if ($result->data === null && count($result->errors) > 0) {
                 $httpStatus = 400;
             } else {
                 $httpStatus = 200;
@@ -502,7 +502,7 @@ class Helper
      */
     public function parsePsrRequest(RequestInterface $request)
     {
-        if ('GET' === $request->getMethod()) {
+        if ($request->getMethod() === 'GET') {
             $bodyParams = [];
         } else {
             $contentType = $request->getHeader('content-type');
@@ -511,9 +511,9 @@ class Helper
                 throw new RequestError('Missing "Content-Type" header');
             }
 
-            if (false !== stripos($contentType[0], 'application/graphql')) {
+            if (stripos($contentType[0], 'application/graphql') !== false) {
                 $bodyParams = ['query' => (string) $request->getBody()];
-            } elseif (false !== stripos($contentType[0], 'application/json')) {
+            } elseif (stripos($contentType[0], 'application/json') !== false) {
                 $bodyParams = $request instanceof ServerRequestInterface
                     ? $request->getParsedBody()
                     : $this->decodeJson((string) $request->getBody());
@@ -546,7 +546,7 @@ class Helper
     {
         $bodyParams = json_decode($rawBody, true);
 
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        if (json_last_error() !== JSON_ERROR_NONE) {
             throw new RequestError('Expected JSON object or array for "application/json" request, but failed to parse because: ' . json_last_error_msg());
         }
 

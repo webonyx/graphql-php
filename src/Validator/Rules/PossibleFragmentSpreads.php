@@ -44,8 +44,8 @@ class PossibleFragmentSpreads extends ValidationRule
                 $parentType = $context->getParentType();
 
                 if (
-                    null === $fragType
-                    || null === $parentType
+                    $fragType === null
+                    || $parentType === null
                     || $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
                 ) {
                     return;
@@ -142,7 +142,7 @@ class PossibleFragmentSpreads extends ValidationRule
     protected function getFragmentType(ValidationContext $context, string $name): ?Type
     {
         $frag = $context->getFragment($name);
-        if (null === $frag) {
+        if ($frag === null) {
             return null;
         }
 

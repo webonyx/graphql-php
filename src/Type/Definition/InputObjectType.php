@@ -66,7 +66,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         $field = $this->findField($name);
 
-        Utils::invariant(null !== $field, 'Field "%s" is not defined for type "%s"', $name, $this->name);
+        Utils::invariant($field !== null, 'Field "%s" is not defined for type "%s"', $name, $this->name);
 
         return $field;
     }

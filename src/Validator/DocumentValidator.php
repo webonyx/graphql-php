@@ -95,11 +95,11 @@ class DocumentValidator
         ?array $rules = null,
         ?TypeInfo $typeInfo = null
     ): array {
-        if (null === $rules) {
+        if ($rules === null) {
             $rules = static::allRules();
         }
 
-        if (0 === count($rules)) {
+        if (count($rules) === 0) {
             // Skip validation if there are no rules
             return [];
         }

@@ -47,7 +47,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
     {
         $requiredArgsMap = [];
         $schema = $context->getSchema();
-        $definedDirectives = null === $schema
+        $definedDirectives = $schema === null
             ? Directive::getInternalDirectives()
             : $schema->getDirectives();
 
@@ -84,7 +84,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                 'leave' => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context): ?string {
                     $directiveName = $directiveNode->name->value;
                     $requiredArgs = $requiredArgsMap[$directiveName] ?? null;
-                    if (null === $requiredArgs || [] === $requiredArgs) {
+                    if ($requiredArgs === null || $requiredArgs === []) {
                         return null;
                     }
 

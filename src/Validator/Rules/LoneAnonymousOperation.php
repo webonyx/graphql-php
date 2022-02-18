@@ -33,7 +33,7 @@ class LoneAnonymousOperation extends ValidationRule
                 &$operationCount,
                 $context
             ): void {
-                if (null !== $node->name || $operationCount <= 1) {
+                if ($node->name !== null || $operationCount <= 1) {
                     return;
                 }
 

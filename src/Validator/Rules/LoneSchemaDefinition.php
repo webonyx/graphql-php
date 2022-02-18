@@ -27,12 +27,12 @@ class LoneSchemaDefinition extends ValidationRule
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         $oldSchema = $context->getSchema();
-        $alreadyDefined = null !== $oldSchema
+        $alreadyDefined = $oldSchema !== null
             ? (
-                null !== $oldSchema->getAstNode()
-                || null !== $oldSchema->getQueryType()
-                || null !== $oldSchema->getMutationType()
-                || null !== $oldSchema->getSubscriptionType()
+                $oldSchema->getAstNode() !== null
+                || $oldSchema->getQueryType() !== null
+                || $oldSchema->getMutationType() !== null
+                || $oldSchema->getSubscriptionType() !== null
             )
             : false;
 
@@ -40,7 +40,7 @@ class LoneSchemaDefinition extends ValidationRule
 
         return [
             NodeKind::SCHEMA_DEFINITION => static function (SchemaDefinitionNode $node) use ($alreadyDefined, $context, &$schemaDefinitionsCount): void {
-                if (false !== $alreadyDefined) {
+                if ($alreadyDefined !== false) {
                     $context->reportError(new Error(static::canNotDefineSchemaWithinExtensionMessage(), $node));
 
                     return;

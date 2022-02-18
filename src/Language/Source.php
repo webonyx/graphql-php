@@ -32,7 +32,7 @@ class Source
     {
         $this->body = $body;
         $this->length = mb_strlen($body, 'UTF-8');
-        $this->name = '' === $name || null === $name
+        $this->name = $name === '' || $name === null
             ? 'GraphQL request'
             : $name;
         $this->locationOffset = $location ?? new SourceLocation(1, 1);

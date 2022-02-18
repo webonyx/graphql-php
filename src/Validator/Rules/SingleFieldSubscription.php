@@ -19,7 +19,7 @@ class SingleFieldSubscription extends ValidationRule
     {
         return [
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use ($context): VisitorOperation {
-                if ('subscription' === $node->operation) {
+                if ($node->operation === 'subscription') {
                     $selections = $node->selectionSet->selections;
 
                     if (count($selections) > 1) {
@@ -39,7 +39,7 @@ class SingleFieldSubscription extends ValidationRule
 
     public static function multipleFieldsInOperation(?string $operationName): string
     {
-        if (null === $operationName) {
+        if ($operationName === null) {
             return 'Anonymous Subscription must select only one top level field.';
         }
 

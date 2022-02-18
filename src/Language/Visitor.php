@@ -203,7 +203,7 @@ class Visitor
             $isEdited = $isLeaving && count($edits) > 0;
 
             if ($isLeaving) {
-                $key = [] === $ancestors
+                $key = $ancestors === []
                     ? $UNDEFINED
                     : $path[count($path) - 1];
                 $node = $parent;
@@ -224,7 +224,7 @@ class Visitor
                             $editKey -= $editOffset;
                         }
 
-                        if ($inArray && null === $editValue) {
+                        if ($inArray && $editValue === null) {
                             assert($node instanceof NodeList, 'Follows from $inArray');
                             $node->splice($editKey, 1);
                             ++$editOffset;
@@ -244,14 +244,14 @@ class Visitor
                 $inArray = $stack['inArray'];
                 $stack = $stack['prev'];
             } else {
-                $key = null !== $parent
+                $key = $parent !== null
                     ? (
                         $inArray
                         ? $index
                         : $keys[$index]
                     )
                     : $UNDEFINED;
-                $node = null !== $parent
+                $node = $parent !== null
                     ? (
                         $parent instanceof NodeList || is_array($parent)
                         ? $parent[$key]
@@ -259,11 +259,11 @@ class Visitor
                     )
                     : $newRoot;
                 /** @psalm-suppress ParadoxicalCondition We don't have `undefined` in php */
-                if (null === $node || $node === $UNDEFINED) {
+                if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
 
-                if (null !== $parent) {
+                if ($parent !== null) {
                     $path[] = $key;
                 }
             }
@@ -276,11 +276,11 @@ class Visitor
 
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
-                if (null !== $visitFn) {
+                if ($visitFn !== null) {
                     $result = $visitFn($node, $key, $parent, $path, $ancestors);
                     $editValue = null;
 
-                    if (null !== $result) {
+                    if ($result !== null) {
                         if ($result instanceof VisitorOperation) {
                             if ($result instanceof VisitorStop) {
                                 break;
@@ -311,7 +311,7 @@ class Visitor
                 }
             }
 
-            if (null === $result && $isEdited) {
+            if ($result === null && $isEdited) {
                 $edits[] = [$key, $node];
             }
 
@@ -330,7 +330,7 @@ class Visitor
                 $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?? [];
                 $index = -1;
                 $edits = [];
-                if (null !== $parent) {
+                if ($parent !== null) {
                     $ancestors[] = $parent;
                 }
 
@@ -394,7 +394,7 @@ class Visitor
         return [
             'enter' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
-                    if (null !== $skipping[$i]) {
+                    if ($skipping[$i] !== null) {
                         continue;
                     }
 
@@ -404,7 +404,7 @@ class Visitor
                         false
                     );
 
-                    if (null === $fn) {
+                    if ($fn === null) {
                         continue;
                     }
 
@@ -416,7 +416,7 @@ class Visitor
                         $skipping[$i] = $result;
                     } elseif ($result instanceof VisitorRemoveNode) {
                         return $result;
-                    } elseif (null !== $result) {
+                    } elseif ($result !== null) {
                         return $result;
                     }
                 }
@@ -425,21 +425,21 @@ class Visitor
             },
             'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
-                    if (null === $skipping[$i]) {
+                    if ($skipping[$i] === null) {
                         $fn = self::getVisitFn(
                             $visitors[$i],
                             $node->kind,
                             true
                         );
 
-                        if (null !== $fn) {
+                        if ($fn !== null) {
                             $result = $fn(...func_get_args());
 
                             if ($result instanceof VisitorStop) {
                                 $skipping[$i] = $result;
                             } elseif ($result instanceof VisitorRemoveNode) {
                                 return $result;
-                            } elseif (null !== $result) {
+                            } elseif ($result !== null) {
                                 return $result;
                             }
                         }
@@ -468,12 +468,12 @@ class Visitor
                 $typeInfo->enter($node);
                 $fn = self::getVisitFn($visitor, $node->kind, false);
 
-                if (null === $fn) {
+                if ($fn === null) {
                     return null;
                 }
 
                 $result = $fn(...func_get_args());
-                if (null === $result) {
+                if ($result === null) {
                     return null;
                 }
 
@@ -486,7 +486,7 @@ class Visitor
             },
             'leave' => static function (Node $node) use ($typeInfo, $visitor) {
                 $fn = self::getVisitFn($visitor, $node->kind, true);
-                $result = null !== $fn
+                $result = $fn !== null
                     ? $fn(...func_get_args())
                     : null;
 
@@ -512,7 +512,7 @@ class Visitor
                 : $kindVisitor['enter'] ?? null;
         }
 
-        if (null !== $kindVisitor && ! $isLeaving) {
+        if ($kindVisitor !== null && ! $isLeaving) {
             return $kindVisitor;
         }
 

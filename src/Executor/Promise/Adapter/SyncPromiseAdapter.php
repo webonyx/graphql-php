@@ -129,18 +129,18 @@ class SyncPromiseAdapter implements PromiseAdapter
         assert($syncPromise instanceof SyncPromise);
 
         while (
-            SyncPromise::PENDING === $syncPromise->state
+            $syncPromise->state === SyncPromise::PENDING
             && ! $taskQueue->isEmpty()
         ) {
             SyncPromise::runQueue();
             $this->onWait($promise);
         }
 
-        if (SyncPromise::FULFILLED === $syncPromise->state) {
+        if ($syncPromise->state === SyncPromise::FULFILLED) {
             return $syncPromise->result;
         }
 
-        if (SyncPromise::REJECTED === $syncPromise->state) {
+        if ($syncPromise->state === SyncPromise::REJECTED) {
             throw $syncPromise->result;
         }
 

@@ -131,7 +131,7 @@ class StarWarsSchema
                 ];
             },
             'resolveType' => static function (array $obj) use (&$humanType, &$droidType): ObjectType {
-                return null === StarWarsData::getHuman($obj['id'])
+                return StarWarsData::getHuman($obj['id']) === null
                     ? $droidType
                     : $humanType;
             },

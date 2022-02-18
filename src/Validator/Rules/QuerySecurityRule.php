@@ -153,7 +153,7 @@ abstract class QuerySecurityRule extends ValidationRule
 
                         $fragment = $context->getFragment($fragName);
 
-                        if (null !== $fragment) {
+                        if ($fragment !== null) {
                             $_astAndDefs = $this->collectFieldASTsAndDefs(
                                 $context,
                                 TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition),
@@ -175,7 +175,7 @@ abstract class QuerySecurityRule extends ValidationRule
     {
         $fieldName = $node->name->value;
 
-        return null === $node->alias
+        return $node->alias === null
             ? $fieldName
             : $node->alias->value;
     }

@@ -143,17 +143,17 @@ class SchemaPrinter
         $operationTypes = [];
 
         $queryType = $schema->getQueryType();
-        if (null !== $queryType) {
+        if ($queryType !== null) {
             $operationTypes[] = sprintf('  query: %s', $queryType->name);
         }
 
         $mutationType = $schema->getMutationType();
-        if (null !== $mutationType) {
+        if ($mutationType !== null) {
             $operationTypes[] = sprintf('  mutation: %s', $mutationType->name);
         }
 
         $subscriptionType = $schema->getSubscriptionType();
-        if (null !== $subscriptionType) {
+        if ($subscriptionType !== null) {
             $operationTypes[] = sprintf('  subscription: %s', $subscriptionType->name);
         }
 
@@ -175,18 +175,18 @@ class SchemaPrinter
     protected static function isSchemaOfCommonNames(Schema $schema): bool
     {
         $queryType = $schema->getQueryType();
-        if (null !== $queryType && 'Query' !== $queryType->name) {
+        if ($queryType !== null && $queryType->name !== 'Query') {
             return false;
         }
 
         $mutationType = $schema->getMutationType();
-        if (null !== $mutationType && 'Mutation' !== $mutationType->name) {
+        if ($mutationType !== null && $mutationType->name !== 'Mutation') {
             return false;
         }
 
         $subscriptionType = $schema->getSubscriptionType();
 
-        return null === $subscriptionType || 'Subscription' === $subscriptionType->name;
+        return $subscriptionType === null || $subscriptionType->name === 'Subscription';
     }
 
     /**
@@ -209,13 +209,13 @@ class SchemaPrinter
     protected static function printDescription(array $options, $def, string $indentation = '', bool $firstInBlock = true): string
     {
         $description = $def->description;
-        if (null === $description) {
+        if ($description === null) {
             return '';
         }
 
         $preferMultipleLines = mb_strlen($description) > 70;
         $blockString = BlockString::print($description, '', $preferMultipleLines);
-        $prefix = '' !== $indentation && ! $firstInBlock
+        $prefix = $indentation !== '' && ! $firstInBlock
             ? "\n" . $indentation
             : $indentation;
 
@@ -224,9 +224,9 @@ class SchemaPrinter
 
     protected static function printDescriptionWithComments(string $description, string $indentation, bool $firstInBlock): string
     {
-        $comment = '' !== $indentation && ! $firstInBlock ? "\n" : '';
+        $comment = $indentation !== '' && ! $firstInBlock ? "\n" : '';
         foreach (explode("\n", $description) as $line) {
-            if ('' === $line) {
+            if ($line === '') {
                 $comment .= $indentation . "#\n";
             } else {
                 $comment .= $indentation . '# ' . $line . "\n";
@@ -243,7 +243,7 @@ class SchemaPrinter
      */
     protected static function printArgs(array $options, array $args, string $indentation = ''): string
     {
-        if (0 === count($args)) {
+        if (count($args) === 0) {
             return '';
         }
 
@@ -251,7 +251,7 @@ class SchemaPrinter
         if (
             Utils::every(
                 $args,
-                static fn (Argument $arg): bool => 0 === strlen($arg->description ?? '')
+                static fn (Argument $arg): bool => strlen($arg->description ?? '') === 0
             )
         ) {
             return '('
@@ -270,7 +270,7 @@ class SchemaPrinter
             implode(
                 "\n",
                 array_map(
-                    static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, 0 === $i)
+                    static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, $i === 0)
                         . '  '
                         . $indentation
                         . static::printInputValue($arg),
@@ -326,7 +326,7 @@ class SchemaPrinter
         $fields = array_values($type->getFields());
         $fields = array_map(
             static function (FieldDefinition $f, int $i) use ($options): string {
-                return static::printDescription($options, $f, '  ', 0 === $i)
+                return static::printDescription($options, $f, '  ', $i === 0)
                     . '  '
                     . $f->name
                     . static::printArgs($options, $f->args, '  ')
@@ -347,11 +347,11 @@ class SchemaPrinter
     protected static function printDeprecated($fieldOrEnumVal): string
     {
         $reason = $fieldOrEnumVal->deprecationReason;
-        if (null === $reason) {
+        if ($reason === null) {
             return '';
         }
 
-        if ('' === $reason || Directive::DEFAULT_DEPRECATION_REASON === $reason) {
+        if ($reason === '' || $reason === Directive::DEFAULT_DEPRECATION_REASON) {
             return ' @deprecated';
         }
 
@@ -409,7 +409,7 @@ class SchemaPrinter
         $values = $type->getValues();
         $values = array_map(
             static function (EnumValueDefinition $value, int $i) use ($options): string {
-                return static::printDescription($options, $value, '  ', 0 === $i)
+                return static::printDescription($options, $value, '  ', $i === 0)
                     . '  '
                     . $value->name
                     . static::printDeprecated($value);

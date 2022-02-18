@@ -41,7 +41,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             ? (float) $value
             : null;
 
-        if (null === $float || floor($float) !== $float) {
+        if ($float === null || floor($float) !== $float) {
             $notInt = Utils::printSafe($value);
             throw new SerializationError("Int cannot represent non-integer value: {$notInt}");
         }
@@ -76,7 +76,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     {
         if ($valueNode instanceof IntValueNode) {
             $val = (int) $valueNode->value;
-            if ($valueNode->value === (string) $val && self::MIN_INT <= $val && $val <= self::MAX_INT) {
+            if ($valueNode->value === (string) $val && $val >= self::MIN_INT && $val <= self::MAX_INT) {
                 return $val;
             }
         }

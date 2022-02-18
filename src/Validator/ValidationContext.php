@@ -72,7 +72,7 @@ class ValidationContext extends ASTValidationContext
     {
         $usages = $this->recursiveVariableUsages[$operation] ?? null;
 
-        if (null === $usages) {
+        if ($usages === null) {
             $usages = $this->getVariableUsages($operation);
             $fragments = $this->getRecursivelyReferencedFragments($operation);
 
@@ -131,7 +131,7 @@ class ValidationContext extends ASTValidationContext
     {
         $fragments = $this->recursivelyReferencedFragments[$operation] ?? null;
 
-        if (null === $fragments) {
+        if ($fragments === null) {
             $fragments = [];
             $collectedNames = [];
             $nodesToVisit = [$operation];
@@ -147,7 +147,7 @@ class ValidationContext extends ASTValidationContext
 
                     $collectedNames[$fragName] = true;
                     $fragment = $this->getFragment($fragName);
-                    if (null === $fragment) {
+                    if ($fragment === null) {
                         continue;
                     }
 
@@ -170,7 +170,7 @@ class ValidationContext extends ASTValidationContext
     public function getFragmentSpreads(HasSelectionSet $node): array
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
-        if (null === $spreads) {
+        if ($spreads === null) {
             $spreads = [];
 
             /** @var array<int, SelectionSetNode> $setsToVisit */
@@ -183,7 +183,7 @@ class ValidationContext extends ASTValidationContext
                     if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
                     } elseif ($selection instanceof FieldNode || $selection instanceof InlineFragmentNode) {
-                        if (null !== $selection->selectionSet) {
+                        if ($selection->selectionSet !== null) {
                             $setsToVisit[] = $selection->selectionSet;
                         }
                     } else {

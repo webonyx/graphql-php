@@ -57,7 +57,7 @@ class ValuesOfCorrectType extends ValidationRule
                 // Note: TypeInfo will traverse into a list's item type, so look to the
                 // parent input type to check if it is a list.
                 $parentType = $context->getParentInputType();
-                $type = null === $parentType
+                $type = $parentType === null
                     ? null
                     : Type::getNullableType($parentType);
                 if (! $type instanceof ListOfType) {
@@ -105,7 +105,7 @@ class ValuesOfCorrectType extends ValidationRule
                     return;
                 }
 
-                if (null !== $context->getInputType()) {
+                if ($context->getInputType() !== null) {
                     return;
                 }
 
@@ -149,7 +149,7 @@ class ValuesOfCorrectType extends ValidationRule
     {
         // Report any error at the full type expected by the location.
         $locationType = $context->getInputType();
-        if (null === $locationType) {
+        if ($locationType === null) {
             return;
         }
 

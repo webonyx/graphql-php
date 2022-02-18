@@ -32,7 +32,7 @@ trait NamedTypeImplementation
         $reflection = new ReflectionClass($this);
         $name = $reflection->getShortName();
 
-        if (__NAMESPACE__ !== $reflection->getNamespaceName()) {
+        if ($reflection->getNamespaceName() !== __NAMESPACE__) {
             return preg_replace('~Type$~', '', $name);
         }
 
