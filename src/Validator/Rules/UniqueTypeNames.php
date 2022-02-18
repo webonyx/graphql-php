@@ -27,7 +27,7 @@ class UniqueTypeNames extends ValidationRule
         $checkTypeName = static function ($node) use ($context, $schema, &$knownTypeNames): ?VisitorOperation {
             $typeName = $node->name->value;
 
-            if (null !== $schema && null !== $schema->getType($typeName)) {
+            if ($schema !== null && $schema->getType($typeName) !== null) {
                 $context->reportError(
                     new Error(
                         'Type "' . $typeName . '" already exists in the schema. It cannot also be defined in this type definition.',
