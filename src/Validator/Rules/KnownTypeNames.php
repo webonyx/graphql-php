@@ -3,7 +3,6 @@
 namespace GraphQL\Validator\Rules;
 
 use function array_keys;
-use Closure;
 use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NamedTypeNode;
@@ -22,25 +21,27 @@ use function in_array;
  *
  * A GraphQL document is only valid if referenced types (specifically
  * variable definitions and fragment conditions) are defined by the type schema.
+ *
+ * @phpstan-import-type VisitorArray from \GraphQL\Language\Visitor
  */
 class KnownTypeNames extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array
     {
-        return $this->getVisitorInternal($context);
+        return $this->getASTVisitor($context);
     }
 
     public function getSDLVisitor(SDLValidationContext $context): array
     {
-        return $this->getVisitorInternal($context);
+        return $this->getASTVisitor($context);
     }
 
     /**
      * @param ValidationContext|SDLValidationContext $context
      *
-     * @return Closure[]
+     * @phpstan-return VisitorArray
      */
-    private function getVisitorInternal($context): array
+    private function getASTVisitor($context): array
     {
         /** @var array<int, string> $definedTypes */
         $definedTypes = [];
