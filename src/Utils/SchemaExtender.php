@@ -7,6 +7,7 @@ use function array_map;
 use function array_merge;
 use function count;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
@@ -518,7 +519,9 @@ class SchemaExtender
             $schema->getDirectives()
         );
 
-        Utils::invariant(count($directives) > 0, 'schema must have default directives');
+        if (0 === count($directives)) {
+            throw new InvariantViolation('Schema must have default directives.');
+        }
 
         foreach ($directiveDefinitions as $directive) {
             $directives[] = static::$astBuilder->buildDirective($directive);
@@ -576,14 +579,12 @@ class SchemaExtender
             } elseif ($def instanceof SchemaExtensionNode) {
                 $schemaExtensions[] = $def;
             } elseif ($def instanceof TypeDefinitionNode) {
-                $typeName = isset($def->name)
-                    ? $def->name->value
-                    : null;
+                $typeName = $def->name->value;
 
                 $type = $schema->getType($typeName);
 
                 if (null !== $type) {
-                    throw new Error('Type "' . $typeName . '" already exists in the schema. It cannot also be defined in this type definition.', [$def]);
+                    throw new Error("Type \"{$typeName}\" already exists in the schema. It cannot also be defined in this type definition.", [$def]);
                 }
 
                 $typeDefinitionMap[$typeName] = $def;

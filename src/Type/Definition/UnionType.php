@@ -9,7 +9,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function is_callable;
 use function is_iterable;
-use function is_string;
 
 /**
  * @phpstan-import-type ResolveType from AbstractType
@@ -54,10 +53,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
      */
     public function __construct(array $config)
     {
-        $config['name'] ??= $this->tryInferName();
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
-
-        $this->name = $config['name'];
+        $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? $this->description ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];

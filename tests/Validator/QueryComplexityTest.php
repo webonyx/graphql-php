@@ -42,6 +42,13 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 2, 3);
     }
 
+    public function testTypelessInlineFragmentQueries(): void
+    {
+        $query = 'query MyQuery { human { ... { firstName } } }';
+
+        $this->assertDocumentValidators($query, 2, 3);
+    }
+
     public function testFragmentQueries(): void
     {
         $query = 'query MyQuery { human { ...F1 } } fragment F1 on Human { firstName}';

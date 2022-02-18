@@ -10,7 +10,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * Known argument names.
@@ -20,7 +20,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownArgumentNames extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $knownArgumentNamesOnDirectives = new KnownArgumentNamesOnDirectives();
 

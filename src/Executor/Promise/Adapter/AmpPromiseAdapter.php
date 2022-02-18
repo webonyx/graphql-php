@@ -102,6 +102,7 @@ class AmpPromiseAdapter implements PromiseAdapter
 
         $onResolve = static function (?Throwable $reason, ?array $values) use ($promisesOrValues, $deferred): void {
             if (null === $reason) {
+                assert(is_array($values), 'Either $reason or $values must be passed');
                 $deferred->resolve(array_replace($promisesOrValues, $values));
 
                 return;

@@ -25,7 +25,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\PairSet;
 use GraphQL\Utils\TypeInfo;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 use function implode;
 use function is_array;
 use SplObjectStorage;
@@ -57,7 +57,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected SplObjectStorage $cachedFieldsAndFragmentNames;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $this->comparedFragmentPairs = new PairSet();
         $this->cachedFieldsAndFragmentNames = new SplObjectStorage();
@@ -90,7 +90,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @phpstan-return array<int, Conflict>
      */
     protected function findConflictsWithinSelectionSet(
-        ValidationContext $context,
+        QueryValidationContext $context,
         ?Type $parentType,
         SelectionSetNode $selectionSet
     ): array {
@@ -151,7 +151,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @return array{FieldMap, array<int, string>}
      */
     protected function getFieldsAndFragmentNames(
-        ValidationContext $context,
+        QueryValidationContext $context,
         ?Type $parentType,
         SelectionSetNode $selectionSet
     ): array {
@@ -238,7 +238,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @phpstan-param FieldMap $astAndDefs
      */
     protected function internalCollectFieldsAndFragmentNames(
-        ValidationContext $context,
+        QueryValidationContext $context,
         ?Type $parentType,
         SelectionSetNode $selectionSet,
         array &$astAndDefs,
@@ -293,7 +293,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @phpstan-param FieldMap $fieldMap
      */
     protected function collectConflictsWithin(
-        ValidationContext $context,
+        QueryValidationContext $context,
         array &$conflicts,
         array $fieldMap
     ): void {
@@ -337,7 +337,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @phpstan-return Conflict|null
      */
     protected function findConflict(
-        ValidationContext $context,
+        QueryValidationContext $context,
         bool $parentFieldsAreMutuallyExclusive,
         string $responseName,
         array $field1,
@@ -507,7 +507,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @return array<int, Conflict>
      */
     protected function findConflictsBetweenSubSelectionSets(
-        ValidationContext $context,
+        QueryValidationContext $context,
         bool $areMutuallyExclusive,
         ?Type $parentType1,
         SelectionSetNode $selectionSet1,
@@ -600,7 +600,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @phpstan-param FieldMap $fieldMap2
      */
     protected function collectConflictsBetween(
-        ValidationContext $context,
+        QueryValidationContext $context,
         array &$conflicts,
         bool $parentFieldsAreMutuallyExclusive,
         array $fieldMap1,
@@ -645,7 +645,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @phpstan-param FieldMap $fieldMap
      */
     protected function collectConflictsBetweenFieldsAndFragment(
-        ValidationContext $context,
+        QueryValidationContext $context,
         array &$conflicts,
         array &$comparedFragments,
         bool $areMutuallyExclusive,
@@ -704,7 +704,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @phpstan-return array{FieldMap, array<int, string>}
      */
     protected function getReferencedFieldsAndFragmentNames(
-        ValidationContext $context,
+        QueryValidationContext $context,
         FragmentDefinitionNode $fragment
     ): array {
         // Short-circuit building a type from the AST if possible.
@@ -728,7 +728,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @phpstan-param array<int, Conflict> $conflicts
      */
     protected function collectConflictsBetweenFragments(
-        ValidationContext $context,
+        QueryValidationContext $context,
         array &$conflicts,
         bool $areMutuallyExclusive,
         string $fragmentName1,

@@ -116,10 +116,9 @@ class Schema
             foreach ($this->resolveAdditionalTypes() as $type) {
                 $typeName = $type->name;
                 if (isset($this->resolvedTypes[$typeName])) {
-                    Utils::invariant(
-                        $type === $this->resolvedTypes[$typeName],
-                        'Schema must contain unique named types but contains multiple types named "' . $type . '" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
-                    );
+                    if ($type !== $this->resolvedTypes[$typeName]) {
+                        throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
+                    }
                 }
 
                 $this->resolvedTypes[$typeName] = $type;
@@ -529,10 +528,9 @@ class Schema
 
             // Make sure type loader returns the same instance as registered in other places of schema
             if (isset($this->config->typeLoader)) {
-                Utils::invariant(
-                    $this->loadType($name) === $type,
-                    "Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name."
-                );
+                if ($this->loadType($name) !== $type) {
+                    throw new InvariantViolation("Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name.");
+                }
             }
         }
     }
