@@ -42,7 +42,7 @@ use GraphQL\Language\AST\OperationTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
@@ -389,7 +389,7 @@ class Printer
                     ' '
                 );
 
-            case $node instanceof SchemaTypeExtensionNode:
+            case $node instanceof SchemaExtensionNode:
                 return $this->join(
                     [
                         'extend schema',

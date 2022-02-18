@@ -5,7 +5,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\SDLValidationContext;
@@ -30,7 +30,7 @@ class UniqueOperationTypes extends ValidationRule
             : [];
 
         /**
-         * @param SchemaDefinitionNode|SchemaTypeExtensionNode $node
+         * @param SchemaDefinitionNode|SchemaExtensionNode $node
          */
         $checkOperationTypes = static function ($node) use ($context, &$definedOperationTypes, $existingOperationTypes): VisitorOperation {
             foreach ($node->operationTypes as $operationType) {

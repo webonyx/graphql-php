@@ -30,7 +30,7 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
@@ -166,7 +166,7 @@ class KnownDirectives extends ValidationRule
                 return DirectiveLocation::VARIABLE_DEFINITION;
 
             case $appliedTo instanceof SchemaDefinitionNode:
-            case $appliedTo instanceof SchemaTypeExtensionNode:
+            case $appliedTo instanceof SchemaExtensionNode:
                 return DirectiveLocation::SCHEMA;
 
             case $appliedTo instanceof ScalarTypeDefinitionNode:
