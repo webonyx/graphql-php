@@ -81,7 +81,7 @@ class DocumentValidator
     private static bool $initRules = false;
 
     /**
-     * Primary method for query validation. See class description for details.
+     * Validate a GraphQL query against a schema.
      *
      * @param array<ValidationRule>|null $rules
      *
@@ -95,18 +95,30 @@ class DocumentValidator
         ?array $rules = null,
         ?TypeInfo $typeInfo = null
     ): array {
-        if (null === $rules) {
-            $rules = static::allRules();
-        }
+        $rules ??= static::allRules();
 
-        if (0 === count($rules)) {
-            // Skip validation if there are no rules
+        if (count($rules) === 0) {
             return [];
         }
 
         $typeInfo ??= new TypeInfo($schema);
 
-        return static::visitUsingRules($schema, $typeInfo, $ast, $rules);
+        $context = new QueryValidationContext($schema, $ast, $typeInfo);
+
+        $visitors = [];
+        foreach ($rules as $rule) {
+            $visitors[] = $rule->getVisitor($context);
+        }
+
+        Visitor::visit(
+            $ast,
+            Visitor::visitWithTypeInfo(
+                $typeInfo,
+                Visitor::visitInParallel($visitors)
+            )
+        );
+
+        return $context->getErrors();
     }
 
     /**
@@ -119,7 +131,11 @@ class DocumentValidator
     public static function allRules(): array
     {
         if (! self::$initRules) {
-            self::$rules = array_merge(static::defaultRules(), self::securityRules(), self::$rules);
+            self::$rules = array_merge(
+                static::defaultRules(),
+                self::securityRules(),
+                self::$rules
+            );
             self::$initRules = true;
         }
 
@@ -197,27 +213,6 @@ class DocumentValidator
     }
 
     /**
-     * This uses a specialized visitor which runs multiple visitors in parallel,
-     * while maintaining the visitor skip and break API.
-     *
-     * @param array<ValidationRule> $rules
-     *
-     * @return array<int, Error>
-     */
-    public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules): array
-    {
-        $context = new ValidationContext($schema, $documentNode, $typeInfo);
-        $visitors = [];
-        foreach ($rules as $rule) {
-            $visitors[] = $rule->getVisitor($context);
-        }
-
-        Visitor::visit($documentNode, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
-
-        return $context->getErrors();
-    }
-
-    /**
      * Returns global validation rule by name.
      *
      * Standard rules are named by class name, so example usage for such rules:
@@ -252,6 +247,8 @@ class DocumentValidator
     }
 
     /**
+     * Validate a GraphQL document defined through schema definition language.
+     *
      * @param array<ValidationRule>|null $rules
      *
      * @return array<int, Error>
@@ -261,14 +258,23 @@ class DocumentValidator
         ?Schema $schemaToExtend = null,
         ?array $rules = null
     ): array {
-        $usedRules = $rules ?? self::sdlRules();
+        $rules ??= self::sdlRules();
+
+        if (count($rules) === 0) {
+            return [];
+        }
+
         $context = new SDLValidationContext($documentAST, $schemaToExtend);
+
         $visitors = [];
-        foreach ($usedRules as $rule) {
+        foreach ($rules as $rule) {
             $visitors[] = $rule->getSDLVisitor($context);
         }
 
-        Visitor::visit($documentAST, Visitor::visitInParallel($visitors));
+        Visitor::visit(
+            $documentAST,
+            Visitor::visitInParallel($visitors)
+        );
 
         return $context->getErrors();
     }

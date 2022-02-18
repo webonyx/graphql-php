@@ -9,7 +9,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ASTValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
@@ -24,7 +24,7 @@ class UniqueInputFieldNames extends ValidationRule
     /** @var array<array<string, NameNode>> */
     protected array $knownNameStack;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
@@ -37,7 +37,7 @@ class UniqueInputFieldNames extends ValidationRule
     /**
      * @phpstan-return VisitorArray
      */
-    public function getASTVisitor(ASTValidationContext $context): array
+    public function getASTVisitor(ValidationContext $context): array
     {
         $this->knownNames = [];
         $this->knownNameStack = [];
@@ -49,7 +49,10 @@ class UniqueInputFieldNames extends ValidationRule
                     $this->knownNames = [];
                 },
                 'leave' => function (): void {
-                    $this->knownNames = array_pop($this->knownNameStack);
+                    $knownNames = array_pop($this->knownNameStack);
+                    assert(is_array($knownNames), 'should not happen if the visitor works correctly');
+
+                    $this->knownNames = $knownNames;
                 },
             ],
             NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) use ($context): VisitorOperation {

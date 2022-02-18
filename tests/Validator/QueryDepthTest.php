@@ -33,10 +33,10 @@ class QueryDepthTest extends QuerySecurityTestCase
         $part = $templates['human'];
 
         for ($i = 1; $i <= $depth; ++$i) {
-            $key = 1 === $i % 2 ? 'human' : 'dog';
+            $key = $i % 2 === 1 ? 'human' : 'dog';
             $template = $templates[$key];
 
-            $part = sprintf($part, ('human' === $key ? ' owner ' : '') . $template);
+            $part = sprintf($part, ($key === 'human' ? ' owner ' : '') . $template);
         }
 
         return str_replace('%s', '', $part);

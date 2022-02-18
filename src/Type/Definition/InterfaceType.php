@@ -7,7 +7,6 @@ use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Utils\Utils;
 use function is_callable;
-use function is_string;
 
 /**
  * @phpstan-import-type ResolveType from AbstractType
@@ -42,10 +41,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public function __construct(array $config)
     {
-        $config['name'] ??= $this->tryInferName();
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
-
-        $this->name = $config['name'];
+        $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
@@ -60,10 +56,10 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public static function assertInterfaceType($type): self
     {
-        Utils::invariant(
-            $type instanceof self,
-            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL Interface type.'
-        );
+        if (! ($type instanceof self)) {
+            $notInterfaceType = Utils::printSafe($type);
+            throw new InvariantViolation("Expected {$notInterfaceType} to be a GraphQL Interface type.");
+        }
 
         return $type;
     }

@@ -9,7 +9,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\TypeSystemDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * Executable definitions.
@@ -19,7 +19,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class ExecutableDefinitions extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::DOCUMENT => static function (DocumentNode $node) use ($context): VisitorOperation {

@@ -76,11 +76,6 @@ parameters:
 			path: src/Language/Printer.php
 
 		-
-			message: "#^Strict comparison using \\=\\=\\= between mixed and null will always evaluate to false\\.$#"
-			count: 1
-			path: src/Language/Visitor.php
-
-		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/Visitor.php

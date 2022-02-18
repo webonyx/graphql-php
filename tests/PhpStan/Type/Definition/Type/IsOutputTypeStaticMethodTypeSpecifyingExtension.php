@@ -32,7 +32,7 @@ final class IsOutputTypeStaticMethodTypeSpecifyingExtension implements StaticMet
     public function isStaticMethodSupported(MethodReflection $staticMethodReflection, StaticCall $node, TypeSpecifierContext $context): bool
     {
         // The $context argument tells us if we're in an if condition or not (as in this case).
-        return 'isOutputType' === $staticMethodReflection->getName() && ! $context->null();
+        return $staticMethodReflection->getName() === 'isOutputType' && ! $context->null();
     }
 
     public function specifyTypes(MethodReflection $staticMethodReflection, StaticCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes

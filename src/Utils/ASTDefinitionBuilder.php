@@ -122,7 +122,7 @@ class ASTDefinitionBuilder
                 'astNode' => $value,
             ];
 
-            if (null !== $value->defaultValue) {
+            if ($value->defaultValue !== null) {
                 $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
             }
 
@@ -460,7 +460,7 @@ class ASTDefinitionBuilder
             'astNode' => $value,
         ];
 
-        if (null !== $value->defaultValue) {
+        if ($value->defaultValue !== null) {
             $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
         }
 

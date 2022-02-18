@@ -38,6 +38,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Use `JSON_THROW_ON_ERROR` in `json_encode()`
 - Validate some internal invariants through `assert()`
 - `PromiseAdapter::all()` accepts `iterable`
+- Throw if `Introspection::fromSchema()` returns no data
+- Reorganize abstract class `ASTValidationContext` to interface `ValidationContext`
 
 ### Added
 
@@ -70,6 +72,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Fix printing of empty types (#940)
 - Clone `NodeList` in `Node::cloneDeep()`
 - Calling `Schema::getType()` on a schema built from SDL returns `null` for unknown types (#1068)
+- Avoid crash on typeless inline fragment when using `QueryComplexity` rule
 
 ### Removed
 
@@ -106,6 +109,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove option `commentDescriptions` from `BuildSchema::buildAST()`, `BuildSchema::build()` and `Printer::doPrint()`
 - Remove parameter `$options` from `ASTDefinitionBuilder`
 - Remove `FieldDefinition::create()` in favor of `new FieldDefinition()`
+- Remove `GraphQL\Exception\InvalidArgument`
 
 ## 14.11.5
 

@@ -27,7 +27,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
             $positions = [];
 
-            if ($maxComplexity < $queryComplexity && QueryComplexity::DISABLED !== $maxComplexity) {
+            if ($maxComplexity < $queryComplexity && $maxComplexity !== QueryComplexity::DISABLED) {
                 $positions = [$this->createFormattedError($maxComplexity, $queryComplexity)];
             }
 
@@ -38,6 +38,13 @@ class QueryComplexityTest extends QuerySecurityTestCase
     public function testInlineFragmentQueries(): void
     {
         $query = 'query MyQuery { human { ... on Human { firstName } } }';
+
+        $this->assertDocumentValidators($query, 2, 3);
+    }
+
+    public function testTypelessInlineFragmentQueries(): void
+    {
+        $query = 'query MyQuery { human { ... { firstName } } }';
 
         $this->assertDocumentValidators($query, 2, 3);
     }

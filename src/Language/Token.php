@@ -82,7 +82,7 @@ class Token
     public function getDescription(): string
     {
         return $this->kind
-            . (null === $this->value
+            . ($this->value === null
                 ? ''
                 : ' "' . $this->value . '"');
     }
