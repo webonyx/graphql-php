@@ -10,6 +10,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeSystemDefinitionNode;
+use GraphQL\Language\AST\TypeSystemExtensionNode;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\QueryValidationContext;
@@ -114,7 +115,6 @@ class KnownTypeNames extends ValidationRule
     public static function isSDLNode($value): bool
     {
         return $value instanceof Node
-        // TODO: should be (TypeSystemDefinitionNode || TypeSystemExtensionNode)
-        && $value instanceof TypeSystemDefinitionNode;
+        && ($value instanceof TypeSystemDefinitionNode || $value instanceof TypeSystemExtensionNode);
     }
 }
