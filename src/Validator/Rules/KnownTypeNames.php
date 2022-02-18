@@ -45,11 +45,9 @@ class KnownTypeNames extends ValidationRule
         /** @var array<int, string> $definedTypes */
         $definedTypes = [];
         foreach ($context->getDocument()->definitions as $def) {
-            if (! ($def instanceof TypeDefinitionNode)) {
-                continue;
+            if ($def instanceof TypeDefinitionNode) {
+                $definedTypes[] = $def->name->value;
             }
-
-            $definedTypes[] = $def->name->value;
         }
 
         $standardTypeNames = array_keys(Type::getAllBuiltInTypes());
