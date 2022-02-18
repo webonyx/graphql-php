@@ -3,7 +3,6 @@
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\DebugFlag;
-use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\BuildSchema;
