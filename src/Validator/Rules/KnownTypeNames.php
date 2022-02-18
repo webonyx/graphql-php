@@ -12,6 +12,7 @@ use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeSystemDefinitionNode;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
+use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 use function in_array;
@@ -37,11 +38,9 @@ class KnownTypeNames extends ValidationRule
     }
 
     /**
-     * @param ValidationContext|SDLValidationContext $context
-     *
      * @phpstan-return VisitorArray
      */
-    private function getASTVisitor($context): array
+    public function getASTVisitor(ASTValidationContext $context): array
     {
         /** @var array<int, string> $definedTypes */
         $definedTypes = [];
