@@ -41,6 +41,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Throw if `Introspection::fromSchema()` returns no data
 - Reorganize abstract class `ASTValidationContext` to interface `ValidationContext`
 - Reorganize AST interfaces related to schema and type extensions
+- Align `Utils::suggestionList()` with the reference implementation (#1075)
 
 ### Added
 
