@@ -40,6 +40,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - `PromiseAdapter::all()` accepts `iterable`
 - Throw if `Introspection::fromSchema()` returns no data
 - Reorganize abstract class `ASTValidationContext` to interface `ValidationContext`
+- Reorganize AST interfaces related to schema and type extensions
 
 ### Added
 

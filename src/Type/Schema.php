@@ -7,7 +7,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ImplementingType;
@@ -70,7 +70,7 @@ class Schema
     /** @var array<int, Error> */
     private array $validationErrors;
 
-    /** @var array<int, SchemaTypeExtensionNode> */
+    /** @var array<int, SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
     /**
