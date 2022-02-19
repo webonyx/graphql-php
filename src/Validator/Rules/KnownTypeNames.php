@@ -85,8 +85,7 @@ class KnownTypeNames extends ValidationRule
                         Utils::suggestionList(
                             $typeName,
                             $isSDL
-                                // TODO: order
-                                ? [...$typeNames, ...$standardTypeNames]
+                                ? [...$standardTypeNames, ...$typeNames]
                                 : $typeNames
                         )
                     ),
