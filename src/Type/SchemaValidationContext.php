@@ -680,7 +680,7 @@ class SchemaValidationContext
                 $argName = $typeArg->name;
                 $ifaceArg = $ifaceField->getArg($argName);
 
-                if ($typeArg->isRequired() && null === $ifaceArg) {
+                if ($typeArg->isRequired() && $ifaceArg === null) {
                     $this->reportError(
                         "Object field {$type->name}.{$fieldName} includes required argument {$argName} that is missing from the Interface field {$iface->name}.{$fieldName}.",
                         [
@@ -850,7 +850,7 @@ class SchemaValidationContext
 
         // TODO does this really ensure every usage of the type is unique?
         if ($namedType !== $this->schema->getType($name)) {
-            $hint = null !== $this->schema->getConfig()->typeLoader
+            $hint = $this->schema->getConfig()->typeLoader !== null
                 ? 'Ensure the type loader returns the same instance. '
                 : '';
 
