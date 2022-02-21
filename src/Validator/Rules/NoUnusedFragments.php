@@ -8,7 +8,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class NoUnusedFragments extends ValidationRule
 {
@@ -18,7 +18,7 @@ class NoUnusedFragments extends ValidationRule
     /** @var array<int, FragmentDefinitionNode> */
     protected array $fragmentDefs;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $this->operationDefs = [];
         $this->fragmentDefs = [];
@@ -46,14 +46,13 @@ class NoUnusedFragments extends ValidationRule
 
                     foreach ($this->fragmentDefs as $fragmentDef) {
                         $fragName = $fragmentDef->name->value;
-                        if ($fragmentNameUsed[$fragName] ?? false) {
-                            continue;
-                        }
 
-                        $context->reportError(new Error(
-                            static::unusedFragMessage($fragName),
-                            [$fragmentDef]
-                        ));
+                        if (! isset($fragmentNameUsed[$fragName])) {
+                            $context->reportError(new Error(
+                                static::unusedFragMessage($fragName),
+                                [$fragmentDef]
+                            ));
+                        }
                     }
                 },
             ],

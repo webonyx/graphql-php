@@ -1182,7 +1182,7 @@ class ExecutorTest extends TestCase
                 'id' => Type::id(),
             ],
             'resolveType' => static function ($v) use ($a, $b): ObjectType {
-                return 'A' === $v['type'] ? $a : $b;
+                return $v['type'] === 'A' ? $a : $b;
             },
         ]);
 

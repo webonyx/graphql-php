@@ -54,7 +54,7 @@ class Location
         $this->endToken = $endToken;
         $this->source = $source;
 
-        if (null === $startToken || null === $endToken) {
+        if ($startToken === null || $endToken === null) {
             return;
         }
 

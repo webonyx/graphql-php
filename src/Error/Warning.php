@@ -3,7 +3,8 @@
 namespace GraphQL\Error;
 
 use const E_USER_WARNING;
-use GraphQL\Exception\InvalidArgument;
+use function gettype;
+use InvalidArgumentException;
 use function is_int;
 use function trigger_error;
 
@@ -14,6 +15,9 @@ use function trigger_error;
  * Also, it is possible to override warning handler (which is **trigger_error()** by default).
  *
  * @phpstan-type WarningHandler callable(string $errorMessage, int $warningId, ?int $messageLevel): void
+ *
+ * @see https://github.com/vimeo/psalm/issues/7527
+ * @psalm-type WarningHandler callable(string, int, int|null): void
  */
 final class Warning
 {
@@ -62,15 +66,16 @@ final class Warning
      */
     public static function suppress($suppress = true): void
     {
-        if (true === $suppress) {
+        if ($suppress === true) {
             self::$enableWarnings = 0;
-        } elseif (false === $suppress) {
+        } elseif ($suppress === false) {
             self::$enableWarnings = self::ALL;
         // @phpstan-ignore-next-line necessary until we can use proper unions
         } elseif (is_int($suppress)) {
             self::$enableWarnings &= ~$suppress;
         } else {
-            throw InvalidArgument::fromExpectedTypeAndArgument('bool|int', $suppress);
+            $type = gettype($suppress);
+            throw new InvalidArgumentException("Expected type bool|int, got {$type}.");
         }
     }
 
@@ -87,15 +92,16 @@ final class Warning
      */
     public static function enable($enable = true): void
     {
-        if (true === $enable) {
+        if ($enable === true) {
             self::$enableWarnings = self::ALL;
-        } elseif (false === $enable) {
+        } elseif ($enable === false) {
             self::$enableWarnings = 0;
         // @phpstan-ignore-next-line necessary until we can use proper unions
         } elseif (is_int($enable)) {
             self::$enableWarnings |= $enable;
         } else {
-            throw InvalidArgument::fromExpectedTypeAndArgument('bool|int', $enable);
+            $type = gettype($enable);
+            throw new InvalidArgumentException("Expected type bool|int, got {$type}.");
         }
     }
 
@@ -103,7 +109,7 @@ final class Warning
     {
         $messageLevel ??= E_USER_WARNING;
 
-        if (null !== self::$warningHandler) {
+        if (self::$warningHandler !== null) {
             (self::$warningHandler)($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0 && ! isset(self::$warned[$warningId])) {
             self::$warned[$warningId] = true;
@@ -115,7 +121,7 @@ final class Warning
     {
         $messageLevel ??= E_USER_WARNING;
 
-        if (null !== self::$warningHandler) {
+        if (self::$warningHandler !== null) {
             (self::$warningHandler)($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0) {
             trigger_error($errorMessage, $messageLevel);

@@ -6,7 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * Lone anonymous operation.
@@ -16,7 +16,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class LoneAnonymousOperation extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $operationCount = 0;
 
@@ -24,18 +24,16 @@ class LoneAnonymousOperation extends ValidationRule
             NodeKind::DOCUMENT => static function (DocumentNode $node) use (&$operationCount): void {
                 $operationCount = 0;
                 foreach ($node->definitions as $definition) {
-                    if (! ($definition instanceof OperationDefinitionNode)) {
-                        continue;
+                    if ($definition instanceof OperationDefinitionNode) {
+                        ++$operationCount;
                     }
-
-                    ++$operationCount;
                 }
             },
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (
                 &$operationCount,
                 $context
             ): void {
-                if (null !== $node->name || $operationCount <= 1) {
+                if ($node->name !== null || $operationCount <= 1) {
                     return;
                 }
 

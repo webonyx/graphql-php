@@ -64,7 +64,13 @@ class DisableIntrospectionTest extends ValidatorTestCase
       query {
         user {
           name
-          email
+          ... on User {
+            email
+          }
+          alias: email
+          ... {
+            typeless
+          }
           friends {
             name
           }

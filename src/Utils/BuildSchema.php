@@ -23,7 +23,7 @@ use GraphQL\Validator\DocumentValidator;
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
  * @phpstan-type BuildSchemaOptions array{
  *   assumeValid?: bool,
- *   assumeValidSDL?: bool,
+ *   assumeValidSDL?: bool
  * }
  *
  * - assumeValid:
@@ -140,12 +140,7 @@ class BuildSchema
                     $schemaDef = $definition;
                     break;
                 case $definition instanceof TypeDefinitionNode:
-                    $typeName = $definition->name->value;
-                    if (isset($this->nodeMap[$typeName])) {
-                        throw new Error('Type "' . $typeName . '" was defined more than once.');
-                    }
-
-                    $this->nodeMap[$typeName] = $definition;
+                    $this->nodeMap[$definition->name->value] = $definition;
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
                     $directiveDefs[] = $definition;
@@ -153,17 +148,17 @@ class BuildSchema
             }
         }
 
-        $operationTypes = null !== $schemaDef
+        $operationTypes = $schemaDef !== null
             ? $this->getOperationTypes($schemaDef)
             : [
-                'query' => isset($this->nodeMap['Query']) ? 'Query' : null,
-                'mutation' => isset($this->nodeMap['Mutation']) ? 'Mutation' : null,
-                'subscription' => isset($this->nodeMap['Subscription']) ? 'Subscription' : null,
+                'query' => 'Query',
+                'mutation' => 'Mutation',
+                'subscription' => 'Subscription',
             ];
 
         $definitionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
-            static function (string $typeName): void {
+            static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
             $this->typeConfigDecorator
@@ -198,15 +193,15 @@ class BuildSchema
         // @phpstan-ignore-next-line
         return new Schema([
             'query' => isset($operationTypes['query'])
-                ? $definitionBuilder->buildType($operationTypes['query'])
+                ? $definitionBuilder->maybeBuildType($operationTypes['query'])
                 : null,
             'mutation' => isset($operationTypes['mutation'])
-                ? $definitionBuilder->buildType($operationTypes['mutation'])
+                ? $definitionBuilder->maybeBuildType($operationTypes['mutation'])
                 : null,
             'subscription' => isset($operationTypes['subscription'])
-                ? $definitionBuilder->buildType($operationTypes['subscription'])
+                ? $definitionBuilder->maybeBuildType($operationTypes['subscription'])
                 : null,
-            'typeLoader' => static fn (string $name): Type => $definitionBuilder->buildType($name),
+            'typeLoader' => static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name),
             'directives' => $directives,
             'astNode' => $schemaDef,
             'types' => fn (): array => array_map(
@@ -241,6 +236,6 @@ class BuildSchema
 
     public static function unknownType(string $typeName): Error
     {
-        return new Error('Unknown type: "' . $typeName . '".');
+        return new Error("Unknown type: \"{$typeName}\".");
     }
 }

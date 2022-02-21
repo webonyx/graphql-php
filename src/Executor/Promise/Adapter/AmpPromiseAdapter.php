@@ -8,8 +8,10 @@ use function Amp\Promise\all;
 use Amp\Promise as AmpPromise;
 use Amp\Success;
 use function array_replace;
+use function assert;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
+use function is_array;
 use Throwable;
 
 class AmpPromiseAdapter implements PromiseAdapter
@@ -28,11 +30,11 @@ class AmpPromiseAdapter implements PromiseAdapter
     {
         $deferred = new Deferred();
         $onResolve = static function (?Throwable $reason, $value) use ($onFulfilled, $onRejected, $deferred): void {
-            if (null === $reason && null !== $onFulfilled) {
+            if ($reason === null && $onFulfilled !== null) {
                 self::resolveWithCallable($deferred, $onFulfilled, $value);
-            } elseif (null === $reason) {
+            } elseif ($reason === null) {
                 $deferred->resolve($value);
-            } elseif (null !== $onRejected) {
+            } elseif ($onRejected !== null) {
                 self::resolveWithCallable($deferred, $onRejected, $reason);
             } else {
                 $deferred->fail($reason);
@@ -77,8 +79,13 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    public function all(array $promisesOrValues): Promise
+    public function all(iterable $promisesOrValues): Promise
     {
+        assert(
+            is_array($promisesOrValues),
+            'AmpPromiseAdapter::all(): Argument #1 ($promisesOrValues) must be of type array'
+        );
+
         /** @var array<AmpPromise<mixed>> $promises */
         $promises = [];
         foreach ($promisesOrValues as $key => $item) {
@@ -94,7 +101,8 @@ class AmpPromiseAdapter implements PromiseAdapter
         $deferred = new Deferred();
 
         $onResolve = static function (?Throwable $reason, ?array $values) use ($promisesOrValues, $deferred): void {
-            if (null === $reason) {
+            if ($reason === null) {
+                assert(is_array($values), 'Either $reason or $values must be passed');
                 $deferred->resolve(array_replace($promisesOrValues, $values));
 
                 return;

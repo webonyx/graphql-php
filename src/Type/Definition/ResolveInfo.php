@@ -185,14 +185,12 @@ class ResolveInfo
         $fields = [];
 
         foreach ($this->fieldNodes as $fieldNode) {
-            if (null === $fieldNode->selectionSet) {
-                continue;
+            if (isset($fieldNode->selectionSet)) {
+                $fields = array_merge_recursive(
+                    $fields,
+                    $this->foldSelectionSet($fieldNode->selectionSet, $depth)
+                );
             }
-
-            $fields = array_merge_recursive(
-                $fields,
-                $this->foldSelectionSet($fieldNode->selectionSet, $depth)
-            );
         }
 
         return $fields;
@@ -225,7 +223,7 @@ class ResolveInfo
         $fields = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
-                $fields[$selectionNode->name->value] = $descend > 0 && null !== $selectionNode->selectionSet
+                $fields[$selectionNode->name->value] = $descend > 0 && $selectionNode->selectionSet !== null
                     ? $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
                     : true;
             } elseif ($selectionNode instanceof FragmentSpreadNode) {

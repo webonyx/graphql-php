@@ -7,6 +7,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
@@ -18,12 +19,14 @@ use function is_iterable;
 use function is_string;
 
 /**
+ * @see EnumValueDefinitionNode
+ *
  * @phpstan-type PartialEnumValueConfig array{
  *   name?: string,
  *   value?: mixed,
  *   deprecationReason?: string|null,
  *   description?: string|null,
- *   astNode?: EnumValueDefinitionNode|null,
+ *   astNode?: EnumValueDefinitionNode|null
  * }
  * @phpstan-type EnumValues iterable<string, PartialEnumValueConfig>|iterable<string, mixed>|iterable<int, string>
  * @phpstan-type EnumTypeConfig array{
@@ -31,7 +34,7 @@ use function is_string;
  *   description?: string|null,
  *   values: EnumValues|callable(): EnumValues,
  *   astNode?: EnumTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, EnumTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<int, EnumTypeExtensionNode>|null
  * }
  */
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
@@ -68,10 +71,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
      */
     public function __construct(array $config)
     {
-        $config['name'] ??= $this->tryInferName();
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
-
-        $this->name = $config['name'];
+        $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
@@ -193,7 +193,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         Utils::assertValidName($this->name);
 
         $values = $this->config['values'] ?? null;
-        // @phpstan-ignore-next-line should not happen if used correctly
         if (! is_iterable($values) && ! is_callable($values)) {
             $notIterable = Utils::printSafe($values);
 
@@ -221,7 +220,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             )
         );
 
-        return [] === $suggestions
+        return $suggestions === []
             ? null
             : ' Did you mean the enum value ' . Utils::quotedOrList($suggestions) . '?';
     }

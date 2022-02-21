@@ -40,7 +40,7 @@ abstract class QuerySecurityTestCase extends TestCase
     {
         $this->assertDocumentValidator($query, $maxExpected);
         $newMax = $maxExpected - 1;
-        if (QuerySecurityRule::DISABLED === $newMax) {
+        if ($newMax === QuerySecurityRule::DISABLED) {
             return;
         }
 

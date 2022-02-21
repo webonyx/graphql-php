@@ -57,10 +57,12 @@ class QuerySecuritySchema
                                     Type::nonNull(self::buildDogType())
                                 )
                             ),
-                            'complexity' => static function ($childrenComplexity, $args) {
-                                $complexity = isset($args['name']) ? 1 : 10;
+                            'complexity' => static function (int $childrenComplexity, array $args): int {
+                                $ownComplexity = isset($args['name'])
+                                    ? 1
+                                    : 10;
 
-                                return $childrenComplexity + $complexity;
+                                return $childrenComplexity + $ownComplexity;
                             },
                             'args' => ['name' => ['type' => Type::string()]],
                         ],

@@ -11,7 +11,7 @@ use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Validator\ASTValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
@@ -35,7 +35,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         return $this->getASTVisitor($context);
     }
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
@@ -43,22 +43,20 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
     /**
      * @phpstan-return VisitorArray
      */
-    public function getASTVisitor(ASTValidationContext $context): array
+    public function getASTVisitor(ValidationContext $context): array
     {
         $requiredArgsMap = [];
         $schema = $context->getSchema();
-        $definedDirectives = null === $schema
+        $definedDirectives = $schema === null
             ? Directive::getInternalDirectives()
             : $schema->getDirectives();
 
         foreach ($definedDirectives as $directive) {
             $directiveArgs = [];
             foreach ($directive->args as $arg) {
-                if (! $arg->isRequired()) {
-                    continue;
+                if ($arg->isRequired()) {
+                    $directiveArgs[$arg->name] = $arg;
                 }
-
-                $directiveArgs[$arg->name] = $arg;
             }
 
             $requiredArgsMap[$directive->name] = $directiveArgs;
@@ -66,22 +64,18 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 
         $astDefinition = $context->getDocument()->definitions;
         foreach ($astDefinition as $def) {
-            if (! ($def instanceof DirectiveDefinitionNode)) {
-                continue;
-            }
+            if ($def instanceof DirectiveDefinitionNode) {
+                $arguments = $def->arguments;
 
-            $arguments = $def->arguments;
-
-            $requiredArgs = [];
-            foreach ($arguments as $argument) {
-                if (! ($argument->type instanceof NonNullTypeNode) || isset($argument->defaultValue)) {
-                    continue;
+                $requiredArgs = [];
+                foreach ($arguments as $argument) {
+                    if ($argument->type instanceof NonNullTypeNode && ! isset($argument->defaultValue)) {
+                        $requiredArgs[$argument->name->value] = $argument;
+                    }
                 }
 
-                $requiredArgs[$argument->name->value] = $argument;
+                $requiredArgsMap[$def->name->value] = $requiredArgs;
             }
-
-            $requiredArgsMap[$def->name->value] = $requiredArgs;
         }
 
         return [
@@ -90,7 +84,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                 'leave' => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context): ?string {
                     $directiveName = $directiveNode->name->value;
                     $requiredArgs = $requiredArgsMap[$directiveName] ?? null;
-                    if (null === $requiredArgs || [] === $requiredArgs) {
+                    if ($requiredArgs === null || $requiredArgs === []) {
                         return null;
                     }
 
@@ -100,17 +94,15 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                     }
 
                     foreach ($requiredArgs as $argName => $arg) {
-                        if (isset($argNodeMap[$argName])) {
-                            continue;
+                        if (! isset($argNodeMap[$argName])) {
+                            $argType = $arg instanceof Argument
+                                ? $arg->getType()->toString()
+                                : Printer::doPrint($arg->type);
+
+                            $context->reportError(
+                                new Error(static::missingDirectiveArgMessage($directiveName, $argName, $argType), [$directiveNode])
+                            );
                         }
-
-                        $argType = $arg instanceof Argument
-                            ? $arg->getType()->toString()
-                            : Printer::doPrint($arg->type);
-
-                        $context->reportError(
-                            new Error(static::missingDirectiveArgMessage($directiveName, $argName, $argType), [$directiveNode])
-                        );
                     }
 
                     return null;

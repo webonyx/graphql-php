@@ -329,14 +329,7 @@ final class QueryPlanTest extends TestCase
             'fields' => [
                 'articles' => [
                     'type' => Type::nonNull(Type::listOf($article)),
-                    'resolve' => static function (
-                        $value,
-                        $args,
-                        $context,
-                        ResolveInfo $info
-                    ) use (
-                        &$queryPlan
-                    ): array {
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$queryPlan): array {
                         $queryPlan = $info->lookAhead();
 
                         return [];
@@ -348,6 +341,7 @@ final class QueryPlanTest extends TestCase
         $schema = new Schema(['query' => $blogQuery]);
         GraphQL::executeQuery($schema, $doc);
 
+        self::assertInstanceOf(QueryPlan::class, $queryPlan);
         self::assertSame($expectedQueryPlan, $queryPlan->queryPlan());
     }
 

@@ -10,7 +10,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class QueryDepth extends QuerySecurityRule
 {
@@ -21,7 +21,7 @@ class QueryDepth extends QuerySecurityRule
         $this->setMaxQueryDepth($maxQueryDepth);
     }
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return $this->invokeIfNeeded(
             $context,
@@ -59,7 +59,7 @@ class QueryDepth extends QuerySecurityRule
         switch (true) {
             case $node instanceof FieldNode:
                 // node has children?
-                if (null !== $node->selectionSet) {
+                if ($node->selectionSet !== null) {
                     // update maxDepth if needed
                     if ($depth > $maxDepth) {
                         $maxDepth = $depth;
@@ -78,7 +78,7 @@ class QueryDepth extends QuerySecurityRule
             case $node instanceof FragmentSpreadNode:
                 $fragment = $this->getFragment($node);
 
-                if (null !== $fragment) {
+                if ($fragment !== null) {
                     $maxDepth = $this->fieldDepth($fragment, $depth, $maxDepth);
                 }
 
@@ -105,6 +105,6 @@ class QueryDepth extends QuerySecurityRule
 
     protected function isEnabled(): bool
     {
-        return self::DISABLED !== $this->maxQueryDepth;
+        return $this->maxQueryDepth !== self::DISABLED;
     }
 }

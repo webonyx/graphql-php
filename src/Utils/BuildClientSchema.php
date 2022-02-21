@@ -33,7 +33,7 @@ use function json_encode;
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
  * @phpstan-type Options array{
- *   assumeValid?: bool,
+ *   assumeValid?: bool
  * }
  *
  *    - assumeValid:
@@ -112,6 +112,9 @@ class BuildClientSchema
             }
 
             $name = $typeIntrospection['name'];
+            if (! is_string($name)) {
+                throw self::invalidOrIncompleteIntrospectionResult($typeIntrospection);
+            }
 
             // Use the built-in singleton types to avoid reconstruction
             $this->typeMap[$name] = $builtInTypes[$name]
@@ -154,7 +157,7 @@ class BuildClientSchema
     private function getType(array $typeRef): Type
     {
         if (isset($typeRef['kind'])) {
-            if (TypeKind::LIST === $typeRef['kind']) {
+            if ($typeRef['kind'] === TypeKind::LIST) {
                 if (! isset($typeRef['ofType'])) {
                     throw new InvariantViolation('Decorated type deeper than introspection query.');
                 }
@@ -162,7 +165,7 @@ class BuildClientSchema
                 return new ListOfType($this->getType($typeRef['ofType']));
             }
 
-            if (TypeKind::NON_NULL === $typeRef['kind']) {
+            if ($typeRef['kind'] === TypeKind::NON_NULL) {
                 if (! isset($typeRef['ofType'])) {
                     throw new InvariantViolation('Decorated type deeper than introspection query.');
                 }
@@ -314,8 +317,8 @@ class BuildClientSchema
         // TODO: Temporary workaround until GraphQL ecosystem will fully support 'interfaces' on interface types.
         if (
             array_key_exists('interfaces', $implementingIntrospection)
-            && null === $implementingIntrospection['interfaces']
-            && TypeKind::INTERFACE === $implementingIntrospection['kind']
+            && $implementingIntrospection['interfaces'] === null
+            && $implementingIntrospection['kind'] === TypeKind::INTERFACE
         ) {
             return [];
         }

@@ -86,11 +86,9 @@ function renderClass(ReflectionClass $class, array $options): string
     if ($options['props'] ?? true) {
         $props = [];
         foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-            if (! isApi($property)) {
-                continue;
+            if (isApi($property)) {
+                $props[] = renderProp($property);
             }
-
-            $props[] = renderProp($property);
         }
 
         if (count($props) > 0) {
@@ -102,11 +100,9 @@ function renderClass(ReflectionClass $class, array $options): string
     if ($options['methods'] ?? true) {
         $methods = [];
         foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            if (! isApi($method)) {
-                continue;
+            if (isApi($method)) {
+                $methods[] = renderMethod($method);
             }
-
-            $methods[] = renderMethod($method);
         }
 
         if (count($methods) > 0) {
@@ -174,12 +170,16 @@ function renderProp(ReflectionProperty $prop): string
 
 function unwrapDocblock(string $docBlock): string
 {
-    if ('' === $docBlock) {
+    if ($docBlock === '') {
         return '';
     }
 
     $content = preg_replace('~([\r\n]) \* (.*)~i', '$1$2', $docBlock); // strip *
+    assert(is_string($content), 'regex is statically known to be valid');
+
     $content = preg_replace('~([\r\n])[\* ]+([\r\n])~i', '$1$2', $content); // strip single-liner *
+    assert(is_string($content), 'regex is statically known to be valid');
+
     $content = substr($content, 3); // strip leading /**
     $content = substr($content, 0, -2); // strip trailing */
 
@@ -191,7 +191,7 @@ function unwrapDocblock(string $docBlock): string
  */
 function unpadDocblock($docBlock): string
 {
-    if (false === $docBlock) {
+    if ($docBlock === false) {
         return '';
     }
 
@@ -210,11 +210,11 @@ function unpadDocblock($docBlock): string
 function isApi(Reflector $reflector): bool
 {
     $comment = $reflector->getDocComment();
-    if (false === $comment) {
+    if ($comment === false) {
         return false;
     }
 
-    return 1 === preg_match('~[\r\n ]+\* @api~', $comment);
+    return preg_match('~[\r\n ]+\* @api~', $comment) === 1;
 }
 
 file_put_contents($outputFile, '');

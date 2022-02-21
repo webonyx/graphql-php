@@ -183,7 +183,14 @@ class Visitor
     {
         $visitorKeys = $keyMap ?? self::VISITOR_KEYS;
 
-        $stack = null;
+        /**
+         * @var list<array{
+         *   inArray: bool,
+         *   index: int,
+         *   keys: Node|NodeList|mixed,
+         *   edits: array<int, array{mixed, mixed}>,
+         * }> $stack */
+        $stack = [];
         $inArray = $root instanceof NodeList;
         $keys = [$root];
         $index = -1;
@@ -193,8 +200,6 @@ class Visitor
         $ancestors = [];
         $newRoot = $root;
 
-        $UNDEFINED = null;
-
         do {
             ++$index;
             $isLeaving = $index === count($keys);
@@ -203,8 +208,8 @@ class Visitor
             $isEdited = $isLeaving && count($edits) > 0;
 
             if ($isLeaving) {
-                $key = [] === $ancestors
-                    ? $UNDEFINED
+                $key = $ancestors === []
+                    ? null
                     : $path[count($path) - 1];
                 $node = $parent;
                 $parent = array_pop($ancestors);
@@ -224,7 +229,7 @@ class Visitor
                             $editKey -= $editOffset;
                         }
 
-                        if ($inArray && null === $editValue) {
+                        if ($inArray && $editValue === null) {
                             assert($node instanceof NodeList, 'Follows from $inArray');
                             $node->splice($editKey, 1);
                             ++$editOffset;
@@ -238,31 +243,33 @@ class Visitor
                     }
                 }
 
-                $index = $stack['index'];
-                $keys = $stack['keys'];
-                $edits = $stack['edits'];
-                $inArray = $stack['inArray'];
-                $stack = $stack['prev'];
+                // @phpstan-ignore-next-line the stack is guaranteed to be non-empty at this point
+                [
+                    'index' => $index,
+                    'keys' => $keys,
+                    'edits' => $edits,
+                    'inArray' => $inArray,
+                ] = array_pop($stack);
             } else {
-                $key = null !== $parent
+                $key = $parent !== null
                     ? (
                         $inArray
-                        ? $index
-                        : $keys[$index]
+                            ? $index
+                            : $keys[$index]
                     )
-                    : $UNDEFINED;
-                $node = null !== $parent
+                    : null;
+                $node = $parent !== null
                     ? (
                         $parent instanceof NodeList || is_array($parent)
-                        ? $parent[$key]
-                        : $parent->{$key}
+                            ? $parent[$key]
+                            : $parent->{$key}
                     )
                     : $newRoot;
-                if (null === $node || $node === $UNDEFINED) {
+                if ($node === null) {
                     continue;
                 }
 
-                if (null !== $parent) {
+                if ($parent !== null) {
                     $path[] = $key;
                 }
             }
@@ -275,11 +282,11 @@ class Visitor
 
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
-                if (null !== $visitFn) {
+                if ($visitFn !== null) {
                     $result = $visitFn($node, $key, $parent, $path, $ancestors);
                     $editValue = null;
 
-                    if (null !== $result) {
+                    if ($result !== null) {
                         if ($result instanceof VisitorOperation) {
                             if ($result instanceof VisitorStop) {
                                 break;
@@ -310,32 +317,31 @@ class Visitor
                 }
             }
 
-            if (null === $result && $isEdited) {
+            if ($result === null && $isEdited) {
                 $edits[] = [$key, $node];
             }
 
             if ($isLeaving) {
                 array_pop($path);
             } else {
-                $stack = [
+                $stack[] = [
                     'inArray' => $inArray,
                     'index' => $index,
                     'keys' => $keys,
                     'edits' => $edits,
-                    'prev' => $stack,
                 ];
                 $inArray = $node instanceof NodeList || is_array($node);
 
                 $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?? [];
                 $index = -1;
                 $edits = [];
-                if (null !== $parent) {
+                if ($parent !== null) {
                     $ancestors[] = $parent;
                 }
 
                 $parent = $node;
             }
-        } while ($stack);
+        } while (count($stack) > 0);
 
         if (count($edits) > 0) {
             $newRoot = $edits[0][1];
@@ -393,7 +399,7 @@ class Visitor
         return [
             'enter' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
-                    if (null !== $skipping[$i]) {
+                    if ($skipping[$i] !== null) {
                         continue;
                     }
 
@@ -403,7 +409,7 @@ class Visitor
                         false
                     );
 
-                    if (null === $fn) {
+                    if ($fn === null) {
                         continue;
                     }
 
@@ -415,7 +421,7 @@ class Visitor
                         $skipping[$i] = $result;
                     } elseif ($result instanceof VisitorRemoveNode) {
                         return $result;
-                    } elseif (null !== $result) {
+                    } elseif ($result !== null) {
                         return $result;
                     }
                 }
@@ -424,21 +430,21 @@ class Visitor
             },
             'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
-                    if (null === $skipping[$i]) {
+                    if ($skipping[$i] === null) {
                         $fn = self::getVisitFn(
                             $visitors[$i],
                             $node->kind,
                             true
                         );
 
-                        if (null !== $fn) {
+                        if ($fn !== null) {
                             $result = $fn(...func_get_args());
 
                             if ($result instanceof VisitorStop) {
                                 $skipping[$i] = $result;
                             } elseif ($result instanceof VisitorRemoveNode) {
                                 return $result;
-                            } elseif (null !== $result) {
+                            } elseif ($result !== null) {
                                 return $result;
                             }
                         }
@@ -467,12 +473,12 @@ class Visitor
                 $typeInfo->enter($node);
                 $fn = self::getVisitFn($visitor, $node->kind, false);
 
-                if (null === $fn) {
+                if ($fn === null) {
                     return null;
                 }
 
                 $result = $fn(...func_get_args());
-                if (null === $result) {
+                if ($result === null) {
                     return null;
                 }
 
@@ -485,7 +491,7 @@ class Visitor
             },
             'leave' => static function (Node $node) use ($typeInfo, $visitor) {
                 $fn = self::getVisitFn($visitor, $node->kind, true);
-                $result = null !== $fn
+                $result = $fn !== null
                     ? $fn(...func_get_args())
                     : null;
 
@@ -511,7 +517,7 @@ class Visitor
                 : $kindVisitor['enter'] ?? null;
         }
 
-        if (null !== $kindVisitor && ! $isLeaving) {
+        if ($kindVisitor !== null && ! $isLeaving) {
             return $kindVisitor;
         }
 

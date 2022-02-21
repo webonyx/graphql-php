@@ -28,10 +28,12 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     private $nodes;
 
     /**
-     * @param array<Node|array<string, mixed>> $nodes
-     * @phpstan-param array<T|array<string, mixed>> $nodes
+     * @template TT of Node
      *
-     * @phpstan-return self<T>
+     * @param array<Node|array<string, mixed>> $nodes
+     * @phpstan-param array<TT|array<string, mixed>> $nodes
+     *
+     * @phpstan-return self<TT>
      */
     public static function create(array $nodes): self
     {
@@ -88,7 +90,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
         }
 
         // Happens when a Node is pushed via []=
-        if (null === $offset) {
+        if ($offset === null) {
             $this->nodes[] = $value;
 
             return;

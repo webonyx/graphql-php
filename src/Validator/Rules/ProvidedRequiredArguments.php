@@ -7,11 +7,11 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class ProvidedRequiredArguments extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $providedRequiredArgumentsOnDirectives = new ProvidedRequiredArgumentsOnDirectives();
 
@@ -20,7 +20,7 @@ class ProvidedRequiredArguments extends ValidationRule
                 'leave' => static function (FieldNode $fieldNode) use ($context): ?VisitorOperation {
                     $fieldDef = $context->getFieldDef();
 
-                    if (null === $fieldDef) {
+                    if ($fieldDef === null) {
                         return Visitor::skipNode();
                     }
 
@@ -33,14 +33,12 @@ class ProvidedRequiredArguments extends ValidationRule
 
                     foreach ($fieldDef->args as $argDef) {
                         $argNode = $argNodeMap[$argDef->name] ?? null;
-                        if (null !== $argNode || ! $argDef->isRequired()) {
-                            continue;
+                        if ($argNode === null && $argDef->isRequired()) {
+                            $context->reportError(new Error(
+                                static::missingFieldArgMessage($fieldNode->name->value, $argDef->name, $argDef->getType()->toString()),
+                                [$fieldNode]
+                            ));
                         }
-
-                        $context->reportError(new Error(
-                            static::missingFieldArgMessage($fieldNode->name->value, $argDef->name, $argDef->getType()->toString()),
-                            [$fieldNode]
-                        ));
                     }
 
                     return null;

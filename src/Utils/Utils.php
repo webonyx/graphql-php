@@ -49,16 +49,6 @@ class Utils
     }
 
     /**
-     * Check if the value is invalid.
-     *
-     * @param mixed $value
-     */
-    public static function isInvalid($value): bool
-    {
-        return self::undefined() === $value;
-    }
-
-    /**
      * @param array<string, mixed> $vars
      */
     public static function assign(object $obj, array $vars): object
@@ -150,19 +140,19 @@ class Utils
             return json_encode($var, JSON_THROW_ON_ERROR);
         }
 
-        if ('' === $var) {
+        if ($var === '') {
             return '(empty string)';
         }
 
-        if (null === $var) {
+        if ($var === null) {
             return 'null';
         }
 
-        if (false === $var) {
+        if ($var === false) {
             return 'false';
         }
 
-        if (true === $var) {
+        if ($var === true) {
             return 'true';
         }
 
@@ -198,19 +188,19 @@ class Utils
             return json_encode($var, JSON_THROW_ON_ERROR);
         }
 
-        if ('' === $var) {
+        if ($var === '') {
             return '(empty string)';
         }
 
-        if (null === $var) {
+        if ($var === null) {
             return 'null';
         }
 
-        if (false === $var) {
+        if ($var === false) {
             return 'false';
         }
 
-        if (true === $var) {
+        if ($var === true) {
             return 'true';
         }
 
@@ -230,7 +220,7 @@ class Utils
      */
     public static function chr(int $ord, string $encoding = 'UTF-8'): string
     {
-        if ('UCS-4BE' === $encoding) {
+        if ($encoding === 'UCS-4BE') {
             return pack('N', $ord);
         }
 
@@ -246,7 +236,7 @@ class Utils
             return ord($char);
         }
 
-        if ('UCS-4BE' !== $encoding) {
+        if ($encoding !== 'UCS-4BE') {
             $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
         }
 
@@ -266,7 +256,7 @@ class Utils
 
     public static function printCharCode(?int $code): string
     {
-        if (null === $code) {
+        if ($code === null) {
             return '<EOF>';
         }
 
@@ -285,7 +275,7 @@ class Utils
     public static function assertValidName(string $name): void
     {
         $error = self::isValidNameError($name);
-        if (null !== $error) {
+        if ($error !== null) {
             throw $error;
         }
     }
@@ -295,14 +285,14 @@ class Utils
      */
     public static function isValidNameError(string $name, ?Node $node = null): ?Error
     {
-        if (isset($name[1]) && '_' === $name[0] && '_' === $name[1]) {
+        if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
             return new Error(
                 'Name "' . $name . '" must not begin with "__", which is reserved by GraphQL introspection.',
                 $node
             );
         }
 
-        if (1 !== preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
+        if (preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name) !== 1) {
             return new Error(
                 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "' . $name . '" does not.',
                 $node
@@ -330,7 +320,7 @@ class Utils
      */
     public static function orList(array $items): string
     {
-        if (0 === count($items)) {
+        if (count($items) === 0) {
             return '';
         }
 
@@ -338,7 +328,7 @@ class Utils
         $selectedLength = count($selected);
         $firstSelected = $selected[0];
 
-        if (1 === $selectedLength) {
+        if ($selectedLength === 1) {
             return $firstSelected;
         }
 
@@ -379,11 +369,9 @@ class Utils
                     : levenshtein($input, $option));
             }
 
-            if ($distance > $threshold) {
-                continue;
+            if ($distance <= $threshold) {
+                $optionsByDistance[$option] = $distance;
             }
-
-            $optionsByDistance[$option] = $distance;
         }
 
         asort($optionsByDistance);

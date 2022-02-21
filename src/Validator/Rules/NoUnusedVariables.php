@@ -6,14 +6,14 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class NoUnusedVariables extends ValidationRule
 {
     /** @var array<int, VariableDefinitionNode> */
     protected array $variableDefs;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $this->variableDefs = [];
 
@@ -25,7 +25,7 @@ class NoUnusedVariables extends ValidationRule
                 'leave' => function (OperationDefinitionNode $operation) use ($context): void {
                     $variableNameUsed = [];
                     $usages = $context->getRecursiveVariableUsages($operation);
-                    $opName = null !== $operation->name
+                    $opName = $operation->name !== null
                         ? $operation->name->value
                         : null;
 
@@ -37,14 +37,12 @@ class NoUnusedVariables extends ValidationRule
                     foreach ($this->variableDefs as $variableDef) {
                         $variableName = $variableDef->variable->name->value;
 
-                        if ($variableNameUsed[$variableName] ?? false) {
-                            continue;
+                        if (! isset($variableNameUsed[$variableName])) {
+                            $context->reportError(new Error(
+                                static::unusedVariableMessage($variableName, $opName),
+                                [$variableDef]
+                            ));
                         }
-
-                        $context->reportError(new Error(
-                            static::unusedVariableMessage($variableName, $opName),
-                            [$variableDef]
-                        ));
                     }
                 },
             ],
@@ -56,7 +54,7 @@ class NoUnusedVariables extends ValidationRule
 
     public static function unusedVariableMessage(string $varName, ?string $opName = null): string
     {
-        return null !== $opName
+        return $opName !== null
             ? "Variable \"\${$varName}\" is never used in operation \"{$opName}\"."
             : "Variable \"\${$varName}\" is never used.";
     }

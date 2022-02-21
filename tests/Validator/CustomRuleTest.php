@@ -44,8 +44,8 @@ final class CustomRuleTest extends ValidatorTestCase
         ',
             [
                 ErrorHelper::create(
-                    'Custom message including Cow',
-                    [new SourceLocation(8, 12)]
+                    'Custom message including "Cow"',
+                    [new SourceLocation(8, 7)]
                 ),
             ]
         );

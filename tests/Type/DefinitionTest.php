@@ -10,8 +10,10 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
@@ -312,8 +314,14 @@ final class DefinitionTest extends TestCaseBase
                 'BAR' => [],
             ],
         ]);
-        self::assertEquals('FOO', $enumType->getValue('FOO')->value);
-        self::assertEquals('BAR', $enumType->getValue('BAR')->value);
+
+        $foo = $enumType->getValue('FOO');
+        self::assertInstanceOf(EnumValueDefinition::class, $foo);
+        self::assertEquals('FOO', $foo->value);
+
+        $bar = $enumType->getValue('BAR');
+        self::assertInstanceOf(EnumValueDefinition::class, $bar);
+        self::assertEquals('BAR', $bar->value);
     }
 
     /**
@@ -344,8 +352,14 @@ final class DefinitionTest extends TestCaseBase
                 'BAR' => ['value' => 20],
             ],
         ]);
-        self::assertEquals(10, $enumType->getValue('FOO')->value);
-        self::assertEquals(20, $enumType->getValue('BAR')->value);
+
+        $foo = $enumType->getValue('FOO');
+        self::assertInstanceOf(EnumValueDefinition::class, $foo);
+        self::assertEquals(10, $foo->value);
+
+        $bar = $enumType->getValue('BAR');
+        self::assertInstanceOf(EnumValueDefinition::class, $bar);
+        self::assertEquals(20, $bar->value);
     }
 
     /**
@@ -373,8 +387,14 @@ final class DefinitionTest extends TestCaseBase
                 yield 'BAR' => ['value' => 20];
             },
         ]);
-        self::assertEquals(10, $enumType->getValue('FOO')->value);
-        self::assertEquals(20, $enumType->getValue('BAR')->value);
+
+        $foo = $enumType->getValue('FOO');
+        self::assertInstanceOf(EnumValueDefinition::class, $foo);
+        self::assertEquals(10, $foo->value);
+
+        $bar = $enumType->getValue('BAR');
+        self::assertInstanceOf(EnumValueDefinition::class, $bar);
+        self::assertEquals(20, $bar->value);
     }
 
     /**
@@ -724,7 +744,10 @@ final class DefinitionTest extends TestCaseBase
         self::assertTrue($called);
         self::assertEquals(count($inputObject->getFields()), 2);
         self::assertSame($inputObject->getField('nested')->getType(), $inputObject);
-        self::assertSame($someMutation->getField('mutateSomething')->getArg('input')->getType(), $inputObject);
+
+        $input = $someMutation->getField('mutateSomething')->getArg('input');
+        self::assertInstanceOf(Argument::class, $input);
+        self::assertSame($input->getType(), $inputObject);
     }
 
     public function testInterfaceTypeAllowsRecursiveDefinitions(): void

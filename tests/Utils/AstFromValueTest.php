@@ -36,14 +36,8 @@ class AstFromValueTest extends TestCase
         self::assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::boolean()));
         self::assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(0, Type::boolean()));
         self::assertEquals(new BooleanValueNode(['value' => true]), AST::astFromValue(1, Type::boolean()));
-        self::assertEquals(
-            new BooleanValueNode(['value' => false]),
-            AST::astFromValue(0, Type::nonNull(Type::boolean()))
-        );
-        self::assertEquals(
-            null,
-            AST::astFromValue(null, Type::nonNull(Type::boolean()))
-        ); // Note: null means that AST cannot
+        self::assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(0, Type::nonNull(Type::boolean())));
+        self::assertNull(AST::astFromValue(null, Type::nonNull(Type::boolean())));
     }
 
     /**

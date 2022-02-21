@@ -6,7 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ImplementingType;
@@ -71,7 +71,7 @@ class Schema
     /** @var array<int, Error> */
     private array $validationErrors;
 
-    /** @var array<int, SchemaTypeExtensionNode> */
+    /** @var array<int, SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
     /**
@@ -95,17 +95,17 @@ class Schema
         $this->extensionASTNodes = $config->extensionASTNodes;
 
         $query = $config->query;
-        if (null !== $query) {
+        if ($query !== null) {
             $this->resolvedTypes[$query->name] = $query;
         }
 
         $mutation = $config->mutation;
-        if (null !== $mutation) {
+        if ($mutation !== null) {
             $this->resolvedTypes[$mutation->name] = $mutation;
         }
 
         $subscription = $config->subscription;
-        if (null !== $subscription) {
+        if ($subscription !== null) {
             $this->resolvedTypes[$subscription->name] = $subscription;
         }
 
@@ -116,10 +116,8 @@ class Schema
 
                 $typeName = $type->name;
                 if (isset($this->resolvedTypes[$typeName])) {
-                    if ($this->resolvedTypes[$typeName] !== $type) {
-                        throw new InvariantViolation(
-                            "Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry)."
-                        );
+                    if ($type !== $this->resolvedTypes[$typeName]) {
+                        throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
                     }
                 }
 
@@ -285,7 +283,7 @@ class Schema
             $type = Type::getStandardTypes()[$name]
                 ?? $this->loadType($name);
 
-            if (null === $type) {
+            if ($type === null) {
                 return null;
             }
 
@@ -300,7 +298,7 @@ class Schema
      */
     public function hasType(string $name): bool
     {
-        return null !== $this->getType($name);
+        return $this->getType($name) !== null;
     }
 
     /**
@@ -310,13 +308,13 @@ class Schema
     {
         $typeLoader = $this->config->typeLoader;
 
-        if (null === $typeLoader) {
+        if ($typeLoader === null) {
             return $this->defaultTypeLoader($typeName);
         }
 
         $type = $typeLoader($typeName);
 
-        if (null === $type) {
+        if ($type === null) {
             return null;
         }
 
@@ -499,7 +497,7 @@ class Schema
     {
         $errors = $this->validate();
 
-        if ([] !== $errors) {
+        if ($errors !== []) {
             throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
@@ -511,11 +509,9 @@ class Schema
             $type->assertValid();
 
             // Make sure type loader returns the same instance as registered in other places of schema
-            if (null !== $this->config->typeLoader) {
+            if (isset($this->config->typeLoader)) {
                 if ($this->loadType($name) !== $type) {
-                    throw new InvariantViolation(
-                        "Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name."
-                    );
+                    throw new InvariantViolation("Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name.");
                 }
             }
         }

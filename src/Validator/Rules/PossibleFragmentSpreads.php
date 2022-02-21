@@ -14,11 +14,11 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class PossibleFragmentSpreads extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context): void {
@@ -44,8 +44,8 @@ class PossibleFragmentSpreads extends ValidationRule
                 $parentType = $context->getParentType();
 
                 if (
-                    null === $fragType
-                    || null === $parentType
+                    $fragType === null
+                    || $parentType === null
                     || $this->doTypesOverlap($context->getSchema(), $fragType, $parentType)
                 ) {
                     return;
@@ -139,10 +139,10 @@ class PossibleFragmentSpreads extends ValidationRule
     /**
      * @return (CompositeType&Type)|null
      */
-    protected function getFragmentType(ValidationContext $context, string $name): ?Type
+    protected function getFragmentType(QueryValidationContext $context, string $name): ?Type
     {
         $frag = $context->getFragment($name);
-        if (null === $frag) {
+        if ($frag === null) {
             return null;
         }
 

@@ -14,7 +14,6 @@ use PHPUnit\Framework\TestCase;
  * Their counterparts have been removed from `buildASTSchema-test.js` and moved elsewhere,
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
  * TODO align with:
- *   - https://github.com/graphql/graphql-js/commit/257797a0ebdddd3da6e75b7c237fdc12a1a7c75a
  *   - https://github.com/graphql/graphql-js/commit/3b9ea61f2348215dee755f779caef83df749d2bb
  *   - https://github.com/graphql/graphql-js/commit/64a5c3448a201737f9218856786c51d66f2deabd.
  */
@@ -317,30 +316,6 @@ class BuildSchemaLegacyTest extends TestCase
             fragment Foo on Type { field }
         ';
         $doc = Parser::parse($sdl);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Forbids duplicate type definitions')
-     */
-    public function testForbidsDuplicateTypeDefinitions(): void
-    {
-        $sdl = '
-            schema {
-              query: Repeated
-            }
-            
-            type Repeated {
-              id: Int
-            }
-            
-            type Repeated {
-              id: String
-            }
-        ';
-        $doc = Parser::parse($sdl);
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Type "Repeated" was defined more than once.');
         BuildSchema::buildAST($doc);
     }
 }

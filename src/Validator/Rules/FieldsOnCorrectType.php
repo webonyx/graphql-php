@@ -13,16 +13,16 @@ use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class FieldsOnCorrectType extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::FIELD => function (FieldNode $node) use ($context): void {
                 $fieldDef = $context->getFieldDef();
-                if (null !== $fieldDef) {
+                if ($fieldDef !== null) {
                     return;
                 }
 
@@ -37,7 +37,7 @@ class FieldsOnCorrectType extends ValidationRule
                 // First determine if there are any suggested types to condition on.
                 $suggestedTypeNames = $this->getSuggestedTypeNames($schema, $type, $fieldName);
                 // If there are no suggested types, then perhaps this was a typo?
-                $suggestedFieldNames = [] === $suggestedTypeNames
+                $suggestedFieldNames = $suggestedTypeNames === []
                     ? $this->getSuggestedFieldNames($type, $fieldName)
                     : [];
 
@@ -132,11 +132,11 @@ class FieldsOnCorrectType extends ValidationRule
     ): string {
         $message = "Cannot query field \"{$fieldName}\" on type \"{$type}\".";
 
-        if ([] !== $suggestedTypeNames) {
+        if ($suggestedTypeNames !== []) {
             $suggestions = Utils::quotedOrList($suggestedTypeNames);
 
             $message .= " Did you mean to use an inline fragment on {$suggestions}?";
-        } elseif ([] !== $suggestedFieldNames) {
+        } elseif ($suggestedFieldNames !== []) {
             $suggestions = Utils::quotedOrList($suggestedFieldNames);
 
             $message .= " Did you mean {$suggestions}?";

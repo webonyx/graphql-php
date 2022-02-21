@@ -96,12 +96,11 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
 
     private function lazyLoad(string $name): callable
     {
-        return function () use ($name): ?Type {
+        return function () use ($name): Type {
             if (! isset($this->loadedTypes[$name])) {
-                $type = null;
                 switch ($name) {
                     case 'Node':
-                        $type = new InterfaceType([
+                        return $this->loadedTypes[$name] = new InterfaceType([
                             'name' => 'Node',
                             'fields' => function (): array {
                                 $this->calls[] = 'Node.fields';
@@ -112,10 +111,9 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
                             },
                             'resolveType' => static fn (): ?ObjectType => null,
                         ]);
-                        break;
 
                     case 'Content':
-                        $type = new InterfaceType([
+                        return $this->loadedTypes[$name] = new InterfaceType([
                             'name' => 'Content',
                             'fields' => function (): array {
                                 $this->calls[] = 'Content.fields';
@@ -127,10 +125,9 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
                             },
                             'resolveType' => static fn (): ?ObjectType => null,
                         ]);
-                        break;
 
                     case 'BlogStory':
-                        $type = new ObjectType([
+                        return $this->loadedTypes[$name] = new ObjectType([
                             'name' => 'BlogStory',
                             'interfaces' => [
                                 $this->node,
@@ -146,19 +143,17 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
                                 ];
                             },
                         ]);
-                        break;
 
                     case 'PostStoryMutation':
-                        $type = new ObjectType([
+                        return $this->loadedTypes[$name] = new ObjectType([
                             'name' => 'PostStoryMutation',
                             'fields' => [
                                 'story' => $this->blogStory,
                             ],
                         ]);
-                        break;
 
                     case 'PostStoryMutationInput':
-                        $type = new InputObjectType([
+                        return $this->loadedTypes[$name] = new InputObjectType([
                             'name' => 'PostStoryMutationInput',
                             'fields' => [
                                 'title' => Type::string(),
@@ -167,10 +162,7 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
                                 'category' => Type::id(),
                             ],
                         ]);
-                        break;
                 }
-
-                $this->loadedTypes[$name] = $type;
             }
 
             return $this->loadedTypes[$name];

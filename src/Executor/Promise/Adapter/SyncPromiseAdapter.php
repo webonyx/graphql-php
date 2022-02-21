@@ -2,12 +2,14 @@
 
 namespace GraphQL\Executor\Promise\Adapter;
 
+use function assert;
 use function count;
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
+use function is_array;
 use Throwable;
 
 /**
@@ -72,8 +74,13 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->reject($reason), $this);
     }
 
-    public function all(array $promisesOrValues): Promise
+    public function all(iterable $promisesOrValues): Promise
     {
+        assert(
+            is_array($promisesOrValues),
+            'SyncPromiseAdapter::all(): Argument #1 ($promisesOrValues) must be of type array'
+        );
+
         $all = new SyncPromise();
 
         $total = count($promisesOrValues);
@@ -122,18 +129,18 @@ class SyncPromiseAdapter implements PromiseAdapter
         assert($syncPromise instanceof SyncPromise);
 
         while (
-            SyncPromise::PENDING === $syncPromise->state
+            $syncPromise->state === SyncPromise::PENDING
             && ! $taskQueue->isEmpty()
         ) {
             SyncPromise::runQueue();
             $this->onWait($promise);
         }
 
-        if (SyncPromise::FULFILLED === $syncPromise->state) {
+        if ($syncPromise->state === SyncPromise::FULFILLED) {
             return $syncPromise->result;
         }
 
-        if (SyncPromise::REJECTED === $syncPromise->state) {
+        if ($syncPromise->state === SyncPromise::REJECTED) {
             throw $syncPromise->result;
         }
 

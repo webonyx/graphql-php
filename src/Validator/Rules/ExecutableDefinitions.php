@@ -6,10 +6,13 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\ExecutableDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\TypeSystemDefinitionNode;
+use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * Executable definitions.
@@ -19,17 +22,25 @@ use GraphQL\Validator\ValidationContext;
  */
 class ExecutableDefinitions extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::DOCUMENT => static function (DocumentNode $node) use ($context): VisitorOperation {
                 foreach ($node->definitions as $definition) {
                     if (! $definition instanceof ExecutableDefinitionNode) {
-                        assert($definition instanceof TypeSystemDefinitionNode, 'only other option');
+                        if ($definition instanceof SchemaDefinitionNode || $definition instanceof SchemaExtensionNode) {
+                            $defName = 'schema';
+                        } else {
+                            assert(
+                                $definition instanceof TypeDefinitionNode || $definition instanceof TypeExtensionNode,
+                                'only other option'
+                            );
+                            $defName = "\"{$definition->name->value}\"";
+                        }
 
                         $context->reportError(new Error(
-                            static::nonExecutableDefinitionMessage($definition->name->value),
-                            [$definition->name]
+                            static::nonExecutableDefinitionMessage($defName),
+                            [$definition]
                         ));
                     }
                 }
@@ -41,6 +52,6 @@ class ExecutableDefinitions extends ValidationRule
 
     public static function nonExecutableDefinitionMessage(string $defName): string
     {
-        return "The \"{$defName}\" definition is not executable.";
+        return "The {$defName} definition is not executable.";
     }
 }

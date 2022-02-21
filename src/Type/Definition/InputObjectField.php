@@ -12,17 +12,17 @@ use GraphQL\Utils\Utils;
  * @phpstan-type ArgumentType (Type&InputType)|callable(): (Type&InputType)
  * @phpstan-type InputObjectFieldConfig array{
  *   name: string,
+ *   type: ArgumentType,
  *   defaultValue?: mixed,
  *   description?: string|null,
- *   type: ArgumentType,
- *   astNode?: InputValueDefinitionNode|null,
+ *   astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type UnnamedInputObjectFieldConfig array{
  *   name?: string,
+ *   type: ArgumentType,
  *   defaultValue?: mixed,
  *   description?: string|null,
- *   type: ArgumentType,
- *   astNode?: InputValueDefinitionNode|null,
+ *   astNode?: InputValueDefinitionNode|null
  * }
  */
 class InputObjectField
@@ -88,7 +88,7 @@ class InputObjectField
     public function assertValid(Type $parentType): void
     {
         $error = Utils::isValidNameError($this->name);
-        if (null !== $error) {
+        if ($error !== null) {
             throw new InvariantViolation("{$parentType->name}.{$this->name}: {$error->getMessage()}");
         }
 
