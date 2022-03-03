@@ -20,7 +20,6 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use function sprintf;
 use TypeError;
 
 /**
@@ -406,7 +405,7 @@ class BreakingChangesFinder
                 if (! isset($typeNamesInNewUnion[$type->name])) {
                     $typesRemovedFromUnion[] = [
                         'type' => self::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
-                        'description' => sprintf('%s was removed from union type %s.', $type->name, $typeName),
+                        'description' => "{$type->name} was removed from union type {$typeName}.",
                     ];
                 }
             }
@@ -444,7 +443,7 @@ class BreakingChangesFinder
                 if (! isset($valuesInNewEnum[$value->name])) {
                     $valuesRemovedFromEnums[] = [
                         'type' => self::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
-                        'description' => sprintf('%s was removed from enum type %s.', $value->name, $typeName),
+                        'description' => "{$value->name} was removed from enum type {$typeName}.",
                     ];
                 }
             }
@@ -611,7 +610,7 @@ class BreakingChangesFinder
             if (! isset($newSchemaDirectiveMap[$directive->name])) {
                 $removedDirectives[] = [
                     'type' => self::BREAKING_CHANGE_DIRECTIVE_REMOVED,
-                    'description' => sprintf('%s was removed', $directive->name),
+                    'description' => "{$directive->name} was removed",
                 ];
             }
         }
@@ -653,7 +652,7 @@ class BreakingChangesFinder
             ) {
                 $removedDirectiveArgs[] = [
                     'type' => self::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
-                    'description' => sprintf('%s was removed from %s', $arg->name, $newDirective->name),
+                    'description' => "{$arg->name} was removed from {$newDirective->name}",
                 ];
             }
         }
@@ -758,7 +757,7 @@ class BreakingChangesFinder
             ) {
                 $removedLocations[] = [
                     'type' => self::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
-                    'description' => sprintf('%s was removed from %s', $location, $newDirective->name),
+                    'description' => "{$location} was removed from {$newDirective->name}",
                 ];
             }
         }
@@ -908,7 +907,7 @@ class BreakingChangesFinder
                 if (! isset($typeNamesInOldUnion[$type->name])) {
                     $typesAddedToUnion[] = [
                         'type' => self::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
-                        'description' => sprintf('%s was added to union type %s.', $type->name, $typeName),
+                        'description' => "{$type->name} was added to union type {$typeName}.",
                     ];
                 }
             }

@@ -18,7 +18,6 @@ use GraphQL\Server\ServerConfig;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
-use function sprintf;
 use stdClass;
 
 class QueryExecutionTest extends ServerTestCase
@@ -539,12 +538,12 @@ class QueryExecutionTest extends ServerTestCase
             ->setRootValue('1')
             ->setContext([
                 'buffer' => static function ($num) use (&$calls): void {
-                    $calls[] = sprintf('buffer: %d', $num);
+                    $calls[] = "buffer: {$num}";
                 },
                 'load' => static function ($num) use (&$calls): string {
-                    $calls[] = sprintf('load: %d', $num);
+                    $calls[] = "load: {$num}";
 
-                    return sprintf('loaded: %d', $num);
+                    return "loaded: {$num}";
                 },
             ]);
 

@@ -32,7 +32,6 @@ use GraphQL\Type\Schema;
 use function implode;
 use function ksort;
 use function mb_strlen;
-use function sprintf;
 use function str_replace;
 
 /**
@@ -105,7 +104,8 @@ class SchemaPrinter
             return static::printInputObject($type, $options);
         }
 
-        throw new Error(sprintf('Unknown type: %s.', Utils::printSafe($type)));
+        $unknownType = Utils::printSafe($type);
+        throw new Error("Unknown type: {$unknownType}.");
     }
 
     /**
@@ -145,20 +145,22 @@ class SchemaPrinter
 
         $queryType = $schema->getQueryType();
         if ($queryType !== null) {
-            $operationTypes[] = sprintf('  query: %s', $queryType->name);
+            $operationTypes[] = "  query: {$queryType->name}";
         }
 
         $mutationType = $schema->getMutationType();
         if ($mutationType !== null) {
-            $operationTypes[] = sprintf('  mutation: %s', $mutationType->name);
+            $operationTypes[] = "  mutation: {$mutationType->name}";
         }
 
         $subscriptionType = $schema->getSubscriptionType();
         if ($subscriptionType !== null) {
-            $operationTypes[] = sprintf('  subscription: %s', $subscriptionType->name);
+            $operationTypes[] = "  subscription: {$subscriptionType->name}";
         }
 
-        return sprintf("schema {\n%s\n}", implode("\n", $operationTypes));
+        $typesString = implode("\n", $operationTypes);
+
+        return "schema {\n{$typesString}\n}";
     }
 
     /**
@@ -398,7 +400,7 @@ class SchemaPrinter
     protected static function printInterface(InterfaceType $type, array $options): string
     {
         return static::printDescription($options, $type)
-            . sprintf('interface %s', $type->name)
+            . "interface {$type->name}"
             . self::printImplementedInterfaces($type)
             . static::printFields($options, $type);
     }
@@ -436,7 +438,7 @@ class SchemaPrinter
         );
 
         return static::printDescription($options, $type)
-            . sprintf('enum %s', $type->name)
+            . "enum {$type->name}"
             . static::printBlock($values);
     }
 
