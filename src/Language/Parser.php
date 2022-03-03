@@ -1088,9 +1088,7 @@ class Parser
 
         $operationTypes = $this->many(
             Token::BRACE_L,
-            function (): OperationTypeDefinitionNode {
-                return $this->parseOperationTypeDefinition();
-            },
+            fn (): OperationTypeDefinitionNode => $this->parseOperationTypeDefinition(),
             Token::BRACE_R
         );
 
@@ -1395,9 +1393,7 @@ class Parser
         return $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                function (): InputValueDefinitionNode {
-                    return $this->parseInputValueDefinition();
-                },
+                fn (): InputValueDefinitionNode => $this->parseInputValueDefinition(),
                 Token::BRACE_R
             )
             : new NodeList([]);

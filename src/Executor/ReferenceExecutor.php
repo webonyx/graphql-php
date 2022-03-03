@@ -540,7 +540,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
                 $promise = $this->getPromise($result);
                 if ($promise !== null) {
-                    return $promise->then(static function ($resolvedResult) use ($responseName, $results) {
+                    return $promise->then(static function ($resolvedResult) use ($responseName, $results): array {
                         $results[$responseName] = $resolvedResult;
 
                         return $results;
@@ -926,9 +926,7 @@ class ReferenceExecutor implements ExecutorImplementation
             function ($previous, $value) use ($callback) {
                 $promise = $this->getPromise($previous);
                 if ($promise !== null) {
-                    return $promise->then(static function ($resolved) use ($callback, $value) {
-                        return $callback($resolved, $value);
-                    });
+                    return $promise->then(static fn ($resolved) => $callback($resolved, $value));
                 }
 
                 return $callback($previous, $value);
@@ -1034,26 +1032,18 @@ class ReferenceExecutor implements ExecutorImplementation
 
         $promise = $this->getPromise($runtimeType);
         if ($promise !== null) {
-            return $promise->then(function ($resolvedRuntimeType) use (
-                $returnType,
+            return $promise->then(fn ($resolvedRuntimeType) => $this->completeObjectValue(
+                $this->ensureValidRuntimeType(
+                    $resolvedRuntimeType,
+                    $returnType,
+                    $info,
+                    $result
+                ),
                 $fieldNodes,
                 $info,
                 $path,
-                &$result
-            ) {
-                return $this->completeObjectValue(
-                    $this->ensureValidRuntimeType(
-                        $resolvedRuntimeType,
-                        $returnType,
-                        $info,
-                        $result
-                    ),
-                    $fieldNodes,
-                    $info,
-                    $path,
-                    $result
-                );
-            });
+                $result
+            ));
         }
 
         return $this->completeObjectValue(

@@ -37,9 +37,7 @@ $queryType = new ObjectType([
     'fields' => [
         'hello' => [
             'type' => Type::string(),
-            'resolve' => function() {
-                return 'Hello World!';
-            }
+            'resolve' => fn () => 'Hello World!',
         ],
         'hero' => [
             'type' => $characterInterface,
@@ -48,9 +46,7 @@ $queryType = new ObjectType([
                     'type' => $episodeEnum
                 ]
             ],
-            'resolve' => function ($rootValue, $args) {
-                return StarWarsData::getHero(isset($args['episode']) ? $args['episode'] : null);
-            },
+            'resolve' => fn ($rootValue, $args) => StarWarsData::getHero(isset($args['episode']) ? $args['episode'] : null),
         ]
     ]
 ]);
@@ -64,8 +60,8 @@ $mutationType = new ObjectType([
                 'episode' => $episodeEnum,
                 'review' => $reviewInputObject
             ],
-            'resolve' => function($rootValue, $args) {
-                // TODOC
+            'resolve' => function ($rootValue, $args) {
+                // TODO
             }
         ]
     ]
