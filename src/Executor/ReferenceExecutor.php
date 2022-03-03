@@ -47,7 +47,6 @@ use function is_iterable;
 use function is_string;
 use RuntimeException;
 use SplObjectStorage;
-use function sprintf;
 use stdClass;
 use Throwable;
 
@@ -186,11 +185,10 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         if ($operation === null) {
-            if ($operationName === null) {
-                $errors[] = new Error('Must provide an operation.');
-            } else {
-                $errors[] = new Error(sprintf('Unknown operation named "%s".', $operationName));
-            }
+            $message = $operationName === null
+                ? 'Must provide an operation.'
+                : "Unknown operation named \"{$operationName}\".";
+            $errors[] = new Error($message);
         } elseif ($hasMultipleAssumedOperations) {
             $errors[] = new Error(
                 'Must provide operation name if query contains multiple operations.'
@@ -822,9 +820,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 $result
             );
             if ($completed === null) {
-                throw new InvariantViolation(
-                    sprintf('Cannot return null for non-nullable field "%s.%s".', $info->parentType, $info->fieldName)
-                );
+                throw new InvariantViolation("Cannot return null for non-nullable field \"{$info->parentType}.{$info->fieldName}\".");
             }
 
             return $completed;
@@ -1089,15 +1085,9 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         if ($abstractType instanceof InterfaceType && $info->schema->getConfig()->typeLoader !== null) {
+            $safeValue = Utils::printSafe($value);
             Warning::warnOnce(
-                sprintf(
-                    'GraphQL Interface Type `%s` returned `null` from its `resolveType` function '
-                    . 'for value: %s. Switching to slow resolution method using `isTypeOf` '
-                    . 'of all possible implementations. It requires full schema scan and degrades query performance significantly. '
-                    . ' Make sure your `resolveType` always returns valid implementation or throws.',
-                    $abstractType->name,
-                    Utils::printSafe($value)
-                ),
+                "GraphQL Interface Type `{$abstractType->name}` returned `null` from its `resolveType` function for value: {$safeValue}. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly.  Make sure your `resolveType` always returns valid implementation or throws.",
                 Warning::WARNING_FULL_SCHEMA_SCAN
             );
         }
