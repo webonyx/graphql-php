@@ -34,7 +34,6 @@ use function ksort;
 use function mb_strlen;
 use function sprintf;
 use function str_replace;
-use function strlen;
 
 /**
  * Prints the contents of a Schema in schema definition language.
@@ -249,39 +248,42 @@ class SchemaPrinter
             return '';
         }
 
-        // If every arg does not have a description, print them on one line.
-        if (
-            Utils::every(
-                $args,
-                static fn (Argument $arg): bool => strlen($arg->description ?? '') === 0
-            )
-        ) {
-            return '('
+        $everyArgHasDescription = true;
+        foreach ($args as $arg) {
+            $description = $arg->description;
+            if ($description === null || $description === '') {
+                $everyArgHasDescription = false;
+                break;
+            }
+        }
+
+        if ($everyArgHasDescription) {
+            return "(\n"
                 . implode(
-                    ', ',
+                    "\n",
                     array_map(
-                        [static::class, 'printInputValue'],
-                        $args
+                        static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, $i === 0)
+                            . '  '
+                            . $indentation
+                            . static::printInputValue($arg),
+                        $args,
+                        array_keys($args)
                     )
                 )
+                . "\n"
+                . $indentation
                 . ')';
         }
 
-        return sprintf(
-            "(\n%s\n%s)",
-            implode(
-                "\n",
+        return '('
+            . implode(
+                ', ',
                 array_map(
-                    static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, $i === 0)
-                        . '  '
-                        . $indentation
-                        . static::printInputValue($arg),
-                    $args,
-                    array_keys($args)
+                    [static::class, 'printInputValue'],
+                    $args
                 )
-            ),
-            $indentation
-        );
+            )
+            . ')';
     }
 
     /**

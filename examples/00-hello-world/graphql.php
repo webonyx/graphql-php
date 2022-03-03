@@ -25,9 +25,7 @@ try {
                 'args' => [
                     'message' => ['type' => Type::string()],
                 ],
-                'resolve' => static function ($rootValue, array $args): string {
-                    return $rootValue['prefix'] . $args['message'];
-                },
+                'resolve' => static fn ($rootValue, array $args): string => $rootValue['prefix'] . $args['message'],
             ],
         ],
     ]);
@@ -41,9 +39,7 @@ try {
                     'x' => ['type' => Type::int()],
                     'y' => ['type' => Type::int()],
                 ],
-                'resolve' => static function ($calc, array $args): int {
-                    return $args['x'] + $args['y'];
-                },
+                'resolve' => static fn ($calc, array $args): int => $args['x'] + $args['y'],
             ],
         ],
     ]);

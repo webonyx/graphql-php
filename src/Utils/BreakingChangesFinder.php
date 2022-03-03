@@ -490,13 +490,13 @@ class BreakingChangesFinder
                 }
 
                 foreach ($oldField->args as $oldArgDef) {
-                    $newArgs = $newTypeFields[$fieldName]->args;
-                    $newArgDef = Utils::find(
-                        $newArgs,
-                        static function ($arg) use ($oldArgDef): bool {
-                            return $arg->name === $oldArgDef->name;
+                    $newArgDef = null;
+                    foreach ($newTypeFields[$fieldName]->args as $newArg) {
+                        if ($newArg->name === $oldArgDef->name) {
+                            $newArgDef = $newArg;
                         }
-                    );
+                    }
+
                     if ($newArgDef !== null) {
                         $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg(
                             $oldArgDef->getType(),
@@ -519,24 +519,18 @@ class BreakingChangesFinder
                     } else {
                         $breakingChanges[] = [
                             'type' => self::BREAKING_CHANGE_ARG_REMOVED,
-                            'description' => sprintf(
-                                '%s.%s arg %s was removed',
-                                $typeName,
-                                $fieldName,
-                                $oldArgDef->name
-                            ),
+                            'description' => "{$typeName}.{$fieldName} arg {$oldArgDef->name} was removed",
                         ];
                     }
 
                     // Check if arg was added to the field
                     foreach ($newTypeFields[$fieldName]->args as $newTypeFieldArgDef) {
-                        $oldArgs = $oldTypeFields[$fieldName]->args;
-                        $oldArgDef = Utils::find(
-                            $oldArgs,
-                            static function ($arg) use ($newTypeFieldArgDef): bool {
-                                return $arg->name === $newTypeFieldArgDef->name;
+                        $oldArgDef = null;
+                        foreach ($oldTypeFields[$fieldName]->args as $oldArg) {
+                            if ($oldArg->name === $newTypeFieldArgDef->name) {
+                                $oldArgDef = $oldArg;
                             }
-                        );
+                        }
 
                         if ($oldArgDef !== null) {
                             continue;
@@ -586,16 +580,17 @@ class BreakingChangesFinder
             $oldInterfaces = $oldType->getInterfaces();
             $newInterfaces = $newType->getInterfaces();
             foreach ($oldInterfaces as $oldInterface) {
-                $interface = Utils::find(
-                    $newInterfaces,
-                    static function (InterfaceType $interface) use ($oldInterface): bool {
-                        return $interface->name === $oldInterface->name;
+                $interfaceWasRemoved = true;
+                foreach ($newInterfaces as $newInterface) {
+                    if ($oldInterface->name === $newInterface->name) {
+                        $interfaceWasRemoved = false;
                     }
-                );
-                if ($interface === null) {
+                }
+
+                if ($interfaceWasRemoved) {
                     $breakingChanges[] = [
                         'type' => self::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
-                        'description' => sprintf('%s no longer implements interface %s.', $typeName, $oldInterface->name),
+                        'description' => "{$typeName} no longer implements interface {$oldInterface->name}.",
                     ];
                 }
             }
@@ -865,21 +860,17 @@ class BreakingChangesFinder
             $oldInterfaces = $oldType->getInterfaces();
             $newInterfaces = $newType->getInterfaces();
             foreach ($newInterfaces as $newInterface) {
-                $interface = Utils::find(
-                    $oldInterfaces,
-                    static function (InterfaceType $interface) use ($newInterface): bool {
-                        return $interface->name === $newInterface->name;
+                $interfaceWasAdded = true;
+                foreach ($oldInterfaces as $oldInterface) {
+                    if ($oldInterface->name === $newInterface->name) {
+                        $interfaceWasAdded = false;
                     }
-                );
+                }
 
-                if ($interface === null) {
+                if ($interfaceWasAdded) {
                     $interfacesAddedToObjectTypes[] = [
                         'type' => self::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
-                        'description' => sprintf(
-                            '%s added to interfaces implemented by %s.',
-                            $newInterface->name,
-                            $typeName
-                        ),
+                        'description' => "{$newInterface->name} added to interfaces implemented by {$typeName}.",
                     ];
                 }
             }

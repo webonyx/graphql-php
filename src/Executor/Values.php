@@ -139,15 +139,12 @@ class Values
      */
     public static function getDirectiveValues(Directive $directiveDef, Node $node, ?array $variableValues = null): ?array
     {
-        $directiveNode = Utils::find(
-            $node->directives,
-            static function (DirectiveNode $directive) use ($directiveDef): bool {
-                return $directive->name->value === $directiveDef->name;
-            }
-        );
+        $directiveDefName = $directiveDef->name;
 
-        if ($directiveNode !== null) {
-            return self::getArgumentValues($directiveDef, $directiveNode, $variableValues);
+        foreach ($node->directives as $directive) {
+            if ($directive->name->value === $directiveDefName) {
+                return self::getArgumentValues($directiveDef, $directive, $variableValues);
+            }
         }
 
         return null;

@@ -5,17 +5,13 @@ namespace GraphQL\Utils;
 use function array_keys;
 use function array_map;
 use function array_reduce;
-use function array_shift;
 use function array_slice;
 use function asort;
 use function count;
 use function dechex;
-use function func_get_args;
-use function func_num_args;
 use function get_class;
 use function gettype;
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
@@ -34,7 +30,6 @@ use function pack;
 use function preg_match;
 use function property_exists;
 use function range;
-use function sprintf;
 use stdClass;
 use function strtolower;
 use function unpack;
@@ -66,65 +61,6 @@ class Utils
         }
 
         return $obj;
-    }
-
-    /**
-     * @template TKey of array-key
-     * @template TValue
-     *
-     * @param iterable<mixed> $iterable
-     * @phpstan-param iterable<TKey, TValue> $iterable
-     * @phpstan-param callable(TValue, TKey): bool $predicate
-     *
-     * @return mixed
-     * @phpstan-return TValue|null
-     */
-    public static function find(iterable $iterable, callable $predicate)
-    {
-        foreach ($iterable as $key => $value) {
-            if ($predicate($value, $key)) {
-                return $value;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     */
-    public static function every($iterable, callable $predicate): bool
-    {
-        foreach ($iterable as $key => $value) {
-            if (! $predicate($value, $key)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param mixed  $test    will be evaluated for truthy-ness
-     * @param string $message
-     *
-     * @throws InvariantViolation
-     */
-    public static function invariant($test, $message = ''): void
-    {
-        // @phpstan-ignore-next-line we want to evaluate for truthy-ness
-        if ($test) {
-            return;
-        }
-
-        if (func_num_args() > 2) {
-            $args = func_get_args();
-            array_shift($args);
-            $message = sprintf(...$args);
-        }
-
-        // TODO switch to Error here
-        throw new InvariantViolation($message);
     }
 
     /**

@@ -216,11 +216,13 @@ class ResolveInfo
     }
 
     /**
-     * @return bool[]
+     * @return array<string, bool>
      */
     private function foldSelectionSet(SelectionSetNode $selectionSet, int $descend): array
     {
+        /** @var array<string, bool> $fields */
         $fields = [];
+
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
                 $fields[$selectionNode->name->value] = $descend > 0 && $selectionNode->selectionSet !== null
