@@ -78,8 +78,8 @@ class LexicalDistance
         }
 
         $rows = &$this->rows;
-        for ($j = 0; $j <= $bLength; ++$j) {
-            $rows[0][$j] = $j;
+        for ($i = 0; $i <= $bLength; ++$i) {
+            $rows[0][$i] = $i;
         }
 
         for ($i = 1; $i <= $aLength; ++$i) {
