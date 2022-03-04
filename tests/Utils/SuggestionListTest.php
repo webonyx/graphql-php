@@ -13,7 +13,10 @@ class SuggestionListTest extends TestCase
      */
     public function testReturnsResultsWhenInputIsEmpty(): void
     {
-        self::assertEquals(Utils::suggestionList('', ['a']), ['a']);
+        self::assertSame(
+            ['a'],
+            Utils::suggestionList('', ['a']),
+        );
     }
 
     /**
@@ -21,7 +24,10 @@ class SuggestionListTest extends TestCase
      */
     public function testReturnsEmptyArrayWhenThereAreNoOptions(): void
     {
-        self::assertEquals(Utils::suggestionList('input', []), []);
+        self::assertSame(
+            [],
+            Utils::suggestionList('input', []),
+        );
     }
 
     /**
@@ -29,8 +35,14 @@ class SuggestionListTest extends TestCase
      */
     public function testReturnsOptionsWithSmallLexicalDistance(): void
     {
-        self::assertEquals(Utils::suggestionList('greenish', ['green']), ['green']);
-        self::assertEquals(Utils::suggestionList('green', ['greenish']), ['greenish']);
+        self::assertSame(
+            ['green'],
+            Utils::suggestionList('greenish', ['green']),
+        );
+        self::assertSame(
+            ['greenish'],
+            Utils::suggestionList('green', ['greenish']),
+        );
     }
 
     /**
@@ -38,10 +50,22 @@ class SuggestionListTest extends TestCase
      */
     public function testRejectsOptionsWithDistanceThatExceedsThreshold(): void
     {
-        self::assertEquals(Utils::suggestionList('aaaa', ['aaab']), ['aaab']);
-        self::assertEquals(Utils::suggestionList('aaaa', ['aabb']), ['aabb']);
-        self::assertEquals(Utils::suggestionList('aaaa', ['abbb']), []);
-        self::assertEquals(Utils::suggestionList('ab', ['ca']), []);
+        self::assertSame(
+            ['aaab'],
+            Utils::suggestionList('aaaa', ['aaab']),
+        );
+        self::assertSame(
+            ['aabb'],
+            Utils::suggestionList('aaaa', ['aabb']),
+        );
+        self::assertSame(
+            [],
+            Utils::suggestionList('aaaa', ['abbb']),
+        );
+        self::assertSame(
+            [],
+            Utils::suggestionList('ab', ['ca']),
+        );
     }
 
     /**
@@ -49,17 +73,17 @@ class SuggestionListTest extends TestCase
      */
     public function testReturnsOptionsWithDifferentCase(): void
     {
-        self::assertEquals(
+        self::assertSame(
+            ['VERYLONGSTRING'],
             Utils::suggestionList('verylongstring', ['VERYLONGSTRING']),
-            ['VERYLONGSTRING']
         );
-        self::assertEquals(
+        self::assertSame(
+            ['verylongstring'],
             Utils::suggestionList('VERYLONGSTRING', ['verylongstring']),
-            ['verylongstring']
         );
-        self::assertEquals(
+        self::assertSame(
+            ['VeryLongString'],
             Utils::suggestionList('VERYLONGSTRING', ['VeryLongString']),
-            ['VeryLongString']
         );
     }
 
@@ -68,8 +92,14 @@ class SuggestionListTest extends TestCase
      */
     public function testReturnsOptionsWithTranspositions(): void
     {
-        self::assertEquals(Utils::suggestionList('agr', ['arg']), ['arg']);
-        self::assertEquals(Utils::suggestionList('214365879', ['123456789']), ['123456789']);
+        self::assertSame(
+            ['arg'],
+            Utils::suggestionList('agr', ['arg']),
+        );
+        self::assertSame(
+            ['123456789'],
+            Utils::suggestionList('214365879', ['123456789']),
+        );
     }
 
     /**
@@ -77,9 +107,9 @@ class SuggestionListTest extends TestCase
      */
     public function testReturnsOptionsSortedBasedOnLexicalDistance(): void
     {
-        self::assertEquals(
+        self::assertSame(
+            ['abc', 'ab', 'a'],
             Utils::suggestionList('abc', ['a', 'ab', 'abc']),
-            ['abc', 'ab', 'a']
         );
     }
 
@@ -88,9 +118,9 @@ class SuggestionListTest extends TestCase
      */
     public function testReturnsOptionsWithTheSameLexicalDistanceSortedLexicographically(): void
     {
-        self::assertEquals(
+        self::assertSame(
+            ['ax', 'ay', 'az'],
             Utils::suggestionList('a', ['az', 'ax', 'ay']),
-            ['ax', 'ay', 'az']
         );
     }
 }
