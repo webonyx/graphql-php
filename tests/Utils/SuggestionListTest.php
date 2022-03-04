@@ -123,4 +123,12 @@ class SuggestionListTest extends TestCase
             Utils::suggestionList('a', ['az', 'ax', 'ay']),
         );
     }
+
+    public function testReturnsNumericStringOptionsAsStrings(): void
+    {
+        self::assertSame(
+            ['12', '13', '14'],
+            Utils::suggestionList('1', ['12', '13', '14']),
+        );
+    }
 }

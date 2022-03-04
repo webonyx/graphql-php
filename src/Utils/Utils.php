@@ -287,6 +287,7 @@ class Utils
      */
     public static function suggestionList(string $input, array $options): array
     {
+        /** @var array<string, int> $optionsByDistance */
         $optionsByDistance = [];
         $lexicalDistance = new LexicalDistance($input);
         $threshold = mb_strlen($input) * 0.4 + 1;
@@ -304,6 +305,6 @@ class Utils
             return $distanceDiff !== 0 ? $distanceDiff : \strnatcmp($a, $b);
         });
 
-        return array_keys($optionsByDistance);
+        return array_map('strval', array_keys($optionsByDistance));
     }
 }
