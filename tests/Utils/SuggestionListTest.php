@@ -11,7 +11,7 @@ class SuggestionListTest extends TestCase
      * @see describe('suggestionList')
      * @see it('Returns results when input is empty')
      */
-    public function testResturnsResultsWhenInputIsEmpty(): void
+    public function testReturnsResultsWhenInputIsEmpty(): void
     {
         self::assertEquals(Utils::suggestionList('', ['a']), ['a']);
     }
