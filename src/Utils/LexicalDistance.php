@@ -23,6 +23,8 @@ class LexicalDistance
     private string $inputLowerCase;
 
     /**
+     * List of char codes in the input string.
+     *
      * @var array<int>
      */
     private array $inputArray;
@@ -119,6 +121,8 @@ class LexicalDistance
     }
 
     /**
+     * Returns a list of char codes in the given string.
+     *
      * @return array<int>
      */
     private static function stringToArray(string $str): array
