@@ -490,7 +490,7 @@ class AbstractTest extends TestCase
                             . 'This can happen when an object type is only referenced indirectly through '
                             . 'abstract types and never directly through fields.'
                             . 'List the type in the option "types" during schema construction, '
-                            . 'see https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options.',
+                            . 'see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options.',
                     ],
                 ],
             ],

@@ -58,7 +58,6 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
-use function sprintf;
 
 /**
  * Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
@@ -369,7 +368,7 @@ class Parser
         throw new SyntaxError(
             $this->lexer->source,
             $token->start,
-            sprintf('Expected %s, found %s', $kind, $token->getDescription())
+            "Expected {$kind}, found {$token->getDescription()}"
         );
     }
 
@@ -1088,9 +1087,7 @@ class Parser
 
         $operationTypes = $this->many(
             Token::BRACE_L,
-            function (): OperationTypeDefinitionNode {
-                return $this->parseOperationTypeDefinition();
-            },
+            fn (): OperationTypeDefinitionNode => $this->parseOperationTypeDefinition(),
             Token::BRACE_R
         );
 
@@ -1395,9 +1392,7 @@ class Parser
         return $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                function (): InputValueDefinitionNode {
-                    return $this->parseInputValueDefinition();
-                },
+                fn (): InputValueDefinitionNode => $this->parseInputValueDefinition(),
                 Token::BRACE_R
             )
             : new NodeList([]);

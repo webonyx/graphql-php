@@ -497,44 +497,42 @@ GRAPHQL;
             'description' => 'Arguments provided to Fields or Directives and the input fields of an '
                     . 'InputObject are represented as Input Values which describe their type '
                     . 'and optionally a default value.',
-            'fields' => static function (): array {
-                return [
-                    'name' => [
-                        'type' => Type::nonNull(Type::string()),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): string => $inputValue->name,
-                    ],
-                    'description' => [
-                        'type' => Type::string(),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): ?string => $inputValue->description,
-                    ],
-                    'type' => [
-                        'type' => Type::nonNull(self::_type()),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): Type => $inputValue->getType(),
-                    ],
-                    'defaultValue' => [
-                        'type' => Type::string(),
-                        'description' => 'A GraphQL-formatted string representing the default value for this input value.',
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static function ($inputValue): ?string {
-                            if ($inputValue->defaultValueExists()) {
-                                $defaultValueAST = AST::astFromValue($inputValue->defaultValue, $inputValue->getType());
+            'fields' => static fn (): array => [
+                'name' => [
+                    'type' => Type::nonNull(Type::string()),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): string => $inputValue->name,
+                ],
+                'description' => [
+                    'type' => Type::string(),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): ?string => $inputValue->description,
+                ],
+                'type' => [
+                    'type' => Type::nonNull(self::_type()),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): Type => $inputValue->getType(),
+                ],
+                'defaultValue' => [
+                    'type' => Type::string(),
+                    'description' => 'A GraphQL-formatted string representing the default value for this input value.',
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static function ($inputValue): ?string {
+                        if ($inputValue->defaultValueExists()) {
+                            $defaultValueAST = AST::astFromValue($inputValue->defaultValue, $inputValue->getType());
 
-                                if ($defaultValueAST === null) {
-                                    $inconvertibleDefaultValue = Utils::printSafe($inputValue->defaultValue);
-                                    throw new InvariantViolation("Unable to convert defaultValue of argument {$inputValue->name} into AST: {$inconvertibleDefaultValue}.");
-                                }
-
-                                return Printer::doPrint($defaultValueAST);
+                            if ($defaultValueAST === null) {
+                                $inconvertibleDefaultValue = Utils::printSafe($inputValue->defaultValue);
+                                throw new InvariantViolation("Unable to convert defaultValue of argument {$inputValue->name} into AST: {$inconvertibleDefaultValue}.");
                             }
 
-                            return null;
-                        },
-                    ],
-                ];
-            },
+                            return Printer::doPrint($defaultValueAST);
+                        }
+
+                        return null;
+                    },
+                ],
+            ],
         ]);
     }
 

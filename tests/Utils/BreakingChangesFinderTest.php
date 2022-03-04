@@ -13,7 +13,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BreakingChangesFinder;
 use PHPUnit\Framework\TestCase;
-use function sprintf;
 
 class BreakingChangesFinderTest extends TestCase
 {
@@ -1373,7 +1372,7 @@ class BreakingChangesFinderTest extends TestCase
         $expectedBreakingChanges = [
             [
                 'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
-                'description' => sprintf('%s was removed', $includeDirective->name),
+                'description' => "{$includeDirective->name} was removed",
             ],
         ];
 
@@ -1399,7 +1398,7 @@ class BreakingChangesFinderTest extends TestCase
         $expectedBreakingChanges = [
             [
                 'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
-                'description' => sprintf('%s was removed', $deprecatedDirective->name),
+                'description' => "{$deprecatedDirective->name} was removed",
             ],
         ];
 

@@ -9,7 +9,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use function sprintf;
 
 class GraphQLTest extends TestCase
 {
@@ -30,7 +29,7 @@ class GraphQLTest extends TestCase
                                     ],
                                 ],
                                 'resolve' => static function ($rootValue, $args) use ($promiseAdapter): Promise {
-                                    return $promiseAdapter->createFulfilled(sprintf('Hi %s!', $args['name']));
+                                    return $promiseAdapter->createFulfilled("Hi {$args['name']}!");
                                 },
                             ],
                         ],

@@ -259,7 +259,7 @@ class SchemaExtender
     }
 
     /**
-     * @return array<int, Type&ObjectType>
+     * @return array<int, ObjectType>
      */
     protected static function extendUnionPossibleTypes(UnionType $type): array
     {
@@ -285,7 +285,7 @@ class SchemaExtender
     /**
      * @param ObjectType|InterfaceType $type
      *
-     * @return array<int, Type&InterfaceType>
+     * @return array<int, InterfaceType>
      */
     protected static function extendImplementedInterfaces(ImplementingType $type): array
     {

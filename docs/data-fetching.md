@@ -201,6 +201,7 @@ Here is an example of **BlogStory** resolver for field **author** that uses defe
 
     return new GraphQL\Deferred(function () use ($blogStory) {
         MyUserBuffer::loadBuffered();
+
         return MyUserBuffer::get($blogStory['authorId']);
     });
 }

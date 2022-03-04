@@ -36,6 +36,10 @@ Elements that belong to the public API of this package are marked with the `@api
 Those elements are thus guaranteed to be stable within major versions. All other elements are
 not part of this backwards compatibility guarantee and may change between minor or patch versions.
 
+The most recent version is actively developed on [`master`](https://github.com/webonyx/graphql-php/tree/master)
+and will be released as `15.x`. The current stable version `14.x` receives bug fixes only.
+Older versions are no longer supported.
+
 ## Contributors
 
 This project exists thanks to [all the people](https://github.com/webonyx/graphql-php/graphs/contributors) who contribute. [[Contribute](CONTRIBUTING.md)].
