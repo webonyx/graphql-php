@@ -32,20 +32,13 @@ class LexicalDistance
     /**
      * @var array<array<int>>
      */
-    private array $rows;
+    private array $rows = [];
 
     public function __construct(string $input)
     {
         $this->input = $input;
         $this->inputLowerCase = \strtolower($input);
         $this->inputArray = self::stringToArray($this->inputLowerCase);
-
-        $length = \mb_strlen($input);
-        $this->rows = [
-            \array_fill(0, $length, 0),
-            \array_fill(0, $length, 0),
-            \array_fill(0, $length, 0),
-        ];
     }
 
     public function measure(string $option, float $threshold): ?int
