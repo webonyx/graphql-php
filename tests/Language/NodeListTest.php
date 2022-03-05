@@ -51,6 +51,7 @@ final class NodeListTest extends TestCase
 
     public function testPushNodes(): void
     {
+        /** @var NodeList<NameNode> $nodeList */
         $nodeList = new NodeList([]);
         self::assertCount(0, $nodeList);
 
