@@ -236,7 +236,6 @@ class VisitorTest extends ValidatorTestCase
                     'enter' => function (DocumentNode $node) use ($ast): DocumentNode {
                         $this->checkVisitorFnArgs($ast, func_get_args());
                         $tmp = clone $node;
-                        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
                         $tmp->definitions = new NodeList([]);
                         $tmp->didEnter = true;
 

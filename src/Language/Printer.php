@@ -218,7 +218,6 @@ class Printer
                 return 'fragment ' . $this->p($node->name)
                     . $this->wrap(
                         '(',
-                        // @phpstan-ignore-next-line generic type of empty NodeList is not recognized
                         $this->printList($node->variableDefinitions ?? new NodeList([]), ', '),
                         ')'
                     )
