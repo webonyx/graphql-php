@@ -32,9 +32,7 @@ use GraphQL\Type\Schema;
 use function implode;
 use function ksort;
 use function mb_strlen;
-use function sprintf;
 use function str_replace;
-use function strlen;
 
 /**
  * Prints the contents of a Schema in schema definition language.
@@ -106,7 +104,8 @@ class SchemaPrinter
             return static::printInputObject($type, $options);
         }
 
-        throw new Error(sprintf('Unknown type: %s.', Utils::printSafe($type)));
+        $unknownType = Utils::printSafe($type);
+        throw new Error("Unknown type: {$unknownType}.");
     }
 
     /**
@@ -146,20 +145,22 @@ class SchemaPrinter
 
         $queryType = $schema->getQueryType();
         if ($queryType !== null) {
-            $operationTypes[] = sprintf('  query: %s', $queryType->name);
+            $operationTypes[] = "  query: {$queryType->name}";
         }
 
         $mutationType = $schema->getMutationType();
         if ($mutationType !== null) {
-            $operationTypes[] = sprintf('  mutation: %s', $mutationType->name);
+            $operationTypes[] = "  mutation: {$mutationType->name}";
         }
 
         $subscriptionType = $schema->getSubscriptionType();
         if ($subscriptionType !== null) {
-            $operationTypes[] = sprintf('  subscription: %s', $subscriptionType->name);
+            $operationTypes[] = "  subscription: {$subscriptionType->name}";
         }
 
-        return sprintf("schema {\n%s\n}", implode("\n", $operationTypes));
+        $typesString = implode("\n", $operationTypes);
+
+        return "schema {\n{$typesString}\n}";
     }
 
     /**
@@ -249,39 +250,42 @@ class SchemaPrinter
             return '';
         }
 
-        // If every arg does not have a description, print them on one line.
-        if (
-            Utils::every(
-                $args,
-                static fn (Argument $arg): bool => strlen($arg->description ?? '') === 0
-            )
-        ) {
-            return '('
+        $everyArgHasDescription = true;
+        foreach ($args as $arg) {
+            $description = $arg->description;
+            if ($description === null || $description === '') {
+                $everyArgHasDescription = false;
+                break;
+            }
+        }
+
+        if ($everyArgHasDescription) {
+            return "(\n"
                 . implode(
-                    ', ',
+                    "\n",
                     array_map(
-                        [static::class, 'printInputValue'],
-                        $args
+                        static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, $i === 0)
+                            . '  '
+                            . $indentation
+                            . static::printInputValue($arg),
+                        $args,
+                        array_keys($args)
                     )
                 )
+                . "\n"
+                . $indentation
                 . ')';
         }
 
-        return sprintf(
-            "(\n%s\n%s)",
-            implode(
-                "\n",
+        return '('
+            . implode(
+                ', ',
                 array_map(
-                    static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, $i === 0)
-                        . '  '
-                        . $indentation
-                        . static::printInputValue($arg),
-                    $args,
-                    array_keys($args)
+                    [static::class, 'printInputValue'],
+                    $args
                 )
-            ),
-            $indentation
-        );
+            )
+            . ')';
     }
 
     /**
@@ -396,7 +400,7 @@ class SchemaPrinter
     protected static function printInterface(InterfaceType $type, array $options): string
     {
         return static::printDescription($options, $type)
-            . sprintf('interface %s', $type->name)
+            . "interface {$type->name}"
             . self::printImplementedInterfaces($type)
             . static::printFields($options, $type);
     }
@@ -434,7 +438,7 @@ class SchemaPrinter
         );
 
         return static::printDescription($options, $type)
-            . sprintf('enum %s', $type->name)
+            . "enum {$type->name}"
             . static::printBlock($values);
     }
 

@@ -58,9 +58,7 @@ $queryType = new ObjectType([
             'args' => [
                 'message' => Type::nonNull(Type::string()),
             ],
-            'resolve' => function ($rootValue, $args) {
-                return $rootValue['prefix'] . $args['message'];
-            }
+            'resolve' => fn ($rootValue, $args) => $rootValue['prefix'] . $args['message'],
         ],
     ],
 ]);

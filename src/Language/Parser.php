@@ -58,7 +58,6 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
-use function sprintf;
 
 /**
  * Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
@@ -369,7 +368,7 @@ class Parser
         throw new SyntaxError(
             $this->lexer->source,
             $token->start,
-            sprintf('Expected %s, found %s', $kind, $token->getDescription())
+            "Expected {$kind}, found {$token->getDescription()}"
         );
     }
 
@@ -606,7 +605,6 @@ class Parser
      */
     private function parseVariableDefinitions(): NodeList
     {
-        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
         return $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
@@ -704,7 +702,6 @@ class Parser
             ? fn (): ArgumentNode => $this->parseConstArgument()
             : fn (): ArgumentNode => $this->parseArgument();
 
-        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
         return $this->peek(Token::PAREN_L)
             ? $this->many(Token::PAREN_L, $parseFn, Token::PAREN_R)
             : new NodeList([]);
@@ -1088,9 +1085,7 @@ class Parser
 
         $operationTypes = $this->many(
             Token::BRACE_L,
-            function (): OperationTypeDefinitionNode {
-                return $this->parseOperationTypeDefinition();
-            },
+            fn (): OperationTypeDefinitionNode => $this->parseOperationTypeDefinition(),
             Token::BRACE_R
         );
 
@@ -1227,7 +1222,6 @@ class Parser
      */
     private function parseArgumentsDefinition(): NodeList
     {
-        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
         return $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
@@ -1343,7 +1337,6 @@ class Parser
      */
     private function parseEnumValuesDefinition(): NodeList
     {
-        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
         return $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
@@ -1391,13 +1384,10 @@ class Parser
      */
     private function parseInputFieldsDefinition(): NodeList
     {
-        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
         return $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                function (): InputValueDefinitionNode {
-                    return $this->parseInputValueDefinition();
-                },
+                fn (): InputValueDefinitionNode => $this->parseInputValueDefinition(),
                 Token::BRACE_R
             )
             : new NodeList([]);

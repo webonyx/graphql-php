@@ -301,9 +301,7 @@ class BuildClientSchema
         return new CustomScalarType([
             'name' => $scalar['name'],
             'description' => $scalar['description'],
-            'serialize' => static function ($value): string {
-                return (string) $value;
-            },
+            'serialize' => static fn ($value): string => (string) $value,
         ]);
     }
 
@@ -341,12 +339,8 @@ class BuildClientSchema
         return new ObjectType([
             'name' => $object['name'],
             'description' => $object['description'],
-            'interfaces' => function () use ($object): array {
-                return $this->buildImplementationsList($object);
-            },
-            'fields' => function () use ($object) {
-                return $this->buildFieldDefMap($object);
-            },
+            'interfaces' => fn (): array => $this->buildImplementationsList($object),
+            'fields' => fn (): array => $this->buildFieldDefMap($object),
         ]);
     }
 
@@ -358,12 +352,8 @@ class BuildClientSchema
         return new InterfaceType([
             'name' => $interface['name'],
             'description' => $interface['description'],
-            'fields' => function () use ($interface) {
-                return $this->buildFieldDefMap($interface);
-            },
-            'interfaces' => function () use ($interface): array {
-                return $this->buildImplementationsList($interface);
-            },
+            'fields' => fn (): array => $this->buildFieldDefMap($interface),
+            'interfaces' => fn (): array => $this->buildImplementationsList($interface),
         ]);
     }
 
@@ -422,9 +412,7 @@ class BuildClientSchema
         return new InputObjectType([
             'name' => $inputObject['name'],
             'description' => $inputObject['description'],
-            'fields' => function () use ($inputObject): array {
-                return $this->buildInputValueDefMap($inputObject['inputFields']);
-            },
+            'fields' => fn (): array => $this->buildInputValueDefMap($inputObject['inputFields']),
         ]);
     }
 

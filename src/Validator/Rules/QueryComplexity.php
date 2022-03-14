@@ -49,8 +49,6 @@ class QueryComplexity extends QuerySecurityRule
     public function getVisitor(QueryValidationContext $context): array
     {
         $this->context = $context;
-
-        // @phpstan-ignore-next-line Initializing with an empty array does not set the generic type
         $this->variableDefs = new NodeList([]);
         $this->fieldNodeAndDefs = new ArrayObject();
 

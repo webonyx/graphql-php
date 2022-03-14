@@ -29,7 +29,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use RuntimeException;
 use function Safe\json_encode;
-use function sprintf;
 use stdClass;
 
 final class DefinitionTest extends TestCaseBase
@@ -586,7 +585,7 @@ final class DefinitionTest extends TestCaseBase
             self::assertSame(
                 $entry[1],
                 Type::isInputType($entry[0]),
-                sprintf('Type %s was detected incorrectly', $entry[0])
+                "Type {$entry[0]} was detected incorrectly"
             );
         }
     }
@@ -619,7 +618,7 @@ final class DefinitionTest extends TestCaseBase
             self::assertSame(
                 $entry[1],
                 Type::isOutputType($entry[0]),
-                sprintf('Type %s was detected incorrectly', $entry[0])
+                "Type {$entry[0]} was detected incorrectly"
             );
         }
     }
