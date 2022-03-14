@@ -67,7 +67,7 @@ class KnownTypeNames extends ValidationRule
                 }
 
                 $definitionNode = $ancestors[2] ?? $parent;
-                $isSDL = $definitionNode !== null && self::isSDLNode($definitionNode);
+                $isSDL = $definitionNode instanceof TypeSystemDefinitionNode || $definitionNode instanceof TypeSystemExtensionNode;
                 if ($isSDL && in_array($typeName, $standardTypeNames, true)) {
                     return;
                 }
