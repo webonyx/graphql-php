@@ -30,7 +30,7 @@ class BreakingChangesFinderTest extends TestCase
         ]);
     }
 
-    //DESCRIBE: findBreakingChanges
+    // DESCRIBE: findBreakingChanges
 
     /**
      * @see it('should detect if a type was removed or not')
@@ -1769,7 +1769,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ]);
         // logially equivalent to type1; findTypesRemovedFromUnions should not
-        //treat this as different than type1
+        // treat this as different than type1
         $type1a = new ObjectType([
             'name' => 'Type1',
             'fields' => [

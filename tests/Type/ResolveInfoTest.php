@@ -322,7 +322,7 @@ class ResolveInfoTest extends TestCase
                 'url' => true,
             ],
             'replies' => [
-                'body' => true, //this would be missing if not for the fix https://github.com/webonyx/graphql-php/pull/98
+                'body' => true, // this would be missing if not for the fix https://github.com/webonyx/graphql-php/pull/98
                 'author' => [
                     'id' => true,
                     'name' => true,
