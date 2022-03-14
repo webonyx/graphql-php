@@ -6,7 +6,6 @@ use function array_keys;
 use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NamedTypeNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeSystemDefinitionNode;
@@ -106,14 +105,5 @@ class KnownTypeNames extends ValidationRule
         }
 
         return $message;
-    }
-
-    /**
-     * @param Node|array<int, Node> $value
-     */
-    public static function isSDLNode($value): bool
-    {
-        return $value instanceof Node
-        && ($value instanceof TypeSystemDefinitionNode || $value instanceof TypeSystemExtensionNode);
     }
 }
