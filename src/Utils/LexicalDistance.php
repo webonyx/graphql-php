@@ -15,6 +15,9 @@ namespace GraphQL\Utils;
  * of 1.
  *
  * This distance can be useful for detecting typos in input or sorting
+ *
+ * Unlike the native levenshtein() function that always returns int, LexicalDistance::measure() returns int|null.
+ * It takes into account the threshold and returns null if the measured distance is bigger.
  */
 class LexicalDistance
 {
