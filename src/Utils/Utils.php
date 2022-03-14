@@ -6,7 +6,6 @@ use function array_keys;
 use function array_map;
 use function array_reduce;
 use function array_slice;
-use function asort;
 use function count;
 use function dechex;
 use function get_class;
@@ -20,7 +19,6 @@ use function is_object;
 use function is_scalar;
 use function is_string;
 use function json_encode;
-use function levenshtein;
 use function mb_convert_encoding;
 use function mb_strlen;
 use function mb_substr;
@@ -31,7 +29,6 @@ use function preg_match;
 use function property_exists;
 use function range;
 use stdClass;
-use function strtolower;
 use function unpack;
 
 class Utils
@@ -284,34 +281,30 @@ class Utils
      * Given an invalid input string and a list of valid options, returns a filtered
      * list of valid options sorted based on their similarity with the input.
      *
-     * Includes a custom alteration from Damerau-Levenshtein to treat case changes
-     * as a single edit which helps identify mis-cased values with an edit distance
-     * of 1
-     *
      * @param array<string> $options
      *
      * @return array<int, string>
      */
     public static function suggestionList(string $input, array $options): array
     {
+        /** @var array<string, int> $optionsByDistance */
         $optionsByDistance = [];
+        $lexicalDistance = new LexicalDistance($input);
         $threshold = mb_strlen($input) * 0.4 + 1;
         foreach ($options as $option) {
-            if ($input === $option) {
-                $distance = 0;
-            } else {
-                $distance = (strtolower($input) === strtolower($option)
-                    ? 1
-                    : levenshtein($input, $option));
-            }
+            $distance = $lexicalDistance->measure($option, $threshold);
 
-            if ($distance <= $threshold) {
+            if ($distance !== null) {
                 $optionsByDistance[$option] = $distance;
             }
         }
 
-        asort($optionsByDistance);
+        \uksort($optionsByDistance, static function (string $a, string $b) use ($optionsByDistance) {
+            $distanceDiff = $optionsByDistance[$a] - $optionsByDistance[$b];
 
-        return array_keys($optionsByDistance);
+            return $distanceDiff !== 0 ? $distanceDiff : \strnatcmp($a, $b);
+        });
+
+        return array_map('strval', array_keys($optionsByDistance));
     }
 }

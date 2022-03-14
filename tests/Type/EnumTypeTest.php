@@ -348,8 +348,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: green) }',
             null,
             [
-                // Improves upon the reference implementation
-                'message' => 'Value "green" does not exist in "Color" enum. Did you mean the enum value "GREEN"?',
+                'message' => 'Value "green" does not exist in "Color" enum. Did you mean the enum value "GREEN" or "RED"?',
                 'locations' => [new SourceLocation(1, 23)],
             ]
         );
