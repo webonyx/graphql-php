@@ -3,7 +3,6 @@
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\DebugFlag;
-use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\BuildSchema;
@@ -14,7 +13,6 @@ use PHPUnit\Framework\TestCase;
  * Their counterparts have been removed from `buildASTSchema-test.js` and moved elsewhere,
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
  * TODO align with:
- *   - https://github.com/graphql/graphql-js/commit/3b9ea61f2348215dee755f779caef83df749d2bb
  *   - https://github.com/graphql/graphql-js/commit/64a5c3448a201737f9218856786c51d66f2deabd.
  */
 class BuildSchemaLegacyTest extends TestCase
@@ -144,178 +142,5 @@ class BuildSchemaLegacyTest extends TestCase
 
         $result = GraphQL::executeQuery($schema, $source, $rootValue);
         self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
-    }
-
-    // Describe: Failures
-
-    /**
-     * @see it('Unknown type referenced')
-     */
-    public function testUnknownTypeReferenced(): void
-    {
-        $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
-        $sdl = '
-            schema {
-              query: Hello
-            }
-            
-            type Hello {
-              bar: Bar
-            }
-        ';
-        $doc = Parser::parse($sdl);
-        $schema = BuildSchema::buildAST($doc);
-        $schema->getTypeMap();
-    }
-
-    /**
-     * @see it('Unknown type in interface list')
-     */
-    public function testUnknownTypeInInterfaceList(): void
-    {
-        $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
-        $sdl = '
-            type Query implements Bar {
-              field: String
-            }
-        ';
-        $doc = Parser::parse($sdl);
-        $schema = BuildSchema::buildAST($doc);
-        $schema->getTypeMap();
-    }
-
-    /**
-     * @see it('Unknown type in union list')
-     */
-    public function testUnknownTypeInUnionList(): void
-    {
-        $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
-        $sdl = '
-            union TestUnion = Bar
-            type Query { testUnion: TestUnion }
-        ';
-        $doc = Parser::parse($sdl);
-        $schema = BuildSchema::buildAST($doc);
-        $schema->getTypeMap();
-    }
-
-    /**
-     * @see it('Unknown query type')
-     */
-    public function testUnknownQueryType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Specified query type "Wat" not found in document.');
-        $sdl = '
-            schema {
-              query: Wat
-            }
-            
-            type Hello {
-              str: String
-            }
-        ';
-        $doc = Parser::parse($sdl);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Unknown mutation type')
-     */
-    public function testUnknownMutationType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Specified mutation type "Wat" not found in document.');
-        $sdl = '
-            schema {
-              query: Hello
-              mutation: Wat
-            }
-            
-            type Hello {
-              str: String
-            }
-        ';
-        $doc = Parser::parse($sdl);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Unknown subscription type')
-     */
-    public function testUnknownSubscriptionType(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Specified subscription type "Awesome" not found in document.');
-        $sdl = '
-            schema {
-              query: Hello
-              mutation: Wat
-              subscription: Awesome
-            }
-            
-            type Hello {
-              str: String
-            }
-            
-            type Wat {
-              str: String
-            }
-        ';
-        $doc = Parser::parse($sdl);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Does not consider directive names')
-     */
-    public function testDoesNotConsiderDirectiveNames(): void
-    {
-        $sdl = '
-          schema {
-            query: Foo
-          }
-    
-          directive @Foo on QUERY
-        ';
-        $doc = Parser::parse($sdl);
-        $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
-        BuildSchema::build($doc);
-    }
-
-    /**
-     * @see it('Does not consider operation names')
-     */
-    public function testDoesNotConsiderOperationNames(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
-        $sdl = '
-            schema {
-              query: Foo
-            }
-            
-            query Foo { field }
-        ';
-        $doc = Parser::parse($sdl);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @see it('Does not consider fragment names')
-     */
-    public function testDoesNotConsiderFragmentNames(): void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
-        $sdl = '
-            schema {
-              query: Foo
-            }
-            
-            fragment Foo on Type { field }
-        ';
-        $doc = Parser::parse($sdl);
-        BuildSchema::buildAST($doc);
     }
 }

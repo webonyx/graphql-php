@@ -614,11 +614,11 @@ class SchemaExtender
             $typeDefinitionMap,
             static function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
-                if ($existingType !== null) {
-                    return static::extendNamedType($existingType);
+                if ($existingType === null) {
+                    throw new InvariantViolation('Unknown type: "' . $typeName . '".');
                 }
 
-                throw new Error('Unknown type: "' . $typeName . '". Ensure that this type exists either in the original schema, or is added in a type definition.');
+                return static::extendNamedType($existingType);
             },
             $typeConfigDecorator
         );

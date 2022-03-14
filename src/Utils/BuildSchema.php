@@ -212,26 +212,17 @@ class BuildSchema
     }
 
     /**
-     * @throws Error
-     *
      * @return array<string, string>
      */
     private function getOperationTypes(SchemaDefinitionNode $schemaDef): array
     {
-        $opTypes = [];
-
+        /** @var array<string, string> $operationTypes */
+        $operationTypes = [];
         foreach ($schemaDef->operationTypes as $operationType) {
-            $typeName = $operationType->type->name->value;
-            $operation = $operationType->operation;
-
-            if (! isset($this->nodeMap[$typeName])) {
-                throw new Error('Specified ' . $operation . ' type "' . $typeName . '" not found in document.');
-            }
-
-            $opTypes[$operation] = $typeName;
+            $operationTypes[$operationType->operation] = $operationType->type->name->value;
         }
 
-        return $opTypes;
+        return $operationTypes;
     }
 
     public static function unknownType(string $typeName): Error

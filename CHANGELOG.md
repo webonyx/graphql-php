@@ -57,6 +57,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Allow lazy enum values
 - Make `Node` implement `JsonSerializable`
 - Add SDL validation rule `UniqueTypeNames` (#998)
+- Add support for SDL validation to `KnownTypeNames` rule (#999)
 
 ### Optimized
 

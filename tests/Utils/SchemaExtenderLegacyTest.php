@@ -29,7 +29,6 @@ use PHPUnit\Framework\TestCase;
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
  * TODO align with:
  *   - https://github.com/graphql/graphql-js/commit/c1745228b2ae5ec89b8de36ea766d544607e21ea
- *   - https://github.com/graphql/graphql-js/commit/3b9ea61f2348215dee755f779caef83df749d2bb
  *   - https://github.com/graphql/graphql-js/commit/e6a3f08cc92594f68a6e61d3d4b46a6d279f845e.
  */
 class SchemaExtenderLegacyTest extends TestCase
@@ -260,66 +259,6 @@ class SchemaExtenderLegacyTest extends TestCase
             self::fail();
         } catch (Error $error) {
             self::assertEquals($existingFieldError('SomeInput', 'fooArg'), $error->getMessage());
-        }
-    }
-
-    // Validation: add support of SDL to KnownTypeNames
-
-    /**
-     * @see it('does not allow referencing an unknown type')
-     */
-    public function testDoesNotAllowReferencingAnUnknownType(): void
-    {
-        $unknownTypeError = 'Unknown type: "Quix". Ensure that this type exists either in the original schema, or is added in a type definition.';
-
-        $typeSDL = '
-          extend type Bar {
-            quix: Quix
-          }
-        ';
-
-        try {
-            $this->extendTestSchema($typeSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
-        }
-
-        $interfaceSDL = '
-          extend interface SomeInterface {
-            quix: Quix
-          }
-        ';
-
-        try {
-            $this->extendTestSchema($interfaceSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
-        }
-
-        $unionSDL = '
-          extend union SomeUnion = Quix
-        ';
-
-        try {
-            $this->extendTestSchema($unionSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
-        }
-
-        $inputSDL = '
-          extend input SomeInput {
-            quix: Quix
-          }
-        ';
-
-        try {
-            $this->extendTestSchema($inputSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
         }
     }
 

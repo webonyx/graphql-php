@@ -203,6 +203,7 @@ class DocumentValidator
             LoneSchemaDefinition::class => new LoneSchemaDefinition(),
             UniqueOperationTypes::class => new UniqueOperationTypes(),
             UniqueTypeNames::class => new UniqueTypeNames(),
+            KnownTypeNames::class => new KnownTypeNames(),
             KnownDirectives::class => new KnownDirectives(),
             KnownArgumentNamesOnDirectives::class => new KnownArgumentNamesOnDirectives(),
             UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
