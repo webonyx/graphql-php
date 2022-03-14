@@ -32,11 +32,6 @@ class LexicalDistance
      */
     private array $inputArray;
 
-    /**
-     * @var array<array<int>>
-     */
-    private array $rows = [];
-
     public function __construct(string $input)
     {
         $this->input = $input;
@@ -73,7 +68,8 @@ class LexicalDistance
             return null;
         }
 
-        $rows = &$this->rows;
+        /** @var array<array<int>> $rows */
+        $rows = [];
         for ($i = 0; $i <= $bLength; ++$i) {
             $rows[0][$i] = $i;
         }
