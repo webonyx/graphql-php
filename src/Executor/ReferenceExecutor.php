@@ -52,6 +52,7 @@ use Throwable;
 
 /**
  * @phpstan-import-type FieldResolver from Executor
+ * @phpstan-import-type Path from ResolveInfo
  * @phpstan-type Fields ArrayObject<string, ArrayObject<int, FieldNode>>
  */
 class ReferenceExecutor implements ExecutorImplementation
@@ -571,6 +572,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed                       $rootValue
      * @param array<int, string|int>      $path
+     * @phpstan-param Path                $path
      * @param ArrayObject<int, FieldNode> $fieldNodes
      *
      * @return array<mixed>|Throwable|mixed|null
@@ -703,6 +705,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param ArrayObject<int, FieldNode> $fieldNodes
      * @param array<string|int>           $path
+     * @phpstan-param Path                $path
      * @param mixed                       $result
      *
      * @return array<mixed>|Promise|stdClass|null
