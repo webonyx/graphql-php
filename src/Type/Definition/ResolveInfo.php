@@ -118,6 +118,7 @@ class ResolveInfo
      * @param iterable<int, FieldNode>              $fieldNodes
      * @param array<int, string|int>                $path
      * @phpstan-param Path                          $path
+     *
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param mixed|null                            $rootValue
      * @param array<string, mixed>                  $variableValues
