@@ -1,10 +1,12 @@
 # Object Type Definition
+
 Object Type is the most frequently used primitive in a typical GraphQL application.
 
 Conceptually Object Type is a collection of Fields. Each field, in turn,
 has its own type which allows building complex hierarchies.
 
 ## Writing Object Types
+
 In **graphql-php** object type is an instance of `GraphQL\Type\Definition\ObjectType` 
 (or one of its subclasses) which accepts a configuration array in its constructor:
 

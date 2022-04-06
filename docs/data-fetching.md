@@ -137,7 +137,7 @@ $userType = new ObjectType([
     'name' => Type::string(),
     'email' => Type::string()
   ],
-  'resolveField' => function (User $user, $args, $context, ResolveInfo $info) {
+  'resolveField' => function (User $user, array $args, $context, ResolveInfo $info) {
     switch ($info->fieldName) {
         case 'name': return $user->getName();
         case 'email': return $user->getEmail();

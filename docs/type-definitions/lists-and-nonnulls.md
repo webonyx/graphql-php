@@ -1,4 +1,5 @@
 ## Lists
+
 **graphql-php** provides built-in support for lists. In order to create list type - wrap 
 existing type with `GraphQL\Type\Definition\Type::listOf()` modifier:
 
@@ -27,6 +28,7 @@ If returned value is not of one of these types - **graphql-php** will add an err
 and set the field value to **null** (only if the field is nullable, see below for non-null fields).
 
 ## Non-Nulls
+
 By default, every field or argument can have a **null** value.
 To indicate the value must be **non-null** use the `GraphQL\Type\Definition\Type::nonNull()` modifier:
 

@@ -41,10 +41,10 @@ $queryType = new ObjectType([
             'type' => $characterInterface,
             'args' => [
                 'episode' => [
-                    'type' => $episodeEnum
-                ]
+                    'type' => $episodeEnum,
+                ],
             ],
-            'resolve' => fn ($rootValue, $args) => StarWarsData::getHero(isset($args['episode']) ? $args['episode'] : null),
+            'resolve' => fn ($rootValue, array $args): Hero => StarWarsData::getHero($args['episode'] ?? null),
         ]
     ]
 ]);
@@ -55,12 +55,11 @@ $mutationType = new ObjectType([
         'createReview' => [
             'type' => $createReviewOutput,
             'args' => [
-                'episode' => $episodeEnum,
-                'review' => $reviewInputObject
+                'episode' => Type::nonNull($episodeEnum),
+                'review' => Type::nonNull($reviewInputObject),
             ],
-            'resolve' => function ($rootValue, $args) {
-                // TODO
-            }
+            // TODO
+            'resolve' => fn ($rootValue, array $args): Review => StarWarsData::createReview($args['episode'], $args['review']),
         ]
     ]
 ]);
