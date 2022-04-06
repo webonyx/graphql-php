@@ -168,8 +168,8 @@ $queryType = new ObjectType([
   'name' => 'Query',
   'fields' => [
     'lastStory' => [
-      'type' => $someObjectType,
-      'resolve' => function ($root, array $args, $context, ResolveInfo $resolveInfo): stdClass {
+      'type' => $storyType,
+      'resolve' => function ($root, array $args, $context, ResolveInfo $resolveInfo): Story {
         // Fictitious API, use whatever database access your application/framework provides
         $builder = Story::builder();
         foreach ($resolveInfo->getFieldSelection() as $field => $_) {
