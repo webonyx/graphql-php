@@ -175,7 +175,7 @@ $queryType = new ObjectType([
                 foreach ($resolveInfo->getFieldSelection() as $field => $_) {
                   $builder->addSelect($field);
                 }
-        
+
                 return $builder->last();
             }
         ]
