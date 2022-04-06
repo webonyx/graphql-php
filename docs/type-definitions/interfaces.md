@@ -10,6 +10,7 @@ In **graphql-php** interface type is an instance of `GraphQL\Type\Definition\Int
 
 ```php
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
 $character = new InterfaceType([
@@ -25,11 +26,11 @@ $character = new InterfaceType([
             'description' => 'The name of the character.'
         ]
     ],
-    'resolveType' => function ($value) {
-        if ($value->type === 'human') {
-            return MyTypes::human();            
-        } else {
-            return MyTypes::droid();
+    'resolveType' => function ($value): ObjectType {
+        switch ($value->type ?? null) {
+            case 'human': return MyTypes::human();
+            case 'droid': return MyTypes::droid();
+            default: throw new Exception("Unknown Character type: {$value->type ?? null}");
         }
     }
 ]);

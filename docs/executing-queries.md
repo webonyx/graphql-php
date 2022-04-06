@@ -180,7 +180,7 @@ Custom rules per execution:
 use GraphQL\GraphQL;
 use GraphQL\Validator\Rules;
 
-$myValiationRules = array_merge(
+$myValidationRules = array_merge(
     GraphQL::getStandardValidationRules(),
     [
         new Rules\QueryComplexity(100),
@@ -196,7 +196,7 @@ $result = GraphQL::executeQuery(
     $variableValues = null,
     $operationName = null,
     $fieldResolver = null,
-    $myValiationRules // <-- this will override global validation rules for this request
+    $myValidationRules // <-- this will override global validation rules for this request
 );
 ```
 

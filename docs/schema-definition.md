@@ -115,7 +115,6 @@ Type loading is very similar to PHP class loading, but keep in mind that the **t
 always return the same instance of a type. A good way to ensure this is to use a type registry:
 
 ```php
-<?php declare(strict_types=1);
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;

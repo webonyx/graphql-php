@@ -96,7 +96,7 @@ When such exception is thrown it will be reported with a full error message:
 
 To change default **"Internal server error"** message to something else, use:
 
-```
+```php
 GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 ```
 
@@ -107,6 +107,7 @@ each formatted error entry. If you also want to add exception trace - pass flags
 
 ```php
 use GraphQL\Error\DebugFlag;
+
 $debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE;
 $result = GraphQL::executeQuery(/*args*/)->toArray($debug);
 ```
@@ -138,6 +139,7 @@ If you prefer the first resolver exception to be re-thrown, use following flags:
 ```php
 use GraphQL\GraphQL;
 use GraphQL\Error\DebugFlag;
+
 $debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::RETHROW_INTERNAL_EXCEPTIONS;
 
 // Following will throw if there was an exception in resolver during execution:

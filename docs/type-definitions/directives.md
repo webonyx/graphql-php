@@ -9,6 +9,7 @@ GraphQL specification includes two built-in directives:
 * **@skip(if: Boolean)** Skip this field or fragment if the argument is **true**
 
 For example:
+
 ```graphql
 query Hero($episode: Episode, $withFriends: Boolean!) {
   hero(episode: $episode) {
@@ -19,6 +20,7 @@ query Hero($episode: Episode, $withFriends: Boolean!) {
   }
 }
 ```
+
 Here if **$withFriends** variable is set to **false** - friends section will be ignored and excluded 
 from the response. Important implementation detail: those fields will never be executed 
 (not just removed from response after execution).

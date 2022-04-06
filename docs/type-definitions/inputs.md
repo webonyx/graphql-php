@@ -78,6 +78,7 @@ $queryType = new ObjectType([
 (note that you can define **defaultValue** for fields with complex inputs as associative array).
 
 Then GraphQL query could include filters as literal value:
+
 ```graphql
 {
     stories(filters: {author: "1", popular: false})
@@ -85,11 +86,13 @@ Then GraphQL query could include filters as literal value:
 ```
 
 Or as query variable:
+
 ```graphql
 query($filters: StoryFiltersInput!) {
     stories(filters: $filters)
 }
 ```
+
 ```php
 $variables = [
     'filters' => [

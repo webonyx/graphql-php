@@ -29,17 +29,17 @@ We need a `Schema` that can fulfill it. On the very top level, the `Schema` cont
 use GraphQL\Type\Definition\ObjectType;
 
 $queryType = new ObjectType([
-  'name' => 'Query',
-  'fields' => [
-    'lastStory' => [
-      'type' => $blogStoryType,
-      'resolve' => fn (): array => [
-        'id' => 1,
-        'title' => 'Example blog post',
-        'authorId' => 1
-      ],
+    'name' => 'Query',
+        'fields' => [
+        'lastStory' => [
+            'type' => $blogStoryType,
+            'resolve' => fn (): array => [
+                'id' => 1,
+                'title' => 'Example blog post',
+                'authorId' => 1
+            ],
+        ]
     ]
-  ]
 ]);
 ```
 
@@ -55,27 +55,27 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
 const USERS = [
-  1 => [
-    'id' => 1,
-    'name' => 'Smith'
-  ],
-  2 => [
-    'id' => 2,
-    'name' => 'Anderson'
-  ]
+    1 => [
+        'id' => 1,
+        'name' => 'Smith'
+    ],
+    2 => [
+        'id' => 2,
+        'name' => 'Anderson'
+    ]
 ];
 
 $blogStoryType = new ObjectType([
-  'name' => 'BlogStory',
-  'fields' => [
-    'author' => [
-      'type' => $userType,
-      'resolve' => fn (array $blogStory): array => USERS[$blogStory['authorId']],
-    ],
-    'title' => [
-      'type' => Type::string()
+    'name' => 'BlogStory',
+    'fields' => [
+        'author' => [
+            'type' => $userType,
+            'resolve' => fn (array $blogStory): array => USERS[$blogStory['authorId']],
+        ],
+        'title' => [
+            'type' => Type::string()
+        ]
     ]
-  ]
 ]);
 ```
 
@@ -132,18 +132,18 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
 $userType = new ObjectType([
-  'name' => 'User',
-  'fields' => [
-    'name' => Type::string(),
-    'email' => Type::string()
-  ],
-  'resolveField' => function (User $user, array $args, $context, ResolveInfo $info) {
-    switch ($info->fieldName) {
-        case 'name': return $user->getName();
-        case 'email': return $user->getEmail();
-        default: return null;
-    }
-  },
+    'name' => 'User',
+    'fields' => [
+        'name' => Type::string(),
+        'email' => Type::string()
+    ],
+    'resolveField' => function (User $user, array $args, $context, ResolveInfo $info) {
+        switch ($info->fieldName) {
+            case 'name': return $user->getName();
+            case 'email': return $user->getEmail();
+            default: return null;
+        }
+    },
 ]);
 ```
 
@@ -165,21 +165,21 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
 $queryType = new ObjectType([
-  'name' => 'Query',
-  'fields' => [
-    'lastStory' => [
-      'type' => $storyType,
-      'resolve' => function ($root, array $args, $context, ResolveInfo $resolveInfo): Story {
-        // Fictitious API, use whatever database access your application/framework provides
-        $builder = Story::builder();
-        foreach ($resolveInfo->getFieldSelection() as $field => $_) {
-          $builder->addSelect($field);
-        }
-
-        return $builder->last();
-      }
+    'name' => 'Query',
+    'fields' => [
+        'lastStory' => [
+            'type' => $storyType,
+            'resolve' => function ($root, array $args, $context, ResolveInfo $resolveInfo): Story {
+                // Fictitious API, use whatever database access your application/framework provides
+                $builder = Story::builder();
+                foreach ($resolveInfo->getFieldSelection() as $field => $_) {
+                  $builder->addSelect($field);
+                }
+        
+                return $builder->last();
+            }
+        ]
     ]
-  ]
 ]);
 ```
 
@@ -191,7 +191,7 @@ One of the most annoying problems with data fetching is a so-called
 [N+1 problem](https://secure.phabricator.com/book/phabcontrib/article/n_plus_one/). <br>
 Consider following GraphQL query:
 
-```
+```graphql
 {
   topStories(limit: 10) {
     title

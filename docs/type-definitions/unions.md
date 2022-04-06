@@ -16,11 +16,11 @@ $searchResultType = new UnionType([
         MyTypes::story(),
         MyTypes::user()
     ],
-    'resolveType' => function (object $value): ObjectType {
-        switch($value->type) {
+    'resolveType' => function ($value): ObjectType {
+        switch ($value->type ?? null) {
             case 'story': return MyTypes::story();
             case 'user': return MyTypes::user();
-            default: throw new Exception("Unexpected SearchResult type: {$value->type}");
+            default: throw new Exception("Unexpected SearchResult type: {$value->type ?? null}");
         }
     },
 ]);
