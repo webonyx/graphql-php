@@ -319,7 +319,8 @@ You can always switch to [custom error formatting](https://webonyx.github.io/gra
 
 It is disabled by default. To enable it, do the following
 
-```phpuse GraphQL\Executor\Executor;
+```php
+use GraphQL\Executor\Executor;
 use GraphQL\Experimental\Executor\CoroutineExecutor;
 
 Executor::setImplementationFactory([CoroutineExecutor::class, 'create']);
