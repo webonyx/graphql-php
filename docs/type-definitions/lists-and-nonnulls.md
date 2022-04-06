@@ -3,9 +3,6 @@
 existing type with `GraphQL\Type\Definition\Type::listOf()` modifier:
 
 ```php
-<?php
-namespace MyApp;
-
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -14,9 +11,10 @@ $userType = new ObjectType([
     'fields' => [
         'emails' => [
             'type' => Type::listOf(Type::string()),
-            'resolve' => function() {
-                return ['jon@example.com', 'jonny@example.com'];
-            }
+            'resolve' => fn (): array => [
+                'jon@example.com',
+                'jonny@example.com'
+            ],
         ]
     ]
 ]);
@@ -33,7 +31,6 @@ By default, every field or argument can have a **null** value.
 To indicate the value must be **non-null** use the `GraphQL\Type\Definition\Type::nonNull()` modifier:
 
 ```php
-<?php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -42,15 +39,14 @@ $humanType = new ObjectType([
     'fields' => [
         'id' => [
             'type' => Type::nonNull(Type::id()),
-            'resolve' => function() {
-                return uniqid();
-            }
+            'resolve' => fn (): string => uniqid(),
         ],
         'emails' => [
             'type' => Type::nonNull(Type::listOf(Type::string())),
-            'resolve' => function() {
-                return ['jon@example.com', 'jonny@example.com'];
-            }
+            'resolve' => fn (): array => [
+                'jon@example.com',
+                'jonny@example.com'
+            ],
         ]
     ]
 ]);

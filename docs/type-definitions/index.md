@@ -26,9 +26,6 @@ Several styles of type definitions are supported depending on your preferences.
 ### Inline definitions
 
 ```php
-<?php
-namespace MyApp;
-
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -43,9 +40,6 @@ $myType = new ObjectType([
 ### Class per type
 
 ```php
-<?php
-namespace MyApp;
-
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 

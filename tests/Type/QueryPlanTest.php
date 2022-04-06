@@ -253,8 +253,7 @@ final class QueryPlanTest extends TestCase
             'replies',
         ];
 
-        $hasCalled = false;
-        /** @var QueryPlan $queryPlan */
+        /** @var QueryPlan|null $queryPlan */
         $queryPlan = null;
 
         $blogQuery = new ObjectType([
@@ -262,16 +261,7 @@ final class QueryPlanTest extends TestCase
             'fields' => [
                 'article' => [
                     'type' => $article,
-                    'resolve' => static function (
-                        $value,
-                        $args,
-                        $context,
-                        ResolveInfo $info
-                    ) use (
-                        &$hasCalled,
-                        &$queryPlan
-                    ) {
-                        $hasCalled = true;
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$queryPlan) {
                         $queryPlan = $info->lookAhead();
 
                         return null;
@@ -283,8 +273,8 @@ final class QueryPlanTest extends TestCase
         $schema = new Schema(['query' => $blogQuery]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
-        self::assertTrue($hasCalled);
         self::assertEquals(['data' => ['article' => null]], $result);
+        self::assertInstanceOf(QueryPlan::class, $queryPlan);
         self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
         self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
         self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());

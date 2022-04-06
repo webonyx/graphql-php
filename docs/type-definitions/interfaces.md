@@ -7,7 +7,6 @@ In **graphql-php** interface type is an instance of `GraphQL\Type\Definition\Int
 (or one of its subclasses) which accepts configuration array in a constructor:
 
 ```php
-<?php
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
 
@@ -44,13 +43,12 @@ Option | Type | Notes
 name | `string` | **Required.** Unique name of this interface type within Schema
 fields | `array` | **Required.** List of fields required to be defined by interface implementors. Same as [Fields for Object Type](object-types.md#field-configuration-options)
 description | `string` | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
-resolveType | `callback` | **function($value, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Receives **$value** from resolver of the parent field and returns concrete interface implementor for this **$value**.
+resolveType | `callback` | **function ($value, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Receives **$value** from resolver of the parent field and returns concrete interface implementor for this **$value**.
 
 ## Implementing interface
 To implement the Interface simply add it to **interfaces** array of Object Type definition:
 
 ```php
-<?php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -96,7 +94,6 @@ Since every Object Type implementing an Interface must have the same set of fiel
 sense to reuse field definitions of Interface in Object Types:
 
 ```php
-<?php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 

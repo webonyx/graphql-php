@@ -140,7 +140,6 @@ class ResolveInfoTest extends TestCase
             ],
         ];
 
-        $hasCalled = false;
         $actualDefaultSelection = null;
         $actualDeepSelection = null;
 
@@ -151,15 +150,13 @@ class ResolveInfoTest extends TestCase
                     'type' => $article,
                     'resolve' => static function (
                         $value,
-                        $args,
+                        array $args,
                         $context,
                         ResolveInfo $info
                     ) use (
-                        &$hasCalled,
                         &$actualDefaultSelection,
                         &$actualDeepSelection
                     ) {
-                        $hasCalled = true;
                         $actualDefaultSelection = $info->getFieldSelection();
                         $actualDeepSelection = $info->getFieldSelection(5);
 
@@ -172,7 +169,6 @@ class ResolveInfoTest extends TestCase
         $schema = new Schema(['query' => $blogQuery]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
-        self::assertTrue($hasCalled);
         self::assertEquals(['data' => ['article' => null]], $result);
         self::assertEquals($expectedDefaultSelection, $actualDefaultSelection);
         self::assertEquals($expectedDeepSelection, $actualDeepSelection);

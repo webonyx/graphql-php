@@ -7,7 +7,6 @@ In graphql-php **Input Object Type** is an instance of `GraphQL\Type\Definition\
 (or one of its subclasses) which accepts configuration array in its constructor:
 
 ```php
-<?php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\InputObjectType;
 
@@ -54,7 +53,6 @@ defaultValue | `scalar` | Default value of this input field. Use the internal va
 In the example above we defined our InputObjectType. Now let's use it in one of field arguments:
 
 ```php
-<?php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -71,13 +69,12 @@ $queryType = new ObjectType([
                     ]
                 ]
             ],
-            'resolve' => function($rootValue, $args) {
-                return DataSource::filterStories($args['filters']);
-            }
+            'resolve' => fn ($rootValue, array $args): array => DataSource::filterStories($args['filters']),
         ]
     ]
 ]);
 ```
+
 (note that you can define **defaultValue** for fields with complex inputs as associative array).
 
 Then GraphQL query could include filters as literal value:

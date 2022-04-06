@@ -24,6 +24,7 @@ from the response. Important implementation detail: those fields will never be e
 (not just removed from response after execution).
 
 ## Custom directives
+
 **graphql-php** supports custom directives even though their presence does not affect the execution of fields.
 You can use [`GraphQL\Type\Definition\ResolveInfo`](../class-reference.md#graphqltypedefinitionresolveinfo) 
 in field resolvers to modify the output depending on those directives or perform statistics collection.
@@ -34,7 +35,6 @@ In **graphql-php** custom directive is an instance of `GraphQL\Type\Definition\D
 (or one of its subclasses) which accepts an array of following options:
 
 ```php
-<?php
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\Directive;

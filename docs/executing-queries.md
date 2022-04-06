@@ -7,7 +7,6 @@ Query execution is a complex process involving multiple steps, including query *
 [`GraphQL\GraphQL`](class-reference.md#graphqlgraphql):
 
 ```php
-<?php
 use GraphQL\GraphQL;
 
 $result = GraphQL::executeQuery(
@@ -58,7 +57,6 @@ It supports more features out of the box, including parsing HTTP requests, produ
 Usage example (with plain PHP):
 
 ```php
-<?php
 use GraphQL\Server\StandardServer;
 
 $server = new StandardServer([/* server options, see below */]);
@@ -68,7 +66,6 @@ $server->handleRequest(); // parses PHP globals and emits response
 Server also supports [PSR-7 request/response interfaces](https://www.php-fig.org/psr/psr-7/):
 
 ```php
-<?php
 use GraphQL\Server\StandardServer;
 use GraphQL\Executor\ExecutionResult;
 use Psr\Http\Message\RequestInterface;
@@ -118,7 +115,6 @@ If you prefer fluid interface for config with autocomplete in IDE and static tim
 use [`GraphQL\Server\ServerConfig`](class-reference.md#graphqlserverserverconfig) instead of an array:
 
 ```php
-<?php
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 
@@ -156,7 +152,6 @@ So for example following batch will require single DB request (if user field is 
 To enable query batching, pass **queryBatching** option in server config:
 
 ```php
-<?php
 use GraphQL\Server\StandardServer;
 
 $server = new StandardServer([
@@ -172,7 +167,6 @@ It is possible to override standard set of rules globally or per execution.
 Add rules globally:
 
 ```php
-<?php
 use GraphQL\Validator\Rules;
 use GraphQL\Validator\DocumentValidator;
 
@@ -183,7 +177,6 @@ DocumentValidator::addRule(new Rules\DisableIntrospection());
 Custom rules per execution:
 
 ```php
-<?php
 use GraphQL\GraphQL;
 use GraphQL\Validator\Rules;
 
@@ -210,7 +203,6 @@ $result = GraphQL::executeQuery(
 Or with a standard server:
 
 ```php
-<?php
 use GraphQL\Server\StandardServer;
 
 $server = new StandardServer([

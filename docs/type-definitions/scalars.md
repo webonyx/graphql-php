@@ -97,9 +97,9 @@ use GraphQL\Type\Definition\CustomScalarType;
 
 $emailType = new CustomScalarType([
     'name' => 'Email',
-    'serialize' => static function($value) {/* See function body above */},
-    'parseValue' => static function($value) {/* See function body above */},
-    'parseLiteral' => static function(Node $valueNode, ?array $variables = null) {/* See function body above */},
+    'serialize' => static function ($value) {/* See function body above */},
+    'parseValue' => static function ($value) {/* See function body above */},
+    'parseLiteral' => static function (Node $valueNode, ?array $variables = null) {/* See function body above */},
 ]);
 ```
 

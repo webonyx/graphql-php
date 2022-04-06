@@ -32,7 +32,6 @@ for your specific requirements.
 By default, each error entry is converted to an associative array with following structure:
 
 ```php
-<?php
 [
     'message' => 'Error message',
     'extensions' => [
@@ -68,7 +67,6 @@ be reported with a full error message.
 For example:
 
 ```php
-<?php
 use GraphQL\Error\ClientAware;
 
 class MySafeException extends \Exception implements ClientAware
@@ -83,7 +81,6 @@ class MySafeException extends \Exception implements ClientAware
 When such exception is thrown it will be reported with a full error message:
 
 ```php
-<?php
 [
     'message' => 'My reported error',
     'locations' => [
@@ -139,7 +136,6 @@ This will make each error entry to look like this:
 If you prefer the first resolver exception to be re-thrown, use following flags:
 
 ```php
-<?php
 use GraphQL\GraphQL;
 use GraphQL\Error\DebugFlag;
 $debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::RETHROW_INTERNAL_EXCEPTIONS;
@@ -161,22 +157,13 @@ to an array. **Handler** is useful for error filtering and logging.
 For example, these are default formatter and handler:
 
 ```php
-<?php
 use GraphQL\GraphQL;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 
-$myErrorFormatter = function(Error $error) {
-    return FormattedError::createFromException($error);
-};
-
-$myErrorHandler = function(array $errors, callable $formatter) {
-    return array_map($formatter, $errors);
-};
-
 $result = GraphQL::executeQuery(/* $args */)
-    ->setErrorFormatter($myErrorFormatter)
-    ->setErrorsHandler($myErrorHandler)
+    ->setErrorFormatter(fn (Error $error): array => FormattedError::createFromException($error))
+    ->setErrorsHandler(fn (array $errors, callable $formatter): array => array_map($formatter, $errors))
     ->toArray();
 ```
 
@@ -192,7 +179,6 @@ Usually such errors mean that there is some logical error in your schema.
 In this case it makes sense to return a status code `500 (Internal Server Error)` for GraphQL endpoint:
 
 ```php
-<?php
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
 use GraphQL\Error\FormattedError;

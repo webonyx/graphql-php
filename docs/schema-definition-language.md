@@ -27,7 +27,6 @@ In order to create schema instance out of this file, use
 [`GraphQL\Utils\BuildSchema`](class-reference.md#graphqlutilsbuildschema):
 
 ```php
-<?php
 use GraphQL\Utils\BuildSchema;
 
 $contents = file_get_contents('schema.graphql');
@@ -51,10 +50,10 @@ It accepts default type config produced by the builder and is expected to add mi
 [**resolveField**](type-definitions/object-types.md#configuration-options) for object types.
 
 ```php
-<?php
 use GraphQL\Utils\BuildSchema;
+use GraphQL\Language\AST\TypeDefinitionNode;
 
-$typeConfigDecorator = function($typeConfig, $typeDefinitionNode) {
+$typeConfigDecorator = function (array $typeConfig, TypeDefinitionNode $typeDefinitionNode): array {
     $name = $typeConfig['name'];
     // ... add missing options to $typeConfig based on type $name
     return $typeConfig;
@@ -75,7 +74,6 @@ But parsing type definition file on each request is suboptimal, so it is recomme
 intermediate parsed representation of the schema for the production environment:
 
 ```php
-<?php
 use GraphQL\Language\Parser;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\AST;
