@@ -23,7 +23,7 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\Error\Error;
 use PHPUnit\Framework\TestCase;
 
-class ExecutorLazySchemaTest extends TestCase
+final class ExecutorLazySchemaTest extends TestCase
 {
     public ScalarType $someScalarType;
 
@@ -54,40 +54,32 @@ class ExecutorLazySchemaTest extends TestCase
         // isTypeOf used to resolve runtime type for Interface
         $petType = new InterfaceType([
             'name' => 'Pet',
-            'fields' => static function (): array {
-                return [
-                    'name' => ['type' => Type::string()],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'name' => [
+                    'type' => Type::string(),
+                ],
+            ],
         ]);
 
         // Added to interface type when defined
         $dogType = new ObjectType([
             'name' => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Dog;
-            },
-            'fields' => static function (): array {
-                return [
-                    'name' => ['type' => Type::string()],
-                    'woofs' => ['type' => Type::boolean()],
-                ];
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Dog,
+            'fields' => static fn (): array => [
+                'name' => ['type' => Type::string()],
+                'woofs' => ['type' => Type::boolean()],
+            ],
         ]);
 
         $catType = new ObjectType([
             'name' => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Cat;
-            },
-            'fields' => static function (): array {
-                return [
-                    'name' => ['type' => Type::string()],
-                    'meows' => ['type' => Type::boolean()],
-                ];
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Cat,
+            'fields' => static fn (): array => [
+                'name' => ['type' => Type::string()],
+                'meows' => ['type' => Type::boolean()],
+            ],
         ]);
 
         $schema = new Schema([
@@ -96,23 +88,20 @@ class ExecutorLazySchemaTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($petType),
-                        'resolve' => static function (): array {
-                            return [new Dog('Odie', true), new Cat('Garfield', false)];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                        ],
                     ],
                 ],
             ]),
             'types' => [$catType, $dogType],
-            'typeLoader' => static function ($name) use ($dogType, $petType, $catType) {
+            'typeLoader' => static function ($name) use ($dogType, $petType, $catType): ?Type {
                 switch ($name) {
-                    case 'Dog':
-                        return $dogType;
-
-                    case 'Pet':
-                        return $petType;
-
-                    case 'Cat':
-                        return $catType;
+                    case 'Dog': return $dogType;
+                    case 'Pet': return $petType;
+                    case 'Cat': return $catType;
+                    default: return null;
                 }
             },
         ]);
@@ -160,28 +149,21 @@ class ExecutorLazySchemaTest extends TestCase
         $typeLoader = static function ($name) use (&$calls): ?ObjectType {
             $calls[] = $name;
             switch ($name) {
-                case 'Test':
-                    return new ObjectType([
-                        'name' => 'Test',
-                        'fields' => static function (): array {
-                            return [
-                                'test' => Type::string(),
-                            ];
-                        },
-                    ]);
-
-                default:
-                    return null;
+                case 'Test': return new ObjectType([
+                    'name' => 'Test',
+                    'fields' => static fn (): array => [
+                        'test' => Type::string(),
+                    ],
+                ]);
+                default: return null;
             }
         };
 
         $query = new ObjectType([
             'name' => 'Query',
-            'fields' => static function () use ($typeLoader): array {
-                return [
-                    'test' => $typeLoader('Test'),
-                ];
-            },
+            'fields' => static fn (): array => [
+                'test' => $typeLoader('Test'),
+            ],
         ]);
 
         $schema = new Schema([
@@ -215,9 +197,7 @@ class ExecutorLazySchemaTest extends TestCase
     {
         $schema = new Schema([
             'query' => $this->loadType('Query'),
-            'typeLoader' => function ($name) {
-                return $this->loadType($name, true);
-            },
+            'typeLoader' => fn (string $name): ?Type => $this->loadType($name, true),
         ]);
 
         $query = '{ object { string } }';
@@ -275,8 +255,8 @@ class ExecutorLazySchemaTest extends TestCase
                     'interfaces' => function (): array {
                         $this->calls[] = 'SomeObject.interfaces';
 
-                        /** @var InterfaceType $someInterface */
                         $someInterface = $this->loadType('SomeInterface');
+                        assert($someInterface instanceof InterfaceType);
 
                         return [
                             $someInterface,
@@ -290,10 +270,11 @@ class ExecutorLazySchemaTest extends TestCase
                     'fields' => function (): array {
                         $this->calls[] = 'OtherObject.fields';
 
-                        /** @var UnionType $someUnion */
                         $someUnion = $this->loadType('SomeUnion');
-                        /** @var InterfaceType $someInterface */
+                        assert($someUnion instanceof UnionType);
+
                         $someInterface = $this->loadType('SomeInterface');
+                        assert($someInterface instanceof InterfaceType);
 
                         return [
                             'union' => ['type' => $someUnion],
@@ -324,16 +305,16 @@ class ExecutorLazySchemaTest extends TestCase
                     'resolveType' => function () {
                         $this->calls[] = 'SomeUnion.resolveType';
 
-                        /** @var ObjectType $deeperObject */
                         $deeperObject = $this->loadType('DeeperObject');
+                        assert($deeperObject instanceof ObjectType);
 
                         return $deeperObject;
                     },
                     'types' => function (): array {
                         $this->calls[] = 'SomeUnion.types';
 
-                        /** @var ObjectType $deeperObject */
                         $deeperObject = $this->loadType('DeeperObject');
+                        assert($deeperObject instanceof ObjectType);
 
                         return [$deeperObject];
                     },
@@ -345,8 +326,8 @@ class ExecutorLazySchemaTest extends TestCase
                     'resolveType' => function () {
                         $this->calls[] = 'SomeInterface.resolveType';
 
-                        /** @var ObjectType $someObject */
                         $someObject = $this->loadType('SomeObject');
+                        assert($someObject instanceof ObjectType);
 
                         return $someObject;
                     },
@@ -354,7 +335,9 @@ class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'SomeInterface.fields';
 
                         return [
-                            'string' => ['type' => Type::string()],
+                            'string' => [
+                                'type' => Type::string(),
+                            ],
                         ];
                     },
                 ]);
@@ -406,9 +389,7 @@ class ExecutorLazySchemaTest extends TestCase
     {
         $schema = new Schema([
             'query' => $this->loadType('Query'),
-            'typeLoader' => function ($name) {
-                return $this->loadType($name, true);
-            },
+            'typeLoader' => fn (string $name): ?Type => $this->loadType($name, true),
         ]);
 
         $query = '

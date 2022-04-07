@@ -1988,7 +1988,9 @@ final class DefinitionTest extends TestCaseBase
         $objType = new ObjectType([
             'name' => 'SomeObject',
             'fields' => [
-                static fn (): array => ['type' => Type::string()],
+                static fn (): array => [
+                    'type' => Type::string(),
+                ],
             ],
         ]);
 
