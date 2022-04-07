@@ -59,7 +59,7 @@ to revert to the old format.
 The argument `bool $exitWhenDone` was removed from `StandardServer::send500Error()` and `StandardServer::handleRequest()`.
 Exit yourself if you need to:
 
-```php
+```diff
 $server = new GraphQL\Server\StandardServer();
 -$server->handleRequest($body, true);
 +$server->handleRequest($body);
