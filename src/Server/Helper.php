@@ -233,7 +233,7 @@ class Helper
         return $result;
     }
 
-    private function promiseToExecuteOperation(
+    protected function promiseToExecuteOperation(
         PromiseAdapter $promiseAdapter,
         ServerConfig $config,
         OperationParams $op,
@@ -322,7 +322,7 @@ class Helper
      *
      * @return mixed
      */
-    private function loadPersistedQuery(ServerConfig $config, OperationParams $operationParams)
+    protected function loadPersistedQuery(ServerConfig $config, OperationParams $operationParams)
     {
         $loader = $config->getPersistedQueryLoader();
 
@@ -346,7 +346,7 @@ class Helper
     /**
      * @return array<mixed>|null
      */
-    private function resolveValidationRules(
+    protected function resolveValidationRules(
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
@@ -371,7 +371,7 @@ class Helper
     /**
      * @return mixed
      */
-    private function resolveRootValue(
+    protected function resolveRootValue(
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
@@ -389,7 +389,7 @@ class Helper
     /**
      * @return mixed user defined
      */
-    private function resolveContextValue(
+    protected function resolveContextValue(
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
@@ -411,41 +411,37 @@ class Helper
      *
      * @api
      */
-    public function sendResponse($result, bool $exitWhenDone = false): void
+    public function sendResponse($result): void
     {
         if ($result instanceof Promise) {
-            $result->then(function ($actualResult) use ($exitWhenDone): void {
-                $this->doSendResponse($actualResult, $exitWhenDone);
+            $result->then(function ($actualResult): void {
+                $this->doSendResponse($actualResult);
             });
         } else {
-            $this->doSendResponse($result, $exitWhenDone);
+            $this->doSendResponse($result);
         }
     }
 
     /**
      * @param ExecutionResult|array<ExecutionResult> $result
      */
-    private function doSendResponse($result, bool $exitWhenDone): void
+    protected function doSendResponse($result): void
     {
         $httpStatus = $this->resolveHttpStatus($result);
-        $this->emitResponse($result, $httpStatus, $exitWhenDone);
+        $this->emitResponse($result, $httpStatus);
     }
 
     /**
      * @param array<mixed>|JsonSerializable $jsonSerializable
      */
-    public function emitResponse($jsonSerializable, int $httpStatus, bool $exitWhenDone): void
+    public function emitResponse($jsonSerializable, int $httpStatus): void
     {
         $body = json_encode($jsonSerializable);
         header('Content-Type: application/json', true, $httpStatus);
         echo $body;
-
-        if ($exitWhenDone) {
-            exit;
-        }
     }
 
-    private function readRawBody(): string
+    protected function readRawBody(): string
     {
         $body = file_get_contents('php://input');
         if ($body === false) {
@@ -458,7 +454,7 @@ class Helper
     /**
      * @param ExecutionResult|array<ExecutionResult> $result
      */
-    private function resolveHttpStatus($result): int
+    protected function resolveHttpStatus($result): int
     {
         if (is_array($result) && isset($result[0])) {
             foreach ($result as $index => $executionResult) {
@@ -606,7 +602,7 @@ class Helper
     /**
      * @param ExecutionResult|array<ExecutionResult> $result
      */
-    private function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream): ResponseInterface
+    protected function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream): ResponseInterface
     {
         $writableBodyStream->write(json_encode($result, JSON_THROW_ON_ERROR));
 
