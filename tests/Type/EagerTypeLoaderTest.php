@@ -154,6 +154,7 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
             'mutation' => $this->mutation,
             'types' => [$this->blogStory],
         ]);
+        $schema->assertValid();
 
         self::assertEquals([
             'Query.fields',

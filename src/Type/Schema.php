@@ -22,7 +22,6 @@ use GraphQL\Utils\Utils;
 use function implode;
 use function is_array;
 use function is_callable;
-use function is_iterable;
 
 /**
  * Schema Definition (see [schema definition docs](schema-definition.md)).
@@ -113,7 +112,7 @@ class Schema
 
         $types = $this->config->types;
         if (is_array($types)) {
-            foreach ($this->resolveAdditionalTypes() as $type) {
+            foreach ($this->resolveAdditionalTypes($types) as $type) {
                 $typeName = $type->name;
                 if (isset($this->resolvedTypes[$typeName])) {
                     if ($type !== $this->resolvedTypes[$typeName]) {
@@ -123,41 +122,17 @@ class Schema
 
                 $this->resolvedTypes[$typeName] = $type;
             }
-            // @phpstan-ignore-next-line not strictly enforced until we can use actual union types
-        } elseif (! is_callable($types)) {
-            $invalidTypes = Utils::printSafe($types);
-
-            throw new InvariantViolation("\"types\" must be array or callable if provided but got: {$invalidTypes}");
         }
 
         $this->resolvedTypes += Introspection::getTypes();
-
-        if (isset($this->config->typeLoader)) {
-            return;
-        }
-
-        // Perform full scan of the schema
-        $this->getTypeMap();
     }
 
     /**
+     * @param array<Type&NamedType> $types
      * @return Generator<Type&NamedType>
      */
-    private function resolveAdditionalTypes(): Generator
+    private function resolveAdditionalTypes(iterable $types): Generator
     {
-        $types = $this->config->types;
-
-        if (is_callable($types)) {
-            $types = $types();
-        }
-
-        // @phpstan-ignore-next-line not strictly enforced unless PHP supports function types
-        if (! is_iterable($types)) {
-            $notIterable = Utils::printSafe($types);
-
-            throw new InvariantViolation("Schema types callable must return iterable but got: {$notIterable}");
-        }
-
         foreach ($types as $type) {
             yield self::resolveType($type);
         }
@@ -175,39 +150,32 @@ class Schema
     public function getTypeMap(): array
     {
         if (! $this->fullyLoaded) {
-            $this->resolvedTypes = $this->collectAllTypes();
+            /** @var array<string, Type&NamedType> $typeMap */
+            $typeMap = [];
+            foreach ($this->resolvedTypes as $type) {
+                TypeInfo::extractTypes($type, $typeMap);
+            }
+
+            foreach ($this->getDirectives() as $directive) {
+                // @phpstan-ignore-next-line generics are not strictly enforceable, error will be caught during schema validation
+                if ($directive instanceof Directive) {
+                    TypeInfo::extractTypesFromDirectives($directive, $typeMap);
+                }
+            }
+
+            // When types are set as array they are resolved in constructor
+            $types = $this->config->types;
+            if (is_callable($types)) {
+                foreach ($this->resolveAdditionalTypes($types()) as $type) {
+                    TypeInfo::extractTypes($type, $typeMap);
+                }
+            }
+
+            $this->resolvedTypes = $typeMap;
             $this->fullyLoaded = true;
         }
 
         return $this->resolvedTypes;
-    }
-
-    /**
-     * @return array<string, Type&NamedType>
-     */
-    private function collectAllTypes(): array
-    {
-        /** @var array<string, Type&NamedType> $typeMap */
-        $typeMap = [];
-        foreach ($this->resolvedTypes as $type) {
-            TypeInfo::extractTypes($type, $typeMap);
-        }
-
-        foreach ($this->getDirectives() as $directive) {
-            // @phpstan-ignore-next-line generics are not strictly enforceable, error will be caught during schema validation
-            if ($directive instanceof Directive) {
-                TypeInfo::extractTypesFromDirectives($directive, $typeMap);
-            }
-        }
-
-        // When types are set as array they are resolved in constructor
-        if (is_callable($this->config->types)) {
-            foreach ($this->resolveAdditionalTypes() as $type) {
-                TypeInfo::extractTypes($type, $typeMap);
-            }
-        }
-
-        return $typeMap;
     }
 
     /**

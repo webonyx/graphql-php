@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Utils\AST;
 use function array_filter;
 use function array_map;
 use function array_merge;
@@ -170,7 +171,11 @@ final class SchemaExtenderTest extends TestCaseBase
                         'type' => $SomeInterfaceType,
                     ],
                     'someInput' => [
-                        'args' => ['input' => ['type' => $SomeInputType]],
+                        'args' => [
+                            'input' => [
+                                'type' => $SomeInputType,
+                            ],
+                        ],
                         'type' => Type::string(),
                     ],
                 ],
@@ -181,10 +186,9 @@ final class SchemaExtenderTest extends TestCaseBase
 
         $testSchemaAst = Parser::parse(SchemaPrinter::doPrint($this->testSchema));
 
-        $this->testSchemaDefinitions = array_map(
-            static fn ($node): string => Printer::doPrint($node),
-            iterator_to_array($testSchemaAst->definitions->getIterator())
-        );
+        foreach ($testSchemaAst->definitions as $definition) {
+            $this->testSchemaDefinitions[] = Printer::doPrint($definition);
+        }
 
         $this->FooDirective = $FooDirective;
         $this->FooType = $FooType;
@@ -196,6 +200,7 @@ final class SchemaExtenderTest extends TestCaseBase
     protected function extendTestSchema(string $sdl, array $options = []): Schema
     {
         $originalPrint = SchemaPrinter::doPrint($this->testSchema);
+
         $ast = Parser::parse($sdl);
         $extendedSchema = SchemaExtender::extend($this->testSchema, $ast, $options);
 
@@ -451,55 +456,92 @@ EOF
      */
     public function testCorrectlyAssignASTNodesToNewAndExtendedTypes(): void
     {
-        $extendedSchema = $this->extendTestSchema('
-              extend type Query {
-                newField(testArg: TestInput): TestEnum
-              }
-              extend scalar SomeScalar @foo
-              extend enum SomeEnum {
-                NEW_VALUE
-              }
-              extend union SomeUnion = Bar
-              extend input SomeInput {
-                newField: String
-              }
-              extend interface SomeInterface {
-                newField: String
-              }
-              enum TestEnum {
-                TEST_VALUE
-              }
-              input TestInput {
-                testInputField: TestEnum
-              }
-            ');
+        $schema = BuildSchema::build('
+      type Query
 
-        $ast = Parser::parse('
-            extend type Query {
-                oneMoreNewField: TestUnion
-            }
-            extend scalar SomeScalar @test
-            extend enum SomeEnum {
-                ONE_MORE_NEW_VALUE
-            }
-            extend union SomeUnion = TestType
-            extend input SomeInput {
-                oneMoreNewField: String
-            }
-            extend interface SomeInterface {
-                oneMoreNewField: String
-            }
-            union TestUnion = TestType
-            interface TestInterface {
-                interfaceField: String
-            }
-            type TestType implements TestInterface {
-                interfaceField: String
-            }
-            directive @test(arg: Int) repeatable on FIELD | SCALAR
+      scalar SomeScalar
+      enum SomeEnum
+      union SomeUnion
+      input SomeInput
+      type SomeObject
+      interface SomeInterface
+
+      directive @foo on SCALAR
         ');
+        $firstExtensionAST = Parser::parse('
+      extend type Query {
+        newField(testArg: TestInput): TestEnum
+      }
 
-        $extendedTwiceSchema = SchemaExtender::extend($extendedSchema, $ast);
+      extend scalar SomeScalar @foo
+
+      extend enum SomeEnum {
+        NEW_VALUE
+      }
+
+      extend union SomeUnion = SomeObject
+
+      extend input SomeInput {
+        newField: String
+      }
+
+      extend interface SomeInterface {
+        newField: String
+      }
+
+      enum TestEnum {
+        TEST_VALUE
+      }
+
+      input TestInput {
+        testInputField: TestEnum
+      }
+        ');
+        $extendedSchema = SchemaExtender::extend($schema, $firstExtensionAST);
+
+        $secondExtensionAST = Parser::parse('
+      extend type Query {
+        oneMoreNewField: TestUnion
+      }
+
+      extend scalar SomeScalar @test
+
+      extend enum SomeEnum {
+        ONE_MORE_NEW_VALUE
+      }
+
+      extend union SomeUnion = TestType
+
+      extend input SomeInput {
+        oneMoreNewField: String
+      }
+
+      extend interface SomeInterface {
+        oneMoreNewField: String
+      }
+
+      union TestUnion = TestType
+
+      interface TestInterface {
+        interfaceField: String
+      }
+
+      type TestType implements TestInterface {
+        interfaceField: String
+      }
+
+      directive @test(arg: Int) repeatable on FIELD | SCALAR
+        ');
+        $extendedTwiceSchema = SchemaExtender::extend($extendedSchema, $secondExtensionAST);
+
+        $extendedInOneGoSchema = SchemaExtender::extend(
+            $schema,
+            AST::concatAST([$firstExtensionAST, $secondExtensionAST])
+        );
+        self::assertSame(
+            SchemaPrinter::doPrint($extendedTwiceSchema),
+            SchemaPrinter::doPrint($extendedInOneGoSchema),
+        );
 
         $query = $extendedTwiceSchema->getQueryType();
         self::assertInstanceOf(ObjectType::class, $query);
