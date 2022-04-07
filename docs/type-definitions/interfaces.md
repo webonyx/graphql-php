@@ -1,14 +1,16 @@
 # Interface Type Definition
+
 An Interface is an abstract type that includes a certain set of fields that a 
 type must include to implement the interface.
 
 ## Writing Interface Types
+
 In **graphql-php** interface type is an instance of `GraphQL\Type\Definition\InterfaceType` 
 (or one of its subclasses) which accepts configuration array in a constructor:
 
 ```php
-<?php
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
 $character = new InterfaceType([
@@ -24,19 +26,21 @@ $character = new InterfaceType([
             'description' => 'The name of the character.'
         ]
     ],
-    'resolveType' => function ($value) {
-        if ($value->type === 'human') {
-            return MyTypes::human();            
-        } else {
-            return MyTypes::droid();
+    'resolveType' => function ($value): ObjectType {
+        switch ($value->type ?? null) {
+            case 'human': return MyTypes::human();
+            case 'droid': return MyTypes::droid();
+            default: throw new Exception("Unknown Character type: {$value->type ?? null}");
         }
     }
 ]);
 ```
+
 This example uses **inline** style for Interface definition, but you can also use  
 [inheritance or schema definition language](index.md#definition-styles).
 
 ## Configuration options
+
 The constructor of InterfaceType accepts an array. Below is a full list of allowed options:
 
 Option | Type | Notes
@@ -44,13 +48,13 @@ Option | Type | Notes
 name | `string` | **Required.** Unique name of this interface type within Schema
 fields | `array` | **Required.** List of fields required to be defined by interface implementors. Same as [Fields for Object Type](object-types.md#field-configuration-options)
 description | `string` | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
-resolveType | `callback` | **function($value, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Receives **$value** from resolver of the parent field and returns concrete interface implementor for this **$value**.
+resolveType | `callback` | **function ($value, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Receives **$value** from resolver of the parent field and returns concrete interface implementor for this **$value**.
 
 ## Implementing interface
+
 To implement the Interface simply add it to **interfaces** array of Object Type definition:
 
 ```php
-<?php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -78,10 +82,11 @@ The only exception is when object's field type is more specific than the type of
 (see [Covariant return types for interface fields](#covariant-return-types-for-interface-fields) below)
 
 ## Covariant return types for interface fields
+
 Object types implementing interface may change the field type to more specific.
 Example:
 
-```
+```graphql
 interface A {
   field1: A
 }
@@ -92,11 +97,11 @@ type B implements A {
 ```
 
 ## Sharing Interface fields
+
 Since every Object Type implementing an Interface must have the same set of fields - it often makes 
 sense to reuse field definitions of Interface in Object Types:
 
 ```php
-<?php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -106,9 +111,12 @@ $humanType = new ObjectType([
         $character
     ],
     'fields' => [
-        'height' => Type::float(),
         $character->getField('id'),
-        $character->getField('name')
+        $character->getField('name'),
+        [
+            'name' => 'height',
+            'type' => Type::float(),
+        ],
     ] 
 ]);
 ```
@@ -129,6 +137,7 @@ resolutions there
 (Note: **resolve** option in field definition has precedence over **resolveField** option in object type definition)
 
 ## Interface role in data fetching
+
 The only responsibility of interface in Data Fetching process is to return concrete Object Type 
 for given **$value** in **resolveType**. Then resolution of fields is delegated to resolvers of this 
 concrete Object Type.

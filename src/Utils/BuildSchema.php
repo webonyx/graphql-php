@@ -77,7 +77,9 @@ class BuildSchema
      * document.
      *
      * @param DocumentNode|Source|string $source
-     * @param array<string, bool>        $options
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     *
+     * @param array<string, bool> $options
      * @phpstan-param BuildSchemaOptions $options
      *
      * @api
@@ -101,6 +103,8 @@ class BuildSchema
      *
      * Given that AST it constructs a @see \GraphQL\Type\Schema. The resulting schema
      * has no resolve methods, so execution will use default resolvers.
+     *
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      *
      * @param array<string, bool> $options
      * @phpstan-param BuildSchemaOptions $options

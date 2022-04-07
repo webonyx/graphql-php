@@ -6,7 +6,6 @@ methods for receiving information about your types to internal GraphQL tools.
 In **graphql-php**, the schema is an instance of [`GraphQL\Type\Schema`](class-reference.md#graphqltypeschema):
 
 ```php
-<?php
 use GraphQL\Type\Schema;
 
 $schema = new Schema([
@@ -28,7 +27,6 @@ Query and Mutation types are regular [object types](type-definitions/object-type
 of your API:
 
 ```php
-<?php
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -43,10 +41,10 @@ $queryType = new ObjectType([
             'type' => $characterInterface,
             'args' => [
                 'episode' => [
-                    'type' => $episodeEnum
-                ]
+                    'type' => $episodeEnum,
+                ],
             ],
-            'resolve' => fn ($rootValue, $args) => StarWarsData::getHero(isset($args['episode']) ? $args['episode'] : null),
+            'resolve' => fn ($rootValue, array $args): Hero => StarWarsData::getHero($args['episode'] ?? null),
         ]
     ]
 ]);
@@ -57,12 +55,11 @@ $mutationType = new ObjectType([
         'createReview' => [
             'type' => $createReviewOutput,
             'args' => [
-                'episode' => $episodeEnum,
-                'review' => $reviewInputObject
+                'episode' => Type::nonNull($episodeEnum),
+                'review' => Type::nonNull($reviewInputObject),
             ],
-            'resolve' => function ($rootValue, $args) {
-                // TODO
-            }
+            // TODO
+            'resolve' => fn ($rootValue, array $args): Review => StarWarsData::createReview($args['episode'], $args['review']),
         ]
     ]
 ]);
@@ -96,7 +93,6 @@ If you prefer a fluid interface for the config with auto-completion in IDE and s
 use [`GraphQL\Type\SchemaConfig`](class-reference.md#graphqltypeschemaconfig) instead of an array:
 
 ```php
-<?php
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\Schema;
 
@@ -119,7 +115,6 @@ Type loading is very similar to PHP class loading, but keep in mind that the **t
 always return the same instance of a type. A good way to ensure this is to use a type registry:
 
 ```php
-<?php declare(strict_types=1);
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
@@ -187,7 +182,6 @@ Don't call it in web requests in production.
 Usage example:
 
 ```php
-<?php
 try {
     $schema = new GraphQL\Type\Schema([
         'query' => $myQueryType

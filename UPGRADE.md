@@ -320,7 +320,6 @@ You can always switch to [custom error formatting](https://webonyx.github.io/gra
 It is disabled by default. To enable it, do the following
 
 ```php
-<?php
 use GraphQL\Executor\Executor;
 use GraphQL\Experimental\Executor\CoroutineExecutor;
 
