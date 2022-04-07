@@ -129,6 +129,7 @@ class Schema
 
     /**
      * @param array<Type&NamedType> $types
+     *
      * @return Generator<Type&NamedType>
      */
     private function resolveAdditionalTypes(iterable $types): Generator

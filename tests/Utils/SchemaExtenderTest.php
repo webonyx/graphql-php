@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\Utils\AST;
 use function array_filter;
 use function array_map;
 use function array_merge;
@@ -36,6 +35,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\AST;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
