@@ -51,13 +51,11 @@ class Issue396Test extends TestCase
             'fields' => [
                 'field' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull($unionResult))),
-                    'resolve' => static function (): array {
-                        return [
-                            ['name' => 'A 1'],
-                            ['name' => 'B 2'],
-                            ['name' => 'C 3'],
-                        ];
-                    },
+                    'resolve' => static fn (): array => [
+                        ['name' => 'A 1'],
+                        ['name' => 'B 2'],
+                        ['name' => 'C 3'],
+                    ],
                 ],
             ],
         ]);
@@ -141,13 +139,11 @@ class Issue396Test extends TestCase
             'fields' => [
                 'field' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull($interfaceResult))),
-                    'resolve' => static function (): array {
-                        return [
-                            ['name' => 'A 1'],
-                            ['name' => 'B 2'],
-                            ['name' => 'C 3'],
-                        ];
-                    },
+                    'resolve' => static fn (): array => [
+                        ['name' => 'A 1'],
+                        ['name' => 'B 2'],
+                        ['name' => 'C 3'],
+                    ],
                 ],
             ],
         ]);

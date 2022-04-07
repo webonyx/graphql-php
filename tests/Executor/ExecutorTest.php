@@ -16,7 +16,6 @@ use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NotSpecial;
 use GraphQL\Tests\Executor\TestClasses\Special;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -54,28 +53,14 @@ class ExecutorTest extends TestCase
         };
 
         $data = [
-            'a' => static function (): string {
-                return 'Apple';
-            },
-            'b' => static function (): string {
-                return 'Banana';
-            },
-            'c' => static function (): string {
-                return 'Cookie';
-            },
-            'd' => static function (): string {
-                return 'Donut';
-            },
-            'e' => static function (): string {
-                return 'Egg';
-            },
+            'a' => static fn (): string => 'Apple',
+            'b' => static fn (): string => 'Banana',
+            'c' => static fn (): string => 'Cookie',
+            'd' => static fn (): string => 'Donut',
+            'e' => static fn (): string => 'Egg',
             'f' => 'Fish',
-            'pic' => static function ($size = 50): string {
-                return 'Pic of size: ' . $size;
-            },
-            'promise' => static function () use ($promiseData): Deferred {
-                return $promiseData();
-            },
+            'pic' => static fn ($size = 50): string => "Pic of size: {$size}",
+            'promise' => static fn (): Deferred => $promiseData(),
             'deep' => static function () use (&$deepData) {
                 return $deepData;
             },
@@ -83,15 +68,9 @@ class ExecutorTest extends TestCase
 
         // Required for that & reference above
         $deepData = [
-            'a' => static function (): string {
-                return 'Already Been Done';
-            },
-            'b' => static function (): string {
-                return 'Boring';
-            },
-            'c' => static function (): array {
-                return ['Contrived', null, 'Confusing'];
-            },
+            'a' => static fn (): string => 'Already Been Done',
+            'b' => static fn (): string => 'Boring',
+            'c' => static fn (): array => ['Contrived', null, 'Confusing'],
             'deeper' => static function () use (&$data): array {
                 return [$data, null, $data];
             },
@@ -165,9 +144,7 @@ class ExecutorTest extends TestCase
                     'pic' => [
                         'args' => ['size' => ['type' => Type::int()]],
                         'type' => Type::string(),
-                        'resolve' => static function ($obj, $args) {
-                            return $obj['pic']($args['size']);
-                        },
+                        'resolve' => static fn (array $obj, array $args): ?string => $obj['pic']($args['size']),
                     ],
                     'promise' => ['type' => $dataType],
                     'deep' => ['type' => $deepDataType],
@@ -218,27 +195,19 @@ class ExecutorTest extends TestCase
                 return [
                     'a' => [
                         'type' => Type::string(),
-                        'resolve' => static function (): string {
-                            return 'Apple';
-                        },
+                        'resolve' => static fn (): string => 'Apple',
                     ],
                     'b' => [
                         'type' => Type::string(),
-                        'resolve' => static function (): string {
-                            return 'Banana';
-                        },
+                        'resolve' => static fn (): string => 'Banana',
                     ],
                     'c' => [
                         'type' => Type::string(),
-                        'resolve' => static function (): string {
-                            return 'Cherry';
-                        },
+                        'resolve' => static fn (): string => 'Cherry',
                     ],
                     'deep' => [
                         'type' => $Type,
-                        'resolve' => static function (): array {
-                            return [];
-                        },
+                        'resolve' => static fn (): array => [],
                     ],
                 ];
             },
@@ -279,7 +248,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'test' => [
                         'type' => Type::string(),
-                        'resolve' => static function ($test, $args, $ctx, $_info) use (&$info): void {
+                        'resolve' => static function ($test, array $args, $ctx, ResolveInfo $_info) use (&$info): void {
                             $info = $_info;
                         },
                     ],
@@ -295,7 +264,7 @@ class ExecutorTest extends TestCase
         $operationDefinition = $ast->definitions[0];
 
         self::assertEquals('test', $info->fieldName);
-        self::assertEquals(1, count($info->fieldNodes));
+        self::assertCount(1, $info->fieldNodes);
         self::assertSame($operationDefinition->selectionSet->selections[0], $info->fieldNodes[0]);
         self::assertSame(Type::string(), $info->returnType);
         self::assertSame($schema->getQueryType(), $info->parentType);
@@ -304,7 +273,6 @@ class ExecutorTest extends TestCase
         self::assertSame($rootValue, $info->rootValue);
         self::assertEquals($operationDefinition, $info->operation);
         self::assertEquals(['var' => '123'], $info->variableValues);
-        self::assertInstanceOf(FieldDefinition::class, $info->fieldDefinition);
     }
 
     /**
@@ -326,8 +294,8 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'a' => [
                         'type' => Type::string(),
-                        'resolve' => static function ($context) use (&$gotHere): void {
-                            self::assertEquals('thing', $context['contextThing']);
+                        'resolve' => static function ($root) use (&$gotHere): void {
+                            self::assertEquals('thing', $root['contextThing']);
                             $gotHere = true;
                         },
                     ],
@@ -363,7 +331,7 @@ class ExecutorTest extends TestCase
                             'stringArg' => ['type' => Type::string()],
                         ],
                         'type' => Type::string(),
-                        'resolve' => static function ($_, $args) use (&$gotHere): void {
+                        'resolve' => static function ($_, array $args) use (&$gotHere): void {
                             self::assertEquals(123, $args['numArg']);
                             self::assertEquals('foo', $args['stringArg']);
                             $gotHere = true;
@@ -398,9 +366,7 @@ class ExecutorTest extends TestCase
         }';
 
         $data = [
-            'sync' => static function (): string {
-                return 'sync';
-            },
+            'sync' => static fn (): string => 'sync',
             'syncError' => static function (): void {
                 throw new UserError('Error getting syncError');
             },
@@ -409,69 +375,47 @@ class ExecutorTest extends TestCase
             },
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
-            'syncReturnError' => static function (): UserError {
-                return new UserError('Error getting syncReturnError');
-            },
-            'syncReturnErrorList' => static function (): array {
-                return [
-                    'sync0',
-                    new UserError('Error getting syncReturnErrorList1'),
-                    'sync2',
-                    new UserError('Error getting syncReturnErrorList3'),
-                ];
-            },
-            'async' => static function (): Deferred {
-                return new Deferred(static function (): string {
-                    return 'async';
-                });
-            },
-            'asyncReject' => static function (): Deferred {
-                return new Deferred(static function (): void {
-                    throw new UserError('Error getting asyncReject');
-                });
-            },
-            'asyncRawReject' => static function (): Deferred {
-                return new Deferred(static function (): void {
-                    throw new UserError('Error getting asyncRawReject');
-                });
-            },
-            'asyncEmptyReject' => static function (): Deferred {
-                return new Deferred(static function (): void {
-                    throw new UserError();
-                });
-            },
-            'asyncError' => static function (): Deferred {
-                return new Deferred(static function (): void {
-                    throw new UserError('Error getting asyncError');
-                });
-            },
+            'syncReturnError' => static fn (): UserError => new UserError('Error getting syncReturnError'),
+            'syncReturnErrorList' => static fn (): array => [
+                'sync0',
+                new UserError('Error getting syncReturnErrorList1'),
+                'sync2',
+                new UserError('Error getting syncReturnErrorList3'),
+            ],
+            'async' => static fn (): Deferred => new Deferred(
+                static fn (): string => 'async'
+            ),
+            'asyncReject' => static fn (): Deferred => new Deferred(static function (): void {
+                throw new UserError('Error getting asyncReject');
+            }),
+            'asyncRawReject' => static fn (): Deferred => new Deferred(static function (): void {
+                throw new UserError('Error getting asyncRawReject');
+            }),
+            'asyncEmptyReject' => static fn (): Deferred => new Deferred(static function (): void {
+                throw new UserError();
+            }),
+            'asyncError' => static fn (): Deferred => new Deferred(static function (): void {
+                throw new UserError('Error getting asyncError');
+            }),
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
-            'asyncRawError' => static function (): Deferred {
-                return new Deferred(static function (): void {
-                    throw new UserError('Error getting asyncRawError');
-                });
-            },
-            'asyncReturnError' => static function (): Deferred {
-                return new Deferred(static function (): void {
-                    throw new UserError('Error getting asyncReturnError');
-                });
-            },
-            'asyncReturnErrorWithExtensions' => static function (): Deferred {
-                return new Deferred(static function (): void {
-                    $error = new Error(
-                        'Error getting asyncReturnErrorWithExtensions',
-                        null,
-                        null,
-                        [],
-                        null,
-                        null,
-                        ['foo' => 'bar']
-                    );
-
-                    throw $error;
-                });
-            },
+            'asyncRawError' => static fn (): Deferred => new Deferred(static function (): void {
+                throw new UserError('Error getting asyncRawError');
+            }),
+            'asyncReturnError' => static fn (): Deferred => new Deferred(static function (): void {
+                throw new UserError('Error getting asyncReturnError');
+            }),
+            'asyncReturnErrorWithExtensions' => static fn (): Deferred => new Deferred(static function (): void {
+                throw new Error(
+                    'Error getting asyncReturnErrorWithExtensions',
+                    null,
+                    null,
+                    [],
+                    null,
+                    null,
+                    ['foo' => 'bar']
+                );
+            }),
         ];
 
         $docAst = Parser::parse($doc);
@@ -826,25 +770,15 @@ class ExecutorTest extends TestCase
       e
     }';
         $data = [
-            'a' => static function (): string {
-                return 'a';
-            },
-            'b' => static function (): Deferred {
-                return new Deferred(static function (): string {
-                    return 'b';
-                });
-            },
-            'c' => static function (): string {
-                return 'c';
-            },
-            'd' => static function (): Deferred {
-                return new Deferred(static function (): string {
-                    return 'd';
-                });
-            },
-            'e' => static function (): string {
-                return 'e';
-            },
+            'a' => static fn (): string => 'a',
+            'b' => static fn (): Deferred => new Deferred(
+                static fn (): string => 'b'
+            ),
+            'c' => static fn (): string => 'c',
+            'd' => static fn (): Deferred => new Deferred(
+                static fn (): string => 'd'
+            ),
+            'e' => static fn (): string => 'e',
         ];
 
         $ast = Parser::parse($doc);
@@ -944,11 +878,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'field' => [
                         'type' => Type::string(),
-                        'resolve' => static function ($data, $args) {
-                            return $args
-                                ? json_encode($args)
-                                : '';
-                        },
+                        'resolve' => static fn ($data, array $args): string => json_encode($args),
                         'args' => [
                             'a' => ['type' => Type::boolean()],
                             'b' => ['type' => Type::boolean()],
@@ -977,9 +907,7 @@ class ExecutorTest extends TestCase
     {
         $SpecialType = new ObjectType([
             'name' => 'SpecialType',
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Special;
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Special,
             'fields' => [
                 'value' => ['type' => Type::string()],
             ],
@@ -991,9 +919,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'specials' => [
                         'type' => Type::listOf($SpecialType),
-                        'resolve' => static function ($rootValue) {
-                            return $rootValue['specials'];
-                        },
+                        'resolve' => static fn (array $rootValue) => $rootValue['specials'],
                     ],
                 ],
             ]),
@@ -1071,10 +997,7 @@ class ExecutorTest extends TestCase
             ]),
         ]);
 
-        // For the purposes of test, just return the name of the field!
-        $customResolver = static function ($source, $args, $context, ResolveInfo $info): string {
-            return $info->fieldName;
-        };
+        $customResolver = static fn ($source, array $args, $context, ResolveInfo $info): string => $info->fieldName;
 
         $result = Executor::execute(
             $schema,
@@ -1101,11 +1024,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'field' => [
                         'type' => Type::string(),
-                        'resolve' => static function ($data, $args) {
-                            return $args
-                                ? json_encode($args)
-                                : '';
-                        },
+                        'resolve' => static fn ($data, array $args): string => json_encode($args),
                         'args' => [
                             'a' => ['type' => Type::boolean(), 'defaultValue' => 1],
                             'b' => ['type' => Type::boolean(), 'defaultValue' => null],
@@ -1181,9 +1100,9 @@ class ExecutorTest extends TestCase
             'fields' => [
                 'id' => Type::id(),
             ],
-            'resolveType' => static function ($v) use ($a, $b): ObjectType {
-                return $v['type'] === 'A' ? $a : $b;
-            },
+            'resolveType' => static fn (array $v): ObjectType => $v['type'] === 'A'
+                ? $a
+                : $b,
         ]);
 
         $schema = new Schema([
@@ -1275,105 +1194,97 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'array' => [
                         'type' => $Array,
-                        'resolve' => static function (): array {
-                            return ['set' => 1];
-                        },
+                        'resolve' => static fn (): array => ['set' => 1],
                     ],
                     'arrayAccess' => [
                         'type' => $ArrayAccess,
-                        'resolve' => static function (): ArrayAccess {
-                            return new class() implements ArrayAccess {
-                                /**
-                                 * @param mixed $offset
-                                 */
-                                #[ReturnTypeWillChange]
-                                public function offsetExists($offset): bool
-                                {
-                                    switch ($offset) {
-                                        case 'set':
-                                            return true;
+                        'resolve' => static fn (): ArrayAccess => new class() implements ArrayAccess {
+                            /**
+                             * @param mixed $offset
+                             */
+                            #[ReturnTypeWillChange]
+                            public function offsetExists($offset): bool
+                            {
+                                switch ($offset) {
+                                    case 'set':
+                                        return true;
 
-                                        default:
-                                            return false;
-                                    }
+                                    default:
+                                        return false;
                                 }
+                            }
 
-                                /**
-                                 * @param mixed $offset
-                                 */
-                                #[ReturnTypeWillChange]
-                                public function offsetGet($offset): ?int
-                                {
-                                    switch ($offset) {
-                                        case 'set':
-                                            return 1;
+                            /**
+                             * @param mixed $offset
+                             */
+                            #[ReturnTypeWillChange]
+                            public function offsetGet($offset): ?int
+                            {
+                                switch ($offset) {
+                                    case 'set':
+                                        return 1;
 
-                                        case 'unsetNull':
-                                            return null;
+                                    case 'unsetNull':
+                                        return null;
 
-                                        default:
-                                            throw new Exception('unsetThrow');
-                                    }
+                                    default:
+                                        throw new Exception('unsetThrow');
                                 }
+                            }
 
-                                /**
-                                 * @param mixed $offset
-                                 * @param mixed $value
-                                 */
-                                #[ReturnTypeWillChange]
-                                public function offsetSet($offset, $value): void
-                                {
-                                }
+                            /**
+                             * @param mixed $offset
+                             * @param mixed $value
+                             */
+                            #[ReturnTypeWillChange]
+                            public function offsetSet($offset, $value): void
+                            {
+                            }
 
-                                /**
-                                 * @param mixed $offset
-                                 */
-                                #[ReturnTypeWillChange]
-                                public function offsetUnset($offset): void
-                                {
-                                }
-                            };
+                            /**
+                             * @param mixed $offset
+                             */
+                            #[ReturnTypeWillChange]
+                            public function offsetUnset($offset): void
+                            {
+                            }
                         },
                     ],
                     'objectField' => [
                         'type' => $ObjectField,
-                        'resolve' => static function (): stdClass {
-                            return new class() extends stdClass {
-                                public ?int $set = 1;
+                        'resolve' => static fn (): stdClass => new class() extends stdClass {
+                            public ?int $set = 1;
 
-                                public ?int $unset;
-                            };
+                            public ?int $unset;
                         },
                     ],
                     'objectVirtual' => [
                         'type' => $ObjectVirtual,
-                        'resolve' => static function (): object {
-                            return new class() {
-                                public function __isset(string $name): bool
-                                {
-                                    switch ($name) {
-                                        case 'set':
-                                            return true;
+                        'resolve' => static fn (): object => new class() {
+                            public function __isset(string $name): bool
+                            {
+                                switch ($name) {
+                                    case 'set':
+                                        return true;
 
-                                        default:
-                                            return false;
-                                    }
+                                    default:
+                                        return false;
                                 }
+                            }
 
-                                public function __get(string $name): ?int
-                                {
-                                    switch ($name) {
-                                        case 'set':
-                                            return 1;
+                            public function __get(string $name): ?int
+                            {
+                                switch ($name) {
+                                    case 'set':
+                                        return 1;
 
-                                        case 'unsetNull':
-                                            return null;
+                                    case 'unsetNull':
+                                        return null;
 
-                                        default:
-                                            throw new Exception('unsetThrow');
-                                    }
+                                    default:
+                                        throw new Exception('unsetThrow');
                                 }
-                            };
+                            }
                         },
                     ],
                 ],

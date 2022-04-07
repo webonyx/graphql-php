@@ -69,14 +69,12 @@ abstract class ValidatorTestCase extends TestCase
 
         $Canine = new InterfaceType([
             'name' => 'Canine',
-            'fields' => static function (): array {
-                return [
-                    'name' => [
-                        'type' => Type::string(),
-                        'args' => ['surname' => ['type' => Type::boolean()]],
-                    ],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'name' => [
+                    'type' => Type::string(),
+                    'args' => ['surname' => ['type' => Type::boolean()]],
+                ],
+            ],
         ]);
 
         $DogCommand = new EnumType([

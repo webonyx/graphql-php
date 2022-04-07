@@ -75,19 +75,21 @@ class ValidationTest extends TestCaseBase
 
         $this->SomeInterfaceType = new InterfaceType([
             'name' => 'SomeInterface',
-            'fields' => function (): array {
-                return ['f' => ['type' => $this->SomeObjectType]];
-            },
+            'fields' => fn (): array => [
+                'f' => [
+                    'type' => $this->SomeObjectType,
+                ],
+            ],
         ]);
 
         $this->SomeObjectType = new ObjectType([
             'name' => 'SomeObject',
-            'fields' => function (): array {
-                return ['f' => ['type' => $this->SomeObjectType]];
-            },
-            'interfaces' => function (): array {
-                return [$this->SomeInterfaceType];
-            },
+            'fields' => fn (): array => [
+                'f' => [
+                    'type' => $this->SomeObjectType,
+                ],
+            ],
+            'interfaces' => fn (): array => [$this->SomeInterfaceType],
         ]);
 
         $this->SomeUnionType = new UnionType([
@@ -536,9 +538,7 @@ class ValidationTest extends TestCaseBase
         $manualSchema2 = $this->schemaWithFieldType(
             new ObjectType([
                 'name' => 'IncompleteObject',
-                'fields' => static function (): array {
-                    return [];
-                },
+                'fields' => static fn (): array => [],
             ])
         );
 

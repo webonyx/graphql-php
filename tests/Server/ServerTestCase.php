@@ -8,6 +8,7 @@ use const E_USER_WARNING;
 use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
@@ -23,13 +24,11 @@ abstract class ServerTestCase extends TestCase
                 'fields' => [
                     'f1' => [
                         'type' => Type::string(),
-                        'resolve' => static function ($rootValue, $args, $context, $info) {
-                            return $info->fieldName;
-                        },
+                        'resolve' => static fn ($rootValue, array $args, $context, ResolveInfo $info): string => $info->fieldName,
                     ],
                     'fieldWithPhpError' => [
                         'type' => Type::string(),
-                        'resolve' => static function ($rootValue, $args, $context, $info) {
+                        'resolve' => static function ($rootValue, array $args, $context, ResolveInfo $info): string {
                             trigger_error('deprecated', E_USER_DEPRECATED);
                             trigger_error('notice', E_USER_NOTICE);
                             trigger_error('warning', E_USER_WARNING);
@@ -51,7 +50,7 @@ abstract class ServerTestCase extends TestCase
                     ],
                     'testContextAndRootValue' => [
                         'type' => Type::string(),
-                        'resolve' => static function ($rootValue, $args, $context, $info) {
+                        'resolve' => static function ($rootValue, array $args, $context, ResolveInfo $info): string {
                             $context->testedRootValue = $rootValue;
 
                             return $info->fieldName;
@@ -64,9 +63,7 @@ abstract class ServerTestCase extends TestCase
                                 'type' => Type::nonNull(Type::string()),
                             ],
                         ],
-                        'resolve' => static function ($rootValue, $args) {
-                            return $args['arg'];
-                        },
+                        'resolve' => static fn ($rootValue, array $args): string => $args['arg'],
                     ],
                     'dfd' => [
                         'type' => Type::string(),
@@ -75,12 +72,10 @@ abstract class ServerTestCase extends TestCase
                                 'type' => Type::nonNull(Type::int()),
                             ],
                         ],
-                        'resolve' => static function ($rootValue, $args, $context): Deferred {
+                        'resolve' => static function ($rootValue, array $args, array $context): Deferred {
                             $context['buffer']($args['num']);
 
-                            return new Deferred(static function () use ($args, $context) {
-                                return $context['load']($args['num']);
-                            });
+                            return new Deferred(static fn () => $context['load']($args['num']));
                         },
                     ],
                 ],

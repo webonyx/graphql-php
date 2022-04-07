@@ -28,9 +28,7 @@ class GraphQLTest extends TestCase
                                         'type' => Type::nonNull(Type::string()),
                                     ],
                                 ],
-                                'resolve' => static function ($rootValue, $args) use ($promiseAdapter): Promise {
-                                    return $promiseAdapter->createFulfilled("Hi {$args['name']}!");
-                                },
+                                'resolve' => static fn ($rootValue, array $args): Promise => $promiseAdapter->createFulfilled("Hi {$args['name']}!"),
                             ],
                         ],
                     ]
