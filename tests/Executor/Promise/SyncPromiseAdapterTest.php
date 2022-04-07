@@ -141,11 +141,7 @@ class SyncPromiseAdapterTest extends TestCase
 
         $promise1 = new SyncPromise();
         $promise2 = new SyncPromise();
-        $promise3 = $promise2->then(
-            static function ($value): string {
-                return $value . '-value3';
-            }
-        );
+        $promise3 = $promise2->then(static fn ($value): string => $value . '-value3');
 
         $data = [
             '1',

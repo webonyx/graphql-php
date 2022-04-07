@@ -340,12 +340,10 @@ GRAPHQL
 ');
         $result = Parser::parse($source);
 
-        $loc = static function (int $start, int $end): array {
-            return [
-                'start' => $start,
-                'end' => $end,
-            ];
-        };
+        $loc = static fn (int $start, int $end): array => [
+            'start' => $start,
+            'end' => $end,
+        ];
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -443,12 +441,10 @@ GRAPHQL
 ');
         $result = Parser::parse($source);
 
-        $loc = static function ($start, $end): array {
-            return [
-                'start' => $start,
-                'end' => $end,
-            ];
-        };
+        $loc = static fn (int $start, int $end): array => [
+            'start' => $start,
+            'end' => $end,
+        ];
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,

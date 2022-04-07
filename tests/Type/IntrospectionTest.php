@@ -920,9 +920,7 @@ class IntrospectionTest extends TestCase
                 'field' => [
                     'type' => Type::string(),
                     'args' => ['complex' => ['type' => $TestInputObject]],
-                    'resolve' => static function ($testType, $args) {
-                        return json_encode($args['complex']);
-                    },
+                    'resolve' => static fn ($testType, array $args): string => json_encode($args['complex']),
                 ],
             ],
         ]);

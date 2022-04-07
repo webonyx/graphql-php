@@ -27,7 +27,7 @@ class SyncPromiseTest extends TestCaseBase
 
         $onFulfilledReturnsOtherValue = static fn ($value): string => 'other-' . $value;
 
-        $onFulfilledThrows = static function ($value): void {
+        $onFulfilledThrows = static function (): void {
             throw new Exception('onFulfilled throws this!');
         };
 
@@ -187,19 +187,15 @@ class SyncPromiseTest extends TestCaseBase
      */
     public function rejectedPromiseData(): iterable
     {
-        $onRejectedReturnsNull = static function () {
-            return null;
-        };
+        $onRejectedReturnsNull = static fn () => null;
 
-        $onRejectedReturnsSomeValue = static function ($reason): string {
-            return 'some-value';
-        };
+        $onRejectedReturnsSomeValue = static fn (): string => 'some-value';
 
         $onRejectedThrowsSameReason = static function ($reason): void {
             throw $reason;
         };
 
-        $onRejectedThrowsOtherReason = static function ($value): void {
+        $onRejectedThrowsOtherReason = static function (): void {
             throw new Exception('onRejected throws other!');
         };
 
@@ -371,9 +367,7 @@ class SyncPromiseTest extends TestCaseBase
         $promise = new SyncPromise();
         $promise2 = $promise->then(
             null,
-            static function (): string {
-                return 'value';
-            }
+            static fn (): string => 'value'
         );
         $promise->reject(new Exception('Rejected Again'));
         self::assertValidPromise($promise2, 'value', null, SyncPromise::FULFILLED);

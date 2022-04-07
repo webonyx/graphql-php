@@ -3,7 +3,6 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\GraphQL;
-use GraphQL\Tests\Executor\TestClasses\Adder;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -56,9 +55,7 @@ class ResolveTest extends TestCase
         $_secret = 'secretValue' . uniqid();
 
         $source = [
-            'test' => static function () use ($_secret): string {
-                return $_secret;
-            },
+            'test' => static fn (): string => $_secret,
         ];
         self::assertEquals(
             ['data' => ['test' => $_secret]],
@@ -74,14 +71,28 @@ class ResolveTest extends TestCase
         $schema = $this->buildSchema([
             'type' => Type::int(),
             'args' => [
-                'addend1' => ['type' => Type::int()],
+                'addend1' => [
+                    'type' => Type::int(),
+                ],
             ],
         ]);
 
-        $source = new Adder(700);
+        $result = GraphQL::executeQuery(
+            $schema,
+            '{ test(addend1: 80) }',
+            [
+                'test' => fn ($objectValue, array $args, array $context): float => 700
+                    + $args['addend1']
+                    + $context['addend2'],
+            ],
+            ['addend2' => 9],
+        )->toArray();
 
-        $result = GraphQL::executeQuery($schema, '{ test(addend1: 80) }', $source, ['addend2' => 9])->toArray();
-        self::assertEquals(['data' => ['test' => 789]], $result);
+        self::assertSame([
+            'data' => [
+                'test' => 789,
+            ],
+        ], $result);
     }
 
     /**
@@ -95,9 +106,7 @@ class ResolveTest extends TestCase
                 'aStr' => ['type' => Type::string()],
                 'aInt' => ['type' => Type::int()],
             ],
-            'resolve' => static function ($source, $args) {
-                return json_encode([$source, $args]);
-            },
+            'resolve' => static fn (?string $source, array $args) => json_encode([$source, $args]),
         ]);
 
         self::assertEquals(

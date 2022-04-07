@@ -43,7 +43,7 @@ use function in_array;
 use function iterator_to_array;
 use stdClass;
 
-class SchemaExtenderTest extends TestCaseBase
+final class SchemaExtenderTest extends TestCaseBase
 {
     protected Schema $testSchema;
 
@@ -102,21 +102,17 @@ class SchemaExtenderTest extends TestCaseBase
         $BarType = new ObjectType([
             'name' => 'Bar',
             'interfaces' => [$SomeInterfaceType],
-            'fields' => static function () use ($SomeInterfaceType, $FooType): array {
-                return [
-                    'some' => ['type' => $SomeInterfaceType],
-                    'foo' => ['type' => $FooType],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'some' => ['type' => $SomeInterfaceType],
+                'foo' => ['type' => $FooType],
+            ],
         ]);
 
         $BizType = new ObjectType([
             'name' => 'Biz',
-            'fields' => static function (): array {
-                return [
-                    'fizz' => ['type' => Type::string()],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'fizz' => ['type' => Type::string()],
+            ],
         ]);
 
         $SomeUnionType = new UnionType([
@@ -134,11 +130,9 @@ class SchemaExtenderTest extends TestCaseBase
 
         $SomeInputType = new InputObjectType([
             'name' => 'SomeInput',
-            'fields' => static function (): array {
-                return [
-                    'fooArg' => ['type' => Type::string()],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'fooArg' => ['type' => Type::string()],
+            ],
         ]);
 
         $FooDirective = new Directive([
@@ -162,26 +156,24 @@ class SchemaExtenderTest extends TestCaseBase
         $this->testSchema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'fields' => static function () use ($FooType, $SomeScalarType, $SomeUnionType, $SomeEnumType, $SomeInterfaceType, $SomeInputType): array {
-                    return [
-                        'foo' => ['type' => $FooType],
-                        'someScalar' => ['type' => $SomeScalarType],
-                        'someUnion' => ['type' => $SomeUnionType],
-                        'someEnum' => ['type' => $SomeEnumType],
-                        'someInterface' => [
-                            'args' => [
-                                'id' => [
-                                    'type' => Type::nonNull(Type::id()),
-                                ],
+                'fields' => static fn (): array => [
+                    'foo' => ['type' => $FooType],
+                    'someScalar' => ['type' => $SomeScalarType],
+                    'someUnion' => ['type' => $SomeUnionType],
+                    'someEnum' => ['type' => $SomeEnumType],
+                    'someInterface' => [
+                        'args' => [
+                            'id' => [
+                                'type' => Type::nonNull(Type::id()),
                             ],
-                            'type' => $SomeInterfaceType,
                         ],
-                        'someInput' => [
-                            'args' => ['input' => ['type' => $SomeInputType]],
-                            'type' => Type::string(),
-                        ],
-                    ];
-                },
+                        'type' => $SomeInterfaceType,
+                    ],
+                    'someInput' => [
+                        'args' => ['input' => ['type' => $SomeInputType]],
+                        'type' => Type::string(),
+                    ],
+                ],
             ]),
             'types' => [$FooType, $BarType],
             'directives' => array_merge(GraphQL::getStandardDirectives(), [$FooDirective]),
@@ -189,9 +181,10 @@ class SchemaExtenderTest extends TestCaseBase
 
         $testSchemaAst = Parser::parse(SchemaPrinter::doPrint($this->testSchema));
 
-        $this->testSchemaDefinitions = array_map(static function ($node): string {
-            return Printer::doPrint($node);
-        }, iterator_to_array($testSchemaAst->definitions->getIterator()));
+        $this->testSchemaDefinitions = array_map(
+            static fn ($node): string => Printer::doPrint($node),
+            iterator_to_array($testSchemaAst->definitions->getIterator())
+        );
 
         $this->FooDirective = $FooDirective;
         $this->FooType = $FooType;
@@ -217,9 +210,7 @@ class SchemaExtenderTest extends TestCaseBase
         /** @var array<Node&DefinitionNode> $extraDefinitions */
         $extraDefinitions = array_values(array_filter(
             iterator_to_array($ast->definitions->getIterator()),
-            function (Node $node): bool {
-                return ! in_array(Printer::doPrint($node), $this->testSchemaDefinitions, true);
-            }
+            fn (Node $node): bool => ! in_array(Printer::doPrint($node), $this->testSchemaDefinitions, true)
         ));
         /** @phpstan-var NodeList<DefinitionNode&Node> $definitionNodeList */
         $definitionNodeList = new NodeList($extraDefinitions);
@@ -1240,21 +1231,21 @@ EOF
         $mutationSchema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'fields' => static function (): array {
-                    return ['queryField' => ['type' => Type::string()]];
-                },
+                'fields' => static fn (): array => [
+                    'queryField' => ['type' => Type::string()],
+                ],
             ]),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
-                'fields' => static function (): array {
-                    return ['mutationField' => ['type' => Type::string()]];
-                },
+                'fields' => static fn (): array => [
+                    'mutationField' => ['type' => Type::string()],
+                ],
             ]),
             'subscription' => new ObjectType([
                 'name' => 'Subscription',
-                'fields' => static function (): array {
-                    return ['subscriptionField' => ['type' => Type::string()]];
-                },
+                'fields' => static fn (): array => [
+                    'subscriptionField' => ['type' => Type::string()],
+                ],
             ]),
         ]);
 
@@ -1559,9 +1550,10 @@ EOF
 ,
             implode(
                 "\n",
-                array_map(static function ($node): string {
-                    return Printer::doPrint($node) . "\n";
-                }, $nodes)
+                array_map(
+                    static fn ($node): string => Printer::doPrint($node) . "\n",
+                    $nodes
+                )
             )
         );
     }
@@ -1725,9 +1717,7 @@ EOF
         $typeConfigDecorator = static function ($typeConfig) {
             switch ($typeConfig['name']) {
                 case 'Foo':
-                    $typeConfig['resolveField'] = static function (): string {
-                        return 'bar';
-                    };
+                    $typeConfig['resolveField'] = static fn (): string => 'bar';
                     break;
             }
 

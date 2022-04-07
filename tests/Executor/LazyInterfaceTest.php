@@ -48,14 +48,12 @@ final class LazyInterfaceTest extends TestCase
     {
         $query = new ObjectType([
             'name' => 'query',
-            'fields' => function (): array {
-                return [
-                    'lazyInterface' => [
-                        'type' => $this->makeLazyInterfaceType(),
-                        'resolve' => static fn (): array => [],
-                    ],
-                ];
-            },
+            'fields' => fn (): array => [
+                'lazyInterface' => [
+                    'type' => $this->makeLazyInterfaceType(),
+                    'resolve' => static fn (): array => [],
+                ],
+            ],
         ]);
 
         $this->schema = new Schema(

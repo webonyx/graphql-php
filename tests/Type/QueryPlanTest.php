@@ -339,25 +339,21 @@ final class QueryPlanTest extends TestCase
     {
         $petType = new InterfaceType([
             'name' => 'Pet',
-            'fields' => static function (): array {
-                return [
-                    'name' => ['type' => Type::string()],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'name' => [
+                    'type' => Type::string(),
+                ],
+            ],
         ]);
 
         $dogType = new ObjectType([
             'name' => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Dog;
-            },
-            'fields' => static function (): array {
-                return [
-                    'name' => ['type' => Type::string()],
-                    'woofs' => ['type' => Type::boolean()],
-                ];
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Dog,
+            'fields' => static fn (): array => [
+                'name' => ['type' => Type::string()],
+                'woofs' => ['type' => Type::boolean()],
+            ],
         ]);
 
         $query = 'query Test {
@@ -422,13 +418,11 @@ final class QueryPlanTest extends TestCase
         $schema = new Schema([
             'query' => $petsQuery,
             'types' => [$dogType],
-            'typeLoader' => static function ($name) use ($dogType, $petType) {
+            'typeLoader' => static function (string $name) use ($dogType, $petType) {
                 switch ($name) {
-                    case 'Dog':
-                        return $dogType;
-
-                    case 'Pet':
-                        return $petType;
+                    case 'Dog': return $dogType;
+                    case 'Pet': return $petType;
+                    default: throw new \Exception("Unexpected {$name}");
                 }
             },
         ]);
@@ -705,7 +699,7 @@ final class QueryPlanTest extends TestCase
                     'type' => $article,
                     'resolve' => static function (
                         $value,
-                        $args,
+                        array $args,
                         $context,
                         ResolveInfo $info
                     ) use (
@@ -772,9 +766,7 @@ final class QueryPlanTest extends TestCase
         $transmission = new UnionType([
             'name' => 'Transmission',
             'types' => [$manualTransmission, $automaticTransmission],
-            'resolveType' => static function () use ($manualTransmission): ObjectType {
-                return $manualTransmission;
-            },
+            'resolveType' => static fn (): ObjectType => $manualTransmission,
         ]);
 
         $car = new ObjectType([
@@ -1022,7 +1014,7 @@ GRAPHQL;
                         'type' => $entity,
                         'resolve' => static function (
                             $value,
-                            $args,
+                            array $args,
                             $context,
                             ResolveInfo $info
                         ) use (

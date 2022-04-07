@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @see BuildClientSchema
  */
-class BuildClientSchemaTest extends TestCase
+final class BuildClientSchemaTest extends TestCase
 {
     protected static function assertCycleIntrospection(string $sdl): void
     {
@@ -649,9 +649,7 @@ SDL;
 
         $introspection['__schema']['types'] = array_filter(
             $introspection['__schema']['types'],
-            static function (array $type): bool {
-                return $type['name'] !== 'Query';
-            }
+            static fn (array $type): bool => $type['name'] !== 'Query'
         );
 
         $this->expectExceptionMessage(
@@ -674,9 +672,7 @@ SDL;
 
         $introspection['__schema']['types'] = array_filter(
             $introspection['__schema']['types'],
-            static function (array $type): bool {
-                return $type['name'] !== 'Float';
-            }
+            static fn (array $type): bool => $type['name'] !== 'Float'
         );
 
         $this->expectExceptionMessage(

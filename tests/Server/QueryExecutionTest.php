@@ -419,20 +419,16 @@ class QueryExecutionTest extends ServerTestCase
     public function testAllowSkippingValidationForPersistedQueries(): void
     {
         $this->config
-            ->setPersistedQueryLoader(static function ($queryId) {
-                if ($queryId === 'some-id') {
-                    return '{invalid}';
-                }
-
-                return '{invalid2}';
-            })
-            ->setValidationRules(static function (OperationParams $params): array {
-                if ($params->queryId === 'some-id') {
-                    return [];
-                }
-
-                return DocumentValidator::allRules();
-            });
+            ->setPersistedQueryLoader(
+                static fn (string $queryId): string => $queryId === 'some-id'
+                ? '{invalid}'
+                : '{invalid2}'
+            )
+            ->setValidationRules(
+                static fn (OperationParams $params): array => $params->queryId === 'some-id'
+                ? []
+                : DocumentValidator::allRules()
+            );
 
         $result = $this->executePersistedQuery('some-id');
         $expected = [

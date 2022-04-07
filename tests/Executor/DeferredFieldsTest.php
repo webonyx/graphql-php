@@ -94,30 +94,28 @@ class DeferredFieldsTest extends TestCase
 
         $this->userType = new ObjectType([
             'name' => 'User',
-            'fields' => function (): array {
-                return [
-                    'name' => [
-                        'type' => Type::string(),
-                        'resolve' => function ($user, $args, $context, ResolveInfo $info) {
-                            $this->paths[] = $info->path;
+            'fields' => fn (): array => [
+                'name' => [
+                    'type' => Type::string(),
+                    'resolve' => function ($user, $args, $context, ResolveInfo $info) {
+                        $this->paths[] = $info->path;
 
-                            return $user['name'];
-                        },
-                    ],
-                    'bestFriend' => [
-                        'type' => $this->userType,
-                        'resolve' => function ($user, $args, $context, ResolveInfo $info): Deferred {
-                            $this->paths[] = $info->path;
+                        return $user['name'];
+                    },
+                ],
+                'bestFriend' => [
+                    'type' => $this->userType,
+                    'resolve' => function ($user, $args, $context, ResolveInfo $info): Deferred {
+                        $this->paths[] = $info->path;
 
-                            return new Deferred(function () use ($user) {
-                                $this->paths[] = 'deferred-for-best-friend-of-' . $user['id'];
+                        return new Deferred(function () use ($user) {
+                            $this->paths[] = 'deferred-for-best-friend-of-' . $user['id'];
 
-                                return $this->findUserById($user['bestFriendId']);
-                            });
-                        },
-                    ],
-                ];
-            },
+                            return $this->findUserById($user['bestFriendId']);
+                        });
+                    },
+                ],
+            ],
         ]);
 
         $this->storyType = new ObjectType([

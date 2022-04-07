@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use function array_merge_recursive;
+use ArrayObject;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -47,9 +48,9 @@ class ResolveInfo
      *
      * @api
      *
-     * @var iterable<int, FieldNode>
+     * @var ArrayObject<int, FieldNode>
      */
-    public iterable $fieldNodes = [];
+    public ArrayObject $fieldNodes;
 
     /**
      * Parent type of the field being resolved.
@@ -115,17 +116,17 @@ class ResolveInfo
     private QueryPlan $queryPlan;
 
     /**
-     * @param iterable<int, FieldNode>              $fieldNodes
-     * @param array<int, string|int>                $path
-     * @phpstan-param Path                          $path
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<int, string|int> $path
+     * @phpstan-param Path $path
      *
      * @param array<string, FragmentDefinitionNode> $fragments
-     * @param mixed|null                            $rootValue
-     * @param array<string, mixed>                  $variableValues
+     * @param mixed|null $rootValue
+     * @param array<string, mixed> $variableValues
      */
     public function __construct(
         FieldDefinition $fieldDefinition,
-        iterable $fieldNodes,
+        ArrayObject $fieldNodes,
         ObjectType $parentType,
         array $path,
         Schema $schema,

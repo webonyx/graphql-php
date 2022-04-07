@@ -16,9 +16,7 @@ class Root
 
     public function promiseToChangeTheNumber(float $newNumber): Deferred
     {
-        return new Deferred(function () use ($newNumber): NumberHolder {
-            return $this->immediatelyChangeTheNumber($newNumber);
-        });
+        return new Deferred(fn (): NumberHolder => $this->immediatelyChangeTheNumber($newNumber));
     }
 
     public function immediatelyChangeTheNumber(float $newNumber): NumberHolder
