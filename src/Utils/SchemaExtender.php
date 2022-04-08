@@ -57,6 +57,134 @@ class SchemaExtender
     protected static ASTDefinitionBuilder $astBuilder;
 
     /**
+     * @param array<string, bool> $options
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     */
+    public static function extend(
+        Schema $schema,
+        DocumentNode $documentAST,
+        array $options = [],
+        ?callable $typeConfigDecorator = null
+    ): Schema {
+        if (
+            ! ($options['assumeValid'] ?? false)
+            && ! ($options['assumeValidSDL'] ?? false)
+        ) {
+            DocumentValidator::assertValidSDLExtension($documentAST, $schema);
+        }
+
+        /** @var array<string, Node&TypeDefinitionNode> $typeDefinitionMap */
+        $typeDefinitionMap = [];
+
+        static::$typeExtensionsMap = [];
+
+        /** @var array<int, DirectiveDefinitionNode> $directiveDefinitions */
+        $directiveDefinitions = [];
+
+        /** @var SchemaDefinitionNode|null $schemaDef */
+        $schemaDef = null;
+
+        /** @var array<int, SchemaExtensionNode> $schemaExtensions */
+        $schemaExtensions = [];
+
+        foreach ($documentAST->definitions as $def) {
+            if ($def instanceof SchemaDefinitionNode) {
+                $schemaDef = $def;
+            } elseif ($def instanceof SchemaExtensionNode) {
+                $schemaExtensions[] = $def;
+            } elseif ($def instanceof TypeDefinitionNode) {
+                $typeDefinitionMap[$def->name->value] = $def;
+            } elseif ($def instanceof TypeExtensionNode) {
+                $extendedTypeName = $def->name->value;
+                $existingType = $schema->getType($extendedTypeName);
+                if ($existingType === null) {
+                    throw new Error('Cannot extend type "' . $extendedTypeName . '" because it does not exist in the existing schema.', [$def]);
+                }
+
+                static::assertTypeMatchesExtension($existingType, $def);
+                static::$typeExtensionsMap[$extendedTypeName][] = $def;
+            } elseif ($def instanceof DirectiveDefinitionNode) {
+                $directiveName = $def->name->value;
+                $existingDirective = $schema->getDirective($directiveName);
+                if ($existingDirective !== null) {
+                    throw new Error('Directive "' . $directiveName . '" already exists in the schema. It cannot be redefined.', [$def]);
+                }
+
+                $directiveDefinitions[] = $def;
+            }
+        }
+
+        if (
+            count(static::$typeExtensionsMap) === 0
+            && count($typeDefinitionMap) === 0
+            && count($directiveDefinitions) === 0
+            && count($schemaExtensions) === 0
+            && $schemaDef === null
+        ) {
+            return $schema;
+        }
+
+        static::$astBuilder = new ASTDefinitionBuilder(
+            $typeDefinitionMap,
+            static function (string $typeName) use ($schema): Type {
+                $existingType = $schema->getType($typeName);
+                if ($existingType === null) {
+                    throw new InvariantViolation('Unknown type: "' . $typeName . '".');
+                }
+
+                return static::extendNamedType($existingType);
+            },
+            $typeConfigDecorator
+        );
+
+        static::$extendTypeCache = [];
+
+        $operationTypes = [
+            'query' => static::extendMaybeNamedType($schema->getQueryType()),
+            'mutation' => static::extendMaybeNamedType($schema->getMutationType()),
+            'subscription' => static::extendMaybeNamedType($schema->getSubscriptionType()),
+        ];
+
+        if ($schemaDef !== null) {
+            foreach ($schemaDef->operationTypes as $operationType) {
+                $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
+            }
+        }
+
+        foreach ($schemaExtensions as $schemaExtension) {
+            if (isset($schemaExtension->operationTypes)) {
+                foreach ($schemaExtension->operationTypes as $operationType) {
+                    $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
+                }
+            }
+        }
+
+        $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
+
+        $types = [];
+        // Iterate through all types, getting the type definition for each, ensuring
+        // that any type not directly referenced by a field will get created.
+        foreach ($schema->getTypeMap() as $type) {
+            $types[] = static::extendNamedType($type);
+        }
+
+        // Do the same with new types.
+        foreach ($typeDefinitionMap as $type) {
+            $types[] = static::$astBuilder->buildType($type);
+        }
+
+        return new Schema([
+            'query' => $operationTypes['query'],
+            'mutation' => $operationTypes['mutation'],
+            'subscription' => $operationTypes['subscription'],
+            'types' => $types,
+            'directives' => static::getMergedDirectives($schema, $directiveDefinitions),
+            'astNode' => $schema->getAstNode(),
+            'extensionASTNodes' => $schemaExtensionASTNodes,
+        ]);
+    }
+
+    /**
      * @param Type&NamedType $type
      *
      * @return array<TypeExtensionNode>|null
@@ -539,134 +667,6 @@ class SchemaExtender
             'args' => static::extendArgs($directive->args),
             'isRepeatable' => $directive->isRepeatable,
             'astNode' => $directive->astNode,
-        ]);
-    }
-
-    /**
-     * @param array<string, bool> $options
-     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
-     */
-    public static function extend(
-        Schema $schema,
-        DocumentNode $documentAST,
-        array $options = [],
-        ?callable $typeConfigDecorator = null
-    ): Schema {
-        if (
-            ! ($options['assumeValid'] ?? false)
-            && ! ($options['assumeValidSDL'] ?? false)
-        ) {
-            DocumentValidator::assertValidSDLExtension($documentAST, $schema);
-        }
-
-        /** @var array<string, Node&TypeDefinitionNode> $typeDefinitionMap */
-        $typeDefinitionMap = [];
-
-        static::$typeExtensionsMap = [];
-
-        /** @var array<int, DirectiveDefinitionNode> $directiveDefinitions */
-        $directiveDefinitions = [];
-
-        /** @var SchemaDefinitionNode|null $schemaDef */
-        $schemaDef = null;
-
-        /** @var array<int, SchemaExtensionNode> $schemaExtensions */
-        $schemaExtensions = [];
-
-        foreach ($documentAST->definitions as $def) {
-            if ($def instanceof SchemaDefinitionNode) {
-                $schemaDef = $def;
-            } elseif ($def instanceof SchemaExtensionNode) {
-                $schemaExtensions[] = $def;
-            } elseif ($def instanceof TypeDefinitionNode) {
-                $typeDefinitionMap[$def->name->value] = $def;
-            } elseif ($def instanceof TypeExtensionNode) {
-                $extendedTypeName = $def->name->value;
-                $existingType = $schema->getType($extendedTypeName);
-                if ($existingType === null) {
-                    throw new Error('Cannot extend type "' . $extendedTypeName . '" because it does not exist in the existing schema.', [$def]);
-                }
-
-                static::assertTypeMatchesExtension($existingType, $def);
-                static::$typeExtensionsMap[$extendedTypeName][] = $def;
-            } elseif ($def instanceof DirectiveDefinitionNode) {
-                $directiveName = $def->name->value;
-                $existingDirective = $schema->getDirective($directiveName);
-                if ($existingDirective !== null) {
-                    throw new Error('Directive "' . $directiveName . '" already exists in the schema. It cannot be redefined.', [$def]);
-                }
-
-                $directiveDefinitions[] = $def;
-            }
-        }
-
-        if (
-            count(static::$typeExtensionsMap) === 0
-            && count($typeDefinitionMap) === 0
-            && count($directiveDefinitions) === 0
-            && count($schemaExtensions) === 0
-            && $schemaDef === null
-        ) {
-            return $schema;
-        }
-
-        static::$astBuilder = new ASTDefinitionBuilder(
-            $typeDefinitionMap,
-            static function (string $typeName) use ($schema): Type {
-                $existingType = $schema->getType($typeName);
-                if ($existingType === null) {
-                    throw new InvariantViolation('Unknown type: "' . $typeName . '".');
-                }
-
-                return static::extendNamedType($existingType);
-            },
-            $typeConfigDecorator
-        );
-
-        static::$extendTypeCache = [];
-
-        $operationTypes = [
-            'query' => static::extendMaybeNamedType($schema->getQueryType()),
-            'mutation' => static::extendMaybeNamedType($schema->getMutationType()),
-            'subscription' => static::extendMaybeNamedType($schema->getSubscriptionType()),
-        ];
-
-        if ($schemaDef !== null) {
-            foreach ($schemaDef->operationTypes as $operationType) {
-                $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
-            }
-        }
-
-        foreach ($schemaExtensions as $schemaExtension) {
-            if (isset($schemaExtension->operationTypes)) {
-                foreach ($schemaExtension->operationTypes as $operationType) {
-                    $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
-                }
-            }
-        }
-
-        $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
-
-        $types = [];
-        // Iterate through all types, getting the type definition for each, ensuring
-        // that any type not directly referenced by a field will get created.
-        foreach ($schema->getTypeMap() as $type) {
-            $types[] = static::extendNamedType($type);
-        }
-
-        // Do the same with new types.
-        foreach ($typeDefinitionMap as $type) {
-            $types[] = static::$astBuilder->buildType($type);
-        }
-
-        return new Schema([
-            'query' => $operationTypes['query'],
-            'mutation' => $operationTypes['mutation'],
-            'subscription' => $operationTypes['subscription'],
-            'types' => $types,
-            'directives' => static::getMergedDirectives($schema, $directiveDefinitions),
-            'astNode' => $schema->getAstNode(),
-            'extensionASTNodes' => $schemaExtensionASTNodes,
         ]);
     }
 }
