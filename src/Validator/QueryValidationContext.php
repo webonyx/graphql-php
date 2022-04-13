@@ -209,8 +209,7 @@ class QueryValidationContext implements ValidationContext
             while (count($setsToVisit) > 0) {
                 $set = array_pop($setsToVisit);
 
-                for ($i = 0, $selectionCount = count($set->selections); $i < $selectionCount; ++$i) {
-                    $selection = $set->selections[$i];
+                foreach ($set->selections as $selection) {
                     if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
                     } else {
