@@ -24,11 +24,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install PHP
-      uses: shivammathur/setup-php@2.9.0
+      uses: shivammathur/setup-php@2.18.1
       with:
         php-version: ${{ matrix.php  }}
         coverage: none
         extensions: json, mbstring
+
     - name: Get Composer Cache Directory
       id: composer-cache
       run: echo "::set-output name=dir::$(composer config cache-files-dir)"
