@@ -180,16 +180,15 @@ class ValidationContext extends ASTValidationContext
             while (count($setsToVisit) > 0) {
                 $set = array_pop($setsToVisit);
 
-                for ($i = 0, $selectionCount = count($set->selections); $i < $selectionCount; $i++) {
-                    $selection = $set->selections[$i];
+                foreach ($set->selections as $selection) {
                     if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
-                    } elseif ($selection instanceof FieldNode || $selection instanceof InlineFragmentNode) {
-                        if ($selection->selectionSet) {
-                            $setsToVisit[] = $selection->selectionSet;
-                        }
                     } else {
-                        throw InvariantViolation::shouldNotHappen();
+                        assert($selection instanceof FieldNode || $selection instanceof InlineFragmentNode);
+                        $selectionSet = $selection->selectionSet;
+                        if ($selectionSet !== null) {
+                            $setsToVisit[] = $selectionSet;
+                        }
                     }
                 }
             }
