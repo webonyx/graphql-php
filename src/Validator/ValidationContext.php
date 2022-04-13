@@ -31,6 +31,7 @@ use GraphQL\Utils\TypeInfo;
 use SplObjectStorage;
 use function array_merge;
 use function array_pop;
+use function assert;
 use function count;
 
 /**

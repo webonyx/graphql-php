@@ -581,11 +581,6 @@ parameters:
 			path: src/Validator/ValidationContext.php
 
 		-
-			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
-			count: 1
-			path: src/Validator/ValidationContext.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\> given\\.$#"
 			count: 1
 			path: src/Validator/ValidationContext.php
