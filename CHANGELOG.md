@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.11.6
+
+Fixed:
+- Fix validation of modified sparse ASTs
+
 #### 14.11.5
 
 Fixed:

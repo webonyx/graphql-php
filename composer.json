@@ -37,7 +37,8 @@
     "sort-packages": true,
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true,
-      "phpstan/extension-installer": true
+      "phpstan/extension-installer": true,
+      "ergebnis/composer-normalize": true
     }
   },
   "autoload": {
