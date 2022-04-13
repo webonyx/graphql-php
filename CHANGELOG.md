@@ -116,6 +116,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove `Utils::find()`, `Utils::every()` and `Utils::invariant()`
 - Remove argument `bool $exitWhenDone` from `StandardServer::send500Error()` and `StandardServer::handleRequest()`
 
+## 14.11.6
+
+### Fixed
+
+- Fix validation of modified sparse ASTs
+
 ## 14.11.5
 
 ### Fixed
