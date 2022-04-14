@@ -6,7 +6,7 @@ use GraphQL\Validator\Rules\QueryDepth;
 use function sprintf;
 use function str_replace;
 
-class QueryDepthTest extends QuerySecurityTestCase
+final class QueryDepthTest extends QuerySecurityTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $expectedErrors

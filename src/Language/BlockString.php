@@ -32,8 +32,7 @@ class BlockString
 
         if ($commonIndent > 0) {
             for ($i = 1; $i < $linesLength; ++$i) {
-                $line = $lines[$i];
-                $lines[$i] = mb_substr($line, $commonIndent);
+                $lines[$i] = mb_substr($lines[$i], $commonIndent);
             }
         }
 
