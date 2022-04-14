@@ -221,10 +221,7 @@ class Visitor
                     }
 
                     $editOffset = 0;
-                    for ($ii = 0; $ii < count($edits); ++$ii) {
-                        $editKey = $edits[$ii][0];
-                        $editValue = $edits[$ii][1];
-
+                    foreach ($edits as [$editKey, $editValue]) {
                         if ($inArray) {
                             $editKey -= $editOffset;
                         }

@@ -26,7 +26,7 @@ use GraphQL\Utils\TypeInfo;
 use function is_numeric;
 use function Safe\file_get_contents;
 
-class VisitorTest extends ValidatorTestCase
+final class VisitorTest extends ValidatorTestCase
 {
     /**
      * @see it('validates path argument')
