@@ -47,6 +47,7 @@ use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
+use function implode;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -304,11 +305,11 @@ class DocumentValidator
      */
     private static function combineErrorMessages(array $errors): string
     {
-        $str = '';
+        $messages = [];
         foreach ($errors as $error) {
-            $str .= $error->getMessage() . "\n\n";
+            $messages[] = $error->getMessage();
         }
 
-        return $str;
+        return implode("\n\n", $messages);
     }
 }
