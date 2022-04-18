@@ -28,8 +28,7 @@ use PHPUnit\Framework\TestCase;
  * Their counterparts have been removed from `extendSchema-test.js` and moved elsewhere,
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
  * TODO align with:
- *   - https://github.com/graphql/graphql-js/commit/c1745228b2ae5ec89b8de36ea766d544607e21ea
- *   - https://github.com/graphql/graphql-js/commit/e6a3f08cc92594f68a6e61d3d4b46a6d279f845e.
+ *   - https://github.com/graphql/graphql-js/commit/c1745228b2ae5ec89b8de36ea766d544607e21ea.
  */
 class SchemaExtenderLegacyTest extends TestCase
 {
@@ -256,93 +255,6 @@ class SchemaExtenderLegacyTest extends TestCase
             self::fail();
         } catch (Error $error) {
             self::assertEquals($existingFieldError('SomeInput', 'fooArg'), $error->getMessage());
-        }
-    }
-
-    // Extract check for possible extensions into a separate rule (#1643)
-
-    /**
-     * @see it('does not allow extending an unknown type')
-     */
-    public function testDoesNotAllowExtendingAnUnknownType(): void
-    {
-        $sdls = [
-            'extend scalar UnknownType @foo',
-            'extend type UnknownType @foo',
-            'extend interface UnknownType @foo',
-            'extend enum UnknownType @foo',
-            'extend union UnknownType @foo',
-            'extend input UnknownType @foo',
-        ];
-
-        foreach ($sdls as $sdl) {
-            try {
-                $this->extendTestSchema($sdl);
-                self::fail();
-            } catch (Error $error) {
-                self::assertEquals('Cannot extend type "UnknownType" because it does not exist in the existing schema.', $error->getMessage());
-            }
-        }
-    }
-
-    /**
-     * @see it('does not allow extending a mismatch type')
-     */
-    public function testDoesNotAllowExtendingAMismatchType(): void
-    {
-        $typeSDL = '
-          extend type SomeInterface @foo
-        ';
-
-        try {
-            $this->extendTestSchema($typeSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Cannot extend non-object type "SomeInterface".', $error->getMessage());
-        }
-
-        $interfaceSDL = '
-          extend interface Foo @foo
-        ';
-
-        try {
-            $this->extendTestSchema($interfaceSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Cannot extend non-interface type "Foo".', $error->getMessage());
-        }
-
-        $enumSDL = '
-          extend enum Foo @foo
-        ';
-
-        try {
-            $this->extendTestSchema($enumSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Cannot extend non-enum type "Foo".', $error->getMessage());
-        }
-
-        $unionSDL = '
-          extend union Foo @foo
-        ';
-
-        try {
-            $this->extendTestSchema($unionSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Cannot extend non-union type "Foo".', $error->getMessage());
-        }
-
-        $inputSDL = '
-          extend input Foo @foo
-        ';
-
-        try {
-            $this->extendTestSchema($inputSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Cannot extend non-input object type "Foo".', $error->getMessage());
         }
     }
 }

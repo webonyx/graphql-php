@@ -26,6 +26,7 @@ use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
+use GraphQL\Validator\Rules\PossibleTypeExtensions;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
 use GraphQL\Validator\Rules\QueryComplexity;
@@ -207,6 +208,7 @@ class DocumentValidator
             KnownDirectives::class => new KnownDirectives(),
             KnownArgumentNamesOnDirectives::class => new KnownArgumentNamesOnDirectives(),
             UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
+            PossibleTypeExtensions::class => new PossibleTypeExtensions(),
             UniqueArgumentNames::class => new UniqueArgumentNames(),
             UniqueEnumValueNames::class => new UniqueEnumValueNames(),
             UniqueInputFieldNames::class => new UniqueInputFieldNames(),
