@@ -277,7 +277,7 @@ class SchemaExtender
 
         if (isset(static::$typeExtensionsMap[$type->name])) {
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
-                assert($extension instanceof InputObjectTypeExtensionNode, 'proven by assertTypeMatchesExtension()');
+                assert($extension instanceof InputObjectTypeExtensionNode, 'proven by schema validation');
 
                 foreach ($extension->fields as $field) {
                     $fieldName = $field->name->value;
@@ -312,7 +312,7 @@ class SchemaExtender
 
         if (isset(static::$typeExtensionsMap[$type->name])) {
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
-                assert($extension instanceof EnumTypeExtensionNode, 'proven by assertTypeMatchesExtension()');
+                assert($extension instanceof EnumTypeExtensionNode, 'proven by schema validation');
 
                 foreach ($extension->values as $value) {
                     $newValueMap[$value->name->value] = static::$astBuilder->buildEnumValue($value);
@@ -335,7 +335,7 @@ class SchemaExtender
 
         if (isset(static::$typeExtensionsMap[$type->name])) {
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
-                assert($extension instanceof UnionTypeExtensionNode, 'proven by assertTypeMatchesExtension()');
+                assert($extension instanceof UnionTypeExtensionNode, 'proven by schema validation');
 
                 foreach ($extension->types as $namedType) {
                     $possibleTypes[] = static::$astBuilder->buildType($namedType);
@@ -363,7 +363,7 @@ class SchemaExtender
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
                 assert(
                     $extension instanceof ObjectTypeExtensionNode || $extension instanceof InterfaceTypeExtensionNode,
-                    'proven by assertTypeMatchesExtension()'
+                    'proven by schema validation'
                 );
 
                 foreach ($extension->interfaces as $namedType) {
@@ -460,7 +460,7 @@ class SchemaExtender
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
                 assert(
                     $extension instanceof ObjectTypeExtensionNode || $extension instanceof InterfaceTypeExtensionNode,
-                    'proven by assertTypeMatchesExtension()'
+                    'proven by schema validation'
                 );
 
                 foreach ($extension->fields as $field) {
