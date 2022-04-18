@@ -987,7 +987,6 @@ EOF
           }
 
           extend type Biz {
-            newFieldA: Int
             newFieldB: Float
           }
 
