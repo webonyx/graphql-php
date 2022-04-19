@@ -62,6 +62,16 @@ Apply automatic code style fixes:
 composer fix
 ```
 
+### Multiline Ternary Expressions
+
+Ternary expressions must be spread across multiple lines.
+
+```php
+$foo = $cond
+    ? 1
+    : 2;
+```
+
 ## Static Analysis
 
 We validate code correctness with [PHPStan](https://phpstan.org).
