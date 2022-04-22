@@ -2,7 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function array_key_exists;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
@@ -36,7 +35,7 @@ class UniqueDirectiveNames extends ValidationRule
                 return null;
             }
 
-            if (array_key_exists($directiveName, $knownDirectiveNames)) {
+            if (isset($knownDirectiveNames[$directiveName])) {
                 $context->reportError(
                     new Error(
                         'There can be only one directive named "@' . $directiveName . '".',
