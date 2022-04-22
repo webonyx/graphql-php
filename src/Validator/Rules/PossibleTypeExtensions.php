@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
@@ -16,7 +14,6 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\SDLValidationContext;
@@ -31,6 +28,7 @@ class PossibleTypeExtensions extends ValidationRule
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         $schema = $context->getSchema();
+
         /** @var array<string, TypeDefinitionNode&Node> $definedTypes */
         $definedTypes = [];
 
@@ -43,7 +41,9 @@ class PossibleTypeExtensions extends ValidationRule
         $checkTypeExtension = static function ($node) use ($context, $schema, &$definedTypes): ?VisitorOperation {
             $typeName = $node->name->value;
             $defNode = $definedTypes[$typeName] ?? null;
-            $existingType = $schema !== null ? $schema->getType($typeName) : null;
+            $existingType = $schema !== null
+                ? $schema->getType($typeName)
+                : null;
 
             $expectedKind = null;
             if ($defNode !== null) {
