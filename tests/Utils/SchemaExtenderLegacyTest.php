@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
  * TODO align with:
  *   - https://github.com/graphql/graphql-js/commit/c1745228b2ae5ec89b8de36ea766d544607e21ea.
+ *   - https://github.com/graphql/graphql-js/commit/e6a3f08cc92594f68a6e61d3d4b46a6d279f845e.
  */
 class SchemaExtenderLegacyTest extends TestCase
 {
@@ -186,29 +187,6 @@ class SchemaExtenderLegacyTest extends TestCase
         $extendedSchema->assertValid();
 
         return $extendedSchema;
-    }
-
-    // Extract check for unique directive names into separate rule
-
-    /**
-     * @see it('does not allow replacing a custom directive')
-     */
-    public function testDoesNotAllowReplacingACustomDirective(): void
-    {
-        $extendedSchema = $this->extendTestSchema('
-          directive @meow(if: Boolean!) on FIELD | FRAGMENT_SPREAD
-        ');
-
-        $replacementAST = Parser::parse('
-            directive @meow(if: Boolean!) on FIELD | QUERY
-        ');
-
-        try {
-            SchemaExtender::extend($extendedSchema, $replacementAST);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Directive "meow" already exists in the schema. It cannot be redefined.', $error->getMessage());
-        }
     }
 
     /**

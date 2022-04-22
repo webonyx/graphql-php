@@ -35,6 +35,7 @@ use GraphQL\Validator\Rules\QuerySecurityRule;
 use GraphQL\Validator\Rules\ScalarLeafs;
 use GraphQL\Validator\Rules\SingleFieldSubscription;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
+use GraphQL\Validator\Rules\UniqueDirectiveNames;
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 use GraphQL\Validator\Rules\UniqueEnumValueNames;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
@@ -47,6 +48,7 @@ use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
+use function implode;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -204,6 +206,7 @@ class DocumentValidator
             LoneSchemaDefinition::class => new LoneSchemaDefinition(),
             UniqueOperationTypes::class => new UniqueOperationTypes(),
             UniqueTypeNames::class => new UniqueTypeNames(),
+            UniqueDirectiveNames::class => new UniqueDirectiveNames(),
             KnownTypeNames::class => new KnownTypeNames(),
             KnownDirectives::class => new KnownDirectives(),
             KnownArgumentNamesOnDirectives::class => new KnownArgumentNamesOnDirectives(),
@@ -304,11 +307,11 @@ class DocumentValidator
      */
     private static function combineErrorMessages(array $errors): string
     {
-        $str = '';
+        $messages = [];
         foreach ($errors as $error) {
-            $str .= $error->getMessage() . "\n\n";
+            $messages[] = $error->getMessage();
         }
 
-        return $str;
+        return implode("\n\n", $messages);
     }
 }

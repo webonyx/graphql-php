@@ -97,12 +97,6 @@ class SchemaExtender
             } elseif ($def instanceof TypeExtensionNode) {
                 static::$typeExtensionsMap[$def->name->value][] = $def;
             } elseif ($def instanceof DirectiveDefinitionNode) {
-                $directiveName = $def->name->value;
-                $existingDirective = $schema->getDirective($directiveName);
-                if ($existingDirective !== null) {
-                    throw new Error('Directive "' . $directiveName . '" already exists in the schema. It cannot be redefined.', [$def]);
-                }
-
                 $directiveDefinitions[] = $def;
             }
         }
