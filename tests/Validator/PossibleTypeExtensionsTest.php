@@ -6,7 +6,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\PossibleTypeExtensions;
 
-class PossibleTypeExtensionsTest extends ValidatorTestCase
+final class PossibleTypeExtensionsTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors
