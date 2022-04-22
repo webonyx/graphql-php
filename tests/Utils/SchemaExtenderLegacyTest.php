@@ -28,7 +28,6 @@ use PHPUnit\Framework\TestCase;
  * Their counterparts have been removed from `extendSchema-test.js` and moved elsewhere,
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
  * TODO align with:
- *   - https://github.com/graphql/graphql-js/commit/c1745228b2ae5ec89b8de36ea766d544607e21ea.
  *   - https://github.com/graphql/graphql-js/commit/e6a3f08cc92594f68a6e61d3d4b46a6d279f845e.
  */
 class SchemaExtenderLegacyTest extends TestCase
