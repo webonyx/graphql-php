@@ -2941,7 +2941,7 @@ class ValidationTest extends TestCaseBase
     
           directive @testA on SCHEMA
           directive @testA on SCHEMA
-        ');
+        ', null, ['assumeValidSDL' => true]);
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [
