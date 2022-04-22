@@ -6,7 +6,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\UniqueDirectiveNames;
 
-class UniqueDirectiveNamesTest extends ValidatorTestCase
+final class UniqueDirectiveNamesTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors
