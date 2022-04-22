@@ -31,7 +31,6 @@ class PossibleTypeExtensions extends ValidationRule
 
         /** @var array<string, TypeDefinitionNode&Node> $definedTypes */
         $definedTypes = [];
-
         foreach ($context->getDocument()->definitions as $def) {
             if ($def instanceof TypeDefinitionNode) {
                 $definedTypes[$def->name->value] = $def;
@@ -58,7 +57,9 @@ class PossibleTypeExtensions extends ValidationRule
                     $context->reportError(
                         new Error(
                             'Cannot extend non-' . $kindStr . ' type "' . $typeName . '".',
-                            $defNode !== null ? [$defNode, $node] : $node,
+                            $defNode !== null
+                                ? [$defNode, $node]
+                                : $node,
                         ),
                     );
                 }
@@ -71,7 +72,9 @@ class PossibleTypeExtensions extends ValidationRule
                     ...array_keys($existingTypesMap),
                 ];
                 $suggestedTypes = Utils::suggestionList($typeName, $allTypeNames);
-                $didYouMean = \count($suggestedTypes) > 0 ? ' Did you mean ' . Utils::quotedOrList($suggestedTypes) . '?' : '';
+                $didYouMean = \count($suggestedTypes) > 0
+                    ? ' Did you mean ' . Utils::quotedOrList($suggestedTypes) . '?'
+                    : '';
                 $context->reportError(
                     new Error(
                         'Cannot extend type "' . $typeName . '" because it is not defined.' . $didYouMean,
@@ -109,7 +112,7 @@ class PossibleTypeExtensions extends ValidationRule
             case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
                 return NodeKind::INPUT_OBJECT_TYPE_EXTENSION;
             default:
-                throw new InvariantViolation('Unexpected definition kind: ' . $kind);
+                throw new InvariantViolation("Unexpected definition kind: {$kind}");
         }
     }
 
@@ -149,7 +152,7 @@ class PossibleTypeExtensions extends ValidationRule
             case NodeKind::INPUT_OBJECT_TYPE_EXTENSION:
                 return 'input object';
             default:
-                throw new InvariantViolation('Unexpected extension kind: ' . $kind);
+                throw new InvariantViolation("Unexpected extension kind: {$kind}");
         }
     }
 }
