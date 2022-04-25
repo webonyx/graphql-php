@@ -8,7 +8,6 @@ use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use JsonSerializable;
-use ReturnTypeWillChange;
 use Throwable;
 
 /**
@@ -142,7 +141,6 @@ class ExecutionResult implements JsonSerializable
     /**
      * @phpstan-return SerializableResult
      */
-    #[ReturnTypeWillChange]
     public function jsonSerialize(): array
     {
         return $this->toArray();
