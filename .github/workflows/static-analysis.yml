@@ -11,13 +11,6 @@ jobs:
     name: "Static Analysis with PHPStan"
     runs-on: "ubuntu-20.04"
 
-    strategy:
-      matrix:
-        php-version:
-          - "7.4"
-          - "8.0"
-          - "8.1"
-
     steps:
       - name: "Checkout code"
         uses: "actions/checkout@v2"
@@ -26,7 +19,7 @@ jobs:
         uses: "shivammathur/setup-php@v2"
         with:
           coverage: "none"
-          php-version: "${{ matrix.php-version }}"
+          php-version: "7.4"
           tools: "cs2pr"
 
       - name: "Install dependencies with Composer"
@@ -39,11 +32,6 @@ jobs:
     name: "Static Analysis with Psalm"
     runs-on: "ubuntu-20.04"
 
-    strategy:
-      matrix:
-        php-version:
-          - "8.1"
-
     steps:
       - name: "Checkout code"
         uses: "actions/checkout@v2"
@@ -52,7 +40,7 @@ jobs:
         uses: "shivammathur/setup-php@v2"
         with:
           coverage: "none"
-          php-version: "${{ matrix.php-version }}"
+          php-version: "7.4"
           tools: "cs2pr"
 
       - name: "Install dependencies with Composer"
