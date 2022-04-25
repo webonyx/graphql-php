@@ -7,23 +7,6 @@ $finder = PhpCsFixer\Finder::create()
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
 
-$phpVersion = phpversion();
-
-if (version_compare($phpVersion, '8.0', '<')) {
-    $finder->notPath([
-        'src/Type/Definition/Deprecated.php',
-        'src/Type/Definition/Description.php',
-    ]);
-}
-
-if (version_compare($phpVersion, '8.1', '<')) {
-    $finder->notPath([
-        'benchmarks',
-        'src/Type/Definition/PhpEnumType.php',
-        'tests/Type/PhpEnumType',
-    ]);
-}
-
 return MLL\PhpCsFixerConfig\risky($finder, [
     'no_superfluous_phpdoc_tags' => [
         'allow_mixed' => true,

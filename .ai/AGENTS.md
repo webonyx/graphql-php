@@ -6,7 +6,7 @@ This file provides guidance to coding agents when working with code in this repo
 
 `webonyx/graphql-php` is a PHP implementation of the GraphQL specification.
 As a foundational library, it requires no dependencies to install.
-Supports PHP 7.4+.
+Supports PHP 8.2+.
 
 ## Development Workflow
 

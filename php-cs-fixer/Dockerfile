@@ -1,11 +1,6 @@
-ARG IMAGE
-FROM ${IMAGE}
+FROM php:8.2-cli-trixie
 
-# Debian 11 reached end of life and moved to archive.debian.org
-RUN if grep -q VERSION_CODENAME=bullseye /etc/os-release; then \
-    echo "deb http://archive.debian.org/debian bullseye main" > /etc/apt/sources.list; \
-  fi \
-  && apt-get update \
+RUN apt-get update \
   && apt-get install --yes --no-install-recommends \
     git \
     unzip \
