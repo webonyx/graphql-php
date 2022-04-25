@@ -3,11 +3,17 @@
   "extends": [
       "config:base"
   ],
+  "rangeStrategy": "replace",
   "packageRules": [
     {
       "matchPackagePatterns": ["phpstan"],
       "groupName": "phpstan packages",
-      "groupSlug": "phpstan"
+      "groupSlug": "phpstan",
+      "rangeStrategy": "pin"
+    },
+    {
+      "matchPackageNames": ["phpstan/extension-installer"],
+      "rangeStrategy": "replace"
     }
   ],
   "assignees": [
