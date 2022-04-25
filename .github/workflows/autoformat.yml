@@ -16,7 +16,7 @@ jobs:
         with:
           coverage: none
           extensions: mbstring
-          php-version: 7.4
+          php-version: 8.0
 
       - run: composer install --no-interaction --no-progress --no-suggest
 
@@ -52,7 +52,7 @@ jobs:
         with:
           coverage: none
           extensions: mbstring
-          php-version: 7.4
+          php-version: 8.0
 
       - run: composer install --no-interaction --no-progress --no-suggest
 
