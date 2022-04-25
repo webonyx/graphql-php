@@ -5,9 +5,18 @@
   ],
   "packageRules": [
     {
+      "matchDepTypes": ["devDependencies"],
+      "rangeStrategy": "bump"
+    },
+    {
       "matchPackagePatterns": ["phpstan"],
       "groupName": "phpstan packages",
-      "groupSlug": "phpstan"
+      "groupSlug": "phpstan",
+      "rangeStrategy": "pin"
+    },
+    {
+      "matchPackageNames": ["phpstan/extension-installer"],
+      "rangeStrategy": "bump"
     }
   ],
   "assignees": [
