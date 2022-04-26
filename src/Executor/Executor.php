@@ -174,10 +174,8 @@ class Executor
      * @param mixed                $objectValue
      * @param array<string, mixed> $args
      * @param mixed                $contextValue
-     *
-     * @return mixed
      */
-    public static function defaultFieldResolver($objectValue, array $args, $contextValue, ResolveInfo $info)
+    public static function defaultFieldResolver($objectValue, array $args, $contextValue, ResolveInfo $info): mixed
     {
         $fieldName = $info->fieldName;
         $property = null;
