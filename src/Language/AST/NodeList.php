@@ -35,7 +35,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      *
      * @phpstan-return self<TT>
      */
-    public static function create(array $nodes): self
+    public static function create(array $nodes): static
     {
         return new static($nodes);
     }
