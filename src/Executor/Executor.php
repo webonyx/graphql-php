@@ -125,7 +125,7 @@ class Executor
             $fieldResolver
         );
 
-        return $promiseAdapter->wait(promise: $result);
+        return $promiseAdapter->wait($result);
     }
 
     /**
