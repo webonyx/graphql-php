@@ -189,7 +189,7 @@ class Executor
             }
         } elseif (is_object($objectValue)) {
             if (isset($objectValue->{$fieldName})) {
-                $property = $objectValue?->{$fieldName};
+                $property = $objectValue->{$fieldName};
             }
         }
 
