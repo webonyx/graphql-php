@@ -254,7 +254,6 @@ class SchemaExtender
         $oldFieldMap = $type->getFields();
         foreach ($oldFieldMap as $fieldName => $field) {
             $extendedType = static::extendType($field->getType());
-            assert($extendedType instanceof InputType, 'proven by schema validation');
 
             $newFieldConfig = [
                 'description' => $field->description,
@@ -406,7 +405,6 @@ class SchemaExtender
         $extended = [];
         foreach ($args as $arg) {
             $extendedType = static::extendType($arg->getType());
-            assert($extendedType instanceof InputType, 'proven by schema validation');
 
             $def = [
                 'type' => $extendedType,
