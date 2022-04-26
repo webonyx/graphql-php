@@ -177,6 +177,9 @@ class Executor
      */
     public static function defaultFieldResolver($objectValue, array $args, $contextValue, ResolveInfo $info): mixed
     {
+        $array = [];
+        each($array);
+
         $fieldName = $info->fieldName;
         $property = null;
 
