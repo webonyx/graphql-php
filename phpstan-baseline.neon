@@ -76,6 +76,36 @@ parameters:
 			path: src/Type/Definition/Argument.php
 
 		-
+			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\:\\:\\$interfaces \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			count: 1
+			path: src/Type/Definition/InterfaceType.php
+
+		-
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
+			count: 1
+			path: src/Type/Definition/InterfaceType.php
+
+		-
+			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\ObjectType\\:\\:\\$interfaces \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			count: 1
+			path: src/Type/Definition/ObjectType.php
+
+		-
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
+			count: 1
+			path: src/Type/Definition/ObjectType.php
+
+		-
+			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\UnionType\\:\\:\\$types \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			count: 1
+			path: src/Type/Definition/UnionType.php
+
+		-
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
+			count: 1
+			path: src/Type/Definition/UnionType.php
+
+		-
 			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\) should return T of GraphQL\\\\Type\\\\Definition\\\\Type but returns \\(callable&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|T of GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
 			count: 1
 			path: src/Type/Schema.php
