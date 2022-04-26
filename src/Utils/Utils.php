@@ -47,14 +47,12 @@ class Utils
     {
         foreach ($vars as $key => $value) {
             if (! property_exists($obj, $key)) {
-                $cls = $obj::class;
+                $cls = get_class($obj);
                 Warning::warn(
                     "Trying to set non-existing property '{$key}' on class '{$cls}'",
                     Warning::WARNING_ASSIGN
                 );
             }
-
-            str_contains('foo', 'bar');
 
             $obj->{$key} = $value;
         }
@@ -92,6 +90,10 @@ class Utils
         }
 
         if (is_string($var)) {
+            if (str_contains('foo', 'bar')) {
+                return 'baz';
+            }
+
             return "\"{$var}\"";
         }
 
