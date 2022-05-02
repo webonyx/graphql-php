@@ -19,7 +19,7 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\SDLValidationContext;
 
 /**
- * Possible type extension.
+ * Possible type extensions.
  *
  * A type extension is only valid if the type is defined and has the same kind.
  */

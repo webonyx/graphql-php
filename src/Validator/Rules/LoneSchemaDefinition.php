@@ -8,7 +8,7 @@ use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Validator\SDLValidationContext;
 
 /**
- * Lone Schema definition.
+ * Lone schema definition.
  *
  * A GraphQL document is only valid if it contains only one schema definition.
  */
