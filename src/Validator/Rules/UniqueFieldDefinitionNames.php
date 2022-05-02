@@ -29,7 +29,7 @@ class UniqueFieldDefinitionNames extends ValidationRule
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         $schema = $context->getSchema();
-        /** @var array<string, NameNode[]> $knownFieldNames */
+        /** @var array<string, array<int, NameNode>> $knownFieldNames */
         $knownFieldNames = [];
         $checkFieldUniqueness = static function ($node) use ($context, $schema, &$knownFieldNames): VisitorOperation {
             assert(
