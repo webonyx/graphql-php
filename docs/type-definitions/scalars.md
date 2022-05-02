@@ -1,10 +1,11 @@
 # Scalar Type Definition
-Scalar types represent primitive leaf values in a GraphQL type system. 
+
+Scalar types represent primitive leaf values in a GraphQL type system.
 When object fields have to resolve to some concrete data, that's where the scalar types come in.
 
 ## Built-in Scalar Types
 
-The GraphQL specification describes several built-in scalar types. In **graphql-php** they are 
+The GraphQL specification describes several built-in scalar types. In **graphql-php** they are
 exposed as static methods of the class [`GraphQL\Type\Definition\Type`](../class-reference.md#graphqltypedefinitiontype):
 
 ```php
@@ -19,24 +20,24 @@ Type::id();      // ID type
 ```
 
 Those methods return instances of a subclass of `GraphQL\Type\Definition\ScalarType`.
-Use them directly in type definitions or wrapped in a type registry (see [lazy loading of types](../schema-definition.md#lazy-loading-of-types)). 
+Use them directly in type definitions or wrapped in a type registry (see [lazy loading of types](../schema-definition.md#lazy-loading-of-types)).
 
 ## Writing Custom Scalar Types
 
-In addition to built-in scalars, you can define your own scalar types with additional validation. 
+In addition to built-in scalars, you can define your own scalar types with additional validation.
 Typical examples of such types are **Email**, **Date**, **Url**, etc.
 
 In order to implement your own type, you must understand how scalars are handled in GraphQL.
 GraphQL deals with scalars in the following cases:
 
-1. Convert the **internal representation** of a value, returned by your app (e.g. stored in a database 
-or hardcoded in the source code), to a **serialized representation** included in the response.
- 
-2. Convert an **input value**, passed by a client in variables along with a GraphQL query, to 
-its **internal representation** used in your application.
+1. Convert the **internal representation** of a value, returned by your app (e.g. stored in a database
+   or hardcoded in the source code), to a **serialized representation** included in the response.
 
-3. Convert an **input literal value**, hardcoded in a GraphQL query (e.g. field argument value), to 
-its **internal representation** used in your application.
+2. Convert an **input value**, passed by a client in variables along with a GraphQL query, to
+   its **internal representation** used in your application.
+
+3. Convert an **input literal value**, hardcoded in a GraphQL query (e.g. field argument value), to
+   its **internal representation** used in your application.
 
 Those cases are covered by the methods `serialize`, `parseValue` and `parseLiteral` of the
 abstract class `ScalarType` respectively.
@@ -52,7 +53,7 @@ use GraphQL\Utils\Utils;
 
 class EmailType extends ScalarType
 {
-    // Note: name can be omitted. In this case it will be inferred from class name 
+    // Note: name can be omitted. In this case it will be inferred from class name
     // (suffix "Type" will be dropped)
     public string $name = 'Email';
 

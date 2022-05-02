@@ -1389,7 +1389,7 @@ EOF
             $this->extendTestSchema($sdl);
             self::fail();
         } catch (Error $error) {
-            self::assertSame('Directive "include" already exists in the schema. It cannot be redefined.', $error->getMessage());
+            self::assertSame('Directive "@include" already exists in the schema. It cannot be redefined.', $error->getMessage());
         }
     }
 

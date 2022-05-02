@@ -434,6 +434,7 @@ class ASTDefinitionBuilder
                 return new UnionType($config);
 
             case $def instanceof ScalarTypeDefinitionNode:
+                // @phpstan-ignore-next-line assume the config matches
                 return new CustomScalarType($config);
 
             case $def instanceof InputObjectTypeDefinitionNode:

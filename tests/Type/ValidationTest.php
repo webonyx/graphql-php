@@ -187,7 +187,7 @@ class ValidationTest extends TestCaseBase
                 static fn (): UnionType => new UnionType([]),
                 // @phpstan-ignore-next-line intentionally wrong
                 static fn (): InterfaceType => new InterfaceType([]),
-                static fn (): ScalarType => new CustomScalarType([]),
+                static fn (): ScalarType => new CustomScalarType(['parseValue' => static fn ($value) => $value]),
             ],
             'Must provide name for Type.'
         );
@@ -2941,7 +2941,7 @@ class ValidationTest extends TestCaseBase
     
           directive @testA on SCHEMA
           directive @testA on SCHEMA
-        ');
+        ', null, ['assumeValidSDL' => true]);
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [

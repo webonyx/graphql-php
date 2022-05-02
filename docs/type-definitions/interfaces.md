@@ -1,11 +1,11 @@
 # Interface Type Definition
 
-An Interface is an abstract type that includes a certain set of fields that a 
+An Interface is an abstract type that includes a certain set of fields that a
 type must include to implement the interface.
 
 ## Writing Interface Types
 
-In **graphql-php** interface type is an instance of `GraphQL\Type\Definition\InterfaceType` 
+In **graphql-php** interface type is an instance of `GraphQL\Type\Definition\InterfaceType`
 (or one of its subclasses) which accepts configuration array in a constructor:
 
 ```php
@@ -43,12 +43,12 @@ This example uses **inline** style for Interface definition, but you can also us
 
 The constructor of InterfaceType accepts an array. Below is a full list of allowed options:
 
-Option | Type | Notes
------- | ---- | -----
-name | `string` | **Required.** Unique name of this interface type within Schema
-fields | `array` | **Required.** List of fields required to be defined by interface implementors. Same as [Fields for Object Type](object-types.md#field-configuration-options)
-description | `string` | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
-resolveType | `callback` | **function ($value, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Receives **$value** from resolver of the parent field and returns concrete interface implementor for this **$value**.
+| Option      | Type       | Notes                                                                                                                                                                                                                                  |
+| ----------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name        | `string`   | **Required.** Unique name of this interface type within Schema                                                                                                                                                                         |
+| fields      | `array`    | **Required.** List of fields required to be defined by interface implementors. Same as [Fields for Object Type](object-types.md#field-configuration-options)                                                                           |
+| description | `string`   | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)                                                                                        |
+| resolveType | `callback` | **function ($value, $context, [ResolveInfo](../class-reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Receives **$value** from resolver of the parent field and returns concrete interface implementor for this **$value**. |
 
 ## Implementing interface
 
@@ -75,10 +75,11 @@ $humanType = new ObjectType([
     ]
 ]);
 ```
-Note that Object Type must include all fields of interface with exact same types 
+
+Note that Object Type must include all fields of interface with exact same types
 (including **nonNull** specification) and arguments.
 
-The only exception is when object's field type is more specific than the type of this field defined in interface 
+The only exception is when object's field type is more specific than the type of this field defined in interface
 (see [Covariant return types for interface fields](#covariant-return-types-for-interface-fields) below)
 
 ## Covariant return types for interface fields
@@ -98,7 +99,7 @@ type B implements A {
 
 ## Sharing Interface fields
 
-Since every Object Type implementing an Interface must have the same set of fields - it often makes 
+Since every Object Type implementing an Interface must have the same set of fields - it often makes
 sense to reuse field definitions of Interface in Object Types:
 
 ```php
@@ -117,36 +118,37 @@ $humanType = new ObjectType([
             'name' => 'height',
             'type' => Type::float(),
         ],
-    ] 
+    ]
 ]);
 ```
 
-In this case, field definitions are created only once (as a part of Interface Type) and then 
-reused by all interface implementors. It can save several microseconds and kilobytes + ensures that 
+In this case, field definitions are created only once (as a part of Interface Type) and then
+reused by all interface implementors. It can save several microseconds and kilobytes + ensures that
 field definitions of Interface and implementors are always in sync.
 
-Yet it creates a problem with the resolution of such fields. There are two ways how shared fields could 
+Yet it creates a problem with the resolution of such fields. There are two ways how shared fields could
 be resolved:
 
-1. If field resolution algorithm is the same for all Interface implementors - you can simply add 
-**resolve** option to field definition in Interface itself.
+1. If field resolution algorithm is the same for all Interface implementors - you can simply add
+   **resolve** option to field definition in Interface itself.
 
-2. If field resolution varies for different implementations - you can specify **resolveField** 
-option in [Object Type config](object-types.md#configuration-options) and handle field 
-resolutions there 
-(Note: **resolve** option in field definition has precedence over **resolveField** option in object type definition)
+2. If field resolution varies for different implementations - you can specify **resolveField**
+   option in [Object Type config](object-types.md#configuration-options) and handle field
+   resolutions there
+   (Note: **resolve** option in field definition has precedence over **resolveField** option in object type definition)
 
 ## Interface role in data fetching
 
-The only responsibility of interface in Data Fetching process is to return concrete Object Type 
-for given **$value** in **resolveType**. Then resolution of fields is delegated to resolvers of this 
+The only responsibility of interface in Data Fetching process is to return concrete Object Type
+for given **$value** in **resolveType**. Then resolution of fields is delegated to resolvers of this
 concrete Object Type.
 
-If a **resolveType** option is omitted, graphql-php will loop through all interface implementors and 
-use their **isTypeOf** callback to pick the first suitable one. This is obviously less efficient 
+If a **resolveType** option is omitted, graphql-php will loop through all interface implementors and
+use their **isTypeOf** callback to pick the first suitable one. This is obviously less efficient
 than single **resolveType** call. So it is recommended to define **resolveType** whenever possible.
 
 ## Prevent invisible types
+
 When object types that implement an interface are not directly referenced by a field, they cannot
 be discovered during schema introspection. For example:
 
@@ -161,19 +163,19 @@ type Cat implements Animal {...}
 type Dog implements Animal {...}
 ```
 
-In this example, `Cat` and `Dog` would be considered *invisible* types. Querying the `animal` field
+In this example, `Cat` and `Dog` would be considered _invisible_ types. Querying the `animal` field
 would fail, since no possible implementing types for `Animal` can be found.
 
 There are two possible solutions:
 
 1. Add fields that reference the invisible types directly, e.g.:
 
-    ```graphql
-    type Query {
-       dog: Dog
-       cat: Cat
-    }
-    ```
+   ```graphql
+   type Query {
+     dog: Dog
+     cat: Cat
+   }
+   ```
 
 2. Pass the invisible types during schema construction, e.g.:
 

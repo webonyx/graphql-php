@@ -17,6 +17,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\BuildSchema;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -371,6 +372,130 @@ class AbstractTest extends TestCase
             ],
         ];
         self::assertArraySubset($expected, $result);
+    }
+
+    /** @see it('resolve Union type using __typename on source object') */
+    public function testResolveUnionTypeUsingTypenameOnSourceObject(): void
+    {
+        $schema = BuildSchema::build('
+          type Query {
+            pets: [Pet]
+          }
+    
+          union Pet = Cat | Dog
+    
+          type Cat {
+            name: String
+            meows: Boolean
+          }
+    
+          type Dog {
+            name: String
+            woofs: Boolean
+          }
+        ');
+
+        $query = '
+          {
+            pets {
+              name
+              ... on Dog {
+                woofs
+              }
+              ... on Cat {
+                meows
+              }
+            }
+          }
+        ';
+
+        $rootValue = [
+            'pets' => [
+                [
+                    '__typename' => 'Dog',
+                    'name' => 'Odie',
+                    'woofs' => true,
+                ],
+                [
+                    '__typename' => 'Cat',
+                    'name' => 'Garfield',
+                    'meows' => false,
+                ],
+            ],
+        ];
+
+        $expected = new ExecutionResult([
+            'pets' => [
+                ['name' => 'Odie', 'woofs' => true],
+                ['name' => 'Garfield', 'meows' => false],
+            ],
+        ]);
+
+        $result = Executor::execute($schema, Parser::parse($query), $rootValue);
+        self::assertEquals($expected, $result);
+    }
+
+    /** @see it('resolve Interface type using __typename on source object') */
+    public function testResolveInterfaceTypeUsingTypenameOnSourceObject(): void
+    {
+        $schema = BuildSchema::build('
+          type Query {
+            pets: [Pet]
+          }
+    
+          interface Pet {
+            name: String
+            }
+    
+          type Cat implements Pet {
+            name: String
+            meows: Boolean
+          }
+    
+          type Dog implements Pet {
+            name: String
+            woofs: Boolean
+          }
+        ');
+
+        $query = '
+          {
+            pets {
+              name
+              ... on Dog {
+                woofs
+              }
+              ... on Cat {
+                meows
+              }
+            }
+          }
+        ';
+
+        $rootValue = [
+            'pets' => [
+                [
+                    '__typename' => 'Dog',
+                    'name' => 'Odie',
+                    'woofs' => true,
+                ],
+                [
+                    '__typename' => 'Cat',
+                    'name' => 'Garfield',
+                    'meows' => false,
+                ],
+            ],
+        ];
+
+        $expected = new ExecutionResult([
+            'pets' => [
+                ['name' => 'Odie', 'woofs' => true],
+                ['name' => 'Garfield', 'meows' => false],
+            ],
+        ]);
+
+        $result = Executor::execute($schema, Parser::parse($query), $rootValue);
+        self::assertEquals($expected, $result);
     }
 
     /**
