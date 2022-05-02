@@ -38,6 +38,7 @@ use GraphQL\Validator\Rules\UniqueArgumentNames;
 use GraphQL\Validator\Rules\UniqueDirectiveNames;
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 use GraphQL\Validator\Rules\UniqueEnumValueNames;
+use GraphQL\Validator\Rules\UniqueFieldDefinitionNames;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
 use GraphQL\Validator\Rules\UniqueInputFieldNames;
 use GraphQL\Validator\Rules\UniqueOperationNames;
@@ -207,6 +208,7 @@ class DocumentValidator
             UniqueOperationTypes::class => new UniqueOperationTypes(),
             UniqueTypeNames::class => new UniqueTypeNames(),
             UniqueDirectiveNames::class => new UniqueDirectiveNames(),
+            UniqueFieldDefinitionNames::class => new UniqueFieldDefinitionNames(),
             KnownTypeNames::class => new KnownTypeNames(),
             KnownDirectives::class => new KnownDirectives(),
             KnownArgumentNamesOnDirectives::class => new KnownArgumentNamesOnDirectives(),

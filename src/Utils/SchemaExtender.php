@@ -272,12 +272,7 @@ class SchemaExtender
                 assert($extension instanceof InputObjectTypeExtensionNode, 'proven by schema validation');
 
                 foreach ($extension->fields as $field) {
-                    $fieldName = $field->name->value;
-                    if (isset($oldFieldMap[$fieldName])) {
-                        throw new Error('Field "' . $type->name . '.' . $fieldName . '" already exists in the schema. It cannot also be defined in this type extension.', [$field]);
-                    }
-
-                    $newFieldMap[$fieldName] = static::$astBuilder->buildInputField($field);
+                    $newFieldMap[$field->name->value] = static::$astBuilder->buildInputField($field);
                 }
             }
         }
@@ -455,12 +450,7 @@ class SchemaExtender
                 );
 
                 foreach ($extension->fields as $field) {
-                    $fieldName = $field->name->value;
-                    if (isset($oldFieldMap[$fieldName])) {
-                        throw new Error('Field "' . $type->name . '.' . $fieldName . '" already exists in the schema. It cannot also be defined in this type extension.', [$field]);
-                    }
-
-                    $newFieldMap[$fieldName] = static::$astBuilder->buildField($field);
+                    $newFieldMap[$field->name->value] = static::$astBuilder->buildField($field);
                 }
             }
         }
