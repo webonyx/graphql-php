@@ -2,7 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function array_map;
 use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
@@ -68,7 +67,7 @@ class UniqueArgumentDefinitionNames extends ValidationRule
                 $context->reportError(
                     new Error(
                         'Argument "' . $parentName . '(' . $argName . ':)" can only be defined once.',
-                        array_map(static fn (InputValueDefinitionNode $node) => $node->name, $argNodes),
+                        $argNodes,
                     ),
                 );
             }
