@@ -36,7 +36,7 @@ class UniqueArgumentDefinitionNames extends ValidationRule
             );
 
             foreach ($node->fields as $fieldDef) {
-                self::checkArgUniqueness($node->name->value . '.' . $fieldDef->name->value, $fieldDef->arguments, $context);
+                self::checkArgUniqueness("{$node->name->value}.{$fieldDef->name->value}", $fieldDef->arguments, $context);
             }
 
             return Visitor::skipNode();
@@ -59,9 +59,8 @@ class UniqueArgumentDefinitionNames extends ValidationRule
     private static function checkArgUniqueness(string $parentName, NodeList $arguments, SDLValidationContext $context): VisitorOperation
     {
         $seenArgs = [];
-        foreach ($arguments as $value) {
-            $seenArgs[$value->name->value] ??= [];
-            $seenArgs[$value->name->value][] = $value;
+        foreach ($arguments as $argument) {
+            $seenArgs[$argument->name->value][] = $argument;
         }
 
         foreach ($seenArgs as $argName => $argNodes) {
