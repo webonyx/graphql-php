@@ -90,7 +90,7 @@ class UniqueFieldDefinitionNames extends ValidationRule
     private static function hasField(?NamedType $type, string $fieldName): bool
     {
         if ($type instanceof ObjectType || $type instanceof InterfaceType || $type instanceof InputObjectType) {
-            return isset($type->getFields()[$fieldName]);
+            return $type->hasField($fieldName);
         }
 
         return false;
