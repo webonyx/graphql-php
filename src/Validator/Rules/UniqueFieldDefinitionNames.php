@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
@@ -34,7 +32,15 @@ class UniqueFieldDefinitionNames extends ValidationRule
         /** @var array<string, NameNode[]> $knownFieldNames */
         $knownFieldNames = [];
         $checkFieldUniqueness = static function ($node) use ($context, $schema, &$knownFieldNames): VisitorOperation {
-            assert($node instanceof InputObjectTypeDefinitionNode || $node instanceof InterfaceTypeDefinitionNode || $node instanceof ObjectTypeDefinitionNode || $node instanceof InputObjectTypeExtensionNode || $node instanceof InterfaceTypeExtensionNode || $node instanceof ObjectTypeExtensionNode);
+            assert(
+                $node instanceof InputObjectTypeDefinitionNode
+                || $node instanceof InterfaceTypeDefinitionNode
+                || $node instanceof ObjectTypeDefinitionNode
+                || $node instanceof InputObjectTypeExtensionNode
+                || $node instanceof InterfaceTypeExtensionNode
+                || $node instanceof ObjectTypeExtensionNode
+            );
+
             $typeName = $node->name->value;
 
             if (! isset($knownFieldNames[$typeName])) {
@@ -46,7 +52,9 @@ class UniqueFieldDefinitionNames extends ValidationRule
             foreach ($node->fields as $fieldDef) {
                 $fieldName = $fieldDef->name->value;
 
-                $existingType = $schema !== null ? $schema->getType($typeName) : null;
+                $existingType = $schema !== null
+                    ? $schema->getType($typeName)
+                    : null;
                 if (self::hasField($existingType, $fieldName)) {
                     $context->reportError(
                         new Error(
