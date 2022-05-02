@@ -42,7 +42,7 @@ class UniqueArgumentDefinitionNames extends ValidationRule
         };
 
         return [
-            NodeKind::DIRECTIVE_DEFINITION => static function (DirectiveDefinitionNode $node): VisitorOperation => self::checkArgUniqueness("@{$node->name->value}", $node->arguments, $context),
+            NodeKind::DIRECTIVE_DEFINITION => static fn (DirectiveDefinitionNode $node): VisitorOperation => self::checkArgUniqueness("@{$node->name->value}", $node->arguments, $context),
             NodeKind::INTERFACE_TYPE_DEFINITION => $checkArgUniquenessPerField,
             NodeKind::INTERFACE_TYPE_EXTENSION => $checkArgUniquenessPerField,
             NodeKind::OBJECT_TYPE_DEFINITION => $checkArgUniquenessPerField,
