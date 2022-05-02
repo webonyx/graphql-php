@@ -42,11 +42,7 @@ class UniqueFieldDefinitionNames extends ValidationRule
             );
 
             $typeName = $node->name->value;
-
-            if (! isset($knownFieldNames[$typeName])) {
-                $knownFieldNames[$typeName] = [];
-            }
-
+            $knownFieldNames[$typeName] ??= [];
             $fieldNames = &$knownFieldNames[$typeName];
 
             foreach ($node->fields as $fieldDef) {
