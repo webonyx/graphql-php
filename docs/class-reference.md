@@ -312,7 +312,7 @@ public $returnType;
  *
  * @api
  *
- * @var iterable<int, FieldNode>
+ * @var ArrayObject<int, FieldNode>
  */
 public $fieldNodes;
 
@@ -1391,12 +1391,11 @@ function setErrorFormatter(?callable $errorFormatter): self
 /**
  * Define custom logic for error handling (filtering, logging, etc).
  *
- * Expected handler signature is: function (array $errors, callable $formatter): array
+ * Expected handler signature is:
+ * fn (array $errors, callable $formatter): array
  *
  * Default handler is:
- * function (array $errors, callable $formatter) {
- *     return array_map($formatter, $errors);
- * }
+ * fn (array $errors, callable $formatter): array => array_map($formatter, $errors)
  *
  * @phpstan-param ErrorsHandler|null $errorsHandler
  *

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+      "config:base"
+  ],
+  "labels": ["dependencies"],
+  "rangeStrategy": "replace",
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["phpstan"],
+      "groupName": "phpstan packages",
+      "groupSlug": "phpstan",
+      "rangeStrategy": "pin"
+    },
+    {
+      "matchPackageNames": ["phpstan/extension-installer"],
+      "rangeStrategy": "replace"
+    }
+  ],
+  "assignees": [
+    "simPod"
+  ]
+}

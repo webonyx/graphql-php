@@ -12,7 +12,7 @@ use GraphQL\Validator\QueryValidationContext;
  * Lone anonymous operation.
  *
  * A GraphQL document is only valid if when it contains an anonymous operation
- * (the query short-hand) that it contains only that one operation definition.
+ * (the query shorthand) that it contains only that one operation definition.
  */
 class LoneAnonymousOperation extends ValidationRule
 {
@@ -29,10 +29,7 @@ class LoneAnonymousOperation extends ValidationRule
                     }
                 }
             },
-            NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (
-                &$operationCount,
-                $context
-            ): void {
+            NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (&$operationCount, $context): void {
                 if ($node->name !== null || $operationCount <= 1) {
                     return;
                 }

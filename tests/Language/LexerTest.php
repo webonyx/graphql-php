@@ -14,7 +14,7 @@ use GraphQL\Utils\Utils;
 use function json_decode;
 use PHPUnit\Framework\TestCase;
 
-class LexerTest extends TestCase
+final class LexerTest extends TestCase
 {
     use ArraySubsetAsserts;
 

@@ -11,7 +11,7 @@ use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\ValidationContext;
 
-class QueryComplexityTest extends QuerySecurityTestCase
+final class QueryComplexityTest extends QuerySecurityTestCase
 {
     private static QueryComplexity $rule;
 

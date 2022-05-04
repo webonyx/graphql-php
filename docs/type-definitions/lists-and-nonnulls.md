@@ -1,6 +1,6 @@
 ## Lists
 
-**graphql-php** provides built-in support for lists. In order to create list type - wrap 
+**graphql-php** provides built-in support for lists. In order to create list type - wrap
 existing type with `GraphQL\Type\Definition\Type::listOf()` modifier:
 
 ```php
@@ -21,10 +21,10 @@ $userType = new ObjectType([
 ]);
 ```
 
-Resolvers for such fields are expected to return **array** or instance of PHP's built-in **Traversable** 
-interface (**null** is allowed by default too). 
+Resolvers for such fields are expected to return **array** or instance of PHP's built-in **Traversable**
+interface (**null** is allowed by default too).
 
-If returned value is not of one of these types - **graphql-php** will add an error to result 
+If returned value is not of one of these types - **graphql-php** will add an error to result
 and set the field value to **null** (only if the field is nullable, see below for non-null fields).
 
 ## Non-Nulls
@@ -54,8 +54,8 @@ $humanType = new ObjectType([
 ]);
 ```
 
-If resolver of non-null field returns **null**, graphql-php will add an error to 
-result and exclude the whole object from the output (an error will bubble to first 
+If resolver of non-null field returns **null**, graphql-php will add an error to
+result and exclude the whole object from the output (an error will bubble to first
 nullable parent field which will be set to **null**).
 
 Read the section on [Data Fetching](../data-fetching.md) for details.

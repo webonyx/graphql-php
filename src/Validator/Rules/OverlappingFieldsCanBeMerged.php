@@ -102,7 +102,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         $conflicts = [];
 
-        // (A) Find find all conflicts "within" the fields of this selection set.
+        // (A) Find all conflicts "within" the fields of this selection set.
         // Note: this is the *only place* `collectConflictsWithin` is called.
         $this->collectConflictsWithin(
             $context,

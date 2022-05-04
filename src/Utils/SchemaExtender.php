@@ -28,7 +28,6 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NamedType;
@@ -100,21 +99,8 @@ class SchemaExtender
             } elseif ($def instanceof TypeDefinitionNode) {
                 $typeDefinitionMap[$def->name->value] = $def;
             } elseif ($def instanceof TypeExtensionNode) {
-                $extendedTypeName = $def->name->value;
-                $existingType = $schema->getType($extendedTypeName);
-                if ($existingType === null) {
-                    throw new Error('Cannot extend type "' . $extendedTypeName . '" because it does not exist in the existing schema.', [$def]);
-                }
-
-                static::assertTypeMatchesExtension($existingType, $def);
-                static::$typeExtensionsMap[$extendedTypeName][] = $def;
+                static::$typeExtensionsMap[$def->name->value][] = $def;
             } elseif ($def instanceof DirectiveDefinitionNode) {
-                $directiveName = $def->name->value;
-                $existingDirective = $schema->getDirective($directiveName);
-                if ($existingDirective !== null) {
-                    throw new Error('Directive "' . $directiveName . '" already exists in the schema. It cannot be redefined.', [$def]);
-                }
-
                 $directiveDefinitions[] = $def;
             }
         }
@@ -202,62 +188,6 @@ class SchemaExtender
         );
     }
 
-    /**
-     * @param Type&NamedType $type
-     *
-     * @throws Error
-     */
-    protected static function assertTypeMatchesExtension(NamedType $type, Node $node): void
-    {
-        switch (true) {
-            case $node instanceof ObjectTypeExtensionNode:
-                if (! ($type instanceof ObjectType)) {
-                    throw new Error(
-                        'Cannot extend non-object type "' . $type->name . '".',
-                        [$node]
-                    );
-                }
-
-                break;
-            case $node instanceof InterfaceTypeExtensionNode:
-                if (! ($type instanceof InterfaceType)) {
-                    throw new Error(
-                        'Cannot extend non-interface type "' . $type->name . '".',
-                        [$node]
-                    );
-                }
-
-                break;
-            case $node instanceof EnumTypeExtensionNode:
-                if (! ($type instanceof EnumType)) {
-                    throw new Error(
-                        'Cannot extend non-enum type "' . $type->name . '".',
-                        [$node]
-                    );
-                }
-
-                break;
-            case $node instanceof UnionTypeExtensionNode:
-                if (! ($type instanceof UnionType)) {
-                    throw new Error(
-                        'Cannot extend non-union type "' . $type->name . '".',
-                        [$node]
-                    );
-                }
-
-                break;
-            case $node instanceof InputObjectTypeExtensionNode:
-                if (! ($type instanceof InputObjectType)) {
-                    throw new Error(
-                        'Cannot extend non-input object type "' . $type->name . '".',
-                        [$node]
-                    );
-                }
-
-                break;
-        }
-    }
-
     protected static function extendScalarType(ScalarType $type): CustomScalarType
     {
         /** @var array<int, ScalarTypeExtensionNode> $extensionASTNodes */
@@ -328,7 +258,6 @@ class SchemaExtender
         $oldFieldMap = $type->getFields();
         foreach ($oldFieldMap as $fieldName => $field) {
             $extendedType = static::extendType($field->getType());
-            assert($extendedType instanceof InputType, 'proven by schema validation');
 
             $newFieldConfig = [
                 'description' => $field->description,
@@ -345,15 +274,10 @@ class SchemaExtender
 
         if (isset(static::$typeExtensionsMap[$type->name])) {
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
-                assert($extension instanceof InputObjectTypeExtensionNode, 'proven by assertTypeMatchesExtension()');
+                assert($extension instanceof InputObjectTypeExtensionNode, 'proven by schema validation');
 
                 foreach ($extension->fields as $field) {
-                    $fieldName = $field->name->value;
-                    if (isset($oldFieldMap[$fieldName])) {
-                        throw new Error('Field "' . $type->name . '.' . $fieldName . '" already exists in the schema. It cannot also be defined in this type extension.', [$field]);
-                    }
-
-                    $newFieldMap[$fieldName] = static::$astBuilder->buildInputField($field);
+                    $newFieldMap[$field->name->value] = static::$astBuilder->buildInputField($field);
                 }
             }
         }
@@ -380,7 +304,7 @@ class SchemaExtender
 
         if (isset(static::$typeExtensionsMap[$type->name])) {
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
-                assert($extension instanceof EnumTypeExtensionNode, 'proven by assertTypeMatchesExtension()');
+                assert($extension instanceof EnumTypeExtensionNode, 'proven by schema validation');
 
                 foreach ($extension->values as $value) {
                     $newValueMap[$value->name->value] = static::$astBuilder->buildEnumValue($value);
@@ -403,7 +327,7 @@ class SchemaExtender
 
         if (isset(static::$typeExtensionsMap[$type->name])) {
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
-                assert($extension instanceof UnionTypeExtensionNode, 'proven by assertTypeMatchesExtension()');
+                assert($extension instanceof UnionTypeExtensionNode, 'proven by schema validation');
 
                 foreach ($extension->types as $namedType) {
                     $possibleTypes[] = static::$astBuilder->buildType($namedType);
@@ -431,7 +355,7 @@ class SchemaExtender
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
                 assert(
                     $extension instanceof ObjectTypeExtensionNode || $extension instanceof InterfaceTypeExtensionNode,
-                    'proven by assertTypeMatchesExtension()'
+                    'proven by schema validation'
                 );
 
                 foreach ($extension->interfaces as $namedType) {
@@ -480,7 +404,6 @@ class SchemaExtender
         $extended = [];
         foreach ($args as $arg) {
             $extendedType = static::extendType($arg->getType());
-            assert($extendedType instanceof InputType, 'proven by schema validation');
 
             $def = [
                 'type' => $extendedType,
@@ -528,16 +451,11 @@ class SchemaExtender
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
                 assert(
                     $extension instanceof ObjectTypeExtensionNode || $extension instanceof InterfaceTypeExtensionNode,
-                    'proven by assertTypeMatchesExtension()'
+                    'proven by schema validation'
                 );
 
                 foreach ($extension->fields as $field) {
-                    $fieldName = $field->name->value;
-                    if (isset($oldFieldMap[$fieldName])) {
-                        throw new Error('Field "' . $type->name . '.' . $fieldName . '" already exists in the schema. It cannot also be defined in this type extension.', [$field]);
-                    }
-
-                    $newFieldMap[$fieldName] = static::$astBuilder->buildField($field);
+                    $newFieldMap[$field->name->value] = static::$astBuilder->buildField($field);
                 }
             }
         }
