@@ -837,7 +837,10 @@ final class DefinitionTest extends TestCaseBase
         ]);
 
         $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [],
+            ]),
             'types' => [$idType],
         ]);
 
