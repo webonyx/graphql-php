@@ -578,8 +578,9 @@ EOF
             $schema,
             AST::concatAST([$firstExtensionAST, $secondExtensionAST])
         );
+        $doPrint = SchemaPrinter::doPrint($extendedTwiceSchema);
         self::assertSame(
-            SchemaPrinter::doPrint($extendedTwiceSchema),
+            $doPrint,
             SchemaPrinter::doPrint($extendedInOneGoSchema),
         );
 
@@ -659,7 +660,7 @@ EOF
         ]);
 
         self::assertSame(
-            SchemaPrinter::doPrint(SchemaExtender::extend($this->testSchema, $restoredExtensionAST)),
+            SchemaPrinter::doPrint(SchemaExtender::extend($schema, $restoredExtensionAST)),
             SchemaPrinter::doPrint($extendedTwiceSchema)
         );
 
