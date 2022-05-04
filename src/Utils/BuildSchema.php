@@ -6,6 +6,7 @@ use function array_map;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
@@ -42,9 +43,6 @@ use GraphQL\Validator\DocumentValidator;
 class BuildSchema
 {
     private DocumentNode $ast;
-
-    /** @var array<string, TypeDefinitionNode> */
-    private array $nodeMap;
 
     /**
      * @var callable|null
@@ -134,9 +132,9 @@ class BuildSchema
         }
 
         $schemaDef = null;
-        $this->nodeMap = [];
-
-        /** @var array<string, array<int, TypeExtensionNode>> $typeExtensionsMap */
+        /** @var array<string, Node&TypeDefinitionNode> */
+        $typeDefinitionsMap = [];
+        /** @var array<string, array<int, Node&TypeExtensionNode>> $typeExtensionsMap */
         $typeExtensionsMap = [];
         /** @var array<int, DirectiveDefinitionNode> $directiveDefs */
         $directiveDefs = [];
@@ -147,7 +145,7 @@ class BuildSchema
                     $schemaDef = $definition;
                     break;
                 case $definition instanceof TypeDefinitionNode:
-                    $this->nodeMap[$definition->name->value] = $definition;
+                    $typeDefinitionsMap[$definition->name->value] = $definition;
                     break;
                 case $definition instanceof TypeExtensionNode:
                     $extendedTypeName = $definition->name->value;
@@ -169,7 +167,8 @@ class BuildSchema
             ];
 
         $definitionBuilder = new ASTDefinitionBuilder(
-            $this->nodeMap,
+            $typeDefinitionsMap,
+            $typeExtensionsMap,
             static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
@@ -218,7 +217,7 @@ class BuildSchema
             'astNode' => $schemaDef,
             'types' => fn (): array => array_map(
                 static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value),
-                $this->nodeMap,
+                $typeDefinitionsMap,
             ),
         ]);
     }

@@ -990,20 +990,20 @@ interface Hello {
         $schema->getTypeMap();
         self::assertEquals(['Query', 'Color', 'Hello'], $decorated);
 
-        [$defaultConfig, $node, $allNodesMap] = $calls[0];
+        [$defaultConfig, $node, $allNodesMap] = $calls[0]; // type Query
         self::assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
         self::assertEquals('Query', $defaultConfig['name']);
         self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
         self::assertInstanceOf(Closure::class, $defaultConfig['interfaces']);
         self::assertArrayHasKey('description', $defaultConfig);
-        self::assertCount(5, $defaultConfig);
+        self::assertCount(6, $defaultConfig);
         self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
 
         $query = $schema->getType('Query');
         self::assertInstanceOf(ObjectType::class, $query);
         self::assertEquals('My description of Query', $query->description);
 
-        [$defaultConfig, $node, $allNodesMap] = $calls[1];
+        [$defaultConfig, $node, $allNodesMap] = $calls[1]; // enum Color
         self::assertInstanceOf(EnumTypeDefinitionNode::class, $node);
         self::assertEquals('Color', $defaultConfig['name']);
         $enumValue = [
@@ -1018,20 +1018,20 @@ interface Hello {
             ],
             $defaultConfig['values']
         );
-        self::assertCount(4, $defaultConfig); // 3 + astNode
+        self::assertCount(5, $defaultConfig); // 3 + astNode + extensionASTNodes
         self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
 
         $color = $schema->getType('Color');
         self::assertInstanceOf(EnumType::class, $color);
         self::assertEquals('My description of Color', $color->description);
 
-        [$defaultConfig, $node, $allNodesMap] = $calls[2];
+        [$defaultConfig, $node, $allNodesMap] = $calls[2]; // interface Hello
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
         self::assertEquals('Hello', $defaultConfig['name']);
         self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertArrayHasKey('interfaces', $defaultConfig);
-        self::assertCount(5, $defaultConfig);
+        self::assertCount(6, $defaultConfig);
         self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
 
         $hello = $schema->getType('Hello');
