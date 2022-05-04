@@ -250,41 +250,41 @@ class SchemaPrinter
             return '';
         }
 
-        $everyArgHasDescription = true;
+        $allArgsWithoutDescription = true;
         foreach ($args as $arg) {
             $description = $arg->description;
-            if ($description === null || $description === '') {
-                $everyArgHasDescription = false;
+            if ($description !== null && $description !== '') {
+                $allArgsWithoutDescription = false;
                 break;
             }
         }
 
-        if ($everyArgHasDescription) {
-            return "(\n"
+        if ($allArgsWithoutDescription) {
+            return '('
                 . implode(
-                    "\n",
+                    ', ',
                     array_map(
-                        static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, $i === 0)
-                            . '  '
-                            . $indentation
-                            . static::printInputValue($arg),
-                        $args,
-                        array_keys($args)
+                        [static::class, 'printInputValue'],
+                        $args
                     )
                 )
-                . "\n"
-                . $indentation
                 . ')';
         }
 
-        return '('
+        return "(\n"
             . implode(
-                ', ',
+                "\n",
                 array_map(
-                    [static::class, 'printInputValue'],
-                    $args
+                    static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, $i === 0)
+                        . '  '
+                        . $indentation
+                        . static::printInputValue($arg),
+                    $args,
+                    array_keys($args)
                 )
             )
+            . "\n"
+            . $indentation
             . ')';
     }
 
