@@ -2,11 +2,11 @@
 
 namespace GraphQL\Utils;
 
-use Exception;
 use function array_keys;
 use function array_map;
 use function array_merge;
 use function count;
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
@@ -68,7 +68,7 @@ class SchemaExtender
         array $options = [],
         ?callable $typeConfigDecorator = null
     ): Schema {
-        return (new static)->doExtend($schema, $documentAST, $options, $typeConfigDecorator);
+        return (new static())->doExtend($schema, $documentAST, $options, $typeConfigDecorator);
     }
 
     /**
@@ -528,18 +528,10 @@ class SchemaExtender
             return $type;
         }
 
-        // @phpstan-ignore-next-line the lines above ensure only matching subtypes get in here
-        $name = $type->name;
-        return $this->extendTypeCache[$name] ??= $this->extendNamedTypeWithoutCache($type);
+        // @phpstan-ignore-next-line the subtypes line up
+        return $this->extendTypeCache[$type->name] ??= $this->extendNamedTypeWithoutCache($type);
     }
 
-    /**
-     * @template T of Type
-     *
-     * @param T&NamedType $type
-     *
-     * @return T&NamedType
-     */
     protected function extendNamedTypeWithoutCache(Type $type): Type
     {
         switch (true) {
