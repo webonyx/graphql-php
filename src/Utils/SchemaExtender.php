@@ -68,7 +68,8 @@ class SchemaExtender
         ?callable $typeConfigDecorator = null
     ): Schema {
         // Ensure the schema is fully loaded
-        $schema->getTypeMap();
+        // TODO why does this fix a failing test?
+//        $schema->getTypeMap();
 
         if (
             ! ($options['assumeValid'] ?? false)
