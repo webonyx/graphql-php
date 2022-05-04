@@ -112,19 +112,8 @@ class Schema
         }
 
         $types = $this->config->types;
-        if (is_array($types)) {
-            foreach ($this->resolveAdditionalTypes() as $type) {
-                $typeName = $type->name;
-                if (isset($this->resolvedTypes[$typeName])) {
-                    if ($type !== $this->resolvedTypes[$typeName]) {
-                        throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
-                    }
-                }
-
-                $this->resolvedTypes[$typeName] = $type;
-            }
-            // @phpstan-ignore-next-line not strictly enforced until we can use actual union types
-        } elseif (! is_callable($types)) {
+        // @phpstan-ignore-next-line not strictly enforced in PHP
+        if (! is_array($types) && ! is_callable($types)) {
             $invalidTypes = Utils::printSafe($types);
 
             throw new InvariantViolation("\"types\" must be array or callable if provided but got: {$invalidTypes}");
@@ -200,11 +189,8 @@ class Schema
             }
         }
 
-        // When types are set as array they are resolved in constructor
-        if (is_callable($this->config->types)) {
-            foreach ($this->resolveAdditionalTypes() as $type) {
-                TypeInfo::extractTypes($type, $typeMap);
-            }
+        foreach ($this->resolveAdditionalTypes() as $type) {
+            TypeInfo::extractTypes($type, $typeMap);
         }
 
         return $typeMap;
