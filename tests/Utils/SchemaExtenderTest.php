@@ -516,12 +516,12 @@ GRAPHQL,
             newField: String
           }
 
-          enum TestEnum {
-            TEST_VALUE
-          }
-
           input TestInput {
             testInputField: TestEnum
+          }
+
+          enum TestEnum {
+            TEST_VALUE
           }
         ');
         $extendedSchema = SchemaExtender::extend($schema, $firstExtensionAST);
@@ -617,11 +617,11 @@ GRAPHQL,
         self::assertCount(2, $someInput->extensionASTNodes);
         self::assertCount(2, $someInterface->extensionASTNodes);
 
-        self::assertCount(0, $testType->extensionASTNodes);
+        self::assertCount(0, $testInput->extensionASTNodes);
         self::assertCount(0, $testEnum->extensionASTNodes);
         self::assertCount(0, $testUnion->extensionASTNodes);
-        self::assertCount(0, $testInput->extensionASTNodes);
         self::assertCount(0, $testInterface->extensionASTNodes);
+        self::assertCount(0, $testType->extensionASTNodes);
 
         self::assertNotNull($testInput->astNode);
         self::assertNotNull($testEnum->astNode);
@@ -1063,13 +1063,13 @@ GRAPHQL,
 
         $schemaWithNewTypes = SchemaExtender::extend($schema, Parser::parse($newTypesSDL));
         self::assertSame(
-            $newTypesSDL . "\n",
+            $newTypesSDL,
             self::printSchemaChanges($schema, $schemaWithNewTypes)
         );
 
+        // TODO see https://github.com/webonyx/graphql-php/issues/1140
+        // extend scalar SomeScalar @specifiedBy(url: "http://example.com/foo_spec")
         $extendAST = Parser::parse('
-            extend scalar SomeScalar @specifiedBy(url: "http://example.com/foo_spec")
-
             extend type SomeObject implements NewInterface {
               newField: String
             }
@@ -1102,8 +1102,9 @@ GRAPHQL,
 
         self::assertEmpty($extendedSchema->validate());
         self::assertSame(
+            // TODO see https://github.com/webonyx/graphql-php/issues/1140
+            // scalar SomeScalar @specifiedBy(url: \"http://example.com/foo_spec\")
             <<<GRAPHQL
-                scalar SomeScalar @specifiedBy(url: \"http://example.com/foo_spec\")
 
                 type SomeObject implements SomeInterface & NewInterface & AnotherNewInterface {
                   oldField: String
@@ -1377,6 +1378,7 @@ GRAPHQL,
                   subscriptionField: String
                   newSubscriptionField: Int
                 }
+                
                 GRAPHQL,
             SchemaPrinter::doPrint($extendedSchema),
         );
@@ -1776,16 +1778,16 @@ GRAPHQL,
 
         static::assertSame(
             <<<GRAPHQL
-            type Bar {
-              foo: Foo
+            type Query {
+              defaultValue: String
             }
 
             type Foo {
               value: Int
             }
 
-            type Query {
-              defaultValue: String
+            type Bar {
+              foo: Foo
             }
             
             GRAPHQL,

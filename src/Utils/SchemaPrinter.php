@@ -117,10 +117,7 @@ class SchemaPrinter
     protected static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
     {
         $directives = array_filter($schema->getDirectives(), $directiveFilter);
-
-        $types = $schema->getTypeMap();
-        ksort($types);
-        $types = array_filter($types, $typeFilter);
+        $types = array_filter($schema->getTypeMap(), $typeFilter);
 
         $elements = [static::printSchemaDefinition($schema)];
 
