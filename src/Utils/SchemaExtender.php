@@ -160,6 +160,7 @@ class SchemaExtender
         $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
 
         $types = [];
+
         // Iterate through all types, getting the type definition for each, ensuring
         // that any type not directly referenced by a field will get created.
         foreach ($schema->getTypeMap() as $type) {

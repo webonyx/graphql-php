@@ -30,7 +30,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use function implode;
-use function ksort;
 use function mb_strlen;
 use function str_replace;
 
