@@ -338,7 +338,7 @@ class IntrospectionTest extends TestCase
                             'kind' => 'OBJECT',
                             'name' => '__Directive',
                             'fields' => [
-                                0 => [
+                                [
                                     'name' => 'name',
                                     'args' => [],
                                     'type' => [
@@ -353,7 +353,7 @@ class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                1 => [
+                                [
                                     'name' => 'description',
                                     'args' => [],
                                     'type' => [
@@ -364,30 +364,7 @@ class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                2 => [
-                                    'name' => 'args',
-                                    'args' => [],
-                                    'type' => [
-                                        'kind' => 'NON_NULL',
-                                        'name' => null,
-                                        'ofType' => [
-                                            'kind' => 'LIST',
-                                            'name' => null,
-                                            'ofType' => [
-                                                'kind' => 'NON_NULL',
-                                                'name' => null,
-                                                'ofType' => [
-                                                    'kind' => 'OBJECT',
-                                                    'name' => '__InputValue',
-                                                    'ofType' => null,
-                                                ],
-                                            ],
-                                        ],
-                                    ],
-                                    'isDeprecated' => false,
-                                    'deprecationReason' => null,
-                                ],
-                                3 => [
+                                [
                                     'name' => 'isRepeatable',
                                     'args' => [],
                                     'type' => [
@@ -402,7 +379,7 @@ class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                4 => [
+                                [
                                     'name' => 'locations',
                                     'args' => [],
                                     'type' => [
@@ -417,6 +394,29 @@ class IntrospectionTest extends TestCase
                                                 'ofType' => [
                                                     'kind' => 'ENUM',
                                                     'name' => '__DirectiveLocation',
+                                                    'ofType' => null,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name' => 'args',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => null,
+                                        'ofType' => [
+                                            'kind' => 'LIST',
+                                            'name' => null,
+                                            'ofType' => [
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'OBJECT',
+                                                    'name' => '__InputValue',
                                                     'ofType' => null,
                                                 ],
                                             ],

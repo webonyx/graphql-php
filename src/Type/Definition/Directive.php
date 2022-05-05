@@ -125,9 +125,7 @@ class Directive
                 'args' => [
                     self::REASON_ARGUMENT_NAME => [
                         'type' => Type::string(),
-                        'description' => 'Explains why this element was deprecated, usually also including a '
-                            . 'suggestion for how to access supported similar data. Formatted using '
-                            . 'the Markdown syntax (as specified by [CommonMark](https://commonmark.org/).',
+                        'description' => 'Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).',
                         'defaultValue' => self::DEFAULT_DEPRECATION_REASON,
                     ],
                 ],

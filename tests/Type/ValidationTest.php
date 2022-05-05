@@ -1508,8 +1508,8 @@ class ValidationTest extends TestCaseBase
             $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [
-                    ['message' => 'The type of BadInterface.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
                     ['message' => 'The type of BadImplementing.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
+                    ['message' => 'The type of BadInterface.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
                 ]
             );
         }

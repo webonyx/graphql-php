@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @see describe('Type System Printer', () => {
  */
-class SchemaPrinterTest extends TestCase
+final class SchemaPrinterTest extends TestCase
 {
     private static function assertPrintedSchemaEquals(string $expected, Schema $schema): void
     {
@@ -578,7 +578,6 @@ class SchemaPrinterTest extends TestCase
 
         $schema = new Schema(['types' => [$barType]]);
 
-        // the expected SDL differs from graphql-js: https://github.com/webonyx/graphql-php/issues/954
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
             type Bar implements Foo & Baz {
@@ -586,12 +585,12 @@ class SchemaPrinterTest extends TestCase
               int: Int
             }
 
-            interface Baz {
-              int: Int
-            }
-
             interface Foo {
               str: String
+            }
+
+            interface Baz {
+              int: Int
             }
 
             GRAPHQL,
@@ -637,25 +636,24 @@ class SchemaPrinterTest extends TestCase
             'types' => [$BarType],
         ]);
 
-        // the expected SDL differs from graphql-js: https://github.com/webonyx/graphql-php/issues/954
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
+            type Query {
+              bar: Bar
+            }
+
             type Bar implements Foo & Baz {
               str: String
               int: Int
-            }
-
-            interface Baz implements Foo {
-              int: Int
-              str: String
             }
 
             interface Foo {
               str: String
             }
 
-            type Query {
-              bar: Bar
+            interface Baz implements Foo {
+              int: Int
+              str: String
             }
 
             GRAPHQL,
@@ -690,7 +688,6 @@ class SchemaPrinterTest extends TestCase
 
         $schema = new Schema(['types' => [$singleUnion, $multipleUnion]]);
 
-        // the expected SDL differs from graphql-js: https://github.com/webonyx/graphql-php/issues/954
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
             type Bar {
@@ -908,216 +905,216 @@ class SchemaPrinterTest extends TestCase
         $output = SchemaPrinter::printIntrospectionSchema($schema);
 
         $expected = <<<'GRAPHQL'
-            """
-            Directs the executor to include this field or fragment only when the `if` argument is true.
-            """
-            directive @include(
-              """Included when true."""
-              if: Boolean!
-            ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+      """
+      Directs the executor to include this field or fragment only when the `if` argument is true.
+      """
+      directive @include(
+        """Included when true."""
+        if: Boolean!
+      ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-            """
-            Directs the executor to skip this field or fragment when the `if` argument is true.
-            """
-            directive @skip(
-              """Skipped when true."""
-              if: Boolean!
-            ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+      """
+      Directs the executor to skip this field or fragment when the `if` argument is true.
+      """
+      directive @skip(
+        """Skipped when true."""
+        if: Boolean!
+      ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-            """Marks an element of a GraphQL schema as no longer supported."""
-            directive @deprecated(
-              """
-              Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax (as specified by [CommonMark](https://commonmark.org/).
-              """
-              reason: String = "No longer supported"
-            ) on FIELD_DEFINITION | ENUM_VALUE
+      """Marks an element of a GraphQL schema as no longer supported."""
+      directive @deprecated(
+        """
+        Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).
+        """
+        reason: String = "No longer supported"
+      ) on FIELD_DEFINITION | ENUM_VALUE
 
-            """
-            A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.
+      """
+      A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.
+      """
+      type __Schema {
+        """A list of all types supported by this server."""
+        types: [__Type!]!
 
-            In some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.
-            """
-            type __Directive {
-              name: String!
-              description: String
-              args: [__InputValue!]!
-              isRepeatable: Boolean!
-              locations: [__DirectiveLocation!]!
-            }
+        """The type that query operations will be rooted at."""
+        queryType: __Type!
 
-            """
-            A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.
-            """
-            enum __DirectiveLocation {
-              """Location adjacent to a query operation."""
-              QUERY
+        """
+        If this server supports mutation, the type that mutation operations will be rooted at.
+        """
+        mutationType: __Type
 
-              """Location adjacent to a mutation operation."""
-              MUTATION
+        """
+        If this server support subscription, the type that subscription operations will be rooted at.
+        """
+        subscriptionType: __Type
 
-              """Location adjacent to a subscription operation."""
-              SUBSCRIPTION
+        """A list of all directives supported by this server."""
+        directives: [__Directive!]!
+      }
 
-              """Location adjacent to a field."""
-              FIELD
+      """
+      The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.
 
-              """Location adjacent to a fragment definition."""
-              FRAGMENT_DEFINITION
+      Depending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name and description, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.
+      """
+      type __Type {
+        kind: __TypeKind!
+        name: String
+        description: String
+        fields(includeDeprecated: Boolean = false): [__Field!]
+        interfaces: [__Type!]
+        possibleTypes: [__Type!]
+        enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
+        inputFields: [__InputValue!]
+        ofType: __Type
+      }
 
-              """Location adjacent to a fragment spread."""
-              FRAGMENT_SPREAD
+      """
+      A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.
 
-              """Location adjacent to an inline fragment."""
-              INLINE_FRAGMENT
+      In some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.
+      """
+      type __Directive {
+        name: String!
+        description: String
+        isRepeatable: Boolean!
+        locations: [__DirectiveLocation!]!
+        args: [__InputValue!]!
+      }
 
-              """Location adjacent to a variable definition."""
-              VARIABLE_DEFINITION
+      """
+      Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.
+      """
+      type __Field {
+        name: String!
+        description: String
+        args: [__InputValue!]!
+        type: __Type!
+        isDeprecated: Boolean!
+        deprecationReason: String
+      }
 
-              """Location adjacent to a schema definition."""
-              SCHEMA
+      """
+      Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.
+      """
+      type __InputValue {
+        name: String!
+        description: String
+        type: __Type!
 
-              """Location adjacent to a scalar definition."""
-              SCALAR
+        """
+        A GraphQL-formatted string representing the default value for this input value.
+        """
+        defaultValue: String
+      }
 
-              """Location adjacent to an object type definition."""
-              OBJECT
+      """
+      One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.
+      """
+      type __EnumValue {
+        name: String!
+        description: String
+        isDeprecated: Boolean!
+        deprecationReason: String
+      }
 
-              """Location adjacent to a field definition."""
-              FIELD_DEFINITION
+      """An enum describing what kind of type a given `__Type` is."""
+      enum __TypeKind {
+        """Indicates this type is a scalar."""
+        SCALAR
 
-              """Location adjacent to an argument definition."""
-              ARGUMENT_DEFINITION
+        """
+        Indicates this type is an object. `fields` and `interfaces` are valid fields.
+        """
+        OBJECT
 
-              """Location adjacent to an interface definition."""
-              INTERFACE
+        """
+        Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.
+        """
+        INTERFACE
 
-              """Location adjacent to a union definition."""
-              UNION
+        """Indicates this type is a union. `possibleTypes` is a valid field."""
+        UNION
 
-              """Location adjacent to an enum definition."""
-              ENUM
+        """Indicates this type is an enum. `enumValues` is a valid field."""
+        ENUM
 
-              """Location adjacent to an enum value definition."""
-              ENUM_VALUE
+        """
+        Indicates this type is an input object. `inputFields` is a valid field.
+        """
+        INPUT_OBJECT
 
-              """Location adjacent to an input object type definition."""
-              INPUT_OBJECT
+        """Indicates this type is a list. `ofType` is a valid field."""
+        LIST
 
-              """Location adjacent to an input object field definition."""
-              INPUT_FIELD_DEFINITION
-            }
+        """Indicates this type is a non-null. `ofType` is a valid field."""
+        NON_NULL
+      }
 
-            """
-            One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.
-            """
-            type __EnumValue {
-              name: String!
-              description: String
-              isDeprecated: Boolean!
-              deprecationReason: String
-            }
+      """
+      A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.
+      """
+      enum __DirectiveLocation {
+        """Location adjacent to a query operation."""
+        QUERY
 
-            """
-            Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.
-            """
-            type __Field {
-              name: String!
-              description: String
-              args: [__InputValue!]!
-              type: __Type!
-              isDeprecated: Boolean!
-              deprecationReason: String
-            }
+        """Location adjacent to a mutation operation."""
+        MUTATION
 
-            """
-            Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.
-            """
-            type __InputValue {
-              name: String!
-              description: String
-              type: __Type!
+        """Location adjacent to a subscription operation."""
+        SUBSCRIPTION
 
-              """
-              A GraphQL-formatted string representing the default value for this input value.
-              """
-              defaultValue: String
-            }
+        """Location adjacent to a field."""
+        FIELD
 
-            """
-            A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.
-            """
-            type __Schema {
-              """A list of all types supported by this server."""
-              types: [__Type!]!
+        """Location adjacent to a fragment definition."""
+        FRAGMENT_DEFINITION
 
-              """The type that query operations will be rooted at."""
-              queryType: __Type!
+        """Location adjacent to a fragment spread."""
+        FRAGMENT_SPREAD
 
-              """
-              If this server supports mutation, the type that mutation operations will be rooted at.
-              """
-              mutationType: __Type
+        """Location adjacent to an inline fragment."""
+        INLINE_FRAGMENT
 
-              """
-              If this server support subscription, the type that subscription operations will be rooted at.
-              """
-              subscriptionType: __Type
+        """Location adjacent to a variable definition."""
+        VARIABLE_DEFINITION
 
-              """A list of all directives supported by this server."""
-              directives: [__Directive!]!
-            }
+        """Location adjacent to a schema definition."""
+        SCHEMA
 
-            """
-            The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.
+        """Location adjacent to a scalar definition."""
+        SCALAR
 
-            Depending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name and description, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.
-            """
-            type __Type {
-              kind: __TypeKind!
-              name: String
-              description: String
-              fields(includeDeprecated: Boolean = false): [__Field!]
-              interfaces: [__Type!]
-              possibleTypes: [__Type!]
-              enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
-              inputFields: [__InputValue!]
-              ofType: __Type
-            }
+        """Location adjacent to an object type definition."""
+        OBJECT
 
-            """An enum describing what kind of type a given `__Type` is."""
-            enum __TypeKind {
-              """Indicates this type is a scalar."""
-              SCALAR
+        """Location adjacent to a field definition."""
+        FIELD_DEFINITION
 
-              """
-              Indicates this type is an object. `fields` and `interfaces` are valid fields.
-              """
-              OBJECT
+        """Location adjacent to an argument definition."""
+        ARGUMENT_DEFINITION
 
-              """
-              Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.
-              """
-              INTERFACE
+        """Location adjacent to an interface definition."""
+        INTERFACE
 
-              """Indicates this type is a union. `possibleTypes` is a valid field."""
-              UNION
+        """Location adjacent to a union definition."""
+        UNION
 
-              """Indicates this type is an enum. `enumValues` is a valid field."""
-              ENUM
+        """Location adjacent to an enum definition."""
+        ENUM
 
-              """
-              Indicates this type is an input object. `inputFields` is a valid field.
-              """
-              INPUT_OBJECT
+        """Location adjacent to an enum value definition."""
+        ENUM_VALUE
 
-              """Indicates this type is a list. `ofType` is a valid field."""
-              LIST
+        """Location adjacent to an input object type definition."""
+        INPUT_OBJECT
 
-              """Indicates this type is a non-null. `ofType` is a valid field."""
-              NON_NULL
-            }
+        """Location adjacent to an input object field definition."""
+        INPUT_FIELD_DEFINITION
+      }
 
-            GRAPHQL;
+      GRAPHQL;
         self::assertEquals($expected, $output);
     }
 }
