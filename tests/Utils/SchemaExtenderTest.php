@@ -577,14 +577,14 @@ GRAPHQL,
         $query = $extendedTwiceSchema->getQueryType();
         assert($query instanceof ObjectType);
 
+        $someScalar = $extendedTwiceSchema->getType('SomeScalar');
+        assert($someScalar instanceof ScalarType);
+
         $someEnum = $extendedTwiceSchema->getType('SomeEnum');
         assert($someEnum instanceof EnumType);
 
         $someUnion = $extendedTwiceSchema->getType('SomeUnion');
         assert($someUnion instanceof UnionType);
-
-        $someScalar = $extendedTwiceSchema->getType('SomeScalar');
-        assert($someScalar instanceof ScalarType);
 
         $someInput = $extendedTwiceSchema->getType('SomeInput');
         assert($someInput instanceof InputObjectType);
@@ -601,20 +601,14 @@ GRAPHQL,
         $testUnion = $extendedTwiceSchema->getType('TestUnion');
         assert($testUnion instanceof UnionType);
 
-        $testType = $extendedTwiceSchema->getType('TestType');
-        assert($testType instanceof ObjectType);
-
         $testInterface = $extendedTwiceSchema->getType('TestInterface');
         assert($testInterface instanceof InterfaceType);
 
+        $testType = $extendedTwiceSchema->getType('TestType');
+        assert($testType instanceof ObjectType);
+
         $testDirective = $extendedTwiceSchema->getDirective('test');
         assert($testDirective instanceof Directive);
-
-        self::assertCount(0, $testType->extensionASTNodes);
-        self::assertCount(0, $testEnum->extensionASTNodes);
-        self::assertCount(0, $testUnion->extensionASTNodes);
-        self::assertCount(0, $testInput->extensionASTNodes);
-        self::assertCount(0, $testInterface->extensionASTNodes);
 
         self::assertCount(2, $query->extensionASTNodes);
         self::assertCount(2, $someScalar->extensionASTNodes);
@@ -622,6 +616,12 @@ GRAPHQL,
         self::assertCount(2, $someUnion->extensionASTNodes);
         self::assertCount(2, $someInput->extensionASTNodes);
         self::assertCount(2, $someInterface->extensionASTNodes);
+
+        self::assertCount(0, $testType->extensionASTNodes);
+        self::assertCount(0, $testEnum->extensionASTNodes);
+        self::assertCount(0, $testUnion->extensionASTNodes);
+        self::assertCount(0, $testInput->extensionASTNodes);
+        self::assertCount(0, $testInterface->extensionASTNodes);
 
         self::assertNotNull($testInput->astNode);
         self::assertNotNull($testEnum->astNode);
@@ -716,8 +716,9 @@ GRAPHQL,
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
-        /** @var ObjectType $someType */
         $someType = $extendedSchema->getType('SomeObject');
+        assert($someType instanceof ObjectType);
+
         $deprecatedFieldDef = $someType->getField('deprecatedField');
 
         self::assertTrue($deprecatedFieldDef->isDeprecated());
@@ -1426,11 +1427,10 @@ GRAPHQL,
         $schema = new Schema([]);
         $extendAST = Parser::parse('extend schema @unknown');
 
-        // shouldn't throw
+        self::expectNotToPerformAssertions();
+
         SchemaExtender::extend($schema, $extendAST, ['assumeValid' => true]);
         SchemaExtender::extend($schema, $extendAST, ['assumeValidSDL' => true]);
-
-        self::expectNotToPerformAssertions();
     }
 
     /**
@@ -1492,9 +1492,8 @@ GRAPHQL,
         SchemaExtender::extend($schema, $extendAST);
     }
 
-    // describe('can add additional root operation types')
-
     /**
+     * @see describe('can add additional root operation types')
      * @see it('does not automatically include common root type names')
      */
     public function testDoesNotAutomaticallyIncludeCommonRootTypeNames(): void
