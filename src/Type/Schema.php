@@ -172,7 +172,9 @@ class Schema
                 }
             }
 
-            $this->resolvedTypes = $typeMap;
+            // Even though $typeMap is guaranteed to have all new types,
+            // we merge the two arrays to preserve the order in which types were added explicitly
+            $this->resolvedTypes += $typeMap;
             $this->fullyLoaded = true;
         }
 
