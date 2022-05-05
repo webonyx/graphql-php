@@ -3,9 +3,7 @@
 namespace GraphQL\Utils;
 
 use function array_filter;
-use function array_keys;
 use function array_map;
-use function array_values;
 use function count;
 use function explode;
 use GraphQL\Error\Error;
@@ -271,18 +269,18 @@ class SchemaPrinter
                 . ')';
         }
 
+        $argsStrings = [];
+        $firstInBlock = true;
+        foreach ($args as $arg) {
+            $argsStrings[] = static::printDescription($options, $arg, '  ' . $indentation, $firstInBlock)
+                . '  '
+                . $indentation
+                . static::printInputValue($arg);
+            $firstInBlock = false;
+        }
+
         return "(\n"
-            . implode(
-                "\n",
-                array_map(
-                    static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, $i === 0)
-                        . '  '
-                        . $indentation
-                        . static::printInputValue($arg),
-                    $args,
-                    array_keys($args)
-                )
-            )
+            . implode("\n", $argsStrings)
             . "\n"
             . $indentation
             . ')';
@@ -338,20 +336,18 @@ class SchemaPrinter
      */
     protected static function printFields(array $options, $type): string
     {
-        $fields = array_values($type->getFields());
-        $fields = array_map(
-            static function (FieldDefinition $f, int $i) use ($options): string {
-                return static::printDescription($options, $f, '  ', $i === 0)
-                    . '  '
-                    . $f->name
-                    . static::printArgs($options, $f->args, '  ')
-                    . ': '
-                    . $f->getType()->toString()
-                    . static::printDeprecated($f);
-            },
-            $fields,
-            array_keys($fields)
-        );
+        $fields = [];
+        $firstInBlock = true;
+        foreach ($type->getFields() as $f) {
+            $fields[] = static::printDescription($options, $f, '  ', $firstInBlock)
+                . '  '
+                . $f->name
+                . static::printArgs($options, $f->args, '  ')
+                . ': '
+                . $f->getType()->toString()
+                . static::printDeprecated($f);
+            $firstInBlock = false;
+        }
 
         return self::printBlock($fields);
     }
@@ -425,17 +421,15 @@ class SchemaPrinter
      */
     protected static function printEnum(EnumType $type, array $options): string
     {
-        $values = $type->getValues();
-        $values = array_map(
-            static function (EnumValueDefinition $value, int $i) use ($options): string {
-                return static::printDescription($options, $value, '  ', $i === 0)
-                    . '  '
-                    . $value->name
-                    . static::printDeprecated($value);
-            },
-            $values,
-            array_keys($values)
-        );
+        $values = [];
+        $firstInBlock = true;
+        foreach ($type->getValues() as $value) {
+            $values[] = static::printDescription($options, $value, '  ', $firstInBlock)
+                . '  '
+                . $value->name
+                . static::printDeprecated($value);
+            $firstInBlock = false;
+        }
 
         return static::printDescription($options, $type)
             . "enum {$type->name}"
