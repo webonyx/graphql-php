@@ -271,12 +271,18 @@ class SchemaPrinter
 
         $argsStrings = [];
         $firstInBlock = true;
+        $previousHasDescription = false;
         foreach ($args as $arg) {
+            if ($previousHasDescription && $arg->description === null) {
+                $argsStrings[] = '';
+            }
+
             $argsStrings[] = static::printDescription($options, $arg, '  ' . $indentation, $firstInBlock)
                 . '  '
                 . $indentation
                 . static::printInputValue($arg);
             $firstInBlock = false;
+            $previousHasDescription = $arg->description !== null;
         }
 
         return "(\n"
