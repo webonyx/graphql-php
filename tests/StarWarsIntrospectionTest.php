@@ -5,18 +5,19 @@ namespace GraphQL\Tests;
 use GraphQL\GraphQL;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @see describe('Star Wars Introspection Tests', () => {
+ * @see describe('Basic Introspection', () => {
+ */
 class StarWarsIntrospectionTest extends TestCase
 {
-    // Star Wars Introspection Tests
-    // Basic Introspection
-
     /**
      * @see it('Allows querying the schema for types')
      */
     public function testAllowsQueryingTheSchemaForTypes(): void
     {
         $query = '
-        query IntrospectionTypeQuery {
+        {
           __schema {
             types {
               name
@@ -24,24 +25,25 @@ class StarWarsIntrospectionTest extends TestCase
           }
         }
         ';
+        // TODO restore equivalent order as the reference implementation
         $expected = [
             '__schema' => [
                 'types' => [
                     ['name' => 'Query'],
-                    ['name' => 'Episode'],
-                    ['name' => 'Character'],
-                    ['name' => 'String'],
                     ['name' => 'Human'],
                     ['name' => 'Droid'],
                     ['name' => '__Schema'],
                     ['name' => '__Type'],
-                    ['name' => '__TypeKind'],
-                    ['name' => 'Boolean'],
+                    ['name' => '__Directive'],
                     ['name' => '__Field'],
                     ['name' => '__InputValue'],
                     ['name' => '__EnumValue'],
-                    ['name' => '__Directive'],
+                    ['name' => '__TypeKind'],
                     ['name' => '__DirectiveLocation'],
+                    ['name' => 'Episode'],
+                    ['name' => 'Character'],
+                    ['name' => 'String'],
+                    ['name' => 'Boolean'],
                 ],
             ],
         ];

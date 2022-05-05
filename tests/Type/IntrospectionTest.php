@@ -43,17 +43,13 @@ class IntrospectionTest extends TestCase
         $expected = [
             'data' => [
                 '__schema' => [
+                    'queryType' => ['name' => 'QueryRoot'],
                     'mutationType' => null,
                     'subscriptionType' => null,
-                    'queryType' => ['name' => 'QueryRoot'],
                     'types' => [
                         [
                             'kind' => 'OBJECT',
                             'name' => 'QueryRoot',
-                            'inputFields' => null,
-                            'interfaces' => [],
-                            'enumValues' => null,
-                            'possibleTypes' => null,
                             'fields' => [
                                 [
                                     'name' => 'a',
@@ -67,13 +63,8 @@ class IntrospectionTest extends TestCase
                                     'deprecationReason' => null,
                                 ],
                             ],
-                        ],
-                        [
-                            'kind' => 'SCALAR',
-                            'name' => 'String',
-                            'fields' => null,
                             'inputFields' => null,
-                            'interfaces' => null,
+                            'interfaces' => [],
                             'enumValues' => null,
                             'possibleTypes' => null,
                         ],
@@ -156,6 +147,7 @@ class IntrospectionTest extends TestCase
                                                 'ofType' => [
                                                     'kind' => 'OBJECT',
                                                     'name' => '__Directive',
+                                                    'ofType' => null,
                                                 ],
                                             ],
                                         ],
@@ -182,6 +174,7 @@ class IntrospectionTest extends TestCase
                                         'ofType' => [
                                             'kind' => 'ENUM',
                                             'name' => '__TypeKind',
+                                            'ofType' => null,
                                         ],
                                     ],
                                     'isDeprecated' => false,
@@ -193,6 +186,7 @@ class IntrospectionTest extends TestCase
                                     'type' => [
                                         'kind' => 'SCALAR',
                                         'name' => 'String',
+                                        'ofType' => null,
                                     ],
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
@@ -203,6 +197,7 @@ class IntrospectionTest extends TestCase
                                     'type' => [
                                         'kind' => 'SCALAR',
                                         'name' => 'String',
+                                        'ofType' => null,
                                     ],
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
@@ -215,6 +210,7 @@ class IntrospectionTest extends TestCase
                                             'type' => [
                                                 'kind' => 'SCALAR',
                                                 'name' => 'Boolean',
+                                                'ofType' => null,
                                             ],
                                             'defaultValue' => 'false',
                                         ],
@@ -228,6 +224,7 @@ class IntrospectionTest extends TestCase
                                             'ofType' => [
                                                 'kind' => 'OBJECT',
                                                 'name' => '__Field',
+                                                'ofType' => null,
                                             ],
                                         ],
                                     ],
@@ -280,6 +277,7 @@ class IntrospectionTest extends TestCase
                                             'type' => [
                                                 'kind' => 'SCALAR',
                                                 'name' => 'Boolean',
+                                                'ofType' => null,
                                             ],
                                             'defaultValue' => 'false',
                                         ],
@@ -293,6 +291,7 @@ class IntrospectionTest extends TestCase
                                             'ofType' => [
                                                 'kind' => 'OBJECT',
                                                 'name' => '__EnumValue',
+                                                'ofType' => null,
                                             ],
                                         ],
                                     ],
@@ -336,61 +335,99 @@ class IntrospectionTest extends TestCase
                             'possibleTypes' => null,
                         ],
                         [
-                            'kind' => 'ENUM',
-                            'name' => '__TypeKind',
-                            'fields' => null,
-                            'inputFields' => null,
-                            'interfaces' => null,
-                            'enumValues' => [
+                            'kind' => 'OBJECT',
+                            'name' => '__Directive',
+                            'fields' => [
                                 0 => [
-                                    'name' => 'SCALAR',
+                                    'name' => 'name',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'String',
+                                            'ofType' => null,
+                                        ],
+                                    ],
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
                                 1 => [
-                                    'name' => 'OBJECT',
+                                    'name' => 'description',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
                                 2 => [
-                                    'name' => 'INTERFACE',
+                                    'name' => 'args',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => null,
+                                        'ofType' => [
+                                            'kind' => 'LIST',
+                                            'name' => null,
+                                            'ofType' => [
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'OBJECT',
+                                                    'name' => '__InputValue',
+                                                    'ofType' => null,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
                                 3 => [
-                                    'name' => 'UNION',
+                                    'name' => 'isRepeatable',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'Boolean',
+                                            'ofType' => null,
+                                        ],
+                                    ],
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
                                 4 => [
-                                    'name' => 'ENUM',
-                                    'isDeprecated' => false,
-                                    'deprecationReason' => null,
-                                ],
-                                5 => [
-                                    'name' => 'INPUT_OBJECT',
-                                    'isDeprecated' => false,
-                                    'deprecationReason' => null,
-                                ],
-                                6 => [
-                                    'name' => 'LIST',
-                                    'isDeprecated' => false,
-                                    'deprecationReason' => null,
-                                ],
-                                7 => [
-                                    'name' => 'NON_NULL',
+                                    'name' => 'locations',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => null,
+                                        'ofType' => [
+                                            'kind' => 'LIST',
+                                            'name' => null,
+                                            'ofType' => [
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'ENUM',
+                                                    'name' => '__DirectiveLocation',
+                                                    'ofType' => null,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
                             ],
-                            'possibleTypes' => null,
-                        ],
-                        [
-                            'kind' => 'SCALAR',
-                            'name' => 'Boolean',
-                            'fields' => null,
                             'inputFields' => null,
-                            'interfaces' => null,
+                            'interfaces' => [],
                             'enumValues' => null,
                             'possibleTypes' => null,
                         ],
@@ -619,100 +656,53 @@ class IntrospectionTest extends TestCase
                             'possibleTypes' => null,
                         ],
                         [
-                            'kind' => 'OBJECT',
-                            'name' => '__Directive',
-                            'fields' => [
+                            'kind' => 'ENUM',
+                            'name' => '__TypeKind',
+                            'fields' => null,
+                            'inputFields' => null,
+                            'interfaces' => null,
+                            'enumValues' => [
                                 0 => [
-                                    'name' => 'name',
-                                    'args' => [],
-                                    'type' => [
-                                        'kind' => 'NON_NULL',
-                                        'name' => null,
-                                        'ofType' => [
-                                            'kind' => 'SCALAR',
-                                            'name' => 'String',
-                                            'ofType' => null,
-                                        ],
-                                    ],
+                                    'name' => 'SCALAR',
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
                                 1 => [
-                                    'name' => 'description',
-                                    'args' => [],
-                                    'type' => [
-                                        'kind' => 'SCALAR',
-                                        'name' => 'String',
-                                        'ofType' => null,
-                                    ],
+                                    'name' => 'OBJECT',
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
                                 2 => [
-                                    'name' => 'args',
-                                    'args' => [],
-                                    'type' => [
-                                        'kind' => 'NON_NULL',
-                                        'name' => null,
-                                        'ofType' => [
-                                            'kind' => 'LIST',
-                                            'name' => null,
-                                            'ofType' => [
-                                                'kind' => 'NON_NULL',
-                                                'name' => null,
-                                                'ofType' => [
-                                                    'kind' => 'OBJECT',
-                                                    'name' => '__InputValue',
-                                                    'ofType' => null,
-                                                ],
-                                            ],
-                                        ],
-                                    ],
+                                    'name' => 'INTERFACE',
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
                                 3 => [
-                                    'name' => 'isRepeatable',
-                                    'args' => [],
-                                    'type' => [
-                                        'kind' => 'NON_NULL',
-                                        'name' => null,
-                                        'ofType' => [
-                                            'kind' => 'SCALAR',
-                                            'name' => 'Boolean',
-                                            'ofType' => null,
-                                        ],
-                                    ],
+                                    'name' => 'UNION',
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
                                 4 => [
-                                    'name' => 'locations',
-                                    'args' => [],
-                                    'type' => [
-                                        'kind' => 'NON_NULL',
-                                        'name' => null,
-                                        'ofType' => [
-                                            'kind' => 'LIST',
-                                            'name' => null,
-                                            'ofType' => [
-                                                'kind' => 'NON_NULL',
-                                                'name' => null,
-                                                'ofType' => [
-                                                    'kind' => 'ENUM',
-                                                    'name' => '__DirectiveLocation',
-                                                    'ofType' => null,
-                                                ],
-                                            ],
-                                        ],
-                                    ],
+                                    'name' => 'ENUM',
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                5 => [
+                                    'name' => 'INPUT_OBJECT',
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                6 => [
+                                    'name' => 'LIST',
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                7 => [
+                                    'name' => 'NON_NULL',
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
                             ],
-                            'inputFields' => null,
-                            'interfaces' => [],
-                            'enumValues' => null,
                             'possibleTypes' => null,
                         ],
                         [
@@ -820,14 +810,30 @@ class IntrospectionTest extends TestCase
                             ],
                             'possibleTypes' => null,
                         ],
+                        [
+                            'kind' => 'SCALAR',
+                            'name' => 'String',
+                            'fields' => null,
+                            'inputFields' => null,
+                            'interfaces' => null,
+                            'enumValues' => null,
+                            'possibleTypes' => null,
+                        ],
+                        [
+                            'kind' => 'SCALAR',
+                            'name' => 'Boolean',
+                            'fields' => null,
+                            'inputFields' => null,
+                            'interfaces' => null,
+                            'enumValues' => null,
+                            'possibleTypes' => null,
+                        ],
                     ],
                     'directives' => [
                         0 => [
                             'name' => 'include',
-                            'isRepeatable' => false,
                             'args' => [
                                 0 => [
-                                    'defaultValue' => null,
                                     'name' => 'if',
                                     'type' => [
                                         'kind' => 'NON_NULL',
@@ -838,8 +844,10 @@ class IntrospectionTest extends TestCase
                                             'ofType' => null,
                                         ],
                                     ],
+                                    'defaultValue' => null,
                                 ],
                             ],
+                            'isRepeatable' => false,
                             'locations' => [
                                 0 => 'FIELD',
                                 1 => 'FRAGMENT_SPREAD',
@@ -848,10 +856,8 @@ class IntrospectionTest extends TestCase
                         ],
                         1 => [
                             'name' => 'skip',
-                            'isRepeatable' => false,
                             'args' => [
                                 0 => [
-                                    'defaultValue' => null,
                                     'name' => 'if',
                                     'type' => [
                                         'kind' => 'NON_NULL',
@@ -862,8 +868,10 @@ class IntrospectionTest extends TestCase
                                             'ofType' => null,
                                         ],
                                     ],
+                                    'defaultValue' => null,
                                 ],
                             ],
+                            'isRepeatable' => false,
                             'locations' => [
                                 0 => 'FIELD',
                                 1 => 'FRAGMENT_SPREAD',
@@ -872,18 +880,18 @@ class IntrospectionTest extends TestCase
                         ],
                         2 => [
                             'name' => 'deprecated',
-                            'isRepeatable' => false,
                             'args' => [
                                 0 => [
-                                    'defaultValue' => '"No longer supported"',
                                     'name' => 'reason',
                                     'type' => [
                                         'kind' => 'SCALAR',
                                         'name' => 'String',
                                         'ofType' => null,
                                     ],
+                                    'defaultValue' => '"No longer supported"',
                                 ],
                             ],
+                            'isRepeatable' => false,
                             'locations' => [
                                 0 => 'FIELD_DEFINITION',
                                 1 => 'ENUM_VALUE',
@@ -896,8 +904,7 @@ class IntrospectionTest extends TestCase
 
         $actual = GraphQL::executeQuery($emptySchema, $request)->toArray();
 
-        // self::assertEquals($expected, $actual);
-        self::assertArraySubset($expected, $actual);
+         self::assertSame($expected, $actual);
     }
 
     /**
