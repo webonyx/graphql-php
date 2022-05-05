@@ -35,6 +35,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\AST;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
@@ -451,55 +452,78 @@ EOF
      */
     public function testCorrectlyAssignASTNodesToNewAndExtendedTypes(): void
     {
-        $extendedSchema = $this->extendTestSchema('
-              extend type Query {
-                newField(testArg: TestInput): TestEnum
-              }
-              extend scalar SomeScalar @foo
-              extend enum SomeEnum {
-                NEW_VALUE
-              }
-              extend union SomeUnion = Bar
-              extend input SomeInput {
-                newField: String
-              }
-              extend interface SomeInterface {
-                newField: String
-              }
-              enum TestEnum {
-                TEST_VALUE
-              }
-              input TestInput {
-                testInputField: TestEnum
-              }
-            ');
-
-        $ast = Parser::parse('
-            extend type Query {
-                oneMoreNewField: TestUnion
-            }
-            extend scalar SomeScalar @test
-            extend enum SomeEnum {
-                ONE_MORE_NEW_VALUE
-            }
-            extend union SomeUnion = TestType
-            extend input SomeInput {
-                oneMoreNewField: String
-            }
-            extend interface SomeInterface {
-                oneMoreNewField: String
-            }
-            union TestUnion = TestType
-            interface TestInterface {
-                interfaceField: String
-            }
-            type TestType implements TestInterface {
-                interfaceField: String
-            }
-            directive @test(arg: Int) repeatable on FIELD | SCALAR
+        $schema = BuildSchema::build('
+          type Query
+          scalar SomeScalar
+          enum SomeEnum
+          union SomeUnion
+          input SomeInput
+          type SomeObject
+          interface SomeInterface
+          directive @foo on SCALAR
         ');
+        $firstExtensionAST = Parser::parse('
+          extend type Query {
+            newField(testArg: TestInput): TestEnum
+          }
+          extend scalar SomeScalar @foo
+          extend enum SomeEnum {
+            NEW_VALUE
+          }
+          extend union SomeUnion = SomeObject
+          extend input SomeInput {
+            newField: String
+          }
+          extend interface SomeInterface {
+            newField: String
+          }
+          enum TestEnum {
+            TEST_VALUE
+          }
+          input TestInput {
+            testInputField: TestEnum
+          }
+        ');
+        $extendedSchema = SchemaExtender::extend($schema, $firstExtensionAST);
 
-        $extendedTwiceSchema = SchemaExtender::extend($extendedSchema, $ast);
+        $secondExtensionAST = Parser::parse('
+          extend type Query {
+            oneMoreNewField: TestUnion
+          }
+          extend scalar SomeScalar @test
+          extend enum SomeEnum {
+            ONE_MORE_NEW_VALUE
+          }
+          extend union SomeUnion = TestType
+          extend input SomeInput {
+            oneMoreNewField: String
+          }
+          extend interface SomeInterface {
+            oneMoreNewField: String
+          }
+          union TestUnion = TestType
+          interface TestInterface {
+            interfaceField: String
+          }
+          type TestType implements TestInterface {
+            interfaceField: String
+          }
+          directive @test(arg: Int) repeatable on FIELD | SCALAR
+        ');
+        $extendedTwiceSchema = SchemaExtender::extend(
+            $extendedSchema,
+            $secondExtensionAST,
+        );
+
+        $extendedInOneGoSchema = SchemaExtender::extend(
+            $schema,
+            AST::concatAST([$firstExtensionAST, $secondExtensionAST]),
+        );
+
+        self::assertEquals(
+            SchemaPrinter::doPrint($extendedInOneGoSchema),
+            SchemaPrinter::doPrint($extendedTwiceSchema),
+        );
 
         $query = $extendedTwiceSchema->getQueryType();
         self::assertInstanceOf(ObjectType::class, $query);
@@ -577,7 +601,7 @@ EOF
         ]);
 
         self::assertSame(
-            SchemaPrinter::doPrint(SchemaExtender::extend($this->testSchema, $restoredExtensionAST)),
+            SchemaPrinter::doPrint(SchemaExtender::extend($schema, $restoredExtensionAST)),
             SchemaPrinter::doPrint($extendedTwiceSchema)
         );
 
