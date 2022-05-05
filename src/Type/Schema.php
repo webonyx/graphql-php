@@ -72,6 +72,8 @@ class Schema
     /** @var array<int, SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
+    private array $rootTypes = [];
+
     /**
      * @param SchemaConfig|array<string, mixed> $config
      *
@@ -97,34 +99,23 @@ class Schema
         // since we already validated the schema thus it must exist.
         $query = $config->query;
         if ($query !== null) {
-            $this->resolvedTypes[$query->name] = $query;
+            $this->rootTypes[$query->name] = $query;
         }
 
         $mutation = $config->mutation;
         if ($mutation !== null) {
-            $this->resolvedTypes[$mutation->name] = $mutation;
+            $this->rootTypes[$mutation->name] = $mutation;
         }
 
         $subscription = $config->subscription;
         if ($subscription !== null) {
-            $this->resolvedTypes[$subscription->name] = $subscription;
+            $this->rootTypes[$subscription->name] = $subscription;
         }
 
         $types = $this->config->types;
         if (is_array($types)) {
-            foreach ($this->resolveAdditionalTypes($types) as $type) {
-                $typeName = $type->name;
-                if (isset($this->resolvedTypes[$typeName])) {
-                    if ($type !== $this->resolvedTypes[$typeName]) {
-                        throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
-                    }
-                }
-
-                $this->resolvedTypes[$typeName] = $type;
-            }
+            $this->resolveAdditionalTypes($types);
         }
-
-        $this->resolvedTypes += Introspection::getTypes();
     }
 
     /**
@@ -132,10 +123,19 @@ class Schema
      *
      * @return Generator<Type&NamedType>
      */
-    private function resolveAdditionalTypes(iterable $types): Generator
+    private function resolveAdditionalTypes(iterable $types): void
     {
-        foreach ($types as $type) {
-            yield self::resolveType($type);
+        foreach ($types as $typeOrLazyType) {
+            $type = self::resolveType($typeOrLazyType);
+
+            $typeName = $type->name;
+            if (isset($this->resolvedTypes[$typeName])) {
+                if ($type !== $this->resolvedTypes[$typeName]) {
+                    throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
+                }
+            }
+
+            $this->resolvedTypes[$typeName] = $type;
         }
     }
 
@@ -151,9 +151,19 @@ class Schema
     public function getTypeMap(): array
     {
         if (! $this->fullyLoaded) {
+            // When types are set as array they are resolved in constructor
+            $types = $this->config->types;
+            if (is_callable($types)) {
+                $this->resolveAdditionalTypes($types());
+            }
+
             /** @var array<string, Type&NamedType> $typeMap */
             $typeMap = [];
             foreach ($this->resolvedTypes as $type) {
+                TypeInfo::extractTypes($type, $typeMap);
+            }
+
+            foreach ($this->rootTypes as $type) {
                 TypeInfo::extractTypes($type, $typeMap);
             }
 
@@ -163,18 +173,11 @@ class Schema
                     TypeInfo::extractTypesFromDirectives($directive, $typeMap);
                 }
             }
-
-            // When types are set as array they are resolved in constructor
-            $types = $this->config->types;
-            if (is_callable($types)) {
-                foreach ($this->resolveAdditionalTypes($types()) as $type) {
-                    TypeInfo::extractTypes($type, $typeMap);
-                }
-            }
+            TypeInfo::extractTypes(Introspection::_schema(), $typeMap);
 
             // Even though $typeMap is guaranteed to have all new types,
             // we merge the two arrays to preserve the order in which types were added explicitly
-            $this->resolvedTypes += $typeMap;
+            $this->resolvedTypes = $typeMap;
             $this->fullyLoaded = true;
         }
 
@@ -274,7 +277,17 @@ class Schema
     public function getType(string $name): ?Type
     {
         if (! isset($this->resolvedTypes[$name])) {
-            $type = Type::getStandardTypes()[$name]
+            $introspectionTypes = Introspection::getTypes();
+            if (isset($introspectionTypes[$name])) {
+                return $introspectionTypes[$name];
+            }
+
+            $standardTypes = Type::getStandardTypes();
+            if (isset($standardTypes[$name])) {
+                return $standardTypes[$name];
+            }
+
+            $type = $standardTypes[$name]
                 ?? $this->loadType($name);
 
             if ($type === null) {

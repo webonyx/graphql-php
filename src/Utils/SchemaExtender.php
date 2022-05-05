@@ -140,6 +140,19 @@ class SchemaExtender
 
         $this->extendTypeCache = [];
 
+        $types = [];
+
+        // Iterate through all types, getting the type definition for each, ensuring
+        // that any type not directly referenced by a field will get created.
+        foreach ($schema->getTypeMap() as $type) {
+            $types[] = $this->extendNamedType($type);
+        }
+
+        // Do the same with new types.
+        foreach ($typeDefinitionMap as $type) {
+            $types[] = $this->astBuilder->buildType($type);
+        }
+
         $operationTypes = [
             'query' => $this->extendMaybeNamedType($schema->getQueryType()),
             'mutation' => $this->extendMaybeNamedType($schema->getMutationType()),
@@ -159,19 +172,6 @@ class SchemaExtender
         }
 
         $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
-
-        $types = [];
-
-        // Iterate through all types, getting the type definition for each, ensuring
-        // that any type not directly referenced by a field will get created.
-        foreach ($schema->getTypeMap() as $type) {
-            $types[] = $this->extendNamedType($type);
-        }
-
-        // Do the same with new types.
-        foreach ($typeDefinitionMap as $type) {
-            $types[] = $this->astBuilder->buildType($type);
-        }
 
         return new Schema([
             'query' => $operationTypes['query'],

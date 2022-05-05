@@ -29,21 +29,21 @@ class StarWarsIntrospectionTest extends TestCase
         $expected = [
             '__schema' => [
                 'types' => [
-                    ['name' => 'Query'],
                     ['name' => 'Human'],
+                    ['name' => 'Character'],
+                    ['name' => 'String'],
+                    ['name' => 'Episode'],
                     ['name' => 'Droid'],
+                    ['name' => 'Query'],
+                    ['name' => 'Boolean'],
                     ['name' => '__Schema'],
                     ['name' => '__Type'],
-                    ['name' => '__Directive'],
+                    ['name' => '__TypeKind'],
                     ['name' => '__Field'],
                     ['name' => '__InputValue'],
                     ['name' => '__EnumValue'],
-                    ['name' => '__TypeKind'],
+                    ['name' => '__Directive'],
                     ['name' => '__DirectiveLocation'],
-                    ['name' => 'Episode'],
-                    ['name' => 'Character'],
-                    ['name' => 'String'],
-                    ['name' => 'Boolean'],
                 ],
             ],
         ];

@@ -24,7 +24,8 @@ final class SchemaPrinterTest extends TestCase
     private static function assertPrintedSchemaEquals(string $expected, Schema $schema): void
     {
         $printedSchema = SchemaPrinter::doPrint($schema);
-        $cycledSchema = SchemaPrinter::doPrint(BuildSchema::build($printedSchema));
+        $builtSchema = BuildSchema::build($printedSchema);
+        $cycledSchema = SchemaPrinter::doPrint($builtSchema);
 
         self::assertEquals($printedSchema, $cycledSchema);
         self::assertEquals($expected, $printedSchema);
@@ -638,10 +639,6 @@ final class SchemaPrinterTest extends TestCase
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
-            type Query {
-              bar: Bar
-            }
-
             type Bar implements Foo & Baz {
               str: String
               int: Int
@@ -656,6 +653,10 @@ final class SchemaPrinterTest extends TestCase
               str: String
             }
 
+            type Query {
+              bar: Bar
+            }
+
             GRAPHQL,
             $schema
         );
@@ -668,12 +669,16 @@ final class SchemaPrinterTest extends TestCase
     {
         $fooType = new ObjectType([
             'name' => 'Foo',
-            'fields' => ['bool' => ['type' => Type::boolean()]],
+            'fields' => [
+                'bool' => ['type' => Type::boolean()],
+            ],
         ]);
 
         $barType = new ObjectType([
             'name' => 'Bar',
-            'fields' => ['str' => ['type' => Type::string()]],
+            'fields' => [
+                'str' => ['type' => Type::string()],
+            ],
         ]);
 
         $singleUnion = new UnionType([
@@ -686,23 +691,25 @@ final class SchemaPrinterTest extends TestCase
             'types' => [$fooType, $barType],
         ]);
 
-        $schema = new Schema(['types' => [$singleUnion, $multipleUnion]]);
+        $schema = new Schema([
+            'types' => [$singleUnion, $multipleUnion],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
-            type Bar {
-              str: String
-            }
+      union SingleUnion = Foo
 
-            type Foo {
-              bool: Boolean
-            }
+      type Foo {
+        bool: Boolean
+      }
 
-            union MultipleUnion = Foo | Bar
+      union MultipleUnion = Foo | Bar
 
-            union SingleUnion = Foo
+      type Bar {
+        str: String
+      }
 
-            GRAPHQL,
+      GRAPHQL,
             $schema
         );
     }
@@ -970,17 +977,37 @@ final class SchemaPrinterTest extends TestCase
         ofType: __Type
       }
 
-      """
-      A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.
+      """An enum describing what kind of type a given `__Type` is."""
+      enum __TypeKind {
+        """Indicates this type is a scalar."""
+        SCALAR
 
-      In some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.
-      """
-      type __Directive {
-        name: String!
-        description: String
-        isRepeatable: Boolean!
-        locations: [__DirectiveLocation!]!
-        args: [__InputValue!]!
+        """
+        Indicates this type is an object. `fields` and `interfaces` are valid fields.
+        """
+        OBJECT
+
+        """
+        Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.
+        """
+        INTERFACE
+
+        """Indicates this type is a union. `possibleTypes` is a valid field."""
+        UNION
+
+        """Indicates this type is an enum. `enumValues` is a valid field."""
+        ENUM
+
+        """
+        Indicates this type is an input object. `inputFields` is a valid field.
+        """
+        INPUT_OBJECT
+
+        """Indicates this type is a list. `ofType` is a valid field."""
+        LIST
+
+        """Indicates this type is a non-null. `ofType` is a valid field."""
+        NON_NULL
       }
 
       """
@@ -1019,37 +1046,17 @@ final class SchemaPrinterTest extends TestCase
         deprecationReason: String
       }
 
-      """An enum describing what kind of type a given `__Type` is."""
-      enum __TypeKind {
-        """Indicates this type is a scalar."""
-        SCALAR
+      """
+      A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.
 
-        """
-        Indicates this type is an object. `fields` and `interfaces` are valid fields.
-        """
-        OBJECT
-
-        """
-        Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.
-        """
-        INTERFACE
-
-        """Indicates this type is a union. `possibleTypes` is a valid field."""
-        UNION
-
-        """Indicates this type is an enum. `enumValues` is a valid field."""
-        ENUM
-
-        """
-        Indicates this type is an input object. `inputFields` is a valid field.
-        """
-        INPUT_OBJECT
-
-        """Indicates this type is a list. `ofType` is a valid field."""
-        LIST
-
-        """Indicates this type is a non-null. `ofType` is a valid field."""
-        NON_NULL
+      In some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.
+      """
+      type __Directive {
+        name: String!
+        description: String
+        isRepeatable: Boolean!
+        locations: [__DirectiveLocation!]!
+        args: [__InputValue!]!
       }
 
       """

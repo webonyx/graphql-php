@@ -156,12 +156,12 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
         ]);
         $schema->assertValid();
 
-        self::assertEquals([
-            'Query.fields',
-            'Content.fields',
+        self::assertSame([
             'Node.fields',
-            'Mutation.fields',
+            'Content.fields',
             'BlogStory.fields',
+            'Query.fields',
+            'Mutation.fields',
         ], $this->calls);
 
         self::assertSame($this->query, $schema->getType('Query'));
