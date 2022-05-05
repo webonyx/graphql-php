@@ -1,10 +1,7 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
-use function array_map;
 use function array_merge;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
@@ -23,7 +20,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
-use function iterator_to_array;
 
 /**
  * Contains tests originating from `graphql-js` that previously were in SchemaExtenderTest.
@@ -35,7 +31,7 @@ final class SchemaExtenderLegacyTest extends TestCaseBase
     protected Schema $testSchema;
 
     /** @var array<string> */
-    protected array $testSchemaDefinitions;
+    protected array $testSchemaDefinitions = [];
 
     public function setUp(): void
     {
@@ -83,21 +79,17 @@ final class SchemaExtenderLegacyTest extends TestCaseBase
         $BarType = new ObjectType([
             'name' => 'Bar',
             'interfaces' => [$SomeInterfaceType],
-            'fields' => static function () use ($SomeInterfaceType, $FooType): array {
-                return [
-                    'some' => ['type' => $SomeInterfaceType],
-                    'foo' => ['type' => $FooType],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'some' => ['type' => $SomeInterfaceType],
+                'foo' => ['type' => $FooType],
+            ],
         ]);
 
         $BizType = new ObjectType([
             'name' => 'Biz',
-            'fields' => static function (): array {
-                return [
-                    'fizz' => ['type' => Type::string()],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'fizz' => ['type' => Type::string()],
+            ],
         ]);
 
         $SomeUnionType = new UnionType([
@@ -116,7 +108,7 @@ final class SchemaExtenderLegacyTest extends TestCaseBase
         $SomeInputType = new InputObjectType([
             'name' => 'SomeInput',
             'fields' => static fn (): array => [
-                'fooArg' => Type::string(),
+                'fooArg' => ['type' => Type::string()],
             ],
         ]);
 
@@ -143,26 +135,28 @@ final class SchemaExtenderLegacyTest extends TestCaseBase
         $this->testSchema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'fields' => static function () use ($FooType, $SomeScalarType, $SomeUnionType, $SomeEnumType, $SomeInterfaceType, $SomeInputType): array {
-                    return [
-                        'foo' => ['type' => $FooType],
-                        'someScalar' => ['type' => $SomeScalarType],
-                        'someUnion' => ['type' => $SomeUnionType],
-                        'someEnum' => ['type' => $SomeEnumType],
-                        'someInterface' => [
-                            'args' => [
-                                'id' => [
-                                    'type' => Type::nonNull(Type::id()),
-                                ],
+                'fields' => static fn (): array => [
+                    'foo' => ['type' => $FooType],
+                    'someScalar' => ['type' => $SomeScalarType],
+                    'someUnion' => ['type' => $SomeUnionType],
+                    'someEnum' => ['type' => $SomeEnumType],
+                    'someInterface' => [
+                        'args' => [
+                            'id' => [
+                                'type' => Type::nonNull(Type::id()),
                             ],
-                            'type' => $SomeInterfaceType,
                         ],
-                        'someInput' => [
-                            'args' => ['input' => ['type' => $SomeInputType]],
-                            'type' => Type::string(),
+                        'type' => $SomeInterfaceType,
+                    ],
+                    'someInput' => [
+                        'args' => [
+                            'input' => [
+                                'type' => $SomeInputType,
+                            ],
                         ],
-                    ];
-                },
+                        'type' => Type::string(),
+                    ],
+                ],
             ]),
             'types' => [$FooType, $BarType],
             'directives' => array_merge(GraphQL::getStandardDirectives(), [$FooDirective]),
@@ -170,9 +164,9 @@ final class SchemaExtenderLegacyTest extends TestCaseBase
 
         $testSchemaAst = Parser::parse(SchemaPrinter::doPrint($this->testSchema));
 
-        $this->testSchemaDefinitions = array_map(static function ($node): string {
-            return Printer::doPrint($node);
-        }, iterator_to_array($testSchemaAst->definitions->getIterator()));
+        foreach ($testSchemaAst->definitions as $node) {
+            $this->testSchemaDefinitions[] = Printer::doPrint($node);
+        }
     }
 
     /**
@@ -217,9 +211,7 @@ final class SchemaExtenderLegacyTest extends TestCaseBase
      */
     public function testDoesNotAllowReplacingAnExistingField(): void
     {
-        $existingFieldError = static function (string $type, string $field): string {
-            return 'Field "' . $type . '.' . $field . '" already exists in the schema. It cannot also be defined in this type extension.';
-        };
+        $existingFieldError = static fn (string $type, string $field): string => 'Field "' . $type . '.' . $field . '" already exists in the schema. It cannot also be defined in this type extension.';
 
         $typeSDL = '
           extend type Bar {
@@ -268,9 +260,7 @@ final class SchemaExtenderLegacyTest extends TestCaseBase
      */
     public function testDoesNotAllowReplacingAnExistingType(): void
     {
-        $existingTypeError = static function ($type): string {
-            return 'Type "' . $type . '" already exists in the schema. It cannot also be defined in this type definition.';
-        };
+        $existingTypeError = static fn (string $type): string => 'Type "' . $type . '" already exists in the schema. It cannot also be defined in this type definition.';
 
         $typeSDL = '
             type Bar

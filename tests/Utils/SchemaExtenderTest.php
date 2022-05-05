@@ -1817,6 +1817,8 @@ GRAPHQL,
 
     public function testSupportsTypeConfigDecorator(): void
     {
+        $helloValue = 'Hello World!';
+
         $queryType = new ObjectType([
             'name' => 'Query',
             'fields' => [
@@ -1824,7 +1826,7 @@ GRAPHQL,
                     'type' => Type::string(),
                 ],
             ],
-            'resolveField' => static fn (): string => 'Hello World!',
+            'resolveField' => static fn (): string => $helloValue,
         ]);
 
         $schema = new Schema(['query' => $queryType]);
@@ -1840,12 +1842,11 @@ GRAPHQL,
               }
         ');
 
-        $typeConfigDecorator = static function ($typeConfig) {
+        $fooValue = 'bar';
+        $typeConfigDecorator = static function ($typeConfig) use ($fooValue) {
             switch ($typeConfig['name']) {
                 case 'Foo':
-                    $typeConfig['resolveField'] = static function (): string {
-                        return 'bar';
-                    };
+                    $typeConfig['resolveField'] = static fn (): string => $fooValue;
                     break;
             }
 
@@ -1864,7 +1865,14 @@ GRAPHQL,
         ';
         $result = GraphQL::executeQuery($extendedSchema, $query);
 
-        self::assertSame(['data' => ['hello' => 'Hello World!', 'foo' => ['value' => 'bar']]], $result->toArray());
+        self::assertSame([
+            'data' => [
+                'hello' => $helloValue,
+                'foo' => [
+                    'value' => $fooValue,
+                ],
+            ],
+        ], $result->toArray());
     }
 
     public function testPreservesScalarClassMethods(): void
