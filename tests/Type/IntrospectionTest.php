@@ -904,7 +904,7 @@ class IntrospectionTest extends TestCase
 
         $actual = GraphQL::executeQuery($emptySchema, $request)->toArray();
 
-         self::assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     /**
