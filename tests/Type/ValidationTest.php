@@ -3003,7 +3003,6 @@ class ValidationTest extends TestCaseBase
         );
     }
 
-
     public function testAllowsRepeatableDirectivesMultipleTimesAtTheSameLocation(): void
     {
         $schema = BuildSchema::build('
