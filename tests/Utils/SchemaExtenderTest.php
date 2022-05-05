@@ -1,17 +1,19 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use function count;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeInterfaceClassType;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeObjectClassType;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeScalarClassType;
@@ -19,6 +21,7 @@ use GraphQL\Tests\Utils\SchemaExtenderTest\SomeUnionClassType;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
@@ -31,81 +34,64 @@ use GraphQL\Utils\AST;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
-use GraphQL\Utils\Utils;
-use PHPUnit\Framework\TestCase;
+use GraphQL\Validator\Rules\KnownDirectives;
 use stdClass;
 
-use function array_filter;
-use function array_map;
-use function array_values;
-use function count;
-use function in_array;
-use function iterator_to_array;
-use function preg_match;
-use function preg_replace;
-use function property_exists;
-use function trim;
-
-class SchemaExtenderTest extends TestCase
+final class SchemaExtenderTest extends TestCaseBase
 {
-    protected function dedent(string $str): string
-    {
-        $trimmedStr = trim($str, "\n");
-        $trimmedStr = preg_replace('/[ \t]*$/', '', $trimmedStr);
-
-        preg_match('/^[ \t]*/', $trimmedStr, $indentMatch);
-        $indent = $indentMatch[0];
-
-        return preg_replace('/^' . $indent . '/m', '', $trimmedStr);
-    }
-
     /**
      * @param NamedType|Schema $obj
      */
     private function printExtensionNodes($obj): string
     {
-        Utils::invariant($obj !== null && property_exists($obj, 'extensionASTNodes') && $obj->extensionASTNodes !== null);
+        assert(isset($obj->extensionASTNodes));
 
         return Printer::doPrint(new DocumentNode([
             'definitions' => new NodeList($obj->extensionASTNodes),
         ]));
     }
 
-    protected function printSchemaChanges(Schema $schema, Schema $extendedSchema): string
+    /**
+     * @return array<string>
+     */
+    private static function schemaDefinitions(Schema $schema): array
     {
-        $schemaDefinitions = array_map(
-            static fn ($node) => Printer::doPrint($node),
-            iterator_to_array(Parser::parse(SchemaPrinter::doPrint($schema))->definitions->getIterator())
-        );
+        $definitions = [];
+        foreach (Parser::parse(SchemaPrinter::doPrint($schema))->definitions as $node) {
+            $definitions[] = Printer::doPrint($node);
+        }
 
-        $ast = Parser::parse(SchemaPrinter::doPrint($extendedSchema));
-
-        $extraDefinitions = array_values(array_filter(
-            iterator_to_array($ast->definitions->getIterator()),
-            static fn (Node $node): bool => ! in_array(Printer::doPrint($node), $schemaDefinitions, true)
-        ));
-
-        return Printer::doPrint(new DocumentNode([
-            'definitions' => new NodeList($extraDefinitions),
-        ]));
+        return $definitions;
     }
 
-    private function printASTNode($obj): string
+    private static function printSchemaChanges(Schema $schema, Schema $extendedSchema): string
     {
-        Utils::invariant($obj !== null && property_exists($obj, 'astNode') && $obj->astNode !== null);
+        $schemaDefinitions = self::schemaDefinitions($schema);
+        $extendedDefinitions = self::schemaDefinitions($extendedSchema);
 
-        return Printer::doPrint($obj->astNode);
+        $changed = array_diff($extendedDefinitions, $schemaDefinitions);
+
+        return implode("\n\n", $changed);
     }
 
     /**
      * graphql-js uses printASTNode() everywhere, but our Schema doesn't have astNode property,
-     * hence this helper method that calls getAstNode() instead
+     * hence this helper method that calls getAstNode() instead.
      */
     private function printASTSchema(Schema $schema): string
     {
-        Utils::invariant($schema->getAstNode() !== null);
+        $astNode = $schema->getAstNode();
+        assert($astNode instanceof SchemaDefinitionNode);
 
-        return Printer::doPrint($schema->getAstNode());
+        return Printer::doPrint($astNode);
+    }
+
+    private static function assertSchemaEquals(Schema $expectedSchema, Schema $actualSchema): void
+    {
+        self::assertSame(
+            SchemaPrinter::doPrint($expectedSchema),
+            SchemaPrinter::doPrint($actualSchema),
+        );
     }
 
     /**
@@ -113,9 +99,9 @@ class SchemaExtenderTest extends TestCase
      */
     public function testReturnsTheOriginalSchemaWhenThereAreNoTypeDefinitions(): void
     {
-        $schema         = BuildSchema::build('type Query');
+        $schema = BuildSchema::build('type Query');
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse('{ field }'));
-        self::assertEquals($schema, $extendedSchema);
+        self::assertSchemaEquals($schema, $extendedSchema);
     }
 
     /**
@@ -123,18 +109,26 @@ class SchemaExtenderTest extends TestCase
      */
     public function testCanBeUsedForLimitedExecution(): void
     {
-        $schema         = BuildSchema::build('type Query');
-        $extendAST      = Parser::parse('
+        $schema = BuildSchema::build('type Query');
+        $extendAST = Parser::parse('
           extend type Query {
             newField: String
           }
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
-        $result = GraphQL::executeQuery($extendedSchema, '{ newField }', ['newField' => 123]);
+        $result = GraphQL::executeQuery(
+            $extendedSchema,
+            '{ newField }',
+            ['newField' => 123]
+        );
 
-        self::assertEquals(
-            ['data' => ['newField' => '123']],
+        self::assertSame(
+            [
+                'data' => [
+                    'newField' => '123',
+                ],
+            ],
             $result->toArray(),
         );
     }
@@ -144,7 +138,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsObjectsByAddingNewFields(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             someObject: SomeObject
           }
@@ -164,7 +158,7 @@ class SchemaExtenderTest extends TestCase
             self: SomeObject
           }
         ');
-        $extensionSDL   = '
+        $extensionSDL = '
           extend type SomeObject {
             """New field description."""
             newField(arg: Boolean): String
@@ -173,44 +167,18 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
-              type SomeObject implements AnotherInterface & SomeInterface {
-                self: SomeObject
-                tree: [SomeObject]!
-                """Old field description."""
-                oldField: String
-                """New field description."""
-                newField(arg: Boolean): String
-              }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema),
-        );
-    }
-
-    /**
-     * @see it('can describe the extended fields with legacy comments')
-     */
-    public function testCanDescribeTheExtendedFieldsWithLegacyComments(): void
-    {
-        $schema         = BuildSchema::build('type Query');
-        $extendAST      = Parser::parse('
-          extend type Query {
-            # New field description.
-            newField: String
-          }
-        ');
-        $extendedSchema = SchemaExtender::extend($schema, $extendAST, ['commentDescriptions' => true]);
-
-        self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
-              type Query {
-                """New field description."""
-                newField: String
-              }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema),
+        self::assertSame(
+            <<<GRAPHQL
+type SomeObject implements AnotherInterface & SomeInterface {
+  self: SomeObject
+  tree: [SomeObject]!
+  """Old field description."""
+  oldField: String
+  """New field description."""
+  newField(arg: Boolean): String
+}
+GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema),
         );
     }
 
@@ -219,8 +187,8 @@ class SchemaExtenderTest extends TestCase
      */
     public function testDescribesExtendedFieldsWithStringsWhenPresent(): void
     {
-        $schema         = BuildSchema::build('type Query');
-        $extendAST      = Parser::parse('
+        $schema = BuildSchema::build('type Query');
+        $extendAST = Parser::parse('
           extend type Query {
             # New field description.
             "Actually use this description."
@@ -230,14 +198,14 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST, ['commentDescriptions' => true]);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               type Query {
                 """Actually use this description."""
                 newField: String
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema),
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema),
         );
     }
 
@@ -246,24 +214,24 @@ class SchemaExtenderTest extends TestCase
      */
     public function testIgnoresCommentDescriptionOnExtendedFieldsIfLocationIsNotProvided(): void
     {
-        $schema         = BuildSchema::build('type Query');
-        $extendSDL      = '
+        $schema = BuildSchema::build('type Query');
+        $extendSDL = '
           extend type Query {
             # New field description.
             newField: String
           }
         ';
-        $extendAST      = Parser::parse($extendSDL, ['noLocation' => true]);
+        $extendAST = Parser::parse($extendSDL, ['noLocation' => true]);
         $extendedSchema = SchemaExtender::extend($schema, $extendAST, ['commentDescriptions' => true]);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               type Query {
                 newField: String
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema),
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema),
         );
     }
 
@@ -272,7 +240,11 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsObjectsWithStandardTypeFields(): void
     {
+        // @phpstan-ignore-next-line
+        $this->markTestSkipped('See https://github.com/webonyx/graphql-php/issues/964');
+
         $schema = BuildSchema::build('type Query');
+
         // String and Boolean are always included through introspection types
         self::assertNull($schema->getType('Int'));
         self::assertNull($schema->getType('Float'));
@@ -280,7 +252,7 @@ class SchemaExtenderTest extends TestCase
         self::assertSame(Type::boolean(), $schema->getType('Boolean'));
         self::assertNull($schema->getType('ID'));
 
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           extend type Query {
             bool: Boolean
           }
@@ -294,7 +266,7 @@ class SchemaExtenderTest extends TestCase
         self::assertSame(Type::boolean(), $extendedSchema->getType('Boolean'));
         self::assertNull($extendedSchema->getType('ID'));
 
-        $extendTwiceAST      = Parser::parse('
+        $extendTwiceAST = Parser::parse('
           extend type Query {
             int: Int
             float: Float
@@ -316,7 +288,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsEnumsByAddingNewValues(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             someEnum(arg: SomeEnum): SomeEnum
           }
@@ -328,7 +300,7 @@ class SchemaExtenderTest extends TestCase
             OLD_VALUE
           }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           extend enum SomeEnum {
             """New value description."""
             NEW_VALUE
@@ -337,16 +309,16 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               enum SomeEnum {
                 """Old value description."""
                 OLD_VALUE
                 """New value description."""
                 NEW_VALUE
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema),
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema),
         );
     }
 
@@ -355,7 +327,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsUnionsByAddingNewTypes(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             someUnion: SomeUnion
           }
@@ -366,17 +338,17 @@ class SchemaExtenderTest extends TestCase
           type Biz { biz: String }
           type Bar { bar: String }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           extend union SomeUnion = Bar
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               union SomeUnion = Foo | Biz | Bar
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema),
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema),
         );
     }
 
@@ -385,20 +357,20 @@ class SchemaExtenderTest extends TestCase
      */
     public function testAllowsExtensionOfUnionByAddingItself(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           union SomeUnion
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           extend union SomeUnion = SomeUnion
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertGreaterThan(0, count($extendedSchema->validate()));
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
                 union SomeUnion = SomeUnion
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema),
+                GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema),
         );
     }
 
@@ -407,7 +379,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsInputsByAddingNewFields(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             someInput(arg: SomeInput): String
           }
@@ -419,7 +391,7 @@ class SchemaExtenderTest extends TestCase
             oldField: String
           }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           extend input SomeInput {
             """New field description."""
             newField: String
@@ -428,16 +400,16 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               input SomeInput {
                 """Old field description."""
                 oldField: String
                 """New field description."""
                 newField: String
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema),
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema),
         );
     }
 
@@ -446,7 +418,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsScalarsByAddingNewDirectives(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             someScalar(arg: SomeScalar): SomeScalar
           }
@@ -459,14 +431,16 @@ class SchemaExtenderTest extends TestCase
 
           scalar SomeScalar
         ');
-        $extensionSDL   = $this->dedent('
+        $extensionSDL = <<<GRAPHQL
           extend scalar SomeScalar @foo
-        ');
+
+          GRAPHQL;
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
-        $someScalar     = $extendedSchema->getType('SomeScalar');
+        $someScalar = $extendedSchema->getType('SomeScalar');
+        assert($someScalar instanceof ScalarType);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
+        self::assertSame(
             $extensionSDL,
             $this->printExtensionNodes($someScalar),
         );
@@ -477,7 +451,9 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsScalarsByAddingSpecifiedByDirective(): void
     {
-        $schema         = BuildSchema::build('
+        // @phpstan-ignore-next-line
+        $this->markTestSkipped('See https://github.com/webonyx/graphql-php/issues/1140');
+        $schema = BuildSchema::build('
           type Query {
             foo: Foo
           }
@@ -486,17 +462,17 @@ class SchemaExtenderTest extends TestCase
 
           directive @foo on SCALAR
         ');
-        $extensionSDL   = $this->dedent('
+        $extensionSDL = <<<GRAPHQL
           extend scalar Foo @foo
 
           extend scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
-        ');
+          GRAPHQL;
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
-        $foo            = $extendedSchema->getType('Foo');
+        $foo = $extendedSchema->getType('Foo');
 
-        self::assertEquals('https://example.com/foo_spec', $foo->specifiedByURL);
+        self::assertSame('https://example.com/foo_spec', $foo->specifiedByURL);
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
+        self::assertSame(
             $extensionSDL,
             $this->printExtensionNodes($foo),
         );
@@ -507,7 +483,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testCorrectlyAssignASTNodesToNewAndExtendedTypes(): void
     {
-        $schema            = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query
 
           scalar SomeScalar
@@ -548,9 +524,9 @@ class SchemaExtenderTest extends TestCase
             testInputField: TestEnum
           }
         ');
-        $extendedSchema    = SchemaExtender::extend($schema, $firstExtensionAST);
+        $extendedSchema = SchemaExtender::extend($schema, $firstExtensionAST);
 
-        $secondExtensionAST  = Parser::parse('
+        $secondExtensionAST = Parser::parse('
           extend type Query {
             oneMoreNewField: TestUnion
           }
@@ -593,35 +569,46 @@ class SchemaExtenderTest extends TestCase
             AST::concatAST([$firstExtensionAST, $secondExtensionAST]),
         );
 
-        self::assertEquals(
+        self::assertSame(
             SchemaPrinter::doPrint($extendedInOneGoSchema),
             SchemaPrinter::doPrint($extendedTwiceSchema),
         );
 
         $query = $extendedTwiceSchema->getQueryType();
-        /** @var EnumType $someEnum */
-        $someEnum = $extendedTwiceSchema->getType('SomeEnum');
-        /** @var UnionType $someUnion */
-        $someUnion = $extendedTwiceSchema->getType('SomeUnion');
-        /** @var ScalarType $someScalar */
-        $someScalar = $extendedTwiceSchema->getType('SomeScalar');
-        /** @var InputObjectType $someInput */
-        $someInput = $extendedTwiceSchema->getType('SomeInput');
-        /** @var InterfaceType $someInterface */
-        $someInterface = $extendedTwiceSchema->getType('SomeInterface');
+        assert($query instanceof ObjectType);
 
-        /** @var InputObjectType $testInput */
+        $someEnum = $extendedTwiceSchema->getType('SomeEnum');
+        assert($someEnum instanceof EnumType);
+
+        $someUnion = $extendedTwiceSchema->getType('SomeUnion');
+        assert($someUnion instanceof UnionType);
+
+        $someScalar = $extendedTwiceSchema->getType('SomeScalar');
+        assert($someScalar instanceof ScalarType);
+
+        $someInput = $extendedTwiceSchema->getType('SomeInput');
+        assert($someInput instanceof InputObjectType);
+
+        $someInterface = $extendedTwiceSchema->getType('SomeInterface');
+        assert($someInterface instanceof InterfaceType);
+
         $testInput = $extendedTwiceSchema->getType('TestInput');
-        /** @var EnumType $testEnum */
+        assert($testInput instanceof InputObjectType);
+
         $testEnum = $extendedTwiceSchema->getType('TestEnum');
-        /** @var UnionType $testUnion */
+        assert($testEnum instanceof EnumType);
+
         $testUnion = $extendedTwiceSchema->getType('TestUnion');
-        /** @var ObjectType $testType */
+        assert($testUnion instanceof UnionType);
+
         $testType = $extendedTwiceSchema->getType('TestType');
-        /** @var InterfaceType $testInterface */
+        assert($testType instanceof ObjectType);
+
         $testInterface = $extendedTwiceSchema->getType('TestInterface');
-        /** @var Directive $testDirective */
+        assert($testInterface instanceof InterfaceType);
+
         $testDirective = $extendedTwiceSchema->getDirective('test');
+        assert($testDirective instanceof Directive);
 
         self::assertCount(0, $testType->extensionASTNodes);
         self::assertCount(0, $testEnum->extensionASTNodes);
@@ -635,6 +622,13 @@ class SchemaExtenderTest extends TestCase
         self::assertCount(2, $someUnion->extensionASTNodes);
         self::assertCount(2, $someInput->extensionASTNodes);
         self::assertCount(2, $someInterface->extensionASTNodes);
+
+        self::assertNotNull($testInput->astNode);
+        self::assertNotNull($testEnum->astNode);
+        self::assertNotNull($testUnion->astNode);
+        self::assertNotNull($testInterface->astNode);
+        self::assertNotNull($testType->astNode);
+        self::assertNotNull($testDirective->astNode);
 
         $restoredExtensionAST = new DocumentNode([
             'definitions' => new NodeList([
@@ -653,28 +647,25 @@ class SchemaExtenderTest extends TestCase
             ]),
         ]);
 
-        // What would be PHPUnit's equivalent to expect().to.have.members()?
-        self::assertEquals(
-            SchemaPrinter::doPrint(SchemaExtender::extend($schema, $restoredExtensionAST)),
-            SchemaPrinter::doPrint($extendedTwiceSchema)
+        self::assertSchemaEquals(
+            SchemaExtender::extend($schema, $restoredExtensionAST),
+            $extendedTwiceSchema
         );
 
-        $newField = $query->getField('newField');
-
-        self::assertEquals('newField(testArg: TestInput): TestEnum', $this->printASTNode($newField));
-        self::assertEquals('testArg: TestInput', $this->printASTNode($newField->args[0]));
-        self::assertEquals('oneMoreNewField: TestUnion', $this->printASTNode($query->getField('oneMoreNewField')));
-        self::assertEquals('NEW_VALUE', $this->printASTNode($someEnum->getValue('NEW_VALUE')));
-        self::assertEquals('ONE_MORE_NEW_VALUE', $this->printASTNode($someEnum->getValue('ONE_MORE_NEW_VALUE')));
-        self::assertEquals('newField: String', $this->printASTNode($someInput->getField('newField')));
-        self::assertEquals('oneMoreNewField: String', $this->printASTNode($someInput->getField('oneMoreNewField')));
-        self::assertEquals('newField: String', $this->printASTNode($someInterface->getField('newField')));
-        self::assertEquals('oneMoreNewField: String', $this->printASTNode($someInterface->getField('oneMoreNewField')));
-        self::assertEquals('testInputField: TestEnum', $this->printASTNode($testInput->getField('testInputField')));
-        self::assertEquals('TEST_VALUE', $this->printASTNode($testEnum->getValue('TEST_VALUE')));
-        self::assertEquals('interfaceField: String', $this->printASTNode($testInterface->getField('interfaceField')));
-        self::assertEquals('interfaceField: String', $this->printASTNode($testType->getField('interfaceField')));
-        self::assertEquals('arg: Int', $this->printASTNode($testDirective->args[0]));
+        self::assertASTMatches('newField(testArg: TestInput): TestEnum', $query->getField('newField')->astNode);
+        self::assertASTMatches('testArg: TestInput', $query->getField('newField')->args[0]->astNode);
+        self::assertASTMatches('oneMoreNewField: TestUnion', $query->getField('oneMoreNewField')->astNode);
+        self::assertASTMatches('NEW_VALUE', $someEnum->getValue('NEW_VALUE')->astNode ?? null);
+        self::assertASTMatches('ONE_MORE_NEW_VALUE', $someEnum->getValue('ONE_MORE_NEW_VALUE')->astNode ?? null);
+        self::assertASTMatches('newField: String', $someInput->getField('newField')->astNode);
+        self::assertASTMatches('oneMoreNewField: String', $someInput->getField('oneMoreNewField')->astNode);
+        self::assertASTMatches('newField: String', $someInterface->getField('newField')->astNode);
+        self::assertASTMatches('oneMoreNewField: String', $someInterface->getField('oneMoreNewField')->astNode);
+        self::assertASTMatches('testInputField: TestEnum', $testInput->getField('testInputField')->astNode);
+        self::assertASTMatches('TEST_VALUE', $testEnum->getValue('TEST_VALUE')->astNode ?? null);
+        self::assertASTMatches('interfaceField: String', $testInterface->getField('interfaceField')->astNode);
+        self::assertASTMatches('interfaceField: String', $testType->getField('interfaceField')->astNode);
+        self::assertASTMatches('arg: Int', $testDirective->args[0]->astNode);
     }
 
     /**
@@ -682,8 +673,8 @@ class SchemaExtenderTest extends TestCase
      */
     public function testBuildsTypesWithDeprecatedFieldsOrValues(): void
     {
-        $schema         = new Schema([]);
-        $extendAST      = Parser::parse('
+        $schema = new Schema([]);
+        $extendAST = Parser::parse('
           type SomeObject {
             deprecatedField: String @deprecated(reason: "not used anymore")
           }
@@ -694,19 +685,22 @@ class SchemaExtenderTest extends TestCase
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
-        /** @var ObjectType $someType */
-        $someType           = $extendedSchema->getType('SomeObject');
+        $someType = $extendedSchema->getType('SomeObject');
+        assert($someType instanceof ObjectType);
+
         $deprecatedFieldDef = $someType->getField('deprecatedField');
 
-        self::assertEquals(true, $deprecatedFieldDef->isDeprecated());
-        self::assertEquals('not used anymore', $deprecatedFieldDef->deprecationReason);
+        self::assertTrue($deprecatedFieldDef->isDeprecated());
+        self::assertSame('not used anymore', $deprecatedFieldDef->deprecationReason);
 
-        /** @var EnumType $someEnum */
-        $someEnum          = $extendedSchema->getType('SomeEnum');
+        $someEnum = $extendedSchema->getType('SomeEnum');
+        assert($someEnum instanceof EnumType);
+
         $deprecatedEnumDef = $someEnum->getValue('DEPRECATED_VALUE');
+        assert($deprecatedEnumDef instanceof EnumValueDefinition);
 
-        self::assertEquals(true, $deprecatedEnumDef->isDeprecated());
-        self::assertEquals('do not use', $deprecatedEnumDef->deprecationReason);
+        self::assertTrue($deprecatedEnumDef->isDeprecated());
+        self::assertSame('do not use', $deprecatedEnumDef->deprecationReason);
     }
 
     /**
@@ -714,8 +708,8 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsObjectsWithDeprecatedFields(): void
     {
-        $schema         = BuildSchema::build('type SomeObject');
-        $extendAST      = Parser::parse('
+        $schema = BuildSchema::build('type SomeObject');
+        $extendAST = Parser::parse('
           extend type SomeObject {
             deprecatedField: String @deprecated(reason: "not used anymore")
           }
@@ -723,11 +717,11 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         /** @var ObjectType $someType */
-        $someType           = $extendedSchema->getType('SomeObject');
+        $someType = $extendedSchema->getType('SomeObject');
         $deprecatedFieldDef = $someType->getField('deprecatedField');
 
         self::assertTrue($deprecatedFieldDef->isDeprecated());
-        self::assertEquals('not used anymore', $deprecatedFieldDef->deprecationReason);
+        self::assertSame('not used anymore', $deprecatedFieldDef->deprecationReason);
     }
 
     /**
@@ -735,20 +729,22 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsEnumsWithDeprecatedValues(): void
     {
-        $schema         = BuildSchema::build('enum SomeEnum');
-        $extendAST      = Parser::parse('
+        $schema = BuildSchema::build('enum SomeEnum');
+        $extendAST = Parser::parse('
           extend enum SomeEnum {
             DEPRECATED_VALUE @deprecated(reason: "do not use")
           }
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
-        /** @var EnumType $someEnum */
-        $someEnum          = $extendedSchema->getType('SomeEnum');
+        $someEnum = $extendedSchema->getType('SomeEnum');
+        assert($someEnum instanceof EnumType);
+
         $deprecatedEnumDef = $someEnum->getValue('DEPRECATED_VALUE');
+        assert($deprecatedEnumDef instanceof EnumValueDefinition);
 
         self::assertTrue($deprecatedEnumDef->isDeprecated());
-        self::assertEquals('do not use', $deprecatedEnumDef->deprecationReason);
+        self::assertSame('do not use', $deprecatedEnumDef->deprecationReason);
     }
 
     /**
@@ -756,12 +752,12 @@ class SchemaExtenderTest extends TestCase
      */
     public function testAddsNewUnusedTypes(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
             type Query {
               dummy: String
             }
         ');
-        $extensionSDL   = $this->dedent('
+        $extensionSDL = <<<GRAPHQL
             type DummyUnionMember {
               someField: String
             }
@@ -783,13 +779,13 @@ class SchemaExtenderTest extends TestCase
             }
 
             union UnusedUnion = DummyUnionMember
-        ');
+            GRAPHQL;
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
+        self::assertSame(
             $extensionSDL,
-            $this->printSchemaChanges($schema, $extendedSchema)
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -798,14 +794,14 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsObjectsByAddingNewFieldsWithArguments(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type SomeObject
 
           type Query {
             someObject: SomeObject
           }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           input NewInputObj {
             field1: Int
             field2: [Float]
@@ -819,8 +815,8 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               type SomeObject {
                 newField(arg1: String, arg2: NewInputObj!): String
               }
@@ -830,8 +826,8 @@ class SchemaExtenderTest extends TestCase
                 field2: [Float]
                 field3: String!
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema)
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -840,7 +836,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsObjectsByAddingNewFieldsWithExistingTypes(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             someObject: SomeObject
           }
@@ -848,7 +844,7 @@ class SchemaExtenderTest extends TestCase
           type SomeObject
           enum SomeEnum { VALUE }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           extend type SomeObject {
             newField(arg1: SomeEnum!): SomeEnum
           }
@@ -856,13 +852,13 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               type SomeObject {
                 newField(arg1: SomeEnum!): SomeEnum
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema)
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -871,7 +867,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsObjectsByAddingImplementedInterfaces(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             someObject: SomeObject
           }
@@ -884,19 +880,19 @@ class SchemaExtenderTest extends TestCase
             foo: String
           }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           extend type SomeObject implements SomeInterface
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               type SomeObject implements SomeInterface {
                 foo: String
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema)
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -905,7 +901,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsObjectsByIncludingNewTypes(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
             type Query {
               someObject: SomeObject
             }
@@ -914,7 +910,7 @@ class SchemaExtenderTest extends TestCase
               oldField: String
             }
         ');
-        $newTypesSDL    = $this->dedent('
+        $newTypesSDL = <<<GRAPHQL
             enum NewEnum {
               VALUE
             }
@@ -929,8 +925,9 @@ class SchemaExtenderTest extends TestCase
 
             scalar NewScalar
 
-            union NewUnion = NewObject');
-        $extendAST      = Parser::parse("
+            union NewUnion = NewObject
+            GRAPHQL;
+        $extendAST = Parser::parse("
             ${newTypesSDL}
             extend type SomeObject {
               newObject: NewObject
@@ -944,8 +941,8 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent("
+        self::assertSame(
+            <<<GRAPHQL
                 type SomeObject {
                   oldField: String
                   newObject: NewObject
@@ -957,8 +954,8 @@ class SchemaExtenderTest extends TestCase
                 }
 
                 ${newTypesSDL}
-            "),
-            $this->printSchemaChanges($schema, $extendedSchema)
+                GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -967,7 +964,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsObjectsByAddingImplementedNewInterfaces(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
             type Query {
               someObject: SomeObject
             }
@@ -980,7 +977,7 @@ class SchemaExtenderTest extends TestCase
               oldField: String
             }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
             extend type SomeObject implements NewInterface {
               newField: String
             }
@@ -992,8 +989,8 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
                 type SomeObject implements OldInterface & NewInterface {
                   oldField: String
                   newField: String
@@ -1002,8 +999,8 @@ class SchemaExtenderTest extends TestCase
                 interface NewInterface {
                   newField: String
                 }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema)
+                GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -1012,7 +1009,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsDifferentTypesMultipleTimes(): void
     {
-        $schema      = BuildSchema::build('
+        $schema = BuildSchema::build('
             type Query {
               someScalar: SomeScalar
               someObject(someInput: SomeInput): SomeObject
@@ -1041,7 +1038,7 @@ class SchemaExtenderTest extends TestCase
               oldField: String
             }
         ');
-        $newTypesSDL = $this->dedent('
+        $newTypesSDL = <<<GRAPHQL
             scalar NewScalar
 
             scalar AnotherNewScalar
@@ -1061,15 +1058,15 @@ class SchemaExtenderTest extends TestCase
             interface AnotherNewInterface {
               anotherNewField: String
             }
-        ');
+            GRAPHQL;
 
         $schemaWithNewTypes = SchemaExtender::extend($schema, Parser::parse($newTypesSDL));
-        self::assertEquals(
+        self::assertSame(
             $newTypesSDL . "\n",
-            $this->printSchemaChanges($schema, $schemaWithNewTypes)
+            self::printSchemaChanges($schema, $schemaWithNewTypes)
         );
 
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
             extend scalar SomeScalar @specifiedBy(url: "http://example.com/foo_spec")
 
             extend type SomeObject implements NewInterface {
@@ -1103,8 +1100,8 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schemaWithNewTypes, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent("
+        self::assertSame(
+            <<<GRAPHQL
                 scalar SomeScalar @specifiedBy(url: \"http://example.com/foo_spec\")
 
                 type SomeObject implements SomeInterface & NewInterface & AnotherNewInterface {
@@ -1128,8 +1125,8 @@ class SchemaExtenderTest extends TestCase
                 }
 
                 ${newTypesSDL}
-            "),
-            $this->printSchemaChanges($schema, $extendedSchema)
+                GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -1138,7 +1135,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsInterfacesByAddingNewFields(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           interface SomeInterface {
             oldField: String
           }
@@ -1155,7 +1152,7 @@ class SchemaExtenderTest extends TestCase
             someInterface: SomeInterface
           }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           extend interface SomeInterface {
             newField: String
           }
@@ -1171,8 +1168,8 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               interface SomeInterface {
                 oldField: String
                 newField: String
@@ -1187,8 +1184,8 @@ class SchemaExtenderTest extends TestCase
                 oldField: String
                 newField: String
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema)
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -1197,7 +1194,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsInterfacesByAddingNewImplementedInterfaces(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           interface SomeInterface {
             oldField: String
           }
@@ -1214,7 +1211,7 @@ class SchemaExtenderTest extends TestCase
             someInterface: SomeInterface
           }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           interface NewInterface {
             newField: String
           }
@@ -1230,8 +1227,8 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               interface AnotherInterface implements SomeInterface & NewInterface {
                 oldField: String
                 newField: String
@@ -1245,8 +1242,8 @@ class SchemaExtenderTest extends TestCase
               interface NewInterface {
                 newField: String
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema)
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -1255,7 +1252,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testAllowsExtensionOfInterfaceWithMissingObjectFields(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             someInterface: SomeInterface
           }
@@ -1268,7 +1265,7 @@ class SchemaExtenderTest extends TestCase
             oldField: SomeInterface
           }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           extend interface SomeInterface {
             newField: String
           }
@@ -1276,14 +1273,14 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertGreaterThan(0, $extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               interface SomeInterface {
                 oldField: SomeInterface
                 newField: String
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema)
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -1292,7 +1289,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsInterfacesMultipleTimes(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
           type Query {
             someInterface: SomeInterface
           }
@@ -1301,7 +1298,7 @@ class SchemaExtenderTest extends TestCase
             some: SomeInterface
           }
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
           extend interface SomeInterface {
             newFieldA: Int
           }
@@ -1313,15 +1310,15 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
               interface SomeInterface {
                 some: SomeInterface
                 newFieldA: Int
                 newFieldB(test: Boolean): String
               }
-            '),
-            $this->printSchemaChanges($schema, $extendedSchema)
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
         );
     }
 
@@ -1358,13 +1355,13 @@ class SchemaExtenderTest extends TestCase
             }
         ');
 
-        $originalPrint  = SchemaPrinter::doPrint($mutationSchema);
+        $originalPrint = SchemaPrinter::doPrint($mutationSchema);
         $extendedSchema = SchemaExtender::extend($mutationSchema, $ast);
 
         self::assertNotEquals($mutationSchema, $extendedSchema);
-        self::assertEquals($originalPrint, SchemaPrinter::doPrint($mutationSchema));
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame($originalPrint, SchemaPrinter::doPrint($mutationSchema));
+        self::assertSame(
+            <<<GRAPHQL
                 type Query {
                   queryField: String
                   newQueryField: Int
@@ -1379,7 +1376,7 @@ class SchemaExtenderTest extends TestCase
                   subscriptionField: String
                   newSubscriptionField: Int
                 }
-            '),
+                GRAPHQL,
             SchemaPrinter::doPrint($extendedSchema),
         );
     }
@@ -1389,46 +1386,22 @@ class SchemaExtenderTest extends TestCase
      */
     public function testMayExtendDirectivesWithNewDirective(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
             type Query {
               foo: String
             }
         ');
-        $extensionSDL   = $this->dedent('
+        $extensionSDL = <<<GRAPHQL
             """New directive."""
             directive @new(enable: Boolean!, tag: String) repeatable on QUERY | FIELD
-        ');
+            GRAPHQL;
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
 
         self::assertEmpty($extendedSchema->validate());
-        self::assertEquals(
+        self::assertSame(
             $extensionSDL,
-            $this->printSchemaChanges($schema, $extendedSchema)
+            self::printSchemaChanges($schema, $extendedSchema)
         );
-    }
-
-    /**
-     * @see it('sets correct description using legacy comments')
-     */
-    public function testSetsCorrectDescriptionUsingLegacyComments(): void
-    {
-        $schema         = BuildSchema::build('
-            type Query {
-              foo: String
-            }
-        ');
-        $extendAST      = Parser::parse('
-            # new directive
-            directive @new on QUERY
-        ');
-        $extendedSchema = SchemaExtender::extend(
-            $schema,
-            $extendAST,
-            ['commentDescriptions' => true]
-        );
-
-        $newDirective = $extendedSchema->getDirective('new');
-        self::assertEquals('new directive', $newDirective->description);
     }
 
     /**
@@ -1436,11 +1409,11 @@ class SchemaExtenderTest extends TestCase
      */
     public function testRejectsInvalidSDL(): void
     {
-        $schema    = new Schema([]);
+        $schema = new Schema([]);
         $extendAST = Parser::parse('extend schema @unknown');
 
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('Unknown directive "@unknown".');
+        $this->expectExceptionMessage(KnownDirectives::unknownDirectiveMessage('unknown'));
 
         SchemaExtender::extend($schema, $extendAST);
     }
@@ -1450,14 +1423,14 @@ class SchemaExtenderTest extends TestCase
      */
     public function testAllowsToDisableSDLValidation(): void
     {
-        $schema    = new Schema([]);
+        $schema = new Schema([]);
         $extendAST = Parser::parse('extend schema @unknown');
 
         // shouldn't throw
         SchemaExtender::extend($schema, $extendAST, ['assumeValid' => true]);
         SchemaExtender::extend($schema, $extendAST, ['assumeValidSDL' => true]);
 
-        self::assertTrue(true);
+        self::expectNotToPerformAssertions();
     }
 
     /**
@@ -1466,14 +1439,17 @@ class SchemaExtenderTest extends TestCase
     public function testThrowsOnUnknownTypes(): void
     {
         $schema = new Schema([]);
-        $ast    = Parser::parse('
+        $ast = Parser::parse('
             type Query {
               unknown: UnknownType
             }
         ');
-        $this->expectException(Error::class);
+        // Differing from graphql-js, we do not throw immediately due to lazy type loading
+        $extendedSchema = SchemaExtender::extend($schema, $ast, ['assumeValidSDL' => true]);
+
+        $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Unknown type: "UnknownType".');
-        SchemaExtender::extend($schema, $ast, ['assumeValidSDL' => true]);
+        $extendedSchema->assertValid();
     }
 
     /**
@@ -1481,7 +1457,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testDoesNotAllowReplacingADefaultDirective(): void
     {
-        $schema    = new Schema([]);
+        $schema = new Schema([]);
         $extendAST = Parser::parse('
             directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD
         ');
@@ -1498,7 +1474,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testDoesNotAllowReplacingAnExistingEnumValue(): void
     {
-        $schema    = BuildSchema::build('
+        $schema = BuildSchema::build('
             enum SomeEnum {
               ONE
             }
@@ -1523,7 +1499,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testDoesNotAutomaticallyIncludeCommonRootTypeNames(): void
     {
-        $schema         = new Schema([]);
+        $schema = new Schema([]);
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse('type Mutation'));
 
         self::assertNotNull($extendedSchema->getType('Mutation'));
@@ -1542,17 +1518,18 @@ class SchemaExtenderTest extends TestCase
 
         self::assertNull($schema->getQueryType());
 
-        $extensionSDL = $this->dedent('
+        $extensionSDL = <<<GRAPHQL
             schema @foo {
               query: Foo
             }
-        ');
+            GRAPHQL;
 
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
-        $queryType      = $extendedSchema->getQueryType();
+        $queryType = $extendedSchema->getQueryType();
 
-        self::assertEquals('Foo', $queryType->name);
-        self::assertEquals($extensionSDL, $this->printASTSchema($extendedSchema));
+        assert($queryType instanceof ObjectType);
+        self::assertSame('Foo', $queryType->name);
+        self::assertSame($extensionSDL, $this->printASTSchema($extendedSchema));
     }
 
     /**
@@ -1560,20 +1537,22 @@ class SchemaExtenderTest extends TestCase
      */
     public function testAddsNewRootTypesViaSchemaExtension(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
             type Query
             type MutationRoot
         ');
-        $extensionSDL   = $this->dedent('
+        $extensionSDL = <<<GRAPHQL
             extend schema {
               mutation: MutationRoot
             }
-        ');
+            
+            GRAPHQL;
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
 
         $mutationType = $extendedSchema->getMutationType();
-        self::assertEquals('MutationRoot', $mutationType->name);
-        self::assertEquals(
+        assert($mutationType instanceof ObjectType);
+        self::assertSame('MutationRoot', $mutationType->name);
+        self::assertSame(
             $extensionSDL,
             $this->printExtensionNodes($extendedSchema)
         );
@@ -1584,17 +1563,18 @@ class SchemaExtenderTest extends TestCase
      */
     public function testAddsDirectiveViaSchemaExtension(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
             type Query
 
             directive @foo on SCHEMA
         ');
-        $extensionSDL   = $this->dedent('
+        $extensionSDL = <<<GRAPHQL
             extend schema @foo
-        ');
+            
+            GRAPHQL;
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
 
-        self::assertEquals(
+        self::assertSame(
             $extensionSDL,
             $this->printExtensionNodes($extendedSchema)
         );
@@ -1605,8 +1585,8 @@ class SchemaExtenderTest extends TestCase
      */
     public function testAddsMultipleNewRootTypesViaSchemaExtension(): void
     {
-        $schema         = BuildSchema::build('type Query');
-        $extendAST      = Parser::parse('
+        $schema = BuildSchema::build('type Query');
+        $extendAST = Parser::parse('
             extend schema {
               mutation: Mutation
               subscription: Subscription
@@ -1618,10 +1598,12 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $mutationType = $extendedSchema->getMutationType();
-        self::assertEquals('Mutation', $mutationType->name);
+        assert($mutationType instanceof ObjectType);
+        self::assertSame('Mutation', $mutationType->name);
 
         $subscriptionType = $extendedSchema->getSubscriptionType();
-        self::assertEquals('Subscription', $subscriptionType->name);
+        assert($subscriptionType instanceof ObjectType);
+        self::assertSame('Subscription', $subscriptionType->name);
     }
 
     /**
@@ -1629,8 +1611,8 @@ class SchemaExtenderTest extends TestCase
      */
     public function testAppliesMultipleSchemaExtensions(): void
     {
-        $schema         = BuildSchema::build('type Query');
-        $extendAST      = Parser::parse('
+        $schema = BuildSchema::build('type Query');
+        $extendAST = Parser::parse('
             extend schema {
               mutation: Mutation
             }
@@ -1644,10 +1626,12 @@ class SchemaExtenderTest extends TestCase
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $mutationType = $extendedSchema->getMutationType();
-        self::assertEquals('Mutation', $mutationType->name);
+        assert($mutationType instanceof ObjectType);
+        self::assertSame('Mutation', $mutationType->name);
 
         $subscriptionType = $extendedSchema->getSubscriptionType();
-        self::assertEquals('Subscription', $subscriptionType->name);
+        assert($subscriptionType instanceof ObjectType);
+        self::assertSame('Subscription', $subscriptionType->name);
     }
 
     /**
@@ -1655,12 +1639,12 @@ class SchemaExtenderTest extends TestCase
      */
     public function testSchemaExtensionASTAreAvailableFromSchemaObject(): void
     {
-        $schema         = BuildSchema::build('
+        $schema = BuildSchema::build('
             type Query
 
             directive @foo on SCHEMA
         ');
-        $extendAST      = Parser::parse('
+        $extendAST = Parser::parse('
             extend schema {
               mutation: Mutation
             }
@@ -1673,11 +1657,11 @@ class SchemaExtenderTest extends TestCase
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
-        $secondExtendAST     = Parser::parse('extend schema @foo');
+        $secondExtendAST = Parser::parse('extend schema @foo');
         $extendedTwiceSchema = SchemaExtender::extend($extendedSchema, $secondExtendAST);
 
-        self::assertEquals(
-            $this->dedent('
+        self::assertSame(
+            <<<GRAPHQL
                 extend schema {
                   mutation: Mutation
                 }
@@ -1687,7 +1671,8 @@ class SchemaExtenderTest extends TestCase
                 }
 
                 extend schema @foo
-            '),
+                
+                GRAPHQL,
             $this->printExtensionNodes($extendedTwiceSchema)
         );
     }
@@ -1697,12 +1682,14 @@ class SchemaExtenderTest extends TestCase
      */
     public function testOriginalResolversArePreserved(): void
     {
+        $value = 'Hello World!';
+
         $queryType = new ObjectType([
             'name' => 'Query',
             'fields' => [
                 'hello' => [
                     'type' => Type::string(),
-                    'resolve' => static fn (): string => 'Hello World!',
+                    'resolve' => static fn (): string => $value,
                 ],
             ],
         ]);
@@ -1716,17 +1703,21 @@ class SchemaExtenderTest extends TestCase
         ');
 
         $extendedSchema = SchemaExtender::extend($schema, $documentNode);
-        $helloResolveFn = $extendedSchema->getQueryType()->getField('hello')->resolveFn;
+        $extendedQueryType = $extendedSchema->getQueryType();
+        assert($extendedQueryType instanceof ObjectType);
 
+        $helloResolveFn = $extendedQueryType->getField('hello')->resolveFn;
         self::assertIsCallable($helloResolveFn);
 
-        $query  = /** @lang GraphQL */ '{ hello }';
+        $query = /** @lang GraphQL */ '{ hello }';
         $result = GraphQL::executeQuery($extendedSchema, $query);
-        self::assertSame(['data' => ['hello' => 'Hello World!']], $result->toArray());
+        self::assertSame(['data' => ['hello' => $value]], $result->toArray());
     }
 
     public function testOriginalResolveFieldIsPreserved(): void
     {
+        $value = 'Hello World!';
+
         $queryType = new ObjectType([
             'name' => 'Query',
             'fields' => [
@@ -1734,7 +1725,7 @@ class SchemaExtenderTest extends TestCase
                     'type' => Type::string(),
                 ],
             ],
-            'resolveField' => static fn (): string => 'Hello World!',
+            'resolveField' => static fn (): string => $value,
         ]);
 
         $schema = new Schema(['query' => $queryType]);
@@ -1745,14 +1736,16 @@ class SchemaExtenderTest extends TestCase
             }
         ');
 
-        $extendedSchema      = SchemaExtender::extend($schema, $documentNode);
-        $queryResolveFieldFn = $extendedSchema->getQueryType()->resolveFieldFn;
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode);
+        $extendedQueryType = $extendedSchema->getQueryType();
+        assert($extendedQueryType instanceof ObjectType);
 
+        $queryResolveFieldFn = $extendedQueryType->resolveFieldFn;
         self::assertIsCallable($queryResolveFieldFn);
 
-        $query  = /** @lang GraphQL */ '{ hello }';
+        $query = /** @lang GraphQL */ '{ hello }';
         $result = GraphQL::executeQuery($extendedSchema, $query);
-        self::assertSame(['data' => ['hello' => 'Hello World!']], $result->toArray());
+        self::assertSame(['data' => ['hello' => $value]], $result->toArray());
     }
 
     /**
@@ -1760,7 +1753,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testShouldBeAbleToIntroduceNewTypesThroughExtension(): void
     {
-        $sdl = /** @lang GraphQL */'
+        $sdl = /** @lang GraphQL */ '
           type Query {
             defaultValue: String
           }
@@ -1771,7 +1764,7 @@ class SchemaExtenderTest extends TestCase
         ';
 
         $documentNode = Parser::parse($sdl);
-        $schema       = BuildSchema::build($documentNode);
+        $schema = BuildSchema::build($documentNode);
 
         $extensionSdl = /** @lang GraphQL */ '
           type Bar {
@@ -1780,9 +1773,10 @@ class SchemaExtenderTest extends TestCase
         ';
 
         $extendedDocumentNode = Parser::parse($extensionSdl);
-        $extendedSchema       = SchemaExtender::extend($schema, $extendedDocumentNode);
+        $extendedSchema = SchemaExtender::extend($schema, $extendedDocumentNode);
 
-        $expected = /** @lang GraphQL */'
+        static::assertSame(
+            <<<GRAPHQL
             type Bar {
               foo: Foo
             }
@@ -1794,9 +1788,10 @@ class SchemaExtenderTest extends TestCase
             type Query {
               defaultValue: String
             }
-        ';
-
-        static::assertEquals($this->dedent($expected), SchemaPrinter::doPrint($extendedSchema));
+            
+            GRAPHQL,
+            SchemaPrinter::doPrint($extendedSchema)
+        );
     }
 
     /**
@@ -1808,11 +1803,17 @@ class SchemaExtenderTest extends TestCase
             directive @test(arg: Int) repeatable on FIELD | SCALAR
         ');
 
-        self::assertTrue($schema->getDirective('test')->isRepeatable);
+        $directive = $schema->getDirective('test');
+        assert($directive instanceof Directive);
+
+        self::assertTrue($directive->isRepeatable);
 
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse('scalar Foo'));
 
-        self::assertTrue($extendedSchema->getDirective('test')->isRepeatable);
+        $extendedDirective = $extendedSchema->getDirective('test');
+        assert($extendedDirective instanceof Directive);
+
+        self::assertTrue($extendedDirective->isRepeatable);
     }
 
     public function testSupportsTypeConfigDecorator(): void
@@ -1854,7 +1855,7 @@ class SchemaExtenderTest extends TestCase
 
         $extendedSchema = SchemaExtender::extend($schema, $documentNode, [], $typeConfigDecorator);
 
-        $query  = /** @lang GraphQL */'
+        $query = /** @lang GraphQL */ '
         {
             hello
             foo {
@@ -1892,7 +1893,7 @@ class SchemaExtenderTest extends TestCase
         self::assertInstanceOf(CustomScalarType::class, $extendedScalar);
         self::assertSame(SomeScalarClassType::SERIALIZE_RETURN, $extendedScalar->serialize(null));
         self::assertSame(SomeScalarClassType::PARSE_VALUE_RETURN, $extendedScalar->parseValue(null));
-        self::assertSame(SomeScalarClassType::PARSE_LITERAL_RETURN, $extendedScalar->parseLiteral($documentNode));
+        self::assertSame(SomeScalarClassType::PARSE_LITERAL_RETURN, $extendedScalar->parseLiteral(new IntValueNode(['value' => '1'])));
     }
 
     public function testPreservesResolveTypeMethod(): void
@@ -1900,7 +1901,7 @@ class SchemaExtenderTest extends TestCase
         $SomeInterfaceClassType = new SomeInterfaceClassType([
             'name' => 'SomeInterface',
             'fields' => [
-                'foo' => [ 'type' => Type::string() ],
+                'foo' => ['type' => Type::string()],
             ],
         ]);
 
@@ -1908,14 +1909,14 @@ class SchemaExtenderTest extends TestCase
             'name' => 'Foo',
             'interfaces' => [$SomeInterfaceClassType],
             'fields' => [
-                'foo' => [ 'type' => Type::string() ],
+                'foo' => ['type' => Type::string()],
             ],
         ]);
 
         $BarType = new ObjectType([
             'name' => 'Bar',
             'fields' => [
-                'bar' => [ 'type' => Type::string() ],
+                'bar' => ['type' => Type::string()],
             ],
         ]);
 
@@ -1947,9 +1948,9 @@ class SchemaExtenderTest extends TestCase
         self::assertInstanceOf(ObjectType::class, $ExtendedFooType);
 
         $SomeInterfaceClassType->concrete = $ExtendedFooType;
-        $SomeUnionClassType->concrete     = $ExtendedFooType;
+        $SomeUnionClassType->concrete = $ExtendedFooType;
 
-        $query  = /** @lang GraphQL */'
+        $query = /** @lang GraphQL */ '
         {
             someUnion {
                 __typename
@@ -1974,7 +1975,7 @@ class SchemaExtenderTest extends TestCase
         $SomeInterfaceType = new InterfaceType([
             'name' => 'SomeInterface',
             'fields' => [
-                'foo' => [ 'type' => Type::string() ],
+                'foo' => ['type' => Type::string()],
             ],
         ]);
 
@@ -1982,7 +1983,7 @@ class SchemaExtenderTest extends TestCase
             'name' => 'Foo',
             'interfaces' => [$SomeInterfaceType],
             'fields' => [
-                'foo' => [ 'type' => Type::string() ],
+                'foo' => ['type' => Type::string()],
             ],
         ]);
 
@@ -2007,7 +2008,7 @@ class SchemaExtenderTest extends TestCase
 
         $extendedSchema = SchemaExtender::extend($schema, $documentNode);
 
-        $query  = /** @lang GraphQL */'
+        $query = /** @lang GraphQL */ '
         {
             someInterface {
                 __typename

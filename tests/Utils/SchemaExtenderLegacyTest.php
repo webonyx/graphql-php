@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use function array_map;
+use function array_merge;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -21,10 +23,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
-use PHPUnit\Framework\TestCase;
-
-use function array_map;
-use function array_merge;
 use function iterator_to_array;
 
 /**
@@ -32,7 +30,7 @@ use function iterator_to_array;
  * Their counterparts have been removed from `extendSchema-test.js` and moved elsewhere,
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
  */
-class SchemaExtenderLegacyTest extends TestCase
+final class SchemaExtenderLegacyTest extends TestCaseBase
 {
     protected Schema $testSchema;
 
@@ -72,6 +70,8 @@ class SchemaExtenderLegacyTest extends TestCase
             'name' => 'Foo',
             'interfaces' => [$AnotherInterfaceType, $SomeInterfaceType],
             'fields' => static function () use ($AnotherInterfaceType, &$FooType): array {
+                assert($FooType instanceof ObjectType);
+
                 return [
                     'name' => ['type' => Type::string()],
                     'some' => ['type' => $AnotherInterfaceType],
@@ -115,20 +115,15 @@ class SchemaExtenderLegacyTest extends TestCase
 
         $SomeInputType = new InputObjectType([
             'name' => 'SomeInput',
-            'fields' => static function (): array {
-                return [
-                    'fooArg' => ['type' => Type::string()],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'fooArg' => Type::string(),
+            ],
         ]);
 
         $FooDirective = new Directive([
             'name' => 'foo',
             'args' => [
-                new FieldArgument([
-                    'name' => 'input',
-                    'type' => $SomeInputType,
-                ]),
+                'input' => $SomeInputType,
             ],
             'locations' => [
                 DirectiveLocation::SCHEMA,
@@ -185,11 +180,11 @@ class SchemaExtenderLegacyTest extends TestCase
      */
     protected function extendTestSchema(string $sdl, array $options = []): Schema
     {
-        $originalPrint  = SchemaPrinter::doPrint($this->testSchema);
-        $ast            = Parser::parse($sdl);
+        $originalPrint = SchemaPrinter::doPrint($this->testSchema);
+        $ast = Parser::parse($sdl);
         $extendedSchema = SchemaExtender::extend($this->testSchema, $ast, $options);
 
-        self::assertEquals(SchemaPrinter::doPrint($this->testSchema), $originalPrint);
+        self::assertSame(SchemaPrinter::doPrint($this->testSchema), $originalPrint);
 
         return $extendedSchema;
     }
@@ -213,7 +208,7 @@ class SchemaExtenderLegacyTest extends TestCase
             SchemaExtender::extend($extendedSchema, $replacementAST);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals('Directive "meow" already exists in the schema. It cannot be redefined.', $error->getMessage());
+            self::assertSame('Directive "@meow" already exists in the schema. It cannot be redefined.', $error->getMessage());
         }
     }
 
@@ -236,7 +231,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($typeSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($existingFieldError('Bar', 'foo'), $error->getMessage());
+            self::assertSame($existingFieldError('Bar', 'foo'), $error->getMessage());
         }
 
         $interfaceSDL = '
@@ -249,7 +244,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($interfaceSDL);
             self::fail();
         } catch (Error  $error) {
-            self::assertEquals($existingFieldError('SomeInterface', 'some'), $error->getMessage());
+            self::assertSame($existingFieldError('SomeInterface', 'some'), $error->getMessage());
         }
 
         $inputSDL = '
@@ -262,7 +257,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($inputSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($existingFieldError('SomeInput', 'fooArg'), $error->getMessage());
+            self::assertSame($existingFieldError('SomeInput', 'fooArg'), $error->getMessage());
         }
     }
 
@@ -285,7 +280,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($typeSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($existingTypeError('Bar'), $error->getMessage());
+            self::assertSame($existingTypeError('Bar'), $error->getMessage());
         }
 
         $scalarSDL = '
@@ -296,7 +291,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($scalarSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeScalar'), $error->getMessage());
+            self::assertSame($existingTypeError('SomeScalar'), $error->getMessage());
         }
 
         $interfaceSDL = '
@@ -307,7 +302,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($interfaceSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeInterface'), $error->getMessage());
+            self::assertSame($existingTypeError('SomeInterface'), $error->getMessage());
         }
 
         $enumSDL = '
@@ -318,7 +313,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($enumSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeEnum'), $error->getMessage());
+            self::assertSame($existingTypeError('SomeEnum'), $error->getMessage());
         }
 
         $unionSDL = '
@@ -329,7 +324,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($unionSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeUnion'), $error->getMessage());
+            self::assertSame($existingTypeError('SomeUnion'), $error->getMessage());
         }
 
         $inputSDL = '
@@ -340,7 +335,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($inputSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeInput'), $error->getMessage());
+            self::assertSame($existingTypeError('SomeInput'), $error->getMessage());
         }
     }
 
@@ -351,7 +346,7 @@ class SchemaExtenderLegacyTest extends TestCase
      */
     public function testDoesNotAllowReferencingAnUnknownType(): void
     {
-        $unknownTypeError = 'Unknown type: "Quix". Ensure that this type exists either in the original schema, or is added in a type definition.';
+        $unknownTypeError = 'Unknown type "Quix".';
 
         $typeSDL = '
           extend type Bar {
@@ -363,7 +358,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($typeSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
+            self::assertSame($unknownTypeError, $error->getMessage());
         }
 
         $interfaceSDL = '
@@ -376,7 +371,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($interfaceSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
+            self::assertSame($unknownTypeError, $error->getMessage());
         }
 
         $unionSDL = '
@@ -387,7 +382,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($unionSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
+            self::assertSame($unknownTypeError, $error->getMessage());
         }
 
         $inputSDL = '
@@ -400,7 +395,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($inputSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
+            self::assertSame($unknownTypeError, $error->getMessage());
         }
     }
 
@@ -425,7 +420,7 @@ class SchemaExtenderLegacyTest extends TestCase
                 $this->extendTestSchema($sdl);
                 self::fail();
             } catch (Error $error) {
-                self::assertEquals('Cannot extend type "UnknownType" because it does not exist in the existing schema.', $error->getMessage());
+                self::assertSame('Cannot extend type "UnknownType" because it is not defined.', $error->getMessage());
             }
         }
     }
@@ -443,7 +438,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($typeSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals('Cannot extend non-object type "SomeInterface".', $error->getMessage());
+            self::assertSame('Cannot extend non-object type "SomeInterface".', $error->getMessage());
         }
 
         $interfaceSDL = '
@@ -454,7 +449,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($interfaceSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals('Cannot extend non-interface type "Foo".', $error->getMessage());
+            self::assertSame('Cannot extend non-interface type "Foo".', $error->getMessage());
         }
 
         $enumSDL = '
@@ -465,7 +460,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($enumSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals('Cannot extend non-enum type "Foo".', $error->getMessage());
+            self::assertSame('Cannot extend non-enum type "Foo".', $error->getMessage());
         }
 
         $unionSDL = '
@@ -476,7 +471,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($unionSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals('Cannot extend non-union type "Foo".', $error->getMessage());
+            self::assertSame('Cannot extend non-union type "Foo".', $error->getMessage());
         }
 
         $inputSDL = '
@@ -487,7 +482,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($inputSDL);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals('Cannot extend non-input object type "Foo".', $error->getMessage());
+            self::assertSame('Cannot extend non-input object type "Foo".', $error->getMessage());
         }
     }
 
@@ -512,7 +507,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($sdl);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals('Must provide only one query type in schema.', $error->getMessage());
+            self::assertSame('Type for query already defined in the schema. It cannot be redefined.', $error->getMessage());
         }
     }
 
@@ -537,7 +532,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($sdl);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals('Must provide only one mutation type in schema.', $error->getMessage());
+            self::assertSame('There can be only one mutation type in schema.', $error->getMessage());
         }
     }
 
@@ -565,7 +560,7 @@ class SchemaExtenderLegacyTest extends TestCase
             $this->extendTestSchema($sdl);
             self::fail();
         } catch (Error $error) {
-            self::assertEquals('Must provide only one mutation type in schema.', $error->getMessage());
+            self::assertSame('There can be only one mutation type in schema.', $error->getMessage());
         }
     }
 }

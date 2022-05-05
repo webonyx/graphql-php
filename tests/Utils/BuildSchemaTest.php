@@ -30,6 +30,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
+use GraphQL\Validator\Rules\KnownDirectives;
 
 /**
  * @phpstan-import-type BuildSchemaOptions from BuildSchema
@@ -904,8 +905,9 @@ type Query {
             foo: String @unknown
           }
         ');
+
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('Unknown directive "unknown".');
+        $this->expectExceptionMessage(KnownDirectives::unknownDirectiveMessage('unknown'));
         BuildSchema::build($doc);
     }
 
