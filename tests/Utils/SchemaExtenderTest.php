@@ -569,10 +569,7 @@ GRAPHQL,
             AST::concatAST([$firstExtensionAST, $secondExtensionAST]),
         );
 
-        self::assertSame(
-            SchemaPrinter::doPrint($extendedInOneGoSchema),
-            SchemaPrinter::doPrint($extendedTwiceSchema),
-        );
+        self::assertSchemaEquals($extendedInOneGoSchema, $extendedTwiceSchema);
 
         $query = $extendedTwiceSchema->getQueryType();
         assert($query instanceof ObjectType);
