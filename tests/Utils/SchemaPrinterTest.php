@@ -420,6 +420,34 @@ class SchemaPrinterTest extends TestCase
         );
     }
 
+    public function testSplitsArgsWithDescriptionsAcrossMultipleLines(): void
+    {
+        $schema = $this->buildSingleFieldSchema([
+            'type' => Type::string(),
+            'args' => [
+                'argOne' => ['type' => Type::int(), 'description' => 'This is the first argument'],
+                'argTwo' => ['type' => Type::string(), 'description' => 'This is the second argument'],
+                'argThree' => ['type' => Type::boolean()],
+            ],
+        ]);
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            type Query {
+              singleField(
+                """This is the first argument"""
+                argOne: Int
+
+                """This is the second argument"""
+                argTwo: String
+                argThree: Boolean
+              ): String
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
     /**
      * @see it('Prints custom query root types')
      */
