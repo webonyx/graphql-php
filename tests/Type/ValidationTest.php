@@ -1498,7 +1498,7 @@ class ValidationTest extends TestCaseBase
     }
 
     /**
-     * @see it('rejects a non-output type as an Interface field type')
+     * @see it(`rejects a non-output type as an Interface field type: ${typeStr}`, () => {
      */
     public function testRejectsANonOutputTypeAsAnInterfaceFieldType(): void
     {

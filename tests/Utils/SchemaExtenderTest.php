@@ -1102,7 +1102,6 @@ GRAPHQL,
             // TODO see https://github.com/webonyx/graphql-php/issues/1140
             // scalar SomeScalar @specifiedBy(url: \"http://example.com/foo_spec\")
             <<<GRAPHQL
-
                 type SomeObject implements SomeInterface & NewInterface & AnotherNewInterface {
                   oldField: String
                   newField: String
