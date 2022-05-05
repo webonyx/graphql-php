@@ -148,9 +148,7 @@ class BuildSchema
                     $typeDefinitionsMap[$definition->name->value] = $definition;
                     break;
                 case $definition instanceof TypeExtensionNode:
-                    $extendedTypeName = $definition->name->value;
-                    $existingTypeExtensions = $typeExtensionsMap[$extendedTypeName] ?? [];
-                    $typeExtensionsMap[$extendedTypeName] = [...$existingTypeExtensions, $definition];
+                    $typeExtensionsMap[$definition->name->value][] = $definition;
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
                     $directiveDefs[] = $definition;

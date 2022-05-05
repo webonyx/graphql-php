@@ -752,8 +752,8 @@ type Query {
             directive @bar on SCALAR
         ");
 
-        /** @var ScalarType $someScalar */
         $someScalar = $schema->getType('SomeScalar');
+        assert($someScalar instanceof ScalarType);
 
         $expectedSomeScalarSDL = <<<'GRAPHQL'
             scalar SomeScalar
@@ -790,8 +790,8 @@ type Query {
             interface Baz
         ");
 
-        /** @var ObjectType $someObject */
         $someObject = $schema->getType('SomeObject');
+        assert($someObject instanceof ObjectType);
 
         $expectedSomeObjectSDL = <<<'GRAPHQL'
             type SomeObject implements Foo & Bar & Baz {
@@ -827,8 +827,8 @@ type Query {
 
         $schema = BuildSchema::build($interfaceSDL);
 
-        /** @var InterfaceType $someInterface */
         $someInterface = $schema->getType('SomeInterface');
+        assert($someInterface instanceof InterfaceType);
 
         $expectedSomeInterfaceSDL = <<<'GRAPHQL'
             interface SomeInterface {
@@ -863,8 +863,8 @@ type Query {
             type ThirdType
         ");
 
-        /** @var UnionType $someUnion */
         $someUnion = $schema->getType('SomeUnion');
+        assert($someUnion instanceof UnionType);
 
         $expectedSomeUnionSDL = <<<'GRAPHQL'
             union SomeUnion = FirstType | SecondType | ThirdType
@@ -896,8 +896,8 @@ type Query {
 
         $schema = BuildSchema::build($enumSDL);
 
-        /** @var EnumType $someEnum */
         $someEnum = $schema->getType('SomeEnum');
+        assert($someEnum instanceof EnumType);
 
         $expectedSomeEnumSDL = <<<'GRAPHQL'
             enum SomeEnum {
@@ -933,8 +933,8 @@ type Query {
 
         $schema = BuildSchema::build($inputSDL);
 
-        /** @var InputObjectType $someInput */
         $someInput = $schema->getType('SomeInput');
+        assert($someInput instanceof InputObjectType);
 
         $expectedSomeInputSDL = <<<'GRAPHQL'
             input SomeInput {

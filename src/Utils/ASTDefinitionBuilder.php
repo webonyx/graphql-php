@@ -288,12 +288,13 @@ class ASTDefinitionBuilder
         $name = $def->name->value;
         /** @var array<int, ObjectTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
+        $allNodes = [$def, ...$extensionASTNodes];
 
         return new ObjectType([
             'name' => $name,
             'description' => $def->description->value ?? null,
-            'fields' => fn (): array => $this->makeFieldDefMap([$def, ...$extensionASTNodes]),
-            'interfaces' => fn (): array => $this->makeImplementedInterfaces([$def, ...$extensionASTNodes]),
+            'fields' => fn (): array => $this->makeFieldDefMap($allNodes),
+            'interfaces' => fn (): array => $this->makeImplementedInterfaces($allNodes),
             'astNode' => $def,
             'extensionASTNodes' => $extensionASTNodes,
         ]);
@@ -379,12 +380,13 @@ class ASTDefinitionBuilder
         $name = $def->name->value;
         /** @var array<int, InterfaceTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
+        $allNodes = [$def, ...$extensionASTNodes];
 
         return new InterfaceType([
             'name' => $name,
             'description' => $def->description->value ?? null,
-            'fields' => fn (): array => $this->makeFieldDefMap([$def, ...$extensionASTNodes]),
-            'interfaces' => fn (): array => $this->makeImplementedInterfaces([$def, ...$extensionASTNodes]),
+            'fields' => fn (): array => $this->makeFieldDefMap($allNodes),
+            'interfaces' => fn (): array => $this->makeImplementedInterfaces($allNodes),
             'astNode' => $def,
             'extensionASTNodes' => $extensionASTNodes,
         ]);
