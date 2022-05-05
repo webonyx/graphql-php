@@ -40,14 +40,14 @@ class UniqueOperationTypes extends ValidationRule
                 if (isset($existingOperationTypes[$operation])) {
                     $context->reportError(
                         new Error(
-                            "Type for ${operation} already defined in the schema. It cannot be redefined.",
+                            "Type for {$operation} already defined in the schema. It cannot be redefined.",
                             $operationType,
                         ),
                     );
                 } elseif ($alreadyDefinedOperationType !== null) {
                     $context->reportError(
                         new Error(
-                            "There can be only one ${operation} type in schema.",
+                            "There can be only one {$operation} type in schema.",
                             [$alreadyDefinedOperationType, $operationType],
                         ),
                     );
