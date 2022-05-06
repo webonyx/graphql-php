@@ -835,7 +835,10 @@ final class DefinitionTest extends TestCaseBase
         ]);
 
         $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [],
+            ]),
             'types' => [$idType],
         ]);
 
@@ -1962,7 +1965,7 @@ final class DefinitionTest extends TestCaseBase
         self::assertSame(2, $resolvedCount);
     }
 
-    public function testThrowsWhenLazyLoadedFieldDefinitionHasNoKeysForFieldNames(): void
+    public function testThrowsWhenLazyFieldDefinitionHasNoKeysForFieldNames(): void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',

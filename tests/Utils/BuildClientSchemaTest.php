@@ -773,7 +773,6 @@ SDL;
         }
 
         self::assertArrayHasKey('interfaces', $queryTypeIntrospection);
-
         unset($queryTypeIntrospection['interfaces']);
 
         $this->expectExceptionMessageMatches(
@@ -821,7 +820,6 @@ SDL;
         }
 
         self::assertArrayHasKey('fields', $queryTypeIntrospection);
-
         unset($queryTypeIntrospection['fields']);
 
         $this->expectExceptionMessageMatches(
@@ -845,7 +843,6 @@ SDL;
 
         $firstField = &$queryTypeIntrospection['fields'][0];
         self::assertArrayHasKey('args', $firstField);
-
         unset($firstField['args']);
 
         $this->expectExceptionMessageMatches(
@@ -869,7 +866,6 @@ SDL;
 
         $firstArgType = &$queryTypeIntrospection['fields'][0]['args'][0]['type'];
         self::assertArrayHasKey('name', $firstArgType);
-
         $firstArgType['name'] = 'SomeUnion';
 
         $this->expectExceptionMessage(
@@ -893,7 +889,6 @@ SDL;
 
         $firstFieldType = &$queryTypeIntrospection['fields'][0]['type'];
         self::assertArrayHasKey('name', $firstFieldType);
-
         $firstFieldType['name'] = 'SomeInputObject';
 
         $this->expectExceptionMessage(

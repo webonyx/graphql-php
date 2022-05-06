@@ -188,9 +188,7 @@ class Parser
      */
     public static function parse($source, array $options = []): DocumentNode
     {
-        $parser = new self($source, $options);
-
-        return $parser->parseDocument();
+        return (new self($source, $options))->parseDocument();
     }
 
     /**

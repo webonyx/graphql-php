@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use PHPUnit\Framework\TestCase;
 use function Safe\json_encode;
@@ -26,16 +27,17 @@ class IntrospectionTest extends TestCase
      */
     public function testExecutesAnIntrospectionQuery(): void
     {
-        $emptySchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'QueryRoot',
-                'fields' => [
-                    'a' => Type::string(),
-                ],
-            ]),
-        ]);
+        $schema = BuildSchema::build('
+      type SomeObject {
+        someField: String
+      }
 
-        $request = Introspection::getIntrospectionQuery([
+      schema {
+        query: SomeObject
+      }
+        ');
+
+        $source = Introspection::getIntrospectionQuery([
             'descriptions' => false,
             'directiveIsRepeatable' => true,
         ]);
@@ -43,20 +45,16 @@ class IntrospectionTest extends TestCase
         $expected = [
             'data' => [
                 '__schema' => [
+                    'queryType' => ['name' => 'SomeObject'],
                     'mutationType' => null,
                     'subscriptionType' => null,
-                    'queryType' => ['name' => 'QueryRoot'],
                     'types' => [
                         [
                             'kind' => 'OBJECT',
-                            'name' => 'QueryRoot',
-                            'inputFields' => null,
-                            'interfaces' => [],
-                            'enumValues' => null,
-                            'possibleTypes' => null,
+                            'name' => 'SomeObject',
                             'fields' => [
                                 [
-                                    'name' => 'a',
+                                    'name' => 'someField',
                                     'args' => [],
                                     'type' => [
                                         'kind' => 'SCALAR',
@@ -67,6 +65,10 @@ class IntrospectionTest extends TestCase
                                     'deprecationReason' => null,
                                 ],
                             ],
+                            'inputFields' => null,
+                            'interfaces' => [],
+                            'enumValues' => null,
+                            'possibleTypes' => null,
                         ],
                         [
                             'kind' => 'SCALAR',
@@ -156,6 +158,7 @@ class IntrospectionTest extends TestCase
                                                 'ofType' => [
                                                     'kind' => 'OBJECT',
                                                     'name' => '__Directive',
+                                                    'ofType' => null,
                                                 ],
                                             ],
                                         ],
@@ -182,6 +185,7 @@ class IntrospectionTest extends TestCase
                                         'ofType' => [
                                             'kind' => 'ENUM',
                                             'name' => '__TypeKind',
+                                            'ofType' => null,
                                         ],
                                     ],
                                     'isDeprecated' => false,
@@ -193,6 +197,7 @@ class IntrospectionTest extends TestCase
                                     'type' => [
                                         'kind' => 'SCALAR',
                                         'name' => 'String',
+                                        'ofType' => null,
                                     ],
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
@@ -203,6 +208,7 @@ class IntrospectionTest extends TestCase
                                     'type' => [
                                         'kind' => 'SCALAR',
                                         'name' => 'String',
+                                        'ofType' => null,
                                     ],
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
@@ -215,6 +221,7 @@ class IntrospectionTest extends TestCase
                                             'type' => [
                                                 'kind' => 'SCALAR',
                                                 'name' => 'Boolean',
+                                                'ofType' => null,
                                             ],
                                             'defaultValue' => 'false',
                                         ],
@@ -228,6 +235,7 @@ class IntrospectionTest extends TestCase
                                             'ofType' => [
                                                 'kind' => 'OBJECT',
                                                 'name' => '__Field',
+                                                'ofType' => null,
                                             ],
                                         ],
                                     ],
@@ -280,6 +288,7 @@ class IntrospectionTest extends TestCase
                                             'type' => [
                                                 'kind' => 'SCALAR',
                                                 'name' => 'Boolean',
+                                                'ofType' => null,
                                             ],
                                             'defaultValue' => 'false',
                                         ],
@@ -293,6 +302,7 @@ class IntrospectionTest extends TestCase
                                             'ofType' => [
                                                 'kind' => 'OBJECT',
                                                 'name' => '__EnumValue',
+                                                'ofType' => null,
                                             ],
                                         ],
                                     ],
@@ -823,11 +833,9 @@ class IntrospectionTest extends TestCase
                     ],
                     'directives' => [
                         0 => [
-                            'name' => 'include',
-                            'isRepeatable' => false,
+                            'name' => 'skip',
                             'args' => [
                                 0 => [
-                                    'defaultValue' => null,
                                     'name' => 'if',
                                     'type' => [
                                         'kind' => 'NON_NULL',
@@ -838,8 +846,10 @@ class IntrospectionTest extends TestCase
                                             'ofType' => null,
                                         ],
                                     ],
+                                    'defaultValue' => null,
                                 ],
                             ],
+                            'isRepeatable' => false,
                             'locations' => [
                                 0 => 'FIELD',
                                 1 => 'FRAGMENT_SPREAD',
@@ -847,11 +857,9 @@ class IntrospectionTest extends TestCase
                             ],
                         ],
                         1 => [
-                            'name' => 'skip',
-                            'isRepeatable' => false,
+                            'name' => 'include',
                             'args' => [
                                 0 => [
-                                    'defaultValue' => null,
                                     'name' => 'if',
                                     'type' => [
                                         'kind' => 'NON_NULL',
@@ -862,8 +870,10 @@ class IntrospectionTest extends TestCase
                                             'ofType' => null,
                                         ],
                                     ],
+                                    'defaultValue' => null,
                                 ],
                             ],
+                            'isRepeatable' => false,
                             'locations' => [
                                 0 => 'FIELD',
                                 1 => 'FRAGMENT_SPREAD',
@@ -872,18 +882,18 @@ class IntrospectionTest extends TestCase
                         ],
                         2 => [
                             'name' => 'deprecated',
-                            'isRepeatable' => false,
                             'args' => [
                                 0 => [
-                                    'defaultValue' => '"No longer supported"',
                                     'name' => 'reason',
                                     'type' => [
                                         'kind' => 'SCALAR',
                                         'name' => 'String',
                                         'ofType' => null,
                                     ],
+                                    'defaultValue' => '"No longer supported"',
                                 ],
                             ],
+                            'isRepeatable' => false,
                             'locations' => [
                                 0 => 'FIELD_DEFINITION',
                                 1 => 'ENUM_VALUE',
@@ -894,10 +904,9 @@ class IntrospectionTest extends TestCase
             ],
         ];
 
-        $actual = GraphQL::executeQuery($emptySchema, $request)->toArray();
+        $actual = GraphQL::executeQuery($schema, $source)->toArray();
 
-        // self::assertEquals($expected, $actual);
-        self::assertArraySubset($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     /**

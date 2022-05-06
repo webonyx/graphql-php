@@ -88,9 +88,7 @@ class BuildClientSchema
      */
     public static function build(array $introspectionQuery, array $options = []): Schema
     {
-        $builder = new self($introspectionQuery, $options);
-
-        return $builder->buildSchema();
+        return (new self($introspectionQuery, $options))->buildSchema();
     }
 
     public function buildSchema(): Schema

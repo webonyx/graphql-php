@@ -130,16 +130,14 @@ class TypeInfo
             }
         }
 
-        if (! ($type instanceof HasFieldsType)) {
-            return;
-        }
+        if ($type instanceof HasFieldsType) {
+            foreach ($type->getFields() as $field) {
+                foreach ($field->args as $arg) {
+                    self::extractTypes($arg->getType(), $typeMap);
+                }
 
-        foreach ($type->getFields() as $field) {
-            foreach ($field->args as $arg) {
-                self::extractTypes($arg->getType(), $typeMap);
+                self::extractTypes($field->getType(), $typeMap);
             }
-
-            self::extractTypes($field->getType(), $typeMap);
         }
     }
 
