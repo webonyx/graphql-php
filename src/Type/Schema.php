@@ -2,7 +2,6 @@
 
 namespace GraphQL\Type;
 
-use Generator;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
@@ -72,8 +71,6 @@ class Schema
     /** @var array<int, SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
-    private array $rootTypes = [];
-
     /**
      * @param SchemaConfig|array<string, mixed> $config
      *
@@ -94,24 +91,6 @@ class Schema
         $this->config = $config;
         $this->extensionASTNodes = $config->extensionASTNodes;
 
-        // TODO can we make the following assumption hold true?
-        // No need to check for the existence of the root query type
-        // since we already validated the schema thus it must exist.
-        $query = $config->query;
-        if ($query !== null) {
-            $this->rootTypes[$query->name] = $query;
-        }
-
-        $mutation = $config->mutation;
-        if ($mutation !== null) {
-            $this->rootTypes[$mutation->name] = $mutation;
-        }
-
-        $subscription = $config->subscription;
-        if ($subscription !== null) {
-            $this->rootTypes[$subscription->name] = $subscription;
-        }
-
         $types = $this->config->types;
         if (is_array($types)) {
             $this->resolveAdditionalTypes($types);
@@ -120,8 +99,6 @@ class Schema
 
     /**
      * @param array<Type&NamedType> $types
-     *
-     * @return Generator<Type&NamedType>
      */
     private function resolveAdditionalTypes(iterable $types): void
     {
@@ -163,8 +140,10 @@ class Schema
                 TypeInfo::extractTypes($type, $typeMap);
             }
 
-            foreach ($this->rootTypes as $type) {
-                TypeInfo::extractTypes($type, $typeMap);
+            foreach ([$this->config->query, $this->config->mutation, $this->config->subscription] as $rootType) {
+                if ($rootType instanceof ObjectType) {
+                    TypeInfo::extractTypes($rootType, $typeMap);
+                }
             }
 
             foreach ($this->getDirectives() as $directive) {
@@ -287,9 +266,7 @@ class Schema
                 return $standardTypes[$name];
             }
 
-            $type = $standardTypes[$name]
-                ?? $this->loadType($name);
-
+            $type = $this->loadType($name);
             if ($type === null) {
                 return null;
             }
@@ -311,13 +288,11 @@ class Schema
     private function loadType(string $typeName): ?Type
     {
         $typeLoader = $this->config->typeLoader;
-
         if ($typeLoader === null) {
             return $this->defaultTypeLoader($typeName);
         }
 
         $type = $typeLoader($typeName);
-
         if ($type === null) {
             return null;
         }
@@ -482,7 +457,7 @@ class Schema
 
     public function getAstNode(): ?SchemaDefinitionNode
     {
-        return $this->config->getAstNode();
+        return $this->config->astNode;
     }
 
     /**
