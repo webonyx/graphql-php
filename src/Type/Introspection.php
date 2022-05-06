@@ -240,7 +240,7 @@ GRAPHQL;
                 'types' => [
                     'description' => 'A list of all types supported by this server.',
                     'type' => new NonNull(new ListOfType(new NonNull(self::_type()))),
-                    'resolve' => static fn (Schema $schema): array => array_values($schema->getTypeMap()),
+                    'resolve' => static fn (Schema $schema): array => $schema->getTypeMap(),
                 ],
                 'queryType' => [
                     'description' => 'The type that query operations will be rooted at.',

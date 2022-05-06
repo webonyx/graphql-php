@@ -117,9 +117,7 @@ class BuildSchema
         ?callable $typeConfigDecorator = null,
         array $options = []
     ): Schema {
-        $builder = new self($ast, $typeConfigDecorator, $options);
-
-        return $builder->buildSchema();
+        return (new self($ast, $typeConfigDecorator, $options))->buildSchema();
     }
 
     public function buildSchema(): Schema
@@ -132,10 +130,13 @@ class BuildSchema
         }
 
         $schemaDef = null;
+
         /** @var array<string, Node&TypeDefinitionNode> */
         $typeDefinitionsMap = [];
+
         /** @var array<string, array<int, Node&TypeExtensionNode>> $typeExtensionsMap */
         $typeExtensionsMap = [];
+
         /** @var array<int, DirectiveDefinitionNode> $directiveDefs */
         $directiveDefs = [];
 
