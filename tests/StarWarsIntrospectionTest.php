@@ -25,7 +25,6 @@ class StarWarsIntrospectionTest extends TestCase
           }
         }
         ';
-        // TODO restore equivalent order as the reference implementation
         $expected = [
             '__schema' => [
                 'types' => [
