@@ -131,32 +131,37 @@ class Schema
             // When types are set as array they are resolved in constructor
             $types = $this->config->types;
             if (is_callable($types)) {
+                // Reset order of user provided types, since calls to getType() may have loaded them
+                $this->resolvedTypes = [];
                 $this->resolveAdditionalTypes($types());
             }
 
-            /** @var array<string, Type&NamedType> $typeMap */
-            $typeMap = [];
+            // To preserve order of user-provided types, we add first to add them to
+            // the set of "collected" types, so `collectReferencedTypes` ignore them.
+            /** @var array<string, Type&NamedType> $allReferencedTypes */
+            $allReferencedTypes = [];
             foreach ($this->resolvedTypes as $type) {
-                TypeInfo::extractTypes($type, $typeMap);
+                // When we ready to process this type, we remove it from "collected" types
+                // and then add it together with all dependent types in the correct position.
+                unset($allReferencedTypes[$type->name]);
+                TypeInfo::extractTypes($type, $allReferencedTypes);
             }
 
             foreach ([$this->config->query, $this->config->mutation, $this->config->subscription] as $rootType) {
                 if ($rootType instanceof ObjectType) {
-                    TypeInfo::extractTypes($rootType, $typeMap);
+                    TypeInfo::extractTypes($rootType, $allReferencedTypes);
                 }
             }
 
             foreach ($this->getDirectives() as $directive) {
                 // @phpstan-ignore-next-line generics are not strictly enforceable, error will be caught during schema validation
                 if ($directive instanceof Directive) {
-                    TypeInfo::extractTypesFromDirectives($directive, $typeMap);
+                    TypeInfo::extractTypesFromDirectives($directive, $allReferencedTypes);
                 }
             }
-            TypeInfo::extractTypes(Introspection::_schema(), $typeMap);
+            TypeInfo::extractTypes(Introspection::_schema(), $allReferencedTypes);
 
-            // Even though $typeMap is guaranteed to have all new types,
-            // we merge the two arrays to preserve the order in which types were added explicitly
-            $this->resolvedTypes = $typeMap;
+            $this->resolvedTypes = $allReferencedTypes;
             $this->fullyLoaded = true;
         }
 

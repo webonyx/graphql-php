@@ -118,8 +118,7 @@ type HelloScalars {
   bool: Boolean
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -144,12 +143,13 @@ type HelloScalars {
     /**
      * @phpstan-param BuildSchemaOptions $options
      */
-    private function cycleOutput(string $body, array $options = []): string
+    private function assertCycle(string $body): void
     {
         $ast = Parser::parse($body);
-        $schema = BuildSchema::buildAST($ast, null, $options);
+        $schema = BuildSchema::buildAST($ast);
+        $cycled = "\n" . SchemaPrinter::doPrint($schema);
 
-        return "\n" . SchemaPrinter::doPrint($schema);
+        self::assertSame($body, $cycled);
     }
 
     /**
@@ -166,8 +166,7 @@ type Query {
   str: String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -198,8 +197,7 @@ type Query {
 }
 ';
 
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        self::assertCycle($body);
     }
 
     /**
@@ -273,8 +271,7 @@ type HelloScalars {
   nonNullListOfNonNullStrs: [String!]!
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -288,8 +285,7 @@ type Query {
   recurse: Query
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -312,8 +308,7 @@ type TypeTwo {
   typeOne: TypeOne
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -330,8 +325,7 @@ type Query {
   strToStr(bool: String): String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -344,8 +338,7 @@ type Query {
   str(int: Int, bool: Boolean): String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -362,8 +355,7 @@ interface WorldInterface {
   str: String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -384,8 +376,7 @@ interface Parent {
   str: String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -402,8 +393,7 @@ type Query {
   hello: Hello
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -420,8 +410,7 @@ type Query {
   str(hello: Hello): String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($body, $output);
+        self::assertCycle($body);
     }
 
     /**
@@ -439,8 +428,7 @@ type Query {
   hello: Hello
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -459,8 +447,7 @@ type World {
   str: String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -483,8 +470,7 @@ type WorldTwo {
   str: String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -515,8 +501,7 @@ type Query {
   customScalar: CustomScalar
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -533,8 +518,7 @@ type Query {
   field(in: Input): String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -547,8 +531,7 @@ type Query {
   str(int: Int = 2): String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -563,8 +546,7 @@ type Query {
   str(int: CustomScalar = 2): String
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -588,8 +570,7 @@ type Mutation {
   addHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -613,8 +594,7 @@ type Subscription {
   subscribeHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -635,8 +615,7 @@ type Query {
   iface: Iface
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -657,8 +636,7 @@ type Query {
   iface: Parent
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -677,8 +655,7 @@ type Query {
 
 union Union = Concrete
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
     }
 
     /**
@@ -699,8 +676,7 @@ type Query {
   enum: MyEnum
 }
 ';
-        $output = $this->cycleOutput($body);
-        self::assertEquals($output, $body);
+        self::assertCycle($body);
 
         $ast = Parser::parse($body);
         $schema = BuildSchema::buildAST($ast);
