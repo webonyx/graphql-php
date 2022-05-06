@@ -179,7 +179,7 @@ class SchemaExtender
             'subscription' => $operationTypes['subscription'],
             'types' => $types,
             'directives' => $this->getMergedDirectives($schema, $directiveDefinitions),
-            'astNode' => $schema->getAstNode() ?? $schemaDef,
+            'astNode' => $schema->astNode ?? $schemaDef,
             'extensionASTNodes' => $schemaExtensionASTNodes,
         ]);
     }

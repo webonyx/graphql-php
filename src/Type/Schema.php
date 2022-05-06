@@ -68,6 +68,8 @@ class Schema
     /** @var array<int, Error> */
     private array $validationErrors;
 
+    public ?SchemaDefinitionNode $astNode;
+
     /** @var array<int, SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
@@ -88,32 +90,10 @@ class Schema
             $this->validationErrors = [];
         }
 
-        $this->config = $config;
+        $this->astNode = $config->astNode;
         $this->extensionASTNodes = $config->extensionASTNodes;
 
-        $types = $this->config->types;
-        if (is_array($types)) {
-            $this->resolveAdditionalTypes($types);
-        }
-    }
-
-    /**
-     * @param array<Type&NamedType> $types
-     */
-    private function resolveAdditionalTypes(iterable $types): void
-    {
-        foreach ($types as $typeOrLazyType) {
-            $type = self::resolveType($typeOrLazyType);
-
-            $typeName = $type->name;
-            if (isset($this->resolvedTypes[$typeName])) {
-                if ($type !== $this->resolvedTypes[$typeName]) {
-                    throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
-                }
-            }
-
-            $this->resolvedTypes[$typeName] = $type;
-        }
+        $this->config = $config;
     }
 
     /**
@@ -128,12 +108,25 @@ class Schema
     public function getTypeMap(): array
     {
         if (! $this->fullyLoaded) {
-            // When types are set as array they are resolved in constructor
             $types = $this->config->types;
             if (is_callable($types)) {
-                // Reset order of user provided types, since calls to getType() may have loaded them
-                $this->resolvedTypes = [];
-                $this->resolveAdditionalTypes($types());
+                $types = $types();
+            }
+
+            // Reset order of user provided types, since calls to getType() may have loaded them
+            $this->resolvedTypes = [];
+
+            foreach ($types as $typeOrLazyType) {
+                $type = self::resolveType($typeOrLazyType);
+
+                $typeName = $type->name;
+                if (isset($this->resolvedTypes[$typeName])) {
+                    if ($type !== $this->resolvedTypes[$typeName]) {
+                        throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"$type\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
+                    }
+                }
+
+                $this->resolvedTypes[$typeName] = $type;
             }
 
             // To preserve order of user-provided types, we add first to add them to
@@ -294,7 +287,7 @@ class Schema
     {
         $typeLoader = $this->config->typeLoader;
         if ($typeLoader === null) {
-            return $this->defaultTypeLoader($typeName);
+            return $this->getTypeMap()[$typeName] ?? null;
         }
 
         $type = $typeLoader($typeName);
@@ -312,15 +305,6 @@ class Schema
         }
 
         return $type;
-    }
-
-    /**
-     * @return (Type&NamedType)|null
-     */
-    private function defaultTypeLoader(string $typeName): ?Type
-    {
-        // Default type loader simply falls back to collecting all types
-        return $this->getTypeMap()[$typeName] ?? null;
     }
 
     /**
@@ -458,11 +442,6 @@ class Schema
         }
 
         return null;
-    }
-
-    public function getAstNode(): ?SchemaDefinitionNode
-    {
-        return $this->config->astNode;
     }
 
     /**

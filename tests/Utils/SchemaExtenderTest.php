@@ -80,7 +80,7 @@ final class SchemaExtenderTest extends TestCaseBase
      */
     private function printASTSchema(Schema $schema): string
     {
-        $astNode = $schema->getAstNode();
+        $astNode = $schema->astNode;
         assert($astNode instanceof SchemaDefinitionNode);
 
         return Printer::doPrint($astNode);

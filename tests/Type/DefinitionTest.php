@@ -824,31 +824,6 @@ final class DefinitionTest extends TestCaseBase
         self::assertEquals('OtherCustom', $otherCustom->name);
     }
 
-    public function testAllowsOverridingInternalTypes(): void
-    {
-        $idType = new CustomScalarType([
-            'name' => 'ID',
-            'serialize' => static function (): void {
-            },
-            'parseValue' => static function (): void {
-            },
-            'parseLiteral' => static function (): void {
-            },
-        ]);
-
-        $schema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'Query',
-                'fields' => [],
-            ]),
-            'types' => [$idType],
-        ]);
-
-        self::assertSame($idType, $schema->getType('ID'));
-    }
-
-    // Field config must be object
-
     /**
      * @see it('accepts an Object type with a field function')
      */

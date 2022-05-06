@@ -36,9 +36,6 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\Rules\KnownDirectives;
 
-/**
- * @phpstan-import-type BuildSchemaOptions from BuildSchema
- */
 class BuildSchemaTest extends TestCaseBase
 {
     use ArraySubsetAsserts;
@@ -140,9 +137,6 @@ type HelloScalars {
         self::assertNull($schema->getType('ID'));
     }
 
-    /**
-     * @phpstan-param BuildSchemaOptions $options
-     */
     private function assertCycle(string $body): void
     {
         $ast = Parser::parse($body);
@@ -987,7 +981,7 @@ type Query {
         $testDirective = $schema->getDirective('test');
         self::assertInstanceOf(Directive::class, $testDirective);
 
-        $schemaAst = $schema->getAstNode();
+        $schemaAst = $schema->astNode;
         self::assertInstanceOf(SchemaDefinitionNode::class, $schemaAst);
 
         $queryAst = $query->astNode;

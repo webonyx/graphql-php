@@ -30,7 +30,7 @@ class LoneSchemaDefinition extends ValidationRule
         $alreadyDefined = $oldSchema === null
             ? false
             : (
-                $oldSchema->getAstNode() !== null
+                $oldSchema->astNode !== null
                 || $oldSchema->getQueryType() !== null
                 || $oldSchema->getMutationType() !== null
                 || $oldSchema->getSubscriptionType() !== null
