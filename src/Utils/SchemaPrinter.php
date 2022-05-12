@@ -344,7 +344,12 @@ class SchemaPrinter
     {
         $fields = [];
         $firstInBlock = true;
+        $previousHasDescription = false;
         foreach ($type->getFields() as $f) {
+            if ($previousHasDescription && $f->description === null) {
+                $fields[] = '';
+            }
+
             $fields[] = static::printDescription($options, $f, '  ', $firstInBlock)
                 . '  '
                 . $f->name
@@ -353,6 +358,7 @@ class SchemaPrinter
                 . $f->getType()->toString()
                 . static::printDeprecated($f);
             $firstInBlock = false;
+            $previousHasDescription = $f->description !== null;
         }
 
         return self::printBlock($fields);
