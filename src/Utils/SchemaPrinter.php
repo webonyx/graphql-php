@@ -273,7 +273,8 @@ class SchemaPrinter
         $firstInBlock = true;
         $previousHasDescription = false;
         foreach ($args as $arg) {
-            if ($previousHasDescription && $arg->description === null) {
+            $hasDescription = $arg->description !== null;
+            if ($previousHasDescription && ! $hasDescription) {
                 $argsStrings[] = '';
             }
 
@@ -282,7 +283,7 @@ class SchemaPrinter
                 . $indentation
                 . static::printInputValue($arg);
             $firstInBlock = false;
-            $previousHasDescription = $arg->description !== null;
+            $previousHasDescription = $hasDescription;
         }
 
         return "(\n"
@@ -344,7 +345,13 @@ class SchemaPrinter
     {
         $fields = [];
         $firstInBlock = true;
+        $previousHasDescription = false;
         foreach ($type->getFields() as $f) {
+            $hasDescription = $f->description !== null;
+            if ($previousHasDescription && ! $hasDescription) {
+                $fields[] = '';
+            }
+
             $fields[] = static::printDescription($options, $f, '  ', $firstInBlock)
                 . '  '
                 . $f->name
@@ -353,6 +360,7 @@ class SchemaPrinter
                 . $f->getType()->toString()
                 . static::printDeprecated($f);
             $firstInBlock = false;
+            $previousHasDescription = $hasDescription;
         }
 
         return self::printBlock($fields);

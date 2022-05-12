@@ -226,6 +226,52 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
+    public function testPrintObjectFieldDescriptions(): void
+    {
+        $fooType = new ObjectType([
+            'name' => 'Foo',
+            'fields' => [
+                'one' => [
+                    'type' => Type::string(),
+                ],
+                'two' => [
+                    'type' => Type::string(),
+                    'description' => 'This is two',
+                ],
+                'three' => [
+                    'type' => Type::string(),
+                    'description' => 'This is three',
+                ],
+                'four' => [
+                    'type' => Type::string(),
+                ],
+                'five' => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+        $schema = new Schema(['types' => [$fooType]]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            type Foo {
+              one: String
+
+              """This is two"""
+              two: String
+
+              """This is three"""
+              three: String
+
+              four: String
+              five: String
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
     /**
      * @see it('Prints String Field With Int Arg')
      */
