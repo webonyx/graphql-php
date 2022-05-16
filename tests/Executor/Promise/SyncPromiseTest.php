@@ -169,6 +169,10 @@ class SyncPromiseTest extends TestCaseBase
 
         SyncPromise::runQueue();
 
+        /**
+         * @var bool $onFulfilledCalled
+         * @var bool $onRejectedCalled
+         */
         if ($expectedNextReason === null) {
             self::assertTrue($onFulfilledCalled);
             self::assertFalse($onRejectedCalled);
