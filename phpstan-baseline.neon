@@ -141,6 +141,16 @@ parameters:
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
 		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with array\\{extensions\\: array\\{bar\\: 'foo'\\}\\} and array\\{data\\?\\: array\\<string, mixed\\>, errors\\?\\: array\\<int, array\\{message\\: string, locations\\?\\: array\\<int, array\\{line\\: int, column\\: int\\}\\>, path\\?\\: array\\<int, int\\|string\\>, extensions\\?\\: array\\<string, mixed\\>\\}\\>, extensions\\?\\: array\\<string, mixed\\>\\} will always evaluate to false\\.$#"
+			count: 1
+			path: tests/Executor/ExecutionResultTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with array\\{extensions\\: array\\{foo\\: 'bar'\\}\\} and array\\{data\\?\\: array\\<string, mixed\\>, errors\\?\\: array\\<int, array\\{message\\: string, locations\\?\\: array\\<int, array\\{line\\: int, column\\: int\\}\\>, path\\?\\: array\\<int, int\\|string\\>, extensions\\?\\: array\\<string, mixed\\>\\}\\>, extensions\\?\\: array\\<string, mixed\\>\\} will always evaluate to false\\.$#"
+			count: 1
+			path: tests/Executor/ExecutionResultTest.php
+
+		-
 			message: "#^Instanceof between mixed and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
 			count: 1
 			path: tests/Language/VisitorTest.php
