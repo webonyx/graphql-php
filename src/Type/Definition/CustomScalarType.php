@@ -77,7 +77,6 @@ class CustomScalarType extends ScalarType
     {
         parent::assertValid();
 
-        // @phpstan-ignore-next-line should not happen if used correctly
         if (isset($this->config['serialize']) && ! is_callable($this->config['serialize'])) {
             throw new InvariantViolation(
                 "{$this->name} must provide \"serialize\" function. If this custom Scalar "
