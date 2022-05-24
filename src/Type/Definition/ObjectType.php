@@ -50,7 +50,7 @@ use function is_callable;
  *     ]);
  *
  * @phpstan-import-type FieldResolver from Executor
- * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
+ * @phpstan-type InterfaceTypeReference TypeReference|InterfaceType|callable(): TypeReference|InterfaceType
  * @phpstan-type ObjectConfig array{
  *   name?: string|null,
  *   description?: string|null,

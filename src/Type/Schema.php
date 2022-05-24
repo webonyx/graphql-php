@@ -15,6 +15,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\TypeReference;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\InterfaceImplementations;
 use GraphQL\Utils\TypeInfo;
@@ -293,6 +294,15 @@ class Schema
         return $this->config;
     }
 
+    public function resolveTypeReference(Type $type): ?Type
+    {
+        if ($type instanceof TypeReference) {
+            return $this->getType($type->name);
+        }
+
+        return $type;
+    }
+
     /**
      * Returns a type by name.
      *
@@ -311,6 +321,13 @@ class Schema
 
             return $this->resolvedTypes[$name] = self::resolveType($type);
         }
+
+        if ($this->resolvedTypes[$name] instanceof TypeReference) {
+            unset($this->resolvedTypes[$name]);
+
+            return $this->getType($name);
+        }
+
 
         return $this->resolvedTypes[$name];
     }
