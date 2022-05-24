@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Type;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NonNull;
@@ -25,7 +24,7 @@ final class TypeReferenceTypeLoaderTest extends TypeLoaderTest
                 'fields' => [
                     'id' => Type::string(),
                 ],
-                'resolveType' => static fn() : ?ObjectType => null,
+                'resolveType' => static fn (): ?ObjectType => null,
             ]),
             'Content' => new InterfaceType([
                 'name' => 'Content',
@@ -33,7 +32,7 @@ final class TypeReferenceTypeLoaderTest extends TypeLoaderTest
                     'title' => Type::string(),
                     'body' => Type::string(),
                 ],
-                'resolveType' => static fn() : ?ObjectType => null,
+                'resolveType' => static fn (): ?ObjectType => null,
             ]),
             'BlogStory' => new ObjectType([
                 'name' => 'BlogStory',

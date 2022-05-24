@@ -328,7 +328,6 @@ class Schema
             return $this->getType($name);
         }
 
-
         return $this->resolvedTypes[$name];
     }
 

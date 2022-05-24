@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\Error;
-
 class TypeReference extends Type implements NullableType, NamedType
 {
     public string $name;
@@ -15,17 +13,15 @@ class TypeReference extends Type implements NullableType, NamedType
         $this->name = $name;
     }
 
-    public function assertValid() : void
+    public function assertValid(): void
     {
-
     }
 
-    public function isBuiltInType() : bool
+    public function isBuiltInType(): bool
     {
-
     }
 
-    public function toString() : string
+    public function toString(): string
     {
         return $this->name;
     }
