@@ -28,7 +28,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use function implode;
-use function ksort;
 use function mb_strlen;
 use function str_replace;
 
@@ -115,10 +114,7 @@ class SchemaPrinter
     protected static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
     {
         $directives = array_filter($schema->getDirectives(), $directiveFilter);
-
-        $types = $schema->getTypeMap();
-        ksort($types);
-        $types = array_filter($types, $typeFilter);
+        $types = array_filter($schema->getTypeMap(), $typeFilter);
 
         $elements = [static::printSchemaDefinition($schema)];
 

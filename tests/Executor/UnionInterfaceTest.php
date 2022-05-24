@@ -208,9 +208,9 @@ class UnionInterfaceTest extends TestCase
                     ],
                     'interfaces' => [],
                     'possibleTypes' => [
-                        ['name' => 'Person'],
                         ['name' => 'Dog'],
                         ['name' => 'Cat'],
+                        ['name' => 'Person'],
                     ],
                     'enumValues' => null,
                     'inputFields' => null,
@@ -227,9 +227,9 @@ class UnionInterfaceTest extends TestCase
                         ['name' => 'Life'],
                     ],
                     'possibleTypes' => [
-                        ['name' => 'Person'],
                         ['name' => 'Dog'],
                         ['name' => 'Cat'],
+                        ['name' => 'Person'],
                     ],
                     'enumValues' => null,
                     'inputFields' => null,

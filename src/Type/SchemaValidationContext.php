@@ -78,10 +78,7 @@ class SchemaValidationContext
     public function validateRootTypes(): void
     {
         if ($this->schema->getQueryType() === null) {
-            $this->reportError(
-                'Query root type must be provided.',
-                $this->schema->getAstNode()
-            );
+            $this->reportError('Query root type must be provided.', $this->schema->astNode);
         }
 
         // Triggers a type error if wrong
@@ -475,7 +472,7 @@ class SchemaValidationContext
     private function getAllNodes(object $obj): array
     {
         if ($obj instanceof Schema) {
-            $astNode = $obj->getAstNode();
+            $astNode = $obj->astNode;
             $extensionNodes = $obj->extensionASTNodes;
         } elseif ($obj instanceof Directive) {
             $astNode = $obj->astNode;
