@@ -303,8 +303,7 @@ class Schema
     public function getType(string $name): ?Type
     {
         if (! isset($this->resolvedTypes[$name])) {
-            $type = Type::getStandardTypes()[$name]
-                ?? $this->loadType($name);
+            $type = $this->loadType($name);
 
             if ($type === null) {
                 return null;
@@ -326,6 +325,10 @@ class Schema
      */
     private function loadType(string $typeName): ?Type
     {
+        if (isset(Type::getStandardTypes()[$typeName])) {
+            return Type::getStandardTypes()[$typeName];
+        }
+
         $typeLoader = $this->config->typeLoader;
         if ($typeLoader === null) {
             return $this->defaultTypeLoader($typeName);
