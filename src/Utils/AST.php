@@ -539,7 +539,7 @@ class AST
     /**
      * Returns type definition for given AST Type node.
      *
-     * @param callable(string): ?Type                    $typeLoader
+     * @param callable(string): ?Type $typeLoader
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      *
      * @throws Exception
