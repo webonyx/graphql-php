@@ -6,6 +6,7 @@ use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -17,15 +18,20 @@ use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * @phpstan-import-type Options from SchemaPrinter
+ *
  * @see describe('Type System Printer', () => {
  */
 final class SchemaPrinterTest extends TestCase
 {
-    private static function assertPrintedSchemaEquals(string $expected, Schema $schema): void
+    /**
+     * @param Options $options
+     */
+    private static function assertPrintedSchemaEquals(string $expected, Schema $schema, array $options = []): void
     {
-        $printedSchema = SchemaPrinter::doPrint($schema);
+        $printedSchema = SchemaPrinter::doPrint($schema, $options);
         $builtSchema = BuildSchema::build($printedSchema);
-        $cycledSchema = SchemaPrinter::doPrint($builtSchema);
+        $cycledSchema = SchemaPrinter::doPrint($builtSchema, $options);
 
         self::assertEquals($printedSchema, $cycledSchema);
         self::assertEquals($expected, $printedSchema);
@@ -1169,5 +1175,35 @@ final class SchemaPrinterTest extends TestCase
 
       GRAPHQL;
         self::assertEquals($expected, $output);
+    }
+
+    public function testPrintSchemaWithSortedTypes(): void
+    {
+        $schema = new Schema([
+            'types' => [
+                new EnumType(['name' => 'SomeEnum', 'values' => []]),
+                new InputObjectType(['name' => 'InputObject', 'fields' => []]),
+                new InterfaceType(['name' => 'FooInterface', 'fields' => []]),
+                new ObjectType(['name' => 'Abc', 'fields' => []]),
+                new UnionType(['name' => 'Union', 'types' => []]),
+            ],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            type Abc
+
+            interface FooInterface
+
+            input InputObject
+            
+            enum SomeEnum
+
+            union Union
+
+            GRAPHQL,
+            $schema,
+            ['sortTypes' => true]
+        );
     }
 }
