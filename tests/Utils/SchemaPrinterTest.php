@@ -1176,6 +1176,9 @@ final class SchemaPrinterTest extends TestCase
         self::assertEquals($expected, $output);
     }
 
+    /**
+     * Additional functionality not present in the reference implementation.
+     */
     public function testPrintSchemaWithSortedTypes(): void
     {
         $schema = new Schema([
