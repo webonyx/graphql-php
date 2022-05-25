@@ -35,13 +35,14 @@ Every field may be of other InputObjectType (thus complex hierarchies of inputs 
 
 ## Configuration options
 
-The constructor of InputObjectType accepts an array with only 3 options:
+The constructor of `InputObjectType` accepts an `array` with the following options:
 
-| Option      | Type                  | Notes                                                                                                                                           |
-| ----------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| name        | `string`              | **Required.** Unique name of this object type within Schema                                                                                     |
-| fields      | `array` or `callable` | **Required**. An array describing object fields or callable returning such an array (see below).                                                |
-| description | `string`              | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation) |
+| Option      | Type                                    | Notes                                                                                                                                           |
+| ----------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| name        | `string`                                | **Required.** Unique name of this object type within Schema                                                                                     |
+| fields      | `array` or `callable`                   | **Required**. An array describing object fields or callable returning such an array (see below).                                                |
+| description | `string`                                | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation) |
+| parseValue  | `callable(array<string, mixed>): mixed` | Converts incoming values from their array representation to something else (e.g. a value object)                                                |
 
 Every field is an array with following entries:
 
@@ -108,3 +109,51 @@ $variables = [
 
 **graphql-php** will validate the input against your InputObjectType definition and pass it to your
 resolver as `$args['filters']`
+
+## Converting input object array to value object
+
+If you want more type safety you can choose to parse the input array into a value object.
+
+```php
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\InputObjectType;
+
+final class StoryFiltersInput
+{
+    public string $author;
+    public ?bool $popular;
+    public array $tags;
+
+    public function __construct(string $author, ?bool $popular, array $tags)
+    {
+        $this->author = $author;
+        $this->popular = $popular;
+        $this->tag = $tag;
+    }
+}
+
+$filters = new InputObjectType([
+    'name' => 'StoryFiltersInput',
+    'fields' => [
+        'author' => [
+            'type' => Type::nonNull(Type::string()),
+        ],
+        'popular' => [
+            'type' => Type::boolean(),
+        ],
+        'tags' => [
+            'type' => Type::nonNull(Type::listOf(Type::string())),
+        ]
+    ],
+    'parseValue' => fn(array $values) => new StoryFiltersInput(
+        $values['author'],
+        $values['popular'] ?? null,
+        $values['tags']
+    ),
+]);
+```
+
+The value of `$args['filters']` will now be an instance of `StoryFiltersInput`.
+
+The incoming values are converted using a depth-first traversal. Thus, nested input values
+will be passed through their respective `parseValue` functions before the parent receives their value.
