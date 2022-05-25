@@ -501,7 +501,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return true;
         }
 
-        $conditionalType = TypeInfo::typeFromAST($this->exeContext->schema, $typeConditionNode);
+        $conditionalType = TypeInfo::typeFromAST([$this->exeContext->schema, 'getType'], $typeConditionNode);
         if ($conditionalType === $type) {
             return true;
         }

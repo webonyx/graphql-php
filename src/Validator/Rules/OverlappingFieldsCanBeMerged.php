@@ -272,7 +272,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     $typeCondition = $selection->typeCondition;
                     $inlineFragmentType = $typeCondition === null
                         ? $parentType
-                        : TypeInfo::typeFromAST($context->getSchema(), $typeCondition);
+                        : TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $typeCondition);
 
                     $this->internalCollectFieldsAndFragmentNames(
                         $context,
@@ -712,7 +712,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             return $this->cachedFieldsAndFragmentNames[$fragment->selectionSet];
         }
 
-        $fragmentType = TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition);
+        $fragmentType = TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $fragment->typeCondition);
 
         return $this->getFieldsAndFragmentNames(
             $context,

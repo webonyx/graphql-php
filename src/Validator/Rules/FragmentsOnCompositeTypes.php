@@ -21,7 +21,7 @@ class FragmentsOnCompositeTypes extends ValidationRule
                     return;
                 }
 
-                $type = TypeInfo::typeFromAST($context->getSchema(), $node->typeCondition);
+                $type = TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $node->typeCondition);
                 if ($type === null || Type::isCompositeType($type)) {
                     return;
                 }
@@ -32,7 +32,7 @@ class FragmentsOnCompositeTypes extends ValidationRule
                 ));
             },
             NodeKind::FRAGMENT_DEFINITION => static function (FragmentDefinitionNode $node) use ($context): void {
-                $type = TypeInfo::typeFromAST($context->getSchema(), $node->typeCondition);
+                $type = TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $node->typeCondition);
 
                 if ($type === null || Type::isCompositeType($type)) {
                     return;

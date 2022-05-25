@@ -52,7 +52,7 @@ class Values
         $coercedValues = [];
         foreach ($varDefNodes as $varDefNode) {
             $varName = $varDefNode->variable->name->value;
-            $varType = TypeInfo::typeFromAST($schema, $varDefNode->type);
+            $varType = TypeInfo::typeFromAST([$schema, 'getType'], $varDefNode->type);
 
             if (! Type::isInputType($varType)) {
                 // Must use input types for variables. This should be caught during

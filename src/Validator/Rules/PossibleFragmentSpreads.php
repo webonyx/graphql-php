@@ -146,7 +146,7 @@ class PossibleFragmentSpreads extends ValidationRule
             return null;
         }
 
-        $type = TypeInfo::typeFromAST($context->getSchema(), $frag->typeCondition);
+        $type = TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $frag->typeCondition);
 
         return $type instanceof CompositeType
             ? $type

@@ -52,7 +52,7 @@ class VariablesInAllowedPosition extends ValidationRule
                         // If both are list types, the variable item type can be more strict
                         // than the expected item type (contravariant).
                         $schema = $context->getSchema();
-                        $varType = TypeInfo::typeFromAST($schema, $varDef->type);
+                        $varType = TypeInfo::typeFromAST([$schema, 'getType'], $varDef->type);
 
                         if ($varType !== null && ! $this->allowedVariableUsage($schema, $varType, $varDef->defaultValue, $type, $defaultValue)) {
                             $context->reportError(new Error(

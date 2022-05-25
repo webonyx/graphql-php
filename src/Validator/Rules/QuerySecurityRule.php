@@ -137,7 +137,7 @@ abstract class QuerySecurityRule extends ValidationRule
                     $typeCondition = $selection->typeCondition;
                     $fragmentParentType = $typeCondition === null
                         ? $parentType
-                        : TypeInfo::typeFromAST($context->getSchema(), $typeCondition);
+                        : TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $typeCondition);
                     $astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $fragmentParentType,
@@ -157,7 +157,7 @@ abstract class QuerySecurityRule extends ValidationRule
                         if ($fragment !== null) {
                             $astAndDefs = $this->collectFieldASTsAndDefs(
                                 $context,
-                                TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition),
+                                TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $fragment->typeCondition),
                                 $fragment->selectionSet,
                                 $visitedFragmentNames,
                                 $astAndDefs
