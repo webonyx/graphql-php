@@ -14,7 +14,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
-use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\QueryValidationContext;
 
 class PossibleFragmentSpreads extends ValidationRule

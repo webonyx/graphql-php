@@ -2,7 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use GraphQL\Utils\AST;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -24,8 +23,8 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\AST;
 use GraphQL\Utils\PairSet;
-use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\QueryValidationContext;
 use function implode;
 use function is_array;

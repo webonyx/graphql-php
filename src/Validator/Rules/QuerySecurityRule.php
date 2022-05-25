@@ -14,7 +14,6 @@ use GraphQL\Type\Definition\HasFieldsType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\AST;
-use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\QueryValidationContext;
 use InvalidArgumentException;
 

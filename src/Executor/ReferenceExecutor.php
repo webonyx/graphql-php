@@ -2,7 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use GraphQL\Utils\AST;
 use function array_keys;
 use function array_merge;
 use function array_reduce;
@@ -40,7 +39,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use function is_array;
 use function is_callable;

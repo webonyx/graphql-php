@@ -9,7 +9,6 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
-use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\QueryValidationContext;
 
 class FragmentsOnCompositeTypes extends ValidationRule
