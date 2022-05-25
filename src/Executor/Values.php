@@ -24,7 +24,6 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
-use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
 use function sprintf;
@@ -52,7 +51,7 @@ class Values
         $coercedValues = [];
         foreach ($varDefNodes as $varDefNode) {
             $varName = $varDefNode->variable->name->value;
-            $varType = TypeInfo::typeFromAST($schema, $varDefNode->type);
+            $varType = AST::typeFromAST([$schema, 'getType'], $varDefNode->type);
 
             if (! Type::isInputType($varType)) {
                 // Must use input types for variables. This should be caught during

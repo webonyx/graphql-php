@@ -43,6 +43,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Reorganize AST interfaces related to schema and type extensions
 - Align `Utils::suggestionList()` with the reference implementation (#1075)
 - Order schema topologically and according to the user-defined order, affects introspection and printing
+- `GraphQL\Utils\AST::typeFromAST()` now needs a type loader callable instead of the Schema
+- Removed `GraphQL\Utils\TypeInfo::typeFromAST()` (use `GraphQL\Utils\AST::typeFromAST()` instead)
 
 ### Added
 
