@@ -224,12 +224,12 @@ class TypeInfo
                 $typeConditionNode = $node->typeCondition;
                 $outputType = $typeConditionNode === null
                     ? Type::getNamedType($this->getType())
-                    : self::typeFromAST([$schema, 'getType'], $typeConditionNode);
+                    : AST::typeFromAST([$schema, 'getType'], $typeConditionNode);
                 $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null;
                 break;
 
             case $node instanceof VariableDefinitionNode:
-                $inputType = self::typeFromAST([$schema, 'getType'], $node->type);
+                $inputType = AST::typeFromAST([$schema, 'getType'], $node->type);
                 $this->inputTypeStack[] = Type::isInputType($inputType) ? $inputType : null; // push
                 break;
 
@@ -340,17 +340,6 @@ class TypeInfo
         }
 
         return null;
-    }
-
-    /**
-     * @param callable(string): ?Type                    $typeLoader
-     * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
-     *
-     * @throws InvariantViolation
-     */
-    public static function typeFromAST(callable $typeLoader, Node $inputTypeNode): ?Type
-    {
-        return AST::typeFromAST($typeLoader, $inputTypeNode);
     }
 
     public function getDirective(): ?Directive

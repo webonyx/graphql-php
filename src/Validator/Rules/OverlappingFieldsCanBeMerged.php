@@ -2,6 +2,7 @@
 
 namespace GraphQL\Validator\Rules;
 
+use GraphQL\Utils\AST;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -272,7 +273,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     $typeCondition = $selection->typeCondition;
                     $inlineFragmentType = $typeCondition === null
                         ? $parentType
-                        : TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $typeCondition);
+                        : AST::typeFromAST([$context->getSchema(), 'getType'], $typeCondition);
 
                     $this->internalCollectFieldsAndFragmentNames(
                         $context,
@@ -712,7 +713,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             return $this->cachedFieldsAndFragmentNames[$fragment->selectionSet];
         }
 
-        $fragmentType = TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $fragment->typeCondition);
+        $fragmentType = AST::typeFromAST([$context->getSchema(), 'getType'], $fragment->typeCondition);
 
         return $this->getFieldsAndFragmentNames(
             $context,

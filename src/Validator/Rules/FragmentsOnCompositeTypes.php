@@ -8,6 +8,7 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\AST;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\QueryValidationContext;
 
@@ -21,7 +22,7 @@ class FragmentsOnCompositeTypes extends ValidationRule
                     return;
                 }
 
-                $type = TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $node->typeCondition);
+                $type = AST::typeFromAST([$context->getSchema(), 'getType'], $node->typeCondition);
                 if ($type === null || Type::isCompositeType($type)) {
                     return;
                 }
@@ -32,7 +33,7 @@ class FragmentsOnCompositeTypes extends ValidationRule
                 ));
             },
             NodeKind::FRAGMENT_DEFINITION => static function (FragmentDefinitionNode $node) use ($context): void {
-                $type = TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $node->typeCondition);
+                $type = AST::typeFromAST([$context->getSchema(), 'getType'], $node->typeCondition);
 
                 if ($type === null || Type::isCompositeType($type)) {
                     return;

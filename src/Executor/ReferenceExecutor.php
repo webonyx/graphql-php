@@ -2,6 +2,7 @@
 
 namespace GraphQL\Executor;
 
+use GraphQL\Utils\AST;
 use function array_keys;
 use function array_merge;
 use function array_reduce;
@@ -501,7 +502,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return true;
         }
 
-        $conditionalType = TypeInfo::typeFromAST([$this->exeContext->schema, 'getType'], $typeConditionNode);
+        $conditionalType = AST::typeFromAST([$this->exeContext->schema, 'getType'], $typeConditionNode);
         if ($conditionalType === $type) {
             return true;
         }

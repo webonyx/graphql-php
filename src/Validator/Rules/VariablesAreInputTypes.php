@@ -7,6 +7,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\AST;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\QueryValidationContext;
 
@@ -16,7 +17,7 @@ class VariablesAreInputTypes extends ValidationRule
     {
         return [
             NodeKind::VARIABLE_DEFINITION => static function (VariableDefinitionNode $node) use ($context): void {
-                $type = TypeInfo::typeFromAST([$context->getSchema(), 'getType'], $node->type);
+                $type = AST::typeFromAST([$context->getSchema(), 'getType'], $node->type);
 
                 // If the variable type is not an input type, return an error.
                 if ($type === null || Type::isInputType($type)) {
