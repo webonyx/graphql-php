@@ -73,7 +73,7 @@ function renderClass(ReflectionClass $class, array $options): string
 
     if ($options['constants'] ?? false) {
         $constants = [];
-        foreach ($class->getConstants(/* TODO enable with PHP 8 ReflectionClassConstant::IS_PUBLIC */) as $name => $value) {
+        foreach ($class->getConstants(/* TODO enable with PHP 8: ReflectionClassConstant::IS_PUBLIC */) as $name => $value) {
             $constants[] = "const $name = " . VarExporter::export($value) . ';';
         }
 

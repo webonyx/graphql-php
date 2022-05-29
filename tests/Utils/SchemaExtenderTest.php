@@ -1770,8 +1770,6 @@ GRAPHQL,
         ';
 
         $extendedDocumentNode = Parser::parse($extensionSdl);
-        // TODO the added type Bar references Foo, thus causing it to be loaded into $resolvedTypes
-        // and throwing off the expected order
         $extendedSchema = SchemaExtender::extend($schema, $extendedDocumentNode);
 
         static::assertSame(

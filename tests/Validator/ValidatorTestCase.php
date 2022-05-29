@@ -207,9 +207,6 @@ abstract class ValidatorTestCase extends TestCase
 
         $ComplicatedArgs = new ObjectType([
             'name' => 'ComplicatedArgs',
-            // TODO List
-            // TODO Coercion
-            // TODO NotNulls
             'fields' => [
                 'intArgField' => [
                     'type' => Type::string(),
