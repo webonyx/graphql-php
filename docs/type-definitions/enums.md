@@ -96,6 +96,10 @@ enum Fruit {
 }
 ```
 
+Conversion rules:
+- Client-given arguments will be converted to enum instances
+- Returned output values are expected to be enum instances
+
 ## Shorthand definitions
 
 If internal representation of enumerated item is the same as item name, then you can use
