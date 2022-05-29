@@ -83,12 +83,16 @@ $fruitEnumType = new PhpEnumType(Fruit::class);
 The following type will be deduced from `Fruit`:
 
 ```graphql
-"""Sweet and juicy."""
+"""
+Sweet and juicy.
+"""
 enum Fruit {
-    """Rich in potassium."""
-    BANANA
+  """
+  Rich in potassium.
+  """
+  BANANA
 
-    CITRON @deprecated(reason: "Too sour.")
+  CITRON @deprecated(reason: "Too sour.")
 }
 ```
 
