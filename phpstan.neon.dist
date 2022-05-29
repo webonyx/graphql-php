@@ -9,6 +9,18 @@ parameters:
         - src
         - tests
 
+    excludePaths:
+        # PHP 8 attributes
+        - src/Utils/Deprecated.php
+        - src/Utils/Description.php
+        # PHP 8.1 enums
+        - src/Type/Definition/PhpEnumType.php
+        - tests/Type/PhpEnumTypeTest.php
+        - tests/Type/TestClasses/MultipleDeprecationsPhpEnum.php
+        - tests/Type/TestClasses/MultipleDescriptionsCasePhpEnum.php
+        - tests/Type/TestClasses/MultipleDescriptionsPhpEnum.php
+        - tests/Type/TestClasses/PhpEnum.php
+
     ignoreErrors:
         # Since this is a library that is supposed to be flexible, we don't
         # want to lock down every possible extension point.
