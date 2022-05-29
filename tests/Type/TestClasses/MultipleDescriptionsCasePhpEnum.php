@@ -2,16 +2,12 @@
 
 namespace GraphQL\Tests\Type\TestClasses;
 
-use GraphQL\Utils\Deprecated;
 use GraphQL\Utils\Description;
 
-#[Description(description: 'foo')]
-enum PhpEnum
+enum MultipleDescriptionsCasePhpEnum
 {
+    #[Description(description: 'foo')]
+    // @phpstan-ignore-next-line intentionally wrong
     #[Description(description: 'bar')]
     case A;
-    #[Deprecated]
-    case B;
-    #[Deprecated(reason: 'baz')]
-    case C;
 }
