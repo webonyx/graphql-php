@@ -98,6 +98,7 @@ enum Fruit {
 ```
 
 Conversion rules:
+
 - Client-given arguments will be converted to enum instances
 - Returned output values are expected to be enum instances
 
