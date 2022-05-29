@@ -45,14 +45,6 @@ GRAPHQL,
         );
     }
 
-    public function testAllowsCustomizingName(): void
-    {
-        $name = 'SomeOtherName';
-        $enumType = new PhpEnumType(PhpEnum::class, $name);
-
-        self::assertSame($name, $enumType->name);
-    }
-
     public function testMultipleDescriptionsDisallowed(): void
     {
         self::expectExceptionObject(new Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));

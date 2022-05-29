@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Type\TestClasses;
 
-use GraphQL\Utils\Deprecated;
+use GraphQL\Type\Definition\Deprecated;
 
 enum MultipleDeprecationsPhpEnum
 {

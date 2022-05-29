@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Type\TestClasses;
 
-use GraphQL\Utils\Description;
+use GraphQL\Type\Definition\Description;
 
 #[Description(description: 'foo')]
 // @phpstan-ignore-next-line intentionally wrong

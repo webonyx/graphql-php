@@ -11,8 +11,8 @@ parameters:
 
     excludePaths:
         # PHP 8 attributes
-        - src/Utils/Deprecated.php
-        - src/Utils/Description.php
+        - src/Type/Definition/Deprecated.php
+        - src/Type/Definition/Description.php
         # PHP 8.1 enums
         - src/Type/Definition/PhpEnumType.php
         - tests/Type/PhpEnumTypeTest.php

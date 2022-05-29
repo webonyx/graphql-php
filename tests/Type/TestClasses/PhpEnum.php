@@ -2,8 +2,8 @@
 
 namespace GraphQL\Tests\Type\TestClasses;
 
-use GraphQL\Utils\Deprecated;
-use GraphQL\Utils\Description;
+use GraphQL\Type\Definition\Deprecated;
+use GraphQL\Type\Definition\Description;
 
 #[Description(description: 'foo')]
 enum PhpEnum

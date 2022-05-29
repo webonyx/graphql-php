@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Utils;
+namespace GraphQL\Type\Definition;
 
 use Attribute;
-use GraphQL\Type\Definition\Directive;
 
 #[Attribute(Attribute::TARGET_ALL)]
 class Deprecated

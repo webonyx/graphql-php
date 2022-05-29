@@ -53,6 +53,45 @@ Each entry of **values** array in turn accepts following options:
 | description       | `string` | Plain-text description of enum value for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation) |
 | deprecationReason | `string` | Text describing why this enum value is deprecated. When not empty - item will not be returned by introspection queries (unless forced)           |
 
+## Construction from PHP enum
+
+You can reuse your existing PHP enums in GraphQL.
+Leverage PHP attributes to add descriptions and deprecate values:
+
+```php
+use GraphQL\Type\Definition\Deprecated;
+use GraphQL\Type\Definition\Description;
+
+#[Description(description: 'Sweet and juicy.')]
+enum Fruit
+{
+    #[Description(description: 'Rich in potassium.')]
+    case BANANA;
+    #[Deprecated(reason: 'Too sour.')]
+    case CITRON;
+}
+```
+
+Wrap them with `GraphQL\Type\Definition\PhpEnumType` to use them in a GraphQL schema:
+
+```php
+use GraphQL\Type\Definition\PhpEnumType;
+
+$fruitEnumType = new PhpEnumType(Fruit::class);
+```
+
+The following type will be deduced from `Fruit`:
+
+```graphql
+"""Sweet and juicy."""
+enum Fruit {
+    """Rich in potassium."""
+    BANANA
+
+    CITRON @deprecated(reason: "Too sour.")
+}
+```
+
 ## Shorthand definitions
 
 If internal representation of enumerated item is the same as item name, then you can use

@@ -64,6 +64,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Add SDL validation rule `UniqueArgumentDefinitionNames` (#1136)
 - Add `parseValue` config option to InputObjectType to parse input value to custom value object
 - Add option `sortTypes` to have `SchemaPrinter` order types alphabetically
+- Allow constructing `EnumType` from PHP enum
 
 ### Optimized
 

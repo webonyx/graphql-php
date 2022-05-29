@@ -4,8 +4,6 @@ namespace GraphQL\Type\Definition;
 
 use Exception;
 use GraphQL\Error\SerializationError;
-use GraphQL\Utils\Deprecated;
-use GraphQL\Utils\Description;
 use GraphQL\Utils\Utils;
 use ReflectionAttribute;
 use ReflectionEnum;
@@ -27,7 +25,7 @@ class PhpEnumType extends EnumType
     /**
      * @param class-string<UnitEnum> $enum
      */
-    public function __construct(string $enum, ?string $name = null)
+    public function __construct(string $enum)
     {
         $this->enumClass = $enum;
         $reflection = new ReflectionEnum($enum);
@@ -45,7 +43,7 @@ class PhpEnumType extends EnumType
         }
 
         parent::__construct([
-            'name' => $name ?? $this->baseName($enum),
+            'name' => $this->baseName($enum),
             'values' => $enumDefinitions,
             'description' => $this->description($reflection->getAttributes(Description::class)),
         ]);
