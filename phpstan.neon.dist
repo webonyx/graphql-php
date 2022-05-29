@@ -1,6 +1,6 @@
 parameters:
     # TODO increase to max
-    level: 7
+    level: 8
 
     paths:
         - benchmarks
@@ -17,9 +17,6 @@ parameters:
         # This class uses magic methods to reduce a whole lot of boilerplate required to
         # allow partial parsing of language fragments.
         - "~Variable method call on GraphQL\\\\Language\\\\Parser\\.~"
-
-        # We utilize lazy initialization of non-nullable properties
-        - "~Property .+? on left side of \\?\\?= is not nullable~"
 
         # Useful/necessary in the default field resolver, deals with arbitrary user data
         -

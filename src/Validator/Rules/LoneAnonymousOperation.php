@@ -6,17 +6,17 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * Lone anonymous operation.
  *
  * A GraphQL document is only valid if when it contains an anonymous operation
- * (the query short-hand) that it contains only that one operation definition.
+ * (the query shorthand) that it contains only that one operation definition.
  */
 class LoneAnonymousOperation extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $operationCount = 0;
 
@@ -29,11 +29,8 @@ class LoneAnonymousOperation extends ValidationRule
                     }
                 }
             },
-            NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (
-                &$operationCount,
-                $context
-            ): void {
-                if (null !== $node->name || $operationCount <= 1) {
+            NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (&$operationCount, $context): void {
+                if ($node->name !== null || $operationCount <= 1) {
                     return;
                 }
 

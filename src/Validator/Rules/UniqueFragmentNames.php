@@ -8,21 +8,19 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class UniqueFragmentNames extends ValidationRule
 {
     /** @var array<string, NameNode> */
     protected array $knownFragmentNames;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $this->knownFragmentNames = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => static function (): VisitorOperation {
-                return Visitor::skipNode();
-            },
+            NodeKind::OPERATION_DEFINITION => static fn (): VisitorOperation => Visitor::skipNode(),
             NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) use ($context): VisitorOperation {
                 $fragmentName = $node->name->value;
                 if (! isset($this->knownFragmentNames[$fragmentName])) {

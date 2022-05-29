@@ -25,9 +25,7 @@ try {
                 'args' => [
                     'message' => ['type' => Type::string()],
                 ],
-                'resolve' => static function (array $rootValue, array $args): string {
-                    return $rootValue['prefix'] . $args['message'];
-                },
+                'resolve' => static fn (array $rootValue, array $args): string => $rootValue['prefix'] . $args['message'],
             ],
         ],
     ]);
@@ -41,15 +39,13 @@ try {
                     'x' => ['type' => Type::int()],
                     'y' => ['type' => Type::int()],
                 ],
-                'resolve' => static function (array $rootValue, array $args): int {
-                    return $args['x'] + $args['y'];
-                },
+                'resolve' => static fn (array $rootValue, array $args): int => $args['x'] + $args['y'],
             ],
         ],
     ]);
 
     // See docs on schema options:
-    // https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options
+    // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
     $schema = new Schema([
         'query' => $queryType,
         'mutation' => $mutationType,

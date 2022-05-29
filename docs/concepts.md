@@ -124,7 +124,6 @@ It provides the following tools and primitives to describe your App as a hierarc
 Same example expressed in **graphql-php**:
 
 ```php
-<?php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 

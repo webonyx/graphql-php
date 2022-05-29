@@ -8,14 +8,14 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class UniqueOperationNames extends ValidationRule
 {
     /** @var array<string, NameNode> */
     protected array $knownOperationNames;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $this->knownOperationNames = [];
 
@@ -23,7 +23,7 @@ class UniqueOperationNames extends ValidationRule
             NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) use ($context): VisitorOperation {
                 $operationName = $node->name;
 
-                if (null !== $operationName) {
+                if ($operationName !== null) {
                     if (! isset($this->knownOperationNames[$operationName->value])) {
                         $this->knownOperationNames[$operationName->value] = $operationName;
                     } else {

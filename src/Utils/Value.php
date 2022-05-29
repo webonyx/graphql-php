@@ -48,7 +48,7 @@ class Value
     public static function coerceValue($value, InputType $type, ?VariableDefinitionNode $blameNode = null, ?array $path = null): array
     {
         if ($type instanceof NonNull) {
-            if (null === $value) {
+            if ($value === null) {
                 return self::ofErrors([
                     self::coercionError(
                         "Expected non-nullable type {$type} not to be null",
@@ -62,7 +62,7 @@ class Value
             return self::coerceValue($value, $type->getWrappedType(), $blameNode, $path);
         }
 
-        if (null === $value) {
+        if ($value === null) {
             // Explicitly return the value null.
             return self::ofValue(null);
         }
@@ -98,7 +98,7 @@ class Value
                     )
                 );
 
-                $didYouMean = [] === $suggestions
+                $didYouMean = $suggestions === []
                     ? null
                     : 'did you mean ' . Utils::orList($suggestions) . '?';
 
@@ -136,7 +136,7 @@ class Value
                     }
                 }
 
-                return [] === $errors
+                return $errors === []
                     ? self::ofValue($coercedValue)
                     : self::ofErrors($errors);
             }
@@ -207,7 +207,7 @@ class Value
                 (string) $fieldName,
                 array_keys($fields)
             );
-            $didYouMean = [] === $suggestions
+            $didYouMean = $suggestions === []
                 ? null
                 : 'did you mean ' . Utils::orList($suggestions) . '?';
             $errors = self::add(
@@ -221,8 +221,8 @@ class Value
             );
         }
 
-        return [] === $errors
-            ? self::ofValue($coercedValue)
+        return $errors === []
+            ? self::ofValue($type->parseValue($coercedValue))
             : self::ofErrors($errors);
     }
 
@@ -249,10 +249,10 @@ class Value
         $pathStr = self::printPath($path);
 
         $fullMessage = $message
-            . ('' === $pathStr
+            . ($pathStr === ''
                 ? ''
                 : ' at ' . $pathStr)
-            . (null === $subMessage || '' === $subMessage
+            . ($subMessage === null || $subMessage === ''
                 ? '.'
                 : '; ' . $subMessage);
 
@@ -273,7 +273,7 @@ class Value
      */
     private static function printPath(?array $path = null): string
     {
-        if (null === $path) {
+        if ($path === null) {
             return '';
         }
 
@@ -285,7 +285,7 @@ class Value
                     : "[{$key}]")
                 . $pathStr;
             $path = $path['prev'];
-        } while (null !== $path);
+        } while ($path !== null);
 
         return "value{$pathStr}";
     }

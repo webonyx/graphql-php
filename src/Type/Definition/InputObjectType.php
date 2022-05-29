@@ -20,8 +20,9 @@ use function is_string;
  *   name?: string|null,
  *   description?: string|null,
  *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
+ *   parseValue?: callable(array<string, mixed>): mixed,
  *   astNode?: InputObjectTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, InputObjectTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<int, InputObjectTypeExtensionNode>|null
  * }
  */
 class InputObjectType extends Type implements InputType, NullableType, NamedType
@@ -48,10 +49,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     public function __construct(array $config)
     {
-        $config['name'] ??= $this->tryInferName();
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
-
-        $this->name = $config['name'];
+        $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
@@ -66,7 +64,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         $field = $this->findField($name);
 
-        Utils::invariant(null !== $field, 'Field "%s" is not defined for type "%s"', $name, $this->name);
+        if ($field === null) {
+            throw new InvariantViolation("Field \"{$name}\" is not defined for type \"{$this->name}\"");
+        }
 
         return $field;
     }
@@ -144,6 +144,24 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     }
 
     /**
+     * Parses an externally provided value (query variable) to use as an input.
+     *
+     * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
+     *
+     * @param array<string, mixed> $value
+     *
+     * @return mixed
+     */
+    public function parseValue(array $value)
+    {
+        if (isset($this->config['parseValue'])) {
+            return $this->config['parseValue']($value);
+        }
+
+        return $value;
+    }
+
+    /**
      * Validates type config and throws if one of type options is invalid.
      * Note: this method is shallow, it won't validate object fields and their arguments.
      *
@@ -158,7 +176,6 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             $fields = $fields();
         }
 
-        // @phpstan-ignore-next-line should not happen if used correctly
         if (! is_iterable($fields)) {
             $invalidFields = Utils::printSafe($fields);
 

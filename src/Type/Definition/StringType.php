@@ -26,7 +26,7 @@ represent free-form human-readable text.';
     {
         $canCast = is_scalar($value)
             || (is_object($value) && method_exists($value, '__toString'))
-            || null === $value;
+            || $value === null;
 
         if (! $canCast) {
             throw new SerializationError(

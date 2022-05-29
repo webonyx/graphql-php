@@ -21,7 +21,7 @@ try {
     DataSource::init();
 
     // See docs on schema options:
-    // https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options
+    // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
     $schema = new Schema([
         'query' => new QueryType(),
         'typeLoader' => static fn (string $name): Type => Types::byTypeName($name),
@@ -29,7 +29,9 @@ try {
 
     // Prepare context that will be available in all field resolvers (as 3rd argument):
     $appContext = new AppContext();
-    $appContext->viewer = DataSource::findUser(1); // simulated "currently logged-in user"
+    $currentlyLoggedInUser = DataSource::findUser(1);
+    assert($currentlyLoggedInUser !== null);
+    $appContext->viewer = $currentlyLoggedInUser;
     $appContext->rootUrl = 'http://localhost:8080';
     $appContext->request = $_REQUEST;
 

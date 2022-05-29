@@ -8,21 +8,21 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils\TypeInfo;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Utils\AST;
+use GraphQL\Validator\QueryValidationContext;
 
 class FragmentsOnCompositeTypes extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::INLINE_FRAGMENT => static function (InlineFragmentNode $node) use ($context): void {
-                if (null === $node->typeCondition) {
+                if ($node->typeCondition === null) {
                     return;
                 }
 
-                $type = TypeInfo::typeFromAST($context->getSchema(), $node->typeCondition);
-                if (null === $type || Type::isCompositeType($type)) {
+                $type = AST::typeFromAST([$context->getSchema(), 'getType'], $node->typeCondition);
+                if ($type === null || Type::isCompositeType($type)) {
                     return;
                 }
 
@@ -32,9 +32,9 @@ class FragmentsOnCompositeTypes extends ValidationRule
                 ));
             },
             NodeKind::FRAGMENT_DEFINITION => static function (FragmentDefinitionNode $node) use ($context): void {
-                $type = TypeInfo::typeFromAST($context->getSchema(), $node->typeCondition);
+                $type = AST::typeFromAST([$context->getSchema(), 'getType'], $node->typeCondition);
 
-                if (null === $type || Type::isCompositeType($type)) {
+                if ($type === null || Type::isCompositeType($type)) {
                     return;
                 }
 

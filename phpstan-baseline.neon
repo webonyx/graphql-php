@@ -51,16 +51,6 @@ parameters:
 			path: src/Executor/ReferenceExecutor.php
 
 		-
-			message: "#^Method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\) should return TCloneable of GraphQL\\\\Language\\\\AST\\\\Location\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\<TNode of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|string\\|TNode of GraphQL\\\\Language\\\\AST\\\\Node but returns GraphQL\\\\Language\\\\AST\\\\Location\\|string\\.$#"
-			count: 1
-			path: src/Language/AST/Node.php
-
-		-
-			message: "#^Method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\) should return TCloneable of GraphQL\\\\Language\\\\AST\\\\Location\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\<TNode of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|string\\|TNode of GraphQL\\\\Language\\\\AST\\\\Node but returns TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
-			count: 1
-			path: src/Language/AST/Node.php
-
-		-
 			message: "#^Unable to resolve the template type TCloneable in call to method static method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\)$#"
 			count: 1
 			path: src/Language/AST/Node.php
@@ -69,31 +59,6 @@ parameters:
 			message: "#^Variable property access on TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
-
-		-
-			message: "#^Parameter \\#4 \\$replacement of function array_splice expects array\\|string, array\\<T of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|T of GraphQL\\\\Language\\\\AST\\\\Node\\|null given\\.$#"
-			count: 1
-			path: src/Language/AST/NodeList.php
-
-		-
-			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printList\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\DefinitionNode&GraphQL\\\\Language\\\\AST\\\\Node\\> given\\.$#"
-			count: 1
-			path: src/Language/Printer.php
-
-		-
-			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printList\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node&GraphQL\\\\Language\\\\AST\\\\ValueNode\\> given\\.$#"
-			count: 1
-			path: src/Language/Printer.php
-
-		-
-			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printListBlock\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node&GraphQL\\\\Language\\\\AST\\\\SelectionNode\\> given\\.$#"
-			count: 1
-			path: src/Language/Printer.php
-
-		-
-			message: "#^Strict comparison using \\=\\=\\= between mixed and null will always evaluate to false\\.$#"
-			count: 1
-			path: src/Language/Visitor.php
 
 		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
@@ -111,42 +76,37 @@ parameters:
 			path: src/Type/Definition/Argument.php
 
 		-
-			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition constructor expects array\\{name\\: string, value\\?\\: mixed, deprecationReason\\?\\: string\\|null, description\\?\\: string\\|null, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\|null\\}, array given\\.$#"
+			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\:\\:\\$interfaces \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
 			count: 1
-			path: src/Type/Definition/EnumType.php
+			path: src/Type/Definition/InterfaceType.php
 
 		-
-			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:getType\\(\\) should return GraphQL\\\\Type\\\\Definition\\\\OutputType&GraphQL\\\\Type\\\\Definition\\\\Type but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
 			count: 1
-			path: src/Type/Definition/FieldDefinition.php
+			path: src/Type/Definition/InterfaceType.php
 
 		-
-			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:\\$type \\(GraphQL\\\\Type\\\\Definition\\\\OutputType&GraphQL\\\\Type\\\\Definition\\\\Type\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\ObjectType\\:\\:\\$interfaces \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
 			count: 1
-			path: src/Type/Definition/FieldDefinition.php
+			path: src/Type/Definition/ObjectType.php
 
 		-
-			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\NonNull\\:\\:getWrappedType\\(\\) should return GraphQL\\\\Type\\\\Definition\\\\NullableType&GraphQL\\\\Type\\\\Definition\\\\Type but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
 			count: 1
-			path: src/Type/Definition/NonNull.php
+			path: src/Type/Definition/ObjectType.php
 
 		-
-			message: "#^Generator expects value type GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Type\\\\Definition\\\\Type given\\.$#"
+			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\UnionType\\:\\:\\$types \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
 			count: 1
-			path: src/Type/Schema.php
+			path: src/Type/Definition/UnionType.php
 
 		-
-			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:getType\\(\\) should return \\(GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
 			count: 1
-			path: src/Type/Schema.php
+			path: src/Type/Definition/UnionType.php
 
 		-
 			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\) should return T of GraphQL\\\\Type\\\\Definition\\\\Type but returns \\(callable&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|T of GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
-			count: 1
-			path: src/Type/Schema.php
-
-		-
-			message: "#^Property GraphQL\\\\Type\\\\Schema\\:\\:\\$resolvedTypes \\(array\\<string, GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\>\\) does not accept array\\<string, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
 			count: 1
 			path: src/Type/Schema.php
 
@@ -179,6 +139,21 @@ parameters:
 			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\}\\> does not accept array\\<int, mixed\\>\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with array\\{extensions\\: array\\{bar\\: 'foo'\\}\\} and array\\{data\\?\\: array\\<string, mixed\\>, errors\\?\\: array\\<int, array\\{message\\: string, locations\\?\\: array\\<int, array\\{line\\: int, column\\: int\\}\\>, path\\?\\: array\\<int, int\\|string\\>, extensions\\?\\: array\\<string, mixed\\>\\}\\>, extensions\\?\\: array\\<string, mixed\\>\\} will always evaluate to false\\.$#"
+			count: 1
+			path: tests/Executor/ExecutionResultTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with array\\{extensions\\: array\\{foo\\: 'bar'\\}\\} and array\\{data\\?\\: array\\<string, mixed\\>, errors\\?\\: array\\<int, array\\{message\\: string, locations\\?\\: array\\<int, array\\{line\\: int, column\\: int\\}\\>, path\\?\\: array\\<int, int\\|string\\>, extensions\\?\\: array\\<string, mixed\\>\\}\\>, extensions\\?\\: array\\<string, mixed\\>\\} will always evaluate to false\\.$#"
+			count: 1
+			path: tests/Executor/ExecutionResultTest.php
+
+		-
+			message: "#^Instanceof between mixed and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
+			count: 1
+			path: tests/Language/VisitorTest.php
 
 		-
 			message: "#^Method GraphQL\\\\Tests\\\\Language\\\\VisitorTest\\:\\:getNodeByPath\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"

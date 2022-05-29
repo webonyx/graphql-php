@@ -12,7 +12,7 @@ use GraphQL\Validator\ValidationContext;
 
 final class CustomRuleTest extends ValidatorTestCase
 {
-    private const CUSTOM_VALIDATION_RULE_ERROR = 'This is the error we are looking for!';
+    private const CUSTOM_VALIDATION_RULE_ERROR = 'This is the error we are looking for';
 
     public function testAddRuleCanReplaceDefaultRules(): void
     {
@@ -44,8 +44,8 @@ final class CustomRuleTest extends ValidatorTestCase
         ',
             [
                 ErrorHelper::create(
-                    'Custom message including Cow',
-                    [new SourceLocation(8, 12)]
+                    'Custom message including "Cow"',
+                    [new SourceLocation(8, 7)]
                 ),
             ]
         );

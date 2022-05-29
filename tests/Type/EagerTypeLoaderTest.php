@@ -154,15 +154,15 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
             'mutation' => $this->mutation,
             'types' => [$this->blogStory],
         ]);
+        $schema->assertValid();
 
-        $expected = [
-            'Query.fields',
-            'Content.fields',
+        self::assertSame([
             'Node.fields',
-            'Mutation.fields',
+            'Content.fields',
             'BlogStory.fields',
-        ];
-        self::assertEquals($expected, $this->calls);
+            'Query.fields',
+            'Mutation.fields',
+        ], $this->calls);
 
         self::assertSame($this->query, $schema->getType('Query'));
         self::assertSame($this->mutation, $schema->getType('Mutation'));
@@ -172,7 +172,7 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
         self::assertSame($this->postStoryMutation, $schema->getType('PostStoryMutation'));
         self::assertSame($this->postStoryMutationInput, $schema->getType('PostStoryMutationInput'));
 
-        $expectedTypeMap = [
+        self::assertArraySubset([
             'Query' => $this->query,
             'Mutation' => $this->mutation,
             'Node' => $this->node,
@@ -180,9 +180,7 @@ final class EagerTypeLoaderTest extends TypeLoaderTest
             'Content' => $this->content,
             'BlogStory' => $this->blogStory,
             'PostStoryMutationInput' => $this->postStoryMutationInput,
-        ];
-
-        self::assertArraySubset($expectedTypeMap, $schema->getTypeMap());
+        ], $schema->getTypeMap());
     }
 
     public function testWorksWithTypeLoader(): void

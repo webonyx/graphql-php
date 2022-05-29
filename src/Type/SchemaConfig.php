@@ -4,7 +4,7 @@ namespace GraphQL\Type;
 
 use function count;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
@@ -24,8 +24,10 @@ use GraphQL\Type\Definition\Type;
  *
  *     $schema = new Schema($config);
  *
- * @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
- * @phpstan-type Types array<Type&NamedType>|(callable(): array<Type&NamedType>)
+ * @see Type, NamedType
+ *
+ * @phpstan-type TypeLoader callable(string $typeName):((Type&NamedType)|null)
+ * @phpstan-type Types array<Type&NamedType>|callable():array<Type&NamedType>
  */
 class SchemaConfig
 {
@@ -54,7 +56,7 @@ class SchemaConfig
 
     public ?SchemaDefinitionNode $astNode = null;
 
-    /** @var array<SchemaTypeExtensionNode> */
+    /** @var array<SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
     /**
@@ -258,7 +260,7 @@ class SchemaConfig
     }
 
     /**
-     * @return array<SchemaTypeExtensionNode>
+     * @return array<SchemaExtensionNode>
      */
     public function getExtensionASTNodes(): array
     {
@@ -266,7 +268,7 @@ class SchemaConfig
     }
 
     /**
-     * @param array<SchemaTypeExtensionNode> $extensionASTNodes
+     * @param array<SchemaExtensionNode> $extensionASTNodes
      */
     public function setExtensionASTNodes(array $extensionASTNodes): self
     {

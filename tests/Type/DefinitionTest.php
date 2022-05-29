@@ -7,11 +7,15 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Generator;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\Executor;
+use GraphQL\Language\Parser;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
@@ -27,7 +31,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use RuntimeException;
 use function Safe\json_encode;
-use function sprintf;
 use stdClass;
 
 final class DefinitionTest extends TestCaseBase
@@ -94,20 +97,18 @@ final class DefinitionTest extends TestCaseBase
 
         $this->blogAuthor = new ObjectType([
             'name' => 'Author',
-            'fields' => function (): array {
-                return [
-                    'id' => ['type' => Type::string()],
-                    'name' => ['type' => Type::string()],
-                    'pic' => [
-                        'type' => $this->blogImage,
-                        'args' => [
-                            'width' => ['type' => Type::int()],
-                            'height' => ['type' => Type::int()],
-                        ],
+            'fields' => fn (): array => [
+                'id' => ['type' => Type::string()],
+                'name' => ['type' => Type::string()],
+                'pic' => [
+                    'type' => $this->blogImage,
+                    'args' => [
+                        'width' => ['type' => Type::int()],
+                        'height' => ['type' => Type::int()],
                     ],
-                    'recentArticle' => $this->blogArticle,
-                ];
-            },
+                ],
+                'recentArticle' => $this->blogArticle,
+            ],
         ]);
 
         $this->blogArticle = new ObjectType([
@@ -311,8 +312,14 @@ final class DefinitionTest extends TestCaseBase
                 'BAR' => [],
             ],
         ]);
-        self::assertEquals('FOO', $enumType->getValue('FOO')->value);
-        self::assertEquals('BAR', $enumType->getValue('BAR')->value);
+
+        $foo = $enumType->getValue('FOO');
+        self::assertInstanceOf(EnumValueDefinition::class, $foo);
+        self::assertEquals('FOO', $foo->value);
+
+        $bar = $enumType->getValue('BAR');
+        self::assertInstanceOf(EnumValueDefinition::class, $bar);
+        self::assertEquals('BAR', $bar->value);
     }
 
     /**
@@ -343,8 +350,14 @@ final class DefinitionTest extends TestCaseBase
                 'BAR' => ['value' => 20],
             ],
         ]);
-        self::assertEquals(10, $enumType->getValue('FOO')->value);
-        self::assertEquals(20, $enumType->getValue('BAR')->value);
+
+        $foo = $enumType->getValue('FOO');
+        self::assertInstanceOf(EnumValueDefinition::class, $foo);
+        self::assertEquals(10, $foo->value);
+
+        $bar = $enumType->getValue('BAR');
+        self::assertInstanceOf(EnumValueDefinition::class, $bar);
+        self::assertEquals(20, $bar->value);
     }
 
     /**
@@ -372,8 +385,14 @@ final class DefinitionTest extends TestCaseBase
                 yield 'BAR' => ['value' => 20];
             },
         ]);
-        self::assertEquals(10, $enumType->getValue('FOO')->value);
-        self::assertEquals(20, $enumType->getValue('BAR')->value);
+
+        $foo = $enumType->getValue('FOO');
+        self::assertInstanceOf(EnumValueDefinition::class, $foo);
+        self::assertEquals(10, $foo->value);
+
+        $bar = $enumType->getValue('BAR');
+        self::assertInstanceOf(EnumValueDefinition::class, $bar);
+        self::assertEquals(20, $bar->value);
     }
 
     /**
@@ -566,7 +585,7 @@ final class DefinitionTest extends TestCaseBase
             self::assertSame(
                 $entry[1],
                 Type::isInputType($entry[0]),
-                sprintf('Type %s was detected incorrectly', $entry[0])
+                "Type {$entry[0]} was detected incorrectly"
             );
         }
     }
@@ -599,7 +618,7 @@ final class DefinitionTest extends TestCaseBase
             self::assertSame(
                 $entry[1],
                 Type::isOutputType($entry[0]),
-                sprintf('Type %s was detected incorrectly', $entry[0])
+                "Type {$entry[0]} was detected incorrectly"
             );
         }
     }
@@ -611,9 +630,7 @@ final class DefinitionTest extends TestCaseBase
     {
         $union = new UnionType([
             'name' => 'ThunkUnion',
-            'types' => function (): array {
-                return [$this->objectType];
-            },
+            'types' => fn (): array => [$this->objectType],
         ]);
         $types = $union->getTypes();
 
@@ -633,35 +650,27 @@ final class DefinitionTest extends TestCaseBase
 
         /** @var ObjectType|null $blog */
         $blog = null;
-        $called = false;
 
         $user = new ObjectType([
             'name' => 'User',
-            'fields' => static function () use (&$blog, &$called): array {
+            'fields' => static function () use (&$blog): array {
                 self::assertNotNull($blog, 'Blog type is expected to be defined at this point, but it is null');
-                $called = true;
 
                 return [
                     'id' => ['type' => Type::nonNull(Type::id())],
                     'blogs' => ['type' => Type::nonNull(Type::listOf(Type::nonNull($blog)))],
                 ];
             },
-            'interfaces' => static function () use ($node): array {
-                return [$node];
-            },
+            'interfaces' => static fn (): array => [$node],
         ]);
 
         $blog = new ObjectType([
             'name' => 'Blog',
-            'fields' => static function () use ($user): array {
-                return [
-                    'id' => ['type' => Type::nonNull(Type::id())],
-                    'owner' => ['type' => Type::nonNull($user)],
-                ];
-            },
-            'interfaces' => static function () use ($node): array {
-                return [$node];
-            },
+            'fields' => static fn (): array => [
+                'id' => ['type' => Type::nonNull(Type::id())],
+                'owner' => ['type' => Type::nonNull($user)],
+            ],
+            'interfaces' => static fn (): array => [$node],
         ]);
 
         $schema = new Schema([
@@ -674,7 +683,6 @@ final class DefinitionTest extends TestCaseBase
             'types' => [$user, $blog],
         ]);
 
-        self::assertTrue($called);
         $schema->getType('Blog');
 
         self::assertSame([$node], $blog->getInterfaces());
@@ -723,7 +731,10 @@ final class DefinitionTest extends TestCaseBase
         self::assertTrue($called);
         self::assertEquals(count($inputObject->getFields()), 2);
         self::assertSame($inputObject->getField('nested')->getType(), $inputObject);
-        self::assertSame($someMutation->getField('mutateSomething')->getArg('input')->getType(), $inputObject);
+
+        $input = $someMutation->getField('mutateSomething')->getArg('input');
+        self::assertInstanceOf(Argument::class, $input);
+        self::assertSame($input->getType(), $inputObject);
     }
 
     public function testInterfaceTypeAllowsRecursiveDefinitions(): void
@@ -813,28 +824,6 @@ final class DefinitionTest extends TestCaseBase
         self::assertEquals('OtherCustom', $otherCustom->name);
     }
 
-    public function testAllowsOverridingInternalTypes(): void
-    {
-        $idType = new CustomScalarType([
-            'name' => 'ID',
-            'serialize' => static function (): void {
-            },
-            'parseValue' => static function (): void {
-            },
-            'parseLiteral' => static function (): void {
-            },
-        ]);
-
-        $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
-            'types' => [$idType],
-        ]);
-
-        self::assertSame($idType, $schema->getType('ID'));
-    }
-
-    // Field config must be object
-
     /**
      * @see it('accepts an Object type with a field function')
      */
@@ -842,11 +831,11 @@ final class DefinitionTest extends TestCaseBase
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
-            'fields' => static function (): array {
-                return [
-                    'f' => ['type' => Type::string()],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'f' => [
+                    'type' => Type::string(),
+                ],
+            ],
         ]);
         $objType->assertValid();
         self::assertSame(Type::string(), $objType->getField('f')->getType());
@@ -891,9 +880,9 @@ final class DefinitionTest extends TestCaseBase
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
-            'fields' => static function (): array {
-                return [['field' => Type::string()]];
-            },
+            'fields' => static fn (): array => [
+                ['field' => Type::string()],
+            ],
         ]);
 
         $this->expectExceptionObject(new InvariantViolation(
@@ -978,9 +967,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $objType = new ObjectType([
             'name' => 'SomeObject',
-            'interfaces' => static function (): stdClass {
-                return new stdClass();
-            },
+            'interfaces' => static fn (): stdClass => new stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
         $this->expectException(InvariantViolation::class);
@@ -1127,9 +1114,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $objType = new ObjectType([
             'name' => 'AnotherInterface',
-            'interfaces' => static function (): stdClass {
-                return new stdClass();
-            },
+            'interfaces' => static fn (): stdClass => new stdClass(),
             'fields' => [],
         ]);
         $this->expectException(InvariantViolation::class);
@@ -1286,9 +1271,7 @@ final class DefinitionTest extends TestCaseBase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name' => 'SomeScalar',
-                'serialize' => static function () {
-                    return null;
-                },
+                'serialize' => static fn () => null,
             ])
         );
         self::assertDidNotCrash();
@@ -1456,9 +1439,7 @@ final class DefinitionTest extends TestCaseBase
         $this->schemaWithFieldType(
             new UnionType([
                 'name' => 'SomeUnion',
-                'types' => function (): array {
-                    return [$this->objectType];
-                },
+                'types' => fn (): array => [$this->objectType],
             ])
         );
         self::assertDidNotCrash();
@@ -1600,9 +1581,7 @@ final class DefinitionTest extends TestCaseBase
             'fields' => [
                 'f' => [
                     'type' => Type::string(),
-                    'resolve' => static function (): int {
-                        return 0;
-                    },
+                    'resolve' => static fn (): int => 0,
                 ],
             ],
         ]);
@@ -1784,11 +1763,13 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
+        $schema = new Schema(['query' => $QueryType]);
+
         $this->expectExceptionObject(new InvariantViolation(
             'Schema must contain unique named types but contains multiple types named "SameName" '
             . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         ));
-        new Schema(['query' => $QueryType]);
+        $schema->assertValid();
     }
 
     /**
@@ -1796,7 +1777,11 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsASchemaWhichDefinesFieldsWithConflictingTypes(): void
     {
-        $fields = ['f' => ['type' => Type::string()]];
+        $fields = [
+            'f' => [
+                'type' => Type::string(),
+            ],
+        ];
 
         $A = new ObjectType([
             'name' => 'SameName',
@@ -1816,11 +1801,13 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
+        $schema = new Schema(['query' => $QueryType]);
+
         $this->expectExceptionObject(new InvariantViolation(
             'Schema must contain unique named types but contains multiple types named "SameName" '
             . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         ));
-        new Schema(['query' => $QueryType]);
+        $schema->assertValid();
     }
 
     public function testRejectsASchemaWhichHaveSameNamedObjectsImplementingAnInterface(): void
@@ -1866,9 +1853,9 @@ final class DefinitionTest extends TestCaseBase
         $objType = new ObjectType([
             'name' => 'SomeObject',
             'fields' => [
-                'f' => static function (): array {
-                    return ['type' => Type::string()];
-                },
+                'f' => static fn (): array => [
+                    'type' => Type::string(),
+                ],
             ],
         ]);
 
@@ -1888,7 +1875,6 @@ final class DefinitionTest extends TestCaseBase
                 ]),
             ],
         ]);
-
         $objType->assertValid();
 
         self::assertSame(Type::string(), $objType->getField('f')->getType());
@@ -1910,13 +1896,12 @@ final class DefinitionTest extends TestCaseBase
                 },
             ],
         ]);
-
         $objType->assertValid();
 
         self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 
-    public function testFieldClosureNotExecutedIfNotAccessed(): void
+    public function testLazyFieldNotExecutedIfNotAccessed(): void
     {
         $resolvedCount = 0;
         $fieldCallback = static function () use (&$resolvedCount): array {
@@ -1939,7 +1924,33 @@ final class DefinitionTest extends TestCaseBase
         self::assertSame(1, $resolvedCount);
     }
 
-    public function testAllUnresolvedFieldsAreResolvedWhenValidatingType(): void
+    public function testLazyFieldNotExecutedIfNotAccessedInQuery(): void
+    {
+        $resolvedCount = 0;
+        $lazyField = static function () use (&$resolvedCount): array {
+            ++$resolvedCount;
+
+            return ['type' => Type::string()];
+        };
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'f' => $lazyField,
+                'b' => static function (): void {
+                    throw new RuntimeException('Would not expect this to be called!');
+                },
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $query]);
+        $result = Executor::execute($schema, Parser::parse('{ f }'));
+
+        self::assertSame(['f' => null], $result->data);
+        self::assertSame(1, $resolvedCount);
+    }
+
+    public function testLazyFieldsAreResolvedWhenValidatingType(): void
     {
         $resolvedCount = 0;
         $fieldCallback = static function () use (&$resolvedCount): array {
@@ -1961,12 +1972,14 @@ final class DefinitionTest extends TestCaseBase
         self::assertSame(2, $resolvedCount);
     }
 
-    public function testThrowsWhenLazyLoadedFieldDefinitionHasNoKeysForFieldNames(): void
+    public function testThrowsWhenLazyFieldDefinitionHasNoKeysForFieldNames(): void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
             'fields' => [
-                static fn (): array => ['type' => Type::string()],
+                static fn (): array => [
+                    'type' => Type::string(),
+                ],
             ],
         ]);
 

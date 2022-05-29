@@ -31,6 +31,6 @@ class LexerBench
 
         do {
             $token = $lexer->advance();
-        } while (Token::EOF !== $token->kind);
+        } while ($token->kind !== Token::EOF);
     }
 }

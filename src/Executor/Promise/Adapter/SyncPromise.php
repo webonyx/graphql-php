@@ -3,7 +3,7 @@
 namespace GraphQL\Executor\Promise\Adapter;
 
 use Exception;
-use GraphQL\Utils\Utils;
+use GraphQL\Error\InvariantViolation;
 use function is_object;
 use function method_exists;
 use SplQueue;
@@ -62,7 +62,7 @@ class SyncPromise
      */
     public function __construct(?callable $executor = null)
     {
-        if (null === $executor) {
+        if ($executor === null) {
             return;
         }
 
@@ -139,24 +139,23 @@ class SyncPromise
 
     private function enqueueWaitingPromises(): void
     {
-        Utils::invariant(
-            self::PENDING !== $this->state,
-            'Cannot enqueue derived promises when parent is still pending'
-        );
+        if ($this->state === self::PENDING) {
+            throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
+        }
 
         foreach ($this->waiting as $descriptor) {
             self::getQueue()->enqueue(function () use ($descriptor): void {
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
-                if (self::FULFILLED === $this->state) {
+                if ($this->state === self::FULFILLED) {
                     try {
-                        $promise->resolve(null === $onFulfilled ? $this->result : $onFulfilled($this->result));
+                        $promise->resolve($onFulfilled === null ? $this->result : $onFulfilled($this->result));
                     } catch (Throwable $e) {
                         $promise->reject($e);
                     }
-                } elseif (self::REJECTED === $this->state) {
+                } elseif ($this->state === self::REJECTED) {
                     try {
-                        if (null === $onRejected) {
+                        if ($onRejected === null) {
                             $promise->reject($this->result);
                         } else {
                             $promise->resolve($onRejected($this->result));
@@ -187,18 +186,18 @@ class SyncPromise
      */
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
     {
-        if (self::REJECTED === $this->state && null === $onRejected) {
+        if ($this->state === self::REJECTED && $onRejected === null) {
             return $this;
         }
 
-        if (self::FULFILLED === $this->state && null === $onFulfilled) {
+        if ($this->state === self::FULFILLED && $onFulfilled === null) {
             return $this;
         }
 
         $tmp = new self();
         $this->waiting[] = [$tmp, $onFulfilled, $onRejected];
 
-        if (self::PENDING !== $this->state) {
+        if ($this->state !== self::PENDING) {
             $this->enqueueWaitingPromises();
         }
 

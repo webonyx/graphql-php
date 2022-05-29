@@ -7,10 +7,11 @@ use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use PHPUnit\Framework\TestCase;
 use React\Promise\Deferred;
 use React\Promise\FulfilledPromise;
-use React\Promise\LazyPromise;
 use React\Promise\Promise;
 use React\Promise\Promise as ReactPromise;
+use function React\Promise\reject;
 use React\Promise\RejectedPromise;
+use function React\Promise\resolve;
 use stdClass;
 
 /**
@@ -26,12 +27,8 @@ class ReactPromiseAdapterTest extends TestCase
             $reactAdapter->isThenable(new ReactPromise(static function (): void {
             }))
         );
-        self::assertTrue($reactAdapter->isThenable(new FulfilledPromise()));
-        self::assertTrue($reactAdapter->isThenable(new RejectedPromise()));
-        self::assertTrue(
-            $reactAdapter->isThenable(new LazyPromise(static function (): void {
-            }))
-        );
+        self::assertTrue($reactAdapter->isThenable(resolve()));
+        self::assertTrue($reactAdapter->isThenable(reject()));
         self::assertFalse($reactAdapter->isThenable(false));
         self::assertFalse($reactAdapter->isThenable(true));
         self::assertFalse($reactAdapter->isThenable(1));
@@ -45,7 +42,7 @@ class ReactPromiseAdapterTest extends TestCase
     public function testConvertsReactPromisesToGraphQlOnes(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
-        $reactPromise = new FulfilledPromise(1);
+        $reactPromise = resolve(1);
 
         $promise = $reactAdapter->convertThenable($reactPromise);
 
@@ -55,7 +52,7 @@ class ReactPromiseAdapterTest extends TestCase
     public function testThen(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
-        $reactPromise = new FulfilledPromise(1);
+        $reactPromise = resolve(1);
         $promise = $reactAdapter->convertThenable($reactPromise);
 
         $result = null;
@@ -128,7 +125,7 @@ class ReactPromiseAdapterTest extends TestCase
     public function testAll(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
-        $promises = [new FulfilledPromise(1), new FulfilledPromise(2), new FulfilledPromise(3)];
+        $promises = [resolve(1), resolve(2), resolve(3)];
 
         $allPromise = $reactAdapter->all($promises);
 
@@ -147,7 +144,7 @@ class ReactPromiseAdapterTest extends TestCase
     {
         $reactAdapter = new ReactPromiseAdapter();
         $deferred = new Deferred();
-        $promises = [new FulfilledPromise(1), $deferred->promise(), new FulfilledPromise(3)];
+        $promises = [resolve(1), $deferred->promise(), resolve(3)];
         $result = null;
 
         $reactAdapter->all($promises)->then(static function ($values) use (&$result): void {

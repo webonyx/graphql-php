@@ -10,20 +10,14 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class LazyInterfaceTest extends TestCase
+final class LazyInterfaceTest extends TestCase
 {
-    /** @var Schema */
-    protected $schema;
+    protected Schema $schema;
 
-    /** @var InterfaceType */
-    protected $lazyInterface;
+    protected InterfaceType $lazyInterface;
 
-    /** @var ObjectType */
-    protected $testObject;
+    protected ObjectType $testObject;
 
-    /**
-     * Handles execution of a lazily created interface.
-     */
     public function testReturnsFragmentsWithLazyCreatedInterface(): void
     {
         $request = '
@@ -38,67 +32,59 @@ class LazyInterfaceTest extends TestCase
 
         $expected = [
             'data' => [
-                'lazyInterface' => ['name' => 'testname'],
+                'lazyInterface' => [
+                    'name' => 'testname',
+                ],
             ],
         ];
 
-        self::assertEquals($expected, Executor::execute($this->schema, Parser::parse($request))->toArray());
+        self::assertEquals(
+            $expected,
+            Executor::execute($this->schema, Parser::parse($request))->toArray()
+        );
     }
 
-    /**
-     * Setup schema.
-     */
     protected function setUp(): void
     {
         $query = new ObjectType([
             'name' => 'query',
-            'fields' => function (): array {
-                return [
-                    'lazyInterface' => [
-                        'type' => $this->getLazyInterfaceType(),
-                        'resolve' => static function (): array {
-                            return [];
-                        },
-                    ],
-                ];
-            },
+            'fields' => fn (): array => [
+                'lazyInterface' => [
+                    'type' => $this->makeLazyInterfaceType(),
+                    'resolve' => static fn (): array => [],
+                ],
+            ],
         ]);
 
-        $this->schema = new Schema(['query' => $query, 'types' => [$this->getTestObjectType()]]);
+        $this->schema = new Schema(
+            [
+                'query' => $query,
+                'types' => [$this->makeTestObjectType()], ]
+        );
     }
 
-    /**
-     * Returns the LazyInterface.
-     */
-    protected function getLazyInterfaceType(): InterfaceType
+    protected function makeLazyInterfaceType(): InterfaceType
     {
         return $this->lazyInterface ??= new InterfaceType([
             'name' => 'LazyInterface',
             'fields' => [
                 'a' => Type::string(),
             ],
-            'resolveType' => function (): ObjectType {
-                return $this->getTestObjectType();
-            },
+            'resolveType' => fn (): ObjectType => $this->makeTestObjectType(),
         ]);
     }
 
-    /**
-     * Returns the test ObjectType.
-     */
-    protected function getTestObjectType(): ObjectType
+    protected function makeTestObjectType(): ObjectType
     {
         return $this->testObject ??= new ObjectType([
             'name' => 'TestObject',
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
-                    'resolve' => static function (): string {
-                        return 'testname';
-                    },
+                    'resolve' => static fn (): string => 'testname',
                 ],
             ],
-            'interfaces' => [$this->getLazyInterfaceType()],
+            'interfaces' => [$this->makeLazyInterfaceType()],
         ]);
     }
 }

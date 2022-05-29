@@ -6,8 +6,10 @@ use function array_map;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
@@ -23,7 +25,7 @@ use GraphQL\Validator\DocumentValidator;
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
  * @phpstan-type BuildSchemaOptions array{
  *   assumeValid?: bool,
- *   assumeValidSDL?: bool,
+ *   assumeValidSDL?: bool
  * }
  *
  * - assumeValid:
@@ -41,9 +43,6 @@ use GraphQL\Validator\DocumentValidator;
 class BuildSchema
 {
     private DocumentNode $ast;
-
-    /** @var array<string, TypeDefinitionNode> */
-    private array $nodeMap;
 
     /**
      * @var callable|null
@@ -77,7 +76,9 @@ class BuildSchema
      * document.
      *
      * @param DocumentNode|Source|string $source
-     * @param array<string, bool>        $options
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     *
+     * @param array<string, bool> $options
      * @phpstan-param BuildSchemaOptions $options
      *
      * @api
@@ -102,6 +103,8 @@ class BuildSchema
      * Given that AST it constructs a @see \GraphQL\Type\Schema. The resulting schema
      * has no resolve methods, so execution will use default resolvers.
      *
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     *
      * @param array<string, bool> $options
      * @phpstan-param BuildSchemaOptions $options
      *
@@ -114,9 +117,7 @@ class BuildSchema
         ?callable $typeConfigDecorator = null,
         array $options = []
     ): Schema {
-        $builder = new self($ast, $typeConfigDecorator, $options);
-
-        return $builder->buildSchema();
+        return (new self($ast, $typeConfigDecorator, $options))->buildSchema();
     }
 
     public function buildSchema(): Schema
@@ -129,7 +130,12 @@ class BuildSchema
         }
 
         $schemaDef = null;
-        $this->nodeMap = [];
+
+        /** @var array<string, Node&TypeDefinitionNode> */
+        $typeDefinitionsMap = [];
+
+        /** @var array<string, array<int, Node&TypeExtensionNode>> $typeExtensionsMap */
+        $typeExtensionsMap = [];
 
         /** @var array<int, DirectiveDefinitionNode> $directiveDefs */
         $directiveDefs = [];
@@ -140,12 +146,10 @@ class BuildSchema
                     $schemaDef = $definition;
                     break;
                 case $definition instanceof TypeDefinitionNode:
-                    $typeName = $definition->name->value;
-                    if (isset($this->nodeMap[$typeName])) {
-                        throw new Error('Type "' . $typeName . '" was defined more than once.');
-                    }
-
-                    $this->nodeMap[$typeName] = $definition;
+                    $typeDefinitionsMap[$definition->name->value] = $definition;
+                    break;
+                case $definition instanceof TypeExtensionNode:
+                    $typeExtensionsMap[$definition->name->value][] = $definition;
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
                     $directiveDefs[] = $definition;
@@ -153,17 +157,18 @@ class BuildSchema
             }
         }
 
-        $operationTypes = null !== $schemaDef
+        $operationTypes = $schemaDef !== null
             ? $this->getOperationTypes($schemaDef)
             : [
-                'query' => isset($this->nodeMap['Query']) ? 'Query' : null,
-                'mutation' => isset($this->nodeMap['Mutation']) ? 'Mutation' : null,
-                'subscription' => isset($this->nodeMap['Subscription']) ? 'Subscription' : null,
+                'query' => 'Query',
+                'mutation' => 'Mutation',
+                'subscription' => 'Subscription',
             ];
 
         $definitionBuilder = new ASTDefinitionBuilder(
-            $this->nodeMap,
-            static function (string $typeName): void {
+            $typeDefinitionsMap,
+            $typeExtensionsMap,
+            static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
             $this->typeConfigDecorator
@@ -198,49 +203,40 @@ class BuildSchema
 
         return new Schema([
             'query' => isset($operationTypes['query'])
-                ? $definitionBuilder->buildType($operationTypes['query'])
+                ? $definitionBuilder->maybeBuildType($operationTypes['query'])
                 : null,
             'mutation' => isset($operationTypes['mutation'])
-                ? $definitionBuilder->buildType($operationTypes['mutation'])
+                ? $definitionBuilder->maybeBuildType($operationTypes['mutation'])
                 : null,
             'subscription' => isset($operationTypes['subscription'])
-                ? $definitionBuilder->buildType($operationTypes['subscription'])
+                ? $definitionBuilder->maybeBuildType($operationTypes['subscription'])
                 : null,
-            'typeLoader' => static fn (string $name): Type => $definitionBuilder->buildType($name),
+            'typeLoader' => static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name),
             'directives' => $directives,
             'astNode' => $schemaDef,
             'types' => fn (): array => array_map(
                 static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value),
-                $this->nodeMap,
+                $typeDefinitionsMap,
             ),
         ]);
     }
 
     /**
-     * @throws Error
-     *
      * @return array<string, string>
      */
     private function getOperationTypes(SchemaDefinitionNode $schemaDef): array
     {
-        $opTypes = [];
-
+        /** @var array<string, string> $operationTypes */
+        $operationTypes = [];
         foreach ($schemaDef->operationTypes as $operationType) {
-            $typeName = $operationType->type->name->value;
-            $operation = $operationType->operation;
-
-            if (! isset($this->nodeMap[$typeName])) {
-                throw new Error('Specified ' . $operation . ' type "' . $typeName . '" not found in document.');
-            }
-
-            $opTypes[$operation] = $typeName;
+            $operationTypes[$operationType->operation] = $operationType->type->name->value;
         }
 
-        return $opTypes;
+        return $operationTypes;
     }
 
     public static function unknownType(string $typeName): Error
     {
-        return new Error('Unknown type: "' . $typeName . '".');
+        return new Error("Unknown type: \"{$typeName}\".");
     }
 }

@@ -18,7 +18,6 @@ use GraphQL\Server\ServerConfig;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
-use function sprintf;
 use stdClass;
 
 class QueryExecutionTest extends ServerTestCase
@@ -219,6 +218,7 @@ class QueryExecutionTest extends ServerTestCase
 
         self::assertFalse($called);
         $this->executeQuery('{f1}');
+        /** @var bool $called */
         self::assertTrue($called);
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
@@ -259,6 +259,10 @@ class QueryExecutionTest extends ServerTestCase
         $called2 = false;
         $expected = ['errors' => [['message' => 'This is the error we are looking for!']]];
         $this->assertQueryResultEquals($expected, $q2);
+        /**
+         * @var bool $called1
+         * @var bool $called2
+         */
         self::assertFalse($called1);
         self::assertTrue($called2);
     }
@@ -420,20 +424,16 @@ class QueryExecutionTest extends ServerTestCase
     public function testAllowSkippingValidationForPersistedQueries(): void
     {
         $this->config
-            ->setPersistedQueryLoader(static function ($queryId) {
-                if ('some-id' === $queryId) {
-                    return '{invalid}';
-                }
-
-                return '{invalid2}';
-            })
-            ->setValidationRules(static function (OperationParams $params): array {
-                if ('some-id' === $params->queryId) {
-                    return [];
-                }
-
-                return DocumentValidator::allRules();
-            });
+            ->setPersistedQueryLoader(
+                static fn (string $queryId): string => $queryId === 'some-id'
+                ? '{invalid}'
+                : '{invalid2}'
+            )
+            ->setValidationRules(
+                static fn (OperationParams $params): array => $params->queryId === 'some-id'
+                ? []
+                : DocumentValidator::allRules()
+            );
 
         $result = $this->executePersistedQuery('some-id');
         $expected = [
@@ -539,12 +539,12 @@ class QueryExecutionTest extends ServerTestCase
             ->setRootValue('1')
             ->setContext([
                 'buffer' => static function ($num) use (&$calls): void {
-                    $calls[] = sprintf('buffer: %d', $num);
+                    $calls[] = "buffer: {$num}";
                 },
                 'load' => static function ($num) use (&$calls): string {
-                    $calls[] = sprintf('load: %d', $num);
+                    $calls[] = "load: {$num}";
 
-                    return sprintf('loaded: %d', $num);
+                    return "loaded: {$num}";
                 },
             ]);
 
@@ -612,6 +612,7 @@ class QueryExecutionTest extends ServerTestCase
 
         self::assertFalse($called);
         $this->executeQuery('{f1}');
+        /** @var bool $called */
         self::assertTrue($called);
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
@@ -632,6 +633,7 @@ class QueryExecutionTest extends ServerTestCase
 
         self::assertFalse($called);
         $this->executeQuery('{f1}');
+        /** @var bool $called */
         self::assertTrue($called);
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
@@ -658,6 +660,7 @@ class QueryExecutionTest extends ServerTestCase
                 $formattedError,
             ],
         ];
+        /** @var bool $called */
         self::assertTrue($called);
         self::assertArraySubset($expected, $formatted);
         self::assertInstanceOf(Error::class, $error);
@@ -702,6 +705,7 @@ class QueryExecutionTest extends ServerTestCase
         $expected = [
             'errors' => $handledErrors,
         ];
+        /** @var bool $called */
         self::assertTrue($called);
         self::assertArraySubset($expected, $formatted);
         self::assertIsArray($errors);

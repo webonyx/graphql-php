@@ -6,7 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 /**
  * A GraphQL operation is only valid if all variables encountered, both directly
@@ -14,7 +14,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class NoUndefinedVariables extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         /** @var array<string, true> $variableNameDefined */
         $variableNameDefined = [];
@@ -35,7 +35,7 @@ class NoUndefinedVariables extends ValidationRule
                             $context->reportError(new Error(
                                 static::undefinedVarMessage(
                                     $varName,
-                                    null !== $operation->name
+                                    $operation->name !== null
                                         ? $operation->name->value
                                         : null
                                 ),
@@ -53,7 +53,7 @@ class NoUndefinedVariables extends ValidationRule
 
     public static function undefinedVarMessage(string $varName, ?string $opName): string
     {
-        return null === $opName
+        return $opName === null
             ? 'Variable "$' . $varName . '" is not defined by operation "' . $opName . '".'
             : 'Variable "$' . $varName . '" is not defined.';
     }

@@ -202,12 +202,12 @@ class VariablesTest extends TestCase
         return [
             'type' => Type::string(),
             'args' => ['input' => $inputArg],
-            'resolve' => static function ($_, $args): ?string {
+            'resolve' => static function ($_, array $args): ?string {
                 if (isset($args['input'])) {
                     return Utils::printSafeJson($args['input']);
                 }
 
-                if (array_key_exists('input', $args) && null === $args['input']) {
+                if (array_key_exists('input', $args) && $args['input'] === null) {
                     return 'null';
                 }
 

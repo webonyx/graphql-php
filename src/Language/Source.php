@@ -2,7 +2,6 @@
 
 namespace GraphQL\Language;
 
-use GraphQL\Utils\Utils;
 use function json_decode;
 use function mb_strlen;
 use function mb_substr;
@@ -32,19 +31,10 @@ class Source
     {
         $this->body = $body;
         $this->length = mb_strlen($body, 'UTF-8');
-        $this->name = '' === $name || null === $name
+        $this->name = $name === '' || $name === null
             ? 'GraphQL request'
             : $name;
         $this->locationOffset = $location ?? new SourceLocation(1, 1);
-
-        Utils::invariant(
-            $this->locationOffset->line > 0,
-            'line in locationOffset is 1-indexed and must be positive'
-        );
-        Utils::invariant(
-            $this->locationOffset->column > 0,
-            'column in locationOffset is 1-indexed and must be positive'
-        );
     }
 
     public function getLocation(int $position): SourceLocation

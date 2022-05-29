@@ -7,6 +7,7 @@ use function array_key_exists;
 use function array_merge;
 use function array_values;
 use Exception;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Printer;
@@ -30,6 +31,20 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 
+/**
+ * @phpstan-type IntrospectionOptions array{
+ *     descriptions?: bool,
+ *     directiveIsRepeatable?: bool,
+ * }
+ *
+ * Available options:
+ * - descriptions
+ *   Whether to include descriptions in the introspection result.
+ *   Default: true
+ * - directiveIsRepeatable
+ *   Whether to include `isRepeatable` flag on directives.
+ *   Default: false
+ */
 class Introspection
 {
     public const SCHEMA_FIELD_NAME = '__schema';
@@ -40,14 +55,7 @@ class Introspection
     private static $map = [];
 
     /**
-     * @param array<string, bool> $options
-     *      Available options:
-     *      - descriptions
-     *        Whether to include descriptions in the introspection result.
-     *        Default: true
-     *      - directiveIsRepeatable
-     *        Whether to include `isRepeatable` flag on directives.
-     *        Default: false
+     * @param IntrospectionOptions $options
      *
      * @api
      */
@@ -58,10 +66,14 @@ class Introspection
             'directiveIsRepeatable' => false,
         ], $options);
 
-        $descriptions = $optionsWithDefaults['descriptions'] ? 'description' : '';
-        $directiveIsRepeatable = $optionsWithDefaults['directiveIsRepeatable'] ? 'isRepeatable' : '';
+        $descriptions = $optionsWithDefaults['descriptions']
+            ? 'description'
+            : '';
+        $directiveIsRepeatable = $optionsWithDefaults['directiveIsRepeatable']
+            ? 'isRepeatable'
+            : '';
 
-        return <<<EOD
+        return <<<GRAPHQL
   query IntrospectionQuery {
     __schema {
       queryType { name }
@@ -154,7 +166,40 @@ class Introspection
       }
     }
   }
-EOD;
+GRAPHQL;
+    }
+
+    /**
+     * Build an introspection query from a Schema.
+     *
+     * Introspection is useful for utilities that care about type and field
+     * relationships, but do not need to traverse through those relationships.
+     *
+     * This is the inverse of BuildClientSchema::build(). The primary use case is
+     * outside the server context, for instance when doing schema comparisons.
+     *
+     * @param IntrospectionOptions $options
+     *
+     * @return array<string, array<mixed>>
+     *
+     * @api
+     */
+    public static function fromSchema(Schema $schema, array $options = []): array
+    {
+        $optionsWithDefaults = array_merge(['directiveIsRepeatable' => true], $options);
+
+        $result = GraphQL::executeQuery(
+            $schema,
+            self::getIntrospectionQuery($optionsWithDefaults)
+        );
+
+        $data = $result->data;
+        if ($data === null) {
+            $serialized = json_encode($result, JSON_THROW_ON_ERROR);
+            throw new InvariantViolation("Introspection query returned no data: {$serialized}");
+        }
+
+        return $data;
     }
 
     /**
@@ -182,40 +227,6 @@ EOD;
         ];
     }
 
-    /**
-     * Build an introspection query from a Schema.
-     *
-     * Introspection is useful for utilities that care about type and field
-     * relationships, but do not need to traverse through those relationships.
-     *
-     * This is the inverse of BuildClientSchema::build(). The primary use case is outside
-     * of the server context, for instance when doing schema comparisons.
-     *
-     * @param array<string, bool> $options
-     *      Available options:
-     *      - descriptions
-     *        Whether to include `isRepeatable` flag on directives.
-     *        Default: true
-     *      - directiveIsRepeatable
-     *        Whether to include descriptions in the introspection result.
-     *        Default: true
-     *
-     * @return array<string, array<mixed>>|null
-     *
-     * @api
-     */
-    public static function fromSchema(Schema $schema, array $options = []): ?array
-    {
-        $optionsWithDefaults = array_merge(['directiveIsRepeatable' => true], $options);
-
-        $result = GraphQL::executeQuery(
-            $schema,
-            self::getIntrospectionQuery($optionsWithDefaults)
-        );
-
-        return $result->data;
-    }
-
     public static function _schema(): ObjectType
     {
         return self::$map['__Schema'] ??= new ObjectType([
@@ -229,7 +240,7 @@ EOD;
                 'types' => [
                     'description' => 'A list of all types supported by this server.',
                     'type' => new NonNull(new ListOfType(new NonNull(self::_type()))),
-                    'resolve' => static fn (Schema $schema): array => array_values($schema->getTypeMap()),
+                    'resolve' => static fn (Schema $schema): array => $schema->getTypeMap(),
                 ],
                 'queryType' => [
                     'description' => 'The type that query operations will be rooted at.',
@@ -331,8 +342,8 @@ EOD;
                             if (! ($args['includeDeprecated'] ?? false)) {
                                 $fields = array_filter(
                                     $fields,
-                                    static fn (FieldDefinition $field): bool => null === $field->deprecationReason
-                                        || '' === $field->deprecationReason
+                                    static fn (FieldDefinition $field): bool => $field->deprecationReason === null
+                                        || $field->deprecationReason === ''
                                 );
                             }
 
@@ -357,7 +368,10 @@ EOD;
                 'enumValues' => [
                     'type' => Type::listOf(Type::nonNull(self::_enumValue())),
                     'args' => [
-                        'includeDeprecated' => ['type' => Type::boolean(), 'defaultValue' => false],
+                        'includeDeprecated' => [
+                            'type' => Type::boolean(),
+                            'defaultValue' => false,
+                        ],
                     ],
                     'resolve' => static function ($type, $args): ?array {
                         if ($type instanceof EnumType) {
@@ -367,8 +381,8 @@ EOD;
                                 return array_filter(
                                     $values,
                                     static function (EnumValueDefinition $value): bool {
-                                        return null === $value->deprecationReason
-                                            || '' === $value->deprecationReason;
+                                        return $value->deprecationReason === null
+                                            || $value->deprecationReason === '';
                                     }
                                 );
                             }
@@ -464,8 +478,8 @@ EOD;
                 ],
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
-                    'resolve' => static fn (FieldDefinition $field): bool => null !== $field->deprecationReason
-                        && '' !== $field->deprecationReason,
+                    'resolve' => static fn (FieldDefinition $field): bool => $field->deprecationReason !== null
+                        && $field->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),
@@ -483,36 +497,42 @@ EOD;
             'description' => 'Arguments provided to Fields or Directives and the input fields of an '
                     . 'InputObject are represented as Input Values which describe their type '
                     . 'and optionally a default value.',
-            'fields' => static function (): array {
-                return [
-                    'name' => [
-                        'type' => Type::nonNull(Type::string()),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): string => $inputValue->name,
-                    ],
-                    'description' => [
-                        'type' => Type::string(),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): ?string => $inputValue->description,
-                    ],
-                    'type' => [
-                        'type' => Type::nonNull(self::_type()),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): Type => $inputValue->getType(),
-                    ],
-                    'defaultValue' => [
-                        'type' => Type::string(),
-                        'description' => 'A GraphQL-formatted string representing the default value for this input value.',
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): ?string => $inputValue->defaultValueExists()
-                            ? Printer::doPrint(AST::astFromValue(
-                                $inputValue->defaultValue,
-                                $inputValue->getType()
-                            ))
-                            : null,
-                    ],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'name' => [
+                    'type' => Type::nonNull(Type::string()),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): string => $inputValue->name,
+                ],
+                'description' => [
+                    'type' => Type::string(),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): ?string => $inputValue->description,
+                ],
+                'type' => [
+                    'type' => Type::nonNull(self::_type()),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): Type => $inputValue->getType(),
+                ],
+                'defaultValue' => [
+                    'type' => Type::string(),
+                    'description' => 'A GraphQL-formatted string representing the default value for this input value.',
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static function ($inputValue): ?string {
+                        if ($inputValue->defaultValueExists()) {
+                            $defaultValueAST = AST::astFromValue($inputValue->defaultValue, $inputValue->getType());
+
+                            if ($defaultValueAST === null) {
+                                $inconvertibleDefaultValue = Utils::printSafe($inputValue->defaultValue);
+                                throw new InvariantViolation("Unable to convert defaultValue of argument {$inputValue->name} into AST: {$inconvertibleDefaultValue}.");
+                            }
+
+                            return Printer::doPrint($defaultValueAST);
+                        }
+
+                        return null;
+                    },
+                ],
+            ],
         ]);
     }
 
@@ -535,8 +555,8 @@ EOD;
                 ],
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
-                    'resolve' => static fn (EnumValueDefinition $enumValue): bool => null !== $enumValue->deprecationReason
-                        && '' !== $enumValue->deprecationReason,
+                    'resolve' => static fn (EnumValueDefinition $enumValue): bool => $enumValue->deprecationReason !== null
+                        && $enumValue->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),
@@ -566,10 +586,6 @@ EOD;
                     'type' => Type::string(),
                     'resolve' => static fn (Directive $directive): ?string => $directive->description,
                 ],
-                'args' => [
-                    'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                    'resolve' => static fn (Directive $directive): array => $directive->args,
-                ],
                 'isRepeatable' => [
                     'type' => Type::nonNull(Type::boolean()),
                     'resolve' => static fn (Directive $directive): bool => $directive->isRepeatable,
@@ -579,6 +595,10 @@ EOD;
                         self::_directiveLocation()
                     ))),
                     'resolve' => static fn (Directive $directive): array => $directive->locations,
+                ],
+                'args' => [
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
+                    'resolve' => static fn (Directive $directive): array => $directive->args,
                 ],
             ],
         ]);
@@ -695,7 +715,7 @@ EOD;
                     'type' => Type::nonNull(Type::string()),
                 ],
             ],
-            'resolve' => static fn ($source, array $args, $context, ResolveInfo $info): Type => $info->schema->getType($args['name']),
+            'resolve' => static fn ($source, array $args, $context, ResolveInfo $info): ?Type => $info->schema->getType($args['name']),
         ]);
     }
 

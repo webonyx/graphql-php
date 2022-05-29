@@ -40,7 +40,6 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
 use function is_array;
 use function is_bool;
 use function is_float;
@@ -83,12 +82,12 @@ class AST
     public static function fromArray(array $node): Node
     {
         $kind = $node['kind'] ?? null;
-        if (null === $kind) {
+        if ($kind === null) {
             throw new InvariantViolation('Node is missing kind:' . Utils::printSafeJson($node));
         }
 
         $class = NodeKind::CLASS_MAP[$kind] ?? null;
-        if (null === $class) {
+        if ($class === null) {
             throw new InvariantViolation('Node has unexpected kind:' . Utils::printSafeJson($node));
         }
 
@@ -99,12 +98,12 @@ class AST
         }
 
         foreach ($node as $key => $value) {
-            if ('loc' === $key || 'kind' === $key) {
+            if ($key === 'loc' || $key === 'kind') {
                 continue;
             }
 
             if (is_array($value)) {
-                if (isset($value[0]) || 0 === count($value)) {
+                if (isset($value[0]) || count($value) === 0) {
                     $value = new NodeList($value);
                 } else {
                     $value = self::fromArray($value);
@@ -157,16 +156,17 @@ class AST
     public static function astFromValue($value, InputType $type): ?ValueNode
     {
         if ($type instanceof NonNull) {
-            // @phpstan-ignore-next-line wrapped type must also be input type
-            $astValue = self::astFromValue($value, $type->getWrappedType());
-            if ($astValue instanceof NullValueNode) {
-                return null;
-            }
+            $wrappedType = $type->getWrappedType();
+            assert($wrappedType instanceof InputType);
 
-            return $astValue;
+            $astValue = self::astFromValue($value, $wrappedType);
+
+            return $astValue instanceof NullValueNode
+                ? null
+                : $astValue;
         }
 
-        if (null === $value) {
+        if ($value === null) {
             return new NullValueNode([]);
         }
 
@@ -180,7 +180,7 @@ class AST
                 $valuesNodes = [];
                 foreach ($value as $item) {
                     $itemNode = self::astFromValue($item, $itemType);
-                    if (null !== $itemNode) {
+                    if ($itemNode !== null) {
                         $valuesNodes[] = $itemNode;
                     }
                 }
@@ -211,7 +211,7 @@ class AST
 
                 // Have to check additionally if key exists, since we differentiate between
                 // "no key" and "value is null":
-                if (null !== $fieldValue) {
+                if ($fieldValue !== null) {
                     $fieldExists = true;
                 } elseif ($isArray) {
                     $fieldExists = array_key_exists($fieldName, $value);
@@ -227,7 +227,7 @@ class AST
 
                 $fieldNode = self::astFromValue($fieldValue, $field->getType());
 
-                if (null === $fieldNode) {
+                if ($fieldNode === null) {
                     continue;
                 }
 
@@ -316,7 +316,7 @@ class AST
     {
         $undefined = Utils::undefined();
 
-        if (null === $valueNode) {
+        if ($valueNode === null) {
             // When there is no AST, then there is also no value.
             // Importantly, this is different from returning the GraphQL null value.
             return $undefined;
@@ -339,7 +339,7 @@ class AST
         if ($valueNode instanceof VariableNode) {
             $variableName = $valueNode->name->value;
 
-            if (($variables ?? []) === [] || ! array_key_exists($variableName, $variables)) {
+            if ($variables === null || ! array_key_exists($variableName, $variables)) {
                 // No valid return value.
                 return $undefined;
             }
@@ -407,7 +407,7 @@ class AST
                 $fieldName = $field->name;
                 $fieldNode = $fieldNodes[$fieldName] ?? null;
 
-                if (null === $fieldNode || self::isMissingVariable($fieldNode->value, $variables)) {
+                if ($fieldNode === null || self::isMissingVariable($fieldNode->value, $variables)) {
                     if ($field->defaultValueExists()) {
                         $coercedObj[$fieldName] = $field->defaultValue;
                     } elseif ($field->getType() instanceof NonNull) {
@@ -465,7 +465,7 @@ class AST
     private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
     {
         return $valueNode instanceof VariableNode
-            && (0 === count($variables) || ! array_key_exists($valueNode->name->value, $variables));
+            && ($variables === null || ! array_key_exists($valueNode->name->value, $variables));
     }
 
     /**
@@ -539,25 +539,26 @@ class AST
     /**
      * Returns type definition for given AST Type node.
      *
+     * @param callable(string): ?Type $typeLoader
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      *
      * @throws Exception
      *
      * @api
      */
-    public static function typeFromAST(Schema $schema, Node $inputTypeNode): ?Type
+    public static function typeFromAST(callable $typeLoader, Node $inputTypeNode): ?Type
     {
         if ($inputTypeNode instanceof ListTypeNode) {
-            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
+            $innerType = self::typeFromAST($typeLoader, $inputTypeNode->type);
 
-            return null === $innerType
+            return $innerType === null
                 ? null
                 : new ListOfType($innerType);
         }
 
         if ($inputTypeNode instanceof NonNullTypeNode) {
-            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
-            if (null === $innerType) {
+            $innerType = self::typeFromAST($typeLoader, $inputTypeNode->type);
+            if ($innerType === null) {
                 return null;
             }
 
@@ -566,7 +567,7 @@ class AST
             return new NonNull($innerType);
         }
 
-        return $schema->getType($inputTypeNode->name->value);
+        return $typeLoader($inputTypeNode->name->value);
     }
 
     /**
@@ -584,9 +585,9 @@ class AST
                 continue;
             }
 
-            if (null === $operationName) {
+            if ($operationName === null) {
                 // We found a second operation, so we bail instead of returning an ambiguous result.
-                if (null !== $operation) {
+                if ($operation !== null) {
                     return null;
                 }
 

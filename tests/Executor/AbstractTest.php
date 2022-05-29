@@ -17,6 +17,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\BuildSchema;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -43,9 +44,7 @@ class AbstractTest extends TestCase
         $dogType = new ObjectType([
             'name' => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Dog;
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Dog,
             'fields' => [
                 'name' => ['type' => Type::string()],
                 'woofs' => ['type' => Type::boolean()],
@@ -55,9 +54,7 @@ class AbstractTest extends TestCase
         $catType = new ObjectType([
             'name' => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Cat;
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Cat,
             'fields' => [
                 'name' => ['type' => Type::string()],
                 'meows' => ['type' => Type::boolean()],
@@ -70,9 +67,10 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($petType),
-                        'resolve' => static function (): array {
-                            return [new Dog('Odie', true), new Cat('Garfield', false)];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                        ],
                     ],
                 ],
             ]),
@@ -109,9 +107,7 @@ class AbstractTest extends TestCase
     {
         $dogType = new ObjectType([
             'name' => 'Dog',
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Dog;
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Dog,
             'fields' => [
                 'name' => ['type' => Type::string()],
                 'woofs' => ['type' => Type::boolean()],
@@ -120,9 +116,7 @@ class AbstractTest extends TestCase
 
         $catType = new ObjectType([
             'name' => 'Cat',
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Cat;
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Cat,
             'fields' => [
                 'name' => ['type' => Type::string()],
                 'meows' => ['type' => Type::boolean()],
@@ -140,9 +134,10 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($petType),
-                        'resolve' => static function (): array {
-                            return [new Dog('Odie', true), new Cat('Garfield', false)];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                        ],
                     ],
                 ],
             ]),
@@ -232,13 +227,11 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($PetType),
-                        'resolve' => static function (): array {
-                            return [
-                                new Dog('Odie', true),
-                                new Cat('Garfield', false),
-                                new Human('Jon'),
-                            ];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                            new Human('Jon'),
+                        ],
                     ],
                 ],
             ]),
@@ -332,13 +325,11 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($PetType),
-                        'resolve' => static function (): array {
-                            return [
-                                new Dog('Odie', true),
-                                new Cat('Garfield', false),
-                                new Human('Jon'),
-                            ];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                            new Human('Jon'),
+                        ],
                     ],
                 ],
             ]),
@@ -383,6 +374,130 @@ class AbstractTest extends TestCase
         self::assertArraySubset($expected, $result);
     }
 
+    /** @see it('resolve Union type using __typename on source object') */
+    public function testResolveUnionTypeUsingTypenameOnSourceObject(): void
+    {
+        $schema = BuildSchema::build('
+          type Query {
+            pets: [Pet]
+          }
+    
+          union Pet = Cat | Dog
+    
+          type Cat {
+            name: String
+            meows: Boolean
+          }
+    
+          type Dog {
+            name: String
+            woofs: Boolean
+          }
+        ');
+
+        $query = '
+          {
+            pets {
+              name
+              ... on Dog {
+                woofs
+              }
+              ... on Cat {
+                meows
+              }
+            }
+          }
+        ';
+
+        $rootValue = [
+            'pets' => [
+                [
+                    '__typename' => 'Dog',
+                    'name' => 'Odie',
+                    'woofs' => true,
+                ],
+                [
+                    '__typename' => 'Cat',
+                    'name' => 'Garfield',
+                    'meows' => false,
+                ],
+            ],
+        ];
+
+        $expected = new ExecutionResult([
+            'pets' => [
+                ['name' => 'Odie', 'woofs' => true],
+                ['name' => 'Garfield', 'meows' => false],
+            ],
+        ]);
+
+        $result = Executor::execute($schema, Parser::parse($query), $rootValue);
+        self::assertEquals($expected, $result);
+    }
+
+    /** @see it('resolve Interface type using __typename on source object') */
+    public function testResolveInterfaceTypeUsingTypenameOnSourceObject(): void
+    {
+        $schema = BuildSchema::build('
+          type Query {
+            pets: [Pet]
+          }
+    
+          interface Pet {
+            name: String
+            }
+    
+          type Cat implements Pet {
+            name: String
+            meows: Boolean
+          }
+    
+          type Dog implements Pet {
+            name: String
+            woofs: Boolean
+          }
+        ');
+
+        $query = '
+          {
+            pets {
+              name
+              ... on Dog {
+                woofs
+              }
+              ... on Cat {
+                meows
+              }
+            }
+          }
+        ';
+
+        $rootValue = [
+            'pets' => [
+                [
+                    '__typename' => 'Dog',
+                    'name' => 'Odie',
+                    'woofs' => true,
+                ],
+                [
+                    '__typename' => 'Cat',
+                    'name' => 'Garfield',
+                    'meows' => false,
+                ],
+            ],
+        ];
+
+        $expected = new ExecutionResult([
+            'pets' => [
+                ['name' => 'Odie', 'woofs' => true],
+                ['name' => 'Garfield', 'meows' => false],
+            ],
+        ]);
+
+        $result = Executor::execute($schema, Parser::parse($query), $rootValue);
+        self::assertEquals($expected, $result);
+    }
+
     /**
      * @see it('returning invalid value from resolveType yields useful error')
      */
@@ -392,9 +507,7 @@ class AbstractTest extends TestCase
         $fooInterface = new InterfaceType([
             'name' => 'FooInterface',
             'fields' => ['bar' => ['type' => Type::string()]],
-            'resolveType' => static function (): array {
-                return [];
-            },
+            'resolveType' => static fn (): array => [],
         ]);
 
         $fooObject = new ObjectType([
@@ -409,9 +522,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'foo' => [
                         'type' => $fooInterface,
-                        'resolve' => static function (): string {
-                            return 'dummy';
-                        },
+                        'resolve' => static fn (): string => 'dummy',
                     ],
                 ],
             ]),
@@ -490,7 +601,7 @@ class AbstractTest extends TestCase
                             . 'This can happen when an object type is only referenced indirectly through '
                             . 'abstract types and never directly through fields.'
                             . 'List the type in the option "types" during schema construction, '
-                            . 'see https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options.',
+                            . 'see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options.',
                     ],
                 ],
             ],
@@ -545,12 +656,10 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($PetType),
-                        'resolve' => static function (): array {
-                            return [
-                                new Dog('Odie', true),
-                                new Cat('Garfield', false),
-                            ];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                        ],
                     ],
                 ],
             ]),

@@ -94,30 +94,28 @@ class DeferredFieldsTest extends TestCase
 
         $this->userType = new ObjectType([
             'name' => 'User',
-            'fields' => function (): array {
-                return [
-                    'name' => [
-                        'type' => Type::string(),
-                        'resolve' => function ($user, $args, $context, ResolveInfo $info) {
-                            $this->paths[] = $info->path;
+            'fields' => fn (): array => [
+                'name' => [
+                    'type' => Type::string(),
+                    'resolve' => function ($user, $args, $context, ResolveInfo $info) {
+                        $this->paths[] = $info->path;
 
-                            return $user['name'];
-                        },
-                    ],
-                    'bestFriend' => [
-                        'type' => $this->userType,
-                        'resolve' => function ($user, $args, $context, ResolveInfo $info): Deferred {
-                            $this->paths[] = $info->path;
+                        return $user['name'];
+                    },
+                ],
+                'bestFriend' => [
+                    'type' => $this->userType,
+                    'resolve' => function ($user, $args, $context, ResolveInfo $info): Deferred {
+                        $this->paths[] = $info->path;
 
-                            return new Deferred(function () use ($user) {
-                                $this->paths[] = 'deferred-for-best-friend-of-' . $user['id'];
+                        return new Deferred(function () use ($user) {
+                            $this->paths[] = 'deferred-for-best-friend-of-' . $user['id'];
 
-                                return $this->findUserById($user['bestFriendId']);
-                            });
-                        },
-                    ],
-                ];
-            },
+                            return $this->findUserById($user['bestFriendId']);
+                        });
+                    },
+                ],
+            ],
         ]);
 
         $this->storyType = new ObjectType([
@@ -188,10 +186,15 @@ class DeferredFieldsTest extends TestCase
 
                         return new Deferred(function () use ($category): Deferred {
                             $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStoryAuthor1';
+
                             $story = $this->findStoryById($category['topStoryId']);
 
                             return new Deferred(function () use ($category, $story) {
                                 $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStoryAuthor2';
+
+                                if ($story === null) {
+                                    return null;
+                                }
 
                                 return $this->findUserById($story['authorId']);
                             });
@@ -587,10 +590,10 @@ class DeferredFieldsTest extends TestCase
             }
         ');
 
-        $author1 = ['name' => 'John'/*, 'bestFriend' => ['name' => 'Dirk']*/];
-        $author2 = ['name' => 'Jane'/*, 'bestFriend' => ['name' => 'Joe']*/];
-        $author3 = ['name' => 'Joe'/*, 'bestFriend' => ['name' => 'Jane']*/];
-        $author4 = ['name' => 'Dirk'/*, 'bestFriend' => ['name' => 'John']*/];
+        $author1 = ['name' => 'John'/* , 'bestFriend' => ['name' => 'Dirk'] */];
+        $author2 = ['name' => 'Jane'/* , 'bestFriend' => ['name' => 'Joe'] */];
+        $author3 = ['name' => 'Joe'/* , 'bestFriend' => ['name' => 'Jane'] */];
+        $author4 = ['name' => 'Dirk'/* , 'bestFriend' => ['name' => 'John'] */];
 
         $story1 = ['title' => 'Story #8', 'author' => $author1];
         $story2 = ['title' => 'Story #3', 'author' => $author3];

@@ -47,8 +47,6 @@ abstract class ValidatorTestCase extends TestCase
 
     public static function getTestSchema(): Schema
     {
-        $FurColor = null;
-
         $Being = new InterfaceType([
             'name' => 'Being',
             'fields' => [
@@ -71,14 +69,12 @@ abstract class ValidatorTestCase extends TestCase
 
         $Canine = new InterfaceType([
             'name' => 'Canine',
-            'fields' => static function (): array {
-                return [
-                    'name' => [
-                        'type' => Type::string(),
-                        'args' => ['surname' => ['type' => Type::boolean()]],
-                    ],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'name' => [
+                    'type' => Type::string(),
+                    'args' => ['surname' => ['type' => Type::boolean()]],
+                ],
+            ],
         ]);
 
         $DogCommand = new EnumType([
@@ -145,11 +141,12 @@ abstract class ValidatorTestCase extends TestCase
             ],
         ]);
 
-        $Human = null;
         $Human = new ObjectType([
             'name' => 'Human',
             'interfaces' => [$Being, $Intelligent],
             'fields' => static function () use (&$Human, $Pet): array {
+                assert($Human instanceof ObjectType);
+
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -304,28 +301,20 @@ abstract class ValidatorTestCase extends TestCase
 
         $invalidScalar = new CustomScalarType([
             'name' => 'Invalid',
-            'serialize' => static function ($value) {
-                return $value;
-            },
+            'serialize' => static fn ($value) => $value,
             'parseLiteral' => static function (Node $node): void {
-                throw new UserError('Invalid scalar is always invalid: ' . $node->value);
+                throw new UserError("Invalid scalar is always invalid: {$node->value}");
             },
             'parseValue' => static function ($node): void {
-                throw new UserError('Invalid scalar is always invalid: ' . $node);
+                throw new UserError("Invalid scalar is always invalid: {$node}");
             },
         ]);
 
         $anyScalar = new CustomScalarType([
             'name' => 'Any',
-            'serialize' => static function ($value) {
-                return $value;
-            },
-            'parseLiteral' => static function ($node) {
-                return $node;
-            }, // Allows any value
-            'parseValue' => static function ($value) {
-                return $value;
-            }, // Allows any value
+            'serialize' => static fn ($value) => $value,
+            'parseValue' => static fn ($value) => $value,
+            'parseLiteral' => static fn ($node) => $node,
         ]);
 
         $queryRoot = new ObjectType([

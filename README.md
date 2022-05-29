@@ -3,6 +3,7 @@
 [![CI](https://github.com/webonyx/graphql-php/workflows/CI/badge.svg)](https://github.com/webonyx/graphql-php/actions?query=workflow:CI+branch:master)
 [![Coverage Status](https://codecov.io/gh/webonyx/graphql-php/branch/master/graph/badge.svg)](https://codecov.io/gh/webonyx/graphql-php/branch/master)
 [![Latest Stable Version](https://poser.pugx.org/webonyx/graphql-php/version)](https://packagist.org/packages/webonyx/graphql-php)
+[![Shepherd Type](https://shepherd.dev/github/webonyx/graphql-php/coverage.svg)](ttps://shepherd.dev/github/webonyx/graphql-php)
 
 This is a PHP implementation of the GraphQL [specification](https://github.com/graphql/graphql-spec)
 based on the [reference implementation in JavaScript](https://github.com/graphql/graphql-js).
@@ -34,6 +35,10 @@ This project follows [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.
 Elements that belong to the public API of this package are marked with the `@api` PHPDoc tag.
 Those elements are thus guaranteed to be stable within major versions. All other elements are
 not part of this backwards compatibility guarantee and may change between minor or patch versions.
+
+The most recent version is actively developed on [`master`](https://github.com/webonyx/graphql-php/tree/master)
+and will be released as `15.x`. The current stable version `14.x` receives bug fixes only.
+Older versions are no longer supported.
 
 ## Contributors
 

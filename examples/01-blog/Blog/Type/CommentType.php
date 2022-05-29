@@ -62,7 +62,7 @@ class CommentType extends ObjectType
 
     public function resolveParent(Comment $comment): ?Comment
     {
-        if (null !== $comment->parentId) {
+        if ($comment->parentId !== null) {
             return DataSource::findComment($comment->parentId);
         }
 

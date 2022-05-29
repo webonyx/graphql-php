@@ -30,14 +30,14 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Validator\ASTValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 use function in_array;
@@ -47,7 +47,7 @@ use function in_array;
  */
 class KnownDirectives extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
@@ -60,11 +60,11 @@ class KnownDirectives extends ValidationRule
     /**
      * @phpstan-return VisitorArray
      */
-    public function getASTVisitor(ASTValidationContext $context): array
+    public function getASTVisitor(ValidationContext $context): array
     {
         $locationsMap = [];
         $schema = $context->getSchema();
-        $definedDirectives = null === $schema
+        $definedDirectives = $schema === null
             ? Directive::getInternalDirectives()
             : $schema->getDirectives();
 
@@ -99,7 +99,7 @@ class KnownDirectives extends ValidationRule
                 $name = $node->name->value;
                 $locations = $locationsMap[$name] ?? null;
 
-                if (null === $locations) {
+                if ($locations === null) {
                     $context->reportError(new Error(
                         static::unknownDirectiveMessage($name),
                         [$node]
@@ -110,7 +110,7 @@ class KnownDirectives extends ValidationRule
 
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if ('' === $candidateLocation || in_array($candidateLocation, $locations, true)) {
+                if ($candidateLocation === '' || in_array($candidateLocation, $locations, true)) {
                     return;
                 }
 
@@ -126,7 +126,7 @@ class KnownDirectives extends ValidationRule
 
     public static function unknownDirectiveMessage(string $directiveName): string
     {
-        return "Unknown directive \"{$directiveName}\".";
+        return "Unknown directive \"@{$directiveName}\".";
     }
 
     /**
@@ -166,7 +166,7 @@ class KnownDirectives extends ValidationRule
                 return DirectiveLocation::VARIABLE_DEFINITION;
 
             case $appliedTo instanceof SchemaDefinitionNode:
-            case $appliedTo instanceof SchemaTypeExtensionNode:
+            case $appliedTo instanceof SchemaExtensionNode:
                 return DirectiveLocation::SCHEMA;
 
             case $appliedTo instanceof ScalarTypeDefinitionNode:

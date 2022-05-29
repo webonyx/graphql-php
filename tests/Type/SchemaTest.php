@@ -39,9 +39,7 @@ class SchemaTest extends TestCase
             'fields' => [
                 'fieldName' => [
                     'type' => Type::string(),
-                    'resolve' => static function (): string {
-                        return '';
-                    },
+                    'resolve' => static fn (): string => '',
                 ],
             ],
         ]);
@@ -83,9 +81,7 @@ class SchemaTest extends TestCase
                 'fields' => [
                     'getObject' => [
                         'type' => $this->interfaceType,
-                        'resolve' => static function (): array {
-                            return [];
-                        },
+                        'resolve' => static fn (): array => [],
                     ],
                 ],
             ]),
@@ -122,5 +118,13 @@ class SchemaTest extends TestCase
         $typeMap = $this->schema->getTypeMap();
         self::assertArrayHasKey('DirInput', $typeMap);
         self::assertArrayHasKey('WrappedDirInput', $typeMap);
+    }
+
+    /**
+     * @see https://github.com/webonyx/graphql-php/issues/997
+     */
+    public function testSchemaReturnsNullForNonexistentType(): void
+    {
+        self::assertNull($this->schema->getType('UnknownType'));
     }
 }

@@ -30,15 +30,15 @@ class Issue396Test extends TestCase
             'types' => [$a, $b, $c],
             'resolveType' => static function ($result, $value, ResolveInfo $info) use ($a, $b, $c, &$log): ?Type {
                 $log[] = [$result, $info->path];
-                if (false !== stristr($result['name'], 'A')) {
+                if (stristr($result['name'], 'A') !== false) {
                     return $a;
                 }
 
-                if (false !== stristr($result['name'], 'B')) {
+                if (stristr($result['name'], 'B') !== false) {
                     return $b;
                 }
 
-                if (false !== stristr($result['name'], 'C')) {
+                if (stristr($result['name'], 'C') !== false) {
                     return $c;
                 }
 
@@ -51,13 +51,11 @@ class Issue396Test extends TestCase
             'fields' => [
                 'field' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull($unionResult))),
-                    'resolve' => static function (): array {
-                        return [
-                            ['name' => 'A 1'],
-                            ['name' => 'B 2'],
-                            ['name' => 'C 3'],
-                        ];
-                    },
+                    'resolve' => static fn (): array => [
+                        ['name' => 'A 1'],
+                        ['name' => 'B 2'],
+                        ['name' => 'C 3'],
+                    ],
                 ],
             ],
         ]);
@@ -101,15 +99,15 @@ class Issue396Test extends TestCase
             ],
             'resolveType' => static function ($result, $value, ResolveInfo $info) use (&$a, &$b, &$c, &$log): ?ObjectType {
                 $log[] = [$result, $info->path];
-                if (false !== stristr($result['name'], 'A')) {
+                if (stristr($result['name'], 'A') !== false) {
                     return $a;
                 }
 
-                if (false !== stristr($result['name'], 'B')) {
+                if (stristr($result['name'], 'B') !== false) {
                     return $b;
                 }
 
-                if (false !== stristr($result['name'], 'C')) {
+                if (stristr($result['name'], 'C') !== false) {
                     return $c;
                 }
 
@@ -141,13 +139,11 @@ class Issue396Test extends TestCase
             'fields' => [
                 'field' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull($interfaceResult))),
-                    'resolve' => static function (): array {
-                        return [
-                            ['name' => 'A 1'],
-                            ['name' => 'B 2'],
-                            ['name' => 'C 3'],
-                        ];
-                    },
+                    'resolve' => static fn (): array => [
+                        ['name' => 'A 1'],
+                        ['name' => 'B 2'],
+                        ['name' => 'C 3'],
+                    ],
                 ],
             ],
         ]);

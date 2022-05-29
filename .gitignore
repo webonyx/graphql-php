@@ -3,5 +3,6 @@
 composer.lock
 composer.phar
 phpstan.neon
+psalm.xml
 vendor
 .idea

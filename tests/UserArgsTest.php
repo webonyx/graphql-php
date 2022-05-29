@@ -51,9 +51,7 @@ class UserArgsTest extends TestCase
                 'getDummyValue' => [
                     'type' => Type::string(),
                     'args' => ['args' => ['type' => $inputType]],
-                    'resolve' => static function (): string {
-                        return 'dummy value';
-                    },
+                    'resolve' => static fn (): string => 'dummy value',
                 ],
             ],
         ]);

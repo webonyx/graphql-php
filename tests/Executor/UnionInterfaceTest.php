@@ -42,6 +42,8 @@ class UnionInterfaceTest extends TestCase
         $LifeType = new InterfaceType([
             'name' => 'Life',
             'fields' => static function () use (&$LifeType): array {
+                assert($LifeType instanceof InterfaceType);
+
                 return [
                     'progeny' => ['type' => Type::listOf($LifeType)],
                 ];
@@ -52,6 +54,8 @@ class UnionInterfaceTest extends TestCase
             'name' => 'Mammal',
             'interfaces' => [$LifeType],
             'fields' => static function () use (&$MammalType): array {
+                assert($MammalType instanceof InterfaceType);
+
                 return [
                     'progeny' => ['type' => Type::listOf($MammalType)],
                     'mother' => ['type' => &$MammalType],
@@ -64,6 +68,8 @@ class UnionInterfaceTest extends TestCase
             'name' => 'Dog',
             'interfaces' => [$MammalType, $LifeType, $NamedType],
             'fields' => static function () use (&$DogType): array {
+                assert($DogType instanceof ObjectType);
+
                 return [
                     'name' => ['type' => Type::string()],
                     'woofs' => ['type' => Type::boolean()],
@@ -72,15 +78,15 @@ class UnionInterfaceTest extends TestCase
                     'father' => ['type' => &$DogType],
                 ];
             },
-            'isTypeOf' => static function ($value): bool {
-                return $value instanceof Dog;
-            },
+            'isTypeOf' => static fn ($value): bool => $value instanceof Dog,
         ]);
 
         $CatType = new ObjectType([
             'name' => 'Cat',
             'interfaces' => [$MammalType, $LifeType, $NamedType],
             'fields' => static function () use (&$CatType): array {
+                assert($CatType instanceof ObjectType);
+
                 return [
                     'name' => ['type' => Type::string()],
                     'meows' => ['type' => Type::boolean()],
@@ -89,9 +95,7 @@ class UnionInterfaceTest extends TestCase
                     'father' => ['type' => &$CatType],
                 ];
             },
-            'isTypeOf' => static function ($value): bool {
-                return $value instanceof Cat;
-            },
+            'isTypeOf' => static fn ($value): bool => $value instanceof Cat,
         ]);
 
         $PetType = new UnionType([
@@ -114,6 +118,8 @@ class UnionInterfaceTest extends TestCase
             'name' => 'Person',
             'interfaces' => [$NamedType, $MammalType, $LifeType],
             'fields' => static function () use (&$PetType, &$NamedType, &$PersonType): array {
+                assert($PersonType instanceof ObjectType);
+
                 return [
                     'name' => ['type' => Type::string()],
                     'pets' => ['type' => Type::listOf($PetType)],
@@ -123,9 +129,7 @@ class UnionInterfaceTest extends TestCase
                     'father' => ['type' => $PersonType],
                 ];
             },
-            'isTypeOf' => static function ($value): bool {
-                return $value instanceof Person;
-            },
+            'isTypeOf' => static fn ($value): bool => $value instanceof Person,
         ]);
 
         $this->schema = new Schema([
@@ -204,9 +208,9 @@ class UnionInterfaceTest extends TestCase
                     ],
                     'interfaces' => [],
                     'possibleTypes' => [
-                        ['name' => 'Person'],
                         ['name' => 'Dog'],
                         ['name' => 'Cat'],
+                        ['name' => 'Person'],
                     ],
                     'enumValues' => null,
                     'inputFields' => null,
@@ -223,9 +227,9 @@ class UnionInterfaceTest extends TestCase
                         ['name' => 'Life'],
                     ],
                     'possibleTypes' => [
-                        ['name' => 'Person'],
                         ['name' => 'Dog'],
                         ['name' => 'Cat'],
+                        ['name' => 'Person'],
                     ],
                     'enumValues' => null,
                     'inputFields' => null,

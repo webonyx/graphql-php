@@ -16,14 +16,14 @@ use function is_array;
  *     type: ArgumentType,
  *     defaultValue?: mixed,
  *     description?: string|null,
- *     astNode?: InputValueDefinitionNode|null,
+ *     astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type ArgumentConfig array{
  *     name: string,
  *     type: ArgumentType,
  *     defaultValue?: mixed,
  *     description?: string|null,
- *     astNode?: InputValueDefinitionNode|null,
+ *     astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type ArgumentListConfig iterable<ArgumentConfig|ArgumentType>|iterable<UnnamedArgumentConfig>
  */
@@ -45,7 +45,7 @@ class Argument
     public array $config;
 
     /**
-     * @param ArgumentConfig $config
+     * @phpstan-param ArgumentConfig $config
      */
     public function __construct(array $config)
     {
@@ -84,7 +84,6 @@ class Argument
     public function getType(): Type
     {
         if (! isset($this->type)) {
-            // @phpstan-ignore-next-line schema validation will catch a Type that is not an InputType
             $this->type = Schema::resolveType($this->config['type']);
         }
 
@@ -104,14 +103,14 @@ class Argument
 
     /**
      * @param Type&NamedType $parentType
+     *
+     * @throws InvariantViolation
      */
     public function assertValid(FieldDefinition $parentField, Type $parentType): void
     {
         $error = Utils::isValidNameError($this->name);
-        if (null !== $error) {
-            throw new InvariantViolation(
-                "{$parentType->name}.{$parentField->name}({$this->name}:) {$error->getMessage()}"
-            );
+        if ($error !== null) {
+            throw new InvariantViolation("{$parentType->name}.{$parentField->name}({$this->name}:) {$error->getMessage()}");
         }
 
         $type = Type::getNamedType($this->getType());
@@ -119,9 +118,7 @@ class Argument
         if (! $type instanceof InputType) {
             $notInputType = Utils::printSafe($this->type);
 
-            throw new InvariantViolation(
-                "{$parentType->name}.{$parentField->name}({$this->name}): argument type must be Input Type but got: {$notInputType}"
-            );
+            throw new InvariantViolation("{$parentType->name}.{$parentField->name}({$this->name}): argument type must be Input Type but got: {$notInputType}");
         }
     }
 }

@@ -11,7 +11,7 @@ use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\ValidationContext;
 
-class QueryComplexityTest extends QuerySecurityTestCase
+final class QueryComplexityTest extends QuerySecurityTestCase
 {
     private static QueryComplexity $rule;
 
@@ -27,7 +27,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
             $positions = [];
 
-            if ($maxComplexity < $queryComplexity && QueryComplexity::DISABLED !== $maxComplexity) {
+            if ($maxComplexity < $queryComplexity && $maxComplexity !== QueryComplexity::DISABLED) {
                 $positions = [$this->createFormattedError($maxComplexity, $queryComplexity)];
             }
 
@@ -38,6 +38,13 @@ class QueryComplexityTest extends QuerySecurityTestCase
     public function testInlineFragmentQueries(): void
     {
         $query = 'query MyQuery { human { ... on Human { firstName } } }';
+
+        $this->assertDocumentValidators($query, 2, 3);
+    }
+
+    public function testTypelessInlineFragmentQueries(): void
+    {
+        $query = 'query MyQuery { human { ... { firstName } } }';
 
         $this->assertDocumentValidators($query, 2, 3);
     }
@@ -173,15 +180,13 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $reportedError = new Error('OtherValidatorError');
         $otherRule = new CustomValidationRule(
             'otherRule',
-            static function (ValidationContext $context) use ($reportedError): array {
-                return [
-                    NodeKind::OPERATION_DEFINITION => [
-                        'leave' => static function () use ($context, $reportedError): void {
-                            $context->reportError($reportedError);
-                        },
-                    ],
-                ];
-            }
+            static fn (ValidationContext $context): array => [
+                NodeKind::OPERATION_DEFINITION => [
+                    'leave' => static function () use ($context, $reportedError): void {
+                        $context->reportError($reportedError);
+                    },
+                ],
+            ]
         );
 
         $errors = DocumentValidator::validate(
