@@ -10,8 +10,10 @@ enum PhpEnum
 {
     #[Description(description: 'bar')]
     case A;
+
     #[Deprecated]
     case B;
+
     #[Deprecated(reason: 'baz')]
     case C;
 }

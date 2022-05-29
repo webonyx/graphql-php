@@ -67,6 +67,7 @@ enum Fruit
 {
     #[Description(description: 'Rich in potassium.')]
     case BANANA;
+
     #[Deprecated(reason: 'Too sour.')]
     case CITRON;
 }
