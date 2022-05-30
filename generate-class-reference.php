@@ -26,13 +26,14 @@ use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\BuildSchema;
+use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\DocumentValidator;
 use Symfony\Component\VarExporter\VarExporter;
 
-$outputFile = __DIR__ . '/docs/class-reference.md';
+const OUTPUT_FILE = __DIR__ . '/docs/class-reference.md';
 
-$entries = [
+const ENTRIES = [
     GraphQL::class => [],
     Type::class => [],
     ResolveInfo::class => [],
@@ -67,7 +68,7 @@ $entries = [
  */
 function renderClass(ReflectionClass $class, array $options): string
 {
-    $classDocs = unwrapDocblock(unpadDocblock($class->getDocComment()));
+    $classDocs = PhpDoc::unwrap(PhpDoc::unpad($class->getDocComment()));
     $content = '';
     $className = $class->getName();
 
@@ -151,7 +152,7 @@ function renderMethod(ReflectionMethod $method): string
     $def = $returnType instanceof ReflectionType
         ? "$def: $returnType"
         : $def;
-    $docBlock = unpadDocblock($method->getDocComment());
+    $docBlock = PhpDoc::unpad($method->getDocComment());
 
     return <<<TEMPLATE
 ```php
@@ -165,43 +166,7 @@ function renderProp(ReflectionProperty $prop): string
 {
     $signature = implode(' ', Reflection::getModifierNames($prop->getModifiers())) . ' $' . $prop->getName() . ';';
 
-    return unpadDocblock($prop->getDocComment()) . "\n" . $signature;
-}
-
-function unwrapDocblock(string $docBlock): string
-{
-    if ($docBlock === '') {
-        return '';
-    }
-
-    $content = preg_replace('~([\r\n]) \* (.*)~i', '$1$2', $docBlock); // strip *
-    assert(is_string($content), 'regex is statically known to be valid');
-
-    $content = preg_replace('~([\r\n])[\* ]+([\r\n])~i', '$1$2', $content); // strip single-liner *
-    assert(is_string($content), 'regex is statically known to be valid');
-
-    $content = substr($content, 3); // strip leading /**
-    $content = substr($content, 0, -2); // strip trailing */
-
-    return trim($content);
-}
-
-/**
- * @param string|false $docBlock
- */
-function unpadDocblock($docBlock): string
-{
-    if ($docBlock === false) {
-        return '';
-    }
-
-    $lines = explode("\n", $docBlock);
-    $lines = array_map(
-        static fn (string $line): string => ' ' . trim($line),
-        $lines
-    );
-
-    return trim(implode("\n", $lines));
+    return PhpDoc::unpad($prop->getDocComment()) . "\n" . $signature;
 }
 
 /**
@@ -217,9 +182,9 @@ function isApi(Reflector $reflector): bool
     return preg_match('~[\r\n ]+\* @api~', $comment) === 1;
 }
 
-file_put_contents($outputFile, '');
+file_put_contents(OUTPUT_FILE, '');
 
-foreach ($entries as $className => $options) {
+foreach (ENTRIES as $className => $options) {
     $rendered = renderClass(new ReflectionClass($className), $options);
-    file_put_contents($outputFile, $rendered, FILE_APPEND);
+    file_put_contents(OUTPUT_FILE, $rendered, FILE_APPEND);
 }
