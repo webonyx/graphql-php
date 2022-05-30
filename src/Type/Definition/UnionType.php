@@ -98,6 +98,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
                 );
             }
 
+            /** @var ObjectType|callable():ObjectType $type */
             foreach ($types as $type) {
                 $this->types[] = Schema::resolveType($type);
             }
