@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\TestClasses;
+namespace GraphQL\Tests\Type\PhpEnumType;
 
 use GraphQL\Type\Definition\Deprecated;
 

@@ -16,10 +16,7 @@ parameters:
         # PHP 8.1 enums
         - src/Type/Definition/PhpEnumType.php
         - tests/Type/PhpEnumTypeTest.php
-        - tests/Type/TestClasses/MultipleDeprecationsPhpEnum.php
-        - tests/Type/TestClasses/MultipleDescriptionsCasePhpEnum.php
-        - tests/Type/TestClasses/MultipleDescriptionsPhpEnum.php
-        - tests/Type/TestClasses/PhpEnum.php
+        - tests/Type/PhpEnumType
 
     ignoreErrors:
         # Since this is a library that is supposed to be flexible, we don't

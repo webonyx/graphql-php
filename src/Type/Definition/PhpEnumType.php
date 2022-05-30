@@ -4,8 +4,10 @@ namespace GraphQL\Type\Definition;
 
 use Exception;
 use GraphQL\Error\SerializationError;
+use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
-use ReflectionAttribute;
+use ReflectionClass;
+use ReflectionClassConstant;
 use ReflectionEnum;
 use UnitEnum;
 
@@ -37,15 +39,15 @@ class PhpEnumType extends EnumType
         foreach ($reflection->getCases() as $case) {
             $enumDefinitions[$case->name] = [
                 'value' => $case->getValue(),
-                'description' => $this->description($case->getAttributes(Description::class)),
-                'deprecationReason' => $this->deprecationReason($case->getAttributes(Deprecated::class)),
+                'description' => $this->description($case),
+                'deprecationReason' => $this->deprecationReason($case),
             ];
         }
 
         parent::__construct([
             'name' => $this->baseName($enum),
             'values' => $enumDefinitions,
-            'description' => $this->description($reflection->getAttributes(Description::class)),
+            'description' => $this->description($reflection),
         ]);
     }
 
@@ -54,7 +56,7 @@ class PhpEnumType extends EnumType
         if (! is_a($value, $this->enumClass)) {
             $notEnum = Utils::printSafe($value);
 
-            throw new SerializationError("Cannot serialize {$notEnum}, expected enum {$this->enumClass}.");
+            throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$this->enumClass}.");
         }
 
         return $value->name;
@@ -70,11 +72,10 @@ class PhpEnumType extends EnumType
         return end($parts);
     }
 
-    /**
-     * @param array<ReflectionAttribute<Description>> $attributes
-     */
-    protected function description(array $attributes): ?string
+    protected function description(ReflectionClassConstant|ReflectionClass $reflection): ?string
     {
+        $attributes = $reflection->getAttributes(Description::class);
+
         if (count($attributes) === 1) {
             return $attributes[0]->newInstance()->description;
         }
@@ -83,14 +84,16 @@ class PhpEnumType extends EnumType
             throw new Exception(self::MULTIPLE_DESCRIPTIONS_DISALLOWED);
         }
 
-        return null;
+        $comment = $reflection->getDocComment();
+        $unpadded = PhpDoc::unpad($comment);
+
+        return PhpDoc::unwrap($unpadded);
     }
 
-    /**
-     * @param array<ReflectionAttribute<Deprecated>> $attributes
-     */
-    protected function deprecationReason(array $attributes): ?string
+    protected function deprecationReason(ReflectionClassConstant $reflection): ?string
     {
+        $attributes = $reflection->getAttributes(Deprecated::class);
+
         if (count($attributes) === 1) {
             return $attributes[0]->newInstance()->reason;
         }

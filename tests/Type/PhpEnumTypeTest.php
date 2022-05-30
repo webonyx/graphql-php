@@ -7,10 +7,11 @@ use GraphQL\Error\DebugFlag;
 use GraphQL\Error\SerializationError;
 use GraphQL\GraphQL;
 use GraphQL\Tests\TestCaseBase;
-use GraphQL\Tests\Type\TestClasses\MultipleDeprecationsPhpEnum;
-use GraphQL\Tests\Type\TestClasses\MultipleDescriptionsCasePhpEnum;
-use GraphQL\Tests\Type\TestClasses\MultipleDescriptionsPhpEnum;
-use GraphQL\Tests\Type\TestClasses\PhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\DocBlockPhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\MultipleDeprecationsPhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\MultipleDescriptionsCasePhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\MultipleDescriptionsPhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\PhpEnum;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\Type;
@@ -39,6 +40,27 @@ enum PhpEnum {
   A
   B @deprecated
   C @deprecated(reason: "baz")
+}
+GRAPHQL,
+            SchemaPrinter::printType($enumType)
+        );
+    }
+
+    public function testConstructEnumTypeFromPhpEnumWithDocBlockDescriptions(): void
+    {
+        $enumType = new PhpEnumType(DocBlockPhpEnum::class);
+        self::assertSame(
+            <<<'GRAPHQL'
+"""foo"""
+enum DocBlockPhpEnum {
+  """preferred"""
+  A
+
+  """
+  multi
+  line.
+  """
+  B
 }
 GRAPHQL,
             SchemaPrinter::printType($enumType)
@@ -115,7 +137,7 @@ GRAPHQL,
 
         $result = GraphQL::executeQuery($schema, '{ foo }');
 
-        self::expectExceptionObject(new SerializationError('Cannot serialize A, expected enum GraphQL\\Tests\\Type\\TestClasses\\PhpEnum.'));
+        self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: A, expected instance of GraphQL\\Tests\\Type\\PhpEnumType\\PhpEnum.'));
         $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS);
     }
 }

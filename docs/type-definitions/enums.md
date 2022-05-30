@@ -73,6 +73,8 @@ enum Fruit
 }
 ```
 
+PhpDocs will be used as descriptions if present, but are overridden by the `Description` attribute.
+
 Wrap them with `GraphQL\Type\Definition\PhpEnumType` to use them in a GraphQL schema:
 
 ```php
