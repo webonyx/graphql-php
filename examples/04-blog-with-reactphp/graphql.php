@@ -27,11 +27,15 @@ $react = new ReactPromiseAdapter();
 $server = new \React\Http\HttpServer(function (ServerRequestInterface $request) use ($schema, $react) {
     DataSource::init();
     $rawInput = (string)$request->getBody();
+    $appContext = new AppContext();
+    $appContext->viewer = DataSource::findUser('1'); // simulated "currently logged-in user"
+    $appContext->rootUrl = '127.0.0.1:8010';
+    $appContext->request = $rawInput;
     $input = json_decode($rawInput, true);
     $query = $input['query'];
     $variableValues = isset($input['variables']) ? $input['variables'] : null;
     $rootValue = ['prefix' => 'You said: '];
-    $promise = GraphQL::promiseToExecute($react, $schema, $query, $rootValue, null, $variableValues);
+    $promise = GraphQL::promiseToExecute($react, $schema, $query, $rootValue, $appContext, $variableValues);
     return $promise->then(function(ExecutionResult $result) {
         $output = $result->toArray(true);
         return new \React\Http\Message\Response(
