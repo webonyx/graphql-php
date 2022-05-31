@@ -15,6 +15,7 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
@@ -131,7 +132,7 @@ class Values
      *
      * If the directive does not exist on the node, returns undefined.
      *
-     * @param FragmentSpreadNode|FieldNode|InlineFragmentNode|EnumValueDefinitionNode|FieldDefinitionNode $node
+     * @param FragmentSpreadNode|FieldNode|InlineFragmentNode|EnumValueDefinitionNode|FieldDefinitionNode|TypeDefinitionNode $node
      * @param array<string, mixed>|null $variableValues
      *
      * @return array<string, mixed>|null
