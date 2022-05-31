@@ -96,6 +96,21 @@ parameters:
 			path: src/Type/Definition/ObjectType.php
 
 		-
+			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\UnionType\\:\\:getTypes\\(\\) should return array\\<int, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\> but returns array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			count: 1
+			path: src/Type/Definition/UnionType.php
+
+		-
+			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\UnionType\\:\\:\\$types \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			count: 1
+			path: src/Type/Definition/UnionType.php
+
+		-
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
+			count: 1
+			path: src/Type/Definition/UnionType.php
+
+		-
 			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\) should return T of GraphQL\\\\Type\\\\Definition\\\\Type but returns \\(callable&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|T of GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
 			count: 1
 			path: src/Type/Schema.php
