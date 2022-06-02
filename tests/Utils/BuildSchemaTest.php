@@ -58,7 +58,7 @@ class BuildSchemaTest extends TestCase
     /**
      * This function does a full cycle of going from a string with the contents of
      * the SDL, parsed in a schema AST, materializing that schema AST into an
-     * in-memory GraphQLSchema, and then finally printing that object into the SDL
+     * in-memory GraphQLSchema, and then finally printing that object into the SDL.
      *
      * @phpstan-param BuildSchemaOptions $options
      */
@@ -158,7 +158,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testMatchOrderOfDefaultTypesAndDirectives(): void
     {
-        $schema    = new Schema([]);
+        $schema = new Schema([]);
         $sdlSchema = BuildSchema::buildAST(
             new DocumentNode(['definitions' => new NodeList([])])
         );
@@ -172,7 +172,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testEmptyType(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type EmptyType
         ');
         $output = $this->cycleSDL($sdl);
@@ -184,7 +184,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleType(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type Query {
               str: String
               int: Int
@@ -229,7 +229,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testWithDirectives(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             directive @foo(arg: Int) on FIELD
             
             directive @repeatableFoo(arg: Int) repeatable on FIELD
@@ -243,7 +243,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSupportsDescriptions(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             """Do you agree that this is the most creative schema ever?"""
             schema {
               query: Query
@@ -329,7 +329,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testAddingDirectivesMaintainsSkipAndInclude(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             directive @foo(arg: Int) on FIELD
         ');
         $schema = BuildSchema::buildAST(Parser::parse($sdl));
@@ -345,7 +345,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testTypeModifiers(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type Query {
               nonNullStr: String!
               listOfStrings: [String]
@@ -363,7 +363,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testRecursiveType(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type Query {
               str: String
               recurse: Query
@@ -378,7 +378,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testTwoTypesCircular(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type TypeOne {
               str: String
               typeTwo: TypeTwo
@@ -398,7 +398,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSingleArgumentField(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type Query {
               str(int: Int): String
               floatToStr(float: Float): String
@@ -416,7 +416,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleTypeWithMultipleArguments(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type Query {
               str(int: Int, bool: Boolean): String
             }
@@ -447,7 +447,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleTypeWithInterface(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type Query implements WorldInterface {
               str: String
             }
@@ -466,7 +466,7 @@ class BuildSchemaTest extends TestCase
     public function testSimpleInterfaceHierarchy(): void
     {
         // `graphql-js` has `query: Child` but that's incorrect as `query` has to be Object type
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             schema {
               query: Hello
             }
@@ -492,7 +492,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testEmptyEnum(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             enum EmptyEnum
         ');
         $output = $this->cycleSDL($sdl);
@@ -504,7 +504,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleOutputEnum(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             enum Hello {
               WORLD
             }
@@ -522,7 +522,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleInputEnum(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             enum Hello {
               WORLD
             }
@@ -540,7 +540,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testMultipleValueEnum(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             enum Hello {
               WO
               RLD
@@ -559,7 +559,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testEmptyUnion(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             union EmptyUnion
         ');
         $output = $this->cycleSDL($sdl);
@@ -571,7 +571,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleUnion(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             union Hello = World
             
             type Query {
@@ -591,7 +591,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testMultipleUnion(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             union Hello = WorldOne | WorldTwo
             
             type Query {
@@ -631,7 +631,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testCustomScalar(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             scalar CustomScalar
             
             type Query {
@@ -647,7 +647,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testEmptyInputObject(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             input EmptyInputObject
         ');
         $output = $this->cycleSDL($sdl);
@@ -659,7 +659,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testInputObject(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             input Input {
               int: Int
             }
@@ -677,7 +677,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleArgumentFieldWithDefault(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type Query {
               str(int: Int = 2): String
             }
@@ -691,7 +691,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testCustomScalarArgumentFieldWithDefault(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             scalar CustomScalar
             
             type Query {
@@ -707,7 +707,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleTypeWithMutation(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             schema {
               query: HelloScalars
               mutation: Mutation
@@ -732,7 +732,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testSimpleTypeWithSubscription(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             schema {
               query: HelloScalars
               subscription: Subscription
@@ -757,7 +757,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testUnreferencedTypeImplementingReferencedInterface(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type Concrete implements Interface {
               key: String
             }
@@ -779,7 +779,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testUnreferencedInterfaceImplementingReferencedInterface(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             interface Child implements Parent {
               key: String
             }
@@ -801,7 +801,7 @@ class BuildSchemaTest extends TestCase
      */
     public function testUnreferencedTypeImplementingReferencedUnion(): void
     {
-        $sdl    = $this->dedent('
+        $sdl = $this->dedent('
             type Concrete {
               key: String
             }
@@ -874,7 +874,7 @@ class BuildSchemaTest extends TestCase
         self::assertEquals('Because I said so', $rootFields['field2']->deprecationReason);
 
         /** @var InputObjectType $type */
-        $type        = $schema->getType('MyInput');
+        $type = $schema->getType('MyInput');
         $inputFields = $type->getFields();
         self::assertEquals(null, $inputFields['newInput']->deprecationReason);
         self::assertEquals('No longer supported', $inputFields['oldInput']->deprecationReason);
@@ -906,7 +906,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend scalar type', () => {
+     * it('Correctly extend scalar type', () => {.
      */
     public function testCorrectlyExtendScalarType(): void
     {
@@ -936,7 +936,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend object type', () => {
+     * it('Correctly extend object type', () => {.
      */
     public function testCorrectlyExtendObjectType(): void
     {
@@ -977,7 +977,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend interface type', () => {
+     * it('Correctly extend interface type', () => {.
      */
     public function testCorrectlyExtendInterfaceType(): void
     {
@@ -1013,7 +1013,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend union type', () => {
+     * it('Correctly extend union type', () => {.
      */
     public function testCorrectlyExtendUnionType(): void
     {
@@ -1044,7 +1044,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend enum type', () => {
+     * it('Correctly extend enum type', () => {.
      */
     public function testCorrectlyExtendEnumType(): void
     {
@@ -1080,7 +1080,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend input object type', () => {
+     * it('Correctly extend input object type', () => {.
      */
     public function testCorrectlyExtendInputObjectType(): void
     {
@@ -1412,7 +1412,7 @@ class BuildSchemaTest extends TestCase
 
     public function testCreatesTypesLazily(): void
     {
-        $sdl     = '
+        $sdl = '
             schema {
               query: Query
             }
@@ -1437,7 +1437,7 @@ class BuildSchemaTest extends TestCase
               world: String
             }
         ';
-        $doc     = Parser::parse($sdl);
+        $doc = Parser::parse($sdl);
         $created = [];
 
         $typeConfigDecorator = static function ($config, $node) use (&$created) {
