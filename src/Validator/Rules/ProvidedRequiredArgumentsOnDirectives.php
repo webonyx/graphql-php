@@ -54,11 +54,9 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         foreach ($definedDirectives as $directive) {
             $directiveArgs = [];
             foreach ($directive->args as $arg) {
-                if (! $arg->isRequired()) {
-                    continue;
+                if ($arg->isRequired()) {
+                    $directiveArgs[$arg->name] = $arg;
                 }
-
-                $directiveArgs[$arg->name] = $arg;
             }
 
             $requiredArgsMap[$directive->name] = $directiveArgs;
@@ -66,22 +64,18 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 
         $astDefinition = $context->getDocument()->definitions;
         foreach ($astDefinition as $def) {
-            if (! ($def instanceof DirectiveDefinitionNode)) {
-                continue;
-            }
+            if ($def instanceof DirectiveDefinitionNode) {
+                $arguments = $def->arguments;
 
-            $arguments = $def->arguments;
-
-            $requiredArgs = [];
-            foreach ($arguments as $argument) {
-                if (! ($argument->type instanceof NonNullTypeNode) || isset($argument->defaultValue)) {
-                    continue;
+                $requiredArgs = [];
+                foreach ($arguments as $argument) {
+                    if ($argument->type instanceof NonNullTypeNode && ! isset($argument->defaultValue)) {
+                        $requiredArgs[$argument->name->value] = $argument;
+                    }
                 }
 
-                $requiredArgs[$argument->name->value] = $argument;
+                $requiredArgsMap[$def->name->value] = $requiredArgs;
             }
-
-            $requiredArgsMap[$def->name->value] = $requiredArgs;
         }
 
         return [
@@ -100,17 +94,15 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                     }
 
                     foreach ($requiredArgs as $argName => $arg) {
-                        if (isset($argNodeMap[$argName])) {
-                            continue;
+                        if (! isset($argNodeMap[$argName])) {
+                            $argType = $arg instanceof Argument
+                                ? $arg->getType()->toString()
+                                : Printer::doPrint($arg->type);
+
+                            $context->reportError(
+                                new Error(static::missingDirectiveArgMessage($directiveName, $argName, $argType), [$directiveNode])
+                            );
                         }
-
-                        $argType = $arg instanceof Argument
-                            ? $arg->getType()->toString()
-                            : Printer::doPrint($arg->type);
-
-                        $context->reportError(
-                            new Error(static::missingDirectiveArgMessage($directiveName, $argName, $argType), [$directiveNode])
-                        );
                     }
 
                     return null;

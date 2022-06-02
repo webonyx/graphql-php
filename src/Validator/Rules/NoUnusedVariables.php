@@ -37,14 +37,12 @@ class NoUnusedVariables extends ValidationRule
                     foreach ($this->variableDefs as $variableDef) {
                         $variableName = $variableDef->variable->name->value;
 
-                        if ($variableNameUsed[$variableName] ?? false) {
-                            continue;
+                        if (! isset($variableNameUsed[$variableName])) {
+                            $context->reportError(new Error(
+                                static::unusedVariableMessage($variableName, $opName),
+                                [$variableDef]
+                            ));
                         }
-
-                        $context->reportError(new Error(
-                            static::unusedVariableMessage($variableName, $opName),
-                            [$variableDef]
-                        ));
                     }
                 },
             ],

@@ -24,11 +24,9 @@ class LoneAnonymousOperation extends ValidationRule
             NodeKind::DOCUMENT => static function (DocumentNode $node) use (&$operationCount): void {
                 $operationCount = 0;
                 foreach ($node->definitions as $definition) {
-                    if (! ($definition instanceof OperationDefinitionNode)) {
-                        continue;
+                    if ($definition instanceof OperationDefinitionNode) {
+                        ++$operationCount;
                     }
-
-                    ++$operationCount;
                 }
             },
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (

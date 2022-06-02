@@ -1253,16 +1253,14 @@ class ReferenceExecutor implements ExecutorImplementation
             $subFieldNodes = new ArrayObject();
             $visitedFragmentNames = new ArrayObject();
             foreach ($fieldNodes as $fieldNode) {
-                if (! isset($fieldNode->selectionSet)) {
-                    continue;
+                if (isset($fieldNode->selectionSet)) {
+                    $subFieldNodes = $this->collectFields(
+                        $returnType,
+                        $fieldNode->selectionSet,
+                        $subFieldNodes,
+                        $visitedFragmentNames
+                    );
                 }
-
-                $subFieldNodes = $this->collectFields(
-                    $returnType,
-                    $fieldNode->selectionSet,
-                    $subFieldNodes,
-                    $visitedFragmentNames
-                );
             }
 
             $returnTypeCache[$fieldNodes] = $subFieldNodes;

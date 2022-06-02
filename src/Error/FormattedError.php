@@ -33,6 +33,8 @@ use Throwable;
  * It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io/graphql/#sec-Errors)
  * and provides tools for error debugging.
  *
+ * @see ExecutionResult
+ *
  * @phpstan-import-type SerializableError from ExecutionResult
  * @phpstan-import-type ErrorFormatter from ExecutionResult
  */
@@ -62,16 +64,14 @@ class FormattedError
         $nodes = $error->nodes;
         if (isset($nodes) && count($nodes) > 0) {
             foreach ($nodes as $node) {
-                if (! isset($node->loc->source)) {
-                    continue;
+                if (isset($node->loc->source)) {
+                    $location = $node->loc;
+                    $source = $location->source;
+                    $printedLocations[] = self::highlightSourceAtLocation(
+                        $source,
+                        $source->getLocation($location->start)
+                    );
                 }
-
-                $location = $node->loc;
-                $source = $location->source;
-                $printedLocations[] = self::highlightSourceAtLocation(
-                    $source,
-                    $source->getLocation($location->start)
-                );
             }
         } elseif (null !== $error->getSource() && 0 !== count($error->getLocations())) {
             $source = $error->getSource();
@@ -291,16 +291,14 @@ class FormattedError
                 $safeErr['line'] = $err['line'];
             }
 
-            if (isset($err['function'])) {
-                $func = $err['function'];
-                $args = array_map([self::class, 'printVar'], $err['args'] ?? []);
-                $funcStr = $func . '(' . implode(', ', $args) . ')';
+            $func = $err['function'];
+            $args = array_map([self::class, 'printVar'], $err['args'] ?? []);
+            $funcStr = $func . '(' . implode(', ', $args) . ')';
 
-                if (isset($err['class'])) {
-                    $safeErr['call'] = $err['class'] . '::' . $funcStr;
-                } else {
-                    $safeErr['function'] = $funcStr;
-                }
+            if (isset($err['class'])) {
+                $safeErr['call'] = $err['class'] . '::' . $funcStr;
+            } else {
+                $safeErr['function'] = $funcStr;
             }
 
             $formatted[] = $safeErr;

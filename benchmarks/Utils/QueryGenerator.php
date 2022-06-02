@@ -35,11 +35,9 @@ class QueryGenerator
 
         $totalFields = 0;
         foreach ($schema->getTypeMap() as $type) {
-            if (! ($type instanceof ObjectType)) {
-                continue;
+            if ($type instanceof ObjectType) {
+                $totalFields += count($type->getFieldNames());
             }
-
-            $totalFields += count($type->getFieldNames());
         }
 
         $this->maxLeafFields = max(1, (int) round($totalFields * $percentOfLeafFields));

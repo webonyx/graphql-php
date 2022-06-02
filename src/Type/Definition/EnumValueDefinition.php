@@ -10,7 +10,7 @@ use GraphQL\Language\AST\EnumValueDefinitionNode;
  *   value?: mixed,
  *   deprecationReason?: string|null,
  *   description?: string|null,
- *   astNode?: EnumValueDefinitionNode|null,
+ *   astNode?: EnumValueDefinitionNode|null
  * }
  */
 class EnumValueDefinition

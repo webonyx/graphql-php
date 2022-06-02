@@ -20,7 +20,7 @@ use function is_string;
  *   types: iterable<ObjectTypeReference>|callable(): iterable<ObjectTypeReference>,
  *   resolveType?: ResolveType|null,
  *   astNode?: UnionTypeDefinitionNode|null,
- *   extensionASTNodes?: array<UnionTypeExtensionNode>|null,
+ *   extensionASTNodes?: array<UnionTypeExtensionNode>|null
  * }
  */
 class UnionType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
@@ -96,7 +96,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
                 $types = $types();
             }
 
-            // @phpstan-ignore-next-line should not happen if used correctly
             if (! is_iterable($types)) {
                 throw new InvariantViolation(
                     "Must provide iterable of types or a callable which returns such an iterable for Union {$this->name}."

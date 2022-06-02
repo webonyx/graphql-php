@@ -33,7 +33,7 @@ use function json_encode;
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
  * @phpstan-type Options array{
- *   assumeValid?: bool,
+ *   assumeValid?: bool
  * }
  *
  *    - assumeValid:
@@ -112,6 +112,9 @@ class BuildClientSchema
             }
 
             $name = $typeIntrospection['name'];
+            if (! is_string($name)) {
+                throw self::invalidOrIncompleteIntrospectionResult($typeIntrospection);
+            }
 
             // Use the built-in singleton types to avoid reconstruction
             $this->typeMap[$name] = $builtInTypes[$name]

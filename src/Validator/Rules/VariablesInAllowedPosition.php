@@ -54,14 +54,12 @@ class VariablesInAllowedPosition extends ValidationRule
                         $schema = $context->getSchema();
                         $varType = TypeInfo::typeFromAST($schema, $varDef->type);
 
-                        if (null === $varType || $this->allowedVariableUsage($schema, $varType, $varDef->defaultValue, $type, $defaultValue)) {
-                            continue;
+                        if (null !== $varType && ! $this->allowedVariableUsage($schema, $varType, $varDef->defaultValue, $type, $defaultValue)) {
+                            $context->reportError(new Error(
+                                static::badVarPosMessage($varName, $varType->toString(), $type->toString()),
+                                [$varDef, $node]
+                            ));
                         }
-
-                        $context->reportError(new Error(
-                            static::badVarPosMessage($varName, $varType->toString(), $type->toString()),
-                            [$varDef, $node]
-                        ));
                     }
                 },
             ],

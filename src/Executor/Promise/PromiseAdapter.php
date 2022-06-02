@@ -63,12 +63,12 @@ interface PromiseAdapter
     public function createRejected(Throwable $reason): Promise;
 
     /**
-     * Given an array of promises (or values), returns a promise that is fulfilled when all the
-     * items in the array are fulfilled.
+     * Given an iterable of promises (or values), returns a promise that is fulfilled when all the
+     * items in the iterable are fulfilled.
      *
-     * @param array<Promise|mixed> $promisesOrValues
+     * @param iterable<Promise|mixed> $promisesOrValues
      *
      * @api
      */
-    public function all(array $promisesOrValues): Promise;
+    public function all(iterable $promisesOrValues): Promise;
 }

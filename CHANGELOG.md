@@ -37,6 +37,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Always convert promises through `PromiseAdapter::convertThenable()` before calling `->then()` on them
 - Use `JSON_THROW_ON_ERROR` in `json_encode()`
 - Validate some internal invariants through `assert()`
+- `PromiseAdapter::all()` accepts `iterable`
 
 ### Added
 
@@ -64,10 +65,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Allow directives on variable definitions
 - Handle `null` parent of list in `ValuesOfCorrectType::getVisitor`
 - Allow sending both `query` and `queryId`, ignore `queryId` in that case
-- Fix `extend()` to preserve `repeatable` (#931)
 - Preserve extended methods from class-based types in `SchemaExtender::extend()`
 - Fix printing of empty types (#940)
 - Clone `NodeList` in `Node::cloneDeep()`
+- Calling `Schema::getType()` on a schema built from SDL returns `null` for unknown types (#1068)
 
 ### Removed
 
@@ -89,6 +90,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated public property access to `FieldDefinition::$type`
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
+- Remove alias `GraphQL\Utils\FindBreakingChanges`, use `GraphQL\Utils\BreakingChangesFinder`
 - Remove `OperationParams` method `getOriginalInput()` in favor of public property `$originalInput`
 - Remove `OperationParams` method `isReadOnly()` in favor of public property `$readOnly`
 - Remove `Utils::withErrorHandling()`
@@ -103,6 +105,18 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove option `commentDescriptions` from `BuildSchema::buildAST()`, `BuildSchema::build()` and `Printer::doPrint()`
 - Remove parameter `$options` from `ASTDefinitionBuilder`
 - Remove `FieldDefinition::create()` in favor of `new FieldDefinition()`
+
+## 14.11.5
+
+### Fixed
+
+- Fix `extend()` to preserve `repeatable` (#931)
+
+## 14.11.4
+
+### Fixed
+
+- Fix repeatable directive validation for AST
 
 ## 14.11.3
 

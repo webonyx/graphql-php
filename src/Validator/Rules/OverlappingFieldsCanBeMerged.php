@@ -319,11 +319,9 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         $fields[$i],
                         $fields[$j]
                     );
-                    if (null === $conflict) {
-                        continue;
+                    if (null !== $conflict) {
+                        $conflicts[] = $conflict;
                     }
-
-                    $conflicts[] = $conflict;
                 }
             }
         }
@@ -630,11 +628,9 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         $fields1[$i],
                         $fields2[$j]
                     );
-                    if (null === $conflict) {
-                        continue;
+                    if (null !== $conflict) {
+                        $conflicts[] = $conflict;
                     }
-
-                    $conflicts[] = $conflict;
                 }
             }
         }

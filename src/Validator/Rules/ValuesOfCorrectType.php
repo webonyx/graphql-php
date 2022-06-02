@@ -85,17 +85,16 @@ class ValuesOfCorrectType extends ValidationRule
                 }
 
                 foreach ($inputFields as $inputFieldName => $fieldDef) {
-                    if (isset($fieldNodeMap[$inputFieldName]) || ! $fieldDef->isRequired()) {
-                        continue;
-                    }
-                    $fieldType = Utils::printSafe($fieldDef->getType());
+                    if (! isset($fieldNodeMap[$inputFieldName]) && $fieldDef->isRequired()) {
+                        $fieldType = Utils::printSafe($fieldDef->getType());
 
-                    $context->reportError(
-                        new Error(
-                            "Field {$type->name}.{$inputFieldName} of required type {$fieldType} was not provided.",
-                            $node
-                        )
-                    );
+                        $context->reportError(
+                            new Error(
+                                "Field {$type->name}.{$inputFieldName} of required type {$fieldType} was not provided.",
+                                $node
+                            )
+                        );
+                    }
                 }
 
                 return null;

@@ -31,19 +31,17 @@ class NoUndefinedVariables extends ValidationRule
                         $node = $usage['node'];
                         $varName = $node->name->value;
 
-                        if (isset($variableNameDefined[$varName])) {
-                            continue;
+                        if (! isset($variableNameDefined[$varName])) {
+                            $context->reportError(new Error(
+                                static::undefinedVarMessage(
+                                    $varName,
+                                    null !== $operation->name
+                                        ? $operation->name->value
+                                        : null
+                                ),
+                                [$node, $operation]
+                            ));
                         }
-
-                        $context->reportError(new Error(
-                            static::undefinedVarMessage(
-                                $varName,
-                                null !== $operation->name
-                                    ? $operation->name->value
-                                    : null
-                            ),
-                            [$node, $operation]
-                        ));
                     }
                 },
             ],

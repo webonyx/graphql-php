@@ -17,9 +17,4 @@
       <directory>./tests/</directory>
     </testsuite>
   </testsuites>
-  <groups>
-    <exclude>
-      <group>ReactPromise</group>
-    </exclude>
-  </groups>
 </phpunit>

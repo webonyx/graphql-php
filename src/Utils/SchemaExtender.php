@@ -580,11 +580,7 @@ class SchemaExtender
                     ? $def->name->value
                     : null;
 
-                try {
-                    $type = $schema->getType($typeName);
-                } catch (Error $error) {
-                    $type = null;
-                }
+                $type = $schema->getType($typeName);
 
                 if (null !== $type) {
                     throw new Error('Type "' . $typeName . '" already exists in the schema. It cannot also be defined in this type definition.', [$def]);
@@ -649,12 +645,10 @@ class SchemaExtender
         }
 
         foreach ($schemaExtensions as $schemaExtension) {
-            if (! isset($schemaExtension->operationTypes)) {
-                continue;
-            }
-
-            foreach ($schemaExtension->operationTypes as $operationType) {
-                $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
+            if (isset($schemaExtension->operationTypes)) {
+                foreach ($schemaExtension->operationTypes as $operationType) {
+                    $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
+                }
             }
         }
 

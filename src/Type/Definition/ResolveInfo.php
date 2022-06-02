@@ -185,14 +185,12 @@ class ResolveInfo
         $fields = [];
 
         foreach ($this->fieldNodes as $fieldNode) {
-            if (null === $fieldNode->selectionSet) {
-                continue;
+            if (isset($fieldNode->selectionSet)) {
+                $fields = array_merge_recursive(
+                    $fields,
+                    $this->foldSelectionSet($fieldNode->selectionSet, $depth)
+                );
             }
-
-            $fields = array_merge_recursive(
-                $fields,
-                $this->foldSelectionSet($fieldNode->selectionSet, $depth)
-            );
         }
 
         return $fields;

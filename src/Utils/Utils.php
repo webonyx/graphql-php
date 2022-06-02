@@ -393,11 +393,9 @@ class Utils
                     : levenshtein($input, $option));
             }
 
-            if ($distance > $threshold) {
-                continue;
+            if ($distance <= $threshold) {
+                $optionsByDistance[$option] = $distance;
             }
-
-            $optionsByDistance[$option] = $distance;
         }
 
         asort($optionsByDistance);

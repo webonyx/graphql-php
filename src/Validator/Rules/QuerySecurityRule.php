@@ -8,6 +8,7 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\HasFieldsType;
 use GraphQL\Type\Definition\Type;
@@ -17,7 +18,9 @@ use GraphQL\Validator\ValidationContext;
 use InvalidArgumentException;
 
 /**
- * @phpstan-import-type VisitorArray from ValidationRule
+ * @see Visitor, FieldDefinition
+ *
+ * @phpstan-import-type VisitorArray from Visitor
  * @phpstan-type ASTAndDefs ArrayObject<string, ArrayObject<int, array{FieldNode, FieldDefinition|null}>>
  */
 abstract class QuerySecurityRule extends ValidationRule
@@ -71,11 +74,9 @@ abstract class QuerySecurityRule extends ValidationRule
         // Importantly this does not include inline fragments.
         $definitions = $context->getDocument()->definitions;
         foreach ($definitions as $node) {
-            if (! ($node instanceof FragmentDefinitionNode)) {
-                continue;
+            if ($node instanceof FragmentDefinitionNode) {
+                $this->fragments[$node->name->value] = $node;
             }
-
-            $this->fragments[$node->name->value] = $node;
         }
     }
 

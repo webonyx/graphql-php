@@ -203,11 +203,9 @@ class ValidationContext extends ASTValidationContext
         if (! isset($this->fragments)) {
             $fragments = [];
             foreach ($this->getDocument()->definitions as $statement) {
-                if (! ($statement instanceof FragmentDefinitionNode)) {
-                    continue;
+                if ($statement instanceof FragmentDefinitionNode) {
+                    $fragments[$statement->name->value] = $statement;
                 }
-
-                $fragments[$statement->name->value] = $statement;
             }
 
             $this->fragments = $fragments;

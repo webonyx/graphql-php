@@ -206,12 +206,9 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
 
             if (isset($this->nodes)) {
                 foreach ($this->nodes as $node) {
-                    $start = $node->loc->start ?? null;
-                    if (null === $start) {
-                        continue;
+                    if (isset($node->loc->start)) {
+                        $this->positions[] = $node->loc->start;
                     }
-
-                    $this->positions[] = $start;
                 }
             }
         }
@@ -248,11 +245,9 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
                 }
             } elseif (null !== $nodes && 0 !== count($nodes)) {
                 foreach ($nodes as $node) {
-                    if (! isset($node->loc->source)) {
-                        continue;
+                    if (isset($node->loc->source)) {
+                        $this->locations[] = $node->loc->source->getLocation($node->loc->start);
                     }
-
-                    $this->locations[] = $node->loc->source->getLocation($node->loc->start);
                 }
             }
         }

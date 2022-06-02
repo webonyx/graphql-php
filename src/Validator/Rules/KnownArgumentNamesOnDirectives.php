@@ -93,15 +93,13 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
                 foreach ($directiveNode->arguments as $argNode) {
                     $argName = $argNode->name->value;
-                    if (in_array($argName, $knownArgs, true)) {
-                        continue;
+                    if (! in_array($argName, $knownArgs, true)) {
+                        $suggestions = Utils::suggestionList($argName, $knownArgs);
+                        $context->reportError(new Error(
+                            static::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),
+                            [$argNode]
+                        ));
                     }
-
-                    $suggestions = Utils::suggestionList($argName, $knownArgs);
-                    $context->reportError(new Error(
-                        static::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),
-                        [$argNode]
-                    ));
                 }
 
                 return Visitor::skipNode();

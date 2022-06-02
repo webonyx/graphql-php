@@ -66,7 +66,7 @@ use function sprintf;
  *   noLocation?: bool,
  *   allowLegacySDLEmptyFields?: bool,
  *   allowLegacySDLImplementsInterfaces?: bool,
- *   experimentalFragmentVariables?: bool,
+ *   experimentalFragmentVariables?: bool
  * }
  *
  * noLocation:
