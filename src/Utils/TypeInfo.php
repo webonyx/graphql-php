@@ -43,7 +43,6 @@ use function array_merge;
 use function array_pop;
 use function count;
 use function is_array;
-use function sprintf;
 
 class TypeInfo
 {
@@ -131,7 +130,7 @@ class TypeInfo
         if (isset($typeMap[$type->name])) {
             Utils::invariant(
                 $typeMap[$type->name] === $type,
-                sprintf('Schema must contain unique named types but contains multiple types named "%s" ', $type) .
+                'Schema must contain unique named types but contains multiple types named "' . $type . '" ' .
                 '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
             );
 

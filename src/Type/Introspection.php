@@ -10,6 +10,7 @@ use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectField;
@@ -329,7 +330,10 @@ EOD;
                         'fields'        => [
                             'type'    => Type::listOf(Type::nonNull(self::_field())),
                             'args'    => [
-                                'includeDeprecated' => ['type' => Type::boolean(), 'defaultValue' => false],
+                                'includeDeprecated' => [
+                                    'type' => Type::boolean(),
+                                    'defaultValue' => false,
+                                ],
                             ],
                             'resolve' => static function (Type $type, $args): ?array {
                                 if ($type instanceof ObjectType || $type instanceof InterfaceType) {
@@ -339,7 +343,8 @@ EOD;
                                         $fields = array_filter(
                                             $fields,
                                             static function (FieldDefinition $field): bool {
-                                                return ($field->deprecationReason ?? '') === '';
+                                                return $field->deprecationReason === null
+                                                    || $field->deprecationReason === '';
                                             }
                                         );
                                     }
@@ -377,13 +382,14 @@ EOD;
                             ],
                             'resolve' => static function ($type, $args): ?array {
                                 if ($type instanceof EnumType) {
-                                    $values = array_values($type->getValues());
+                                    $values = $type->getValues();
 
                                     if (! ($args['includeDeprecated'] ?? false)) {
-                                        $values = array_filter(
+                                        return array_filter(
                                             $values,
-                                            static function ($value): bool {
-                                                return ($value->deprecationReason ?? '') === '';
+                                            static function (EnumValueDefinition $value): bool {
+                                                return $value->deprecationReason === null
+                                                    || $value->deprecationReason === '';
                                             }
                                         );
                                     }
@@ -499,7 +505,8 @@ EOD;
                         'isDeprecated'      => [
                             'type'    => Type::nonNull(Type::boolean()),
                             'resolve' => static function (FieldDefinition $field): bool {
-                                return (bool) $field->deprecationReason;
+                                return $field->deprecationReason !== null
+                                    && $field->deprecationReason !== '';
                             },
                         ],
                         'deprecationReason' => [
@@ -595,14 +602,15 @@ EOD;
                 ],
                 'isDeprecated'      => [
                     'type'    => Type::nonNull(Type::boolean()),
-                    'resolve' => static function ($enumValue): bool {
-                            return (bool) $enumValue->deprecationReason;
+                    'resolve' => static function (EnumValueDefinition $value): bool {
+                        return $value->deprecationReason !== null
+                            && $value->deprecationReason !== '';
                     },
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),
-                    'resolve' => static function ($enumValue) {
-                            return $enumValue->deprecationReason;
+                    'resolve' => static function (EnumValueDefinition $enumValue): ?string {
+                        return $enumValue->deprecationReason;
                     },
                 ],
             ],
@@ -742,7 +750,6 @@ EOD;
                     'value'       => DirectiveLocation::INPUT_FIELD_DEFINITION,
                     'description' => 'Location adjacent to an input object field definition.',
                 ],
-
             ],
         ]);
     }

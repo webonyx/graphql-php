@@ -207,7 +207,14 @@ class BuildSchemaTest extends TestCase
     public function testIncludeStandardTypeOnlyIfItIsUsed(): void
     {
         $schema = BuildSchema::build('type Query');
+
         // String and Boolean are always included through introspection types
+        $typeMap = $schema->getTypeMap();
+        self::assertArrayNotHasKey('Int', $typeMap);
+        self::assertArrayNotHasKey('Float', $typeMap);
+        self::assertArrayNotHasKey('ID', $typeMap);
+
+        self::markTestIncomplete('TODO we differ from graphql-js due to lazy loading, see https://github.com/webonyx/graphql-php/issues/964#issuecomment-945969162');
         self::assertNull($schema->getType('Int'));
         self::assertNull($schema->getType('Float'));
         self::assertNull($schema->getType('ID'));

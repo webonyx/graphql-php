@@ -68,7 +68,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
      */
     public function testReferencesToStandardScalarsThatAreMissingInSchema(): void
     {
-        self::markTestSkipped('TODO https://github.com/webonyx/graphql-php/issues/964');
+        self::markTestSkipped('Missing implementation for SDL validation for now');
         $schema = BuildSchema::build('type Query { foo: String }');
         $query  = '
       query ($id: ID, $float: Float, $int: Int) {
