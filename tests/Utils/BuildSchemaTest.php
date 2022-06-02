@@ -65,7 +65,7 @@ class BuildSchemaTest extends TestCaseBase
     {
         $ast = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($ast);
-        $cycled = "\n" . SchemaPrinter::doPrint($schema);
+        $cycled = SchemaPrinter::doPrint($schema);
 
         self::assertSame($sdl, $cycled);
     }
