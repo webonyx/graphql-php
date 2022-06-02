@@ -425,8 +425,8 @@ class BuildSchemaTest extends TestCaseBase
             interface EmptyInterface
         ');
 
-        /** @var InterfaceTypeDefinitionNode $definition */
         $definition = Parser::parse($sdl)->definitions[0];
+        self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $definition);
         self::assertCount(0, $definition->interfaces, 'The interfaces property must be an empty list.');
 
         self::assertCycle($sdl);
@@ -820,8 +820,8 @@ class BuildSchemaTest extends TestCaseBase
         $ast = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($ast);
 
-        /** @var EnumType $myEnum */
         $myEnum = $schema->getType('MyEnum');
+        self::assertInstanceOf(EnumType::class, $myEnum);
 
         $value = $myEnum->getValue('VALUE');
         self::assertInstanceOf(EnumValueDefinition::class, $value);
@@ -848,8 +848,8 @@ class BuildSchemaTest extends TestCaseBase
         self::assertEquals('Because I said so', $rootFields['field2']->deprecationReason);
 
         self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/110');
-        /** @var InputObjectType $type */
         $type = $schema->getType('MyInput');
+        self::assertInstanceOf(InputObjectType::class, $type);
         $inputFields = $type->getFields();
         self::assertEquals(null, $inputFields['newInput']->deprecationReason);
         self::assertEquals('No longer supported', $inputFields['oldInput']->deprecationReason);
