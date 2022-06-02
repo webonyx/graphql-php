@@ -327,13 +327,11 @@ class Schema
     private function loadType(string $typeName): ?Type
     {
         $typeLoader = $this->config->typeLoader;
-
         if ($typeLoader === null) {
             return $this->defaultTypeLoader($typeName);
         }
 
         $type = $typeLoader($typeName);
-
         if ($type === null) {
             return null;
         }
@@ -498,7 +496,7 @@ class Schema
 
     public function getAstNode(): ?SchemaDefinitionNode
     {
-        return $this->config->getAstNode();
+        return $this->config->astNode;
     }
 
     /**

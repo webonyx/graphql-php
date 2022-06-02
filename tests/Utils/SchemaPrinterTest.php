@@ -19,12 +19,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * @see describe('Type System Printer', () => {
  */
-class SchemaPrinterTest extends TestCase
+final class SchemaPrinterTest extends TestCase
 {
     private static function assertPrintedSchemaEquals(string $expected, Schema $schema): void
     {
         $printedSchema = SchemaPrinter::doPrint($schema);
-        $cycledSchema = SchemaPrinter::doPrint(BuildSchema::build($printedSchema));
+        $builtSchema = BuildSchema::build($printedSchema);
+        $cycledSchema = SchemaPrinter::doPrint($builtSchema);
 
         self::assertEquals($printedSchema, $cycledSchema);
         self::assertEquals($expected, $printedSchema);
@@ -670,12 +671,16 @@ class SchemaPrinterTest extends TestCase
     {
         $fooType = new ObjectType([
             'name' => 'Foo',
-            'fields' => ['bool' => ['type' => Type::boolean()]],
+            'fields' => [
+                'bool' => ['type' => Type::boolean()],
+            ],
         ]);
 
         $barType = new ObjectType([
             'name' => 'Bar',
-            'fields' => ['str' => ['type' => Type::string()]],
+            'fields' => [
+                'str' => ['type' => Type::string()],
+            ],
         ]);
 
         $singleUnion = new UnionType([
@@ -688,7 +693,9 @@ class SchemaPrinterTest extends TestCase
             'types' => [$fooType, $barType],
         ]);
 
-        $schema = new Schema(['types' => [$singleUnion, $multipleUnion]]);
+        $schema = new Schema([
+            'types' => [$singleUnion, $multipleUnion],
+        ]);
 
         // the expected SDL differs from graphql-js: https://github.com/webonyx/graphql-php/issues/954
         self::assertPrintedSchemaEquals(

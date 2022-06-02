@@ -36,6 +36,7 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
+use GraphQL\Validator\Rules\KnownDirectives;
 use function preg_match;
 use function preg_replace;
 use function trim;
@@ -1349,8 +1350,9 @@ class BuildSchemaTest extends TestCaseBase
               foo: String @unknown
             }
         ');
+
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('Unknown directive "@unknown".');
+        $this->expectExceptionMessage(KnownDirectives::unknownDirectiveMessage('unknown'));
         BuildSchema::build($doc);
     }
 
