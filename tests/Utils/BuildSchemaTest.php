@@ -847,6 +847,7 @@ class BuildSchemaTest extends TestCaseBase
         self::assertEquals(true, $rootFields['field2']->isDeprecated());
         self::assertEquals('Because I said so', $rootFields['field2']->deprecationReason);
 
+        self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/110');
         /** @var InputObjectType $type */
         $type = $schema->getType('MyInput');
         $inputFields = $type->getFields();
