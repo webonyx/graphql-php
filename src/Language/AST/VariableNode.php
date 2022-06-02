@@ -8,6 +8,5 @@ class VariableNode extends Node implements ValueNode
 {
     public string $kind = NodeKind::VARIABLE;
 
-    /** @var NameNode */
-    public $name;
+    public NameNode $name;
 }

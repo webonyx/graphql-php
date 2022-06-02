@@ -204,11 +204,11 @@ class ScalarSerializationTest extends TestCase
     public function badIDValues(): iterable
     {
         return [
-            [new stdClass(), 'ID cannot represent value: instance of stdClass'],
-            [true, 'ID cannot represent value: true'],
-            [false, 'ID cannot represent value: false'],
-            [-1.1, 'ID cannot represent value: -1.1'],
-            [['abc'], 'ID cannot represent value: ["abc"]'],
+            [new stdClass(), 'ID cannot represent a non-string and non-integer value: instance of stdClass'],
+            [true, 'ID cannot represent a non-string and non-integer value: true'],
+            [false, 'ID cannot represent a non-string and non-integer value: false'],
+            [-1.1, 'ID cannot represent a non-string and non-integer value: -1.1'],
+            [['abc'], 'ID cannot represent a non-string and non-integer value: ["abc"]'],
         ];
     }
 
@@ -221,8 +221,9 @@ class ScalarSerializationTest extends TestCase
     {
         $idType = Type::id();
 
-        $this->expectException(SerializationError::class);
-        $this->expectExceptionMessage($expectedError);
+        $this->expectExceptionObject(new SerializationError(
+            $expectedError
+        ));
         $idType->serialize($value);
     }
 }

@@ -24,7 +24,7 @@ class UserArgsTest extends TestCase
         }
         ';
         $result = GraphQL::executeQuery($this->schema(), $query)->toArray();
-        self::assertEquals('Field "scalar" is not defined by type InputType.', $result['errors'][0]['message']);
+        self::assertEquals('Field "scalar" is not defined by type "InputType".', $result['errors'][0]['message'] ?? null);
     }
 
     public function testErrorForNonExistentArrayInputField(): void
@@ -38,7 +38,7 @@ class UserArgsTest extends TestCase
         }
         ';
         $result = GraphQL::executeQuery($this->schema(), $query)->toArray();
-        self::assertEquals('Field "array" is not defined by type InputType.', $result['errors'][0]['message']);
+        self::assertEquals('Field "array" is not defined by type "InputType".', $result['errors'][0]['message'] ?? null);
     }
 
     private function schema(): Schema

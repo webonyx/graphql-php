@@ -10,7 +10,9 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
 
     public ?NameNode $name = null;
 
-    /** @var string (oneOf 'query', 'mutation', 'subscription')) */
+    /**
+     * @var 'query'|'mutation'|'subscription'
+     */
     public string $operation;
 
     /** @var NodeList<VariableDefinitionNode> */

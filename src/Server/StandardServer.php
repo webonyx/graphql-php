@@ -39,11 +39,9 @@ use Throwable;
  */
 class StandardServer
 {
-    /** @var ServerConfig */
-    private $config;
+    private ServerConfig $config;
 
-    /** @var Helper */
-    private $helper;
+    private Helper $helper;
 
     /**
      * Converts and exception to error and sends spec-compliant HTTP 500 error.

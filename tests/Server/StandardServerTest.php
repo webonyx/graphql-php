@@ -11,9 +11,9 @@ use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
-use function json_encode;
 use Nyholm\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
+use function Safe\json_encode;
 
 class StandardServerTest extends ServerTestCase
 {
@@ -37,11 +37,14 @@ class StandardServerTest extends ServerTestCase
         $server = new StandardServer($this->config);
 
         $result = $server->executeRequest($parsedBody);
-        $expected = [
-            'data' => ['f1' => 'f1'],
-        ];
 
-        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
+        self::assertInstanceOf(ExecutionResult::class, $result);
+        self::assertSame(
+            [
+                'data' => ['f1' => 'f1'],
+            ],
+            $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
+        );
     }
 
     private function parseRawRequest(string $contentType, string $content, string $method = 'POST'): OperationParams
@@ -51,7 +54,10 @@ class StandardServerTest extends ServerTestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(static fn () => $content);
+        $operationParams = $helper->parseHttpRequest(static fn () => $content);
+        self::assertInstanceOf(OperationParams::class, $operationParams);
+
+        return $operationParams;
     }
 
     public function testSimplePsrRequestExecution(): void
@@ -89,7 +95,10 @@ class StandardServerTest extends ServerTestCase
 
     private function executePsrRequest(RequestInterface $psrRequest): ExecutionResult
     {
-        return (new StandardServer($this->config))->executePsrRequest($psrRequest);
+        $result = (new StandardServer($this->config))->executePsrRequest($psrRequest);
+        self::assertInstanceOf(ExecutionResult::class, $result);
+
+        return $result;
     }
 
     public function testMultipleOperationPsrRequestExecution(): void

@@ -18,7 +18,7 @@ use function is_string;
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type ArgumentListConfig from Argument
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
- * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int|null
+ * @phpstan-type ComplexityFn callable(int, array<string, mixed>): (int|null)
  * @phpstan-type FieldDefinitionConfig array{
  *     name: string,
  *     type: FieldType,
@@ -38,7 +38,16 @@ use function is_string;
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null,
  * }
- * @phpstan-type FieldMapConfig (callable(): iterable<mixed>)|iterable<mixed>
+ * @phpstan-type FieldsConfig iterable<mixed>|(callable(): iterable<mixed>)
+ */
+/*
+ * TODO check if newer versions of PHPStan can handle the full definition, it currently crashes when it is used
+ * @phpstan-type EagerListEntry FieldDefinitionConfig|(Type&OutputType)
+ * @phpstan-type EagerMapEntry UnnamedFieldDefinitionConfig|FieldDefinition
+ * @phpstan-type FieldsList iterable<EagerListEntry|(callable(): EagerListEntry)>
+ * @phpstan-type FieldsMap iterable<string, EagerMapEntry|(callable(): EagerMapEntry)>
+ * @phpstan-type FieldsIterable FieldsList|FieldsMap
+ * @phpstan-type FieldsConfig FieldsIterable|(callable(): FieldsIterable)
  */
 class FieldDefinition
 {
@@ -61,13 +70,16 @@ class FieldDefinition
 
     public ?FieldDefinitionNode $astNode;
 
-    /** @var ComplexityFn|null */
+    /**
+     * @var callable|null
+     * @phpstan-var ComplexityFn|null
+     */
     public $complexityFn;
 
     /**
      * Original field definition config.
      *
-     * @var FieldDefinitionConfig
+     * @phpstan-var FieldDefinitionConfig
      */
     public array $config;
 
@@ -77,7 +89,7 @@ class FieldDefinition
     /**
      * @param FieldDefinitionConfig $config
      */
-    protected function __construct(array $config)
+    public function __construct(array $config)
     {
         $this->name = $config['name'];
         $this->resolveFn = $config['resolve'] ?? null;
@@ -94,10 +106,10 @@ class FieldDefinition
 
     /**
      * @param ObjectType|InterfaceType $parentType
-     * @param callable|iterable        $fields
-     * @phpstan-param FieldMapConfig $fields
+     * @param callable|iterable $fields
+     * @phpstan-param FieldsConfig $fields
      *
-     * @return array<string, self>
+     * @return array<string, self|UnresolvedFieldDefinition>
      */
     public static function defineFieldMap(Type $parentType, $fields): array
     {
@@ -125,13 +137,8 @@ class FieldDefinition
                     $field['name'] = $maybeName;
                 }
 
-                if (isset($field['args']) && ! is_array($field['args'])) {
-                    throw new InvariantViolation(
-                        "{$parentType->name}.{$maybeName} args must be an array."
-                    );
-                }
-
-                $fieldDef = self::create($field);
+                // @phpstan-ignore-next-line PHPStan won't let us define the whole type
+                $fieldDef = new self($field);
             } elseif ($field instanceof self) {
                 $fieldDef = $field;
             } elseif (is_callable($field)) {
@@ -141,9 +148,13 @@ class FieldDefinition
                     );
                 }
 
-                $fieldDef = new UnresolvedFieldDefinition($parentType, $maybeName, $field);
+                $fieldDef = new UnresolvedFieldDefinition($maybeName, $field);
             } elseif ($field instanceof Type) {
-                $fieldDef = self::create(['name' => $maybeName, 'type' => $field]);
+                // @phpstan-ignore-next-line PHPStan won't let us define the whole type
+                $fieldDef = new self([
+                    'name' => $maybeName,
+                    'type' => $field,
+                ]);
             } else {
                 $invalidFieldConfig = Utils::printSafe($field);
 
@@ -156,14 +167,6 @@ class FieldDefinition
         }
 
         return $map;
-    }
-
-    /**
-     * @param array<string, mixed> $field
-     */
-    public static function create(array $field): FieldDefinition
-    {
-        return new self($field);
     }
 
     public function getArg(string $name): ?Argument
@@ -196,7 +199,7 @@ class FieldDefinition
     }
 
     /**
-     * @param Type &NamedType $parentType
+     * @param Type&NamedType $parentType
      *
      * @throws InvariantViolation
      */

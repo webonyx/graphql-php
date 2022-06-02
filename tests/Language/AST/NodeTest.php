@@ -10,8 +10,8 @@ use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use function json_decode;
-use function json_encode;
 use PHPUnit\Framework\TestCase;
+use function Safe\json_encode;
 
 class NodeTest extends TestCase
 {
@@ -69,7 +69,7 @@ class NodeTest extends TestCase
     public function testToString(): void
     {
         self::assertJsonStringEqualsJsonString(
-            /** @lang JSON */ 
+            /** @lang JSON */
             '{"kind":"Name","value":"foo"}',
             (string) new NameNode(['value' => 'foo'])
         );

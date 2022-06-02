@@ -168,34 +168,34 @@ class QueryComplexity extends QuerySecurityRule
                 $this->variableDefs,
                 $this->getRawVariableValues()
             );
-            if (count($errors ?? []) > 0) {
+            if (null !== $errors && count($errors) > 0) {
                 throw new Error(implode(
                     "\n\n",
                     array_map(
-                        static fn ($error) => $error->getMessage(),
+                        static fn (Error $error): string => $error->getMessage(),
                         $errors
                     )
                 ));
             }
 
             if (Directive::INCLUDE_NAME === $directiveNode->name->value) {
-                /** @var array{if: bool} $includeArguments */
                 $includeArguments = Values::getArgumentValues(
                     Directive::includeDirective(),
                     $directiveNode,
                     $variableValues
                 );
+                assert(is_bool($includeArguments['if']), 'ensured by query validation');
 
                 return ! $includeArguments['if'];
             }
 
             if (Directive::SKIP_NAME === $directiveNode->name->value) {
-                /** @var array{if: bool} $skipArguments */
                 $skipArguments = Values::getArgumentValues(
                     Directive::skipDirective(),
                     $directiveNode,
                     $variableValues
                 );
+                assert(is_bool($skipArguments['if']), 'ensured by query validation');
 
                 return $skipArguments['if'];
             }

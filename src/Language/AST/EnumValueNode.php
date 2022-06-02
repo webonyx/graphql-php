@@ -8,6 +8,5 @@ class EnumValueNode extends Node implements ValueNode
 {
     public string $kind = NodeKind::ENUM;
 
-    /** @var string */
-    public $value;
+    public string $value;
 }

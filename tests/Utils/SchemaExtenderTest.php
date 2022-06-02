@@ -14,6 +14,7 @@ use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\DirectiveLocation;
@@ -588,15 +589,17 @@ class SchemaExtenderTest extends TestCase
             }
         ');
 
-        /** @var ObjectType $typeWithDeprecatedField */
         $typeWithDeprecatedField = $extendedSchema->getType('TypeWithDeprecatedField');
+        self::assertInstanceOf(ObjectType::class, $typeWithDeprecatedField);
+
         $deprecatedFieldDef = $typeWithDeprecatedField->getField('newDeprecatedField');
 
         self::assertEquals(true, $deprecatedFieldDef->isDeprecated());
         self::assertEquals('not used anymore', $deprecatedFieldDef->deprecationReason);
 
-        /** @var EnumType $enumWithDeprecatedValue */
         $enumWithDeprecatedValue = $extendedSchema->getType('EnumWithDeprecatedValue');
+        self::assertInstanceOf(EnumType::class, $enumWithDeprecatedValue);
+
         $deprecatedEnumDef = $enumWithDeprecatedValue->getValue('DEPRECATED');
 
         self::assertEquals(true, $deprecatedEnumDef->isDeprecated());
@@ -613,8 +616,10 @@ class SchemaExtenderTest extends TestCase
             deprecatedField: String @deprecated(reason: "not used anymore")
           }
         ');
-        /** @var ObjectType $fooType */
+
         $fooType = $extendedSchema->getType('Foo');
+        self::assertInstanceOf(ObjectType::class, $fooType);
+
         $deprecatedFieldDef = $fooType->getField('deprecatedField');
 
         self::assertTrue($deprecatedFieldDef->isDeprecated());
@@ -632,8 +637,9 @@ class SchemaExtenderTest extends TestCase
           }
         ');
 
-        /** @var EnumType $someEnumType */
         $someEnumType = $extendedSchema->getType('SomeEnum');
+        self::assertInstanceOf(EnumType::class, $someEnumType);
+
         $deprecatedEnumDef = $someEnumType->getValue('DEPRECATED');
 
         self::assertTrue($deprecatedEnumDef->isDeprecated());
@@ -1685,7 +1691,7 @@ extend type Query {
         self::assertInstanceOf(CustomScalarType::class, $extendedScalar);
         self::assertSame(SomeScalarClassType::SERIALIZE_RETURN, $extendedScalar->serialize(null));
         self::assertSame(SomeScalarClassType::PARSE_VALUE_RETURN, $extendedScalar->parseValue(null));
-        self::assertSame(SomeScalarClassType::PARSE_LITERAL_RETURN, $extendedScalar->parseLiteral(Parser::valueLiteral('1')));
+        self::assertSame(SomeScalarClassType::PARSE_LITERAL_RETURN, $extendedScalar->parseLiteral(new IntValueNode(['value' => '1'])));
     }
 
     public function testPreservesResolveTypeMethod(): void

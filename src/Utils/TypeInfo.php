@@ -43,26 +43,23 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 
-/**
- * @phpstan-import-type InputTypeAlias from InputType
- */
 class TypeInfo
 {
     private Schema $schema;
 
-    /** @var array<(OutputType&Type)|null> */
+    /** @var array<int, (OutputType&Type)|null> */
     private array $typeStack = [];
 
-    /** @var array<(CompositeType&Type)|null> */
+    /** @var array<int, (CompositeType&Type)|null> */
     private array $parentTypeStack = [];
 
-    /** @var array<(InputType&Type)|null> */
+    /** @var array<int, (InputType&Type)|null> */
     private array $inputTypeStack = [];
 
-    /** @var array<FieldDefinition> */
+    /** @var array<int, FieldDefinition> */
     private array $fieldDefStack = [];
 
-    /** @var array<mixed> */
+    /** @var array<int, mixed> */
     private array $defaultValueStack = [];
 
     private ?Directive $directive = null;
@@ -90,16 +87,17 @@ class TypeInfo
      *     ...
      * ]
      *
-     * @param array<Type> $typeMap
+     * @param array<string, Type&NamedType> $typeMap
      */
     public static function extractTypes(Type $type, array &$typeMap): void
     {
-        /** @var (Type&WrappingType)|(Type&NamedType) $type */
         if ($type instanceof WrappingType) {
             self::extractTypes($type->getInnermostType(), $typeMap);
 
             return;
         }
+
+        assert($type instanceof NamedType, 'only other option');
 
         $name = $type->name;
 
@@ -151,7 +149,7 @@ class TypeInfo
     }
 
     /**
-     * @param array<Type> $typeMap
+     * @param array<string, Type&NamedType> $typeMap
      */
     public static function extractTypesFromDirectives(Directive $directive, array &$typeMap): void
     {
@@ -221,7 +219,8 @@ class TypeInfo
                     $type = $schema->getQueryType();
                 } elseif ('mutation' === $node->operation) {
                     $type = $schema->getMutationType();
-                } elseif ('subscription' === $node->operation) {
+                } else {
+                    // Only other option
                     $type = $schema->getSubscriptionType();
                 }
 
@@ -366,7 +365,7 @@ class TypeInfo
      *
      * @throws InvariantViolation
      */
-    public static function typeFromAST(Schema $schema, $inputTypeNode): ?Type
+    public static function typeFromAST(Schema $schema, Node $inputTypeNode): ?Type
     {
         return AST::typeFromAST($schema, $inputTypeNode);
     }
@@ -390,7 +389,7 @@ class TypeInfo
     }
 
     /**
-     * @phpstan-return InputTypeAlias|null
+     * @return (InputType&Type)|null
      */
     public function getInputType(): ?InputType
     {

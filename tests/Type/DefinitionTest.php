@@ -27,8 +27,8 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use function json_encode;
 use RuntimeException;
+use function Safe\json_encode;
 use function sprintf;
 use stdClass;
 
@@ -354,7 +354,6 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAnEnumTypeWithIncorrectlyTypedValues(): void
     {
-        // @phpstan-ignore-next-line intentionally wrong
         $enumType = new EnumType([
             'name' => 'SomeEnum',
             'values' => [['FOO' => 10]],
@@ -960,15 +959,16 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAnObjectTypeWithIncorrectlyTypedInterfaces(): void
     {
+        // @phpstan-ignore-next-line intentionally wrong
         $objType = new ObjectType([
             'name' => 'SomeObject',
             'interfaces' => new stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeObject interfaces must be an iterable or a callable which returns an iterable.'
-        );
+        ));
         $objType->assertValid();
     }
 
@@ -1108,15 +1108,16 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAnInterfaceTypeWithIncorrectlyTypedInterfaces(): void
     {
+        // @phpstan-ignore-next-line intentionally wrong
         $objType = new InterfaceType([
             'name' => 'AnotherInterface',
             'interfaces' => new stdClass(),
             'fields' => [],
         ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+
+        $this->expectExceptionObject(new InvariantViolation(
             'AnotherInterface interfaces must be an iterable or a callable which returns an iterable.'
-        );
+        ));
         $objType->assertValid();
     }
 
@@ -1201,16 +1202,17 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAnInterfaceTypeWithAnIncorrectTypeForResolveType(): void
     {
-        // Slightly deviating from the reference implementation in order to be idiomatic for PHP
-        $this->expectExceptionObject(new InvariantViolation(
-            'AnotherInterface must provide "resolveType" as a callable, but got: instance of stdClass'
-        ));
-
+        // @phpstan-ignore-next-line intentionally wrong
         $type = new InterfaceType([
             'name' => 'AnotherInterface',
             'resolveType' => new stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
+
+        // Slightly deviating from the reference implementation in order to be idiomatic for PHP
+        $this->expectExceptionObject(new InvariantViolation(
+            'AnotherInterface must provide "resolveType" as a callable, but got: instance of stdClass'
+        ));
         $type->assertValid();
     }
 
@@ -1267,7 +1269,9 @@ final class DefinitionTest extends TestCaseBase
         $this->expectExceptionObject(new InvariantViolation(
             'SomeUnion must provide "resolveType" as a callable, but got: instance of stdClass'
         ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new UnionType([
                 'name' => 'SomeUnion',
                 'resolveType' => new stdClass(),
@@ -1295,34 +1299,18 @@ final class DefinitionTest extends TestCaseBase
     // Type System: Scalar types must be serializable
 
     /**
-     * @see it('rejects a Scalar type not defining serialize')
-     */
-    public function testRejectsAScalarTypeNotDefiningSerialize(): void
-    {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'SomeScalar must provide "serialize" function. If this custom Scalar '
-            . 'is also used as an input type, ensure "parseValue" and "parseLiteral" '
-            . 'functions are also provided.'
-        );
-        $this->schemaWithFieldType(
-            // @phpstan-ignore-next-line intentionally wrong
-            new CustomScalarType(['name' => 'SomeScalar'])
-        );
-    }
-
-    /**
      * @see it('rejects a Scalar type defining serialize with an incorrect type')
      */
     public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeScalar must provide "serialize" function. If this custom Scalar '
             . 'is also used as an input type, ensure "parseValue" and "parseLiteral" '
             . 'functions are also provided.'
-        );
+        ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
                 'serialize' => new stdClass(),
@@ -1354,10 +1342,10 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningParseValueButNotParseLiteral(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
-        );
+        ));
+
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name' => 'SomeScalar',
@@ -1374,10 +1362,10 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningParseLiteralButNotParseValue(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
-        );
+        ));
+
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name' => 'SomeScalar',
@@ -1394,11 +1382,12 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningParseValueAndParseLiteralWithAnIncorrectType(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
-        );
+        ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
                 'serialize' => static function (): void {
@@ -1434,7 +1423,9 @@ final class DefinitionTest extends TestCaseBase
         $this->expectExceptionObject(new InvariantViolation(
             'AnotherObject must provide "isTypeOf" as a callable, but got: instance of stdClass'
         ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new ObjectType([
                 'name' => 'AnotherObject',
                 'isTypeOf' => new stdClass(),
@@ -1480,10 +1471,10 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAUnionTypeWithoutTypes(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'Must provide iterable of types or a callable which returns such an iterable for Union SomeUnion'
-        );
+        ));
+
         $this->schemaWithFieldType(
             // @phpstan-ignore-next-line intentionally wrong
             new UnionType(['name' => 'SomeUnion'])
@@ -1495,11 +1486,12 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAUnionTypeWithIncorrectlyTypedTypes(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(new InvariantViolation(
             'Must provide iterable of types or a callable which returns such an iterable for Union SomeUnion'
-        );
+        ));
+
         $this->schemaWithFieldType(
+            // @phpstan-ignore-next-line intentionally wrong
             new UnionType([
                 'name' => 'SomeUnion',
                 'types' => (object) ['test' => $this->objectType],
@@ -1720,6 +1712,8 @@ final class DefinitionTest extends TestCaseBase
         $inputObjType->assertValid();
     }
 
+    // Type System: A Schema must contain uniquely named types
+
     /**
      * @see it('rejects a Schema which redefines a built-in type')
      */
@@ -1748,7 +1742,26 @@ final class DefinitionTest extends TestCaseBase
         $schema->assertValid();
     }
 
-    // Type System: A Schema must contain uniquely named types
+    /**
+     * @see it('rejects a Schema when a provided type has no name')
+     */
+    public function testRejectsASchemaWhenAProvidedTypeHasNoName(): void
+    {
+        self::markTestSkipped('Our types are more strict by default, given we use classes');
+
+        $QueryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'foo' => ['type' => Type::string()],
+            ],
+        ]);
+
+        new Schema(
+            [
+                'query' => $QueryType,
+                'types' => [new stdClass()], ]
+        );
+    }
 
     /**
      * @see it('rejects a Schema which defines an object type twice')
@@ -1772,18 +1785,46 @@ final class DefinitionTest extends TestCaseBase
                 'b' => ['type' => $B],
             ],
         ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
+
+        $this->expectExceptionObject(new InvariantViolation(
             'Schema must contain unique named types but contains multiple types named "SameName" '
             . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
-        );
-        $schema = new Schema(['query' => $QueryType]);
-        $schema->assertValid();
+        ));
+        new Schema(['query' => $QueryType]);
     }
 
     /**
-     * @see it('rejects a Schema which have same named objects implementing an interface')
+     * @see it('rejects a Schema which defines fields with conflicting types'
      */
+    public function testRejectsASchemaWhichDefinesFieldsWithConflictingTypes(): void
+    {
+        $fields = ['f' => ['type' => Type::string()]];
+
+        $A = new ObjectType([
+            'name' => 'SameName',
+            'fields' => $fields,
+        ]);
+
+        $B = new ObjectType([
+            'name' => 'SameName',
+            'fields' => $fields,
+        ]);
+
+        $QueryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'a' => ['type' => $A],
+                'b' => ['type' => $B],
+            ],
+        ]);
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'Schema must contain unique named types but contains multiple types named "SameName" '
+            . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
+        ));
+        new Schema(['query' => $QueryType]);
+    }
+
     public function testRejectsASchemaWhichHaveSameNamedObjectsImplementingAnInterface(): void
     {
         $AnotherInterface = new InterfaceType([
@@ -1822,11 +1863,6 @@ final class DefinitionTest extends TestCaseBase
         $schema->assertValid();
     }
 
-    // Lazy Fields
-
-    /**
-     * @see it('allows a type to define its fields as closure returning array field definition to be lazy loaded')
-     */
     public function testAllowsTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsArray(): void
     {
         $objType = new ObjectType([
@@ -1843,17 +1879,15 @@ final class DefinitionTest extends TestCaseBase
         self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 
-    /**
-     * @see it('allows a type to define its fields as closure returning object field definition to be lazy loaded')
-     */
     public function testAllowsTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsObject(): void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
             'fields' => [
-                'f' => static function (): FieldDefinition {
-                    return FieldDefinition::create(['name' => 'f', 'type' => Type::string()]);
-                },
+                'f' => static fn (): FieldDefinition => new FieldDefinition([
+                    'name' => 'f',
+                    'type' => Type::string(),
+                ]),
             ],
         ]);
 
@@ -1907,9 +1941,6 @@ final class DefinitionTest extends TestCaseBase
         self::assertSame(1, $resolvedCount);
     }
 
-    /**
-     * @see it('does resolve all field definitions when validating the type')
-     */
     public function testAllUnresolvedFieldsAreResolvedWhenValidatingType(): void
     {
         $resolvedCount = 0;
@@ -1932,88 +1963,17 @@ final class DefinitionTest extends TestCaseBase
         self::assertSame(2, $resolvedCount);
     }
 
-    /**
-     * @see it('does throw when lazy loaded array field definition changes its name')
-     */
-    public function testThrowsWhenLazyLoadedArrayFieldDefinitionChangesItsName(): void
-    {
-        $objType = new ObjectType([
-            'name' => 'SomeObject',
-            'fields' => [
-                'f' => static function (): array {
-                    return ['name' => 'foo', 'type' => Type::string()];
-                },
-            ],
-        ]);
-
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'SomeObject.f should not dynamically change its name when resolved lazily.'
-        );
-
-        $objType->assertValid();
-    }
-
-    /**
-     * @see it('does throw when lazy loaded object field definition changes its name')
-     */
-    public function testThrowsWhenLazyLoadedObjectFieldDefinitionChangesItsName(): void
-    {
-        $objType = new ObjectType([
-            'name' => 'SomeObject',
-            'fields' => [
-                'f' => static function (): FieldDefinition {
-                    return FieldDefinition::create(['name' => 'foo', 'type' => Type::string()]);
-                },
-            ],
-        ]);
-
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'SomeObject.f should not dynamically change its name when resolved lazily.'
-        );
-
-        $objType->assertValid();
-    }
-
-    /**
-     * @see it('does throw when lazy loaded field definition has no keys for field names')
-     */
     public function testThrowsWhenLazyLoadedFieldDefinitionHasNoKeysForFieldNames(): void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
             'fields' => [
-                static function (): array {
-                    return ['type' => Type::string()];
-                },
-            ],
-        ]);
-
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'SomeObject lazy fields must be an associative array with field names as keys.'
-        );
-
-        $objType->assertValid();
-    }
-
-    /**
-     * @see it('does throw when lazy loaded field definition has invalid args')
-     */
-    public function testThrowsWhenLazyLoadedFieldHasInvalidArgs(): void
-    {
-        $objType = new ObjectType([
-            'name' => 'SomeObject',
-            'fields' => [
-                'f' => static function (): array {
-                    return ['args' => 'invalid', 'type' => Type::string()];
-                },
+                static fn (): array => ['type' => Type::string()],
             ],
         ]);
 
         $this->expectExceptionObject(new InvariantViolation(
-            'SomeObject.f args must be an array.'
+            'SomeObject lazy fields must be an associative array with field names as keys.'
         ));
 
         $objType->assertValid();

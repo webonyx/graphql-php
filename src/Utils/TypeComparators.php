@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
-use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-/**
- * @phpstan-import-type AbstractTypeAlias from AbstractType
- */
 class TypeComparators
 {
     /**
@@ -82,7 +78,6 @@ class TypeComparators
         if (Type::isAbstractType($superType)) {
             // If superType type is an abstract type, maybeSubType type may be a currently
             // possible object or interface type.
-            /** @phpstan-var AbstractTypeAlias $superType proven by Type::isAbstractType() */
 
             return $maybeSubType instanceof ImplementingType
                 && $schema->isSubType($superType, $maybeSubType);

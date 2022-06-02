@@ -74,31 +74,24 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
         $astDefinitions = $context->getDocument()->definitions;
         foreach ($astDefinitions as $def) {
-            if (! ($def instanceof DirectiveDefinitionNode)) {
-                continue;
-            }
-
-            $name = $def->name->value;
-            if (null !== $def->arguments) {
+            if ($def instanceof DirectiveDefinitionNode) {
                 $argNames = [];
                 foreach ($def->arguments as $arg) {
                     $argNames[] = $arg->name->value;
                 }
 
-                $directiveArgs[$name] = $argNames;
-            } else {
-                $directiveArgs[$name] = [];
+                $directiveArgs[$def->name->value] = $argNames;
             }
         }
 
         return [
             NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context): VisitorOperation {
                 $directiveName = $directiveNode->name->value;
-                $knownArgs = $directiveArgs[$directiveName] ?? null;
 
-                if (null === $directiveNode->arguments || null === $knownArgs) {
+                if (! isset($directiveArgs[$directiveName])) {
                     return Visitor::skipNode();
                 }
+                $knownArgs = $directiveArgs[$directiveName];
 
                 foreach ($directiveNode->arguments as $argNode) {
                     $argName = $argNode->name->value;

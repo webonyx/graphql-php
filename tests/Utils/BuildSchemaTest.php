@@ -105,8 +105,14 @@ class BuildSchemaTest extends TestCase
             }
         '));
 
-        $result = GraphQL::executeQuery($schema, '{ str }', ['str' => 123]);
-        self::assertEquals(['str' => 123], $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)['data']);
+        $data = ['str' => 123];
+
+        self::assertEquals(
+            [
+                'data' => $data,
+            ],
+            GraphQL::executeQuery($schema, '{ str }', $data)->toArray()
+        );
     }
 
     /**

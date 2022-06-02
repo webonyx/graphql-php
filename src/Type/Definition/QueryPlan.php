@@ -26,6 +26,11 @@ use function in_array;
 use function is_array;
 use function is_numeric;
 
+/**
+ * @phpstan-type QueryPlanOptions array{
+ *   groupImplementorFields?: bool,
+ * }
+ */
 class QueryPlan
 {
     /** @var array<string, array<int, string>> */
@@ -45,17 +50,17 @@ class QueryPlan
     private bool $groupImplementorFields;
 
     /**
-     * @param iterable<FieldNode>                   $fieldNodes
-     * @param array<string, mixed>                  $variableValues
+     * @param iterable<FieldNode> $fieldNodes
+     * @param array<string, mixed> $variableValues
      * @param array<string, FragmentDefinitionNode> $fragments
-     * @param array<string>                         $options        TODO move to using key
+     * @param QueryPlanOptions $options
      */
     public function __construct(ObjectType $parentType, Schema $schema, iterable $fieldNodes, array $variableValues, array $fragments, array $options = [])
     {
         $this->schema = $schema;
         $this->variableValues = $variableValues;
         $this->fragments = $fragments;
-        $this->groupImplementorFields = in_array('group-implementor-fields', $options, true);
+        $this->groupImplementorFields = $options['groupImplementorFields'] ?? false;
         $this->analyzeQueryPlan($parentType, $fieldNodes);
     }
 
@@ -113,16 +118,15 @@ class QueryPlan
     {
         $queryPlan = [];
         $implementors = [];
-        /** @var FieldNode $fieldNode */
         foreach ($fieldNodes as $fieldNode) {
             if (null === $fieldNode->selectionSet) {
                 continue;
             }
 
-            /** @var ObjectType|InterfaceType $type proven because it must be a type with fields and was unwrapped */
             $type = Type::getNamedType(
                 $parentType->getField($fieldNode->name->value)->getType()
             );
+            assert($type instanceof ObjectType || $type instanceof InterfaceType, 'proven because it must be a type with fields and was unwrapped');
 
             $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type, $implementors);
 
@@ -149,8 +153,8 @@ class QueryPlan
     }
 
     /**
-     * @param InterfaceType|ObjectType $parentType
-     * @param array<string, mixed>     $implementors
+     * @param Type&NamedType $parentType
+     * @param array<string, mixed> $implementors
      *
      * @throws Error
      *
@@ -162,6 +166,8 @@ class QueryPlan
         $implementors = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
+                assert($parentType instanceof HasFieldsType, 'ensured by query validation');
+
                 $fieldName = $selectionNode->name->value;
 
                 if (Introspection::TYPE_NAME_FIELD_NAME === $fieldName) {
@@ -225,10 +231,10 @@ class QueryPlan
     }
 
     /**
-     * @param Type                 &NamedType    $parentType
-     * @param Type                 &NamedType    $type
-     * @param array<mixed>         $fields
-     * @param array<mixed>         $subfields
+     * @param Type&NamedType $parentType
+     * @param Type&NamedType $type
+     * @param array<mixed> $fields
+     * @param array<mixed> $subfields
      * @param array<string, mixed> $implementors
      *
      * @return array<mixed>

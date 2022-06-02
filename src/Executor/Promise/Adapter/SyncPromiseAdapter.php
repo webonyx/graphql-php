@@ -38,8 +38,8 @@ class SyncPromiseAdapter implements PromiseAdapter
 
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
-        /** @var SyncPromise $adoptedPromise */
         $adoptedPromise = $promise->adoptedPromise;
+        assert($adoptedPromise instanceof SyncPromise);
 
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
@@ -120,16 +120,16 @@ class SyncPromiseAdapter implements PromiseAdapter
         $this->beforeWait($promise);
         $taskQueue = SyncPromise::getQueue();
 
+        $syncPromise = $promise->adoptedPromise;
+        assert($syncPromise instanceof SyncPromise);
+
         while (
-            SyncPromise::PENDING === $promise->adoptedPromise->state
+            SyncPromise::PENDING === $syncPromise->state
             && ! $taskQueue->isEmpty()
         ) {
             SyncPromise::runQueue();
             $this->onWait($promise);
         }
-
-        /** @var SyncPromise $syncPromise */
-        $syncPromise = $promise->adoptedPromise;
 
         if (SyncPromise::FULFILLED === $syncPromise->state) {
             return $syncPromise->result;

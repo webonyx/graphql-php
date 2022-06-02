@@ -212,7 +212,7 @@ class Helper
      *
      * @param array<OperationParams> $operations
      *
-     * @return ExecutionResult|array<int, ExecutionResult>|Promise
+     * @return array<int, ExecutionResult>|Promise
      *
      * @api
      */
@@ -610,13 +610,10 @@ class Helper
      */
     private function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream): ResponseInterface
     {
-        $httpStatus = $this->resolveHttpStatus($result);
-
-        $result = json_encode($result);
-        $writableBodyStream->write($result);
+        $writableBodyStream->write(json_encode($result, JSON_THROW_ON_ERROR));
 
         return $response
-            ->withStatus($httpStatus)
+            ->withStatus($this->resolveHttpStatus($result))
             ->withHeader('Content-Type', 'application/json')
             ->withBody($writableBodyStream);
     }

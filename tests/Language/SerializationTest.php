@@ -6,7 +6,6 @@ namespace GraphQL\Tests\Language;
 
 use function array_keys;
 use function count;
-use function file_get_contents;
 use function get_class;
 use function get_object_vars;
 use GraphQL\Language\AST\Location;
@@ -17,6 +16,7 @@ use GraphQL\Utils\AST;
 use function implode;
 use function json_decode;
 use PHPUnit\Framework\TestCase;
+use function Safe\file_get_contents;
 
 class SerializationTest extends TestCase
 {
@@ -40,7 +40,7 @@ class SerializationTest extends TestCase
     /**
      * Compares two nodes by actually iterating over all NodeLists, properly comparing locations (ignoring tokens), etc.
      *
-     * @param string[] $path
+     * @param array<string> $path
      */
     private static function assertNodesAreEqual(Node $expected, Node $actual, array $path = []): void
     {
@@ -50,7 +50,6 @@ class SerializationTest extends TestCase
 
         $expectedVars = get_object_vars($expected);
         $actualVars = get_object_vars($actual);
-        self::assertCount(count($expectedVars), $actualVars, $err);
         self::assertEquals(array_keys($expectedVars), array_keys($actualVars), $err);
 
         foreach ($expectedVars as $name => $expectedValue) {

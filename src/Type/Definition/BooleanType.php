@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
 use function is_bool;
 
@@ -33,7 +34,8 @@ class BooleanType extends ScalarType
             return $value;
         }
 
-        throw new Error('Boolean cannot represent a non boolean value: ' . Utils::printSafe($value));
+        $notBoolean = Utils::printSafe($value);
+        throw new Error("Boolean cannot represent a non boolean value: {$notBoolean}");
     }
 
     public function parseLiteral(Node $valueNode, ?array $variables = null): bool
@@ -42,7 +44,7 @@ class BooleanType extends ScalarType
             return $valueNode->value;
         }
 
-        // Intentionally without message, as all information already in wrapped Exception
-        throw new Error();
+        $notBoolean = Printer::doPrint($valueNode);
+        throw new Error("Boolean cannot represent a non boolean value: {$notBoolean}", $valueNode);
     }
 }

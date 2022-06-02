@@ -8,10 +8,7 @@ use function array_keys;
 use function array_pop;
 use function array_slice;
 use function count;
-use function file_get_contents;
 use function func_get_args;
-use function gettype;
-use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
@@ -29,6 +26,7 @@ use GraphQL\Tests\Validator\ValidatorTestCase;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 use function is_numeric;
+use function Safe\file_get_contents;
 
 class VisitorTest extends ValidatorTestCase
 {
@@ -129,11 +127,11 @@ class VisitorTest extends ValidatorTestCase
             return;
         }
 
-        self::assertContains(gettype($key), ['integer', 'string']);
-        /** @var int|string $key */
         if ($parent instanceof NodeList) {
-            self::assertArrayHasKey($key, $parent);
+            self::assertIsInt($key);
+            self::assertTrue(isset($parent[$key]));
         } else {
+            self::assertIsString($key);
             self::assertObjectHasAttribute($key, $parent);
         }
 
@@ -233,10 +231,9 @@ class VisitorTest extends ValidatorTestCase
                 NodeKind::DOCUMENT => [
                     'enter' => function (DocumentNode $node) use ($ast): DocumentNode {
                         $this->checkVisitorFnArgs($ast, func_get_args());
-                        /** @var NodeList<DefinitionNode&Node> $definitionNodeList */
-                        $definitionNodeList = new NodeList([]);
                         $tmp = clone $node;
-                        $tmp->definitions = $definitionNodeList;
+                        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
+                        $tmp->definitions = new NodeList([]);
                         $tmp->didEnter = true;
 
                         return $tmp;

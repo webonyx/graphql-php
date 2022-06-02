@@ -6,6 +6,10 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
+use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 
 /**
@@ -243,28 +247,11 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "stringArgField" argument "stringArg" requires type String, found 1.', 4, 39),
+                $this->badValueWithMessage('String cannot represent a non string value: 1', 4, 39),
             ]
         );
 
         self::assertTrue($errors[0]->isClientSafe());
-    }
-
-    /**
-     * @param mixed $value anything
-     *
-     * @phpstan-return ErrorArray
-     */
-    private function badValue(string $typeName, $value, int $line, int $column, ?string $message = null): array
-    {
-        return ErrorHelper::create(
-            ValuesOfCorrectType::badValueMessage(
-                $typeName,
-                $value,
-                $message
-            ),
-            [new SourceLocation($line, $column)]
-        );
     }
 
     /**
@@ -290,7 +277,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "stringArgField" argument "stringArg" requires type String, found 1.0.', 4, 39),
+                $this->badValueWithMessage('String cannot represent a non string value: 1.0', 4, 39),
             ]
         );
 
@@ -314,7 +301,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "stringArgField" argument "stringArg" requires type String, found true.', 4, 39),
+                $this->badValueWithMessage('String cannot represent a non string value: true', 4, 39),
             ]
         );
 
@@ -336,7 +323,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "stringArgField" argument "stringArg" requires type String, found BAR.', 4, 39),
+                $this->badValueWithMessage('String cannot represent a non string value: BAR', 4, 39),
             ]
         );
 
@@ -358,7 +345,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "intArgField" argument "intArg" requires type Int, found "3".', 4, 33),
+                $this->badValueWithMessage('Int cannot represent non-integer value: "3"', 4, 33),
             ]
         );
 
@@ -380,7 +367,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "intArgField" argument "intArg" requires type Int, found 829384293849283498239482938.', 4, 33),
+                $this->badValueWithMessage('Int cannot represent non-integer value: 829384293849283498239482938', 4, 33),
             ]
         );
 
@@ -404,7 +391,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "intArgField" argument "intArg" requires type Int, found FOO.', 4, 33),
+                $this->badValueWithMessage('Int cannot represent non-integer value: FOO', 4, 33),
             ]
         );
 
@@ -426,7 +413,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "intArgField" argument "intArg" requires type Int, found 3.0.', 4, 33),
+                $this->badValueWithMessage('Int cannot represent non-integer value: 3.0', 4, 33),
             ]
         );
 
@@ -448,7 +435,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "intArgField" argument "intArg" requires type Int, found 3.333.', 4, 33),
+                $this->badValueWithMessage('Int cannot represent non-integer value: 3.333', 4, 33),
             ]
         );
 
@@ -470,7 +457,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "floatArgField" argument "floatArg" requires type Float, found "3.333".', 4, 37),
+                $this->badValueWithMessage('Float cannot represent non numeric value: "3.333"', 4, 37),
             ]
         );
 
@@ -492,7 +479,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "floatArgField" argument "floatArg" requires type Float, found true.', 4, 37),
+                $this->badValueWithMessage('Float cannot represent non numeric value: true', 4, 37),
             ]
         );
 
@@ -516,7 +503,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "floatArgField" argument "floatArg" requires type Float, found FOO.', 4, 37),
+                $this->badValueWithMessage('Float cannot represent non numeric value: FOO', 4, 37),
             ]
         );
 
@@ -538,7 +525,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "booleanArgField" argument "booleanArg" requires type Boolean, found 2.', 4, 41),
+                $this->badValueWithMessage('Boolean cannot represent a non boolean value: 2', 4, 41),
             ]
         );
 
@@ -560,7 +547,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "booleanArgField" argument "booleanArg" requires type Boolean, found 1.0.', 4, 41),
+                $this->badValueWithMessage('Boolean cannot represent a non boolean value: 1.0', 4, 41),
             ]
         );
 
@@ -584,7 +571,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "booleanArgField" argument "booleanArg" requires type Boolean, found "true".', 4, 41),
+                $this->badValueWithMessage('Boolean cannot represent a non boolean value: "true"', 4, 41),
             ]
         );
 
@@ -606,7 +593,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "booleanArgField" argument "booleanArg" requires type Boolean, found TRUE.', 4, 41),
+                $this->badValueWithMessage('Boolean cannot represent a non boolean value: TRUE', 4, 41),
             ]
         );
 
@@ -628,7 +615,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "idArgField" argument "idArg" requires type ID, found 1.0.', 4, 31),
+                $this->badValueWithMessage('ID cannot represent a non-string and non-integer value: 1.0', 4, 31),
             ]
         );
 
@@ -650,7 +637,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "idArgField" argument "idArg" requires type ID, found true.', 4, 31),
+                $this->badValueWithMessage('ID cannot represent a non-string and non-integer value: true', 4, 31),
             ]
         );
 
@@ -674,7 +661,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "idArgField" argument "idArg" requires type ID, found SOMETHING.', 4, 31),
+                $this->badValueWithMessage('ID cannot represent a non-string and non-integer value: SOMETHING', 4, 31),
             ]
         );
 
@@ -696,7 +683,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found 2.', 4, 41),
+                $this->badValueWithMessage('Enum "DogCommand" cannot represent non-enum value: 2.', 4, 41),
             ]
         );
 
@@ -718,7 +705,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found 1.0.', 4, 41),
+                $this->badValueWithMessage('Enum "DogCommand" cannot represent non-enum value: 1.0.', 4, 41),
             ]
         );
 
@@ -742,7 +729,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found "SIT"; Did you mean the enum value SIT?', 4, 41),
+                $this->badValueWithMessage('Enum "DogCommand" cannot represent non-enum value: "SIT". Did you mean the enum value "SIT"?', 4, 41),
             ]
         );
 
@@ -764,7 +751,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found true.', 4, 41),
+                $this->badValueWithMessage('Enum "DogCommand" cannot represent non-enum value: true.', 4, 41),
             ]
         );
 
@@ -786,7 +773,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found JUGGLE.', 4, 41),
+                $this->badValueWithMessage('Value "JUGGLE" does not exist in "DogCommand" enum.', 4, 41),
             ]
         );
 
@@ -808,7 +795,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found sit; Did you mean the enum value SIT?', 4, 41),
+                $this->badValueWithMessage('Value "sit" does not exist in "DogCommand" enum. Did you mean the enum value "SIT"?', 4, 41),
             ]
         );
 
@@ -900,7 +887,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "stringListArgField" argument "stringListArg" requires type String, found 2.', 4, 55),
+                $this->badValueWithMessage('String cannot represent a non string value: 2', 4, 55),
             ]
         );
 
@@ -922,7 +909,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "stringListArgField" argument "stringListArg" requires type [String], found 1.', 4, 47),
+                $this->badValueWithMessage('String cannot represent a non string value: 1', 4, 47),
             ]
         );
 
@@ -1118,8 +1105,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "multipleReqs" argument "req2" requires type Int!, found "two".', 4, 32),
-                $this->badValueWithMessage('Field "multipleReqs" argument "req1" requires type Int!, found "one".', 4, 45),
+                $this->badValueWithMessage('Int cannot represent non-integer value: "two"', 4, 32),
+                $this->badValueWithMessage('Int cannot represent non-integer value: "one"', 4, 45),
             ]
         );
 
@@ -1128,9 +1115,9 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @see it('Incorrect value and missing argument (ProvidedRequiredArguments)')
+     * @see it('Incorrect value and missing argument (ProvidedRequiredArgumentsRule)')
      */
-    public function testIncorrectValueAndMissingArgumentProvidedRequiredArguments(): void
+    public function testIncorrectValueAndMissingArgumentProvidedRequiredArgumentsRule(): void
     {
         $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
@@ -1142,7 +1129,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "multipleReqs" argument "req1" requires type Int!, found "one".', 4, 32),
+                $this->badValueWithMessage('Int cannot represent non-integer value: "one"', 4, 32),
             ]
         );
 
@@ -1166,7 +1153,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "multipleReqs" argument "req1" requires type Int!, found null.', 4, 32),
+                $this->badValueWithMessage('Expected value of type "Int!", found null.', 4, 32),
             ]
         );
 
@@ -1304,26 +1291,14 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->requiredField('ComplexInput', 'requiredField', 'Boolean!', 4, 41),
+                [
+                    'message' => 'Field ComplexInput.requiredField of required type Boolean! was not provided.',
+                    'locations' => [['line' => 4, 'column' => 41]],
+                ],
             ]
         );
 
         self::assertTrue($errors[0]->isClientSafe());
-    }
-
-    /**
-     * @phpstan-return ErrorArray
-     */
-    private function requiredField(string $typeName, string $fieldName, string $fieldTypeName, int $line, int $column): array
-    {
-        return ErrorHelper::create(
-            ValuesOfCorrectType::requiredFieldMessage(
-                $typeName,
-                $fieldName,
-                $fieldTypeName
-            ),
-            [new SourceLocation($line, $column)]
-        );
     }
 
     // DESCRIBE: Invalid input object value
@@ -1346,7 +1321,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "complexArgField" argument "complexArg" requires type String, found 2.', 5, 40),
+                $this->badValueWithMessage('String cannot represent a non string value: 2', 5, 40),
             ]
         );
 
@@ -1370,7 +1345,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
           }
         }
       ',
-            [$this->badValueWithMessage('Field "complexArgField" argument "complexArg" requires type Boolean!, found null.', 6, 29)]
+            [$this->badValueWithMessage('Expected value of type "Boolean!", found null.', 6, 29)]
         );
 
         self::assertTrue($errors[0]->isClientSafe());
@@ -1378,10 +1353,6 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     /**
      * @see it('Partial object, unknown field arg')
-     *
-     * The sorting of equal elements has changed so that the test fails on php < 7
-     *
-     * @requires PHP 7.0
      */
     public function testPartialObjectUnknownFieldArg(): void
     {
@@ -1392,18 +1363,16 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
           complicatedArgs {
             complexArgField(complexArg: {
               requiredField: true,
-              unknownField: "value"
+              invalidField: "value"
             })
           }
         }
         ',
             [
-                $this->unknownField(
-                    'ComplexInput',
-                    'unknownField',
-                    6,
-                    15
-                ),
+                [
+                    'message' => 'Field "invalidField" is not defined by type "ComplexInput". Did you mean "intField"?',
+                    'locations' => [['line' => 6, 'column' => 15]],
+                ],
             ]
         );
 
@@ -1411,26 +1380,11 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @phpstan-return ErrorArray
-     */
-    private function unknownField(string $typeName, string $fieldName, int $line, int $column, ?string $message = null): array
-    {
-        return ErrorHelper::create(
-            ValuesOfCorrectType::unknownFieldMessage(
-                $typeName,
-                $fieldName,
-                $message
-            ),
-            [new SourceLocation($line, $column)]
-        );
-    }
-
-    /**
      * @see it('reports original error for custom scalar which throws')
      */
     public function testReportsOriginalErrorForCustomScalarWhichThrows(): void
     {
-        $errors = $this->expectFailsRule(
+        $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -1438,7 +1392,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "invalidArg" argument "arg" requires type Invalid, found 123; Invalid scalar is always invalid: 123', 3, 27),
+                $this->badValueWithMessage('Expected value of type "Invalid", found 123; Invalid scalar is always invalid: 123', 3, 27),
             ]
         );
     }
@@ -1448,7 +1402,23 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testAllowsCustomScalarToAcceptComplexLiterals(): void
     {
-        $this->expectPassesRule(
+        $customScalar = new CustomScalarType(['name' => 'Any']);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'anyArg' => [
+                        'type' => Type::string(),
+                        'args' => [
+                            'arg' => $customScalar,
+                        ],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $this->expectPassesRuleWithSchema(
+            $schema,
             new ValuesOfCorrectType(),
             '
         {
@@ -1498,8 +1468,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Field "dog" argument "if" requires type Boolean!, found "yes".', 3, 28),
-                $this->badValueWithMessage('Field "name" argument "if" requires type Boolean!, found ENUM.', 4, 28),
+                $this->badValueWithMessage('Boolean cannot represent a non boolean value: "yes"', 3, 28),
+                $this->badValueWithMessage('Boolean cannot represent a non boolean value: ENUM', 4, 28),
             ]
         );
 
@@ -1565,9 +1535,18 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValue('Int!', 'null', 3, 22),
-                $this->badValue('String!', 'null', 4, 25),
-                $this->badValue('Boolean!', 'null', 5, 47),
+                [
+                    'message' => 'Expected value of type "Int!", found null.',
+                    'locations' => [['line' => 3, 'column' => 22]],
+                ],
+                [
+                    'message' => 'Expected value of type "String!", found null.',
+                    'locations' => [['line' => 4, 'column' => 25]],
+                ],
+                [
+                    'message' => 'Expected value of type "Boolean!", found null.',
+                    'locations' => [['line' => 5, 'column' => 47]],
+                ],
             ]
         );
 
@@ -1593,9 +1572,18 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValue('Int', '"one"', 3, 21),
-                $this->badValue('String', '4', 4, 24),
-                $this->badValue('ComplexInput', '"notverycomplex"', 5, 30),
+                [
+                    'message' => 'Int cannot represent non-integer value: "one"',
+                    'locations' => [['line' => 3, 'column' => 21]],
+                ],
+                [
+                    'message' => 'String cannot represent a non string value: 4',
+                    'locations' => [['line' => 4, 'column' => 24]],
+                ],
+                [
+                    'message' => 'Expected value of type "ComplexInput", found "notverycomplex".',
+                    'locations' => [['line' => 5, 'column' => 30]],
+                ],
             ]
         );
 
@@ -1617,8 +1605,14 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValue('Boolean!', '123', 3, 47),
-                $this->badValue('Int', '"abc"', 3, 62),
+                [
+                    'message' => 'Boolean cannot represent a non boolean value: 123',
+                    'locations' => [['line' => 3, 'column' => 47]],
+                ],
+                [
+                    'message' => 'Int cannot represent non-integer value: "abc"',
+                    'locations' => [['line' => 3, 'column' => 62]],
+                ],
             ]
         );
 
@@ -1638,7 +1632,10 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->requiredField('ComplexInput', 'requiredField', 'Boolean!', 2, 55),
+                ErrorHelper::create(
+                    'Field ComplexInput.requiredField of required type Boolean! was not provided.',
+                    [new SourceLocation(2, 55)]
+                ),
             ]
         );
 
@@ -1658,7 +1655,10 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValue('String', '2', 2, 50),
+                [
+                    'message' => 'String cannot represent a non string value: 2',
+                    'locations' => [['line' => 2, 'column' => 50]],
+                ],
             ]
         );
 

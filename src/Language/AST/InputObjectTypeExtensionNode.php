@@ -8,12 +8,11 @@ class InputObjectTypeExtensionNode extends Node implements TypeExtensionNode
 {
     public string $kind = NodeKind::INPUT_OBJECT_TYPE_EXTENSION;
 
-    /** @var NameNode */
-    public $name;
+    public NameNode $name;
 
     /** @var NodeList<DirectiveNode> */
-    public $directives;
+    public NodeList $directives;
 
     /** @var NodeList<InputValueDefinitionNode> */
-    public $fields;
+    public NodeList $fields;
 }

@@ -12,7 +12,7 @@ use GraphQL\Validator\ValidationContext;
 
 class NoUnusedVariables extends ValidationRule
 {
-    /** @var VariableDefinitionNode[] */
+    /** @var array<int, VariableDefinitionNode> */
     protected array $variableDefs;
 
     public function getVisitor(ValidationContext $context): array

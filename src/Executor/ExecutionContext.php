@@ -36,7 +36,10 @@ class ExecutionContext
     /** @var array<string, mixed> */
     public array $variableValues;
 
-    /** @var FieldResolver */
+    /**
+     * @var callable
+     * @phpstan-var FieldResolver
+     */
     public $fieldResolver;
 
     /** @var array<int, Error> */

@@ -46,11 +46,6 @@ parameters:
 			path: examples/01-blog/Blog/Types.php
 
 		-
-			message: "#^Strict comparison using \\=\\=\\= between non\\-empty\\-string and null will always evaluate to false\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
 			message: "#^SplObjectStorage\\<GraphQL\\\\Type\\\\Definition\\\\ObjectType, SplObjectStorage\\<ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>, ArrayObject\\<string, ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>\\>\\>\\> does not accept SplObjectStorage\\<ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>, ArrayObject\\<string, ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>\\>\\>\\|SplObjectStorage\\<object, mixed\\>\\.$#"
 			count: 1
 			path: src/Executor/ReferenceExecutor.php
@@ -76,8 +71,8 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Array \\(array\\<array\\<string, mixed\\>\\|T of GraphQL\\\\Language\\\\AST\\\\Node\\>\\) does not accept GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
-			count: 2
+			message: "#^Parameter \\#4 \\$replacement of function array_splice expects array\\|string, array\\<T of GraphQL\\\\Language\\\\AST\\\\Node\\>\\|T of GraphQL\\\\Language\\\\AST\\\\Node\\|null given\\.$#"
+			count: 1
 			path: src/Language/AST/NodeList.php
 
 		-
@@ -111,6 +106,16 @@ parameters:
 			path: src/Language/Visitor.php
 
 		-
+			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\Argument constructor expects array\\{name\\: string, type\\: \\(callable\\(\\)\\: GraphQL\\\\Type\\\\Definition\\\\InputType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|\\(GraphQL\\\\Type\\\\Definition\\\\InputType&GraphQL\\\\Type\\\\Definition\\\\Type\\), defaultValue\\?\\: mixed, description\\?\\: string\\|null, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\|null\\}, non\\-empty\\-array given\\.$#"
+			count: 1
+			path: src/Type/Definition/Argument.php
+
+		-
+			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition constructor expects array\\{name\\: string, value\\?\\: mixed, deprecationReason\\?\\: string\\|null, description\\?\\: string\\|null, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\|null\\}, array given\\.$#"
+			count: 1
+			path: src/Type/Definition/EnumType.php
+
+		-
 			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:getType\\(\\) should return GraphQL\\\\Type\\\\Definition\\\\OutputType&GraphQL\\\\Type\\\\Definition\\\\Type but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
 			count: 1
 			path: src/Type/Definition/FieldDefinition.php
@@ -119,6 +124,11 @@ parameters:
 			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:\\$type \\(GraphQL\\\\Type\\\\Definition\\\\OutputType&GraphQL\\\\Type\\\\Definition\\\\Type\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
 			count: 1
 			path: src/Type/Definition/FieldDefinition.php
+
+		-
+			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\NonNull\\:\\:getWrappedType\\(\\) should return GraphQL\\\\Type\\\\Definition\\\\NullableType&GraphQL\\\\Type\\\\Definition\\\\Type but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			count: 1
+			path: src/Type/Definition/NonNull.php
 
 		-
 			message: "#^Array \\(array\\<string, GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\>\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
@@ -161,19 +171,14 @@ parameters:
 			path: src/Validator/Rules/KnownDirectives.php
 
 		-
-			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\}\\> does not accept array\\<int, mixed\\>\\.$#"
+			message: "#^Method GraphQL\\\\Validator\\\\Rules\\\\OverlappingFieldsCanBeMerged\\:\\:getFieldsAndFragmentNames\\(\\) should return array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\} but returns array\\{mixed, array\\<int, int\\|string\\>\\}\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) with int\\|string and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
+			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\}\\> does not accept array\\<int, mixed\\>\\.$#"
 			count: 1
-			path: tests/Language/VisitorTest.php
-
-		-
-			message: "#^Instanceof between mixed and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
-			count: 1
-			path: tests/Language/VisitorTest.php
+			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
 		-
 			message: "#^Method GraphQL\\\\Tests\\\\Language\\\\VisitorTest\\:\\:getNodeByPath\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"

@@ -14,7 +14,7 @@ use GraphQL\Validator\ValidationContext;
 
 class UniqueOperationNames extends ValidationRule
 {
-    /** @var NameNode[] */
+    /** @var array<string, NameNode> */
     protected array $knownOperationNames;
 
     public function getVisitor(ValidationContext $context): array

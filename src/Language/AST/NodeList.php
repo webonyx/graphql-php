@@ -137,7 +137,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     public function getIterator(): Traversable
     {
         foreach ($this->nodes as $key => $_) {
-            yield $this->offsetGet($key);
+            yield $key => $this->offsetGet($key);
         }
     }
 
@@ -153,8 +153,9 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      */
     public function cloneDeep(): self
     {
-        $cloned = clone $this;
-        foreach ($this->nodes as $key => $node) {
+        /** @var static<T> $cloned */
+        $cloned = new static([]);
+        foreach ($this->getIterator() as $key => $node) {
             $cloned[$key] = $node->cloneDeep();
         }
 

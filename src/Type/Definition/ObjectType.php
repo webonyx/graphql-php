@@ -57,7 +57,7 @@ use function is_string;
  * @phpstan-type ObjectConfig array{
  *   name?: string|null,
  *   description?: string|null,
- *   resolveField?: FieldResolver,
+ *   resolveField?: FieldResolver|null,
  *   fields: (callable(): iterable<mixed>)|iterable<mixed>,
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
@@ -76,7 +76,10 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /** @var array<int, ObjectTypeExtensionNode> */
     public array $extensionASTNodes;
 
-    /** @var callable|null */
+    /**
+     * @var callable|null
+     * @phpstan-var FieldResolver|null
+     */
     public $resolveFieldFn;
 
     /** @phpstan-var ObjectConfig */

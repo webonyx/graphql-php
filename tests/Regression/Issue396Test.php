@@ -32,15 +32,15 @@ class Issue396Test extends TestCase
             'types' => [$a, $b, $c],
             'resolveType' => static function ($result, $value, ResolveInfo $info) use ($a, $b, $c, &$log): ?Type {
                 $log[] = [$result, $info->path];
-                if (stristr($result['name'], 'A')) {
+                if (false !== stristr($result['name'], 'A')) {
                     return $a;
                 }
 
-                if (stristr($result['name'], 'B')) {
+                if (false !== stristr($result['name'], 'B')) {
                     return $b;
                 }
 
-                if (stristr($result['name'], 'C')) {
+                if (false !== stristr($result['name'], 'C')) {
                     return $c;
                 }
 
@@ -103,15 +103,15 @@ class Issue396Test extends TestCase
             ],
             'resolveType' => static function ($result, $value, ResolveInfo $info) use (&$a, &$b, &$c, &$log): ?ObjectType {
                 $log[] = [$result, $info->path];
-                if (stristr($result['name'], 'A')) {
+                if (false !== stristr($result['name'], 'A')) {
                     return $a;
                 }
 
-                if (stristr($result['name'], 'B')) {
+                if (false !== stristr($result['name'], 'B')) {
                     return $b;
                 }
 
-                if (stristr($result['name'], 'C')) {
+                if (false !== stristr($result['name'], 'C')) {
                     return $c;
                 }
 
@@ -119,9 +119,24 @@ class Issue396Test extends TestCase
             },
         ]);
 
-        $a = new ObjectType(['name' => 'A', 'fields' => ['name' => Type::string()], 'interfaces' => [$interfaceResult]]);
-        $b = new ObjectType(['name' => 'B', 'fields' => ['name' => Type::string()], 'interfaces' => [$interfaceResult]]);
-        $c = new ObjectType(['name' => 'C', 'fields' => ['name' => Type::string()], 'interfaces' => [$interfaceResult]]);
+        $a = new ObjectType(
+            [
+                'name' => 'A',
+                'fields' => ['name' => Type::string()],
+                'interfaces' => [$interfaceResult], ]
+        );
+        $b = new ObjectType(
+            [
+                'name' => 'B',
+                'fields' => ['name' => Type::string()],
+                'interfaces' => [$interfaceResult], ]
+        );
+        $c = new ObjectType(
+            [
+                'name' => 'C',
+                'fields' => ['name' => Type::string()],
+                'interfaces' => [$interfaceResult], ]
+        );
 
         $exampleType = new ObjectType([
             'name' => 'Example',
@@ -154,11 +169,13 @@ class Issue396Test extends TestCase
 
         GraphQL::executeQuery($schema, $query);
 
-        $expected = [
-            [['name' => 'A 1'], ['field', 0]],
-            [['name' => 'B 2'], ['field', 1]],
-            [['name' => 'C 3'], ['field', 2]],
-        ];
-        self::assertEquals($expected, $log);
+        self::assertEquals(
+            [
+                [['name' => 'A 1'], ['field', 0]],
+                [['name' => 'B 2'], ['field', 1]],
+                [['name' => 'C 3'], ['field', 2]],
+            ],
+            $log
+        );
     }
 }

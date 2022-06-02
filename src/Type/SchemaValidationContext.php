@@ -92,7 +92,7 @@ class SchemaValidationContext
     }
 
     /**
-     * @param array<Node>|Node|null $nodes
+     * @param array<Node|null>|Node|null $nodes
      */
     public function reportError(string $message, $nodes = null): void
     {
@@ -165,7 +165,7 @@ class SchemaValidationContext
                 $argNames[$argName] = true;
 
                 // Ensure the type is an input type.
-                // @phpstan-ignore-next-line the type of $arg->getType() says it is an input type, but it might not always be true
+                // @phpstan-ignore-next-line necessary until PHP supports union types
                 if (Type::isInputType($arg->getType())) {
                     continue;
                 }
@@ -200,7 +200,7 @@ class SchemaValidationContext
     }
 
     /**
-     * @param Type|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|Argument $object
+     * @param (Type&NamedType)|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|Argument $object
      */
     private function validateName(object $object): void
     {
@@ -208,7 +208,7 @@ class SchemaValidationContext
         $error = Utils::isValidNameError($object->name, $object->astNode);
         if (
             null === $error
-            || ($object instanceof Type && $object instanceof NamedType && Introspection::isIntrospectionType($object))
+            || ($object instanceof Type && Introspection::isIntrospectionType($object))
         ) {
             return;
         }
@@ -565,13 +565,11 @@ class SchemaValidationContext
     {
         $argNodes = [];
         $fieldNode = $this->getFieldNode($type, $fieldName);
-        if (null !== $fieldNode && null !== $fieldNode->arguments) {
+        if (null !== $fieldNode) {
             foreach ($fieldNode->arguments as $node) {
-                if ($node->name->value !== $argName) {
-                    continue;
+                if ($node->name->value === $argName) {
+                    $argNodes[] = $node;
                 }
-
-                $argNodes[] = $node;
             }
         }
 
@@ -643,13 +641,19 @@ class SchemaValidationContext
     }
 
     /**
-     * @param Schema|Type $object
+     * @param Schema|(Type&NamedType) $object
      *
      * @return NodeList<DirectiveNode>
      */
     private function getDirectives(object $object): NodeList
     {
         $directives = [];
+        /**
+         * Excluding directiveNode, since $object is not Directive.
+         *
+         * @var SchemaDefinitionNode|SchemaTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|EnumTypeDefinitionNode|EnumTypeExtensionNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode $node
+         */
+        // @phpstan-ignore-next-line union types are not pervasive
         foreach ($this->getAllNodes($object) as $node) {
             foreach ($node->directives as $directive) {
                 $directives[] = $directive;

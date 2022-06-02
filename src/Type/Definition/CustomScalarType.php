@@ -8,20 +8,30 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
+use GraphQL\Language\AST\ValueNode;
 use GraphQL\Utils\AST;
 use function is_callable;
 
 /**
- * @phpstan-import-type LeafValueNode from LeafType
- * @phpstan-type CustomScalarConfig array{
+ * @phpstan-type InputCustomScalarConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   serialize?: callable(mixed): mixed,
+ *   parseValue: callable(mixed): mixed,
+ *   parseLiteral: callable(ValueNode&Node, array<string, mixed>|null): mixed,
+ *   astNode?: ScalarTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
+ * }
+ * @phpstan-type OutputCustomScalarConfig array{
  *   name?: string|null,
  *   description?: string|null,
  *   serialize: callable(mixed): mixed,
  *   parseValue?: callable(mixed): mixed,
- *   parseLiteral?: callable(LeafValueNode, array<string, mixed>|null): mixed,
+ *   parseLiteral?: callable(ValueNode&Node, array<string, mixed>|null): mixed,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
  * }
+ * @phpstan-type CustomScalarConfig InputCustomScalarConfig|OutputCustomScalarConfig
  */
 class CustomScalarType extends ScalarType
 {
@@ -40,7 +50,11 @@ class CustomScalarType extends ScalarType
 
     public function serialize($value)
     {
-        return $this->config['serialize']($value);
+        if (isset($this->config['serialize'])) {
+            return $this->config['serialize']($value);
+        }
+
+        return $value;
     }
 
     public function parseValue($value)
@@ -66,7 +80,7 @@ class CustomScalarType extends ScalarType
         parent::assertValid();
 
         // @phpstan-ignore-next-line should not happen if used correctly
-        if (! isset($this->config['serialize']) || ! is_callable($this->config['serialize'])) {
+        if (isset($this->config['serialize']) && ! is_callable($this->config['serialize'])) {
             throw new InvariantViolation(
                 "{$this->name} must provide \"serialize\" function. If this custom Scalar "
                 . 'is also used as an input type, ensure "parseValue" and "parseLiteral" '

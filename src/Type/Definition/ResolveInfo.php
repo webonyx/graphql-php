@@ -17,6 +17,8 @@ use GraphQL\Type\Schema;
  * Structure containing information useful for field resolution process.
  *
  * Passed as 4th argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
+ *
+ * @phpstan-import-type QueryPlanOptions from QueryPlan
  */
 class ResolveInfo
 {
@@ -184,7 +186,6 @@ class ResolveInfo
     {
         $fields = [];
 
-        /** @var FieldNode $fieldNode */
         foreach ($this->fieldNodes as $fieldNode) {
             if (null === $fieldNode->selectionSet) {
                 continue;
@@ -200,7 +201,7 @@ class ResolveInfo
     }
 
     /**
-     * @param mixed[] $options
+     * @param QueryPlanOptions $options
      */
     public function lookAhead(array $options = []): QueryPlan
     {
@@ -232,7 +233,6 @@ class ResolveInfo
             } elseif ($selectionNode instanceof FragmentSpreadNode) {
                 $spreadName = $selectionNode->name->value;
                 if (isset($this->fragments[$spreadName])) {
-                    /** @var FragmentDefinitionNode $fragment */
                     $fragment = $this->fragments[$spreadName];
                     $fields = array_merge_recursive(
                         $this->foldSelectionSet($fragment->selectionSet, $descend),

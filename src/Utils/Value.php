@@ -34,15 +34,15 @@ use Traversable;
  * @phpstan-type CoercedErrors array{errors: array<int, Error>, value: null}
  *
  * The key prev should actually also be typed as Path, but PHPStan does not support recursive types.
- * @phpstan-type Path array{prev: array<string, mixed>, key: string|int}
+ * @phpstan-type Path array{prev: array<string, mixed>|null, key: string|int}
  */
 class Value
 {
     /**
      * Given a type and any value, return a runtime value coerced to match the type.
      *
-     * @param mixed                                               $value
-     * @param ScalarType|EnumType|InputObjectType|ListOfType<Type &InputType>|NonNull $type
+     * @param mixed $value
+     * @param InputType&Type $type
      * @phpstan-param Path|null $path
      *
      * @phpstan-return CoercedValue|CoercedErrors
@@ -60,6 +60,7 @@ class Value
                 ]);
             }
 
+            // @phpstan-ignore-next-line wrapped type is known to be input type after schema validation
             return self::coerceValue($value, $type->getWrappedType(), $blameNode, $path);
         }
 
@@ -117,6 +118,8 @@ class Value
 
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
+            assert($itemType instanceof InputType, 'known through schema validation');
+
             if (is_array($value) || $value instanceof Traversable) {
                 $errors = [];
                 $coercedValue = [];
@@ -147,6 +150,8 @@ class Value
                 ? $coercedItem
                 : self::ofValue([$coercedItem['value']]);
         }
+
+        assert($type instanceof InputObjectType, 'we handled all other cases at this point');
 
         if ($value instanceof stdClass) {
             // Cast objects to associative array before checking the fields.

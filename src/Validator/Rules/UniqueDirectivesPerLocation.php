@@ -6,7 +6,6 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
-use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Directive;
@@ -66,7 +65,6 @@ class UniqueDirectivesPerLocation extends ValidationRule
 
                 $knownDirectives = [];
 
-                /** @var DirectiveNode $directive */
                 foreach ($node->directives as $directive) {
                     $directiveName = $directive->name->value;
 

@@ -8,9 +8,7 @@ class StringValueNode extends Node implements ValueNode
 {
     public string $kind = NodeKind::STRING;
 
-    /** @var string */
-    public $value;
+    public string $value;
 
-    /** @var bool */
-    public $block;
+    public bool $block = false;
 }
