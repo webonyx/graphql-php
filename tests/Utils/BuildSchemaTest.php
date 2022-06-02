@@ -50,10 +50,10 @@ class BuildSchemaTest extends TestCaseBase
         $trimmedStr = trim($str, "\n");
         $trimmedStr = preg_replace('/[ \t]*$/', '', $trimmedStr);
 
-        preg_match('/^[ \t]*/', $trimmedStr, $indentMatch);
+        preg_match('/^[ \t]*/', $trimmedStr, $indentMatch); // @phpstan-ignore-line dedent() will be removed
         $indent = $indentMatch[0];
 
-        return preg_replace('/^' . $indent . '/m', '', $trimmedStr);
+        return preg_replace('/^' . $indent . '/m', '', $trimmedStr); // @phpstan-ignore-line dedent() will be removed
     }
 
     /**
@@ -147,7 +147,7 @@ class BuildSchemaTest extends TestCaseBase
         ';
         // Should not throw
         BuildSchema::build($sdl);
-        self::assertTrue(true);
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1301,7 +1301,10 @@ class BuildSchemaTest extends TestCaseBase
         ');
 
         $queryType = $schema->getQueryType();
-        self::assertEquals('__EnumValue', $queryType->getField('introspectionField')->getType()->name);
+        self::assertNotNull($queryType);
+        $type = $queryType->getField('introspectionField')->getType();
+        self::assertInstanceOf(ObjectType::class, $type);
+        self::assertEquals('__EnumValue', $type->name);
         self::assertSame(Introspection::_enumValue(), $schema->getType('__EnumValue'));
     }
 
