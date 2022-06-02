@@ -36,7 +36,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Utils\Utils;
-use PHPUnit\Framework\TestCase;
 use function preg_match;
 use function preg_replace;
 use function property_exists;
@@ -73,13 +72,6 @@ class BuildSchemaTest extends TestCaseBase
         $schema = BuildSchema::buildAST($ast, null, $options);
 
         return "\n" . SchemaPrinter::doPrint($schema);
-    }
-
-    private function printASTNode($obj): string
-    {
-        Utils::invariant($obj !== null && property_exists($obj, 'astNode') && $obj->astNode !== null);
-
-        return Printer::doPrint($obj->astNode);
     }
 
     /**
