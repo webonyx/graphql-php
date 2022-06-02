@@ -6,7 +6,6 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 use function is_string;
@@ -28,17 +27,28 @@ use function is_string;
  *         return $value % 2 === 1 ? $value : null;
  *     }
  * }
+ *
+ * @phpstan-type ScalarConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   astNode?: ScalarTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null,
+ * }
  */
 abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NullableType, NamedType
 {
-    /** @var ScalarTypeDefinitionNode|null */
-    public ?TypeDefinitionNode $astNode;
+    use NamedTypeImplementation;
+
+    public ?ScalarTypeDefinitionNode $astNode;
 
     /** @var array<ScalarTypeExtensionNode> */
     public array $extensionASTNodes;
 
+    /** @phpstan-var ScalarConfig */
+    public array $config;
+
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param ScalarConfig $config
      */
     public function __construct(array $config = [])
     {
@@ -51,5 +61,10 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
         $this->config = $config;
+    }
+
+    public function assertValid(): void
+    {
+        Utils::assertValidName($this->name);
     }
 }

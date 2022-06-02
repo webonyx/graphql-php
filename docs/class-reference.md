@@ -216,9 +216,11 @@ static function isInputType($type): bool
 
 ```php
 /**
+ * @return (Type&NamedType)|null
+ *
  * @api
  */
-static function getNamedType($type): GraphQL\Type\Definition\Type
+static function getNamedType(GraphQL\Type\Definition\Type $type): GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -251,6 +253,8 @@ static function isAbstractType($type): bool
 
 ```php
 /**
+ * @return Type&NullableType
+ *
  * @api
  */
 static function getNullableType(GraphQL\Type\Definition\Type $type): GraphQL\Type\Definition\Type
@@ -478,6 +482,8 @@ Usage example:
 
     $schema = new Schema($config);
 
+@phpstan-type TypeLoader (callable(string $typeName): (Type&NamedType)|null)|null
+
 ### GraphQL\Type\SchemaConfig Methods
 
 ```php
@@ -572,7 +578,8 @@ function setDirectives(array $directives): self
 
 ```php
 /**
- * @return (callable(string $typeName): Type|(callable(): Type)|null)|null
+ * @return callable|null $typeLoader
+ * @phpstan-return TypeLoader|null $typeLoader
  *
  * @api
  */
@@ -581,7 +588,7 @@ function getTypeLoader(): callable
 
 ```php
 /**
- * @param (callable(string $typeName): Type|(callable(): Type)|null)|null $typeLoader
+ * @phpstan-param TypeLoader|null $typeLoader
  *
  * @api
  */
@@ -626,7 +633,7 @@ function __construct($config)
  *
  * This operation requires a full schema scan. Do not use in production environment.
  *
- * @return array<string, Type> Keys represent type names, values are instances of corresponding type definitions
+ * @return array<string, Type&NamedType> Keys represent type names, values are instances of corresponding type definitions
  *
  * @api
  */
@@ -682,6 +689,8 @@ function getConfig(): GraphQL\Type\SchemaConfig
 /**
  * Returns a type by name.
  *
+ * @return (Type&NamedType)|null
+ *
  * @api
  */
 function getType(string $name): GraphQL\Type\Definition\Type
@@ -696,7 +705,7 @@ function getType(string $name): GraphQL\Type\Definition\Type
  *
  * @param InterfaceType|UnionType $abstractType
  *
- * @return array<Type&ObjectType>
+ * @return array<ObjectType>
  *
  * @api
  */
@@ -707,7 +716,7 @@ function getPossibleTypes(GraphQL\Type\Definition\Type $abstractType): array
 /**
  * Returns all types that implement a given interface type.
  *
- * This operations requires full schema scan. Do not use in production environment.
+ * This operation requires full schema scan. Do not use in production environment.
  *
  * @api
  */
@@ -768,121 +777,126 @@ function validate(): array
 
 Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
 
-Those magic functions allow partial parsing:
+@phpstan-type ParserOptions array{
+noLocation?: bool,
+allowLegacySDLEmptyFields?: bool,
+allowLegacySDLImplementsInterfaces?: bool,
+experimentalFragmentVariables?: bool,
+}
 
-@method static NameNode name(Source|string $source, bool[] $options = [])
-@method static DocumentNode document(Source|string $source, bool[] $options = [])
-@method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
-@method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
-@method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
-@method static string operationType(Source|string $source, bool[] $options = [])
-@method static NodeList<VariableDefinitionNode> variableDefinitions(Source|string $source, bool[] $options = [])
-@method static VariableDefinitionNode variableDefinition(Source|string $source, bool[] $options = [])
-@method static VariableNode variable(Source|string $source, bool[] $options = [])
-@method static SelectionSetNode selectionSet(Source|string $source, bool[] $options = [])
-@method static mixed selection(Source|string $source, bool[] $options = [])
-@method static FieldNode field(Source|string $source, bool[] $options = [])
-@method static NodeList<ArgumentNode> arguments(Source|string $source, bool[] $options = [])
-@method static NodeList<ArgumentNode> constArguments(Source|string $source, bool[] $options = [])
-@method static ArgumentNode argument(Source|string $source, bool[] $options = [])
-@method static ArgumentNode constArgument(Source|string $source, bool[] $options = [])
-@method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
-@method static FragmentDefinitionNode fragmentDefinition(Source|string $source, bool[] $options = [])
-@method static NameNode fragmentName(Source|string $source, bool[] $options = [])
-@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, bool[] $options = [])
-@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode constValueLiteral(Source|string $source, bool[] $options = [])
-@method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
-@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode constValue(Source|string $source, bool[] $options = [])
-@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, bool[] $options = [])
-@method static ListValueNode array(Source|string $source, bool[] $options = [])
-@method static ListValueNode constArray(Source|string $source, bool[] $options = [])
-@method static ObjectValueNode object(Source|string $source, bool[] $options = [])
-@method static ObjectValueNode constObject(Source|string $source, bool[] $options = [])
-@method static ObjectFieldNode objectField(Source|string $source, bool[] $options = [])
-@method static ObjectFieldNode constObjectField(Source|string $source, bool[] $options = [])
-@method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
-@method static NodeList<DirectiveNode> constDirectives(Source|string $source, bool[] $options = [])
-@method static DirectiveNode directive(Source|string $source, bool[] $options = [])
-@method static DirectiveNode constDirective(Source|string $source, bool[] $options = [])
-@method static ListTypeNode|NamedTypeNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
-@method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
-@method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
-@method static StringValueNode|null description(Source|string $source, bool[] $options = [])
-@method static SchemaDefinitionNode schemaDefinition(Source|string $source, bool[] $options = [])
-@method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, bool[] $options = [])
-@method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
-@method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
-@method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, bool[] $options = [])
-@method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
-@method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
-@method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
-@method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
-@method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
-@method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
-@method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, bool[] $options = [])
-@method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
-@method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
-@method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
-@method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
-@method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, bool[] $options = [])
-@method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
-@method static SchemaTypeExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
-@method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
-@method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, bool[] $options = [])
-@method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, bool[] $options = [])
-@method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, bool[] $options = [])
-@method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
-@method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
-@method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
-@method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
-@method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
+noLocation:
+(By default, the parser creates AST nodes that know the location
+in the source that they correspond to. This configuration flag
+disables that behavior for performance or testing.)
+
+allowLegacySDLEmptyFields:
+If enabled, the parser will parse empty fields sets in the Schema
+Definition Language. Otherwise, the parser will follow the current
+specification.
+
+This option is provided to ease adoption of the final SDL specification
+and will be removed in a future major release.
+
+allowLegacySDLImplementsInterfaces:
+If enabled, the parser will parse implemented interfaces with no `&`
+character between each interface. Otherwise, the parser will follow the
+current specification.
+
+This option is provided to ease adoption of the final SDL specification
+and will be removed in a future major release.
+
+experimentalFragmentVariables:
+(If enabled, the parser will understand and parse variable definitions
+contained in a fragment definition. They'll be represented in the
+`variableDefinitions` field of the FragmentDefinitionNode.
+
+The syntax is identical to normal, query-defined variables. For example:
+
+    fragment A($var: Boolean = false) on T  {
+      ...
+    }
+
+Note: this feature is experimental and may change or be removed in the
+future.)
+
+- Those magic functions allow partial parsing:
+  @method static NameNode name(Source|string $source, bool[] $options = [])
+  @method static DocumentNode document(Source|string $source, bool[] $options = [])
+  @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
+  @method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
+  @method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
+  @method static string operationType(Source|string $source, bool[] $options = [])
+  @method static NodeList<VariableDefinitionNode> variableDefinitions(Source|string $source, bool[] $options = [])
+  @method static VariableDefinitionNode variableDefinition(Source|string $source, bool[] $options = [])
+  @method static VariableNode variable(Source|string $source, bool[] $options = [])
+  @method static SelectionSetNode selectionSet(Source|string $source, bool[] $options = [])
+  @method static mixed selection(Source|string $source, bool[] $options = [])
+  @method static FieldNode field(Source|string $source, bool[] $options = [])
+  @method static NodeList<ArgumentNode> arguments(Source|string $source, bool[] $options = [])
+  @method static NodeList<ArgumentNode> constArguments(Source|string $source, bool[] $options = [])
+  @method static ArgumentNode argument(Source|string $source, bool[] $options = [])
+  @method static ArgumentNode constArgument(Source|string $source, bool[] $options = [])
+  @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
+  @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, bool[] $options = [])
+  @method static NameNode fragmentName(Source|string $source, bool[] $options = [])
+  @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, bool[] $options = [])
+  @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode constValueLiteral(Source|string $source, bool[] $options = [])
+  @method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
+  @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode constValue(Source|string $source, bool[] $options = [])
+  @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, bool[] $options = [])
+  @method static ListValueNode array(Source|string $source, bool[] $options = [])
+  @method static ListValueNode constArray(Source|string $source, bool[] $options = [])
+  @method static ObjectValueNode object(Source|string $source, bool[] $options = [])
+  @method static ObjectValueNode constObject(Source|string $source, bool[] $options = [])
+  @method static ObjectFieldNode objectField(Source|string $source, bool[] $options = [])
+  @method static ObjectFieldNode constObjectField(Source|string $source, bool[] $options = [])
+  @method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
+  @method static NodeList<DirectiveNode> constDirectives(Source|string $source, bool[] $options = [])
+  @method static DirectiveNode directive(Source|string $source, bool[] $options = [])
+  @method static DirectiveNode constDirective(Source|string $source, bool[] $options = [])
+  @method static ListTypeNode|NamedTypeNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
+  @method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
+  @method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
+  @method static StringValueNode|null description(Source|string $source, bool[] $options = [])
+  @method static SchemaDefinitionNode schemaDefinition(Source|string $source, bool[] $options = [])
+  @method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, bool[] $options = [])
+  @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
+  @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
+  @method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, bool[] $options = [])
+  @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
+  @method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
+  @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
+  @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
+  @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
+  @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
+  @method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, bool[] $options = [])
+  @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
+  @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
+  @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
+  @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
+  @method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, bool[] $options = [])
+  @method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
+  @method static SchemaTypeExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
+  @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
+  @method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, bool[] $options = [])
+  @method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, bool[] $options = [])
+  @method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, bool[] $options = [])
+  @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
+  @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
+  @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
+  @method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
+  @method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
 
 ### GraphQL\Language\Parser Methods
 
 ```php
 /**
  * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
+ *
  * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
  *
- * Available options:
- *
- * noLocation: boolean,
- *   (By default, the parser creates AST nodes that know the location
- *   in the source that they correspond to. This configuration flag
- *   disables that behavior for performance or testing.)
- *
- * allowLegacySDLEmptyFields: boolean
- *   If enabled, the parser will parse empty fields sets in the Schema
- *   Definition Language. Otherwise, the parser will follow the current
- *   specification.
- *
- *   This option is provided to ease adoption of the final SDL specification
- *   and will be removed in a future major release.
- *
- * allowLegacySDLImplementsInterfaces: boolean
- *   If enabled, the parser will parse implemented interfaces with no `&`
- *   character between each interface. Otherwise, the parser will follow the
- *   current specification.
- *
- *   This option is provided to ease adoption of the final SDL specification
- *   and will be removed in a future major release.
- *
- * experimentalFragmentVariables: boolean,
- *   (If enabled, the parser will understand and parse variable definitions
- *   contained in a fragment definition. They'll be represented in the
- *   `variableDefinitions` field of the FragmentDefinitionNode.
- *
- *   The syntax is identical to normal, query-defined variables. For example:
- *
- *     fragment A($var: Boolean = false) on T  {
- *       ...
- *     }
- *
- *   Note: this feature is experimental and may change or be removed in the
- *   future.)
- *
  * @param Source|string $source
- * @param bool[]        $options
+ * @phpstan-param ParserOptions       $options
  *
  * @throws SyntaxError
  *
@@ -893,8 +907,8 @@ static function parse($source, array $options = []): GraphQL\Language\AST\Docume
 
 ```php
 /**
- * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for
- * that value.
+ * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for that value.
+ *
  * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
  *
  * This is useful within tools that operate upon GraphQL Values directly and
@@ -903,7 +917,7 @@ static function parse($source, array $options = []): GraphQL\Language\AST\Docume
  * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
  *
  * @param Source|string $source
- * @param bool[]        $options
+ * @phpstan-param ParserOptions       $options
  *
  * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode
  *
@@ -914,8 +928,8 @@ static function parseValue($source, array $options = [])
 
 ```php
 /**
- * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for
- * that type.
+ * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for that type.
+ *
  * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
  *
  * This is useful within tools that operate upon GraphQL Types directly and
@@ -924,7 +938,7 @@ static function parseValue($source, array $options = [])
  * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
  *
  * @param Source|string $source
- * @param bool[]        $options
+ * @phpstan-param ParserOptions       $options
  *
  * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
  *
@@ -1051,11 +1065,11 @@ visitor API:
 
 ```php
 /**
- * Visit the AST (see class description for details)
+ * Visit the AST (see class description for details).
  *
- * @param Node|ArrayObject|stdClass $root
- * @param callable[]                $visitor
- * @param mixed[]|null              $keyMap
+ * @param NodeList|Node|ArrayObject|stdClass $root
+ * @param array<string, mixed>               $visitor
+ * @param array<string, mixed>|null          $keyMap
  *
  * @return Node|mixed
  *
@@ -1063,34 +1077,34 @@ visitor API:
  *
  * @api
  */
-static function visit($root, $visitor, $keyMap = null)
+static function visit(object $root, array $visitor, array $keyMap = null)
 ```
 
 ```php
 /**
- * Returns marker for visitor break
+ * Returns marker for stopping.
  *
  * @api
  */
-static function stop(): GraphQL\Language\VisitorOperation
+static function stop(): GraphQL\Language\VisitorStop
 ```
 
 ```php
 /**
- * Returns marker for skipping current node
+ * Returns marker for skipping the current node.
  *
  * @api
  */
-static function skipNode(): GraphQL\Language\VisitorOperation
+static function skipNode(): GraphQL\Language\VisitorSkipNode
 ```
 
 ```php
 /**
- * Returns marker for removing a node
+ * Returns marker for removing the current node.
  *
  * @api
  */
-static function removeNode(): GraphQL\Language\VisitorOperation
+static function removeNode(): GraphQL\Language\VisitorRemoveNode
 ```
 
 ## GraphQL\Language\AST\NodeKind
@@ -1143,6 +1157,50 @@ const ENUM_TYPE_EXTENSION = 'EnumTypeExtension';
 const INPUT_OBJECT_TYPE_EXTENSION = 'InputObjectTypeExtension';
 const DIRECTIVE_DEFINITION = 'DirectiveDefinition';
 const SCHEMA_EXTENSION = 'SchemaExtension';
+const CLASS_MAP = [
+    'Name' => 'GraphQL\\Language\\AST\\NameNode',
+    'Document' => 'GraphQL\\Language\\AST\\DocumentNode',
+    'OperationDefinition' => 'GraphQL\\Language\\AST\\OperationDefinitionNode',
+    'VariableDefinition' => 'GraphQL\\Language\\AST\\VariableDefinitionNode',
+    'Variable' => 'GraphQL\\Language\\AST\\VariableNode',
+    'SelectionSet' => 'GraphQL\\Language\\AST\\SelectionSetNode',
+    'Field' => 'GraphQL\\Language\\AST\\FieldNode',
+    'Argument' => 'GraphQL\\Language\\AST\\ArgumentNode',
+    'FragmentSpread' => 'GraphQL\\Language\\AST\\FragmentSpreadNode',
+    'InlineFragment' => 'GraphQL\\Language\\AST\\InlineFragmentNode',
+    'FragmentDefinition' => 'GraphQL\\Language\\AST\\FragmentDefinitionNode',
+    'IntValue' => 'GraphQL\\Language\\AST\\IntValueNode',
+    'FloatValue' => 'GraphQL\\Language\\AST\\FloatValueNode',
+    'StringValue' => 'GraphQL\\Language\\AST\\StringValueNode',
+    'BooleanValue' => 'GraphQL\\Language\\AST\\BooleanValueNode',
+    'EnumValue' => 'GraphQL\\Language\\AST\\EnumValueNode',
+    'NullValue' => 'GraphQL\\Language\\AST\\NullValueNode',
+    'ListValue' => 'GraphQL\\Language\\AST\\ListValueNode',
+    'ObjectValue' => 'GraphQL\\Language\\AST\\ObjectValueNode',
+    'ObjectField' => 'GraphQL\\Language\\AST\\ObjectFieldNode',
+    'Directive' => 'GraphQL\\Language\\AST\\DirectiveNode',
+    'NamedType' => 'GraphQL\\Language\\AST\\NamedTypeNode',
+    'ListType' => 'GraphQL\\Language\\AST\\ListTypeNode',
+    'NonNullType' => 'GraphQL\\Language\\AST\\NonNullTypeNode',
+    'SchemaDefinition' => 'GraphQL\\Language\\AST\\SchemaDefinitionNode',
+    'OperationTypeDefinition' => 'GraphQL\\Language\\AST\\OperationTypeDefinitionNode',
+    'ScalarTypeDefinition' => 'GraphQL\\Language\\AST\\ScalarTypeDefinitionNode',
+    'ObjectTypeDefinition' => 'GraphQL\\Language\\AST\\ObjectTypeDefinitionNode',
+    'FieldDefinition' => 'GraphQL\\Language\\AST\\FieldDefinitionNode',
+    'InputValueDefinition' => 'GraphQL\\Language\\AST\\InputValueDefinitionNode',
+    'InterfaceTypeDefinition' => 'GraphQL\\Language\\AST\\InterfaceTypeDefinitionNode',
+    'UnionTypeDefinition' => 'GraphQL\\Language\\AST\\UnionTypeDefinitionNode',
+    'EnumTypeDefinition' => 'GraphQL\\Language\\AST\\EnumTypeDefinitionNode',
+    'EnumValueDefinition' => 'GraphQL\\Language\\AST\\EnumValueDefinitionNode',
+    'InputObjectTypeDefinition' => 'GraphQL\\Language\\AST\\InputObjectTypeDefinitionNode',
+    'ScalarTypeExtension' => 'GraphQL\\Language\\AST\\ScalarTypeExtensionNode',
+    'ObjectTypeExtension' => 'GraphQL\\Language\\AST\\ObjectTypeExtensionNode',
+    'InterfaceTypeExtension' => 'GraphQL\\Language\\AST\\InterfaceTypeExtensionNode',
+    'UnionTypeExtension' => 'GraphQL\\Language\\AST\\UnionTypeExtensionNode',
+    'EnumTypeExtension' => 'GraphQL\\Language\\AST\\EnumTypeExtensionNode',
+    'InputObjectTypeExtension' => 'GraphQL\\Language\\AST\\InputObjectTypeExtensionNode',
+    'DirectiveDefinition' => 'GraphQL\\Language\\AST\\DirectiveDefinitionNode',
+];
 ```
 
 ## GraphQL\Executor\Executor
@@ -1214,16 +1272,26 @@ Represents both - result of successful execution and of a failed one
 (with errors collected in `errors` prop)
 
 Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
-serializable array using `toArray()`
+serializable array using `toArray()`.
+
+@phpstan-type SerializableError array<string, mixed>
+@phpstan-type SerializableErrors array<int, SerializableError>
+@phpstan-type SerializableResult array{
+data?: array<string, mixed>,
+errors?: SerializableErrors,
+extensions?: array<string, mixed>,
+}
+@phpstan-type ErrorFormatter callable(Throwable): SerializableError
+@phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
 
 ### GraphQL\Executor\ExecutionResult Props
 
 ```php
 /**
- * Data collected from resolvers during query execution
+ * Data collected from resolvers during query execution.
  *
  * @api
- * @var mixed[]
+ * @var array<string, mixed>|null
  */
 public $data;
 
@@ -1234,16 +1302,15 @@ public $data;
  * contain original exception.
  *
  * @api
- * @var Error[]
+ * @var array<Error>
  */
 public $errors;
 
 /**
  * User-defined serializable array of extensions included in serialized result.
- * Conforms to
  *
  * @api
- * @var mixed[]
+ * @var array<string, mixed>|null
  */
 public $extensions;
 ```
@@ -1264,6 +1331,8 @@ public $extensions;
  *    // ... other keys
  * );
  *
+ * @phpstan-param ErrorFormatter|null $errorFormatter
+ *
  * @api
  */
 function setErrorFormatter(callable $errorFormatter): self
@@ -1280,9 +1349,11 @@ function setErrorFormatter(callable $errorFormatter): self
  *     return array_map($formatter, $errors);
  * }
  *
+ * @phpstan-param ErrorsHandler|null $errorsHandler
+ *
  * @api
  */
-function setErrorsHandler(callable $handler): self
+function setErrorsHandler(callable $errorsHandler): self
 ```
 
 ```php
@@ -1295,7 +1366,7 @@ function setErrorsHandler(callable $handler): self
  *
  * $debug argument must sum of flags from @see \GraphQL\Error\DebugFlag
  *
- * @return mixed[]
+ * @phpstan-return SerializableResult
  *
  * @api
  */
@@ -1304,13 +1375,13 @@ function toArray(int $debug = 'GraphQL\\Error\\DebugFlag::NONE'): array
 
 ## GraphQL\Executor\Promise\PromiseAdapter
 
-Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php))
+Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php)).
 
 ### GraphQL\Executor\Promise\PromiseAdapter Methods
 
 ```php
 /**
- * Return true if the value is a promise or a deferred of the underlying platform
+ * Is the value a promise or a deferred of the underlying platform?
  *
  * @param mixed $value
  *
@@ -1321,7 +1392,7 @@ function isThenable($value): bool
 
 ```php
 /**
- * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance
+ * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance.
  *
  * @param object $thenable
  *
@@ -1346,10 +1417,9 @@ function then(
 
 ```php
 /**
- * Creates a Promise
+ * Creates a Promise from the given resolver callable.
  *
- * Expected resolver signature:
- *     function(callable $resolve, callable $reject)
+ * @param callable(callable $resolve, callable $reject): void $resolver
  *
  * @api
  */
@@ -1369,14 +1439,13 @@ function createFulfilled($value = null): GraphQL\Executor\Promise\Promise
 
 ```php
 /**
- * Creates a rejected promise for a reason if the reason is not a promise. If
- * the provided reason is a promise, then it is returned as-is.
+ * Creates a rejected promise for a reason if the reason is not a promise.
  *
- * @param Throwable $reason
+ * If the provided reason is a promise, then it is returned as-is.
  *
  * @api
  */
-function createRejected($reason): GraphQL\Executor\Promise\Promise
+function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
 ```
 
 ```php
@@ -1384,7 +1453,7 @@ function createRejected($reason): GraphQL\Executor\Promise\Promise
  * Given an array of promises (or values), returns a promise that is fulfilled when all the
  * items in the array are fulfilled.
  *
- * @param Promise[]|mixed[] $promisesOrValues Promises or values.
+ * @param array<Promise|mixed> $promisesOrValues
  *
  * @api
  */
@@ -1448,16 +1517,19 @@ static function allRules(): array
  *
  * $rule = DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
  *
- * @param string $name
+ * @param class-string<T> $name
  *
+ * @return T|null
+ *
+ * @template T of ValidationRule
  * @api
  */
-static function getRule($name): GraphQL\Validator\Rules\ValidationRule
+static function getRule(string $name): GraphQL\Validator\Rules\ValidationRule
 ```
 
 ```php
 /**
- * Add rule to list of global validation rules
+ * Add rule to list of global validation rules.
  *
  * @api
  */
@@ -1517,11 +1589,14 @@ function getPath(): array
 Encapsulates warnings produced by the library.
 
 Warnings can be suppressed (individually or all) if required.
-Also it is possible to override warning handler (which is **trigger_error()** by default)
+Also, it is possible to override warning handler (which is **trigger_error()** by default).
+
+@phpstan-type WarningHandler callable(string $errorMessage, int $warningId, ?int $messageLevel): void
 
 ### GraphQL\Error\Warning Constants
 
 ```php
+const NONE = 0;
 const WARNING_ASSIGN = 2;
 const WARNING_CONFIG = 4;
 const WARNING_FULL_SCHEMA_SCAN = 8;
@@ -1537,6 +1612,8 @@ const ALL = 63;
  * Sets warning handler which can intercept all system warnings.
  * When not set, trigger_error() is used to notify about warnings.
  *
+ * @phpstan-param WarningHandler|null $warningHandler
+ *
  * @api
  */
 static function setWarningHandler(callable $warningHandler = null): void
@@ -1544,15 +1621,13 @@ static function setWarningHandler(callable $warningHandler = null): void
 
 ```php
 /**
- * Suppress warning by id (has no effect when custom warning handler is set)
- *
- * Usage example:
- * Warning::suppress(Warning::WARNING_NOT_A_TYPE)
- *
- * When passing true - suppresses all warnings.
+ * Suppress warning by id (has no effect when custom warning handler is set).
  *
  * @param bool|int $suppress
  *
+ * @example Warning::suppress(Warning::WARNING_NOT_A_TYPE) suppress a specific warning
+ * @example Warning::suppress(true) suppresses all warnings
+ * @example Warning::suppress(false) enables all warnings
  * @api
  */
 static function suppress($suppress = true): void
@@ -1560,15 +1635,13 @@ static function suppress($suppress = true): void
 
 ```php
 /**
- * Re-enable previously suppressed warning by id
- *
- * Usage example:
- * Warning::suppress(Warning::WARNING_NOT_A_TYPE)
- *
- * When passing true - re-enables all warnings.
+ * Re-enable previously suppressed warning by id (has no effect when custom warning handler is set).
  *
  * @param bool|int $enable
  *
+ * @example Warning::suppress(Warning::WARNING_NOT_A_TYPE) re-enables a specific warning
+ * @example Warning::suppress(true) re-enables all warnings
+ * @example Warning::suppress(false) suppresses all warnings
  * @api
  */
 static function enable($enable = true): void
@@ -1620,6 +1693,7 @@ locations?: array<int, array{line: int, column: int}>,
 path?: array<int, int|string>,
 extensions?: array<string, mixed>,
 }
+@phpstan-import-type ErrorFormatter from ExecutionResult
 
 ### GraphQL\Error\FormattedError Methods
 
@@ -1813,6 +1887,12 @@ Usage example:
 
     $server = new GraphQL\Server\StandardServer($config);
 
+@phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
+@phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
+@phpstan-type ValidationRulesOption array<ValidationRule>|(callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>)|null
+@phpstan-import-type ErrorsHandler from ExecutionResult
+@phpstan-import-type ErrorFormatter from ExecutionResult
+
 ### GraphQL\Server\ServerConfig Methods
 
 ```php
@@ -1846,6 +1926,7 @@ function setContext($context): self
 ```php
 /**
  * @param mixed|callable $rootValue
+ * @phpstan-param mixed|RootValueResolver $rootValue
  *
  * @api
  */
@@ -1854,7 +1935,7 @@ function setRootValue($rootValue): self
 
 ```php
 /**
- * @param callable(Error): array<string, mixed> $errorFormatter
+ * @phpstan-param ErrorFormatter $errorFormatter
  *
  * @api
  */
@@ -1863,7 +1944,7 @@ function setErrorFormatter(callable $errorFormatter): self
 
 ```php
 /**
- * @param callable(array<int, Error> $errors, callable(Error): array<string, mixed> $formatter): array<int, array<string, mixed>> $handler
+ * @phpstan-param ErrorsHandler $handler
  *
  * @api
  */
@@ -1875,6 +1956,7 @@ function setErrorsHandler(callable $handler): self
  * Set validation rules for this server.
  *
  * @param array<ValidationRule>|callable|null $validationRules
+ * @phpstan-param ValidationRulesOption $validationRules
  *
  * @api
  */
@@ -1890,11 +1972,11 @@ function setFieldResolver(callable $fieldResolver): self
 
 ```php
 /**
- * @param callable(string $queryId, OperationParams $params): (string|DocumentNode) $persistentQueryLoader
+ * @phpstan-param PersistedQueryLoader|null $persistedQueryLoader
  *
  * @api
  */
-function setPersistentQueryLoader(callable $persistentQueryLoader): self
+function setPersistedQueryLoader(callable $persistedQueryLoader): self
 ```
 
 ```php
@@ -2055,13 +2137,17 @@ function toPsrResponse(
 
 ## GraphQL\Server\OperationParams
 
-Structure representing parsed HTTP parameters for GraphQL operation
+Structure representing parsed HTTP parameters for GraphQL operation.
+
+The properties in this class are not strictly typed, as this class
+is only meant to serve as an intermediary representation which is
+not yet validated.
 
 ### GraphQL\Server\OperationParams Props
 
 ```php
 /**
- * Id of the query (when using persistent queries).
+ * Id of the query (when using persisted queries).
  *
  * Valid aliases (case-insensitive):
  * - id
@@ -2069,33 +2155,56 @@ Structure representing parsed HTTP parameters for GraphQL operation
  * - documentId
  *
  * @api
- * @var string|null
+ * @var mixed should be string|null
  */
 public $queryId;
 
 /**
+ * A document containing GraphQL operations and fragments to execute.
+ *
  * @api
- * @var string|null
+ * @var mixed should be string|null
  */
 public $query;
 
 /**
+ * The name of the operation in the document to execute.
+ *
  * @api
- * @var string
+ * @var mixed should be string|null
  */
 public $operation;
 
 /**
+ * Values for any variables defined by the operation.
+ *
  * @api
- * @var array<string, mixed>|null
+ * @var mixed should be array<string, mixed>
  */
 public $variables;
 
 /**
+ * Reserved for implementors to extend the protocol however they see fit.
+ *
  * @api
- * @var array<string, mixed>|null
+ * @var mixed should be array<string, mixed>
  */
 public $extensions;
+
+/**
+ * Executed in read-only context (e.g. via HTTP GET request)?
+ *
+ * @api
+ */
+public $readOnly;
+
+/**
+ * The raw params used to construct this instance.
+ *
+ * @api
+ * @var array<string, mixed>
+ */
+public $originalInput;
 ```
 
 ### GraphQL\Server\OperationParams Methods
@@ -2111,25 +2220,6 @@ public $extensions;
 static function create(array $params, bool $readonly = false): GraphQL\Server\OperationParams
 ```
 
-```php
-/**
- * @return mixed
- *
- * @api
- */
-function getOriginalInput(string $key)
-```
-
-```php
-/**
- * Indicates that operation is executed in read-only context
- * (e.g. via HTTP GET request)
- *
- * @api
- */
-function isReadOnly(): bool
-```
-
 ## GraphQL\Utils\BuildSchema
 
 Build instance of @see \GraphQL\Type\Schema out of schema language definition (string or parsed AST).
@@ -2137,12 +2227,21 @@ Build instance of @see \GraphQL\Type\Schema out of schema language definition (s
 See [schema definition language docs](schema-definition-language.md) for details.
 
 @phpstan-type Options array{
-commentDescriptions?: bool,
+assumeValid?: bool,
+assumeValidSDL?: bool,
 }
 
-- commentDescriptions:
-  Provide true to use preceding comments as the description.
-  This option is provided to ease adoption and will be removed in v16.
+- assumeValid:
+  When building a schema from a GraphQL service's introspection result, it
+  might be safe to assume the schema is valid. Set to true to assume the
+  produced schema is valid.
+
+  Default: false
+
+- assumeValidSDL:
+  Set to true to assume the SDL is valid.
+
+  Default: false
 
 ### GraphQL\Utils\BuildSchema Methods
 
@@ -2211,7 +2310,7 @@ Various utilities dealing with AST
  *
  * This is a reverse operation for AST::toArray($node)
  *
- * @param mixed[] $node
+ * @param array<string, mixed> $node
  *
  * @api
  */
@@ -2222,7 +2321,7 @@ static function fromArray(array $node): GraphQL\Language\AST\Node
 /**
  * Convert AST node to serializable array
  *
- * @return mixed[]
+ * @return array<string, mixed>
  *
  * @api
  */
@@ -2248,7 +2347,8 @@ static function toArray(GraphQL\Language\AST\Node $node): array
  * | Mixed         | Enum Value           |
  * | null          | NullValue            |
  *
- * @param Type|mixed|null $value
+ * @param Type|mixed|null                                     $value
+ * @param ScalarType|EnumType|InputObjectType|ListOfType<Type &InputType>|NonNull $type
  *
  * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode|null
  *
@@ -2278,9 +2378,9 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type)
  * | Null Value           | null          |
  *
  * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $valueNode
- * @param mixed[]|null                                                                                                                             $variables
+ * @param array<string, mixed>|null                                                                                                                $variables
  *
- * @return mixed[]|stdClass|null
+ * @return mixed
  *
  * @throws Exception
  *
@@ -2310,8 +2410,7 @@ static function valueFromAST(
  * | Enum                 | Mixed         |
  * | Null                 | null          |
  *
- * @param Node         $valueNode
- * @param mixed[]|null $variables
+ * @param array<string, mixed>|null $variables
  *
  * @return mixed
  *
@@ -2319,7 +2418,7 @@ static function valueFromAST(
  *
  * @api
  */
-static function valueFromASTUntyped($valueNode, array $variables = null)
+static function valueFromASTUntyped(GraphQL\Language\AST\Node $valueNode, array $variables = null)
 ```
 
 ```php
@@ -2332,7 +2431,7 @@ static function valueFromASTUntyped($valueNode, array $variables = null)
  *
  * @api
  */
-static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode): GraphQL\Type\Definition\Type
+static function typeFromAST(GraphQL\Type\Schema $schema, GraphQL\Language\AST\Node $inputTypeNode): GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -2364,7 +2463,6 @@ static function concatAST(array $documents): GraphQL\Language\AST\DocumentNode
 Prints the contents of a Schema in schema definition language.
 
 @phpstan-type Options array{commentDescriptions?: bool}
-Available options:
 
 - commentDescriptions:
   Provide true to use preceding comments as the description.

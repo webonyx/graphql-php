@@ -16,17 +16,16 @@ use function array_pop;
 use function array_slice;
 use function count;
 use function implode;
-use function sprintf;
 
 class NoFragmentCycles extends ValidationRule
 {
-    /** @var bool[] */
+    /** @var array<string, bool> */
     protected array $visitedFrags;
 
-    /** @var FragmentSpreadNode[] */
+    /** @var array<int, FragmentSpreadNode> */
     protected array $spreadPath;
 
-    /** @var (int|null)[] */
+    /** @var array<string, int|null> */
     protected array $spreadPathIndexByName;
 
     public function getVisitor(ValidationContext $context): array
@@ -101,14 +100,14 @@ class NoFragmentCycles extends ValidationRule
     }
 
     /**
-     * @param string[] $spreadNames
+     * @param array<string> $spreadNames
      */
-    public static function cycleErrorMessage($fragName, array $spreadNames = [])
+    public static function cycleErrorMessage(string $fragName, array $spreadNames = []): string
     {
-        return sprintf(
-            'Cannot spread fragment "%s" within itself%s.',
-            $fragName,
-            count($spreadNames) > 0 ? ' via ' . implode(', ', $spreadNames) : ''
-        );
+        $via = count($spreadNames) > 0
+            ? ' via ' . implode(', ', $spreadNames)
+            : '';
+
+        return "Cannot spread fragment \"{$fragName}\" within itself{$via}.";
     }
 }

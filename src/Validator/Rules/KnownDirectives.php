@@ -35,6 +35,7 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
+use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
@@ -43,8 +44,10 @@ use GraphQL\Validator\ValidationContext;
 use function count;
 use function get_class;
 use function in_array;
-use function sprintf;
 
+/**
+ * @phpstan-import-type VisitorArray from Visitor
+ */
 class KnownDirectives extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array
@@ -57,7 +60,10 @@ class KnownDirectives extends ValidationRule
         return $this->getASTVisitor($context);
     }
 
-    public function getASTVisitor(ASTValidationContext $context)
+    /**
+     * @phpstan-return VisitorArray
+     */
+    public function getASTVisitor(ASTValidationContext $context): array
     {
         $locationsMap      = [];
         $schema            = $context->getSchema();
@@ -123,17 +129,18 @@ class KnownDirectives extends ValidationRule
         ];
     }
 
-    public static function unknownDirectiveMessage($directiveName)
+    public static function unknownDirectiveMessage(string $directiveName): string
     {
-        return sprintf('Unknown directive "%s".', $directiveName);
+        return "Unknown directive \"{$directiveName}\".";
     }
 
     /**
-     * @param Node[]|NodeList[] $ancestors The type is actually (Node|NodeList)[] but this PSR-5 syntax is so far not supported by most of the tools
+     * @param array<Node|NodeList> $ancestors
      */
     protected function getDirectiveLocationForASTPath(array $ancestors): string
     {
         $appliedTo = $ancestors[count($ancestors) - 1];
+
         switch (true) {
             case $appliedTo instanceof OperationDefinitionNode:
                 switch ($appliedTo->operation) {
@@ -208,8 +215,8 @@ class KnownDirectives extends ValidationRule
         throw new Exception('Unknown directive location: ' . get_class($appliedTo));
     }
 
-    public static function misplacedDirectiveMessage($directiveName, $location)
+    public static function misplacedDirectiveMessage(string $directiveName, string $location): string
     {
-        return sprintf('Directive "%s" may not be used on "%s".', $directiveName, $location);
+        return "Directive \"{$directiveName}\" may not be used on \"{$location}\".";
     }
 }

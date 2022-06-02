@@ -146,6 +146,7 @@ The Reverse is true when the enum is used as input type (e.g. as field argument)
 GraphQL will treat enum input as **name** and convert it into **value** before passing to your app.
 
 For example, given object type definition:
+
 ```php
 <?php
 use GraphQL\Type\Definition\Type;

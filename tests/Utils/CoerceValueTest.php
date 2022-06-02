@@ -7,7 +7,6 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
 use PHPUnit\Framework\TestCase;
 
@@ -17,11 +16,9 @@ use function pow;
 
 class CoerceValueTest extends TestCase
 {
-    /** @var EnumType */
-    private $testEnum;
+    private EnumType $testEnum;
 
-    /** @var InputObjectType */
-    private $testInputObject;
+    private InputObjectType $testInputObject;
 
     public function setUp(): void
     {
@@ -86,14 +83,19 @@ class CoerceValueTest extends TestCase
 
     /**
      * Describe: for GraphQLInt
+     *
+     * @param mixed $result returned result
      */
-    private function expectGraphQLError($result, $expected): void
+    private function expectGraphQLError($result, string $expected): void
     {
         self::assertIsArray($result);
-        self::assertIsArray($result['errors']);
-        self::assertCount(1, $result['errors']);
-        self::assertEquals($expected, $result['errors'][0]->getMessage());
-        self::assertEquals(Utils::undefined(), $result['value']);
+
+        $errors = $result['errors'];
+        self::assertIsArray($errors);
+        self::assertCount(1, $errors);
+        self::assertSame($expected, $errors[0]->getMessage());
+
+        self::assertNull($result['value']);
     }
 
     /**
@@ -102,7 +104,7 @@ class CoerceValueTest extends TestCase
     public function testIntReturnsNoErrorForIntInput(): void
     {
         $result = Value::coerceValue(1, Type::int());
-        $this->expectValue($result, 1);
+        $this->expectGraphQLValue($result, 1);
     }
 
     /**
@@ -114,12 +116,15 @@ class CoerceValueTest extends TestCase
         $this->expectGraphQLError($result, 'Expected type Int; Int cannot represent non-integer value: 1');
     }
 
-    private function expectValue($result, $expected): void
+    /**
+     * @param mixed $result
+     * @param mixed $expected
+     */
+    private function expectGraphQLValue($result, $expected): void
     {
         self::assertIsArray($result);
-        self::assertEquals(null, $result['errors']);
-        self::assertNotEquals(Utils::undefined(), $result['value']);
-        self::assertEquals($expected, $result['value']);
+        self::assertNull($result['errors']);
+        self::assertSame($expected, $result['value']);
     }
 
     /**
@@ -128,7 +133,7 @@ class CoerceValueTest extends TestCase
     public function testIntReturnsNoErrorForNegativeIntInput(): void
     {
         $result = Value::coerceValue(-1, Type::int());
-        $this->expectValue($result, -1);
+        $this->expectGraphQLValue($result, -1);
     }
 
     /**
@@ -137,7 +142,7 @@ class CoerceValueTest extends TestCase
     public function testIntReturnsNoErrorForExponentInput(): void
     {
         $result = Value::coerceValue(1e3, Type::int());
-        $this->expectValue($result, 1000);
+        $this->expectGraphQLValue($result, 1000);
     }
 
     /**
@@ -146,7 +151,7 @@ class CoerceValueTest extends TestCase
     public function testIntReturnsASingleErrorNull(): void
     {
         $result = Value::coerceValue(null, Type::int());
-        $this->expectValue($result, null);
+        $this->expectGraphQLValue($result, null);
     }
 
     /**
@@ -240,7 +245,7 @@ class CoerceValueTest extends TestCase
     public function testFloatReturnsNoErrorForIntInput(): void
     {
         $result = Value::coerceValue(1, Type::float());
-        $this->expectValue($result, 1);
+        $this->expectGraphQLValue($result, 1.0);
     }
 
     /**
@@ -249,7 +254,7 @@ class CoerceValueTest extends TestCase
     public function testReturnsValueForDecimal(): void
     {
         $result = Value::coerceValue(1.1, Type::float());
-        $this->expectValue($result, 1.1);
+        $this->expectGraphQLValue($result, 1.1);
     }
 
     /**
@@ -258,7 +263,7 @@ class CoerceValueTest extends TestCase
     public function testFloatReturnsNoErrorForExponentInput(): void
     {
         $result = Value::coerceValue(1e3, Type::float());
-        $this->expectValue($result, 1000);
+        $this->expectGraphQLValue($result, 1000.0);
     }
 
     /**
@@ -279,7 +284,7 @@ class CoerceValueTest extends TestCase
     public function testFloatReturnsASingleErrorNull(): void
     {
         $result = Value::coerceValue(null, Type::float());
-        $this->expectValue($result, null);
+        $this->expectGraphQLValue($result, null);
     }
 
     /**
@@ -349,10 +354,10 @@ class CoerceValueTest extends TestCase
     public function testReturnsNoErrorForAKnownEnumName(): void
     {
         $fooResult = Value::coerceValue('FOO', $this->testEnum);
-        $this->expectValue($fooResult, 'InternalFoo');
+        $this->expectGraphQLValue($fooResult, 'InternalFoo');
 
         $barResult = Value::coerceValue('BAR', $this->testEnum);
-        $this->expectValue($barResult, 123456789);
+        $this->expectGraphQLValue($barResult, 123456789);
     }
 
     // DESCRIBE: for GraphQLInputObject
@@ -381,12 +386,14 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for a valid input')
      *
+     * @param mixed $input
+     *
      * @dataProvider validInputObjects
      */
     public function testReturnsNoErrorForValidInputObject($input): void
     {
         $result = Value::coerceValue($input, $this->testInputObject);
-        $this->expectValue($result, ['foo' => 123]);
+        $this->expectGraphQLValue($result, ['foo' => 123]);
     }
 
     /**
@@ -400,6 +407,8 @@ class CoerceValueTest extends TestCase
 
     /**
      * @see it('returns no error for a non-object type')
+     *
+     * @param mixed $input
      *
      * @dataProvider invalidInputObjects
      */

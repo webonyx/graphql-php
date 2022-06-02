@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\UniqueOperationNames;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class UniqueOperationNamesTest extends ValidatorTestCase
 {
     // Validate: Unique operation names
@@ -136,7 +139,10 @@ class UniqueOperationNamesTest extends ValidatorTestCase
         );
     }
 
-    private function duplicateOp($opName, $l1, $c1, $l2, $c2)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function duplicateOp(string $opName, int $l1, int $c1, int $l2, int $c2): array
     {
         return ErrorHelper::create(
             UniqueOperationNames::duplicateOperationNameMessage($opName),

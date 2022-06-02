@@ -9,7 +9,6 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
-use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
@@ -23,16 +22,13 @@ use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
-use GraphQL\Language\AST\OperationTypeDefinitionNode;
-use GraphQL\Language\AST\ScalarTypeDefinitionNode;
-use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\DirectiveLocation;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
@@ -57,7 +53,7 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_object;
-use function sprintf;
+use function property_exists;
 
 class SchemaValidationContext
 {
@@ -110,31 +106,6 @@ class SchemaValidationContext
         $this->errors[] = $error;
     }
 
-    /**
-     * @return NamedTypeNode|(Node&TypeDefinitionNode)|null
-     */
-    private function getOperationTypeNode(Type $type, string $operation): ?Node
-    {
-        $astNode = $this->schema->getAstNode();
-
-        $operationTypeNode = null;
-        if ($astNode instanceof SchemaDefinitionNode) {
-            /** @var OperationTypeDefinitionNode|null $operationTypeNode */
-            $operationTypeNode = null;
-
-            foreach ($astNode->operationTypes as $operationType) {
-                if ($operationType->operation === $operation) {
-                    $operationTypeNode = $operationType;
-                    break;
-                }
-            }
-        }
-
-        return $operationTypeNode === null
-            ? ($type === null ? null : $type->astNode)
-            : $operationTypeNode->type;
-    }
-
     public function validateDirectives(): void
     {
         $this->validateDirectiveDefinitions();
@@ -153,14 +124,17 @@ class SchemaValidationContext
         $directives = $this->schema->getDirectives();
         foreach ($directives as $directive) {
             // Ensure all directives are in fact GraphQL directives.
+            // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
             if (! $directive instanceof Directive) {
-                $nodes = is_object($directive)
+                $notDirective = Utils::printSafe($directive);
+                // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
+                $node = is_object($directive) && property_exists($directive, 'astNode')
                     ? $directive->astNode
                     : null;
 
                 $this->reportError(
-                    'Expected directive but got: ' . Utils::printSafe($directive) . '.',
-                    $nodes
+                    "Expected directive but got: {$notDirective}.",
+                    $node
                 );
                 continue;
             }
@@ -183,7 +157,7 @@ class SchemaValidationContext
 
                 if (isset($argNames[$argName])) {
                     $this->reportError(
-                        sprintf('Argument @%s(%s:) can only be defined once.', $directive->name, $argName),
+                        "Argument @{$directive->name}({$argName}:) can only be defined once.",
                         $this->getAllDirectiveArgNodes($directive, $argName)
                     );
                     continue;
@@ -192,17 +166,14 @@ class SchemaValidationContext
                 $argNames[$argName] = true;
 
                 // Ensure the type is an input type.
+                // @phpstan-ignore-next-line the type of $arg->getType() says it is an input type, but it might not always be true
                 if (Type::isInputType($arg->getType())) {
                     continue;
                 }
 
+                $type = Utils::printSafe($arg->getType());
                 $this->reportError(
-                    sprintf(
-                        'The type of @%s(%s:) must be Input Type but got: %s.',
-                        $directive->name,
-                        $argName,
-                        Utils::printSafe($arg->getType())
-                    ),
+                    "The type of @{$directive->name}({$argName}:) must be Input Type but got: {$type}.",
                     $this->getDirectiveArgTypeNode($directive, $argName)
                 );
             }
@@ -213,24 +184,24 @@ class SchemaValidationContext
                 continue;
             }
 
-            $nodes = [];
+            $node = [];
             foreach ($directiveList as $dir) {
                 if ($dir->astNode === null) {
                     continue;
                 }
 
-                $nodes[] = $dir->astNode;
+                $node[] = $dir->astNode;
             }
 
             $this->reportError(
-                sprintf('Directive @%s defined multiple times.', $directiveName),
-                $nodes
+                "Directive @{$directiveName} defined multiple times.",
+                $node
             );
         }
     }
 
     /**
-     * @param Type|Directive|FieldDefinition|EnumValueDefinition|InputObjectField $object
+     * @param Type|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|Argument $object
      */
     private function validateName(object $object): void
     {
@@ -238,7 +209,7 @@ class SchemaValidationContext
         $error = Utils::isValidNameError($object->name, $object->astNode);
         if (
             $error === null
-            || ($object instanceof Type && Introspection::isIntrospectionType($object))
+            || ($object instanceof Type && $object instanceof NamedType && Introspection::isIntrospectionType($object))
         ) {
             return;
         }
@@ -251,22 +222,21 @@ class SchemaValidationContext
      */
     private function getAllDirectiveArgNodes(Directive $directive, string $argName): array
     {
-        $subNodes = $this->getAllSubNodes(
-            $directive,
-            /**
-             * @return NodeList<InputValueDefinitionNode>
-             */
-            static function (DirectiveDefinitionNode $directiveNode): NodeList {
-                return $directiveNode->arguments;
-            }
-        );
+        $astNode = $directive->astNode;
+        if ($astNode === null) {
+            return [];
+        }
 
-        return Utils::filter(
-            $subNodes,
-            static function (InputValueDefinitionNode $argNode) use ($argName): bool {
-                return $argNode->name->value === $argName;
+        $matchingSubnodes = [];
+        foreach ($astNode->arguments as $subNode) {
+            if ($subNode->name->value !== $argName) {
+                continue;
             }
-        );
+
+            $matchingSubnodes[] = $subNode;
+        }
+
+        return $matchingSubnodes;
     }
 
     /**
@@ -284,12 +254,19 @@ class SchemaValidationContext
     public function validateTypes(): void
     {
         $typeMap = $this->schema->getTypeMap();
-        foreach ($typeMap as $typeName => $type) {
+        foreach ($typeMap as $type) {
             // Ensure all provided types are in fact GraphQL type.
+            // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
             if (! $type instanceof NamedType) {
+                $notNamedType = Utils::printSafe($type);
+                // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
+                $node = $type instanceof Type
+                    ? $type->astNode
+                    : null;
+
                 $this->reportError(
-                    'Expected GraphQL named type but got: ' . Utils::printSafe($type) . '.',
-                    $type instanceof Type ? $type->astNode : null
+                    "Expected GraphQL named type but got: {$notNamedType}.",
+                    $node
                 );
                 continue;
             }
@@ -375,7 +352,7 @@ class SchemaValidationContext
             $schemaDirective = $schema->getDirective($directiveName);
             if ($schemaDirective === null) {
                 $this->reportError(
-                    sprintf('No directive @%s defined.', $directiveName),
+                    "No directive @{$directiveName} defined.",
                     $directive
                 );
                 continue;
@@ -392,7 +369,7 @@ class SchemaValidationContext
                     ? [$directive]
                     : [$directive, $schemaDirective->astNode];
                 $this->reportError(
-                    sprintf('Directive @%s not allowed at %s location.', $directiveName, $location),
+                    "Directive @{$directiveName} not allowed at {$location} location.",
                     $errorNodes
                 );
             }
@@ -412,7 +389,7 @@ class SchemaValidationContext
             }
 
             $this->reportError(
-                sprintf('Non-repeatable directive @%s used more than once at the same location.', $directiveName),
+                "Non-repeatable directive @{$directiveName} used more than once at the same location.",
                 $directiveList
             );
         }
@@ -428,7 +405,7 @@ class SchemaValidationContext
         // Objects and Interfaces both must define one or more fields.
         if ($fieldMap === []) {
             $this->reportError(
-                sprintf('Type %s must define one or more fields.', $type->name),
+                "Type {$type->name} must define one or more fields.",
                 $this->getAllNodes($type)
             );
         }
@@ -441,21 +418,18 @@ class SchemaValidationContext
             $fieldNodes = $this->getAllFieldNodes($type, $fieldName);
             if (count($fieldNodes) > 1) {
                 $this->reportError(
-                    sprintf('Field %s.%s can only be defined once.', $type->name, $fieldName),
+                    "Field {$type->name}.{$fieldName} can only be defined once.",
                     $fieldNodes
                 );
                 continue;
             }
 
             // Ensure the type is an output type
+            // @phpstan-ignore-next-line not statically provable until we can use union types
             if (! Type::isOutputType($field->getType())) {
+                $safeFieldType = Utils::printSafe($field->getType());
                 $this->reportError(
-                    sprintf(
-                        'The type of %s.%s must be Output Type but got: %s.',
-                        $type->name,
-                        $fieldName,
-                        Utils::printSafe($field->getType())
-                    ),
+                    "The type of {$type->name}.{$fieldName} must be Output Type but got: {$safeFieldType}.",
                     $this->getFieldTypeNode($type, $fieldName)
                 );
             }
@@ -470,12 +444,7 @@ class SchemaValidationContext
 
                 if (isset($argNames[$argName])) {
                     $this->reportError(
-                        sprintf(
-                            'Field argument %s.%s(%s:) can only be defined once.',
-                            $type->name,
-                            $fieldName,
-                            $argName
-                        ),
+                        "Field argument {$type->name}.{$fieldName}({$argName}:) can only be defined once.",
                         $this->getAllFieldArgNodes($type, $fieldName, $argName)
                     );
                 }
@@ -483,15 +452,11 @@ class SchemaValidationContext
                 $argNames[$argName] = true;
 
                 // Ensure the type is an input type
+                // @phpstan-ignore-next-line the type of $arg->getType() says it is an input type, but it might not always be true
                 if (! Type::isInputType($arg->getType())) {
+                    $safeType = Utils::printSafe($arg->getType());
                     $this->reportError(
-                        sprintf(
-                            'The type of %s.%s(%s:) must be Input Type but got: %s.',
-                            $type->name,
-                            $fieldName,
-                            $argName,
-                            Utils::printSafe($arg->getType())
-                        ),
+                        "The type of {$type->name}.{$fieldName}({$argName}:) must be Input Type but got: {$safeType}.",
                         $this->getFieldArgTypeNode($type, $fieldName, $argName)
                     );
                 }
@@ -543,49 +508,29 @@ class SchemaValidationContext
     }
 
     /**
-     * @param Schema|ObjectType|InterfaceType|UnionType|EnumType|Directive $obj
-     * @param callable(Node): (iterable<Node>|null)                        $getter
-     */
-    private function getAllSubNodes(object $obj, callable $getter): NodeList
-    {
-        $result = new NodeList([]);
-        foreach ($this->getAllNodes($obj) as $astNode) {
-            if ($astNode === null) {
-                continue;
-            }
-
-            $subNodes = $getter($astNode);
-            if ($subNodes === null) {
-                continue;
-            }
-
-            $result = $result->merge($subNodes);
-        }
-
-        return $result;
-    }
-
-    /**
      * @param ObjectType|InterfaceType $type
      *
      * @return array<int, FieldDefinitionNode>
      */
     private function getAllFieldNodes(Type $type, string $fieldName): array
     {
-        $subNodes = $this->getAllSubNodes(
-            $type,
-            /**
-             * @return NodeList<FieldDefinitionNode>
-             */
-            static function (Node $typeNode): NodeList {
-                /** @var ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode $typeNode */
-                return $typeNode->fields;
-            }
-        );
+        $allNodes = $type->astNode !== null
+            ? array_merge([$type->astNode], $type->extensionASTNodes)
+            : $type->extensionASTNodes;
 
-        return Utils::filter($subNodes, static function ($fieldNode) use ($fieldName): bool {
-            return $fieldNode->name->value === $fieldName;
-        });
+        $matchingFieldNodes = [];
+
+        foreach ($allNodes as $node) {
+            foreach ($node->fields as $field) {
+                if ($field->name->value !== $fieldName) {
+                    continue;
+                }
+
+                $matchingFieldNodes[] = $field;
+            }
+        }
+
+        return $matchingFieldNodes;
     }
 
     /**
@@ -664,36 +609,37 @@ class SchemaValidationContext
     private function validateInterfaces(ImplementingType $type): void
     {
         $ifaceTypeNames = [];
-        foreach ($type->getInterfaces() as $iface) {
-            if (! $iface instanceof InterfaceType) {
-                $safeIface = Utils::printSafe($iface);
+        foreach ($type->getInterfaces() as $interface) {
+            // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
+            if (! $interface instanceof InterfaceType) {
+                $notInterface = Utils::printSafe($interface);
                 $this->reportError(
-                    "Type {$type->name} must only implement Interface types, it cannot implement {$safeIface}.",
-                    $this->getImplementsInterfaceNode($type, $iface)
+                    "Type {$type->name} must only implement Interface types, it cannot implement {$notInterface}.",
+                    $this->getImplementsInterfaceNode($type, $interface)
                 );
                 continue;
             }
 
-            if ($type === $iface) {
+            if ($type === $interface) {
                 $this->reportError(
                     "Type {$type->name} cannot implement itself because it would create a circular reference.",
-                    $this->getImplementsInterfaceNode($type, $iface)
+                    $this->getImplementsInterfaceNode($type, $interface)
                 );
                 continue;
             }
 
-            if (isset($ifaceTypeNames[$iface->name])) {
+            if (isset($ifaceTypeNames[$interface->name])) {
                 $this->reportError(
-                    "Type {$type->name} can only implement {$iface->name} once.",
-                    $this->getAllImplementsInterfaceNodes($type, $iface)
+                    "Type {$type->name} can only implement {$interface->name} once.",
+                    $this->getAllImplementsInterfaceNodes($type, $interface)
                 );
                 continue;
             }
 
-            $ifaceTypeNames[$iface->name] = true;
+            $ifaceTypeNames[$interface->name] = true;
 
-            $this->validateTypeImplementsAncestors($type, $iface);
-            $this->validateTypeImplementsInterface($type, $iface);
+            $this->validateTypeImplementsAncestors($type, $interface);
+            $this->validateTypeImplementsInterface($type, $interface);
         }
     }
 
@@ -704,22 +650,21 @@ class SchemaValidationContext
      */
     private function getDirectives(object $object): NodeList
     {
-        return $this->getAllSubNodes(
-            $object,
-            /**
-             * @return NodeList<DirectiveNode>
-             */
-            static function (Node $node): NodeList {
-                /** @var SchemaDefinitionNode|SchemaTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|EnumTypeDefinitionNode|EnumTypeExtensionNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode|ScalarTypeDefinitionNode|ScalarTypeExtensionNode $node */
-                return $node->directives;
+        $directives = [];
+        foreach ($this->getAllNodes($object) as $node) {
+            foreach ($node->directives as $directive) {
+                $directives[] = $directive;
             }
-        );
+        }
+
+        return new NodeList($directives);
     }
 
     /**
      * @param ObjectType|InterfaceType $type
+     * @param Type                     &NamedType $shouldBeInterface
      */
-    private function getImplementsInterfaceNode(ImplementingType $type, Type $shouldBeInterface): ?NamedTypeNode
+    private function getImplementsInterfaceNode(ImplementingType $type, NamedType $shouldBeInterface): ?NamedTypeNode
     {
         $nodes = $this->getAllImplementsInterfaceNodes($type, $shouldBeInterface);
 
@@ -728,25 +673,30 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
+     * @param Type                     &NamedType $shouldBeInterface
      *
      * @return array<int, NamedTypeNode>
      */
-    private function getAllImplementsInterfaceNodes(ImplementingType $type, Type $shouldBeInterface): array
+    private function getAllImplementsInterfaceNodes(ImplementingType $type, NamedType $shouldBeInterface): array
     {
-        $subNodes = $this->getAllSubNodes(
-            $type,
-            /**
-             * @return NodeList<NamedTypeNode>
-             */
-            static function (Node $typeNode): NodeList {
-                /** @var ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode $typeNode */
-                return $typeNode->interfaces;
-            }
-        );
+        $allNodes = $type->astNode !== null
+            ? array_merge([$type->astNode], $type->extensionASTNodes)
+            : $type->extensionASTNodes;
 
-        return Utils::filter($subNodes, static function (NamedTypeNode $ifaceNode) use ($shouldBeInterface): bool {
-            return $ifaceNode->name->value === $shouldBeInterface->name;
-        });
+        $shouldBeInterfaceName  = $shouldBeInterface->name;
+        $matchingInterfaceNodes = [];
+
+        foreach ($allNodes as $node) {
+            foreach ($node->interfaces as $interface) {
+                if ($interface->name->value !== $shouldBeInterfaceName) {
+                    continue;
+                }
+
+                $matchingInterfaceNodes[] = $interface;
+            }
+        }
+
+        return $matchingInterfaceNodes;
     }
 
     /**
@@ -766,12 +716,7 @@ class SchemaValidationContext
             // Assert interface field exists on type.
             if ($typeField === null) {
                 $this->reportError(
-                    sprintf(
-                        'Interface field %s.%s expected but %s does not provide it.',
-                        $iface->name,
-                        $fieldName,
-                        $type->name
-                    ),
+                    "Interface field {$iface->name}.{$fieldName} expected but {$type->name} does not provide it.",
                     array_merge(
                         [$this->getFieldNode($iface, $fieldName)],
                         $this->getAllNodes($type)
@@ -789,16 +734,9 @@ class SchemaValidationContext
                     $ifaceField->getType()
                 )
             ) {
+                $safeType = Utils::printSafe($typeField->getType());
                 $this->reportError(
-                    sprintf(
-                        'Interface field %s.%s expects type %s but %s.%s is type %s.',
-                        $iface->name,
-                        $fieldName,
-                        $ifaceField->getType(),
-                        $type->name,
-                        $fieldName,
-                        Utils::printSafe($typeField->getType())
-                    ),
+                    "Interface field {$iface->name}.{$fieldName} expects type {$ifaceField->getType()} but {$type->name}.{$fieldName} is type {$safeType}.",
                     [
                         $this->getFieldTypeNode($iface, $fieldName),
                         $this->getFieldTypeNode($type, $fieldName),
@@ -821,14 +759,7 @@ class SchemaValidationContext
                 // Assert interface field arg exists on type field.
                 if ($typeArg === null) {
                     $this->reportError(
-                        sprintf(
-                            'Interface field argument %s.%s(%s:) expected but %s.%s does not provide it.',
-                            $iface->name,
-                            $fieldName,
-                            $argName,
-                            $type->name,
-                            $fieldName
-                        ),
+                        "Interface field argument {$iface->name}.{$fieldName}({$argName}:) expected but {$type->name}.{$fieldName} does not provide it.",
                         [
                             $this->getFieldArgNode($iface, $fieldName, $argName),
                             $this->getFieldNode($type, $fieldName),
@@ -841,18 +772,11 @@ class SchemaValidationContext
                 // (invariant)
                 // TODO: change to contravariant?
                 if (! TypeComparators::isEqualType($ifaceArg->getType(), $typeArg->getType())) {
+                    $safeIFaceArgType = Utils::printSafe($ifaceArg->getType());
+                    $safeTypeArgType  = Utils::printSafe($typeArg->getType());
+
                     $this->reportError(
-                        sprintf(
-                            'Interface field argument %s.%s(%s:) expects type %s but %s.%s(%s:) is type %s.',
-                            $iface->name,
-                            $fieldName,
-                            $argName,
-                            Utils::printSafe($ifaceArg->getType()),
-                            $type->name,
-                            $fieldName,
-                            $argName,
-                            Utils::printSafe($typeArg->getType())
-                        ),
+                        "Interface field argument {$iface->name}.{$fieldName}({$argName}:) expects type {$safeIFaceArgType} but {$type->name}.{$fieldName}({$argName}:) is type {$safeTypeArgType}.",
                         [
                             $this->getFieldArgTypeNode($iface, $fieldName, $argName),
                             $this->getFieldArgTypeNode($type, $fieldName, $argName),
@@ -880,14 +804,7 @@ class SchemaValidationContext
                 }
 
                 $this->reportError(
-                    sprintf(
-                        'Object field %s.%s includes required argument %s that is missing from the Interface field %s.%s.',
-                        $type->name,
-                        $fieldName,
-                        $argName,
-                        $iface->name,
-                        $fieldName
-                    ),
+                    "Object field {$type->name}.{$fieldName} includes required argument {$argName} that is missing from the Interface field {$iface->name}.{$fieldName}.",
                     [
                         $this->getFieldArgNode($type, $fieldName, $argName),
                         $this->getFieldNode($iface, $fieldName),
@@ -909,17 +826,8 @@ class SchemaValidationContext
             }
 
             $error = $transitive === $type ?
-                sprintf(
-                    'Type %s cannot implement %s because it would create a circular reference.',
-                    $type->name,
-                    $iface->name
-                ) :
-                sprintf(
-                    'Type %s must implement %s because it is implemented by %s.',
-                    $type->name,
-                    $transitive->name,
-                    $iface->name
-                );
+                "Type {$type->name} cannot implement {$iface->name} because it would create a circular reference." :
+                "Type {$type->name} must implement {$transitive->name} because it is implemented by {$iface->name}.";
             $this->reportError(
                 $error,
                 array_merge(
@@ -936,7 +844,7 @@ class SchemaValidationContext
 
         if ($memberTypes === []) {
             $this->reportError(
-                sprintf('Union type %s must define one or more member types.', $union->name),
+                "Union type {$union->name} must define one or more member types.",
                 $this->getAllNodes($union)
             );
         }
@@ -944,21 +852,19 @@ class SchemaValidationContext
         $includedTypeNames = [];
 
         foreach ($memberTypes as $memberType) {
+            // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
             if (! $memberType instanceof ObjectType) {
+                $notObjectType = Utils::printSafe($memberType);
                 $this->reportError(
-                    sprintf(
-                        'Union type %s can only include Object types, it cannot include %s.',
-                        $union->name,
-                        Utils::printSafe($memberType)
-                    ),
-                    $this->getUnionMemberTypeNodes($union, Utils::printSafe($memberType))
+                    "Union type {$union->name} can only include Object types, it cannot include {$notObjectType}.",
+                    $this->getUnionMemberTypeNodes($union, $notObjectType)
                 );
                 continue;
             }
 
             if (isset($includedTypeNames[$memberType->name])) {
                 $this->reportError(
-                    sprintf('Union type %s can only include type %s once.', $union->name, $memberType->name),
+                    "Union type {$union->name} can only include type {$memberType->name} once.",
                     $this->getUnionMemberTypeNodes($union, $memberType->name)
                 );
                 continue;
@@ -973,20 +879,22 @@ class SchemaValidationContext
      */
     private function getUnionMemberTypeNodes(UnionType $union, string $typeName): array
     {
-        $subNodes = $this->getAllSubNodes(
-            $union,
-            /**
-             * @return NodeList<NamedTypeNode>
-             */
-            static function (Node $unionNode): NodeList {
-                /** @var UnionTypeDefinitionNode|UnionTypeExtensionNode $unionNode */
-                return $unionNode->types;
-            }
-        );
+        $allNodes = $union->astNode !== null
+            ? array_merge([$union->astNode], $union->extensionASTNodes)
+            : $union->extensionASTNodes;
 
-        return Utils::filter($subNodes, static function (NamedTypeNode $typeNode) use ($typeName): bool {
-            return $typeNode->name->value === $typeName;
-        });
+        $types = [];
+        foreach ($allNodes as $node) {
+            foreach ($node->types as $type) {
+                if ($type->name->value !== $typeName) {
+                    continue;
+                }
+
+                $types[] = $type;
+            }
+        }
+
+        return $types;
     }
 
     private function validateEnumValues(EnumType $enumType): void
@@ -995,7 +903,7 @@ class SchemaValidationContext
 
         if ($enumValues === []) {
             $this->reportError(
-                sprintf('Enum type %s must define one or more values.', $enumType->name),
+                "Enum type {$enumType->name} must define one or more values.",
                 $this->getAllNodes($enumType)
             );
         }
@@ -1003,20 +911,11 @@ class SchemaValidationContext
         foreach ($enumValues as $enumValue) {
             $valueName = $enumValue->name;
 
-            // Ensure no duplicates
-            $allNodes = $this->getEnumValueNodes($enumType, $valueName);
-            if (count($allNodes) > 1) {
-                $this->reportError(
-                    sprintf('Enum type %s can include value %s only once.', $enumType->name, $valueName),
-                    $allNodes
-                );
-            }
-
             // Ensure valid name.
             $this->validateName($enumValue);
             if ($valueName === 'true' || $valueName === 'false' || $valueName === 'null') {
                 $this->reportError(
-                    sprintf('Enum type %s cannot include value: %s.', $enumType->name, $valueName),
+                    "Enum type {$enumType->name} cannot include value: {$valueName}.",
                     $enumValue->astNode
                 );
             }
@@ -1033,35 +932,13 @@ class SchemaValidationContext
         }
     }
 
-    /**
-     * @return array<int, EnumValueDefinitionNode>
-     */
-    private function getEnumValueNodes(EnumType $enum, string $valueName): array
-    {
-        $subNodes = $this->getAllSubNodes(
-            $enum,
-            /**
-             * @param EnumTypeDefinitionNode|EnumTypeExtensionNode $enumNode
-             *
-             * @return NodeList<EnumValueDefinitionNode>
-             */
-            static function (Node $enumNode): NodeList {
-                return $enumNode->values;
-            }
-        );
-
-        return Utils::filter($subNodes, static function ($valueNode) use ($valueName): bool {
-            return $valueNode->name->value === $valueName;
-        });
-    }
-
     private function validateInputFields(InputObjectType $inputObj): void
     {
         $fieldMap = $inputObj->getFields();
 
         if ($fieldMap === []) {
             $this->reportError(
-                sprintf('Input Object type %s must define one or more fields.', $inputObj->name),
+                "Input Object type {$inputObj->name} must define one or more fields.",
                 $this->getAllNodes($inputObj)
             );
         }
@@ -1073,18 +950,14 @@ class SchemaValidationContext
 
             // TODO: Ensure they are unique per field.
 
-            // Ensure the type is an input type
-            if (! Type::isInputType($field->getType())) {
+            // Ensure the type is an input type.
+            $type = $field->getType();
+            // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
+            if (! Type::isInputType($type)) {
+                $notInputType = Utils::printSafe($type);
                 $this->reportError(
-                    sprintf(
-                        'The type of %s.%s must be Input Type but got: %s.',
-                        $inputObj->name,
-                        $fieldName,
-                        Utils::printSafe($field->getType())
-                    ),
-                    $field->astNode !== null
-                        ? $field->astNode->type
-                        : null
+                    "The type of {$inputObj->name}.{$fieldName} must be Input Type but got: {$notInputType}.",
+                    $field->astNode->type ?? null
                 );
             }
 

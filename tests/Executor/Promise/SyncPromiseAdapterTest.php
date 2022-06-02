@@ -16,8 +16,7 @@ use Throwable;
 
 class SyncPromiseAdapterTest extends TestCase
 {
-    /** @var SyncPromiseAdapter */
-    private $promises;
+    private SyncPromiseAdapter $promises;
 
     public function setUp(): void
     {
@@ -51,6 +50,7 @@ class SyncPromiseAdapterTest extends TestCase
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Expected instance of GraphQL\Deferred, got (empty string)');
+        // @phpstan-ignore-next-line purposefully wrong
         $this->promises->convertThenable('');
     }
 
@@ -79,7 +79,10 @@ class SyncPromiseAdapterTest extends TestCase
         self::assertValidPromise($promise, null, 'A', SyncPromise::FULFILLED);
     }
 
-    private static function assertValidPromise(Promise $promise, $expectedNextReason, $expectedNextValue, $expectedNextState): void
+    /**
+     * @param mixed $expectedNextValue
+     */
+    private static function assertValidPromise(Promise $promise, ?string $expectedNextReason, $expectedNextValue, string $expectedNextState): void
     {
         self::assertInstanceOf(SyncPromise::class, $promise->adoptedPromise);
 
@@ -105,8 +108,13 @@ class SyncPromiseAdapterTest extends TestCase
         SyncPromise::runQueue();
 
         if ($expectedNextState !== SyncPromise::PENDING) {
-            self::assertSame(! $expectedNextReason, $onFulfilledCalled);
-            self::assertSame(! ! $expectedNextReason, $onRejectedCalled);
+            if ($expectedNextReason === null) {
+                self::assertTrue($onFulfilledCalled);
+                self::assertFalse($onRejectedCalled);
+            } else {
+                self::assertFalse($onFulfilledCalled);
+                self::assertTrue($onRejectedCalled);
+            }
         }
 
         self::assertSame($expectedNextValue, $actualNextValue);

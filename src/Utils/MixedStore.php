@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use ArrayAccess;
-use GraphQL\Type\Definition\EnumValueDefinition;
 use InvalidArgumentException;
-// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
 use ReturnTypeWillChange;
 use SplObjectStorage;
 
@@ -21,77 +19,58 @@ use function is_object;
 use function is_string;
 
 /**
- * Similar to PHP array, but allows any type of data to act as key (including arrays, objects, scalars)
+ * Similar to PHP array, but allows any type of data to act as key (including arrays, objects, scalars).
  *
- * Note: unfortunately when storing array as key - access and modification is O(N)
- * (yet this should rarely be the case and should be avoided when possible)
+ * When storing array as key, access and modification is O(N). Avoid if possible.
+ *
+ * @template TValue of mixed
+ * @implements ArrayAccess<mixed, TValue>
  */
 class MixedStore implements ArrayAccess
 {
-    /** @var EnumValueDefinition[] */
-    private $standardStore;
+    /** @var array<TValue> */
+    private array $standardStore = [];
 
-    /** @var mixed[] */
-    private $floatStore;
+    /** @var array<TValue> */
+    private array $floatStore = [];
 
-    /** @var SplObjectStorage */
-    private $objectStore;
+    /** @var SplObjectStorage<object, TValue> */
+    private SplObjectStorage $objectStore;
 
-    /** @var callable[] */
-    private $arrayKeys;
+    /** @var array<int, array<mixed>> */
+    private array $arrayKeys = [];
 
-    /** @var EnumValueDefinition[] */
-    private $arrayValues;
+    /** @var array<int, TValue> */
+    private array $arrayValues = [];
 
-    /** @var callable[] */
-    private $lastArrayKey;
+    /** @var array<mixed> */
+    private ?array $lastArrayKey = null;
 
-    /** @var mixed */
-    private $lastArrayValue;
+    /** @var TValue|null */
+    private $lastArrayValue = null;
 
-    /** @var mixed */
-    private $nullValue;
+    /** @var TValue|null */
+    private $nullValue = null;
 
-    /** @var bool */
-    private $nullValueIsSet;
+    private bool $nullValueIsSet = false;
 
-    /** @var mixed */
-    private $trueValue;
+    /** @var TValue|null */
+    private $trueValue = null;
 
-    /** @var bool */
-    private $trueValueIsSet;
+    private bool $trueValueIsSet = false;
 
-    /** @var mixed */
-    private $falseValue;
+    /** @var TValue|null */
+    private $falseValue = null;
 
-    /** @var bool */
-    private $falseValueIsSet;
+    private bool $falseValueIsSet = false;
 
     public function __construct()
     {
-        $this->standardStore   = [];
-        $this->floatStore      = [];
-        $this->objectStore     = new SplObjectStorage();
-        $this->arrayKeys       = [];
-        $this->arrayValues     = [];
-        $this->nullValueIsSet  = false;
-        $this->trueValueIsSet  = false;
-        $this->falseValueIsSet = false;
+        $this->objectStore = new SplObjectStorage();
     }
 
     /**
-     * Whether a offset exists
-     *
-     * @link http://php.net/manual/en/arrayaccess.offsetexists.php
-     *
-     * @param mixed $offset <p>
-     * An offset to check for.
-     * </p>
-     *
-     * @return bool true on success or false on failure.
-     * </p>
-     * <p>
-     * The return value will be casted to boolean if non-boolean was returned.
+     * @param mixed $offset
      */
     #[ReturnTypeWillChange]
     public function offsetExists($offset): bool
@@ -135,15 +114,9 @@ class MixedStore implements ArrayAccess
     }
 
     /**
-     * Offset to retrieve
+     * @param mixed $offset
      *
-     * @link http://php.net/manual/en/arrayaccess.offsetget.php
-     *
-     * @param mixed $offset <p>
-     * The offset to retrieve.
-     * </p>
-     *
-     * @return mixed Can return all value types.
+     * @return TValue|null
      */
     #[ReturnTypeWillChange]
     public function offsetGet($offset)
@@ -189,16 +162,8 @@ class MixedStore implements ArrayAccess
     }
 
     /**
-     * Offset to set
-     *
-     * @link http://php.net/manual/en/arrayaccess.offsetset.php
-     *
-     * @param mixed $offset <p>
-     * The offset to assign the value to.
-     * </p>
-     * @param mixed $value  <p>
-     *  The value to set.
-     *  </p>
+     * @param mixed  $offset
+     * @param TValue $value
      */
     #[ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
@@ -227,13 +192,7 @@ class MixedStore implements ArrayAccess
     }
 
     /**
-     * Offset to unset
-     *
-     * @link http://php.net/manual/en/arrayaccess.offsetunset.php
-     *
-     * @param mixed $offset <p>
-     * The offset to unset.
-     * </p>
+     * @param mixed $offset
      */
     #[ReturnTypeWillChange]
     public function offsetUnset($offset): void

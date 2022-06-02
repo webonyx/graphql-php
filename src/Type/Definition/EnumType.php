@@ -11,19 +11,42 @@ use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 
 use function is_array;
-use function is_int;
+use function is_callable;
+use function is_iterable;
 use function is_string;
-use function sprintf;
 
+/**
+ * @phpstan-type PartialEnumValueConfig array{
+ *   name?: string,
+ *   value?: mixed,
+ *   deprecationReason?: string|null,
+ *   description?: string|null,
+ *   astNode?: EnumValueDefinitionNode|null,
+ * }
+ * @phpstan-type EnumValues iterable<string, PartialEnumValueConfig>|iterable<string, mixed>|iterable<int, string>
+ * @phpstan-type EnumTypeConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   values: EnumValues|callable(): EnumValues,
+ *   astNode?: EnumTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<int, EnumTypeExtensionNode>|null,
+ * }
+ */
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
-    /** @var EnumTypeDefinitionNode|null */
-    public ?TypeDefinitionNode $astNode;
+    use NamedTypeImplementation;
+
+    public ?EnumTypeDefinitionNode $astNode;
+
+    /** @var array<int, EnumTypeExtensionNode> */
+    public array $extensionASTNodes;
+
+    /** @phpstan-var EnumTypeConfig */
+    public array $config;
 
     /**
      * Lazily initialized.
@@ -35,16 +58,16 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /**
      * Lazily initialized.
      *
-     * Actually a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way.
+     * @var MixedStore<EnumValueDefinition>
      */
     private MixedStore $valueLookup;
 
     /** @var array<string, EnumValueDefinition> */
     private array $nameLookup;
 
-    /** @var array<int, EnumTypeExtensionNode> */
-    public array $extensionASTNodes;
-
+    /**
+     * @phpstan-param EnumTypeConfig $config
+     */
     public function __construct(array $config)
     {
         $config['name'] ??= $this->tryInferName();
@@ -74,33 +97,27 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     {
         if (! isset($this->values)) {
             $this->values = [];
-            $config       = $this->config;
 
-            if (isset($config['values'])) {
-                if (! is_array($config['values'])) {
-                    throw new InvariantViolation(sprintf('%s values must be an array', $this->name));
-                }
+            $values = $this->config['values'];
+            if (is_callable($values)) {
+                $values = $values();
+            }
 
-                foreach ($config['values'] as $name => $value) {
-                    if (is_string($name)) {
-                        if (is_array($value)) {
-                            $value += ['name' => $name, 'value' => $name];
-                        } else {
-                            $value = ['name' => $name, 'value' => $value];
-                        }
-                    } elseif (is_int($name) && is_string($value)) {
-                        $value = ['name' => $value, 'value' => $value];
+            // We are just assuming the config option is set correctly here, validation happens in assertValid()
+            foreach ($values as $name => $value) {
+                if (is_string($name)) {
+                    if (is_array($value)) {
+                        $value += ['name' => $name, 'value' => $name];
                     } else {
-                        throw new InvariantViolation(
-                            sprintf(
-                                '%s values must be an array with value names as keys.',
-                                $this->name
-                            )
-                        );
+                        $value = ['name' => $name, 'value' => $value];
                     }
-
-                    $this->values[] = new EnumValueDefinition($value);
+                } elseif (is_string($value)) {
+                    $value = ['name' => $value, 'value' => $value];
+                } else {
+                    throw new InvariantViolation("{$this->name} values must be an array with value names as keys or values.");
                 }
+
+                $this->values[] = new EnumValueDefinition($value);
             }
         }
 
@@ -118,14 +135,14 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
-     * Actually returns a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way
+     * @return MixedStore<EnumValueDefinition>
      */
     private function getValueLookup(): MixedStore
     {
         if (! isset($this->valueLookup)) {
             $this->valueLookup = new MixedStore();
 
-            foreach ($this->getValues() as $valueName => $value) {
+            foreach ($this->getValues() as $value) {
                 $this->valueLookup->offsetSet($value->value, $value);
             }
         }
@@ -149,11 +166,12 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof EnumValueNode) {
+            $name = $valueNode->value;
+
             if (! isset($this->nameLookup)) {
                 $this->initializeNameLookup();
             }
 
-            $name = $valueNode->value;
             if (isset($this->nameLookup[$name])) {
                 return $this->nameLookup[$name]->value;
             }
@@ -168,24 +186,17 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
-        Utils::invariant(
-            isset($this->config['values']),
-            sprintf('%s values must be an array.', $this->name)
-        );
+        $values = $this->config['values'] ?? null;
+        // @phpstan-ignore-next-line should not happen if used correctly
+        if (! is_iterable($values) && ! is_callable($values)) {
+            $notIterable = Utils::printSafe($values);
 
-        $values = $this->getValues();
-        foreach ($values as $value) {
-            Utils::invariant(
-                ! isset($value->config['isDeprecated']),
-                sprintf(
-                    '%s.%s should provide "deprecationReason" instead of "isDeprecated".',
-                    $this->name,
-                    $value->name
-                )
-            );
+            throw new InvariantViolation("{$this->name} values must be an iterable or callable, got: {$notIterable}");
         }
+
+        $this->getValues();
     }
 
     private function initializeNameLookup(): void

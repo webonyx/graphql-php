@@ -11,12 +11,15 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\HasSelectionSet;
 use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CompositeType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\OutputType;
@@ -33,26 +36,28 @@ use function count;
  * An instance of this class is passed as the "this" context to all validators,
  * allowing access to commonly useful contextual information from within a
  * validation rule.
+ *
+ * @phpstan-import-type InputTypeAlias from InputType
+ * @phpstan-type VariableUsage array{node: VariableNode, type: (Type&InputType)|null, defaultValue: mixed}
  */
 class ValidationContext extends ASTValidationContext
 {
-    /** @var TypeInfo */
-    private $typeInfo;
+    private TypeInfo $typeInfo;
 
-    /** @var FragmentDefinitionNode[] */
-    private $fragments;
+    /** @var array<string, FragmentDefinitionNode> */
+    private array $fragments;
 
-    /** @var SplObjectStorage */
-    private $fragmentSpreads;
+    /** @var SplObjectStorage<HasSelectionSet, array<int, FragmentSpreadNode>> */
+    private SplObjectStorage $fragmentSpreads;
 
-    /** @var SplObjectStorage */
-    private $recursivelyReferencedFragments;
+    /** @var SplObjectStorage<OperationDefinitionNode, array<int, FragmentDefinitionNode>> */
+    private SplObjectStorage $recursivelyReferencedFragments;
 
-    /** @var SplObjectStorage */
-    private $variableUsages;
+    /** @var SplObjectStorage<HasSelectionSet, array<int, VariableUsage>> */
+    private SplObjectStorage $variableUsages;
 
-    /** @var SplObjectStorage */
-    private $recursiveVariableUsages;
+    /** @var SplObjectStorage<HasSelectionSet, array<int, VariableUsage>> */
+    private SplObjectStorage $recursiveVariableUsages;
 
     public function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)
     {
@@ -65,7 +70,7 @@ class ValidationContext extends ASTValidationContext
     }
 
     /**
-     * @return mixed[][] List of ['node' => VariableNode, 'type' => ?InputObjectType]
+     * @phpstan-return array<int, VariableUsage>
      */
     public function getRecursiveVariableUsages(OperationDefinitionNode $operation): array
     {
@@ -88,28 +93,26 @@ class ValidationContext extends ASTValidationContext
     }
 
     /**
-     * @return mixed[][] List of ['node' => VariableNode, 'type' => ?InputObjectType]
+     * @param HasSelectionSet &Node $node
+     *
+     * @phpstan-return array<int, VariableUsage>
      */
     private function getVariableUsages(HasSelectionSet $node): array
     {
-        $usages = $this->variableUsages[$node] ?? null;
-
-        if ($usages === null) {
-            $newUsages = [];
-            $typeInfo  = new TypeInfo($this->schema);
+        if (! isset($this->variableUsages[$node])) {
+            $usages   = [];
+            $typeInfo = new TypeInfo($this->schema);
             Visitor::visit(
                 $node,
                 Visitor::visitWithTypeInfo(
                     $typeInfo,
                     [
-                        NodeKind::VARIABLE_DEFINITION => static function (): bool {
-                            return false;
-                        },
+                        NodeKind::VARIABLE_DEFINITION => static fn (): bool => false,
                         NodeKind::VARIABLE            => static function (VariableNode $variable) use (
-                            &$newUsages,
+                            &$usages,
                             $typeInfo
                         ): void {
-                            $newUsages[] = [
+                            $usages[] = [
                                 'node' => $variable,
                                 'type' => $typeInfo->getInputType(),
                                 'defaultValue' => $typeInfo->getDefaultValue(),
@@ -118,15 +121,15 @@ class ValidationContext extends ASTValidationContext
                     ]
                 )
             );
-            $usages                      = $newUsages;
-            $this->variableUsages[$node] = $usages;
+
+            return $this->variableUsages[$node] = $usages;
         }
 
-        return $usages;
+        return $this->variableUsages[$node];
     }
 
     /**
-     * @return FragmentDefinitionNode[]
+     * @return array<int, FragmentDefinitionNode>
      */
     public function getRecursivelyReferencedFragments(OperationDefinitionNode $operation): array
     {
@@ -166,14 +169,15 @@ class ValidationContext extends ASTValidationContext
     /**
      * @param OperationDefinitionNode|FragmentDefinitionNode $node
      *
-     * @return FragmentSpreadNode[]
+     * @return array<int, FragmentSpreadNode>
      */
     public function getFragmentSpreads(HasSelectionSet $node): array
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
         if ($spreads === null) {
             $spreads = [];
-            /** @var SelectionSetNode[] $setsToVisit */
+
+            /** @var array<int, SelectionSetNode> $setsToVisit */
             $setsToVisit = [$node->selectionSet];
             while (count($setsToVisit) > 0) {
                 $set = array_pop($setsToVisit);
@@ -216,6 +220,9 @@ class ValidationContext extends ASTValidationContext
         return $this->fragments[$name] ?? null;
     }
 
+    /**
+     * @return (OutputType&Type)|null
+     */
     public function getType(): ?OutputType
     {
         return $this->typeInfo->getType();
@@ -231,6 +238,7 @@ class ValidationContext extends ASTValidationContext
 
     /**
      * @return (Type & InputType) | null
+     * @phpstan-return InputTypeAlias
      */
     public function getInputType(): ?InputType
     {
@@ -250,12 +258,12 @@ class ValidationContext extends ASTValidationContext
         return $this->typeInfo->getFieldDef();
     }
 
-    public function getDirective()
+    public function getDirective(): ?Directive
     {
         return $this->typeInfo->getDirective();
     }
 
-    public function getArgument()
+    public function getArgument(): ?Argument
     {
         return $this->typeInfo->getArgument();
     }

@@ -65,8 +65,50 @@ use function sprintf;
 /**
  * Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
  *
- * Those magic functions allow partial parsing:
+ * @phpstan-type ParserOptions array{
+ *   noLocation?: bool,
+ *   allowLegacySDLEmptyFields?: bool,
+ *   allowLegacySDLImplementsInterfaces?: bool,
+ *   experimentalFragmentVariables?: bool,
+ * }
  *
+ * noLocation:
+ *   (By default, the parser creates AST nodes that know the location
+ *   in the source that they correspond to. This configuration flag
+ *   disables that behavior for performance or testing.)
+ *
+ * allowLegacySDLEmptyFields:
+ *   If enabled, the parser will parse empty fields sets in the Schema
+ *   Definition Language. Otherwise, the parser will follow the current
+ *   specification.
+ *
+ *   This option is provided to ease adoption of the final SDL specification
+ *   and will be removed in a future major release.
+ *
+ * allowLegacySDLImplementsInterfaces:
+ *   If enabled, the parser will parse implemented interfaces with no `&`
+ *   character between each interface. Otherwise, the parser will follow the
+ *   current specification.
+ *
+ *   This option is provided to ease adoption of the final SDL specification
+ *   and will be removed in a future major release.
+ *
+ * experimentalFragmentVariables:
+ *   (If enabled, the parser will understand and parse variable definitions
+ *   contained in a fragment definition. They'll be represented in the
+ *   `variableDefinitions` field of the FragmentDefinitionNode.
+ *
+ *   The syntax is identical to normal, query-defined variables. For example:
+ *
+ *     fragment A($var: Boolean = false) on T  {
+ *       ...
+ *     }
+ *
+ *   Note: this feature is experimental and may change or be removed in the
+ *   future.)
+ *
+ *
+ * Those magic functions allow partial parsing:
  * @method static NameNode name(Source|string $source, bool[] $options = [])
  * @method static DocumentNode document(Source|string $source, bool[] $options = [])
  * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
@@ -138,47 +180,11 @@ class Parser
 {
     /**
      * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
+     *
      * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
-     * Available options:
-     *
-     * noLocation: boolean,
-     *   (By default, the parser creates AST nodes that know the location
-     *   in the source that they correspond to. This configuration flag
-     *   disables that behavior for performance or testing.)
-     *
-     * allowLegacySDLEmptyFields: boolean
-     *   If enabled, the parser will parse empty fields sets in the Schema
-     *   Definition Language. Otherwise, the parser will follow the current
-     *   specification.
-     *
-     *   This option is provided to ease adoption of the final SDL specification
-     *   and will be removed in a future major release.
-     *
-     * allowLegacySDLImplementsInterfaces: boolean
-     *   If enabled, the parser will parse implemented interfaces with no `&`
-     *   character between each interface. Otherwise, the parser will follow the
-     *   current specification.
-     *
-     *   This option is provided to ease adoption of the final SDL specification
-     *   and will be removed in a future major release.
-     *
-     * experimentalFragmentVariables: boolean,
-     *   (If enabled, the parser will understand and parse variable definitions
-     *   contained in a fragment definition. They'll be represented in the
-     *   `variableDefinitions` field of the FragmentDefinitionNode.
-     *
-     *   The syntax is identical to normal, query-defined variables. For example:
-     *
-     *     fragment A($var: Boolean = false) on T  {
-     *       ...
-     *     }
-     *
-     *   Note: this feature is experimental and may change or be removed in the
-     *   future.)
-     *
      * @param Source|string $source
-     * @param bool[]        $options
+     * @phpstan-param ParserOptions       $options
      *
      * @throws SyntaxError
      *
@@ -192,8 +198,8 @@ class Parser
     }
 
     /**
-     * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for
-     * that value.
+     * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for that value.
+     *
      * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * This is useful within tools that operate upon GraphQL Values directly and
@@ -202,7 +208,7 @@ class Parser
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
      *
      * @param Source|string $source
-     * @param bool[]        $options
+     * @phpstan-param ParserOptions       $options
      *
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode
      *
@@ -219,8 +225,8 @@ class Parser
     }
 
     /**
-     * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for
-     * that type.
+     * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for that type.
+     *
      * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * This is useful within tools that operate upon GraphQL Types directly and
@@ -229,7 +235,7 @@ class Parser
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
      *
      * @param Source|string $source
-     * @param bool[]        $options
+     * @phpstan-param ParserOptions       $options
      *
      * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
      *
@@ -248,7 +254,9 @@ class Parser
     /**
      * Parse partial source by delegating calls to the internal parseX methods.
      *
-     * @param bool[] $arguments
+     * @phpstan-param array{string, ParserOptions} $arguments
+     *
+     * @return Node|NodeList<Node>
      *
      * @throws SyntaxError
      */
@@ -265,44 +273,43 @@ class Parser
             case 'objectField':
             case 'directives':
             case 'directive':
-                $type = $parser->{'parse' . $name}(false);
+                $parsed = $parser->{'parse' . $name}(false);
                 break;
             case 'constArguments':
-                $type = $parser->parseArguments(true);
+                $parsed = $parser->parseArguments(true);
                 break;
             case 'constValueLiteral':
-                $type = $parser->parseValueLiteral(true);
+                $parsed = $parser->parseValueLiteral(true);
                 break;
             case 'constArray':
-                $type = $parser->parseArray(true);
+                $parsed = $parser->parseArray(true);
                 break;
             case 'constObject':
-                $type = $parser->parseObject(true);
+                $parsed = $parser->parseObject(true);
                 break;
             case 'constObjectField':
-                $type = $parser->parseObjectField(true);
+                $parsed = $parser->parseObjectField(true);
                 break;
             case 'constDirectives':
-                $type = $parser->parseDirectives(true);
+                $parsed = $parser->parseDirectives(true);
                 break;
             case 'constDirective':
-                $type = $parser->parseDirective(true);
+                $parsed = $parser->parseDirective(true);
                 break;
             default:
-                $type = $parser->{'parse' . $name}();
+                $parsed = $parser->{'parse' . $name}();
         }
 
         $parser->expect(Token::EOF);
 
-        return $type;
+        return $parsed;
     }
 
-    /** @var Lexer */
-    private $lexer;
+    private Lexer $lexer;
 
     /**
      * @param Source|string $source
-     * @param bool[]        $options
+     * @phpstan-param ParserOptions        $options
      */
     public function __construct($source, array $options = [])
     {
@@ -420,6 +427,8 @@ class Parser
      * and ends with a lex token of closeKind. Advances the parser
      * to the next lex token after the closing token.
      *
+     * @return NodeList<Node>
+     *
      * @throws SyntaxError
      */
     private function any(string $openKind, callable $parseFn, string $closeKind): NodeList
@@ -440,7 +449,13 @@ class Parser
      * and ends with a lex token of closeKind. Advances the parser
      * to the next lex token after the closing token.
      *
+     * @param callable(self): TNode $parseFn
+     *
+     * @return NodeList<TNode>
+     *
      * @throws SyntaxError
+     *
+     * @template TNode of Node
      */
     private function many(string $openKind, callable $parseFn, string $closeKind): NodeList
     {
@@ -481,9 +496,7 @@ class Parser
         return new DocumentNode([
             'definitions' => $this->many(
                 Token::SOF,
-                function () {
-                    return $this->parseDefinition();
-                },
+                fn (): DefinitionNode => $this->parseDefinition(),
                 Token::EOF
             ),
             'loc'         => $this->loc($start),
@@ -491,7 +504,7 @@ class Parser
     }
 
     /**
-     * @return ExecutableDefinitionNode|TypeSystemDefinitionNode
+     * @return DefinitionNode&Node
      *
      * @throws SyntaxError
      */
@@ -529,6 +542,8 @@ class Parser
     }
 
     /**
+     * @return ExecutableDefinitionNode&Node
+     *
      * @throws SyntaxError
      */
     private function parseExecutableDefinition(): ExecutableDefinitionNode
@@ -553,6 +568,8 @@ class Parser
     // Implements the parsing rules in the Operations section.
 
     /**
+     * @return OperationDefinitionNode&Node
+     *
      * @throws SyntaxError
      */
     private function parseOperationDefinition(): OperationDefinitionNode
@@ -606,14 +623,15 @@ class Parser
         throw $this->unexpected($operationToken);
     }
 
+    /**
+     * @return NodeList<VariableDefinitionNode>
+     */
     private function parseVariableDefinitions(): NodeList
     {
         return $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
-                function (): VariableDefinitionNode {
-                    return $this->parseVariableDefinition();
-                },
+                fn (): VariableDefinitionNode => $this->parseVariableDefinition(),
                 Token::PAREN_R
             )
             : new NodeList([]);
@@ -663,9 +681,7 @@ class Parser
             [
                 'selections' => $this->many(
                     Token::BRACE_L,
-                    function (): SelectionNode {
-                        return $this->parseSelection();
-                    },
+                    fn (): SelectionNode => $this->parseSelection(),
                     Token::BRACE_R
                 ),
                 'loc'        => $this->loc($start),
@@ -674,10 +690,7 @@ class Parser
     }
 
     /**
-     *  Selection :
-     *   - Field
-     *   - FragmentSpread
-     *   - InlineFragment
+     * @return SelectionNode&Node
      */
     private function parseSelection(): SelectionNode
     {
@@ -713,17 +726,15 @@ class Parser
     }
 
     /**
+     * @return NodeList<ArgumentNode>
+     *
      * @throws SyntaxError
      */
     private function parseArguments(bool $isConst): NodeList
     {
         $parseFn = $isConst
-            ? function (): ArgumentNode {
-                return $this->parseConstArgument();
-            }
-            : function (): ArgumentNode {
-                return $this->parseArgument();
-            };
+            ? fn (): ArgumentNode => $this->parseConstArgument()
+            : fn (): ArgumentNode => $this->parseArgument();
 
         return $this->peek(Token::PAREN_L)
             ? $this->many(Token::PAREN_L, $parseFn, Token::PAREN_R)
@@ -915,9 +926,6 @@ class Parser
                         'loc'   => $this->loc($token),
                     ]);
                 }
-
-                break;
-
             case Token::DOLLAR:
                 if (! $isConst) {
                     return $this->parseVariable();
@@ -1010,6 +1018,8 @@ class Parser
     // Implements the parsing rules in the Directives section.
 
     /**
+     * @return NodeList<DirectiveNode>
+     *
      * @throws SyntaxError
      */
     private function parseDirectives(bool $isConst): NodeList
@@ -1084,19 +1094,7 @@ class Parser
     // Implements the parsing rules in the Type Definition section.
 
     /**
-     * TypeSystemDefinition :
-     *   - SchemaDefinition
-     *   - TypeDefinition
-     *   - TypeExtension
-     *   - DirectiveDefinition
-     *
-     * TypeDefinition :
-     *   - ScalarTypeDefinition
-     *   - ObjectTypeDefinition
-     *   - InterfaceTypeDefinition
-     *   - UnionTypeDefinition
-     *   - EnumTypeDefinition
-     *   - InputObjectTypeDefinition
+     * @return TypeSystemDefinitionNode&Node
      *
      * @throws SyntaxError
      */
@@ -1239,9 +1237,7 @@ class Parser
     }
 
     /**
-     * ImplementsInterfaces :
-     *   - implements `&`? NamedType
-     *   - ImplementsInterfaces & NamedType
+     * @return NodeList<NamedTypeNode>
      */
     private function parseImplementsInterfaces(): NodeList
     {
@@ -1262,6 +1258,8 @@ class Parser
     }
 
     /**
+     * @return NodeList<FieldDefinitionNode>
+     *
      * @throws SyntaxError
      */
     private function parseFieldsDefinition(): NodeList
@@ -1275,16 +1273,14 @@ class Parser
             $this->lexer->advance();
             $this->lexer->advance();
 
-            /** @phpstan-var NodeList<FieldDefinitionNode&Node> $nodeList */
+            /** @phpstan-var NodeList<FieldDefinitionNode> $nodeList */
             $nodeList = new NodeList([]);
         } else {
-            /** @phpstan-var NodeList<FieldDefinitionNode&Node> $nodeList */
+            /** @phpstan-var NodeList<FieldDefinitionNode> $nodeList */
             $nodeList = $this->peek(Token::BRACE_L)
                 ? $this->many(
                     Token::BRACE_L,
-                    function (): FieldDefinitionNode {
-                        return $this->parseFieldDefinition();
-                    },
+                    fn (): FieldDefinitionNode => $this->parseFieldDefinition(),
                     Token::BRACE_R
                 )
                 : new NodeList([]);
@@ -1317,17 +1313,17 @@ class Parser
     }
 
     /**
+     * @return NodeList<InputValueDefinitionNode>
+     *
      * @throws SyntaxError
      */
     private function parseArgumentsDefinition(): NodeList
     {
-        /** @var NodeList<InputValueDefinitionNode&Node> $nodeList */
+        /** @var NodeList<InputValueDefinitionNode> $nodeList */
         $nodeList = $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
-                function (): InputValueDefinitionNode {
-                    return $this->parseInputValueDefinition();
-                },
+                fn (): InputValueDefinitionNode => $this->parseInputValueDefinition(),
                 Token::PAREN_R
             )
             : new NodeList([]);
@@ -1410,9 +1406,7 @@ class Parser
     }
 
     /**
-     * UnionMemberTypes :
-     *   - = `|`? NamedType
-     *   - UnionMemberTypes | NamedType
+     * @return NodeList<NamedTypeNode>
      */
     private function parseUnionMemberTypes(): NodeList
     {
@@ -1450,17 +1444,17 @@ class Parser
     }
 
     /**
+     * @return NodeList<EnumValueDefinitionNode>
+     *
      * @throws SyntaxError
      */
     private function parseEnumValuesDefinition(): NodeList
     {
-        /** @var NodeList<EnumValueDefinitionNode&Node> $nodeList */
+        /** @var NodeList<EnumValueDefinitionNode> $nodeList */
         $nodeList = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                function (): EnumValueDefinitionNode {
-                    return $this->parseEnumValueDefinition();
-                },
+                fn (): EnumValueDefinitionNode => $this->parseEnumValueDefinition(),
                 Token::BRACE_R
             )
             : new NodeList([]);
@@ -1508,11 +1502,13 @@ class Parser
     }
 
     /**
+     * @return NodeList<InputValueDefinitionNode>
+     *
      * @throws SyntaxError
      */
     private function parseInputFieldsDefinition(): NodeList
     {
-        /** @var NodeList<InputValueDefinitionNode&Node> $nodeList */
+        /** @var NodeList<InputValueDefinitionNode> $nodeList */
         $nodeList = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
@@ -1527,13 +1523,7 @@ class Parser
     }
 
     /**
-     * TypeExtension :
-     *   - ScalarTypeExtension
-     *   - ObjectTypeExtension
-     *   - InterfaceTypeExtension
-     *   - UnionTypeExtension
-     *   - EnumTypeExtension
-     *   - InputObjectTypeDefinition
+     * @return TypeExtensionNode&Node
      *
      * @throws SyntaxError
      */
@@ -1577,11 +1567,12 @@ class Parser
         $start = $this->lexer->token;
         $this->expectKeyword('extend');
         $this->expectKeyword('schema');
-        $directives     = $this->parseDirectives(true);
+        $directives = $this->parseDirectives(true);
+
         $operationTypes = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                [$this, 'parseOperationTypeDefinition'],
+                fn (): OperationTypeDefinitionNode => $this->parseOperationTypeDefinition(),
                 Token::BRACE_R
             )
             : new NodeList([]);
@@ -1784,6 +1775,8 @@ class Parser
     }
 
     /**
+     * @return NodeList<NameNode>
+     *
      * @throws SyntaxError
      */
     private function parseDirectiveLocations(): NodeList

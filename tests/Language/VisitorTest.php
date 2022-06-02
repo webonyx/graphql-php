@@ -12,17 +12,13 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Tests\Validator\ValidatorTestCase;
-use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 
@@ -33,9 +29,7 @@ use function count;
 use function file_get_contents;
 use function func_get_args;
 use function gettype;
-use function is_array;
 use function is_numeric;
-use function iterator_to_array;
 
 class VisitorTest extends ValidatorTestCase
 {
@@ -112,16 +106,13 @@ class VisitorTest extends ValidatorTestCase
         ]);
     }
 
-    private function checkVisitorFnArgs($ast, $args, $isEdited = false): void
+    /**
+     * @param array<int, mixed> $args
+     */
+    private function checkVisitorFnArgs(DocumentNode $ast, array $args, bool $isEdited = false): void
     {
+        self::assertCount(5, $args);
         [$node, $key, $parent, $path, $ancestors] = $args;
-
-        $parentArray = $parent && ! is_array($parent)
-            ? ($parent instanceof NodeList
-                ? iterator_to_array($parent)
-                : $parent->toArray()
-            )
-            : $parent;
 
         self::assertInstanceOf(Node::class, $node);
         self::assertContains($node->kind, array_keys(NodeKind::CLASS_MAP));
@@ -140,8 +131,13 @@ class VisitorTest extends ValidatorTestCase
         }
 
         self::assertContains(gettype($key), ['integer', 'string']);
+        /** @var int|string $key */
 
-        self::assertArrayHasKey($key, $parentArray);
+        if ($parent instanceof NodeList) {
+            self::assertArrayHasKey($key, $parent);
+        } else {
+            self::assertObjectHasAttribute($key, $parent);
+        }
 
         self::assertIsArray($path);
         self::assertEquals($key, $path[count($path) - 1]);
@@ -153,7 +149,12 @@ class VisitorTest extends ValidatorTestCase
             return;
         }
 
-        self::assertEquals($node, $parentArray[$key]);
+        if ($parent instanceof NodeList) {
+            self::assertEquals($node, $parent[$key]);
+        } else {
+            self::assertEquals($node, $parent->{$key});
+        }
+
         self::assertEquals($node, $this->getNodeByPath($ast, $path));
         $ancestorsLength = count($ancestors);
         for ($i = 0; $i < $ancestorsLength; ++$i) {
@@ -162,15 +163,21 @@ class VisitorTest extends ValidatorTestCase
         }
     }
 
-    private function getNodeByPath(DocumentNode $ast, $path)
+    /**
+     * @param array<string|int> $path
+     *
+     * @return Node|NodeList
+     */
+    private function getNodeByPath(DocumentNode $ast, array $path): object
     {
         $result = $ast;
+
         foreach ($path as $key) {
-            $resultArray = $result instanceof NodeList
-                ? iterator_to_array($result)
-                : $result->toArray();
-            self::assertArrayHasKey($key, $resultArray);
-            $result = $resultArray[$key];
+            if ($result instanceof NodeList) {
+                $result = $result[$key];
+            } else {
+                $result = $result->{$key};
+            }
         }
 
         return $result;
@@ -327,12 +334,15 @@ class VisitorTest extends ValidatorTestCase
                 'enter' => function ($node) use ($addedField, &$didVisitAddedField, $ast): ?FieldNode {
                     $this->checkVisitorFnArgs($ast, func_get_args(), true);
                     if ($node instanceof FieldNode && $node->name->value === 'a') {
+                        /** @var NodeList<SelectionNode&Node> $newSelection */
+                        $newSelection = new NodeList([$addedField]);
+
                         return new FieldNode([
                             'name' => $node->name,
                             'arguments' => new NodeList([]),
                             'directives' => new NodeList([]),
                             'selectionSet' => new SelectionSetNode([
-                                'selections' => NodeList::create([$addedField])->merge($node->selectionSet->selections),
+                                'selections' => $newSelection->merge($node->selectionSet->selections),
                             ]),
                         ]);
                     }
@@ -1475,9 +1485,8 @@ class VisitorTest extends ValidatorTestCase
                         $this->checkVisitorFnArgs($ast, func_get_args());
                         $parentType = $typeInfo->getParentType();
                         $type       = $typeInfo->getType();
-                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $inputType */
-                        $inputType = $typeInfo->getInputType();
-                        $visited[] = [
+                        $inputType  = $typeInfo->getInputType();
+                        $visited[]  = [
                             'enter',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
@@ -1490,9 +1499,8 @@ class VisitorTest extends ValidatorTestCase
                         $this->checkVisitorFnArgs($ast, func_get_args());
                         $parentType = $typeInfo->getParentType();
                         $type       = $typeInfo->getType();
-                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $inputType */
-                        $inputType = $typeInfo->getInputType();
-                        $visited[] = [
+                        $inputType  = $typeInfo->getInputType();
+                        $visited[]  = [
                             'leave',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
@@ -1569,9 +1577,8 @@ class VisitorTest extends ValidatorTestCase
                         $this->checkVisitorFnArgs($ast, func_get_args(), true);
                         $parentType = $typeInfo->getParentType();
                         $type       = $typeInfo->getType();
-                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $inputType */
-                        $inputType = $typeInfo->getInputType();
-                        $visited[] = [
+                        $inputType  = $typeInfo->getInputType();
+                        $visited[]  = [
                             'enter',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,
@@ -1610,9 +1617,8 @@ class VisitorTest extends ValidatorTestCase
                         $this->checkVisitorFnArgs($ast, func_get_args(), true);
                         $parentType = $typeInfo->getParentType();
                         $type       = $typeInfo->getType();
-                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $inputType */
-                        $inputType = $typeInfo->getInputType();
-                        $visited[] = [
+                        $inputType  = $typeInfo->getInputType();
+                        $visited[]  = [
                             'leave',
                             $node->kind,
                             $node->kind === 'Name' ? $node->value : null,

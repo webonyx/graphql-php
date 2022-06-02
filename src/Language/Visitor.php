@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Language;
 
-use ArrayObject;
 use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
 use SplFixedArray;
-use stdClass;
 
 use function array_pop;
 use function count;
@@ -105,6 +103,8 @@ use function json_encode;
  *         }
  *       ]
  *     ]);
+ *
+ * @phpstan-type VisitorArray array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
  */
 class Visitor
 {
@@ -170,14 +170,15 @@ class Visitor
     /**
      * Visit the AST (see class description for details).
      *
-     * @param Node|ArrayObject|stdClass $root
-     * @param array<string, mixed>      $visitor
+     * @param NodeList<TNode>|Node      $root
+     * @param VisitorArray              $visitor
      * @param array<string, mixed>|null $keyMap
      *
      * @return Node|mixed
      *
      * @throws Exception
      *
+     * @template TNode of Node
      * @api
      */
     public static function visit(object $root, array $visitor, ?array $keyMap = null)
@@ -185,7 +186,7 @@ class Visitor
         $visitorKeys = $keyMap ?? self::VISITOR_KEYS;
 
         $stack     = null;
-        $inArray   = $root instanceof NodeList || is_array($root);
+        $inArray   = $root instanceof NodeList;
         $keys      = [$root];
         $index     = -1;
         $edits     = [];
@@ -283,16 +284,16 @@ class Visitor
 
                     if ($result !== null) {
                         if ($result instanceof VisitorOperation) {
-                            if ($result->doBreak) {
+                            if ($result instanceof VisitorStop) {
                                 break;
                             }
 
-                            if (! $isLeaving && $result->doContinue) {
+                            if (! $isLeaving && $result instanceof VisitorSkipNode) {
                                 array_pop($path);
                                 continue;
                             }
 
-                            if ($result->removeNode) {
+                            if ($result instanceof VisitorRemoveNode) {
                                 $editValue = null;
                             }
                         } else {
@@ -347,50 +348,47 @@ class Visitor
     }
 
     /**
-     * Returns marker for visitor break
+     * Returns marker for stopping.
      *
      * @api
      */
-    public static function stop(): VisitorOperation
+    public static function stop(): VisitorStop
     {
-        $r          = new VisitorOperation();
-        $r->doBreak = true;
+        static $stop;
 
-        return $r;
+        return $stop ??= new VisitorStop();
     }
 
     /**
-     * Returns marker for skipping current node
+     * Returns marker for skipping the current node.
      *
      * @api
      */
-    public static function skipNode(): VisitorOperation
+    public static function skipNode(): VisitorSkipNode
     {
-        $r             = new VisitorOperation();
-        $r->doContinue = true;
+        static $skipNode;
 
-        return $r;
+        return $skipNode ??= new VisitorSkipNode();
     }
 
     /**
-     * Returns marker for removing a node
+     * Returns marker for removing the current node.
      *
      * @api
      */
-    public static function removeNode(): VisitorOperation
+    public static function removeNode(): VisitorRemoveNode
     {
-        $r             = new VisitorOperation();
-        $r->removeNode = true;
+        static $removeNode;
 
-        return $r;
+        return $removeNode ??= new VisitorRemoveNode();
     }
 
     /**
-     * @param callable[][] $visitors
+     * @phpstan-param array<int, VisitorArray> $visitors
      *
-     * @return array<string, callable>
+     * @return VisitorArray
      */
-    public static function visitInParallel($visitors): array
+    public static function visitInParallel(array $visitors): array
     {
         $visitorsCount = count($visitors);
         $skipping      = new SplFixedArray($visitorsCount);
@@ -404,7 +402,7 @@ class Visitor
 
                     $fn = self::getVisitFn(
                         $visitors[$i],
-                        $node->kind, /* isLeaving */
+                        $node->kind,
                         false
                     );
 
@@ -414,36 +412,35 @@ class Visitor
 
                     $result = $fn(...func_get_args());
 
-                    if ($result instanceof VisitorOperation) {
-                        if ($result->doContinue) {
-                            $skipping[$i] = $node;
-                        } elseif ($result->doBreak) {
-                            $skipping[$i] = $result;
-                        } elseif ($result->removeNode) {
-                            return $result;
-                        }
+                    if ($result instanceof VisitorSkipNode) {
+                        $skipping[$i] = $node;
+                    } elseif ($result instanceof VisitorStop) {
+                        $skipping[$i] = $result;
+                    } elseif ($result instanceof VisitorRemoveNode) {
+                        return $result;
                     } elseif ($result !== null) {
                         return $result;
                     }
                 }
+
+                return null;
             },
             'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
                     if ($skipping[$i] === null) {
                         $fn = self::getVisitFn(
                             $visitors[$i],
-                            $node->kind, /* isLeaving */
+                            $node->kind,
                             true
                         );
 
-                        if (isset($fn)) {
+                        if ($fn !== null) {
                             $result = $fn(...func_get_args());
-                            if ($result instanceof VisitorOperation) {
-                                if ($result->doBreak) {
-                                    $skipping[$i] = $result;
-                                } elseif ($result->removeNode) {
-                                    return $result;
-                                }
+
+                            if ($result instanceof VisitorStop) {
+                                $skipping[$i] = $result;
+                            } elseif ($result instanceof VisitorRemoveNode) {
+                                return $result;
                             } elseif ($result !== null) {
                                 return $result;
                             }
@@ -452,6 +449,8 @@ class Visitor
                         $skipping[$i] = null;
                     }
                 }
+
+                return null;
             },
         ];
     }
@@ -459,27 +458,33 @@ class Visitor
     /**
      * Creates a new visitor instance which maintains a provided TypeInfo instance
      * along with visiting visitor.
+     *
+     * @phpstan-param VisitorArray $visitor
+     *
+     * @phpstan-return VisitorArray
      */
-    public static function visitWithTypeInfo(TypeInfo $typeInfo, $visitor)
+    public static function visitWithTypeInfo(TypeInfo $typeInfo, array $visitor): array
     {
         return [
             'enter' => static function (Node $node) use ($typeInfo, $visitor) {
                 $typeInfo->enter($node);
                 $fn = self::getVisitFn($visitor, $node->kind, false);
 
-                if (isset($fn)) {
-                    $result = $fn(...func_get_args());
-                    if ($result !== null) {
-                        $typeInfo->leave($node);
-                        if ($result instanceof Node) {
-                            $typeInfo->enter($result);
-                        }
-                    }
-
-                    return $result;
+                if ($fn === null) {
+                    return null;
                 }
 
-                return null;
+                $result = $fn(...func_get_args());
+                if ($result === null) {
+                    return null;
+                }
+
+                $typeInfo->leave($node);
+                if ($result instanceof Node) {
+                    $typeInfo->enter($result);
+                }
+
+                return $result;
             },
             'leave' => static function (Node $node) use ($typeInfo, $visitor) {
                 $fn     = self::getVisitFn($visitor, $node->kind, true);
@@ -495,47 +500,32 @@ class Visitor
     }
 
     /**
-     * @param callable[]|null $visitor
-     * @param string          $kind
-     * @param bool            $isLeaving
+     * @phpstan-param VisitorArray $visitor
+     *
+     * @return callable(Node $node, string $key, Node|NodeList $parent, array<int, int|string $path, array<int, Node|NodeList> $ancestors): VisitorOperation|Node|null
      */
-    public static function getVisitFn($visitor, $kind, $isLeaving): ?callable
+    public static function getVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable
     {
-        if ($visitor === null) {
-            return null;
-        }
-
         $kindVisitor = $visitor[$kind] ?? null;
 
         if (is_array($kindVisitor)) {
-            if ($isLeaving) {
-                $kindSpecificVisitor = $kindVisitor['leave'] ?? null;
-            } else {
-                $kindSpecificVisitor = $kindVisitor['enter'] ?? null;
-            }
-
-            return $kindSpecificVisitor;
+            return $isLeaving
+                ? $kindVisitor['leave'] ?? null
+                : $kindVisitor['enter'] ?? null;
         }
 
         if ($kindVisitor !== null && ! $isLeaving) {
             return $kindVisitor;
         }
 
-        $visitor += ['leave' => null, 'enter' => null];
-
         $specificVisitor = $isLeaving
-            ? $visitor['leave']
-            : $visitor['enter'];
+            ? $visitor['leave'] ?? null
+            : $visitor['enter'] ?? null;
 
-        if (isset($specificVisitor)) {
-            if (! is_array($specificVisitor)) {
-                // { enter() {}, leave() {} }
-                return $specificVisitor;
-            }
-
+        if (is_array($specificVisitor)) {
             return $specificVisitor[$kind] ?? null;
         }
 
-        return null;
+        return $specificVisitor;
     }
 }

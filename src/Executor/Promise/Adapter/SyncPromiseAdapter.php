@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor\Promise\Adapter;
 
+use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
@@ -28,7 +28,10 @@ class SyncPromiseAdapter implements PromiseAdapter
     {
         if (! $thenable instanceof SyncPromise) {
             // End-users should always use Deferred (and don't use SyncPromise directly)
-            throw new InvariantViolation('Expected instance of GraphQL\Deferred, got ' . Utils::printSafe($thenable));
+            $deferred     = Deferred::class;
+            $safeThenable = Utils::printSafe($thenable);
+
+            throw new InvariantViolation("Expected instance of {$deferred}, got {$safeThenable}");
         }
 
         return new Promise($thenable, $this);
@@ -48,14 +51,8 @@ class SyncPromiseAdapter implements PromiseAdapter
 
         try {
             $resolver(
-                [
-                    $promise,
-                    'resolve',
-                ],
-                [
-                    $promise,
-                    'reject',
-                ]
+                [$promise, 'resolve'],
+                [$promise, 'reject']
             );
         } catch (Throwable $e) {
             $promise->reject($e);
@@ -71,7 +68,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->resolve($value), $this);
     }
 
-    public function createRejected($reason): Promise
+    public function createRejected(Throwable $reason): Promise
     {
         $promise = new SyncPromise();
 
@@ -117,7 +114,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * Synchronously wait when promise completes
      *
-     * @return ExecutionResult|array<ExecutionResult>
+     * @return mixed
      */
     public function wait(Promise $promise)
     {

@@ -8,14 +8,12 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\DisableIntrospection;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class DisableIntrospectionTest extends ValidatorTestCase
 {
-    // Validate: Disable Introspection
-
-    /**
-     * @see it('fails if the query contains __schema')
-     */
-    public function testQueryContainsSchema(): void
+    public function testFailsIfQueryContainsSchema(): void
     {
         $this->expectFailsRule(
             new DisableIntrospection(DisableIntrospection::ENABLED),
@@ -32,7 +30,10 @@ class DisableIntrospectionTest extends ValidatorTestCase
         );
     }
 
-    private function error($line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function error(int $line, int $column): array
     {
         return ErrorHelper::create(
             DisableIntrospection::introspectionDisabledMessage(),
@@ -40,10 +41,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('fails if the query contains __type')
-     */
-    public function testQueryContainsType(): void
+    public function testFailsIfQueryContainsType(): void
     {
         $this->expectFailsRule(
             new DisableIntrospection(DisableIntrospection::ENABLED),
@@ -60,9 +58,6 @@ class DisableIntrospectionTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('does not fail on a query that does not contain __type')
-     */
     public function testValidQuery(): void
     {
         $this->expectPassesRule(
@@ -81,10 +76,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('does not fail when not enabled')
-     */
-    public function testQueryWhenDisabled(): void
+    public function testAllowsIntrospectionWhenDisabled(): void
     {
         $this->expectPassesRule(
             new DisableIntrospection(DisableIntrospection::DISABLED),
@@ -100,9 +92,6 @@ class DisableIntrospectionTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('has a public interface for enabeling the rule')
-     */
     public function testPublicEnableInterface(): void
     {
         $disableIntrospection = new DisableIntrospection(DisableIntrospection::DISABLED);
@@ -122,9 +111,6 @@ class DisableIntrospectionTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('has a public interface for disableing the rule')
-     */
     public function testPublicDisableInterface(): void
     {
         $disableIntrospection = new DisableIntrospection(DisableIntrospection::ENABLED);

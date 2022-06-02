@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\ExecutableDefinitions;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class ExecutableDefinitionsTest extends ValidatorTestCase
 {
     // Validate: Executable definitions
@@ -80,7 +83,10 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
         );
     }
 
-    private function nonExecutableDefinition($defName, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function nonExecutableDefinition(string $defName, int $line, int $column): array
     {
         return ErrorHelper::create(
             ExecutableDefinitions::nonExecutableDefinitionMessage($defName),

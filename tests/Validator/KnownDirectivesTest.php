@@ -10,10 +10,12 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownDirectives;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class KnownDirectivesTest extends ValidatorTestCase
 {
-    /** @var Schema */
-    public $schemaWithSDLDirectives;
+    public Schema $schemaWithSDLDirectives;
 
     public function setUp(): void
     {
@@ -32,7 +34,10 @@ class KnownDirectivesTest extends ValidatorTestCase
         ');
     }
 
-    private function expectSDLErrors($sdlString, $schema = null, $errors = []): void
+    /**
+     * @param array<int, array<string, mixed>> $errors
+     */
+    private function expectSDLErrors(string $sdlString, ?Schema $schema = null, array $errors = []): void
     {
         $this->expectSDLErrorsFromRule(new KnownDirectives(), $sdlString, $schema, $errors);
     }
@@ -97,7 +102,10 @@ class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    private function unknownDirective($directiveName, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function unknownDirective(string $directiveName, int $line, int $column): array
     {
         return ErrorHelper::create(
             KnownDirectives::unknownDirectiveMessage($directiveName),
@@ -320,7 +328,10 @@ class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    private function misplacedDirective($directiveName, $placement, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function misplacedDirective(string $directiveName, string $placement, int $line, int $column): array
     {
         return ErrorHelper::create(
             KnownDirectives::misplacedDirectiveMessage($directiveName, $placement),

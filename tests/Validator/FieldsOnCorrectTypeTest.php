@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\FieldsOnCorrectType;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class FieldsOnCorrectTypeTest extends ValidatorTestCase
 {
     // Validate: Fields on correct type
@@ -127,7 +130,13 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    private function undefinedField($field, $type, $suggestedTypes, $suggestedFields, $line, $column)
+    /**
+     * @param array<string> $suggestedTypes
+     * @param array<string> $suggestedFields
+     *
+     * @phpstan-return ErrorArray
+     */
+    private function undefinedField(string $field, string $type, array $suggestedTypes, array $suggestedFields, int $line, int $column): array
     {
         return ErrorHelper::create(
             FieldsOnCorrectType::undefinedFieldMessage($field, $type, $suggestedTypes, $suggestedFields),
@@ -249,7 +258,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Defined on implementors but not on interface')
      */
-    public function testDefinedOnImplmentorsButNotOnInterface(): void
+    public function testDefinedOnImplementorsButNotOnInterface(): void
     {
         $this->expectFailsRule(
             new FieldsOnCorrectType(),

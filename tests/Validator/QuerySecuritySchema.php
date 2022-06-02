@@ -7,7 +7,6 @@ namespace GraphQL\Tests\Validator;
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -16,42 +15,27 @@ use function array_merge;
 
 class QuerySecuritySchema
 {
-    /** @var Schema */
-    private static $schema;
+    private static Schema $schema;
 
-    /** @var Directive */
-    private static $fooDirective;
+    private static Directive $fooDirective;
 
-    /** @var ObjectType */
-    private static $dogType;
+    private static ObjectType $dogType;
 
-    /** @var ObjectType */
-    private static $humanType;
+    private static ObjectType $humanType;
 
-    /** @var ObjectType */
-    private static $queryRootType;
+    private static ObjectType $queryRootType;
 
     public static function buildSchema(): Schema
     {
-        if (self::$schema !== null) {
-            return self::$schema;
-        }
-
-        self::$schema = new Schema([
+        return self::$schema ??= new Schema([
             'query'      => static::buildQueryRootType(),
             'directives' => array_merge(GraphQL::getStandardDirectives(), [static::buildFooDirective()]),
         ]);
-
-        return self::$schema;
     }
 
-    public static function buildQueryRootType()
+    public static function buildQueryRootType(): ObjectType
     {
-        if (self::$queryRootType !== null) {
-            return self::$queryRootType;
-        }
-
-        self::$queryRootType = new ObjectType([
+        return self::$queryRootType ??= new ObjectType([
             'name'   => 'QueryRoot',
             'fields' => [
                 'human' => [
@@ -60,17 +44,11 @@ class QuerySecuritySchema
                 ],
             ],
         ]);
-
-        return self::$queryRootType;
     }
 
-    public static function buildHumanType()
+    public static function buildHumanType(): ObjectType
     {
-        if (self::$humanType !== null) {
-            return self::$humanType;
-        }
-
-        self::$humanType = new ObjectType(
+        return self::$humanType ??= new ObjectType(
             [
                 'name'   => 'Human',
                 'fields' => static function (): array {
@@ -93,17 +71,11 @@ class QuerySecuritySchema
                 },
             ]
         );
-
-        return self::$humanType;
     }
 
-    public static function buildDogType()
+    public static function buildDogType(): ObjectType
     {
-        if (self::$dogType !== null) {
-            return self::$dogType;
-        }
-
-        self::$dogType = new ObjectType(
+        return self::$dogType ??= new ObjectType(
             [
                 'name'   => 'Dog',
                 'fields' => [
@@ -114,28 +86,19 @@ class QuerySecuritySchema
                 ],
             ]
         );
-
-        return self::$dogType;
     }
 
     public static function buildFooDirective(): Directive
     {
-        if (self::$fooDirective !== null) {
-            return self::$fooDirective;
-        }
-
-        self::$fooDirective = new Directive([
+        return self::$fooDirective ??= new Directive([
             'name'      => 'foo',
             'locations' => [DirectiveLocation::FIELD],
             'args'      => [
-                new FieldArgument([
-                    'name'         => 'bar',
+                'bar' => [
                     'type'         => Type::nonNull(Type::boolean()),
                     'defaultValue' => ' ',
-                ]),
+                ],
             ],
         ]);
-
-        return self::$fooDirective;
     }
 }

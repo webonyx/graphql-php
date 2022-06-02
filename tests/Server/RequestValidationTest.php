@@ -25,10 +25,10 @@ class RequestValidationTest extends TestCase
         self::assertValid($parsedBody);
     }
 
-    private static function assertValid($parsedRequest): void
+    private static function assertValid(OperationParams $operationParams): void
     {
         $helper = new Helper();
-        $errors = $helper->validateOperationParams($parsedRequest);
+        $errors = $helper->validateOperationParams($operationParams);
         self::assertEmpty($errors, isset($errors[0]) ? $errors[0]->getMessage() : '');
     }
 
@@ -60,15 +60,14 @@ class RequestValidationTest extends TestCase
         );
     }
 
-    private function assertInputError($parsedRequest, $expectedMessage): void
+    private function assertInputError(OperationParams $parsedRequest, string $expectedMessage): void
     {
-        $helper = new Helper();
-        $errors = $helper->validateOperationParams($parsedRequest);
-        if (isset($errors[0])) {
-            self::assertEquals($expectedMessage, $errors[0]->getMessage());
-        } else {
-            self::fail('Expected error not returned');
-        }
+        $errors = (new Helper())->validateOperationParams($parsedRequest);
+
+        self::assertSame(
+            $expectedMessage,
+            $errors[0]->getMessage()
+        );
     }
 
     public function testFailsWhenQueryParameterIsNotString(): void

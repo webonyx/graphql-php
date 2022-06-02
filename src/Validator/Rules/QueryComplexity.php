@@ -26,6 +26,9 @@ use function array_map;
 use function count;
 use function implode;
 
+/**
+ * @phpstan-import-type ASTAndDefs from QuerySecurityRule
+ */
 class QueryComplexity extends QuerySecurityRule
 {
     protected int $maxQueryComplexity;
@@ -36,6 +39,7 @@ class QueryComplexity extends QuerySecurityRule
     /** @var NodeList<VariableDefinitionNode> */
     protected NodeList $variableDefs;
 
+    /** @phpstan-var ASTAndDefs */
     protected ArrayObject $fieldNodeAndDefs;
 
     protected ValidationContext $context;

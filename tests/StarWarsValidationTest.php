@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests;
 
+use GraphQL\Error\Error;
 use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
@@ -42,12 +43,15 @@ class StarWarsValidationTest extends TestCase
 
     /**
      * Helper function to test a query and the expected response.
+     *
+     * @return array<int, Error>
      */
-    private function validationErrors($query)
+    private function validationErrors(string $query): array
     {
-        $ast = Parser::parse($query);
+        $ast    = Parser::parse($query);
+        $schema = StarWarsSchema::build();
 
-        return DocumentValidator::validate(StarWarsSchema::build(), $ast);
+        return DocumentValidator::validate($schema, $ast);
     }
 
     /**

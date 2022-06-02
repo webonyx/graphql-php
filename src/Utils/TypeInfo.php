@@ -20,10 +20,10 @@ use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\HasFieldsType;
 use GraphQL\Type\Definition\ImplementingType;
@@ -31,6 +31,8 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
@@ -39,69 +41,41 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 
-use function array_merge;
 use function array_pop;
 use function count;
-use function is_array;
 
+/**
+ * @phpstan-import-type InputTypeAlias from InputType
+ */
 class TypeInfo
 {
-    /** @var Schema */
-    private $schema;
+    private Schema $schema;
 
     /** @var array<(OutputType&Type)|null> */
-    private $typeStack;
+    private array $typeStack = [];
 
     /** @var array<(CompositeType&Type)|null> */
-    private $parentTypeStack;
+    private array $parentTypeStack = [];
 
     /** @var array<(InputType&Type)|null> */
-    private $inputTypeStack;
+    private array $inputTypeStack = [];
 
     /** @var array<FieldDefinition> */
-    private $fieldDefStack;
+    private array $fieldDefStack = [];
 
     /** @var array<mixed> */
-    private $defaultValueStack;
+    private array $defaultValueStack = [];
 
-    /** @var Directive|null */
-    private $directive;
+    private ?Directive $directive = null;
 
-    /** @var FieldArgument|null */
-    private $argument;
+    private ?Argument $argument = null;
 
     /** @var mixed */
     private $enumValue;
 
-    /**
-     * @param Type|null $initialType
-     */
-    public function __construct(Schema $schema, $initialType = null)
+    public function __construct(Schema $schema)
     {
-        $this->schema            = $schema;
-        $this->typeStack         = [];
-        $this->parentTypeStack   = [];
-        $this->inputTypeStack    = [];
-        $this->fieldDefStack     = [];
-        $this->defaultValueStack = [];
-
-        if ($initialType === null) {
-            return;
-        }
-
-        if (Type::isInputType($initialType)) {
-            $this->inputTypeStack[] = $initialType;
-        }
-
-        if (Type::isCompositeType($initialType)) {
-            $this->parentTypeStack[] = $initialType;
-        }
-
-        if (! Type::isOutputType($initialType)) {
-            return;
-        }
-
-        $this->typeStack[] = $initialType;
+        $this->schema = $schema;
     }
 
     /**
@@ -118,74 +92,73 @@ class TypeInfo
      * ]
      *
      * @param array<Type> $typeMap
-     *
-     * @return array<Type>
      */
-    public static function extractTypes(Type $type, array $typeMap = []): array
+    public static function extractTypes(Type $type, array &$typeMap): void
     {
+        /** @var (Type&WrappingType)|(Type&NamedType) $type */
         if ($type instanceof WrappingType) {
-            return self::extractTypes($type->getWrappedType(true), $typeMap);
+            self::extractTypes($type->getInnermostType(), $typeMap);
+
+            return;
         }
 
-        if (isset($typeMap[$type->name])) {
+        $name = $type->name;
+
+        if (isset($typeMap[$name])) {
             Utils::invariant(
-                $typeMap[$type->name] === $type,
+                $typeMap[$name] === $type,
                 'Schema must contain unique named types but contains multiple types named "' . $type . '" ' .
                 '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
             );
 
-            return $typeMap;
+            return;
         }
 
-        $typeMap[$type->name] = $type;
-
-        $nestedTypes = [];
+        $typeMap[$name] = $type;
 
         if ($type instanceof UnionType) {
-            $nestedTypes = $type->getTypes();
-        }
-
-        if ($type instanceof ImplementingType) {
-            $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
-        }
-
-        if ($type instanceof HasFieldsType) {
-            foreach ($type->getFields() as $field) {
-                foreach ($field->args as $arg) {
-                    $nestedTypes[] = $arg->getType();
-                }
-
-                $nestedTypes[] = $field->getType();
+            foreach ($type->getTypes() as $member) {
+                self::extractTypes($member, $typeMap);
             }
+
+            return;
         }
 
         if ($type instanceof InputObjectType) {
             foreach ($type->getFields() as $field) {
-                $nestedTypes[] = $field->getType();
+                self::extractTypes($field->getType(), $typeMap);
+            }
+
+            return;
+        }
+
+        if ($type instanceof ImplementingType) {
+            foreach ($type->getInterfaces() as $interface) {
+                self::extractTypes($interface, $typeMap);
             }
         }
 
-        foreach ($nestedTypes as $nestedType) {
-            $typeMap = self::extractTypes($nestedType, $typeMap);
+        if (! ($type instanceof HasFieldsType)) {
+            return;
         }
 
-        return $typeMap;
+        foreach ($type->getFields() as $field) {
+            foreach ($field->args as $arg) {
+                self::extractTypes($arg->getType(), $typeMap);
+            }
+
+            self::extractTypes($field->getType(), $typeMap);
+        }
     }
 
     /**
-     * @param Type[] $typeMap
-     *
-     * @return Type[]
+     * @param array<Type> $typeMap
      */
-    public static function extractTypesFromDirectives(Directive $directive, array $typeMap = []): array
+    public static function extractTypesFromDirectives(Directive $directive, array &$typeMap): void
     {
-        if (is_array($directive->args)) {
-            foreach ($directive->args as $arg) {
-                $typeMap = self::extractTypes($arg->getType(), $typeMap);
-            }
+        foreach ($directive->args as $arg) {
+            self::extractTypes($arg->getType(), $typeMap);
         }
-
-        return $typeMap;
     }
 
     /**
@@ -196,7 +169,7 @@ class TypeInfo
         return $this->inputTypeStack[count($this->inputTypeStack) - 2] ?? null;
     }
 
-    public function getArgument(): ?FieldArgument
+    public function getArgument(): ?Argument
     {
         return $this->argument;
     }
@@ -275,17 +248,16 @@ class TypeInfo
 
             case $node instanceof ArgumentNode:
                 $fieldOrDirective = $this->getDirective() ?? $this->getFieldDef();
-                $argDef           = $argType = null;
+                $argDef           = null;
+                $argType          = null;
                 if ($fieldOrDirective !== null) {
-                    /** @var FieldArgument $argDef */
-                    $argDef = Utils::find(
-                        $fieldOrDirective->args,
-                        static function ($arg) use ($node): bool {
-                            return $arg->name === $node->name->value;
+                    foreach ($fieldOrDirective->args as $arg) {
+                        if ($arg->name !== $node->name->value) {
+                            continue;
                         }
-                    );
-                    if ($argDef !== null) {
-                        $argType = $argDef->getType();
+
+                        $argDef  = $arg;
+                        $argType = $arg->getType();
                     }
                 }
 
@@ -298,9 +270,9 @@ class TypeInfo
 
             case $node instanceof ListValueNode:
                 $type     = $this->getInputType();
-                $listType = $type === null
-                    ? null
-                    : Type::getNullableType($type);
+                $listType = $type instanceof NonNull
+                    ? $type->getWrappedType()
+                    : $type;
                 $itemType = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
                     : $listType;
@@ -411,7 +383,7 @@ class TypeInfo
     }
 
     /**
-     * @return mixed|null
+     * @return mixed any value is possible
      */
     public function getDefaultValue()
     {
@@ -419,7 +391,7 @@ class TypeInfo
     }
 
     /**
-     * @return (Type & InputType) | null
+     * @phpstan-return InputTypeAlias|null
      */
     public function getInputType(): ?InputType
     {

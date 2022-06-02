@@ -17,6 +17,9 @@ use PHPUnit\Framework\TestCase;
 
 use function array_map;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 abstract class QuerySecurityTestCase extends TestCase
 {
     public function testMaxQueryDepthMustBeGreaterOrEqualTo0(): void
@@ -67,15 +70,17 @@ abstract class QuerySecurityTestCase extends TestCase
 
     /**
      * @param array<SourceLocation> $locations
+     *
+     * @phpstan-return ErrorArray
      */
-    protected function createFormattedError(int $max, int $count, array $locations = [])
+    protected function createFormattedError(int $max, int $count, array $locations = []): array
     {
         return ErrorHelper::create($this->getErrorMessage($max, $count), $locations);
     }
 
     abstract protected function getErrorMessage(int $max, int $count): string;
 
-    protected function assertIntrospectionTypeMetaFieldQuery($maxExpected): void
+    protected function assertIntrospectionTypeMetaFieldQuery(int $maxExpected): void
     {
         $query = '
           {
@@ -88,7 +93,7 @@ abstract class QuerySecurityTestCase extends TestCase
         $this->assertMaxValue($query, $maxExpected);
     }
 
-    protected function assertTypeNameMetaFieldQuery($maxExpected): void
+    protected function assertTypeNameMetaFieldQuery(int $maxExpected): void
     {
         $query = '
           {

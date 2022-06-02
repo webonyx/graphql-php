@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
@@ -20,8 +21,7 @@ use function var_export;
 
 class ValuesTest extends TestCase
 {
-    /** @var Schema */
-    private static $schema;
+    private static Schema $schema;
 
     public function testGetIDVariableValues(): void
     {
@@ -33,7 +33,10 @@ class ValuesTest extends TestCase
         );
     }
 
-    private function expectInputVariablesMatchOutputVariables($variables): void
+    /**
+     * @param array<string, mixed> $variables
+     */
+    private function expectInputVariablesMatchOutputVariables(array $variables): void
     {
         self::assertEquals(
             $variables,
@@ -43,11 +46,11 @@ class ValuesTest extends TestCase
     }
 
     /**
-     * @param mixed[] $variables
+     * @param array<string, mixed> $variables
      *
-     * @return mixed[]
+     * @return array{array<int, Error>, null}|array{null, array<string, mixed>}
      */
-    private function runTestCase($variables): array
+    private function runTestCase(array $variables): array
     {
         return Values::getVariableValues(self::getSchema(), self::getVariableDefinitionNodes(), $variables);
     }
@@ -73,6 +76,9 @@ class ValuesTest extends TestCase
         ]);
     }
 
+    /**
+     * @return NodeList<VariableDefinitionNode>
+     */
     private static function getVariableDefinitionNodes(): NodeList
     {
         $idInputDefinition     = new VariableDefinitionNode([
@@ -140,7 +146,10 @@ class ValuesTest extends TestCase
         $this->expectGraphQLError(['idInput' => true]);
     }
 
-    private function expectGraphQLError($variables): void
+    /**
+     * @param array<string, mixed> $variables
+     */
+    private function expectGraphQLError(array $variables): void
     {
         $result = $this->runTestCase($variables);
         self::assertNotNull($result[0]);

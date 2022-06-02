@@ -56,7 +56,6 @@ class Values
         $coercedValues = [];
         foreach ($varDefNodes as $varDefNode) {
             $varName = $varDefNode->variable->name->value;
-            /** @var InputType|Type $varType */
             $varType = TypeInfo::typeFromAST($schema, $varDefNode->type);
 
             if (! Type::isInputType($varType)) {
@@ -71,6 +70,7 @@ class Values
                     [$varDefNode->type]
                 );
             } else {
+                /** @var InputType&Type $varType */
                 $hasValue = array_key_exists($varName, $rawVariableValues);
                 $value    = $hasValue
                     ? $rawVariableValues[$varName]
@@ -102,18 +102,14 @@ class Values
                         // Otherwise, a non-null value was provided, coerce it to the expected
                         // type or report an error if coercion fails.
                         $coerced = Value::coerceValue($value, $varType, $varDefNode);
-                        /** @var Error[] $coercionErrors */
-                        $coercionErrors = $coerced['errors'];
-                        if (count($coercionErrors ?? []) > 0) {
-                            $messagePrelude = sprintf(
-                                'Variable "$%s" got invalid value %s; ',
-                                $varName,
-                                Utils::printSafeJson($value)
-                            );
 
+                        $coercionErrors = $coerced['errors'];
+                        if ($coercionErrors !== null) {
                             foreach ($coercionErrors as $error) {
+                                $invalidValue = Utils::printSafeJson($value);
+
                                 $errors[] = new Error(
-                                    $messagePrelude . $error->getMessage(),
+                                    "Variable \"\${$varName}\" got invalid value {$invalidValue}; {$error->getMessage()}",
                                     $error->getNodes(),
                                     $error->getSource(),
                                     $error->getPositions(),
@@ -151,17 +147,15 @@ class Values
      */
     public static function getDirectiveValues(Directive $directiveDef, $node, $variableValues = null): ?array
     {
-        if (isset($node->directives) && $node->directives instanceof NodeList) {
-            $directiveNode = Utils::find(
-                $node->directives,
-                static function (DirectiveNode $directive) use ($directiveDef): bool {
-                    return $directive->name->value === $directiveDef->name;
-                }
-            );
-
-            if ($directiveNode !== null) {
-                return self::getArgumentValues($directiveDef, $directiveNode, $variableValues);
+        $directiveNode = Utils::find(
+            $node->directives,
+            static function (DirectiveNode $directive) use ($directiveDef): bool {
+                return $directive->name->value === $directiveDef->name;
             }
+        );
+
+        if ($directiveNode !== null) {
+            return self::getArgumentValues($directiveDef, $directiveNode, $variableValues);
         }
 
         return null;

@@ -23,13 +23,23 @@ use function array_map;
  *
  * See [schema definition language docs](schema-definition-language.md) for details.
  *
- * @phpstan-type Options array{
- *   commentDescriptions?: bool,
+ * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+ * @phpstan-type BuildSchemaOptions array{
+ *   assumeValid?: bool,
+ *   assumeValidSDL?: bool,
  * }
  *
- *    - commentDescriptions:
- *        Provide true to use preceding comments as the description.
- *        This option is provided to ease adoption and will be removed in v16.
+ * - assumeValid:
+ *     When building a schema from a GraphQL service's introspection result, it
+ *     might be safe to assume the schema is valid. Set to true to assume the
+ *     produced schema is valid.
+ *
+ *     Default: false
+ *
+ * - assumeValidSDL:
+ *     Set to true to assume the SDL is valid.
+ *
+ *     Default: false
  */
 class BuildSchema
 {
@@ -38,18 +48,22 @@ class BuildSchema
     /** @var array<string, TypeDefinitionNode> */
     private array $nodeMap;
 
-    /** @var callable|null */
+    /**
+     * @var callable|null
+     * @phpstan-var TypeConfigDecorator|null
+     */
     private $typeConfigDecorator;
 
     /**
      * @var array<string, bool>
-     * @phpstan-var Options
+     * @phpstan-var BuildSchemaOptions
      */
     private array $options;
 
     /**
      * @param array<string, bool> $options
-     * @phpstan-param Options $options
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     * @phpstan-param BuildSchemaOptions $options
      */
     public function __construct(
         DocumentNode $ast,
@@ -67,7 +81,7 @@ class BuildSchema
      *
      * @param DocumentNode|Source|string $source
      * @param array<string, bool>        $options
-     * @phpstan-param Options $options
+     * @phpstan-param BuildSchemaOptions $options
      *
      * @api
      */
@@ -92,7 +106,7 @@ class BuildSchema
      * has no resolve methods, so execution will use default resolvers.
      *
      * @param array<string, bool> $options
-     * @phpstan-param Options $options
+     * @phpstan-param BuildSchemaOptions $options
      *
      * @throws Error
      *
@@ -110,8 +124,10 @@ class BuildSchema
 
     public function buildSchema(): Schema
     {
-        $options = $this->options;
-        if (! ($options['assumeValid'] ?? false) && ! ($options['assumeValidSDL'] ?? false)) {
+        if (
+            ! ($this->options['assumeValid'] ?? false)
+            && ! ($this->options['assumeValidSDL'] ?? false)
+        ) {
             DocumentValidator::assertValidSDL($this->ast);
         }
 
@@ -148,7 +164,6 @@ class BuildSchema
 
         $definitionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
-            $this->options,
             static function (string $typeName): void {
                 throw self::unknownType($typeName);
             },
@@ -161,12 +176,11 @@ class BuildSchema
         );
 
         // If specified directives were not explicitly declared, add them.
-        $directivesByName = Utils::groupBy(
-            $directives,
-            static function (Directive $directive): string {
-                return $directive->name;
-            }
-        );
+        $directivesByName = [];
+        foreach ($directives as $directive) {
+            $directivesByName[$directive->name][] = $directive;
+        }
+
         if (! isset($directivesByName['skip'])) {
             $directives[] = Directive::skipDirective();
         }
@@ -215,10 +229,6 @@ class BuildSchema
         foreach ($schemaDef->operationTypes as $operationType) {
             $typeName  = $operationType->type->name->value;
             $operation = $operationType->operation;
-
-            if (isset($opTypes[$operation])) {
-                throw new Error('Must provide only one ' . $operation . ' type in schema.');
-            }
 
             if (! isset($this->nodeMap[$typeName])) {
                 throw new Error('Specified ' . $operation . ' type "' . $typeName . '" not found in document.');

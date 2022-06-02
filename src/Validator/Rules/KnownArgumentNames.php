@@ -7,13 +7,13 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Type\Definition\FieldArgument;
-use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\Argument;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
 use function array_map;
-use function sprintf;
+use function count;
 
 /**
  * Known argument names
@@ -34,9 +34,13 @@ class KnownArgumentNames extends ValidationRule
                     return;
                 }
 
-                $fieldDef   = $context->getFieldDef();
+                $fieldDef = $context->getFieldDef();
+                if ($fieldDef === null) {
+                    return;
+                }
+
                 $parentType = $context->getParentType();
-                if ($fieldDef === null || ! ($parentType instanceof Type)) {
+                if (! $parentType instanceof NamedType) {
                     return;
                 }
 
@@ -48,27 +52,27 @@ class KnownArgumentNames extends ValidationRule
                         Utils::suggestionList(
                             $node->name->value,
                             array_map(
-                                static fn (FieldArgument $arg): string => $arg->name,
+                                static fn (Argument $arg): string => $arg->name,
                                 $fieldDef->args
                             )
                         )
                     ),
                     [$node]
                 ));
-
-                return;
             },
         ];
     }
 
     /**
-     * @param string[] $suggestedArgs
+     * @param array<string> $suggestedArgs
      */
-    public static function unknownArgMessage($argName, $fieldName, $typeName, array $suggestedArgs)
+    public static function unknownArgMessage(string $argName, string $fieldName, string $typeName, array $suggestedArgs): string
     {
-        $message = sprintf('Unknown argument "%s" on field "%s" of type "%s".', $argName, $fieldName, $typeName);
-        if (isset($suggestedArgs[0])) {
-            $message .= sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
+        $message = "Unknown argument \"{$argName}\" on field \"{$fieldName}\" of type \"{$typeName}\".";
+
+        if (count($suggestedArgs) > 0) {
+            $suggestions = Utils::quotedOrList($suggestedArgs);
+            $message    .= " Did you mean {$suggestions}?";
         }
 
         return $message;

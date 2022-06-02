@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
@@ -17,6 +18,9 @@ GraphQLScalarType |
 GraphQLEnumType;
 */
 
+/**
+ * @phpstan-type LeafValueNode IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|NullValueNode|EnumValueNode
+ */
 interface LeafType
 {
     /**
@@ -46,8 +50,8 @@ interface LeafType
      *
      * Should throw an exception with a client friendly message on invalid value nodes, @see ClientAware.
      *
-     * @param IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|NullValueNode $valueNode
-     * @param array<string, mixed>|null                                                  $variables
+     * @param array<string, mixed>|null $variables
+     * @phpstan-param LeafValueNode    $valueNode
      *
      * @return mixed
      */

@@ -21,7 +21,6 @@ use GraphQL\Tests\Utils\SchemaExtenderTest\SomeUnionClassType;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NonNull;
@@ -144,12 +143,7 @@ class SchemaExtenderTest extends TestCase
 
         $FooDirective = new Directive([
             'name' => 'foo',
-            'args' => [
-                new FieldArgument([
-                    'name' => 'input',
-                    'type' => $SomeInputType,
-                ]),
-            ],
+            'args' => ['input' => $SomeInputType],
             'locations' => [
                 DirectiveLocation::SCHEMA,
                 DirectiveLocation::SCALAR,
@@ -301,43 +295,6 @@ class SchemaExtenderTest extends TestCase
         self::assertEquals(
             $extendedSchema->getQueryType()->getField('newField')->description,
             'New field description.'
-        );
-    }
-
-    /**
-     * @see it('can describe the extended fields with legacy comments')
-     */
-    public function testCanDescribeTheExtendedFieldsWithLegacyComments(): void
-    {
-        $extendedSchema = $this->extendTestSchema('
-            extend type Query {
-                # New field description.
-                newField: String
-            }
-        ', ['commentDescriptions' => true]);
-
-        self::assertEquals(
-            $extendedSchema->getQueryType()->getField('newField')->description,
-            'New field description.'
-        );
-    }
-
-    /**
-     * @see it('describes extended fields with strings when present')
-     */
-    public function testDescribesExtendedFieldsWithStringsWhenPresent(): void
-    {
-        $extendedSchema = $this->extendTestSchema('
-            extend type Query {
-                # New field description.
-                "Actually use this description."
-                newField: String
-            }
-        ', ['commentDescriptions' => true]);
-
-        self::assertEquals(
-            $extendedSchema->getQueryType()->getField('newField')->description,
-            'Actually use this description.'
         );
     }
 
@@ -1303,23 +1260,6 @@ class SchemaExtenderTest extends TestCase
     }
 
     /**
-     * @see it('sets correct description using legacy comments')
-     */
-    public function testSetsCorrectDescriptionUsingLegacyComments(): void
-    {
-        $extendedSchema = $this->extendTestSchema(
-            '
-          # new directive
-          directive @new on QUERY
-        ',
-            ['commentDescriptions' => true]
-        );
-
-        $newDirective = $extendedSchema->getDirective('new');
-        self::assertEquals('new directive', $newDirective->description);
-    }
-
-    /**
      * @see it('may extend directives with new complex directive')
      */
     public function testMayExtendDirectivesWithNewComplexDirective(): void
@@ -1389,25 +1329,6 @@ class SchemaExtenderTest extends TestCase
             self::fail();
         } catch (Error $error) {
             self::assertEquals('Directive "include" already exists in the schema. It cannot be redefined.', $error->getMessage());
-        }
-    }
-
-    /**
-     * @see it('does not allow replacing an existing enum value')
-     */
-    public function testDoesNotAllowReplacingAnExistingEnumValue(): void
-    {
-        $sdl = '
-          extend enum SomeEnum {
-            ONE
-          }
-        ';
-
-        try {
-            $this->extendTestSchema($sdl);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Enum value "SomeEnum.ONE" already exists in the schema. It cannot also be defined in this type extension.', $error->getMessage());
         }
     }
 
@@ -1742,9 +1663,9 @@ extend type Query {
 
     public function testPreservesScalarClassMethods(): void
     {
-        $SomeScalarClassType = new SomeScalarClassType();
+        $SomeScalarClassType = new SomeScalarClassType(['serialize' => static fn () => null]);
 
-        $queryType = new ObjectType([
+        $queryType           = new ObjectType([
             'name' => 'Query',
             'fields' => [
                 'someScalarClass' => ['type' => $SomeScalarClassType],
@@ -1765,7 +1686,7 @@ extend type Query {
         self::assertInstanceOf(CustomScalarType::class, $extendedScalar);
         self::assertSame(SomeScalarClassType::SERIALIZE_RETURN, $extendedScalar->serialize(null));
         self::assertSame(SomeScalarClassType::PARSE_VALUE_RETURN, $extendedScalar->parseValue(null));
-        self::assertSame(SomeScalarClassType::PARSE_LITERAL_RETURN, $extendedScalar->parseLiteral($documentNode));
+        self::assertSame(SomeScalarClassType::PARSE_LITERAL_RETURN, $extendedScalar->parseLiteral(Parser::valueLiteral('1')));
     }
 
     public function testPreservesResolveTypeMethod(): void

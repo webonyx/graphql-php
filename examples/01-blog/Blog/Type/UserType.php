@@ -7,8 +7,10 @@ namespace GraphQL\Examples\Blog\Type;
 use Exception;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\Image;
+use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
@@ -29,7 +31,7 @@ class UserType extends ObjectType
                     'type' => Types::image(),
                     'description' => 'User photo URL',
                     'args' => [
-                        'size' => Types::nonNull(Types::imageSize()),
+                        'size' => new NonNull(Types::imageSize()),
                     ],
                 ],
                 'firstName' => [
@@ -61,14 +63,14 @@ class UserType extends ObjectType
     }
 
     /**
-     * @param array{size: int} $args
+     * @param array{size: string} $args
      */
     public function resolvePhoto(User $user, array $args): Image
     {
         return DataSource::getUserPhoto($user->id, $args['size']);
     }
 
-    public function resolveLastStoryPosted(User $user)
+    public function resolveLastStoryPosted(User $user): ?Story
     {
         return DataSource::findLastStoryFor($user->id);
     }

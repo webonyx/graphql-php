@@ -17,11 +17,10 @@ use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\EnumValueDefinition;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -41,10 +40,11 @@ use function array_map;
 use function array_merge;
 use function count;
 
+/**
+ * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+ */
 class SchemaExtender
 {
-    public const SCHEMA_EXTENSION = 'SchemaExtension';
-
     /** @var array<string, Type> */
     protected static array $extendTypeCache;
 
@@ -67,9 +67,11 @@ class SchemaExtender
     }
 
     /**
+     * @param Type &NamedType $type
+     *
      * @throws Error
      */
-    protected static function assertTypeMatchesExtension(Type $type, Node $node): void
+    protected static function assertTypeMatchesExtension(NamedType $type, Node $node): void
     {
         switch (true) {
             case $node instanceof ObjectTypeExtensionNode:
@@ -215,14 +217,9 @@ class SchemaExtender
     protected static function extendEnumValueMap(EnumType $type): array
     {
         $newValueMap = [];
-        /** @var array<string, EnumValueDefinition> $oldValueMap */
-        $oldValueMap = [];
-        foreach ($type->getValues() as $value) {
-            $oldValueMap[$value->name] = $value;
-        }
 
-        foreach ($oldValueMap as $key => $value) {
-            $newValueMap[$key] = [
+        foreach ($type->getValues() as $value) {
+            $newValueMap[$value->name] = [
                 'name' => $value->name,
                 'description' => $value->description,
                 'value' => $value->value,
@@ -239,12 +236,7 @@ class SchemaExtender
              */
             foreach (static::$typeExtensionsMap[$type->name] as $extension) {
                 foreach ($extension->values as $value) {
-                    $valueName = $value->name->value;
-                    if (isset($oldValueMap[$valueName])) {
-                        throw new Error('Enum value "' . $type->name . '.' . $valueName . '" already exists in the schema. It cannot also be defined in this type extension.', [$value]);
-                    }
-
-                    $newValueMap[$valueName] = static::$astBuilder->buildEnumValue($value);
+                    $newValueMap[$value->name->value] = static::$astBuilder->buildEnumValue($value);
                 }
             }
         }
@@ -308,26 +300,23 @@ class SchemaExtender
         return $interfaces;
     }
 
-    /**
-     * @param ListOfType|NonNull|(Type &NamedType) $typeDef
-     *
-     * @return ListOfType|NonNull|(Type&NamedType)
-     */
     protected static function extendType(Type $typeDef): Type
     {
         if ($typeDef instanceof ListOfType) {
-            return Type::listOf(static::extendType($typeDef->getOfType()));
+            return Type::listOf(static::extendType($typeDef->getWrappedType()));
         }
 
         if ($typeDef instanceof NonNull) {
             return Type::nonNull(static::extendType($typeDef->getWrappedType()));
         }
 
+        /** @var NamedType&Type $typeDef */
+
         return static::extendNamedType($typeDef);
     }
 
     /**
-     * @param array<FieldArgument> $args
+     * @param array<Argument> $args
      *
      * @return array<string, array<string, mixed>>
      */
@@ -444,7 +433,7 @@ class SchemaExtender
      *
      * @template T of Type
      */
-    protected static function extendNamedType($type)
+    protected static function extendNamedType(Type $type): Type
     {
         if (Introspection::isIntrospectionType($type) || static::isSpecifiedScalarType($type)) {
             return $type;
@@ -472,9 +461,9 @@ class SchemaExtender
     }
 
     /**
-     * @param T|null $type
+     * @param (T &NamedType)|null $type
      *
-     * @return T|null
+     * @return (T&NamedType)|null
      *
      * @template T of Type
      */
@@ -522,6 +511,7 @@ class SchemaExtender
 
     /**
      * @param array<string, bool> $options
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      */
     public static function extend(
         Schema $schema,
@@ -529,7 +519,10 @@ class SchemaExtender
         array $options = [],
         ?callable $typeConfigDecorator = null
     ): Schema {
-        if (! (isset($options['assumeValid']) || isset($options['assumeValidSDL']))) {
+        if (
+            ! ($options['assumeValid'] ?? false)
+            && ! ($options['assumeValidSDL'] ?? false)
+        ) {
             DocumentValidator::assertValidSDLExtension($documentAST, $schema);
         }
 
@@ -595,14 +588,13 @@ class SchemaExtender
 
         static::$astBuilder = new ASTDefinitionBuilder(
             $typeDefinitionMap,
-            $options,
             static function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
                 if ($existingType !== null) {
                     return static::extendNamedType($existingType);
                 }
 
-                throw new Error('Unknown type: "' . $typeName . '". Ensure that this type exists either in the original schema, or is added in a type definition.', [$typeName]);
+                throw new Error('Unknown type: "' . $typeName . '". Ensure that this type exists either in the original schema, or is added in a type definition.');
             },
             $typeConfigDecorator
         );
@@ -617,14 +609,7 @@ class SchemaExtender
 
         if ($schemaDef !== null) {
             foreach ($schemaDef->operationTypes as $operationType) {
-                $operation = $operationType->operation;
-                $type      = $operationType->type;
-
-                if (isset($operationTypes[$operation])) {
-                    throw new Error('Must provide only one ' . $operation . ' type in schema.');
-                }
-
-                $operationTypes[$operation] = static::$astBuilder->buildType($type);
+                $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
             }
         }
 
@@ -634,12 +619,7 @@ class SchemaExtender
             }
 
             foreach ($schemaExtension->operationTypes as $operationType) {
-                $operation = $operationType->operation;
-                if (isset($operationTypes[$operation])) {
-                    throw new Error('Must provide only one ' . $operation . ' type in schema.');
-                }
-
-                $operationTypes[$operation] = static::$astBuilder->buildType($operationType->type);
+                $operationTypes[$operationType->operation] = static::$astBuilder->buildType($operationType->type);
             }
         }
 

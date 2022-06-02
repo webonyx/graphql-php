@@ -6,20 +6,19 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 use function is_callable;
 use function is_string;
-use function sprintf;
 
 /**
  * Object Type Definition
  *
- * Almost all of the GraphQL types you define will be object types. Object types
- * have a name, but most importantly describe their fields.
+ * Most GraphQL types you define will be object types.
+ * Object types have a name, but most importantly describe their fields.
  *
  * Example:
  *
@@ -53,13 +52,27 @@ use function sprintf;
  *          ];
  *        }
  *     ]);
+ *
+ * @phpstan-import-type FieldResolver from Executor
+ * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
+ * @phpstan-type ObjectConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   resolveField?: FieldResolver,
+ *   fields: (callable(): iterable<mixed>)|iterable<mixed>,
+ *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
+ *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
+ *   astNode?: ObjectTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<int, ObjectTypeExtensionNode>|null,
+ * }
  */
-class ObjectType extends TypeWithFields implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
+class ObjectType extends Type implements OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
 {
-    use TypeWithInterfaces;
+    use HasFieldsTypeImplementation;
+    use NamedTypeImplementation;
+    use ImplementingTypeImplementation;
 
-    /** @var ObjectTypeDefinitionNode|null */
-    public ?TypeDefinitionNode $astNode;
+    public ?ObjectTypeDefinitionNode $astNode;
 
     /** @var array<int, ObjectTypeExtensionNode> */
     public array $extensionASTNodes;
@@ -67,8 +80,11 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
     /** @var callable|null */
     public $resolveFieldFn;
 
+    /** @phpstan-var ObjectConfig */
+    public array $config;
+
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param ObjectConfig $config
      */
     public function __construct(array $config)
     {
@@ -126,26 +142,18 @@ class ObjectType extends TypeWithFields implements OutputType, CompositeType, Nu
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
-        Utils::invariant(
-            $this->description === null || is_string($this->description),
-            sprintf(
-                '%s description must be string if set, but it is: %s',
-                $this->name,
-                Utils::printSafe($this->description)
-            )
-        );
+        if (isset($this->config['isTypeOf']) && ! is_callable($this->config['isTypeOf'])) {
+            $notCallable = Utils::printSafe($this->config['isTypeOf']);
 
-        $isTypeOf = $this->config['isTypeOf'] ?? null;
-
-        Utils::invariant(
-            $isTypeOf === null || is_callable($isTypeOf),
-            sprintf('%s must provide "isTypeOf" as a function, but got: %s', $this->name, Utils::printSafe($isTypeOf))
-        );
+            throw new InvariantViolation("{$this->name} must provide \"isTypeOf\" as a callable, but got: {$notCallable}");
+        }
 
         foreach ($this->getFields() as $field) {
             $field->assertValid($this);
         }
+
+        $this->assertValidInterfaces();
     }
 }

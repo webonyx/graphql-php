@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class UniqueFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique fragment names
@@ -132,7 +135,10 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    private function duplicateFrag($fragName, $l1, $c1, $l2, $c2)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function duplicateFrag(string $fragName, int $l1, int $c1, int $l2, int $c2): array
     {
         return ErrorHelper::create(
             UniqueFragmentNames::duplicateFragmentNameMessage($fragName),

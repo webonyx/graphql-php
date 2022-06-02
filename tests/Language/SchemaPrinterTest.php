@@ -12,8 +12,12 @@ use GraphQL\Language\Printer;
 use PHPUnit\Framework\TestCase;
 
 use function file_get_contents;
+use function json_encode;
 
-class SchemaPrinterTest extends TestCase
+/**
+ * @see describe('Printer: SDL document')
+ */
+final class SchemaPrinterTest extends TestCase
 {
     /**
      * @see it('prints minimal ast')
@@ -28,30 +32,30 @@ class SchemaPrinterTest extends TestCase
     }
 
     /**
-     * @see it('does not alter ast')
+     * @see it('produces helpful error messages')
      */
-    public function testDoesNotAlterAst(): void
+    public function testProducesHelpfulErrorMessages(): void
     {
-        $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
-
-        $ast     = Parser::parse($kitchenSink);
-        $astCopy = $ast->cloneDeep();
-        Printer::doPrint($ast);
-
-        self::assertEquals($astCopy, $ast);
+        self::markTestSkipped('Not equivalent to the reference implementation because we have runtime types that fail early');
     }
 
     /**
-     * @see it('prints kitchen sink')
+     * @see it('prints kitchen sink without altering ast')
      */
     public function testPrintsKitchenSink(): void
     {
-        $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
+        $ast = Parser::parse(file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql'), ['noLocation' => true]);
 
-        $ast     = Parser::parse($kitchenSink);
-        $printed = Printer::doPrint($ast);
+        $astBeforePrintCall = json_encode($ast);
+        $printed            = Printer::doPrint($ast);
+        $printedAST         = Parser::parse($printed, ['noLocation' => true]);
 
-        $expected = 'schema {
+        self::assertEquals($printedAST, $ast);
+        self::assertSame($astBeforePrintCall, json_encode($ast));
+
+        self::assertSame(
+            <<<'GRAPHQL'
+schema {
   query: QueryType
   mutation: MutationType
 }
@@ -169,7 +173,10 @@ directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 directive @include2(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 directive @myRepeatableDir(name: String!) repeatable on OBJECT | INTERFACE
-';
-        self::assertEquals($expected, $printed);
+
+GRAPHQL
+            ,
+            $printed
+        );
     }
 }

@@ -9,40 +9,50 @@ use PHPUnit\Framework\TestCase;
 
 use function mb_check_encoding;
 
-class UtilsTest extends TestCase
+final class UtilsTest extends TestCase
 {
     /**
-     * @param int    $input
-     * @param string $expected
-     *
-     * @dataProvider    chrUtf8DataProvider
+     * @dataProvider chrUtf8DataProvider
      */
-    public function testChrUtf8Generation($input, $expected): void
+    public function testChrUtf8Generation(int $input, string $expected): void
     {
         $result = Utils::chr($input);
+
         self::assertTrue(mb_check_encoding($result, 'UTF-8'));
         self::assertEquals($expected, $result);
     }
 
-    public function chrUtf8DataProvider()
+    /**
+     * @return iterable<array{input: int, expected: string}>
+     */
+    public function chrUtf8DataProvider(): iterable
     {
-        return [
-            'alphabet' => [
-                'input' => 0x0061,
-                'expected' => 'a',
-            ],
-            'numeric' => [
-                'input' => 0x0030,
-                'expected' => '0',
-            ],
-            'between 128 and 256' => [
-                'input' => 0x00E9,
-                'expected' => 'é',
-            ],
-            'emoji' => [
-                'input' => 0x231A,
-                'expected' => '⌚',
-            ],
+        yield 'alphabet' => [
+            'input' => 0x0061,
+            'expected' => 'a',
         ];
+
+        yield 'numeric' => [
+            'input' => 0x0030,
+            'expected' => '0',
+        ];
+
+        yield 'between 128 and 256' => [
+            'input' => 0x00E9,
+            'expected' => 'é',
+        ];
+
+        yield 'emoji' => [
+            'input' => 0x231A,
+            'expected' => '⌚',
+        ];
+    }
+
+    public function testPrintSafeJson(): void
+    {
+        self::assertJsonStringEqualsJsonString(
+            /** @lang JSON */            '{"foo":1}',
+            Utils::printSafeJson((object) ['foo' => 1])
+        );
     }
 }

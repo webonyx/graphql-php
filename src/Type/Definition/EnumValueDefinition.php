@@ -6,6 +6,15 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 
+/**
+ * @phpstan-type EnumValueConfig array{
+ *   name: string,
+ *   value?: mixed,
+ *   deprecationReason?: string|null,
+ *   description?: string|null,
+ *   astNode?: EnumValueDefinitionNode|null,
+ * }
+ */
 class EnumValueDefinition
 {
     public string $name;

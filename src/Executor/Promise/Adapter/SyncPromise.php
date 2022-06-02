@@ -30,8 +30,6 @@ class SyncPromise
     public const FULFILLED = 'fulfilled';
     public const REJECTED  = 'rejected';
 
-    public static SplQueue $queue;
-
     public string $state = self::PENDING;
 
     /** @var mixed */
@@ -53,15 +51,15 @@ class SyncPromise
 
     public static function runQueue(): void
     {
-        $q = self::$queue;
-        while ($q !== null && ! $q->isEmpty()) {
+        $q = self::getQueue();
+        while (! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();
         }
     }
 
     /**
-     * @param callable() : mixed $executor
+     * @param (callable(): mixed)|null $executor
      */
     public function __construct(?callable $executor = null)
     {
@@ -78,6 +76,9 @@ class SyncPromise
         });
     }
 
+    /**
+     * @param mixed $value
+     */
     public function resolve($value): self
     {
         switch ($this->state) {
@@ -116,12 +117,8 @@ class SyncPromise
         return $this;
     }
 
-    public function reject($reason): self
+    public function reject(Throwable $reason): self
     {
-        if (! $reason instanceof Throwable) {
-            throw new Exception('SyncPromise::reject() has to be called with an instance of \Throwable');
-        }
-
         switch ($this->state) {
             case self::PENDING:
                 $this->state  = self::REJECTED;
@@ -176,9 +173,14 @@ class SyncPromise
         $this->waiting = [];
     }
 
+    /**
+     * @return SplQueue<callable(): void>
+     */
     public static function getQueue(): SplQueue
     {
-        return self::$queue ?? self::$queue = new SplQueue();
+        static $queue;
+
+        return $queue ??= new SplQueue();
     }
 
     /**

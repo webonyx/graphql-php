@@ -1,29 +1,29 @@
 {
   "name": "webonyx/graphql-php",
-  "type": "library",
   "description": "A PHP port of GraphQL reference implementation",
+  "license": "MIT",
+  "type": "library",
   "keywords": [
     "graphql",
     "API"
   ],
   "homepage": "https://github.com/webonyx/graphql-php",
-  "license": "MIT",
   "require": {
-    "php": "^7.4 || ^8.0",
+    "php": "^7.4 || ^8",
     "ext-json": "*",
     "ext-mbstring": "*"
   },
   "require-dev": {
-    "amphp/amp": "^2.3",
-    "dms/phpunit-arraysubset-asserts": "^0.2.1",
-    "doctrine/coding-standard": "^9.0",
-    "ergebnis/composer-normalize": "^2.13",
-    "nyholm/psr7": "^1.2",
-    "phpbench/phpbench": "^1",
-    "phpstan/extension-installer": "^1",
-    "phpstan/phpstan": "0.12.96",
-    "phpstan/phpstan-phpunit": "0.12.22",
-    "phpstan/phpstan-strict-rules": "0.12.11",
+    "amphp/amp": "^2.6",
+    "dms/phpunit-arraysubset-asserts": "^0.3",
+    "doctrine/coding-standard": "^9",
+    "ergebnis/composer-normalize": "^2.16",
+    "nyholm/psr7": "^1.4",
+    "phpbench/phpbench": "^1.2",
+    "phpstan/extension-installer": "^1.1",
+    "phpstan/phpstan": "^1.2",
+    "phpstan/phpstan-phpunit": "^1",
+    "phpstan/phpstan-strict-rules": "^1",
     "phpunit/phpunit": "^9.5",
     "psr/http-message": "^1",
     "react/promise": "^2",
@@ -33,10 +33,6 @@
   "suggest": {
     "psr/http-message": "To use standard GraphQL server",
     "react/promise": "To leverage async resolving on React PHP platform"
-  },
-  "config": {
-    "preferred-install": "dist",
-    "sort-packages": true
   },
   "autoload": {
     "psr-4": {
@@ -49,6 +45,10 @@
       "GraphQL\\Benchmarks\\": "benchmarks/",
       "GraphQL\\Examples\\Blog\\": "examples/01-blog/Blog/"
     }
+  },
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true
   },
   "scripts": {
     "baseline": "phpstan --ansi --generate-baseline",

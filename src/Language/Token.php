@@ -36,58 +36,41 @@ class Token
 
     /**
      * The kind of Token (see one of constants above).
-     *
-     * @var string
      */
-    public $kind;
+    public string $kind;
 
     /**
      * The character offset at which this Node begins.
-     *
-     * @var int
      */
-    public $start;
+    public int $start;
 
     /**
      * The character offset at which this Node ends.
-     *
-     * @var int
      */
-    public $end;
+    public int $end;
 
     /**
      * The 1-indexed line number on which this Token appears.
-     *
-     * @var int
      */
-    public $line;
+    public int $line;
 
     /**
      * The 1-indexed column number at which this Token begins.
-     *
-     * @var int
      */
-    public $column;
+    public int $column;
 
-    /** @var string|null */
-    public $value;
+    public ?string $value;
 
     /**
      * Tokens exist as nodes in a double-linked-list amongst all tokens
      * including ignored tokens. <SOF> is always the first node and <EOF>
      * the last.
-     *
-     * @var Token
      */
-    public $prev;
+    public ?Token $prev;
 
-    /** @var Token|null */
-    public $next;
+    public ?Token $next = null;
 
-    /**
-     * @param mixed $value
-     */
-    public function __construct(string $kind, int $start, int $end, int $line, int $column, ?Token $previous = null, $value = null)
+    public function __construct(string $kind, int $start, int $end, int $line, int $column, ?Token $previous = null, ?string $value = null)
     {
         $this->kind   = $kind;
         $this->start  = $start;
@@ -95,17 +78,24 @@ class Token
         $this->line   = $line;
         $this->column = $column;
         $this->prev   = $previous;
-        $this->next   = null;
         $this->value  = $value;
     }
 
     public function getDescription(): string
     {
-        return $this->kind . ($this->value === null ? '' : ' "' . $this->value . '"');
+        return $this->kind
+            . ($this->value === null
+                ? ''
+                : ' "' . $this->value . '"');
     }
 
     /**
-     * @return (string|int|null)[]
+     * @return array{
+     *   kind: string,
+     *   value: string|null,
+     *   line: int,
+     *   column: int,
+     * }
      */
     public function toArray(): array
     {

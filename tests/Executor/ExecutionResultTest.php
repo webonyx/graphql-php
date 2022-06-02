@@ -31,11 +31,7 @@ class ExecutionResultTest extends TestCase
     public function testNoEmptyErrors(): void
     {
         $executionResult = new ExecutionResult(null, [new Error()]);
-        $executionResult->setErrorsHandler(
-            static function (): array {
-                return [];
-            }
-        );
+        $executionResult->setErrorsHandler(static fn (): array => []);
 
         self::assertSame([], $executionResult->toArray());
     }

@@ -26,8 +26,7 @@ use Throwable;
 
 class AstFromValueTest extends TestCase
 {
-    /** @var stdClass */
-    private $complexValue;
+    private stdClass $complexValue;
 
     /**
      * @see it('converts boolean values to ASTs')
@@ -171,14 +170,9 @@ class AstFromValueTest extends TestCase
         ]);
     }
 
-    private function complexValue()
+    private function complexValue(): stdClass
     {
-        if (! isset($this->complexValue)) {
-            $this->complexValue                = new stdClass();
-            $this->complexValue->someArbitrary = 'complexValue';
-        }
-
-        return $this->complexValue;
+        return $this->complexValue ??= (object) ['someArbitrary' => 'complexValue'];
     }
 
     /**

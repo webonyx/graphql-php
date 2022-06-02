@@ -145,8 +145,14 @@ class SchemaTest extends TestCase
         };
 
         $this->schema->isSubType(
+            // @phpstan-ignore-next-line purposefully wrong
             $anonymousAbstractType,
-            new InterfaceType(['name' => 'Interface'])
+            new InterfaceType([
+                'name' => 'Interface',
+                'fields' => [
+                    'irrelevant' => Type::int(),
+                ],
+            ])
         );
     }
 }

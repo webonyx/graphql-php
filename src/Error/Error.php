@@ -9,6 +9,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use JsonSerializable;
+use ReturnTypeWillChange;
 use Throwable;
 use Traversable;
 
@@ -71,10 +72,10 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
     protected ?array $extensions;
 
     /**
-     * @param iterable<Node>|Node|null    $nodes
-     * @param array<int, int>|null        $positions
-     * @param array<int, int|string>|null $path
-     * @param array<string, mixed>|null   $extensions
+     * @param iterable<array-key, Node>|Node|null $nodes
+     * @param array<int, int>|null                $positions
+     * @param array<int, int|string>|null         $path
+     * @param array<string, mixed>|null           $extensions
      */
     public function __construct(
         string $message = '',
@@ -299,6 +300,7 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
      * @return array<string, mixed> data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      */
+    #[ReturnTypeWillChange]
     public function jsonSerialize(): array
     {
         return FormattedError::createFromException($this);

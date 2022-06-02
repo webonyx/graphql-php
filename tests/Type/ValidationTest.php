@@ -11,6 +11,7 @@ use GraphQL\Error\Warning;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -26,14 +27,13 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
-use PHPUnit\Framework\TestCase;
 use TypeError;
 
 use function array_map;
 use function array_merge;
 use function ucfirst;
 
-class ValidationTest extends TestCase
+class ValidationTest extends TestCaseBase
 {
     public ScalarType $SomeScalarType;
 
@@ -174,21 +174,18 @@ class ValidationTest extends TestCase
     {
         $this->assertEachCallableThrows(
             [
-                static function (): ObjectType {
-                    return new ObjectType([]);
-                },
-                static function (): EnumType {
-                    return new EnumType([]);
-                },
-                static function (): InputObjectType {
-                    return new InputObjectType([]);
-                },
-                static function (): UnionType {
-                    return new UnionType([]);
-                },
-                static function (): InterfaceType {
-                    return new InterfaceType([]);
-                },
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): ObjectType => new ObjectType([]),
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): EnumType => new EnumType([]),
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): InputObjectType => new InputObjectType([]),
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): UnionType => new UnionType([]),
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): InterfaceType => new InterfaceType([]),
+                // @phpstan-ignore-next-line intentionally wrong
+                static fn (): ScalarType => new CustomScalarType([]),
             ],
             'Must provide name.'
         );
@@ -374,7 +371,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @param array<int, array{message: string, locations: array<int, array{line: int, column: int}>}>  $errors
+     * @param array<int, Error>                                                                         $errors
      * @param array<int, array{message: string, locations?: array<int, array{line: int, column: int}>}> $expected
      */
     private function assertMatchesValidationMessage(array $errors, array $expected): void
@@ -595,7 +592,6 @@ class ValidationTest extends TestCase
      */
     public function testAcceptsShorthandNotationForFields(): void
     {
-        $this->expectNotToPerformAssertions();
         $schema = $this->schemaWithFieldType(
             new ObjectType([
                 'name'   => 'SomeObject',
@@ -605,6 +601,7 @@ class ValidationTest extends TestCase
             ])
         );
         $schema->assertValid();
+        self::assertDidNotCrash();
     }
 
     /**
@@ -1094,45 +1091,6 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @see it('rejects an Enum type with duplicate values')
-     */
-    public function testRejectsAnEnumTypeWithDuplicateValues(): void
-    {
-        $schema = BuildSchema::build('
-      type Query {
-        field: SomeEnum
-      }
-      
-      enum SomeEnum {
-        SOME_VALUE
-        SOME_VALUE
-      }
-        ');
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [
-                [
-                    'message'   => 'Enum type SomeEnum can include value SOME_VALUE only once.',
-                    'locations' => [['line' => 7, 'column' => 9], ['line' => 8, 'column' => 9]],
-                ],
-            ]
-        );
-    }
-
-    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnEnum(): void
-    {
-        $enum = new EnumType([
-            'name'   => 'SomeEnum',
-            'values' => [
-                'value' => ['isDeprecated' => true],
-            ],
-        ]);
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('SomeEnum.value should provide "deprecationReason" instead of "isDeprecated".');
-        $enum->assertValid();
-    }
-
-    /**
      * DESCRIBE: Type System: Object fields must have output types
      *
      * @return array<int, array{0: string, 1: string}>
@@ -1192,7 +1150,7 @@ class ValidationTest extends TestCase
     /**
      * DESCRIBE: Type System: Objects can only implement unique interfaces
      */
-    private function schemaWithObjectFieldOfType($fieldType): Schema
+    private function schemaWithObjectFieldOfType(Type $fieldType): Schema
     {
         $BadObjectType = new ObjectType([
             'name'   => 'BadObject',
@@ -1319,7 +1277,6 @@ class ValidationTest extends TestCase
      */
     public function testRejectsAnObjectImplementingTheSameInterfaceTwiceDueToExtension(): void
     {
-        $this->expectNotToPerformAssertions();
         self::markTestIncomplete('extend does not work this way (yet).');
         $schema = BuildSchema::build('
       type Query {
@@ -1508,7 +1465,7 @@ class ValidationTest extends TestCase
         }
     }
 
-    private function schemaWithInterfaceFieldOfType($fieldType): Schema
+    private function schemaWithInterfaceFieldOfType(Type $fieldType): Schema
     {
         $BadInterfaceType = new InterfaceType([
             'name'   => 'BadInterface',
@@ -1624,7 +1581,7 @@ class ValidationTest extends TestCase
         }
     }
 
-    private function schemaWithArgOfType($argType): Schema
+    private function schemaWithArgOfType(Type $argType): Schema
     {
         $BadObjectType = new ObjectType([
             'name'   => 'BadObject',
@@ -1703,7 +1660,7 @@ class ValidationTest extends TestCase
         }
     }
 
-    private function schemaWithInputFieldOfType($inputFieldType)
+    private function schemaWithInputFieldOfType(Type $inputFieldType): Schema
     {
         $badInputObjectType = new InputObjectType([
             'name'   => 'BadInputObject',

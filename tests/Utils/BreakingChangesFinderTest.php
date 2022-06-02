@@ -7,7 +7,6 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -21,8 +20,7 @@ use function sprintf;
 
 class BreakingChangesFinderTest extends TestCase
 {
-    /** @var ObjectType */
-    private $queryType;
+    private ObjectType $queryType;
 
     public function setUp(): void
     {
@@ -1229,12 +1227,12 @@ class BreakingChangesFinderTest extends TestCase
         $directiveThatRemovesArgOld  = new Directive([
             'name'      => 'DirectiveThatRemovesArg',
             'locations' => [DirectiveLocation::FIELD_DEFINITION],
-            'args'      => FieldArgument::createMap([
+            'args'      => [
                 'arg1' => [
                     'name' => 'arg1',
                     'type' => Type::boolean(),
                 ],
-            ]),
+            ],
         ]);
         $directiveThatRemovesArgNew  = new Directive([
             'name'      => 'DirectiveThatRemovesArg',
@@ -1247,12 +1245,12 @@ class BreakingChangesFinderTest extends TestCase
         $nonNullDirectiveAddedNew    = new Directive([
             'name'      => 'NonNullDirectiveAdded',
             'locations' => [DirectiveLocation::FIELD_DEFINITION],
-            'args'      => FieldArgument::createMap([
+            'args'      => [
                 'arg1' => [
                     'name' => 'arg1',
                     'type' => Type::nonNull(Type::boolean()),
                 ],
-            ]),
+            ],
         ]);
         $directiveRemovedLocationOld = new Directive([
             'name'      => 'Directive Name',
@@ -1429,12 +1427,12 @@ class BreakingChangesFinderTest extends TestCase
                 new Directive([
                     'name'      => 'DirectiveWithArg',
                     'locations' => [DirectiveLocation::FIELD_DEFINITION],
-                    'args'      => FieldArgument::createMap([
+                    'args'      => [
                         'arg1' => [
                             'name' => 'arg1',
                             'type' => Type::string(),
                         ],
-                    ]),
+                    ],
                 ]),
             ],
         ]);
@@ -1480,12 +1478,12 @@ class BreakingChangesFinderTest extends TestCase
                 new Directive([
                     'name'      => 'DirectiveName',
                     'locations' => [DirectiveLocation::FIELD_DEFINITION],
-                    'args'      => FieldArgument::createMap([
+                    'args'      => [
                         'arg1' => [
                             'name' => 'arg1',
                             'type' => Type::nonNull(Type::boolean()),
                         ],
-                    ]),
+                    ],
                 ]),
             ],
         ]);
@@ -1722,15 +1720,26 @@ class BreakingChangesFinderTest extends TestCase
      */
     public function testShouldDetectInterfacesAddedToInterfaces(): void
     {
-        $oldInterface = new InterfaceType(['name' => 'OldInterface']);
-        $newInterface = new InterfaceType(['name' => 'NewInterface']);
+        $oldInterface = new InterfaceType([
+            'name' => 'OldInterface',
+            'fields' => ['irrelevant' => Type::int()],
+        ]);
+        $newInterface = new InterfaceType([
+            'name' => 'NewInterface',
+            'fields' => ['notImportant' => Type::int()],
+        ]);
 
         $oldInterface1 = new InterfaceType([
             'name'   => 'Interface1',
+            'fields' => ['irrelevant' => Type::int()],
             'interfaces' => [$oldInterface],
         ]);
         $newInterface1 = new InterfaceType([
             'name'   => 'Interface1',
+            'fields' => [
+                'irrelevant' => Type::int(),
+                'notImportant' => Type::int(),
+            ],
             'interfaces' => [$oldInterface, $newInterface],
         ]);
 

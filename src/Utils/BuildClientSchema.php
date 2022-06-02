@@ -9,6 +9,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -32,6 +33,7 @@ use function array_merge;
 use function json_encode;
 
 /**
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-type Options array{
  *   assumeValid?: bool,
  * }
@@ -207,6 +209,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeRef
+     *
+     * @return Type&InputType
      */
     private function getInputType(array $typeRef): InputType
     {
@@ -392,21 +396,18 @@ class BuildClientSchema
             throw new InvariantViolation('Introspection result missing enumValues: ' . json_encode($enum) . '.');
         }
 
+        $values = [];
+        foreach ($enum['enumValues'] as $value) {
+            $values[$value['name']] = [
+                'description' => $value['description'],
+                'deprecationReason' => $value['deprecationReason'],
+            ];
+        }
+
         return new EnumType([
             'name' => $enum['name'],
             'description' => $enum['description'],
-            'values' => Utils::keyValMap(
-                $enum['enumValues'],
-                static function (array $enumValue): string {
-                    return $enumValue['name'];
-                },
-                static function (array $enumValue): array {
-                    return [
-                        'description' => $enumValue['description'],
-                        'deprecationReason' => $enumValue['deprecationReason'],
-                    ];
-                }
-            ),
+            'values' => $values,
         ]);
     }
 
@@ -430,31 +431,30 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeIntrospection
+     *
+     * @return array<string, UnnamedFieldDefinitionConfig>
      */
-    private function buildFieldDefMap(array $typeIntrospection)
+    private function buildFieldDefMap(array $typeIntrospection): array
     {
         if (! array_key_exists('fields', $typeIntrospection)) {
             throw new InvariantViolation('Introspection result missing fields: ' . json_encode($typeIntrospection) . '.');
         }
 
-        return Utils::keyValMap(
-            $typeIntrospection['fields'],
-            static function (array $fieldIntrospection): string {
-                return $fieldIntrospection['name'];
-            },
-            function (array $fieldIntrospection): array {
-                if (! array_key_exists('args', $fieldIntrospection)) {
-                    throw new InvariantViolation('Introspection result missing field args: ' . json_encode($fieldIntrospection) . '.');
-                }
-
-                return [
-                    'description' => $fieldIntrospection['description'],
-                    'deprecationReason' => $fieldIntrospection['deprecationReason'],
-                    'type' => $this->getOutputType($fieldIntrospection['type']),
-                    'args' => $this->buildInputValueDefMap($fieldIntrospection['args']),
-                ];
+        $map = [];
+        foreach ($typeIntrospection['fields'] as $field) {
+            if (! array_key_exists('args', $field)) {
+                throw new InvariantViolation('Introspection result missing field args: ' . json_encode($field) . '.');
             }
-        );
+
+            $map[$field['name']] = [
+                'description' => $field['description'],
+                'deprecationReason' => $field['deprecationReason'],
+                'type' => $this->getOutputType($field['type']),
+                'args' => $this->buildInputValueDefMap($field['args']),
+            ];
+        }
+
+        return $map;
     }
 
     /**
@@ -464,13 +464,12 @@ class BuildClientSchema
      */
     private function buildInputValueDefMap(array $inputValueIntrospections): array
     {
-        return Utils::keyValMap(
-            $inputValueIntrospections,
-            static function (array $inputValue): string {
-                return $inputValue['name'];
-            },
-            [$this, 'buildInputValue']
-        );
+        $map = [];
+        foreach ($inputValueIntrospections as $value) {
+            $map[$value['name']] = $this->buildInputValue($value);
+        }
+
+        return $map;
     }
 
     /**

@@ -12,11 +12,9 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class UniqueFragmentNames extends ValidationRule
 {
-    /** @var NameNode[] */
+    /** @var array<string, NameNode> */
     protected array $knownFragmentNames;
 
     public function getVisitor(ValidationContext $context): array
@@ -43,8 +41,8 @@ class UniqueFragmentNames extends ValidationRule
         ];
     }
 
-    public static function duplicateFragmentNameMessage($fragName)
+    public static function duplicateFragmentNameMessage(string $fragName): string
     {
-        return sprintf('There can be only one fragment named "%s".', $fragName);
+        return "There can be only one fragment named \"{$fragName}\".";
     }
 }

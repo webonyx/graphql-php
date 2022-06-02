@@ -10,6 +10,7 @@ use GraphQL\Server\OperationParams;
 use GraphQL\Server\RequestError;
 use InvalidArgumentException;
 use Nyholm\Psr7\Request;
+use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\Uri;
 use PHPUnit\Framework\TestCase;
@@ -29,35 +30,27 @@ class RequestParsingTest extends TestCase
 
         foreach ($parsed as $source => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, null, null, null, $source);
-            self::assertFalse($parsedBody->isReadOnly(), $source);
+            self::assertFalse($parsedBody->readOnly, $source);
         }
     }
 
     /**
-     * @param string $contentType
-     * @param string $content
-     *
-     * @return OperationParams|OperationParams[]
+     * @return OperationParams|array<int, OperationParams>
      */
-    private function parseRawRequest($contentType, $content, string $method = 'POST')
+    private function parseRawRequest(?string $contentType, string $content, string $method = 'POST')
     {
         $_SERVER['CONTENT_TYPE']   = $contentType;
         $_SERVER['REQUEST_METHOD'] = $method;
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(static function () use ($content): string {
-            return $content;
-        });
+        return $helper->parseHttpRequest(static fn (): string => $content);
     }
 
     /**
-     * @param string $contentType
-     * @param string $content
-     *
-     * @return OperationParams|OperationParams[]
+     * @return OperationParams|array<int, OperationParams>
      */
-    private function parsePsrRequest($contentType, $content, string $method = 'POST')
+    private function parsePsrRequest(?string $contentType, string $content, string $method = 'POST')
     {
         $psrRequest = new Request(
             $method,
@@ -105,11 +98,13 @@ class RequestParsingTest extends TestCase
         $parsed = [
             'raw' => $this->parseRawFormUrlencodedRequest($post),
             'psr' => $this->parsePsrFormUrlEncodedRequest($post),
+            'serverRequest' => $this->parsePsrFormUrlEncodedServerRequest($post, false),
+            'parsedServerRequest' => $this->parsePsrFormUrlEncodedServerRequest($post, true),
         ];
 
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
@@ -150,6 +145,27 @@ class RequestParsingTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, mixed> $postValue
+     */
+    private function parsePsrFormUrlEncodedServerRequest(array $postValue, bool $parsed): OperationParams
+    {
+        $helper = new Helper();
+
+        $request = new ServerRequest(
+            'POST',
+            '',
+            ['Content-Type' => 'application/x-www-form-urlencoded'],
+            $parsed ? null : http_build_query($postValue),
+        );
+
+        if ($parsed) {
+            $request = $request->withParsedBody($postValue);
+        }
+
+        return $helper->parsePsrRequest($request);
+    }
+
     public function testParsesGetRequest(): void
     {
         $query     = '{my query}';
@@ -168,7 +184,7 @@ class RequestParsingTest extends TestCase
 
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertTrue($parsedBody->isReadOnly(), $method);
+            self::assertTrue($parsedBody->readOnly, $method);
         }
     }
 
@@ -219,7 +235,7 @@ class RequestParsingTest extends TestCase
 
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
@@ -277,7 +293,7 @@ class RequestParsingTest extends TestCase
         ];
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
@@ -300,7 +316,7 @@ class RequestParsingTest extends TestCase
         ];
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $extensions, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
@@ -321,7 +337,7 @@ class RequestParsingTest extends TestCase
         ];
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 
@@ -343,7 +359,7 @@ class RequestParsingTest extends TestCase
         ];
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, null, $queryId, $variables, $operation, $extensions, $method);
-            self::assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertFalse($parsedBody->readOnly, $method);
         }
     }
 

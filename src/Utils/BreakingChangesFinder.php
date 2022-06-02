@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -151,7 +151,10 @@ class BreakingChangesFinder
         return $breakingChanges;
     }
 
-    private static function typeKindName(Type $type): string
+    /**
+     * @param Type &NamedType $type
+     */
+    private static function typeKindName(NamedType $type): string
     {
         if ($type instanceof ScalarType) {
             return 'a Scalar type';
@@ -218,15 +221,9 @@ class BreakingChangesFinder
                         $newFieldType
                     );
                     if (! $isSafe) {
-                        $oldFieldTypeString = $oldFieldType instanceof NamedType && $oldFieldType instanceof Type
-                            ? $oldFieldType->name
-                            : $oldFieldType;
-                        $newFieldTypeString = $newFieldType instanceof NamedType && $newFieldType instanceof Type
-                            ? $newFieldType->name
-                            : $newFieldType;
-                        $breakingChanges[]  = [
+                        $breakingChanges[] = [
                             'type'        => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                            'description' => "${typeName}.${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}.",
+                            'description' => "{$typeName}.{$fieldName} changed type from {$oldFieldType} to {$newFieldType}.",
                         ];
                     }
                 }
@@ -242,29 +239,27 @@ class BreakingChangesFinder
     ): bool {
         if ($oldType instanceof NamedType) {
             return // if they're both named types, see if their names are equivalent
-                ($newType instanceof NamedType && $oldType->name === $newType->name) ||
+                ($newType instanceof NamedType && $oldType->name === $newType->name)
                 // moving from nullable to non-null of the same underlying type is safe
-                ($newType instanceof NonNull &&
-                    self::isChangeSafeForObjectOrInterfaceField($oldType, $newType->getWrappedType())
-                );
+                || ($newType instanceof NonNull
+                    && self::isChangeSafeForObjectOrInterfaceField($oldType, $newType->getWrappedType()));
         }
 
         if ($oldType instanceof ListOfType) {
             return // if they're both lists, make sure the underlying types are compatible
-                ($newType instanceof ListOfType &&
-                    self::isChangeSafeForObjectOrInterfaceField(
-                        $oldType->getWrappedType(),
-                        $newType->getWrappedType()
-                    )) ||
+                ($newType instanceof ListOfType && self::isChangeSafeForObjectOrInterfaceField(
+                    $oldType->getWrappedType(),
+                    $newType->getWrappedType()
+                ))
                 // moving from nullable to non-null of the same underlying type is safe
-                ($newType instanceof NonNull &&
-                    self::isChangeSafeForObjectOrInterfaceField($oldType, $newType->getWrappedType()));
+                || ($newType instanceof NonNull
+                    && self::isChangeSafeForObjectOrInterfaceField($oldType, $newType->getWrappedType()));
         }
 
         if ($oldType instanceof NonNull) {
             // if they're both non-null, make sure the underlying types are compatible
-            return $newType instanceof NonNull &&
-                self::isChangeSafeForObjectOrInterfaceField($oldType->getWrappedType(), $newType->getWrappedType());
+            return $newType instanceof NonNull
+                && self::isChangeSafeForObjectOrInterfaceField($oldType->getWrappedType(), $newType->getWrappedType());
         }
 
         return false;
@@ -367,24 +362,22 @@ class BreakingChangesFinder
 
         if ($oldType instanceof ListOfType) {
             // if they're both lists, make sure the underlying types are compatible
-            return $newType instanceof ListOfType &&
-                self::isChangeSafeForInputObjectFieldOrFieldArg(
+            return $newType instanceof ListOfType
+                && self::isChangeSafeForInputObjectFieldOrFieldArg(
                     $oldType->getWrappedType(),
                     $newType->getWrappedType()
                 );
         }
 
         if ($oldType instanceof NonNull) {
-            return // if they're both non-null, make sure the underlying types are
-                // compatible
-                ($newType instanceof NonNull &&
-                    self::isChangeSafeForInputObjectFieldOrFieldArg(
-                        $oldType->getWrappedType(),
-                        $newType->getWrappedType()
-                    )) ||
+            return // if they're both non-null, make sure the underlying types are compatible
+                ($newType instanceof NonNull && self::isChangeSafeForInputObjectFieldOrFieldArg(
+                    $oldType->getWrappedType(),
+                    $newType->getWrappedType()
+                ))
                 // moving from non-null to nullable of the same underlying type is safe
-                ! ($newType instanceof NonNull) &&
-                self::isChangeSafeForInputObjectFieldOrFieldArg($oldType->getWrappedType(), $newType);
+                || ! ($newType instanceof NonNull)
+                && self::isChangeSafeForInputObjectFieldOrFieldArg($oldType->getWrappedType(), $newType);
         }
 
         return false;
@@ -515,11 +508,10 @@ class BreakingChangesFinder
                         }
                     );
                     if ($newArgDef !== null) {
-                        $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg(
+                        $isSafe     = self::isChangeSafeForInputObjectFieldOrFieldArg(
                             $oldArgDef->getType(),
                             $newArgDef->getType()
                         );
-                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $oldArgType */
                         $oldArgType = $oldArgDef->getType();
                         $oldArgName = $oldArgDef->name;
                         if (! $isSafe) {
@@ -651,10 +643,12 @@ class BreakingChangesFinder
      */
     private static function getDirectiveMapForSchema(Schema $schema): array
     {
-        return Utils::keyMap(
-            $schema->getDirectives(),
-            static fn (Directive $dir): string => $dir->name
-        );
+        $directives = [];
+        foreach ($schema->getDirectives() as $directive) {
+            $directives[$directive->name] = $directive;
+        }
+
+        return $directives;
     }
 
     /**
@@ -687,7 +681,7 @@ class BreakingChangesFinder
     }
 
     /**
-     * @return array<int, FieldArgument>
+     * @return array<int, Argument>
      */
     public static function findRemovedArgsForDirectives(Directive $oldDirective, Directive $newDirective): array
     {
@@ -705,14 +699,16 @@ class BreakingChangesFinder
     }
 
     /**
-     * @return array<string, FieldArgument>
+     * @return array<string, Argument>
      */
     private static function getArgumentMapForDirective(Directive $directive): array
     {
-        return Utils::keyMap(
-            $directive->args,
-            static fn (FieldArgument $arg): string => $arg->name
-        );
+        $args = [];
+        foreach ($directive->args as $arg) {
+            $args[$arg->name] = $arg;
+        }
+
+        return $args;
     }
 
     /**
@@ -753,7 +749,7 @@ class BreakingChangesFinder
     }
 
     /**
-     * @return array<int, FieldArgument>
+     * @return array<int, Argument>
      */
     public static function findAddedArgsForDirective(Directive $oldDirective, Directive $newDirective): array
     {

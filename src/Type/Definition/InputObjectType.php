@@ -7,19 +7,37 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
-use function count;
 use function is_array;
 use function is_callable;
+use function is_iterable;
 use function is_string;
-use function sprintf;
 
+/**
+ * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+ * @phpstan-type EagerFieldConfig InputObjectField|(Type&InputType)|UnnamedInputObjectFieldConfig
+ * @phpstan-type LazyFieldConfig callable(): EagerFieldConfig
+ * @phpstan-type FieldConfig EagerFieldConfig|LazyFieldConfig
+ * @phpstan-type InputObjectConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
+ *   astNode?: InputObjectTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<int, InputObjectTypeExtensionNode>|null,
+ * }
+ */
 class InputObjectType extends Type implements InputType, NullableType, NamedType
 {
-    /** @var InputObjectTypeDefinitionNode|null */
-    public ?TypeDefinitionNode $astNode;
+    use NamedTypeImplementation;
+
+    public ?InputObjectTypeDefinitionNode $astNode;
+
+    /** @var array<int, InputObjectTypeExtensionNode> */
+    public array $extensionASTNodes;
+
+    /** @phpstan-var InputObjectConfig */
+    public array $config;
 
     /**
      * Lazily initialized.
@@ -28,11 +46,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     private array $fields;
 
-    /** @var array<int, InputObjectTypeExtensionNode> */
-    public array $extensionASTNodes;
-
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param InputObjectConfig $config
      */
     public function __construct(array $config)
     {
@@ -40,8 +55,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         $this->name              = $config['name'];
-        $this->astNode           = $config['astNode'] ?? null;
         $this->description       = $config['description'] ?? null;
+        $this->astNode           = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
         $this->config = $config;
@@ -91,15 +106,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     protected function initializeFields(): void
     {
-        $fields = $this->config['fields'] ?? [];
+        $fields = $this->config['fields'];
         if (is_callable($fields)) {
             $fields = $fields();
-        }
-
-        if (! is_array($fields)) {
-            throw new InvariantViolation(
-                sprintf('%s fields must be an array or a callable which returns such an array.', $this->name)
-            );
         }
 
         $this->fields = [];
@@ -109,8 +118,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     }
 
     /**
-     * @param string|int                                                            $nameOrIndex
-     * @param InputObjectField|Type|array|(callable(): InputObjectField|Type|array) $field
+     * @param string|int $nameOrIndex
+     * @phpstan-param FieldConfig $field
      */
     protected function initializeField($nameOrIndex, $field): void
     {
@@ -145,17 +154,25 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
-        Utils::invariant(
-            count($this->getFields()) > 0,
-            sprintf(
-                '%s fields must be an associative array with field names as keys or a callable which returns such an array.',
-                $this->name
-            )
-        );
+        $fields = $this->config['fields'] ?? null;
+        if (is_callable($fields)) {
+            $fields = $fields();
+        }
 
-        foreach ($this->getFields() as $field) {
+        // @phpstan-ignore-next-line should not happen if used correctly
+        if (! is_iterable($fields)) {
+            $invalidFields = Utils::printSafe($fields);
+
+            throw new InvariantViolation(
+                "{$this->name} fields must be an iterable or a callable which returns an iterable, got: {$invalidFields}."
+            );
+        }
+
+        $resolvedFields = $this->getFields();
+
+        foreach ($resolvedFields as $field) {
             $field->assertValid($this);
         }
     }

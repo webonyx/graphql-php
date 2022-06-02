@@ -6,13 +6,9 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
-
-use function count;
 
 /**
  * Lone anonymous operation
@@ -28,14 +24,14 @@ class LoneAnonymousOperation extends ValidationRule
 
         return [
             NodeKind::DOCUMENT             => static function (DocumentNode $node) use (&$operationCount): void {
-                $tmp = Utils::filter(
-                    $node->definitions,
-                    static function (Node $definition): bool {
-                        return $definition instanceof OperationDefinitionNode;
+                $operationCount = 0;
+                foreach ($node->definitions as $definition) {
+                    if (! ($definition instanceof OperationDefinitionNode)) {
+                        continue;
                     }
-                );
 
-                $operationCount = count($tmp);
+                    $operationCount++;
+                }
             },
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (
                 &$operationCount,
@@ -52,7 +48,7 @@ class LoneAnonymousOperation extends ValidationRule
         ];
     }
 
-    public static function anonOperationNotAloneMessage()
+    public static function anonOperationNotAloneMessage(): string
     {
         return 'This anonymous operation must be the only defined operation.';
     }

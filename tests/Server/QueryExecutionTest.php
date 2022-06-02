@@ -28,8 +28,7 @@ class QueryExecutionTest extends ServerTestCase
 {
     use ArraySubsetAsserts;
 
-    /** @var ServerConfig */
-    private $config;
+    private ServerConfig $config;
 
     public function setUp(): void
     {
@@ -49,7 +48,11 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertQueryResultEquals($expected, $query);
     }
 
-    private function assertQueryResultEquals($expected, $query, $variables = null, $queryId = null)
+    /**
+     * @param array<string, mixed>      $expected
+     * @param array<string, mixed>|null $variables
+     */
+    private function assertQueryResultEquals(array $expected, string $query, ?array $variables = null, ?string $queryId = null): ExecutionResult
     {
         $result = $this->executeQuery($query, $variables, false, $queryId);
         self::assertArraySubset($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
@@ -57,14 +60,21 @@ class QueryExecutionTest extends ServerTestCase
         return $result;
     }
 
-    private function executeQuery($query, $variables = null, $readonly = false, $queryId = null)
+    /**
+     * @param array<string, mixed>|null $variables
+     */
+    private function executeQuery(string $query, ?array $variables = null, bool $readonly = false, ?string $queryId = null): ExecutionResult
     {
-        $op     = OperationParams::create(['query' => $query, 'variables' => $variables, 'queryId' => $queryId], $readonly);
-        $helper = new Helper();
-        $result = $helper->executeOperation($this->config, $op);
-        self::assertInstanceOf(ExecutionResult::class, $result);
+        $op = OperationParams::create(
+            [
+                'query' => $query,
+                'variables' => $variables,
+                'queryId' => $queryId,
+            ],
+            $readonly
+        );
 
-        return $result;
+        return (new Helper())->executeOperation($this->config, $op);
     }
 
     public function testReturnsSyntaxErrors(): void
@@ -273,14 +283,17 @@ class QueryExecutionTest extends ServerTestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-    private function executePersistedQuery($queryId, $variables = null)
+    /**
+     * @param array<string, mixed>|null $variables
+     */
+    private function executePersistedQuery(string $queryId, ?array $variables = null): ExecutionResult
     {
-        $op     = OperationParams::create(['queryId' => $queryId, 'variables' => $variables]);
-        $helper = new Helper();
-        $result = $helper->executeOperation($this->config, $op);
-        self::assertInstanceOf(ExecutionResult::class, $result);
+        $op = OperationParams::create([
+            'queryId' => $queryId,
+            'variables' => $variables,
+        ]);
 
-        return $result;
+        return (new Helper())->executeOperation($this->config, $op);
     }
 
     public function testBatchedQueriesAreDisabledByDefault(): void
@@ -343,10 +356,10 @@ class QueryExecutionTest extends ServerTestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-    public function testAllowsPersistentQueries(): void
+    public function testAllowsPersistedQueries(): void
     {
         $called = false;
-        $this->config->setPersistentQueryLoader(static function ($queryId, OperationParams $params) use (&$called): string {
+        $this->config->setPersistedQueryLoader(static function ($queryId, OperationParams $params) use (&$called): string {
             $called = true;
             self::assertEquals('some-id', $queryId);
 
@@ -363,7 +376,7 @@ class QueryExecutionTest extends ServerTestCase
 
         // Make sure it allows returning document node:
         $called = false;
-        $this->config->setPersistentQueryLoader(static function ($queryId, OperationParams $params) use (&$called): DocumentNode {
+        $this->config->setPersistedQueryLoader(static function ($queryId, OperationParams $params) use (&$called): DocumentNode {
             $called = true;
             self::assertEquals('some-id', $queryId);
 
@@ -376,28 +389,25 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testProhibitsInvalidPersistedQueryLoader(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'Persistent query loader must return query string or instance of GraphQL\Language\AST\DocumentNode ' .
+        // @phpstan-ignore-next-line purposefully wrong
+        $this->config->setPersistedQueryLoader(static fn (): array => ['err' => 'err']);
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'Persisted query loader must return query string or instance of GraphQL\Language\AST\DocumentNode ' .
             'but got: {"err":"err"}'
-        );
-        $this->config->setPersistentQueryLoader(static function (): array {
-            return ['err' => 'err'];
-        });
+        ));
         $this->executePersistedQuery('some-id');
     }
 
     public function testPersistedQueriesAreStillValidatedByDefault(): void
     {
-        $this->config->setPersistentQueryLoader(static function (): string {
-            return '{invalid}';
-        });
+        $this->config->setPersistedQueryLoader(static fn (): string => '{ invalid }');
         $result   = $this->executePersistedQuery('some-id');
         $expected = [
             'errors' => [
                 [
                     'message'   => 'Cannot query field "invalid" on type "Query".',
-                    'locations' => [['line' => 1, 'column' => 2]],
+                    'locations' => [['line' => 1, 'column' => 3]],
                 ],
             ],
         ];
@@ -407,7 +417,7 @@ class QueryExecutionTest extends ServerTestCase
     public function testAllowSkippingValidationForPersistedQueries(): void
     {
         $this->config
-            ->setPersistentQueryLoader(static function ($queryId) {
+            ->setPersistedQueryLoader(static function ($queryId) {
                 if ($queryId === 'some-id') {
                     return '{invalid}';
                 }
@@ -447,7 +457,7 @@ class QueryExecutionTest extends ServerTestCase
         $expected = [
             'data' => ['f1' => 'f1'],
         ];
-        $this->config->setPersistentQueryLoader(static function (): array {
+        $this->config->setPersistedQueryLoader(static function (): array {
             throw new Exception('Should not be called since a query is also passed');
         });
 
@@ -456,12 +466,13 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testProhibitsUnexpectedValidationRules(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Expecting validation rules to be array or callable returning array, but got: instance of stdClass');
-        $this->config->setValidationRules(static function (OperationParams $params): stdClass {
-            return new stdClass();
-        });
-        $this->executeQuery('{f1}');
+        // @phpstan-ignore-next-line purposefully wrong
+        $this->config->setValidationRules(static fn (): stdClass => new stdClass());
+
+        $this->expectExceptionObject(new InvariantViolation(
+            'Expecting validation rules to be array or callable returning array, but got: instance of stdClass'
+        ));
+        $this->executeQuery('{ f1 }');
     }
 
     public function testExecutesBatchedQueries(): void

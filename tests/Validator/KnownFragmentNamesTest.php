@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\KnownFragmentNames;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class KnownFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Known fragment names
@@ -71,7 +74,10 @@ class KnownFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    private function undefFrag($fragName, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function undefFrag(string $fragName, int $line, int $column): array
     {
         return ErrorHelper::create(
             KnownFragmentNames::unknownFragmentMessage($fragName),

@@ -23,6 +23,15 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Return string-keyed arrays from `GraphQL::getStandardDirectives()`, `GraphQL::getStandardTypes()` and `GraphQL::getStandardValidationRules()`
 - Move complexity related code from `FieldDefinition` to `QueryComplexity`
 - Exclude unused standard types from the schema
+- Require lazy type loader to return `Type` directly without an intermediary callable
+- Allow lazy type loader to return `null`
+- Rename `ServerConfig` option `persistentQueryLoader` to `persistedQueryLoader`
+- Call previously unused methods `EnumType::parseValue()` and `EnumType::parseLiteral()`
+- Strongly type `PromiseAdapter::createRejected()` to require `\Throwable`
+- Move members specific to `NamedType` out of `Type`: `$name`, `$description`, `$config`, `isBuiltInType()`, `assertValid()`
+- Always convert recursively when calling `Node::toArray()`
+- Make `Directive::$config['args']` use the same definition style as `FieldDefinition::$config['args']`
+- Rename `FieldArgument` to `Argument`
 
 ### Added
 
@@ -32,6 +41,11 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Expose structured enumeration of directive locations
 - Add `AST::concatAST()` utility
 - Allow lazy input object fields
+- Add validation rule `UniqueEnumValueNames`
+- Add SDL validation rule `UniqueOperationTypes` (#995)
+- Add ability to remove custom validation rules after adding them via `DocumentValidator::removeRule()`
+- Allow lazy enum values
+- Make `Node` implement `JsonSerializable`
 
 ### Optimized
 
@@ -48,6 +62,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Fix `extend()` to preserve `repeatable` (#931)
 - Preserve extended methods from class-based types in `SchemaExtender::extend()`
 - Fix printing of empty types (#940)
+- Clone `NodeList` in `Node::cloneDeep()`
 
 ### Removed
 
@@ -68,6 +83,50 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove deprecated public property access to `InputObjectField::$type`
 - Remove deprecated public property access to `FieldDefinition::$type`
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
+- Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
+- Remove `OperationParams` method `getOriginalInput()` in favor of public property `$originalInput`
+- Remove `OperationParams` method `isReadOnly()` in favor of public property `$readOnly`
+- Remove `Utils::withErrorHandling()`
+- Remove `TypeComparators::doTypesOverlap()`
+- Remove `DocumentValidator::isError()`
+- Remove `DocumentValidator::append()`
+- Remove `Utils::getVariableType()` in favor of `Utils::printSafe()`
+- Remove warning for passing `isDeprecated` in field definition config
+- Remove `WrappingType::getWrappedType()` argument `$recurse` in favor of `WrappingType::getInnermostType()`
+- Remove `Type::assertType()`
+- Remove `ListOfType::$ofType`, `ListOfType::getOfType()` and `NonNull::getOfType()`
+- Remove option `commentDescriptions` from `BuildSchema::buildAST()`, `BuildSchema::build()` and `Printer::doPrint()`
+- Remove parameter `$options` from `ASTDefinitionBuilder`
+
+## 14.11.3
+
+### Fixed
+
+- Fix compatibility of more methods with native return type in PHP 8.1
+
+## 14.11.2
+
+### Fixed
+
+- Support non-JSON `ServerRequestInterface`
+
+## 14.11.1
+
+### Fixed
+
+- Fix compatibility of methods with native return type in PHP 8.1
+
+## 14.11.0
+
+### Added
+
+- Allow field definitions to be defined as any `iterable`, not just `array`
+
+## 14.10.0
+
+### Added
+
+- Make `IntType` constants `MAX_INT` and `MIN_INT` public
 
 ## 14.9.0
 

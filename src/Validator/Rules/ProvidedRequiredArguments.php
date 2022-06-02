@@ -11,8 +11,6 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class ProvidedRequiredArguments extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array
@@ -42,7 +40,7 @@ class ProvidedRequiredArguments extends ValidationRule
                         }
 
                         $context->reportError(new Error(
-                            static::missingFieldArgMessage($fieldNode->name->value, $argDef->name, $argDef->getType()),
+                            static::missingFieldArgMessage($fieldNode->name->value, $argDef->name, $argDef->getType()->toString()),
                             [$fieldNode]
                         ));
                     }
@@ -53,13 +51,8 @@ class ProvidedRequiredArguments extends ValidationRule
         ];
     }
 
-    public static function missingFieldArgMessage($fieldName, $argName, $type)
+    public static function missingFieldArgMessage(string $fieldName, string $argName, string $type): string
     {
-        return sprintf(
-            'Field "%s" argument "%s" of type "%s" is required but not provided.',
-            $fieldName,
-            $argName,
-            $type
-        );
+        return "Field \"{$fieldName}\" argument \"{$argName}\" of type \"{$type}\" is required but not provided.";
     }
 }

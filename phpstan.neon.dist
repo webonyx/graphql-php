@@ -1,7 +1,9 @@
 parameters:
-    level: 3
+    # TODO increase to max
+    level: 6
 
-    inferPrivatePropertyTypeFromConstructor: true
+    # TODO revert this setting once we arrived at level: max
+    reportUnmatchedIgnoredErrors: false
 
     paths:
         - benchmarks
@@ -19,6 +21,10 @@ parameters:
         # allow partial parsing of language fragments.
         - "~Variable method call on GraphQL\\\\Language\\\\Parser\\.~"
 
+        # We utilize lazy initialization of non-nullable properties
+        - "~Property .+? in isset\\(\\) is not nullable~"
+        - "~Property .+? on left side of \\?\\?= is not nullable~"
+
         # Useful/necessary in the default field resolver, deals with arbitrary user data
         -
             message: "~Variable property access on object~"
@@ -30,8 +36,9 @@ parameters:
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
 
-        # TODO convert to less magical code
-        - "~Variable method call on static\\(GraphQL\\\\Server\\\\ServerConfig\\)~"
+        # PHPStan does not play nicely with markTestSkipped()
+        - message: "~Unreachable statement - code above always terminates~"
+          path: tests
 
 includes:
     - phpstan-baseline.neon

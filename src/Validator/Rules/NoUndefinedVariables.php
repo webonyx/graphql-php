@@ -10,8 +10,6 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 /**
  * A GraphQL operation is only valid if all variables encountered, both directly
  * and via fragment spreads, are defined by that operation.
@@ -20,6 +18,7 @@ class NoUndefinedVariables extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array
     {
+        /** @var array<string, true> $variableNameDefined */
         $variableNameDefined = [];
 
         return [
@@ -34,7 +33,7 @@ class NoUndefinedVariables extends ValidationRule
                         $node    = $usage['node'];
                         $varName = $node->name->value;
 
-                        if ($variableNameDefined[$varName] ?? false) {
+                        if (isset($variableNameDefined[$varName])) {
                             continue;
                         }
 
@@ -56,10 +55,10 @@ class NoUndefinedVariables extends ValidationRule
         ];
     }
 
-    public static function undefinedVarMessage($varName, $opName = null)
+    public static function undefinedVarMessage(string $varName, ?string $opName): string
     {
-        return $opName
-            ? sprintf('Variable "$%s" is not defined by operation "%s".', $varName, $opName)
-            : sprintf('Variable "$%s" is not defined.', $varName);
+        return $opName === null
+            ? 'Variable "$' . $varName . '" is not defined by operation "' . $opName . '".'
+            : 'Variable "$' . $varName . '" is not defined.';
     }
 }

@@ -24,6 +24,7 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
@@ -34,10 +35,10 @@ use Throwable;
 
 use function array_keys;
 use function array_map;
-use function sprintf;
+use function count;
 
 /**
- * Value literals of correct type
+ * Value literals of correct type.
  *
  * A GraphQL document is only valid if all value literals are of the type
  * expected at their position.
@@ -92,7 +93,6 @@ class ValuesOfCorrectType extends ValidationRule
                     return Visitor::skipNode();
                 }
 
-                unset($fieldName);
                 // Ensure every required field exists.
                 $inputFields = $type->getFields();
 
@@ -101,15 +101,15 @@ class ValuesOfCorrectType extends ValidationRule
                     $fieldNodeMap[$field->name->value] = $field;
                 }
 
-                foreach ($inputFields as $fieldName => $fieldDef) {
+                foreach ($inputFields as $inputFieldName => $fieldDef) {
                     $fieldType = $fieldDef->getType();
-                    if (isset($fieldNodeMap[$fieldName]) || ! $fieldDef->isRequired()) {
+                    if (isset($fieldNodeMap[$inputFieldName]) || ! $fieldDef->isRequired()) {
                         continue;
                     }
 
                     $context->reportError(
                         new Error(
-                            static::requiredFieldMessage($type->name, $fieldName, (string) $fieldType),
+                            static::requiredFieldMessage($type->name, $inputFieldName, (string) $fieldType),
                             $node
                         )
                     );
@@ -119,9 +119,11 @@ class ValuesOfCorrectType extends ValidationRule
             },
             NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) use ($context): void {
                 $parentType = Type::getNamedType($context->getParentInputType());
-                /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $fieldType */
-                $fieldType = $context->getInputType();
-                if ($fieldType !== null || ! ($parentType instanceof InputObjectType)) {
+                if (! $parentType instanceof InputObjectType) {
+                    return;
+                }
+
+                if ($context->getInputType() !== null) {
                     return;
                 }
 
@@ -129,7 +131,7 @@ class ValuesOfCorrectType extends ValidationRule
                     $node->name->value,
                     array_keys($parentType->getFields())
                 );
-                $didYouMean  = $suggestions
+                $didYouMean  = count($suggestions) > 0
                     ? 'Did you mean ' . Utils::orList($suggestions) . '?'
                     : null;
 
@@ -174,19 +176,21 @@ class ValuesOfCorrectType extends ValidationRule
         ];
     }
 
-    public static function badValueMessage($typeName, $valueName, $message = null)
+    public static function badValueMessage(string $typeName, string $valueName, ?string $message = null): string
     {
-        return sprintf('Expected type %s, found %s', $typeName, $valueName) .
-            ($message ? "; ${message}" : '.');
+        return "Expected type {$typeName}, found {$valueName}"
+            . ($message !== null && $message !== ''
+                ? "; ${message}"
+                : '.');
     }
 
     /**
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
      */
-    protected function isValidScalar(ValidationContext $context, ValueNode $node, $fieldName): void
+    protected function isValidScalar(ValidationContext $context, ValueNode $node, string $fieldName): void
     {
         // Report any error at the full type expected by the location.
-        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null $locationType */
+        /** @var ScalarType|EnumType|InputObjectType|ListOfType<Type&InputType>|NonNull|null $locationType */
         $locationType = $context->getInputType();
 
         if ($locationType === null) {
@@ -240,7 +244,7 @@ class ValuesOfCorrectType extends ValidationRule
     /**
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
      */
-    protected function enumTypeSuggestion($type, ValueNode $node)
+    protected function enumTypeSuggestion(Type $type, ValueNode $node): ?string
     {
         if ($type instanceof EnumType) {
             $suggestions = Utils::suggestionList(
@@ -255,30 +259,43 @@ class ValuesOfCorrectType extends ValidationRule
                 ? null
                 : 'Did you mean the enum value ' . Utils::orList($suggestions) . '?';
         }
+
+        return null;
     }
 
-    public static function badArgumentValueMessage($typeName, $valueName, $fieldName, $argName, $message = null)
+    public static function badArgumentValueMessage(string $typeName, string $valueName, string $fieldName, string $argName, ?string $message = null): string
     {
-        return sprintf('Field "%s" argument "%s" requires type %s, found %s', $fieldName, $argName, $typeName, $valueName) .
-            ($message ? sprintf('; %s', $message) : '.');
+        return "Field \"{$fieldName}\" argument \"{$argName}\" requires type {$typeName}, found {$valueName}"
+            . ($message !== null && $message !== ''
+                ? "; {$message}"
+                : '.'
+            );
     }
 
-    public static function requiredFieldMessage($typeName, $fieldName, $fieldTypeName)
+    public static function requiredFieldMessage(string $typeName, string $fieldName, string $fieldTypeName): string
     {
-        return sprintf('Field %s.%s of required type %s was not provided.', $typeName, $fieldName, $fieldTypeName);
+        return "Field {$typeName}.{$fieldName} of required type {$fieldTypeName} was not provided.";
     }
 
-    public static function unknownFieldMessage($typeName, $fieldName, $message = null)
+    public static function unknownFieldMessage(string $typeName, string $fieldName, ?string $message = null): string
     {
-        return sprintf('Field "%s" is not defined by type %s', $fieldName, $typeName) .
-            ($message ? sprintf('; %s', $message) : '.');
+        return "Field \"{$fieldName}\" is not defined by type {$typeName}"
+            . ($message !== null && $message !== ''
+                ? "; {$message}"
+                : '.'
+            );
     }
 
-    protected static function getBadValueMessage($typeName, $valueName, $message = null, $context = null, $fieldName = null)
-    {
-        if ($context) {
+    protected static function getBadValueMessage(
+        string $typeName,
+        string $valueName,
+        ?string $message = null,
+        ?ValidationContext $context = null,
+        ?string $fieldName = null
+    ): string {
+        if ($context !== null) {
             $arg = $context->getArgument();
-            if ($arg) {
+            if ($arg !== null) {
                 return static::badArgumentValueMessage($typeName, $valueName, $fieldName, $arg->name, $message);
             }
         }

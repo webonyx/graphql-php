@@ -13,8 +13,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 
-use function sprintf;
-
 class FragmentsOnCompositeTypes extends ValidationRule
 {
     public function getVisitor(ValidationContext $context): array
@@ -31,7 +29,7 @@ class FragmentsOnCompositeTypes extends ValidationRule
                 }
 
                 $context->reportError(new Error(
-                    static::inlineFragmentOnNonCompositeErrorMessage($type),
+                    static::inlineFragmentOnNonCompositeErrorMessage($type->toString()),
                     [$node->typeCondition]
                 ));
             },
@@ -53,13 +51,13 @@ class FragmentsOnCompositeTypes extends ValidationRule
         ];
     }
 
-    public static function inlineFragmentOnNonCompositeErrorMessage($type)
+    public static function inlineFragmentOnNonCompositeErrorMessage(string $type): string
     {
-        return sprintf('Fragment cannot condition on non composite type "%s".', $type);
+        return "Fragment cannot condition on non composite type \"{$type}\".";
     }
 
-    public static function fragmentOnNonCompositeErrorMessage($fragName, $type)
+    public static function fragmentOnNonCompositeErrorMessage(string $fragName, string $type): string
     {
-        return sprintf('Fragment "%s" cannot condition on non composite type "%s".', $fragName, $type);
+        return "Fragment \"{$fragName}\" cannot condition on non composite type \"{$type}\".";
     }
 }

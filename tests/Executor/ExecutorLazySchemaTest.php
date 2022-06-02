@@ -205,9 +205,7 @@ class ExecutorLazySchemaTest extends TestCase
         self::assertEquals(['Test', 'Test'], $calls);
 
         self::assertEquals(
-            'Schema must contain unique named types but contains multiple types named "Test". ' .
-            'Make sure that type loader returns the same instance as defined in Query.test ' .
-            '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
+            'Found duplicate type in schema: Test. Ensure the type loader returns the same instance as defined in Query.test. See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.',
             $result->errors[0]->getMessage()
         );
         self::assertInstanceOf(
@@ -244,7 +242,7 @@ class ExecutorLazySchemaTest extends TestCase
         self::assertEquals($expectedExecutorCalls, $this->calls);
     }
 
-    public function loadType($name, $isExecutorCall = false)
+    public function loadType(string $name, bool $isExecutorCall = false): ?Type
     {
         if ($isExecutorCall) {
             $this->calls[] = $name;
@@ -254,7 +252,7 @@ class ExecutorLazySchemaTest extends TestCase
 
         switch ($name) {
             case 'Query':
-                return $this->queryType ?? $this->queryType = new ObjectType([
+                return $this->queryType ??= new ObjectType([
                     'name'   => 'Query',
                     'fields' => function (): array {
                         $this->calls[] = 'Query.fields';
@@ -267,7 +265,7 @@ class ExecutorLazySchemaTest extends TestCase
                 ]);
 
             case 'SomeObject':
-                return $this->someObjectType ?? $this->someObjectType = new ObjectType([
+                return $this->someObjectType ??= new ObjectType([
                     'name'       => 'SomeObject',
                     'fields'     => function (): array {
                         $this->calls[] = 'SomeObject.fields';
@@ -287,7 +285,7 @@ class ExecutorLazySchemaTest extends TestCase
                 ]);
 
             case 'OtherObject':
-                return $this->otherObjectType ?? $this->otherObjectType = new ObjectType([
+                return $this->otherObjectType ??= new ObjectType([
                     'name'   => 'OtherObject',
                     'fields' => function (): array {
                         $this->calls[] = 'OtherObject.fields';
@@ -300,30 +298,23 @@ class ExecutorLazySchemaTest extends TestCase
                 ]);
 
             case 'DeeperObject':
-                return $this->deeperObjectType ?? $this->deeperObjectType = new ObjectType([
+                return $this->deeperObjectType ??= new ObjectType([
                     'name'   => 'DeeperObject',
-                    'fields' => function (): array {
-                        return [
-                            'scalar' => ['type' => $this->loadType('SomeScalar')],
-                        ];
-                    },
+                    'fields' => fn (): array => [
+                        'scalar' => ['type' => $this->loadType('SomeScalar')],
+                    ],
                 ]);
 
             case 'SomeScalar':
-                return $this->someScalarType ?? $this->someScalarType = new CustomScalarType([
+                return $this->someScalarType ??= new CustomScalarType([
                     'name'         => 'SomeScalar',
-                    'serialize'    => static function ($value) {
-                        return $value;
-                    },
-                    'parseValue'   => static function ($value) {
-                        return $value;
-                    },
-                    'parseLiteral' => static function (): void {
-                    },
+                    'serialize'    => static fn ($value) => $value,
+                    'parseValue'   => static fn ($value) => $value,
+                    'parseLiteral' => static fn () => null,
                 ]);
 
             case 'SomeUnion':
-                return $this->someUnionType ?? $this->someUnionType = new UnionType([
+                return $this->someUnionType ??= new UnionType([
                     'name'        => 'SomeUnion',
                     'resolveType' => function () {
                         $this->calls[] = 'SomeUnion.resolveType';
@@ -338,7 +329,7 @@ class ExecutorLazySchemaTest extends TestCase
                 ]);
 
             case 'SomeInterface':
-                return $this->someInterfaceType ?? $this->someInterfaceType = new InterfaceType([
+                return $this->someInterfaceType ??= new InterfaceType([
                     'name'        => 'SomeInterface',
                     'resolveType' => function () {
                         $this->calls[] = 'SomeInterface.resolveType';

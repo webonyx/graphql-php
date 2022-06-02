@@ -181,11 +181,17 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    private function undefVar($varName, $line, $column, $opName = null, $l2 = null, $c2 = null)
+    /**
+     * @return array{
+     *     message: string,
+     *     locations?: array<int, array{line: int, column: int}>
+     * }
+     */
+    private function undefVar(string $varName, int $line, int $column, ?string $opName = null, ?int $l2 = null, ?int $c2 = null): array
     {
         $locs = [new SourceLocation($line, $column)];
 
-        if ($l2 && $c2) {
+        if ($l2 !== null && $c2 !== null) {
             $locs[] = new SourceLocation($l2, $c2);
         }
 
@@ -208,7 +214,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       }
         ',
             [
-                $this->undefVar('a', 3, 18, '', 2, 7),
+                $this->undefVar('a', 3, 18, null, 2, 7),
             ]
         );
     }
@@ -248,7 +254,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       }
         ',
             [
-                $this->undefVar('a', 6, 18, '', 2, 7),
+                $this->undefVar('a', 6, 18, null, 2, 7),
             ]
         );
     }

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
-use GraphQL\Tests\Type\TestClasses\CanCastToString;
 use GraphQL\Tests\Type\TestClasses\ObjectIdStub;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +34,10 @@ class ScalarSerializationTest extends TestCase
         self::assertSame(1, $intType->serialize(true));
     }
 
-    public function badIntValues()
+    /**
+     * @return iterable<array{mixed, string}>
+     */
+    public function badIntValues(): iterable
     {
         return [
             [0.1, 'Int cannot represent non-integer value: 0.1'],
@@ -56,15 +57,16 @@ class ScalarSerializationTest extends TestCase
     }
 
     /**
-     * @throws Error
+     * @param mixed $value
      *
      * @dataProvider badIntValues
      */
-    public function testSerializesOutputAsIntErrors($value, $expectedError): void
+    public function testSerializesOutputAsIntErrors($value, string $expectedError): void
     {
         // The GraphQL specification does not allow serializing non-integer values
         // as Int to avoid accidental data loss.
         $intType = Type::int();
+
         $this->expectException(SerializationError::class);
         $this->expectExceptionMessage($expectedError);
         $intType->serialize($value);
@@ -89,7 +91,10 @@ class ScalarSerializationTest extends TestCase
         self::assertSame(1.0, $floatType->serialize(true));
     }
 
-    public function badFloatValues()
+    /**
+     * @return iterable<array{mixed, string}>
+     */
+    public function badFloatValues(): iterable
     {
         return [
             ['one', 'Float cannot represent non numeric value: one'],
@@ -101,13 +106,14 @@ class ScalarSerializationTest extends TestCase
     }
 
     /**
-     * @throws Error
+     * @param mixed $value
      *
      * @dataProvider badFloatValues
      */
-    public function testSerializesOutputFloatErrors($value, $expectedError): void
+    public function testSerializesOutputFloatErrors($value, string $expectedError): void
     {
         $floatType = Type::float();
+
         $this->expectException(SerializationError::class);
         $this->expectExceptionMessage($expectedError);
         $floatType->serialize($value);
@@ -125,10 +131,18 @@ class ScalarSerializationTest extends TestCase
         self::assertSame('1', $stringType->serialize(true));
         self::assertSame('', $stringType->serialize(false));
         self::assertSame('', $stringType->serialize(null));
-        self::assertSame('foo', $stringType->serialize(new CanCastToString('foo')));
+        self::assertSame('foo', $stringType->serialize(new class {
+            public function __toString(): string
+            {
+                return 'foo';
+            }
+        }));
     }
 
-    public function badStringValues()
+    /**
+     * @return iterable<array{mixed, string}>
+     */
+    public function badStringValues(): iterable
     {
         return [
             [[1], 'String cannot represent value: [1]'],
@@ -137,13 +151,14 @@ class ScalarSerializationTest extends TestCase
     }
 
     /**
-     * @throws Error
+     * @param mixed $value
      *
      * @dataProvider badStringValues
      */
-    public function testSerializesOutputStringErrors($value, $expectedError): void
+    public function testSerializesOutputStringErrors($value, string $expectedError): void
     {
         $stringType = Type::string();
+
         $this->expectException(SerializationError::class);
         $this->expectExceptionMessage($expectedError);
         $stringType->serialize($value);
@@ -184,7 +199,10 @@ class ScalarSerializationTest extends TestCase
         self::assertSame('2', $idType->serialize(new ObjectIdStub(2)));
     }
 
-    public function badIDValues()
+    /**
+     * @return iterable<array{mixed, string}>
+     */
+    public function badIDValues(): iterable
     {
         return [
             [new stdClass(), 'ID cannot represent value: instance of stdClass'],
@@ -196,11 +214,14 @@ class ScalarSerializationTest extends TestCase
     }
 
     /**
+     * @param mixed $value
+     *
      * @dataProvider badIDValues
      */
-    public function testSerializesOutputAsIDError($value, $expectedError): void
+    public function testSerializesOutputAsIDError($value, string $expectedError): void
     {
         $idType = Type::id();
+
         $this->expectException(SerializationError::class);
         $this->expectExceptionMessage($expectedError);
         $idType->serialize($value);

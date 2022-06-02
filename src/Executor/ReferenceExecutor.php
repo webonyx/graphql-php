@@ -27,8 +27,10 @@ use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
@@ -40,21 +42,23 @@ use RuntimeException;
 use SplObjectStorage;
 use stdClass;
 use Throwable;
-use Traversable;
 
 use function array_keys;
 use function array_merge;
 use function array_reduce;
 use function array_values;
 use function count;
-use function get_class;
+use function gettype;
 use function is_array;
 use function is_callable;
+use function is_iterable;
 use function is_string;
 use function sprintf;
 
 /**
  * @phpstan-import-type FieldResolver from Executor
+ * @phpstan-import-type AbstractTypeAlias from AbstractType
+ * @phpstan-type Fields ArrayObject<string, ArrayObject<int, FieldNode>>
  */
 class ReferenceExecutor implements ExecutorImplementation
 {
@@ -373,10 +377,10 @@ class ReferenceExecutor implements ExecutorImplementation
      * returns an Interface or Union type, the "runtime type" will be the actual
      * Object type returned by that field.
      *
-     * @param ArrayObject<string, ArrayObject<int, FieldNode>> $fields
-     * @param ArrayObject<string, true>                        $visitedFragmentNames
+     * @param ArrayObject<string, true> $visitedFragmentNames
+     * @phpstan-param Fields $fields
      *
-     * @return ArrayObject<string, ArrayObject<int, FieldNode>>
+     * @phpstan-return Fields
      */
     protected function collectFields(
         ObjectType $runtimeType,
@@ -506,9 +510,9 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Implements the "Evaluating selection sets" section of the spec for "write" mode.
      *
-     * @param mixed                                      $rootValue
-     * @param array<string|int>                          $path
-     * @param ArrayObject<string, array<int, FieldNode>> $fields
+     * @param mixed             $rootValue
+     * @param array<string|int> $path
+     * @phpstan-param Fields $fields
      *
      * @return array<mixed>|Promise|stdClass
      */
@@ -814,40 +818,36 @@ class ReferenceExecutor implements ExecutorImplementation
             return $completed;
         }
 
-        // If result is null-like, return null.
         if ($result === null) {
             return null;
         }
 
         // If field type is List, complete each item in the list with the inner type
         if ($returnType instanceof ListOfType) {
+            if (! is_iterable($result)) {
+                $resultType = gettype($result);
+
+                throw new InvariantViolation("Expected field {$info->parentType}.{$info->fieldName} to return iterable, but got: {$resultType}.");
+            }
+
             return $this->completeListValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
+        /** @var Type&NamedType $returnType wrapping types returned early */
+
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
-        if ($returnType !== $this->exeContext->schema->getType($returnType->name)) {
-            $hint = '';
-            if ($this->exeContext->schema->getConfig()->typeLoader !== null) {
-                $hint = sprintf(
-                    'Make sure that type loader returns the same instance as defined in %s.%s',
-                    $info->parentType,
-                    $info->fieldName
-                );
-            }
+        $schema = $this->exeContext->schema;
+        if ($returnType !== $schema->getType($returnType->name)) {
+            $hint = $schema->getConfig()->typeLoader !== null
+                ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
+                : '';
 
             throw new InvariantViolation(
-                sprintf(
-                    'Schema must contain unique named types but contains multiple types named "%s". %s ' .
-                    '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
-                    $returnType,
-                    $hint
-                )
+                "Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry."
             );
         }
 
-        // If field type is Scalar or Enum, serialize to a valid value, returning
-        // null if serialization is not possible.
         if ($returnType instanceof LeafType) {
             return $this->completeLeafValue($returnType, $result);
         }
@@ -856,12 +856,14 @@ class ReferenceExecutor implements ExecutorImplementation
             return $this->completeAbstractValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
-        // Field type must be Object, Interface or Union and expect sub-selections.
+        // Field type must be and Object, Interface or Union and expect sub-selections.
         if ($returnType instanceof ObjectType) {
             return $this->completeObjectValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
-        throw new RuntimeException(sprintf('Cannot complete value of unexpected type "%s".', $returnType));
+        $safeReturnType = Utils::printSafe($returnType);
+
+        throw new RuntimeException("Cannot complete value of unexpected type \"{$safeReturnType}\".");
     }
 
     /**
@@ -886,16 +888,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         if ($this->exeContext->promiseAdapter->isThenable($value)) {
-            $promise = $this->exeContext->promiseAdapter->convertThenable($value);
-            if (! $promise instanceof Promise) {
-                throw new InvariantViolation(sprintf(
-                    '%s::convertThenable is expected to return instance of GraphQL\Executor\Promise\Promise, got: %s',
-                    get_class($this->exeContext->promiseAdapter),
-                    Utils::printSafe($promise)
-                ));
-            }
-
-            return $promise;
+            return $this->exeContext->promiseAdapter->convertThenable($value);
         }
 
         return null;
@@ -934,29 +927,33 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Complete a list value by completing each item in the list with the inner type.
      *
+     * @param ListOfType<Type             &OutputType> $returnType
      * @param ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<string|int>           $path
-     * @param array<mixed>|Traversable    $results
+     * @param list<string|int>            $path
+     * @param iterable<mixed>             $results
      *
      * @return array<mixed>|Promise|stdClass
      *
      * @throws Exception
      */
-    protected function completeListValue(ListOfType $returnType, ArrayObject $fieldNodes, ResolveInfo $info, array $path, &$results)
-    {
+    protected function completeListValue(
+        ListOfType $returnType,
+        ArrayObject $fieldNodes,
+        ResolveInfo $info,
+        array $path,
+        iterable &$results
+    ) {
         $itemType = $returnType->getWrappedType();
-        Utils::invariant(
-            is_array($results) || $results instanceof Traversable,
-            'User Error: expected iterable, but did not find one for field ' . $info->parentType . '.' . $info->fieldName . '.'
-        );
-        $containsPromise = false;
+
         $i               = 0;
+        $containsPromise = false;
         $completedItems  = [];
         foreach ($results as $item) {
-            $fieldPath     = $path;
-            $fieldPath[]   = $i++;
-            $info->path    = $fieldPath;
+            $fieldPath  = [...$path, $i++];
+            $info->path = $fieldPath;
+
             $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $fieldPath, $item);
+
             if (! $containsPromise && $this->getPromise($completedItem) !== null) {
                 $containsPromise = true;
             }
@@ -998,6 +995,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param ArrayObject<int, FieldNode> $fieldNodes
      * @param array<string|int>           $path
      * @param array<mixed>                $result
+     * @phpstan-param AbstractTypeAlias $returnType
      *
      * @return array<mixed>|Promise|stdClass
      *
@@ -1069,9 +1067,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * Otherwise, test each possible type for the abstract type by calling
      * isTypeOf for the object being coerced, returning the first type that matches.
      *
-     * @param mixed|null              $value
-     * @param mixed|null              $contextValue
-     * @param InterfaceType|UnionType $abstractType
+     * @param mixed|null        $value
+     * @param mixed|null        $contextValue
+     * @param AbstractTypeAlias $abstractType
      *
      * @return Promise|Type|string|null
      */
@@ -1233,7 +1231,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param ArrayObject<int, FieldNode> $fieldNodes
      *
-     * @return ArrayObject<int, FieldNode>
+     * @phpstan-return Fields
      */
     protected function collectSubFields(ObjectType $returnType, ArrayObject $fieldNodes): ArrayObject
     {
@@ -1265,9 +1263,9 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Implements the "Evaluating selection sets" section of the spec for "read" mode.
      *
-     * @param mixed                       $rootValue
-     * @param array<string|int>           $path
-     * @param ArrayObject<int, FieldNode> $fields
+     * @param mixed             $rootValue
+     * @param array<string|int> $path
+     * @phpstan-param Fields $fields
      *
      * @return Promise|stdClass|array<mixed>
      */

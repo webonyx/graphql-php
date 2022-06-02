@@ -7,25 +7,41 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 use function is_callable;
 use function is_string;
-use function sprintf;
 
-class InterfaceType extends TypeWithFields implements AbstractType, OutputType, CompositeType, NullableType, NamedType, ImplementingType
+/**
+ * @phpstan-import-type ResolveType from AbstractType
+ * @phpstan-import-type FieldMapConfig from FieldDefinition
+ * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
+ * @phpstan-type InterfaceConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   fields: FieldMapConfig,
+ *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
+ *   resolveType?: ResolveType|null,
+ *   astNode?: InterfaceTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<int, InterfaceTypeExtensionNode>|null,
+ * }
+ */
+class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
 {
-    use TypeWithInterfaces;
+    use HasFieldsTypeImplementation;
+    use NamedTypeImplementation;
+    use ImplementingTypeImplementation;
 
-    /** @var InterfaceTypeDefinitionNode|null */
-    public ?TypeDefinitionNode $astNode;
+    public ?InterfaceTypeDefinitionNode $astNode;
 
     /** @var array<int, InterfaceTypeExtensionNode> */
     public array $extensionASTNodes;
 
+    /** @phpstan-var InterfaceConfig */
+    public array $config;
+
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param InterfaceConfig $config
      */
     public function __construct(array $config)
     {
@@ -69,17 +85,14 @@ class InterfaceType extends TypeWithFields implements AbstractType, OutputType, 
      */
     public function assertValid(): void
     {
-        parent::assertValid();
+        Utils::assertValidName($this->name);
 
-        $resolveType = $this->config['resolveType'] ?? null;
+        if (isset($this->config['resolveType']) && ! is_callable($this->config['resolveType'])) {
+            $notCallable = Utils::printSafe($this->config['resolveType']);
 
-        Utils::invariant(
-            ! isset($resolveType) || is_callable($resolveType),
-            sprintf(
-                '%s must provide "resolveType" as a function, but got: %s',
-                $this->name,
-                Utils::printSafe($resolveType)
-            )
-        );
+            throw new InvariantViolation("{$this->name} must provide \"resolveType\" as a callable, but got: {$notCallable}");
+        }
+
+        $this->assertValidInterfaces();
     }
 }

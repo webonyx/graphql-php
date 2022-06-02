@@ -10,6 +10,10 @@ coverage:
       default:
         threshold: 1%
         only_pulls: true
+    patch:
+      default:
+        threshold: 1%
+        only_pulls: true
 
 parsers:
   gcov:
@@ -18,8 +22,3 @@ parsers:
       loop: yes
       method: no
       macro: no
-
-comment:
-  layout: "reach,diff,flags,files,footer"
-  behavior: default
-  require_changes: no

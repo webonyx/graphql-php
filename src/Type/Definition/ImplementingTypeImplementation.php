@@ -7,13 +7,13 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Schema;
 
-use function is_array;
 use function is_callable;
+use function is_iterable;
 
 /**
  * @see ImplementingType
  */
-trait TypeWithInterfaces
+trait ImplementingTypeImplementation
 {
     /**
      * Lazily initialized.
@@ -62,16 +62,30 @@ trait TypeWithInterfaces
             $interfaces = $interfaces();
         }
 
-        if (! is_array($interfaces)) {
-            throw new InvariantViolation(
-                "{$this->name} interfaces must be an Array or a callable which returns an Array."
-            );
+        foreach ($interfaces as $interface) {
+            $this->interfaces[] = Schema::resolveType($interface);
+        }
+    }
+
+    /**
+     * @throws InvariantViolation
+     */
+    protected function assertValidInterfaces(): void
+    {
+        if (! isset($this->config['interfaces'])) {
+            return;
         }
 
-        foreach ($interfaces as $interface) {
-            /** @var Type&InterfaceType $resolvedInterface */
-            $resolvedInterface  = Schema::resolveType($interface);
-            $this->interfaces[] = $resolvedInterface;
+        $interfaces = $this->config['interfaces'];
+        if (is_callable($interfaces)) {
+            $interfaces = $interfaces();
+        }
+
+        // @phpstan-ignore-next-line should not happen if used correctly
+        if (! is_iterable($interfaces)) {
+            throw new InvariantViolation(
+                "{$this->name} interfaces must be an iterable or a callable which returns an iterable."
+            );
         }
     }
 }

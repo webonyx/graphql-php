@@ -38,6 +38,9 @@ use function preg_replace;
 use function property_exists;
 use function trim;
 
+/**
+ * @phpstan-import-type BuildSchemaOptions from BuildSchema
+ */
 class BuildSchemaTest extends TestCase
 {
     use ArraySubsetAsserts;
@@ -57,6 +60,8 @@ class BuildSchemaTest extends TestCase
      * This function does a full cycle of going from a string with the contents of
      * the SDL, parsed in a schema AST, materializing that schema AST into an
      * in-memory GraphQLSchema, and then finally printing that object into the SDL
+     *
+     * @phpstan-param BuildSchemaOptions $options
      */
     private function cycleSDL(string $sdl, $options = []): string
     {
@@ -285,37 +290,6 @@ class BuildSchemaTest extends TestCase
             }
         ');
         $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
-    }
-
-    /**
-     * @see it('Supports option for comment descriptions')
-     */
-    public function testSupportsOptionForCommentDescriptions(): void
-    {
-        $sdl    = $this->dedent('
-            # This is a directive
-            directive @foo(
-              # It has an argument
-              arg: Int
-            ) on FIELD
-            
-            # With an enum
-            enum Color {
-              RED
-            
-              # Not a creative color
-              GREEN
-              BLUE
-            }
-            
-            # What a great type
-            type Query {
-              # And a field to boot
-              str: String
-            }
-        ');
-        $output = $this->cycleSDL($sdl, ['commentDescriptions' => true]);
         self::assertEquals($sdl, $output);
     }
 

@@ -12,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 class FormattedErrorTest extends TestCase
 {
     /**
+     * @param mixed $var
+     *
      * @dataProvider printVar
      */
     public function testPrintVar($var, string $printed): void
@@ -26,10 +28,7 @@ class FormattedErrorTest extends TestCase
     {
         return [
             [Type::string(), 'GraphQLType: String'],
-            [
-                new NodeList([]),
-                'instance of GraphQL\Language\AST\NodeList(0)',
-            ],
+            [new NodeList([]), 'instance of GraphQL\Language\AST\NodeList(0)'],
             [[2], 'array(1)'],
             ['', '(empty string)'],
             ["'", "'\\''"],

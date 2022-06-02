@@ -8,6 +8,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoUnusedVariables;
 
+/**
+ * @phpstan-import-type ErrorArray from ErrorHelper
+ */
 class NoUnusedVariablesTest extends ValidatorTestCase
 {
     // Validate: No unused variables
@@ -159,7 +162,10 @@ class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    private function unusedVar($varName, $opName, $line, $column)
+    /**
+     * @phpstan-return ErrorArray
+     */
+    private function unusedVar(string $varName, ?string $opName, int $line, int $column): array
     {
         return ErrorHelper::create(
             NoUnusedVariables::unusedVariableMessage($varName, $opName),

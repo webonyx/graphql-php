@@ -16,6 +16,8 @@ export type InputType =
       | InputObjectType
       | ListOfType<InputType>,
     >;
+ *
+ * @phpstan-type InputTypeAlias ScalarType|EnumType|InputObjectType|ListOfType<Type&InputType>|NonNull
  */
 interface InputType
 {

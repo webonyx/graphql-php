@@ -8,12 +8,15 @@ use GraphQL\Utils\Utils;
 
 use function array_keys;
 
-abstract class TypeWithFields extends Type implements HasFieldsType
+/**
+ * @see HasFieldsType
+ */
+trait HasFieldsTypeImplementation
 {
     /**
      * Lazily initialized.
      *
-     * @var array<string, FieldDefinition>
+     * @var array<string, FieldDefinition|UnresolvedFieldDefinition>
      */
     private array $fields;
 
@@ -23,8 +26,7 @@ abstract class TypeWithFields extends Type implements HasFieldsType
             return;
         }
 
-        $fields       = $this->config['fields'] ?? [];
-        $this->fields = FieldDefinition::defineFieldMap($this, $fields);
+        $this->fields = FieldDefinition::defineFieldMap($this, $this->config['fields']);
     }
 
     public function getField(string $name): FieldDefinition

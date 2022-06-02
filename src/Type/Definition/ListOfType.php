@@ -6,39 +6,47 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Type\Schema;
 
-use function is_callable;
-
+/**
+ * @template-covariant OfType of Type
+ */
 class ListOfType extends Type implements WrappingType, OutputType, NullableType, InputType
 {
-    /** @var Type|callable():Type */
-    public $ofType;
+    /**
+     * @var Type|callable
+     * @phpstan-var OfType|callable(): OfType
+     */
+    private $wrappedType;
 
     /**
-     * @param Type|callable():Type $type
+     * @param Type|callable $type
+     * @phpstan-param OfType|callable(): OfType $type
      */
     public function __construct($type)
     {
-        $this->ofType = is_callable($type)
-            ? $type
-            : Type::assertType($type);
+        $this->wrappedType = $type;
     }
 
     public function toString(): string
     {
-        return '[' . $this->getOfType()->toString() . ']';
+        return '[' . $this->getWrappedType()->toString() . ']';
     }
 
-    public function getOfType(): Type
+    /**
+     * @phpstan-return OfType
+     */
+    public function getWrappedType(): Type
     {
-        return Schema::resolveType($this->ofType);
+        return Schema::resolveType($this->wrappedType);
     }
 
-    public function getWrappedType(bool $recurse = false): Type
+    public function getInnermostType(): NamedType
     {
-        $type = $this->getOfType();
+        $type = $this->getWrappedType();
+        while ($type instanceof WrappingType) {
+            $type = $type->getWrappedType();
+        }
 
-        return $recurse && $type instanceof WrappingType
-            ? $type->getWrappedType($recurse)
-            : $type;
+        /** @var Type&NamedType $type known because we unwrapped all the way down */
+        return $type;
     }
 }

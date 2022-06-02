@@ -8,7 +8,6 @@ use ArrayAccess;
 use Countable;
 use GraphQL\Utils\AST;
 use IteratorAggregate;
-// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
 use ReturnTypeWillChange;
 use Traversable;
 
@@ -16,11 +15,12 @@ use function array_merge;
 use function array_splice;
 use function count;
 use function is_array;
+use function iterator_to_array;
 
 /**
  * @template T of Node
- * @phpstan-implements ArrayAccess<int|string, T>
- * @phpstan-implements IteratorAggregate<T>
+ * @phpstan-implements ArrayAccess<array-key, T>
+ * @phpstan-implements IteratorAggregate<array-key, T>
  */
 class NodeList implements ArrayAccess, IteratorAggregate, Countable
 {
@@ -60,28 +60,18 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * TODO enable strict typing by changing how the Visitor deals with NodeList.
-     * Ideally, this function should always return a Node instance.
-     * However, the Visitor currently allows mutation of the NodeList
-     * and puts arbitrary values in the NodeList, such as strings.
-     * We will have to switch to using an array or a less strict
-     * type instead so we can enable strict typing in this class.
-     *
      * @param int|string $offset
      *
      * @phpstan-return T
      */
     #[ReturnTypeWillChange]
-    public function offsetGet($offset)// : Node
+    public function offsetGet($offset): Node
     {
         $item = $this->nodes[$offset];
 
         if (is_array($item)) {
-            /** @phpstan-var T $node */
-            $node                 = AST::fromArray($item);
-            $this->nodes[$offset] = $node;
-
-            return $node;
+            // @phpstan-ignore-next-line not really possible to express the correctness of this in PHP
+            return $this->nodes[$offset] = AST::fromArray($item);
         }
 
         return $item;
@@ -120,28 +110,26 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @param mixed $replacement
+     * @param T|array<T>|null $replacement
      *
      * @phpstan-return NodeList<T>
      */
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
-        /** @var array<T> $nodes */
-        $nodes = array_splice($this->nodes, $offset, $length, $replacement);
-
-        return new NodeList($nodes);
+        return new NodeList(
+            array_splice($this->nodes, $offset, $length, $replacement)
+        );
     }
 
     /**
-     * @param NodeList|array<Node|array<string, mixed>> $list
-     * @phpstan-param NodeList<T>|array<T> $list
+     * @phpstan-param iterable<array-key, T> $list
      *
      * @phpstan-return NodeList<T>
      */
-    public function merge($list): NodeList
+    public function merge(iterable $list): NodeList
     {
-        if ($list instanceof self) {
-            $list = $list->nodes;
+        if (! is_array($list)) {
+            $list = iterator_to_array($list);
         }
 
         return new NodeList(array_merge($this->nodes, $list));
@@ -157,5 +145,20 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     public function count(): int
     {
         return count($this->nodes);
+    }
+
+    /**
+     * Returns a clone of this instance and all its children, except Location $loc.
+     *
+     * @return static<T>
+     */
+    public function cloneDeep(): self
+    {
+        $cloned = clone $this;
+        foreach ($this->nodes as $key => $node) {
+            $cloned[$key] = $node->cloneDeep();
+        }
+
+        return $cloned;
     }
 }

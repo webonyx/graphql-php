@@ -390,6 +390,7 @@ class AbstractTest extends TestCase
      */
     public function testReturningInvalidValueFromResolveTypeYieldsUsefulError(): void
     {
+        // @phpstan-ignore-next-line intentionally wrong
         $fooInterface = new InterfaceType([
             'name'        => 'FooInterface',
             'fields'      => ['bar' => ['type' => Type::string()]],
@@ -589,15 +590,16 @@ class AbstractTest extends TestCase
 
     public function testHintsOnConflictingTypeInstancesInResolveType(): void
     {
+        /** @var InterfaceType $iface */
+        $iface = null;
+
         $createTest = static function () use (&$iface): ObjectType {
             return new ObjectType([
                 'name'       => 'Test',
                 'fields'     => [
                     'a' => Type::string(),
                 ],
-                'interfaces' => static function () use ($iface): array {
-                    return [$iface];
-                },
+                'interfaces' => static fn (): array => [$iface],
             ]);
         };
 
@@ -606,9 +608,7 @@ class AbstractTest extends TestCase
             'fields'      => [
                 'a' => Type::string(),
             ],
-            'resolveType' => static function () use (&$createTest): ObjectType {
-                return $createTest();
-            },
+            'resolveType' => $createTest,
         ]);
 
         $query = new ObjectType([

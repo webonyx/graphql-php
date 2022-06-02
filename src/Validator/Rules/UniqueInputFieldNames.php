@@ -15,8 +15,10 @@ use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 
 use function array_pop;
-use function sprintf;
 
+/**
+ * @phpstan-import-type VisitorArray from Visitor
+ */
 class UniqueInputFieldNames extends ValidationRule
 {
     /** @var array<string, NameNode> */
@@ -35,7 +37,10 @@ class UniqueInputFieldNames extends ValidationRule
         return $this->getASTVisitor($context);
     }
 
-    public function getASTVisitor(ASTValidationContext $context)
+    /**
+     * @phpstan-return VisitorArray
+     */
+    public function getASTVisitor(ASTValidationContext $context): array
     {
         $this->knownNames     = [];
         $this->knownNameStack = [];
@@ -67,8 +72,8 @@ class UniqueInputFieldNames extends ValidationRule
         ];
     }
 
-    public static function duplicateInputFieldMessage($fieldName)
+    public static function duplicateInputFieldMessage(string $fieldName): string
     {
-        return sprintf('There can be only one input field named "%s".', $fieldName);
+        return "There can be only one input field named \"{$fieldName}\".";
     }
 }

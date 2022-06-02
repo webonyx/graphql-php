@@ -12,23 +12,21 @@ use function str_replace;
 class QueryDepthTest extends QuerySecurityTestCase
 {
     /**
-     * @param int        $queryDepth
-     * @param int        $maxQueryDepth
-     * @param string[][] $expectedErrors
+     * @param array<int, array<string, mixed>> $expectedErrors
      *
      * @dataProvider queryDataProvider
      */
-    public function testSimpleQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []): void
+    public function testSimpleQueries(int $queryDepth, int $maxQueryDepth = 7, array $expectedErrors = []): void
     {
         $this->assertDocumentValidator($this->buildRecursiveQuery($queryDepth), $maxQueryDepth, $expectedErrors);
     }
 
-    private function buildRecursiveQuery($depth)
+    private function buildRecursiveQuery(int $depth): string
     {
-        return sprintf('query MyQuery { human%s }', $this->buildRecursiveQueryPart($depth));
+        return "query MyQuery { human{$this->buildRecursiveQueryPart($depth)} }";
     }
 
-    private function buildRecursiveQueryPart($depth)
+    private function buildRecursiveQueryPart(int $depth): string
     {
         $templates = [
             'human' => ' { firstName%s } ',
@@ -44,19 +42,15 @@ class QueryDepthTest extends QuerySecurityTestCase
             $part = sprintf($part, ($key === 'human' ? ' owner ' : '') . $template);
         }
 
-        $part = str_replace('%s', '', $part);
-
-        return $part;
+        return str_replace('%s', '', $part);
     }
 
     /**
-     * @param int        $queryDepth
-     * @param int        $maxQueryDepth
-     * @param string[][] $expectedErrors
+     * @param array<int, array<string, mixed>> $expectedErrors
      *
      * @dataProvider queryDataProvider
      */
-    public function testFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []): void
+    public function testFragmentQueries(int $queryDepth, int $maxQueryDepth = 7, array $expectedErrors = []): void
     {
         $this->assertDocumentValidator(
             $this->buildRecursiveUsingFragmentQuery($queryDepth),
@@ -65,22 +59,17 @@ class QueryDepthTest extends QuerySecurityTestCase
         );
     }
 
-    private function buildRecursiveUsingFragmentQuery($depth)
+    private function buildRecursiveUsingFragmentQuery(int $depth): string
     {
-        return sprintf(
-            'query MyQuery { human { ...F1 } } fragment F1 on Human %s',
-            $this->buildRecursiveQueryPart($depth)
-        );
+        return "query MyQuery { human { ...F1 } } fragment F1 on Human {$this->buildRecursiveQueryPart($depth)}";
     }
 
     /**
-     * @param int        $queryDepth
-     * @param int        $maxQueryDepth
-     * @param string[][] $expectedErrors
+     * @param array<int, array<string, mixed>> $expectedErrors
      *
      * @dataProvider queryDataProvider
      */
-    public function testInlineFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []): void
+    public function testInlineFragmentQueries(int $queryDepth, int $maxQueryDepth = 7, array $expectedErrors = []): void
     {
         $this->assertDocumentValidator(
             $this->buildRecursiveUsingInlineFragmentQuery($queryDepth),
@@ -89,12 +78,9 @@ class QueryDepthTest extends QuerySecurityTestCase
         );
     }
 
-    private function buildRecursiveUsingInlineFragmentQuery($depth)
+    private function buildRecursiveUsingInlineFragmentQuery(int $depth): string
     {
-        return sprintf(
-            'query MyQuery { human { ...on Human %s } }',
-            $this->buildRecursiveQueryPart($depth)
-        );
+        return "query MyQuery { human { ...on Human {$this->buildRecursiveQueryPart($depth)} } }";
     }
 
     public function testComplexityIntrospectionQuery(): void
@@ -112,7 +98,10 @@ class QueryDepthTest extends QuerySecurityTestCase
         $this->assertTypeNameMetaFieldQuery(1);
     }
 
-    public function queryDataProvider()
+    /**
+     * @return array<int, array{0: int, 1?: int, 2?: array<int, array<string, mixed>>}>
+     */
+    public function queryDataProvider(): array
     {
         return [
             [1], // Valid because depth under default limit (7)

@@ -8,6 +8,7 @@ use Exception;
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Types;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use UnexpectedValueException;
@@ -36,7 +37,7 @@ class ImageType extends ObjectType
                     },
                 ],
                 'nonNullFieldWithError' => [
-                    'type' => Types::nonNull(Types::string()),
+                    'type' => new NonNull(Types::string()),
                     'resolve' => static function (): void {
                         throw new Exception('Non-null field with exception');
                     },
