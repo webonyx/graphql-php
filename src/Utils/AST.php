@@ -80,21 +80,25 @@ class AST
      *
      * This is a reverse operation for AST::toArray($node)
      *
-     * @param mixed[] $node
+     * @param array<string, mixed> $node
      *
      * @api
      */
     public static function fromArray(array $node): Node
     {
-        if (! isset($node['kind']) || ! isset(NodeKind::$classMap[$node['kind']])) {
-            throw new InvariantViolation('Unexpected node structure: ' . Utils::printSafeJson($node));
+        $kind = $node['kind'] ?? null;
+        if ($kind === null) {
+            throw new InvariantViolation('Node is missing kind:' . Utils::printSafeJson($node));
         }
 
-        $kind     = $node['kind'] ?? null;
-        $class    = NodeKind::$classMap[$kind];
+        $class = NodeKind::CLASS_MAP[$kind] ?? null;
+        if ($class === null) {
+            throw new InvariantViolation('Node has unexpected kind:' . Utils::printSafeJson($node));
+        }
+
         $instance = new $class([]);
 
-        if (isset($node['loc'], $node['loc']['start'], $node['loc']['end'])) {
+        if (isset($node['loc']['start'], $node['loc']['end'])) {
             $instance->loc = Location::create($node['loc']['start'], $node['loc']['end']);
         }
 

@@ -438,9 +438,9 @@ class SchemaExtender
     }
 
     /**
-     * @param T $type
+     * @param T &NamedType $type
      *
-     * @return T
+     * @return T&NamedType
      *
      * @template T of Type
      */

@@ -53,20 +53,32 @@ use function is_callable;
 use function is_string;
 use function sprintf;
 
+/**
+ * @phpstan-import-type FieldResolver from Executor
+ */
 class ReferenceExecutor implements ExecutorImplementation
 {
-    /** @var object */
-    protected static $UNDEFINED;
+    protected static stdClass $UNDEFINED;
 
-    /** @var ExecutionContext */
-    protected $exeContext;
+    protected ExecutionContext $exeContext;
 
-    /** @var SplObjectStorage */
-    protected $subFieldCache;
+    /**
+     * @var SplObjectStorage<
+     *     ObjectType,
+     *     SplObjectStorage<
+     *         ArrayObject<int, FieldNode>,
+     *         ArrayObject<
+     *             string,
+     *             ArrayObject<int, FieldNode>
+     *         >
+     *     >
+     * >
+     */
+    protected SplObjectStorage $subFieldCache;
 
     protected function __construct(ExecutionContext $context)
     {
-        if (! static::$UNDEFINED) {
+        if (! isset(static::$UNDEFINED)) {
             static::$UNDEFINED = Utils::undefined();
         }
 
@@ -75,9 +87,10 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param mixed                    $rootValue
-     * @param mixed                    $contextValue
-     * @param array<mixed>|Traversable $variableValues
+     * @param mixed                $rootValue
+     * @param mixed                $contextValue
+     * @param array<string, mixed> $variableValues
+     * @phpstan-param FieldResolver $fieldResolver
      */
     public static function create(
         PromiseAdapter $promiseAdapter,
@@ -85,7 +98,7 @@ class ReferenceExecutor implements ExecutorImplementation
         DocumentNode $documentNode,
         $rootValue,
         $contextValue,
-        $variableValues,
+        array $variableValues,
         ?string $operationName,
         callable $fieldResolver
     ): ExecutorImplementation {
@@ -103,8 +116,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if (is_array($exeContext)) {
             return new class ($promiseAdapter->createFulfilled(new ExecutionResult(null, $exeContext))) implements ExecutorImplementation
             {
-                /** @var Promise */
-                private $result;
+                private Promise $result;
 
                 public function __construct(Promise $result)
                 {
@@ -125,27 +137,35 @@ class ReferenceExecutor implements ExecutorImplementation
      * Constructs an ExecutionContext object from the arguments passed to
      * execute, which we will pass throughout the other execution methods.
      *
-     * @param mixed                    $rootValue
-     * @param mixed                    $contextValue
-     * @param array<mixed>|Traversable $rawVariableValues
+     * @param mixed                $rootValue
+     * @param mixed                $contextValue
+     * @param array<string, mixed> $rawVariableValues
+     * @phpstan-param FieldResolver $fieldResolver
      *
-     * @return ExecutionContext|array<Error>
+     * @return ExecutionContext|array<int, Error>
      */
     protected static function buildExecutionContext(
         Schema $schema,
         DocumentNode $documentNode,
         $rootValue,
         $contextValue,
-        $rawVariableValues,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null,
-        ?PromiseAdapter $promiseAdapter = null
+        array $rawVariableValues,
+        ?string $operationName,
+        callable $fieldResolver,
+        PromiseAdapter $promiseAdapter
     ) {
-        $errors    = [];
+        /** @var array<int, Error> $errors */
+        $errors = [];
+
+        /** @var array<string, FragmentDefinitionNode> $fragments */
         $fragments = [];
+
         /** @var OperationDefinitionNode|null $operation */
-        $operation                    = null;
+        $operation = null;
+
+        /** @var bool $hasMultipleAssumedOperations */
         $hasMultipleAssumedOperations = false;
+
         foreach ($documentNode->definitions as $definition) {
             switch (true) {
                 case $definition instanceof OperationDefinitionNode:
@@ -154,8 +174,8 @@ class ReferenceExecutor implements ExecutorImplementation
                     }
 
                     if (
-                        $operationName === null ||
-                        (isset($definition->name) && $definition->name->value === $operationName)
+                        $operationName === null
+                        || (isset($definition->name) && $definition->name->value === $operationName)
                     ) {
                         $operation = $definition;
                     }
@@ -184,9 +204,9 @@ class ReferenceExecutor implements ExecutorImplementation
             [$coercionErrors, $coercedVariableValues] = Values::getVariableValues(
                 $schema,
                 $operation->variableDefinitions,
-                $rawVariableValues ?? []
+                $rawVariableValues
             );
-            if (count($coercionErrors ?? []) === 0) {
+            if ($coercionErrors === null) {
                 $variableValues = $coercedVariableValues;
             } else {
                 $errors = array_merge($errors, $coercionErrors);
@@ -346,12 +366,17 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * Given a selectionSet, adds all of the fields in that selection to
+     * Given a selectionSet, adds all fields in that selection to
      * the passed in map of fields, and returns it at the end.
      *
      * CollectFields requires the "runtime type" of an object. For a field which
      * returns an Interface or Union type, the "runtime type" will be the actual
      * Object type returned by that field.
+     *
+     * @param ArrayObject<string, ArrayObject<int, FieldNode>> $fields
+     * @param ArrayObject<string, true>                        $visitedFragmentNames
+     *
+     * @return ArrayObject<string, ArrayObject<int, FieldNode>>
      */
     protected function collectFields(
         ObjectType $runtimeType,
@@ -367,11 +392,8 @@ class ReferenceExecutor implements ExecutorImplementation
                         break;
                     }
 
-                    $name = static::getFieldEntryKey($selection);
-                    if (! isset($fields[$name])) {
-                        $fields[$name] = new ArrayObject();
-                    }
-
+                    $name            = static::getFieldEntryKey($selection);
+                    $fields[$name] ??= new ArrayObject();
                     $fields[$name][] = $selection;
                     break;
                 case $selection instanceof InlineFragmentNode:
@@ -392,14 +414,18 @@ class ReferenceExecutor implements ExecutorImplementation
                 case $selection instanceof FragmentSpreadNode:
                     $fragName = $selection->name->value;
 
-                    if (($visitedFragmentNames[$fragName] ?? false) === true || ! $this->shouldIncludeNode($selection)) {
+                    if (isset($visitedFragmentNames[$fragName]) || ! $this->shouldIncludeNode($selection)) {
                         break;
                     }
 
                     $visitedFragmentNames[$fragName] = true;
-                    /** @var FragmentDefinitionNode|null $fragment */
-                    $fragment = $exeContext->fragments[$fragName] ?? null;
-                    if ($fragment === null || ! $this->doesFragmentConditionMatch($fragment, $runtimeType)) {
+
+                    if (! isset($exeContext->fragments[$fragName])) {
+                        break;
+                    }
+
+                    $fragment = $exeContext->fragments[$fragName];
+                    if (! $this->doesFragmentConditionMatch($fragment, $runtimeType)) {
                         break;
                     }
 
@@ -425,9 +451,9 @@ class ReferenceExecutor implements ExecutorImplementation
     protected function shouldIncludeNode(SelectionNode $node): bool
     {
         $variableValues = $this->exeContext->variableValues;
-        $skipDirective  = Directive::skipDirective();
-        $skip           = Values::getDirectiveValues(
-            $skipDirective,
+
+        $skip = Values::getDirectiveValues(
+            Directive::skipDirective(),
             $node,
             $variableValues
         );
@@ -435,9 +461,8 @@ class ReferenceExecutor implements ExecutorImplementation
             return false;
         }
 
-        $includeDirective = Directive::includeDirective();
-        $include          = Values::getDirectiveValues(
-            $includeDirective,
+        $include = Values::getDirectiveValues(
+            Directive::includeDirective(),
             $node,
             $variableValues
         );
@@ -450,9 +475,8 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected static function getFieldEntryKey(FieldNode $node): string
     {
-        return $node->alias === null
-            ? $node->name->value
-            : $node->alias->value;
+        return $node->alias->value
+            ?? $node->name->value;
     }
 
     /**
@@ -480,11 +504,11 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * Implements the "Evaluating selection sets" section of the spec
-     * for "write" mode.
+     * Implements the "Evaluating selection sets" section of the spec for "write" mode.
      *
-     * @param mixed             $rootValue
-     * @param array<string|int> $path
+     * @param mixed                                      $rootValue
+     * @param array<string|int>                          $path
+     * @param ArrayObject<string, array<int, FieldNode>> $fields
      *
      * @return array<mixed>|Promise|stdClass
      */
@@ -533,8 +557,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * by calling its resolve function, then calls completeValue to complete promises,
      * serialize scalars, or execute the sub-selection-set for objects.
      *
-     * @param mixed                  $rootValue
-     * @param array<int, string|int> $path
+     * @param mixed                       $rootValue
+     * @param array<int, string|int>      $path
+     * @param ArrayObject<int, FieldNode> $fieldNodes
      *
      * @return array<mixed>|Throwable|mixed|null
      */
@@ -582,15 +607,14 @@ class ReferenceExecutor implements ExecutorImplementation
             $rootValue,
             $info
         );
-        $result = $this->completeValueCatchingError(
+
+        return $this->completeValueCatchingError(
             $returnType,
             $fieldNodes,
             $info,
             $path,
             $result
         );
-
-        return $result;
     }
 
     /**
@@ -632,6 +656,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * Returns the result of resolveFn or the abrupt-return Error object.
      *
      * @param mixed $rootValue
+     * @phpstan-param FieldResolver $resolveFn
      *
      * @return Throwable|Promise|mixed
      */
@@ -662,8 +687,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * This is a small wrapper around completeValue which detects and logs errors
      * in the execution context.
      *
-     * @param array<string|int> $path
-     * @param mixed             $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param mixed                       $result
      *
      * @return array<mixed>|Promise|stdClass|null
      */
@@ -702,8 +728,9 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param mixed                  $rawError
-     * @param array<int, string|int> $path
+     * @param mixed                       $rawError
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<int, string|int>      $path
      *
      * @throws Error
      */
@@ -747,8 +774,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * Otherwise, the field type expects a sub-selection set, and will complete the
      * value by evaluating all sub-selections.
      *
-     * @param array<string|int> $path
-     * @param mixed             $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param mixed                       $result
      *
      * @return array<mixed>|mixed|Promise|null
      *
@@ -841,7 +869,8 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function isPromise($value): bool
     {
-        return $value instanceof Promise || $this->exeContext->promiseAdapter->isThenable($value);
+        return $value instanceof Promise
+            || $this->exeContext->promiseAdapter->isThenable($value);
     }
 
     /**
@@ -905,8 +934,9 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Complete a list value by completing each item in the list with the inner type.
      *
-     * @param array<string|int>        $path
-     * @param array<mixed>|Traversable $results
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param array<mixed>|Traversable    $results
      *
      * @return array<mixed>|Promise|stdClass
      *
@@ -965,8 +995,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * Complete a value of an abstract type by determining the runtime object type
      * of that value, then complete the value for that type.
      *
-     * @param array<string|int> $path
-     * @param array<mixed>      $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param array<mixed>                $result
      *
      * @return array<mixed>|Promise|stdClass
      *
@@ -1048,10 +1079,10 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         // First, look for `__typename`.
         if (
-            $value !== null &&
-            (is_array($value) || $value instanceof ArrayAccess) &&
-            isset($value['__typename']) &&
-            is_string($value['__typename'])
+            $value !== null
+            && (is_array($value) || $value instanceof ArrayAccess)
+            && isset($value['__typename'])
+            && is_string($value['__typename'])
         ) {
             return $value['__typename'];
         }
@@ -1106,8 +1137,9 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Complete an Object value by executing all sub-selections.
      *
-     * @param array<string|int> $path
-     * @param mixed             $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param mixed                       $result
      *
      * @return array<mixed>|Promise|stdClass
      *
@@ -1160,7 +1192,8 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param array<mixed> $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<mixed>                $result
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
@@ -1174,8 +1207,9 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param array<string|int> $path
-     * @param mixed             $result
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<string|int>           $path
+     * @param mixed                       $result
      *
      * @return array<mixed>|Promise|stdClass
      *
@@ -1196,14 +1230,16 @@ class ReferenceExecutor implements ExecutorImplementation
      * A memoized collection of relevant subfields with regard to the return
      * type. Memoizing ensures the subfields are not repeatedly calculated, which
      * saves overhead when resolving lists of values.
+     *
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     *
+     * @return ArrayObject<int, FieldNode>
      */
     protected function collectSubFields(ObjectType $returnType, ArrayObject $fieldNodes): ArrayObject
     {
-        if (! isset($this->subFieldCache[$returnType])) {
-            $this->subFieldCache[$returnType] = new SplObjectStorage();
-        }
+        $returnTypeCache = $this->subFieldCache[$returnType] ??= new SplObjectStorage();
 
-        if (! isset($this->subFieldCache[$returnType][$fieldNodes])) {
+        if (! isset($returnTypeCache[$fieldNodes])) {
             // Collect sub-fields to execute to complete this value.
             $subFieldNodes        = new ArrayObject();
             $visitedFragmentNames = new ArrayObject();
@@ -1220,18 +1256,18 @@ class ReferenceExecutor implements ExecutorImplementation
                 );
             }
 
-            $this->subFieldCache[$returnType][$fieldNodes] = $subFieldNodes;
+            $returnTypeCache[$fieldNodes] = $subFieldNodes;
         }
 
-        return $this->subFieldCache[$returnType][$fieldNodes];
+        return $returnTypeCache[$fieldNodes];
     }
 
     /**
-     * Implements the "Evaluating selection sets" section of the spec
-     * for "read" mode.
+     * Implements the "Evaluating selection sets" section of the spec for "read" mode.
      *
-     * @param mixed             $rootValue
-     * @param array<string|int> $path
+     * @param mixed                       $rootValue
+     * @param array<string|int>           $path
+     * @param ArrayObject<int, FieldNode> $fields
      *
      * @return Promise|stdClass|array<mixed>
      */

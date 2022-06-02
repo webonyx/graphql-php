@@ -6,8 +6,7 @@ namespace GraphQL\Language\AST;
 
 class EnumTypeDefinitionNode extends Node implements TypeDefinitionNode
 {
-    /** @var string */
-    public $kind = NodeKind::ENUM_TYPE_DEFINITION;
+    public string $kind = NodeKind::ENUM_TYPE_DEFINITION;
 
     /** @var NameNode */
     public $name;

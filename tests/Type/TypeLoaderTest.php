@@ -17,8 +17,6 @@ use stdClass;
 use Throwable;
 use TypeError;
 
-use function lcfirst;
-
 /**
  * @see LazyTypeLoaderTest
  */
@@ -40,11 +38,11 @@ class TypeLoaderTest extends TestCase
 
     private InputObjectType $postStoryMutationInput;
 
-    /** @var callable */
+    /** @var callable(string): ?Type */
     private $typeLoader;
 
     /** @var array<int, string> */
-    private $calls;
+    private array $calls;
 
     public function setUp(): void
     {
@@ -140,11 +138,34 @@ class TypeLoaderTest extends TestCase
             ],
         ]);
 
-        $this->typeLoader = function ($name) {
+        $this->typeLoader = function (string $name): ?Type {
             $this->calls[] = $name;
-            $prop          = lcfirst($name);
 
-            return $this->{$prop} ?? null;
+            switch ($name) {
+                case 'Query':
+                    return $this->query;
+
+                case 'Mutation':
+                    return $this->mutation;
+
+                case 'Node':
+                    return $this->node;
+
+                case 'Content':
+                    return $this->content;
+
+                case 'BlogStory':
+                    return $this->blogStory;
+
+                case 'PostStoryMutation':
+                    return $this->postStoryMutation;
+
+                case 'PostStoryMutationInput':
+                    return $this->postStoryMutationInput;
+
+                default:
+                    return null;
+            }
         };
     }
 

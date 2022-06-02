@@ -6,7 +6,6 @@ See [related documentation](executing-queries.md).
 ### GraphQL\GraphQL Methods
 
 ```php
-
 /**
  * Executes graphql query.
  *
@@ -69,11 +68,11 @@ static function executeQuery(
  * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
  * Useful for Async PHP platforms.
  *
- * @param string|DocumentNode   $source
- * @param mixed                 $rootValue
- * @param mixed                 $context
- * @param mixed[]|null          $variableValues
- * @param ValidationRule[]|null $validationRules
+ * @param string|DocumentNode        $source
+ * @param mixed                      $rootValue
+ * @param mixed                      $context
+ * @param array<string, mixed>|null  $variableValues
+ * @param array<ValidationRule>|null $validationRules
  *
  * @api
  */
@@ -83,7 +82,7 @@ static function promiseToExecute(
     $source,
     $rootValue = null,
     $context = null,
-    $variableValues = null,
+    array $variableValues = null,
     string $operationName = null,
     callable $fieldResolver = null,
     array $validationRules = null
@@ -270,7 +269,6 @@ Passed as 4th argument to every field resolver. See [docs on field resolving (da
  * The definition of the field being resolved.
  *
  * @api
- * @var FieldDefinition
  */
 public $fieldDefinition;
 
@@ -278,7 +276,6 @@ public $fieldDefinition;
  * The name of the field being resolved.
  *
  * @api
- * @var string
  */
 public $fieldName;
 
@@ -286,7 +283,6 @@ public $fieldName;
  * Expected return type of the field being resolved.
  *
  * @api
- * @var Type
  */
 public $returnType;
 
@@ -294,7 +290,7 @@ public $returnType;
  * AST of all nodes referencing this field in the query.
  *
  * @api
- * @var FieldNode[]
+ * @var iterable<int, FieldNode>
  */
 public $fieldNodes;
 
@@ -302,7 +298,6 @@ public $fieldNodes;
  * Parent type of the field being resolved.
  *
  * @api
- * @var ObjectType
  */
 public $parentType;
 
@@ -310,7 +305,7 @@ public $parentType;
  * Path to this field from the very root value.
  *
  * @api
- * @var string[]
+ * @var array<int, string|int>
  */
 public $path;
 
@@ -318,7 +313,6 @@ public $path;
  * Instance of a schema used for execution.
  *
  * @api
- * @var Schema
  */
 public $schema;
 
@@ -326,7 +320,7 @@ public $schema;
  * AST of all fragments defined in query.
  *
  * @api
- * @var FragmentDefinitionNode[]
+ * @var array<string, FragmentDefinitionNode>
  */
 public $fragments;
 
@@ -342,7 +336,6 @@ public $rootValue;
  * AST of operation definition node (query, mutation).
  *
  * @api
- * @var OperationDefinitionNode|null
  */
 public $operation;
 
@@ -350,7 +343,7 @@ public $operation;
  * Array of variables passed to query execution.
  *
  * @api
- * @var mixed[]
+ * @var array<string, mixed>
  */
 public $variableValues;
 ```
@@ -395,7 +388,7 @@ public $variableValues;
  *
  * @api
  */
-function getFieldSelection($depth = 0): array
+function getFieldSelection(int $depth = 0): array
 ```
 
 ## GraphQL\Language\DirectiveLocation
@@ -1022,7 +1015,7 @@ visitor API:
         'enter' => function ($node) {
    // enter the "Kind" node
    }
-   'leave' => function (\$node) {
+   'leave' => function ($node) {
    // leave the "Kind" node
    }
    ]
@@ -1034,7 +1027,7 @@ visitor API:
       'enter' => function ($node) {
    // enter any node
    },
-   'leave' => function (\$node) {
+   'leave' => function ($node) {
    // leave any node
    }
    ]);
@@ -1156,6 +1149,9 @@ const SCHEMA_EXTENSION = 'SchemaExtension';
 
 Implements the "Evaluating requests" section of the GraphQL specification.
 
+@phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
+@phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed=, mixed=, ?array<mixed>=, ?string=, ?callable=): ExecutorImplementation
+
 ### GraphQL\Executor\Executor Methods
 
 ```php
@@ -1165,12 +1161,12 @@ Implements the "Evaluating requests" section of the GraphQL specification.
  * Always returns ExecutionResult and never throws.
  * All errors which occur during operation execution are collected in `$result->errors`.
  *
- * @param mixed|null                    $rootValue
- * @param mixed|null                    $contextValue
- * @param array<mixed>|ArrayAccess|null $variableValues
- * @param string|null                   $operationName
+ * @param mixed                     $rootValue
+ * @param mixed                     $contextValue
+ * @param array<string, mixed>|null $variableValues
+ * @phpstan-param FieldResolver|null $fieldResolver
  *
- * @return ExecutionResult|Promise
+ * @return ExecutionResult|array<ExecutionResult>
  *
  * @api
  */
@@ -1179,8 +1175,8 @@ static function execute(
     GraphQL\Language\AST\DocumentNode $documentNode,
     $rootValue = null,
     $contextValue = null,
-    $variableValues = null,
-    $operationName = null,
+    array $variableValues = null,
+    string $operationName = null,
     callable $fieldResolver = null
 )
 ```
@@ -1192,10 +1188,10 @@ static function execute(
  *
  * Useful for async PHP platforms.
  *
- * @param mixed|null        $rootValue
- * @param mixed|null        $contextValue
- * @param array<mixed>|null $variableValues
- * @param string|null       $operationName
+ * @param mixed                     $rootValue
+ * @param mixed                     $contextValue
+ * @param array<string, mixed>|null $variableValues
+ * @phpstan-param FieldResolver|null $fieldResolver
  *
  * @api
  */
@@ -1205,8 +1201,8 @@ static function promiseToExecute(
     GraphQL\Language\AST\DocumentNode $documentNode,
     $rootValue = null,
     $contextValue = null,
-    $variableValues = null,
-    $operationName = null,
+    array $variableValues = null,
+    string $operationName = null,
     callable $fieldResolver = null
 ): GraphQL\Executor\Promise\Promise
 ```
@@ -1420,9 +1416,9 @@ will be created from the provided schema.
 /**
  * Primary method for query validation. See class description for details.
  *
- * @param ValidationRule[]|null $rules
+ * @param array<ValidationRule>|null $rules
  *
- * @return Error[]
+ * @return array<int, Error>
  *
  * @api
  */

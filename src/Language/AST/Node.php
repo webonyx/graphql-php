@@ -38,14 +38,12 @@ use function json_encode;
  */
 abstract class Node
 {
-    /** @var Location|null */
-    public $loc;
+    public ?Location $loc = null;
 
-    /** @var string */
-    public $kind;
+    public string $kind;
 
     /**
-     * @param (NameNode|NodeList|SelectionSetNode|Location|string|int|bool|float|null)[] $vars
+     * @param array<string, mixed> $vars
      */
     public function __construct(array $vars)
     {

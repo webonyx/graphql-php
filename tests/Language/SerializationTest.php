@@ -47,8 +47,7 @@ class SerializationTest extends TestCase
     {
         $err = 'Mismatch at AST path: ' . implode(', ', $path);
 
-        self::assertInstanceOf(Node::class, $actual, $err);
-        self::assertEquals(get_class($expected), get_class($actual), $err);
+        self::assertSame(get_class($expected), get_class($actual), $err);
 
         $expectedVars = get_object_vars($expected);
         $actualVars   = get_object_vars($actual);

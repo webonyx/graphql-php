@@ -6,8 +6,7 @@ namespace GraphQL\Language\AST;
 
 class InputValueDefinitionNode extends Node
 {
-    /** @var string */
-    public $kind = NodeKind::INPUT_VALUE_DEFINITION;
+    public string $kind = NodeKind::INPUT_VALUE_DEFINITION;
 
     /** @var NameNode */
     public $name;

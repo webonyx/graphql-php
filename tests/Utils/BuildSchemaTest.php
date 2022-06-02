@@ -1335,10 +1335,12 @@ class BuildSchemaTest extends TestCase
               foo: String @unknown
             }
         ';
-        // Should not throw:
-        BuildSchema::build($sdl, null, ['assumeValid' => true]);
-        BuildSchema::build($sdl, null, ['assumeValidSDL' => true]);
-        self::assertTrue(true);
+
+        $schema = BuildSchema::build($sdl, null, ['assumeValid' => true]);
+        self::assertCount(1, $schema->validate());
+
+        $schema = BuildSchema::build($sdl, null, ['assumeValidSDL' => true]);
+        self::assertCount(1, $schema->validate());
     }
 
     /**

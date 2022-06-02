@@ -6,8 +6,7 @@ namespace GraphQL\Language\AST;
 
 class ObjectFieldNode extends Node
 {
-    /** @var string */
-    public $kind = NodeKind::OBJECT_FIELD;
+    public string $kind = NodeKind::OBJECT_FIELD;
 
     /** @var NameNode */
     public $name;
