@@ -906,7 +906,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend scalar type', () => {.
+     * @see it('Correctly extend scalar type')
      */
     public function testCorrectlyExtendScalarType(): void
     {
@@ -936,7 +936,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend object type', () => {.
+     * @see it('Correctly extend object type')
      */
     public function testCorrectlyExtendObjectType(): void
     {
@@ -977,7 +977,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend interface type', () => {.
+     * @see it('Correctly extend interface type')
      */
     public function testCorrectlyExtendInterfaceType(): void
     {
@@ -1013,7 +1013,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend union type', () => {.
+     * @see it('Correctly extend union type')
      */
     public function testCorrectlyExtendUnionType(): void
     {
@@ -1044,7 +1044,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend enum type', () => {.
+     * @see it('Correctly extend enum type')
      */
     public function testCorrectlyExtendEnumType(): void
     {
@@ -1080,7 +1080,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * it('Correctly extend input object type', () => {.
+     * @see it('Correctly extend input object type')
      */
     public function testCorrectlyExtendInputObjectType(): void
     {
