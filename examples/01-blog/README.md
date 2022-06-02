@@ -1,7 +1,7 @@
 # Blog Example
 
 Simple yet full-featured example of GraphQL API.
-Models a blogging platform with Stories, Users and hierarchical comments. 
+Models a blogging platform with Stories, Users and hierarchical comments.
 
 ## Run local test server
 
@@ -10,6 +10,7 @@ php -S localhost:8080 graphql.php
 ```
 
 ### Try query
+
 ```
 curl -d '{"query": "query { hello }" }' -H "Content-Type: application/json" http://localhost:8080
 ```
@@ -66,7 +67,7 @@ Copy the following query to your GraphQL client and send the request:
         height
         # Uncomment following line to see validation error:
         # nonExistingField
-        
+
         # Uncomment to see error reporting for fields with exceptions thrown in resolvers
         # fieldWithError
         # nonNullFieldWithError
@@ -99,10 +100,11 @@ For example, the following query is invalid in GraphQL:
 
 ```graphql
 {
-    viewer
+  viewer
 }
 ```
 
 ### Dig into source code
+
 Now when you tried GraphQL API as a consumer, see how it is implemented by browsing
 the source code.

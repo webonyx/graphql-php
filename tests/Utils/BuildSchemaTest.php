@@ -29,16 +29,15 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
-use GraphQL\Utils\Utils;
 use function preg_match;
 use function preg_replace;
-use function property_exists;
 use function trim;
 
 /**
@@ -79,7 +78,7 @@ class BuildSchemaTest extends TestCaseBase
      */
     private function printAllASTNodes(NamedType $obj): string
     {
-        Utils::invariant(property_exists($obj, 'astNode') && property_exists($obj, 'extensionASTNodes') && $obj->extensionASTNodes !== null);
+        self::assertNotNull($obj->astNode);
 
         return Printer::doPrint(new DocumentNode([
             'definitions' => new NodeList([
@@ -915,13 +914,14 @@ class BuildSchemaTest extends TestCaseBase
      */
     public function testCorrectlyExtendScalarType(): void
     {
-        $scalarSDL = $this->dedent('
+        $scalarSDL = <<<'GRAPHQL'
             scalar SomeScalar
             
             extend scalar SomeScalar @foo
             
             extend scalar SomeScalar @bar
-        ');
+            
+            GRAPHQL;
 
         $schema = BuildSchema::build("
             ${scalarSDL}
@@ -929,14 +929,14 @@ class BuildSchemaTest extends TestCaseBase
             directive @bar on SCALAR
         ");
 
-        /** @var ScalarType $someScalar */
         $someScalar = $schema->getType('SomeScalar');
+        assert($someScalar instanceof ScalarType);
 
-        $expectedSomeScalarSDL = $this->dedent('
+        $expectedSomeScalarSDL = <<<'GRAPHQL'
             scalar SomeScalar
-        ');
+            GRAPHQL;
 
-        self::assertEquals($expectedSomeScalarSDL, SchemaPrinter::printType($someScalar) . "\n");
+        self::assertEquals($expectedSomeScalarSDL, SchemaPrinter::printType($someScalar));
         self::assertEquals($scalarSDL, $this->printAllASTNodes($someScalar));
     }
 
@@ -945,7 +945,7 @@ class BuildSchemaTest extends TestCaseBase
      */
     public function testCorrectlyExtendObjectType(): void
     {
-        $objectSDL = $this->dedent('
+        $objectSDL = <<<'GRAPHQL'
             type SomeObject implements Foo {
               first: String
             }
@@ -957,7 +957,8 @@ class BuildSchemaTest extends TestCaseBase
             extend type SomeObject implements Baz {
               third: Float
             }
-        ');
+            
+            GRAPHQL;
 
         $schema = BuildSchema::build("
             ${objectSDL}
@@ -966,18 +967,18 @@ class BuildSchemaTest extends TestCaseBase
             interface Baz
         ");
 
-        /** @var ObjectType $someObject */
         $someObject = $schema->getType('SomeObject');
+        assert($someObject instanceof ObjectType);
 
-        $expectedSomeObjectSDL = $this->dedent('
+        $expectedSomeObjectSDL = <<<'GRAPHQL'
             type SomeObject implements Foo & Bar & Baz {
               first: String
               second: Int
               third: Float
             }
-        ');
+            GRAPHQL;
 
-        self::assertEquals($expectedSomeObjectSDL, SchemaPrinter::printType($someObject) . "\n");
+        self::assertEquals($expectedSomeObjectSDL, SchemaPrinter::printType($someObject));
         self::assertEquals($objectSDL, $this->printAllASTNodes($someObject));
     }
 
@@ -986,7 +987,7 @@ class BuildSchemaTest extends TestCaseBase
      */
     public function testCorrectlyExtendInterfaceType(): void
     {
-        $interfaceSDL = $this->dedent('
+        $interfaceSDL = <<<'GRAPHQL'
             interface SomeInterface {
               first: String
             }
@@ -998,22 +999,23 @@ class BuildSchemaTest extends TestCaseBase
             extend interface SomeInterface {
               third: Float
             }
-        ');
+            
+            GRAPHQL;
 
         $schema = BuildSchema::build($interfaceSDL);
 
-        /** @var InterfaceType $someInterface */
         $someInterface = $schema->getType('SomeInterface');
+        assert($someInterface instanceof InterfaceType);
 
-        $expectedSomeInterfaceSDL = $this->dedent('
+        $expectedSomeInterfaceSDL = <<<'GRAPHQL'
             interface SomeInterface {
               first: String
               second: Int
               third: Float
             }
-        ');
+            GRAPHQL;
 
-        self::assertEquals($expectedSomeInterfaceSDL, SchemaPrinter::printType($someInterface) . "\n");
+        self::assertEquals($expectedSomeInterfaceSDL, SchemaPrinter::printType($someInterface));
         self::assertEquals($interfaceSDL, $this->printAllASTNodes($someInterface));
     }
 
@@ -1022,13 +1024,14 @@ class BuildSchemaTest extends TestCaseBase
      */
     public function testCorrectlyExtendUnionType(): void
     {
-        $unionSDL = $this->dedent('
+        $unionSDL = <<<'GRAPHQL'
             union SomeUnion = FirstType
             
             extend union SomeUnion = SecondType
             
             extend union SomeUnion = ThirdType
-        ');
+            
+            GRAPHQL;
 
         $schema = BuildSchema::build("
             ${unionSDL}
@@ -1037,14 +1040,14 @@ class BuildSchemaTest extends TestCaseBase
             type ThirdType
         ");
 
-        /** @var UnionType $someUnion */
         $someUnion = $schema->getType('SomeUnion');
+        assert($someUnion instanceof UnionType);
 
-        $expectedSomeUnionSDL = $this->dedent('
+        $expectedSomeUnionSDL = <<<'GRAPHQL'
             union SomeUnion = FirstType | SecondType | ThirdType
-        ');
+            GRAPHQL;
 
-        self::assertEquals($expectedSomeUnionSDL, SchemaPrinter::printType($someUnion) . "\n");
+        self::assertEquals($expectedSomeUnionSDL, SchemaPrinter::printType($someUnion));
         self::assertEquals($unionSDL, $this->printAllASTNodes($someUnion));
     }
 
@@ -1053,7 +1056,7 @@ class BuildSchemaTest extends TestCaseBase
      */
     public function testCorrectlyExtendEnumType(): void
     {
-        $enumSDL = $this->dedent('
+        $enumSDL = <<<'GRAPHQL'
             enum SomeEnum {
               FIRST
             }
@@ -1065,22 +1068,23 @@ class BuildSchemaTest extends TestCaseBase
             extend enum SomeEnum {
               THIRD
             }
-        ');
+            
+            GRAPHQL;
 
         $schema = BuildSchema::build($enumSDL);
 
-        /** @var EnumType $someEnum */
         $someEnum = $schema->getType('SomeEnum');
+        assert($someEnum instanceof EnumType);
 
-        $expectedSomeEnumSDL = $this->dedent('
+        $expectedSomeEnumSDL = <<<'GRAPHQL'
             enum SomeEnum {
               FIRST
               SECOND
               THIRD
             }
-        ');
+            GRAPHQL;
 
-        self::assertEquals($expectedSomeEnumSDL, SchemaPrinter::printType($someEnum) . "\n");
+        self::assertEquals($expectedSomeEnumSDL, SchemaPrinter::printType($someEnum));
         self::assertEquals($enumSDL, $this->printAllASTNodes($someEnum));
     }
 
@@ -1089,7 +1093,7 @@ class BuildSchemaTest extends TestCaseBase
      */
     public function testCorrectlyExtendInputObjectType(): void
     {
-        $inputSDL = $this->dedent('
+        $inputSDL = <<<'GRAPHQL'
             input SomeInput {
               first: String
             }
@@ -1101,22 +1105,23 @@ class BuildSchemaTest extends TestCaseBase
             extend input SomeInput {
               third: Float
             }
-        ');
+            
+            GRAPHQL;
 
         $schema = BuildSchema::build($inputSDL);
 
-        /** @var InputObjectType $someInput */
         $someInput = $schema->getType('SomeInput');
+        assert($someInput instanceof InputObjectType);
 
-        $expectedSomeInputSDL = $this->dedent('
+        $expectedSomeInputSDL = <<<'GRAPHQL'
             input SomeInput {
               first: String
               second: Int
               third: Float
             }
-        ');
+            GRAPHQL;
 
-        self::assertEquals($expectedSomeInputSDL, SchemaPrinter::printType($someInput) . "\n");
+        self::assertEquals($expectedSomeInputSDL, SchemaPrinter::printType($someInput));
         self::assertEquals($inputSDL, $this->printAllASTNodes($someInput));
     }
 
@@ -1430,20 +1435,20 @@ class BuildSchemaTest extends TestCaseBase
         $schema->getTypeMap();
         self::assertEquals(['Query', 'Color', 'Hello'], $decorated);
 
-        [$defaultConfig, $node, $allNodesMap] = $calls[0];
+        [$defaultConfig, $node, $allNodesMap] = $calls[0]; // type Query
         self::assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
         self::assertEquals('Query', $defaultConfig['name']);
         self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
         self::assertInstanceOf(Closure::class, $defaultConfig['interfaces']);
         self::assertArrayHasKey('description', $defaultConfig);
-        self::assertCount(5, $defaultConfig);
+        self::assertCount(6, $defaultConfig);
         self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
 
         $query = $schema->getType('Query');
         self::assertInstanceOf(ObjectType::class, $query);
         self::assertEquals('My description of Query', $query->description);
 
-        [$defaultConfig, $node, $allNodesMap] = $calls[1];
+        [$defaultConfig, $node, $allNodesMap] = $calls[1]; // enum Color
         self::assertInstanceOf(EnumTypeDefinitionNode::class, $node);
         self::assertEquals('Color', $defaultConfig['name']);
         $enumValue = [
@@ -1458,20 +1463,20 @@ class BuildSchemaTest extends TestCaseBase
             ],
             $defaultConfig['values']
         );
-        self::assertCount(4, $defaultConfig); // 3 + astNode
+        self::assertCount(5, $defaultConfig); // 3 + astNode + extensionASTNodes
         self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
 
         $color = $schema->getType('Color');
         self::assertInstanceOf(EnumType::class, $color);
         self::assertEquals('My description of Color', $color->description);
 
-        [$defaultConfig, $node, $allNodesMap] = $calls[2];
+        [$defaultConfig, $node, $allNodesMap] = $calls[2]; // interface Hello
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
         self::assertEquals('Hello', $defaultConfig['name']);
         self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertArrayHasKey('interfaces', $defaultConfig);
-        self::assertCount(5, $defaultConfig);
+        self::assertCount(6, $defaultConfig);
         self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
 
         $hello = $schema->getType('Hello');
@@ -1530,5 +1535,160 @@ class BuildSchemaTest extends TestCaseBase
         self::assertArrayHasKey('Color', $types);
         self::assertArrayHasKey('Hello', $types);
         self::assertArrayHasKey('World', $types);
+    }
+
+    /**
+     * @param array<string> $sdlExts
+     * @param callable(\GraphQL\Type\Definition\Type $type):void $assert
+     *
+     * @dataProvider correctlyExtendsTypesDataProvider
+     */
+    public function testCorrectlyExtendsTypes(string $baseSdl, array $sdlExts, string $expectedSdl, callable $assert): void
+    {
+        $defaultSdl = <<<'GRAPHQL'
+            directive @foo on SCHEMA | SCALAR | OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT
+            interface Bar
+            GRAPHQL;
+
+        $sdl = \implode("\n", [$defaultSdl, $baseSdl, ...$sdlExts]);
+        $schema = BuildSchema::build($sdl);
+        $myType = $schema->getType('MyType');
+        self::assertNotNull($myType);
+        self::assertEquals($expectedSdl, SchemaPrinter::printType($myType));
+        self::assertCount(\count($sdlExts), $myType->extensionASTNodes);
+        $assert($myType);
+    }
+
+    /**
+     * @return iterable<string, array<mixed>>
+     */
+    public function correctlyExtendsTypesDataProvider(): iterable
+    {
+        yield 'scalar' => [
+            'scalar MyType',
+            [
+                <<<'GRAPHQL'
+                extend scalar MyType @foo
+                GRAPHQL,
+            ],
+            'scalar MyType',
+            function (ScalarType $type): void {
+                // nothing else to assert here, scalar extensions can add only directives
+            },
+        ];
+        yield 'object' => [
+            'type MyType',
+            [
+                <<<'GRAPHQL'
+                extend type MyType @foo
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend type MyType {
+                  field: String
+                }
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend type MyType implements Bar
+                GRAPHQL,
+            ],
+            <<<'GRAPHQL'
+            type MyType implements Bar {
+              field: String
+            }
+            GRAPHQL,
+            function (ObjectType $type): void {
+                self::assertInstanceOf(StringType::class, $type->getField('field')->getType());
+                self::assertTrue($type->implementsInterface(new InterfaceType(['name' => 'Bar', 'fields' => []])));
+            },
+        ];
+        yield 'interface' => [
+            'interface MyType',
+            [
+                <<<'GRAPHQL'
+                extend interface MyType @foo
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend interface MyType {
+                  field: String
+                }
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend interface MyType implements Bar
+                GRAPHQL,
+            ],
+            <<<'GRAPHQL'
+            interface MyType implements Bar {
+              field: String
+            }
+            GRAPHQL,
+            function (InterfaceType $type): void {
+                self::assertInstanceOf(StringType::class, $type->getField('field')->getType());
+                self::assertTrue($type->implementsInterface(new InterfaceType(['name' => 'Bar', 'fields' => []])));
+            },
+        ];
+        yield 'union' => [
+            'union MyType',
+            [
+                <<<'GRAPHQL'
+                extend union MyType @foo
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend union MyType = Bar
+                GRAPHQL,
+            ],
+            'union MyType = Bar',
+            function (UnionType $type): void {
+                self::assertCount(1, $type->getTypes());
+            },
+        ];
+        yield 'enum' => [
+            'enum MyType',
+            [
+                <<<'GRAPHQL'
+                extend enum MyType @foo
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend enum MyType {
+                  X
+                }
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend enum MyType {
+                  Y
+                }
+                GRAPHQL,
+            ],
+            <<<'GRAPHQL'
+            enum MyType {
+              X
+              Y
+            }
+            GRAPHQL,
+            function (EnumType $type): void {
+                self::assertNotNull($type->getValue('X'));
+                self::assertNotNull($type->getValue('Y'));
+            },
+        ];
+        yield 'input' => [
+            'input MyType',
+            [
+                <<<'GRAPHQL'
+                extend input MyType @foo
+                GRAPHQL,
+                <<<'GRAPHQL'
+                extend input MyType {
+                  field: String
+                }
+                GRAPHQL,
+            ],
+            <<<'GRAPHQL'
+            input MyType {
+              field: String
+            }
+            GRAPHQL,
+            function (InputObjectType $type): void {
+                self::assertInstanceOf(StringType::class, $type->getField('field')->getType());
+            },
+        ];
     }
 }

@@ -117,7 +117,6 @@ class FieldDefinition
             $fields = $fields();
         }
 
-        // @phpstan-ignore-next-line should not happen if used correctly
         if (! is_iterable($fields)) {
             throw new InvariantViolation(
                 "{$parentType->name} fields must be an iterable or a callable which returns such an iterable."

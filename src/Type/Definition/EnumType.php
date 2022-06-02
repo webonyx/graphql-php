@@ -115,6 +115,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
                     throw new InvariantViolation("{$this->name} values must be an array with value names as keys or values.");
                 }
 
+                // @phpstan-ignore-next-line assume the config matches
                 $this->values[] = new EnumValueDefinition($value);
             }
         }

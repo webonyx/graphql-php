@@ -44,12 +44,12 @@ class UniqueEnumValueNames extends ValidationRule
 
                 if ($existingType instanceof EnumType && $existingType->getValue($valueName) !== null) {
                     $context->reportError(new Error(
-                        "Enum value \"${typeName}.${valueName}\" already exists in the schema. It cannot also be defined in this type extension.",
+                        "Enum value \"{$typeName}.{$valueName}\" already exists in the schema. It cannot also be defined in this type extension.",
                         $valueNameNode
                     ));
                 } elseif (isset($valueNames[$valueName])) {
                     $context->reportError(new Error(
-                        "Enum value \"${typeName}.${valueName}\" can only be defined once.",
+                        "Enum value \"{$typeName}.{$valueName}\" can only be defined once.",
                         [$valueNames[$valueName], $valueNameNode]
                     ));
                 } else {

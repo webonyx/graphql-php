@@ -62,6 +62,16 @@ Apply automatic code style fixes:
 composer fix
 ```
 
+### Multiline Ternary Expressions
+
+Ternary expressions must be spread across multiple lines.
+
+```php
+$foo = $cond
+    ? 1
+    : 2;
+```
+
 ## Static Analysis
 
 We validate code correctness with [PHPStan](https://phpstan.org).
@@ -76,6 +86,22 @@ Regenerate the [PHPStan baseline](https://phpstan.org/user-guide/baseline):
 
 ```sh
 composer baseline
+```
+
+### Type Assertions
+
+When control flow or native types are insufficient to convince the IDE or PHPStan that a value
+is of a certain type, but you know it must be due to some invariant, you may assert its type.
+Prefer `assert()` for simple types and only use `@var` for complex types:
+
+```php
+function identity($value) { return $value; }
+
+$mustBeInt = identity(1);
+assert(is_int($mustBeInt));
+
+/** @var array<string, int> $mustBeArrayOfStrings */
+$mustBeArrayOfStringsToInts = identity(['foo' => 42]);
 ```
 
 ## Running Benchmarks

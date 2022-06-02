@@ -16,10 +16,13 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 
 /**
+ * @phpstan-import-type ErrorsHandler from ExecutionResult
+ * @phpstan-import-type ErrorFormatter from ExecutionResult
  * @phpstan-import-type SerializableError from ExecutionResult
  * @phpstan-import-type SerializableErrors from ExecutionResult
+ * @phpstan-import-type PersistedQueryLoader from ServerConfig
  */
-class ServerConfigTest extends TestCase
+final class ServerConfigTest extends TestCase
 {
     public function testDefaults(): void
     {
@@ -54,32 +57,25 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $context = [];
+        $context = new stdClass();
         $config->setContext($context);
         self::assertSame($context, $config->getContext());
-
-        $context2 = new stdClass();
-        $config->setContext($context2);
-        self::assertSame($context2, $config->getContext());
     }
 
     public function testAllowsSettingRootValue(): void
     {
         $config = ServerConfig::create();
 
-        $rootValue = [];
-        $config->setRootValue($rootValue);
-        self::assertSame($rootValue, $config->getRootValue());
-
-        $context2 = new stdClass();
-        $config->setRootValue($context2);
-        self::assertSame($context2, $config->getRootValue());
+        $context = new stdClass();
+        $config->setRootValue($context);
+        self::assertSame($context, $config->getRootValue());
     }
 
     public function testAllowsSettingErrorFormatter(): void
     {
         $config = ServerConfig::create();
 
+        /** @var ErrorFormatter $callable */
         $callable = [self::class, 'formatError'];
         $config->setErrorFormatter($callable);
         self::assertSame($callable, $config->getErrorFormatter());
@@ -101,6 +97,7 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
+        /** @var ErrorsHandler $callable */
         $callable = [self::class, 'handleError'];
         $config->setErrorsHandler($callable);
         self::assertSame($callable, $config->getErrorsHandler());
@@ -168,6 +165,7 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
+        /** @var PersistedQueryLoader $callable */
         $callable = [self::class, 'loadPersistedQuery'];
         $config->setPersistedQueryLoader($callable);
         self::assertSame($callable, $config->getPersistedQueryLoader());

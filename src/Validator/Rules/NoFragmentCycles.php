@@ -64,8 +64,7 @@ class NoFragmentCycles extends ValidationRule
 
         $this->spreadPathIndexByName[$fragmentName] = count($this->spreadPath);
 
-        for ($i = 0; $i < count($spreadNodes); ++$i) {
-            $spreadNode = $spreadNodes[$i];
+        foreach ($spreadNodes as $spreadNode) {
             $spreadName = $spreadNode->name->value;
             $cycleIndex = $this->spreadPathIndexByName[$spreadName] ?? null;
 
