@@ -6,14 +6,14 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class NoUnusedVariables extends ValidationRule
 {
     /** @var array<int, VariableDefinitionNode> */
     protected array $variableDefs;
 
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         $this->variableDefs = [];
 

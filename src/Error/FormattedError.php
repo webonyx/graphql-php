@@ -64,13 +64,15 @@ class FormattedError
         $nodes = $error->nodes;
         if (isset($nodes) && count($nodes) > 0) {
             foreach ($nodes as $node) {
-                if (isset($node->loc->source)) {
-                    $location = $node->loc;
+                $location = $node->loc;
+                if (isset($location)) {
                     $source = $location->source;
-                    $printedLocations[] = self::highlightSourceAtLocation(
-                        $source,
-                        $source->getLocation($location->start)
-                    );
+                    if (isset($source)) {
+                        $printedLocations[] = self::highlightSourceAtLocation(
+                            $source,
+                            $source->getLocation($location->start)
+                        );
+                    }
                 }
             }
         } elseif (null !== $error->getSource() && 0 !== count($error->getLocations())) {

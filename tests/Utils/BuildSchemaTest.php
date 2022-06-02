@@ -8,15 +8,22 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
@@ -38,7 +45,7 @@ use function trim;
 /**
  * @phpstan-import-type BuildSchemaOptions from BuildSchema
  */
-class BuildSchemaTest extends TestCase
+class BuildSchemaTest extends TestCaseBase
 {
     use ArraySubsetAsserts;
 
@@ -858,18 +865,22 @@ class BuildSchemaTest extends TestCase
         $myEnum = $schema->getType('MyEnum');
 
         $value = $myEnum->getValue('VALUE');
+        self::assertInstanceOf(EnumValueDefinition::class, $value);
         self::assertFalse($value->isDeprecated());
 
         $oldValue = $myEnum->getValue('OLD_VALUE');
+        self::assertInstanceOf(EnumValueDefinition::class, $oldValue);
         self::assertTrue($oldValue->isDeprecated());
         self::assertEquals('No longer supported', $oldValue->deprecationReason);
 
         $otherValue = $myEnum->getValue('OTHER_VALUE');
+        self::assertInstanceOf(EnumValueDefinition::class, $otherValue);
         self::assertTrue($otherValue->isDeprecated());
         self::assertEquals('Terrible reasons', $otherValue->deprecationReason);
 
-        /** @var ObjectType $queryType */
         $queryType = $schema->getType('Query');
+        self::assertInstanceOf(ObjectType::class, $queryType);
+
         $rootFields = $queryType->getFields();
         self::assertEquals(true, $rootFields['field1']->isDeprecated());
         self::assertEquals('No longer supported', $rootFields['field1']->deprecationReason);
@@ -1159,50 +1170,80 @@ class BuildSchemaTest extends TestCase
         $ast = Parser::parse($sdl, ['noLocation' => true]);
 
         $schema = BuildSchema::buildAST($ast);
-        /** @var ObjectType $query */
+
         $query = $schema->getType('Query');
-        /** @var InputObjectType $testInput */
+        self::assertInstanceOf(ObjectType::class, $query);
+
         $testInput = $schema->getType('TestInput');
-        /** @var EnumType $testEnum */
+        self::assertInstanceOf(InputObjectType::class, $testInput);
+
         $testEnum = $schema->getType('TestEnum');
-        /** @var UnionType $testUnion */
+        self::assertInstanceOf(EnumType::class, $testEnum);
+
         $testUnion = $schema->getType('TestUnion');
-        /** @var InterfaceType $testInterface */
+        self::assertInstanceOf(UnionType::class, $testUnion);
+
         $testInterface = $schema->getType('TestInterface');
-        /** @var ObjectType $testType */
+        self::assertInstanceOf(InterfaceType::class, $testInterface);
+
         $testType = $schema->getType('TestType');
-        /** @var ScalarType $testScalar */
+        self::assertInstanceOf(ObjectType::class, $testType);
+
         $testScalar = $schema->getType('TestScalar');
+        self::assertInstanceOf(ScalarType::class, $testScalar);
+
         $testDirective = $schema->getDirective('test');
+        self::assertInstanceOf(Directive::class, $testDirective);
+
+        $schemaAst = $schema->getAstNode();
+        self::assertInstanceOf(SchemaDefinitionNode::class, $schemaAst);
+
+        $queryAst = $query->astNode;
+        self::assertInstanceOf(ObjectTypeDefinitionNode::class, $queryAst);
+
+        $testInputAst = $testInput->astNode;
+        self::assertInstanceOf(InputObjectTypeDefinitionNode::class, $testInputAst);
+
+        $testEnumAst = $testEnum->astNode;
+        self::assertInstanceOf(EnumTypeDefinitionNode::class, $testEnumAst);
+
+        $testUnionAst = $testUnion->astNode;
+        self::assertInstanceOf(UnionTypeDefinitionNode::class, $testUnionAst);
+
+        $testInterfaceAst = $testInterface->astNode;
+        self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $testInterfaceAst);
+
+        $testTypeAst = $testType->astNode;
+        self::assertInstanceOf(ObjectTypeDefinitionNode::class, $testTypeAst);
+
+        $testScalarAst = $testScalar->astNode;
+        self::assertInstanceOf(ScalarTypeDefinitionNode::class, $testScalarAst);
+
+        $testDirectiveAst = $testDirective->astNode;
+        self::assertInstanceOf(DirectiveDefinitionNode::class, $testDirectiveAst);
 
         $schemaASTDefinitions = new NodeList([
-            $schema->getAstNode(),
-            $query->astNode,
-            $testInput->astNode,
-            $testEnum->astNode,
-            $testUnion->astNode,
-            $testInterface->astNode,
-            $testType->astNode,
-            $testScalar->astNode,
-            $testDirective->astNode,
+            $schemaAst,
+            $queryAst,
+            $testInputAst,
+            $testEnumAst,
+            $testUnionAst,
+            $testInterfaceAst,
+            $testTypeAst,
+            $testScalarAst,
+            $testDirectiveAst,
         ]);
 
         self::assertEquals($schemaASTDefinitions, $ast->definitions);
 
         $testField = $query->getField('testField');
-        self::assertEquals('testField(testArg: TestInput): TestUnion', $this->printASTNode($testField));
-        self::assertEquals('testArg: TestInput', $this->printASTNode($testField->args[0]));
-        self::assertEquals(
-            'testInputField: TestEnum',
-            $this->printASTNode($testInput->getField('testInputField'))
-        );
-        self::assertEquals('TEST_VALUE', $this->printASTNode($testEnum->getValue('TEST_VALUE')));
-        self::assertEquals(
-            'interfaceField: String',
-            $this->printASTNode($testInterface->getField('interfaceField'))
-        );
-        self::assertEquals('interfaceField: String', $this->printASTNode($testType->getField('interfaceField')));
-        self::assertEquals('arg: TestScalar', $this->printASTNode($testDirective->args[0]));
+        self::assertASTMatches('testField(testArg: TestInput): TestUnion', $testField->astNode);
+        self::assertASTMatches('testArg: TestInput', $testField->args[0]->astNode);
+        self::assertASTMatches('testInputField: TestEnum', $testInput->getField('testInputField')->astNode);
+        self::assertASTMatches('TEST_VALUE', $testEnum->getValue('TEST_VALUE')->astNode ?? null);
+        self::assertASTMatches('interfaceField: String', $testInterface->getField('interfaceField')->astNode);
+        self::assertASTMatches('interfaceField: String', $testType->getField('interfaceField')->astNode);
+        self::assertASTMatches('arg: TestScalar', $testDirective->args[0]->astNode);
     }
 
     /**
@@ -1221,9 +1262,17 @@ class BuildSchemaTest extends TestCase
             type SomeSubscription
         ');
 
-        self::assertEquals('SomeQuery', $schema->getQueryType()->name);
-        self::assertEquals('SomeMutation', $schema->getMutationType()->name);
-        self::assertEquals('SomeSubscription', $schema->getSubscriptionType()->name);
+        $query = $schema->getQueryType();
+        self::assertInstanceOf(ObjectType::class, $query);
+        self::assertEquals('SomeQuery', $query->name);
+
+        $mutation = $schema->getMutationType();
+        self::assertInstanceOf(ObjectType::class, $mutation);
+        self::assertEquals('SomeMutation', $mutation->name);
+
+        $subscription = $schema->getSubscriptionType();
+        self::assertInstanceOf(ObjectType::class, $subscription);
+        self::assertEquals('SomeSubscription', $subscription->name);
     }
 
     /**
@@ -1237,9 +1286,17 @@ class BuildSchemaTest extends TestCase
             type Subscription
         ');
 
-        self::assertEquals('Query', $schema->getQueryType()->name);
-        self::assertEquals('Mutation', $schema->getMutationType()->name);
-        self::assertEquals('Subscription', $schema->getSubscriptionType()->name);
+        $query = $schema->getQueryType();
+        self::assertInstanceOf(ObjectType::class, $query);
+        self::assertEquals('Query', $query->name);
+
+        $mutation = $schema->getMutationType();
+        self::assertInstanceOf(ObjectType::class, $mutation);
+        self::assertEquals('Mutation', $mutation->name);
+
+        $subscription = $schema->getSubscriptionType();
+        self::assertInstanceOf(ObjectType::class, $subscription);
+        self::assertEquals('Subscription', $subscription->name);
     }
 
     /**
@@ -1391,7 +1448,10 @@ class BuildSchemaTest extends TestCase
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertCount(5, $defaultConfig);
         self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
-        self::assertEquals('My description of Query', $schema->getType('Query')->description);
+
+        $query = $schema->getType('Query');
+        self::assertInstanceOf(ObjectType::class, $query);
+        self::assertEquals('My description of Query', $query->description);
 
         [$defaultConfig, $node, $allNodesMap] = $calls[1];
         self::assertInstanceOf(EnumTypeDefinitionNode::class, $node);
@@ -1410,7 +1470,10 @@ class BuildSchemaTest extends TestCase
         );
         self::assertCount(4, $defaultConfig); // 3 + astNode
         self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
-        self::assertEquals('My description of Color', $schema->getType('Color')->description);
+
+        $color = $schema->getType('Color');
+        self::assertInstanceOf(EnumType::class, $color);
+        self::assertEquals('My description of Color', $color->description);
 
         [$defaultConfig, $node, $allNodesMap] = $calls[2];
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
@@ -1420,7 +1483,10 @@ class BuildSchemaTest extends TestCase
         self::assertArrayHasKey('interfaces', $defaultConfig);
         self::assertCount(5, $defaultConfig);
         self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
-        self::assertEquals('My description of Hello', $schema->getType('Hello')->description);
+
+        $hello = $schema->getType('Hello');
+        self::assertInstanceOf(InterfaceType::class, $hello);
+        self::assertEquals('My description of Hello', $hello->description);
     }
 
     public function testCreatesTypesLazily(): void

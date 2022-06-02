@@ -181,13 +181,16 @@ class VisitorTest extends ValidatorTestCase
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
 
+        /** @var SelectionSetNode|null $selectionSet */
         $selectionSet = null;
+
         $editedAst = Visitor::visit(
             $ast,
             [
                 NodeKind::OPERATION_DEFINITION => [
                     'enter' => function (OperationDefinitionNode $node) use (&$selectionSet, $ast): OperationDefinitionNode {
                         $this->checkVisitorFnArgs($ast, func_get_args());
+
                         $selectionSet = $node->selectionSet;
 
                         $newNode = clone $node;
@@ -198,6 +201,9 @@ class VisitorTest extends ValidatorTestCase
                     },
                     'leave' => function (OperationDefinitionNode $node) use (&$selectionSet, $ast): OperationDefinitionNode {
                         $this->checkVisitorFnArgs($ast, func_get_args(), true);
+
+                        self::assertInstanceOf(SelectionSetNode::class, $selectionSet);
+
                         $newNode = clone $node;
                         $newNode->selectionSet = $selectionSet;
                         $newNode->didLeave = true;
@@ -330,12 +336,15 @@ class VisitorTest extends ValidatorTestCase
                         /** @var NodeList<SelectionNode&Node> $newSelection */
                         $newSelection = new NodeList([$addedField]);
 
+                        $selectionSet = $node->selectionSet;
+                        self::assertInstanceOf(SelectionSetNode::class, $selectionSet);
+
                         return new FieldNode([
                             'name' => $node->name,
                             'arguments' => new NodeList([]),
                             'directives' => new NodeList([]),
                             'selectionSet' => new SelectionSetNode([
-                                'selections' => $newSelection->merge($node->selectionSet->selections),
+                                'selections' => $newSelection->merge($selectionSet->selections),
                             ]),
                         ]);
                     }

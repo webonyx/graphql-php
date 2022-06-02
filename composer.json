@@ -17,7 +17,6 @@
     "amphp/amp": "^2.6",
     "dms/phpunit-arraysubset-asserts": "^0.3",
     "ergebnis/composer-normalize": "^2.16",
-    "friendsofphp/php-cs-fixer": "3.4.*",
     "mll-lab/php-cs-fixer-config": "^4.4",
     "nyholm/psr7": "^1.4",
     "phpbench/phpbench": "^1.2",

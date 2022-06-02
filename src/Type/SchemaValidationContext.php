@@ -347,12 +347,14 @@ class SchemaValidationContext
                 continue;
             }
 
-            $includes = Utils::some(
-                $schemaDirective->locations,
-                static function ($schemaLocation) use ($location): bool {
-                    return $schemaLocation === $location;
+            $includes = false;
+            foreach ($schemaDirective->locations as $schemaLocation) {
+                if ($schemaLocation === $location) {
+                    $includes = true;
+                    break;
                 }
-            );
+            }
+
             if (! $includes) {
                 $errorNodes = null === $schemaDirective->astNode
                     ? [$directive]
@@ -645,7 +647,7 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
-     * @param Type                     &NamedType $shouldBeInterface
+     * @param Type&NamedType $shouldBeInterface
      */
     private function getImplementsInterfaceNode(ImplementingType $type, NamedType $shouldBeInterface): ?NamedTypeNode
     {
@@ -656,7 +658,7 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
-     * @param Type                     &NamedType $shouldBeInterface
+     * @param Type&NamedType $shouldBeInterface
      *
      * @return array<int, NamedTypeNode>
      */

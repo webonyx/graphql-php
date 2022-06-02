@@ -8,14 +8,14 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 
 class SingleFieldSubscription extends ValidationRule
 {
     /**
      * @return array<string, callable>
      */
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return [
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use ($context): VisitorOperation {

@@ -171,7 +171,7 @@ class ASTDefinitionBuilder
     {
         return isset($this->typeDefinitionsMap[$name])
             ? $this->buildType($name)
-            : null
+            : null;
     }
 
     /**

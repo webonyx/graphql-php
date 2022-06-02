@@ -37,7 +37,7 @@ use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Validator\ASTValidationContext;
+use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 use function in_array;
@@ -47,7 +47,7 @@ use function in_array;
  */
 class KnownDirectives extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context): array
+    public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
@@ -60,7 +60,7 @@ class KnownDirectives extends ValidationRule
     /**
      * @phpstan-return VisitorArray
      */
-    public function getASTVisitor(ASTValidationContext $context): array
+    public function getASTVisitor(ValidationContext $context): array
     {
         $locationsMap = [];
         $schema = $context->getSchema();

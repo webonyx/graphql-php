@@ -107,7 +107,10 @@ final class Types
     {
         $parts = explode('\\', $classname);
 
-        $cacheName = strtolower(preg_replace('~Type$~', '', $parts[count($parts) - 1]));
+        $withoutTypePrefix = preg_replace('~Type$~', '', $parts[count($parts) - 1]);
+        assert(is_string($withoutTypePrefix), 'regex is statically known to be correct');
+
+        $cacheName = strtolower($withoutTypePrefix);
 
         if (! isset(self::$types[$cacheName])) {
             return self::$types[$cacheName] = new $classname();
