@@ -296,6 +296,7 @@ class BuildSchemaTest extends TestCaseBase
         self::assertEquals(Directive::skipDirective(), $schema->getDirective('skip'));
         self::assertEquals(Directive::includeDirective(), $schema->getDirective('include'));
         self::assertEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
+        self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
         self::assertEquals(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
 
@@ -314,6 +315,7 @@ class BuildSchemaTest extends TestCaseBase
         self::assertNotEquals(Directive::skipDirective(), $schema->getDirective('skip'));
         self::assertNotEquals(Directive::includeDirective(), $schema->getDirective('include'));
         self::assertNotEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
+        self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
         self::assertNotEquals(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
 
@@ -330,6 +332,7 @@ class BuildSchemaTest extends TestCaseBase
         self::assertNotEquals(null, $schema->getDirective('skip'));
         self::assertNotEquals(null, $schema->getDirective('include'));
         self::assertNotEquals(null, $schema->getDirective('deprecated'));
+        self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
         self::assertNotEquals(null, $schema->getDirective('specifiedBy'));
     }
 
@@ -860,6 +863,7 @@ class BuildSchemaTest extends TestCaseBase
      */
     public function testSupportsSpecifiedBy(): void
     {
+        self::markTestSkipped('See https://github.com/webonyx/graphql-php/issues/1140');
         $sdl = $this->dedent('
             scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
             
