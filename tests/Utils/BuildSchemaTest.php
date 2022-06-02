@@ -286,9 +286,9 @@ class BuildSchemaTest extends TestCaseBase
     }
 
     /**
-     * @see it('Maintains @skip, @skip & @specifiedBy')
+     * @see it('Maintains @include, @skip & @specifiedBy')
      */
-    public function testMaintainsSkipAndInclude(): void
+    public function testMaintainsIncludeSkipAndSpecifiedBy(): void
     {
         $schema = BuildSchema::buildAST(Parser::parse('type Query'));
 
@@ -320,9 +320,9 @@ class BuildSchemaTest extends TestCaseBase
     }
 
     /**
-     * @see it('Adding directives maintains @skip, @skip & @specifiedBy')
+     * @see it('Adding directives maintains @include, @skip & @specifiedBy')
      */
-    public function testAddingDirectivesMaintainsSkipAndInclude(): void
+    public function testAddingDirectivesMaintainsIncludeSkipAndSpecifiedBy(): void
     {
         $sdl = $this->dedent('
             directive @foo(arg: Int) on FIELD
