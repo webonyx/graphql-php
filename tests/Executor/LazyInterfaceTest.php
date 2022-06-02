@@ -24,7 +24,7 @@ class LazyInterfaceTest extends TestCase
     protected $testObject;
 
     /**
-     * Handles execution of a lazily created interface
+     * Handles execution of a lazily created interface.
      */
     public function testReturnsFragmentsWithLazyCreatedInterface(): void
     {
@@ -48,16 +48,16 @@ class LazyInterfaceTest extends TestCase
     }
 
     /**
-     * Setup schema
+     * Setup schema.
      */
     protected function setUp(): void
     {
         $query = new ObjectType([
-            'name'   => 'query',
+            'name' => 'query',
             'fields' => function (): array {
                 return [
                     'lazyInterface' => [
-                        'type'    => $this->getLazyInterfaceType(),
+                        'type' => $this->getLazyInterfaceType(),
                         'resolve' => static function (): array {
                             return [];
                         },
@@ -70,13 +70,13 @@ class LazyInterfaceTest extends TestCase
     }
 
     /**
-     * Returns the LazyInterface
+     * Returns the LazyInterface.
      */
     protected function getLazyInterfaceType(): InterfaceType
     {
         return $this->lazyInterface ??= new InterfaceType([
-            'name'        => 'LazyInterface',
-            'fields'      => [
+            'name' => 'LazyInterface',
+            'fields' => [
                 'a' => Type::string(),
             ],
             'resolveType' => function (): ObjectType {
@@ -86,15 +86,15 @@ class LazyInterfaceTest extends TestCase
     }
 
     /**
-     * Returns the test ObjectType
+     * Returns the test ObjectType.
      */
     protected function getTestObjectType(): ObjectType
     {
         return $this->testObject ??= new ObjectType([
-            'name'       => 'TestObject',
-            'fields'     => [
+            'name' => 'TestObject',
+            'fields' => [
                 'name' => [
-                    'type'    => Type::string(),
+                    'type' => Type::string(),
                     'resolve' => static function (): string {
                         return 'testname';
                     },

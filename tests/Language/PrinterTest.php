@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
+use function file_get_contents;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeList;
@@ -13,8 +14,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 
-use function file_get_contents;
-
 class PrinterTest extends TestCase
 {
     /**
@@ -23,7 +22,7 @@ class PrinterTest extends TestCase
     public function testDoesntAlterAST(): void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $ast         = Parser::parse($kitchenSink);
+        $ast = Parser::parse($kitchenSink);
 
         $astCopy = $ast->cloneDeep();
         self::assertEquals($astCopy, $ast);
@@ -60,7 +59,7 @@ class PrinterTest extends TestCase
         self::assertEquals($expected, Printer::doPrint($queryAstShorthanded));
 
         $mutationAst = Parser::parse('mutation { id, name }');
-        $expected    = 'mutation {
+        $expected = 'mutation {
   id
   name
 }
@@ -70,7 +69,7 @@ class PrinterTest extends TestCase
         $queryAstWithArtifacts = Parser::parse(
             'query ($foo: TestType) @testDirective { id, name }'
         );
-        $expected              = 'query ($foo: TestType) @testDirective {
+        $expected = 'query ($foo: TestType) @testDirective {
   id
   name
 }
@@ -80,7 +79,7 @@ class PrinterTest extends TestCase
         $mutationAstWithArtifacts = Parser::parse(
             'mutation ($foo: TestType) @testDirective { id, name }'
         );
-        $expected                 = 'mutation ($foo: TestType) @testDirective {
+        $expected = 'mutation ($foo: TestType) @testDirective {
   id
   name
 }
@@ -112,7 +111,7 @@ class PrinterTest extends TestCase
         $queryAstWithVariableDirective = Parser::parse(
             'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) { id }'
         );
-        $expected                      = 'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) {
+        $expected = 'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) {
   id
 }
 ';
@@ -128,7 +127,7 @@ class PrinterTest extends TestCase
             'fragment Foo($foo: TestType @test) on TestType @testDirective { id }',
             ['experimentalFragmentVariables' => true]
         );
-        $expected                      = 'fragment Foo($foo: TestType @test) on TestType @testDirective {
+        $expected = 'fragment Foo($foo: TestType @test) on TestType @testDirective {
   id
 }
 ';
@@ -164,7 +163,7 @@ class PrinterTest extends TestCase
     public function testPrintsKitchenSink(): void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $ast         = Parser::parse($kitchenSink);
+        $ast = Parser::parse($kitchenSink);
 
         $printed = Printer::doPrint($ast);
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use function count;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
@@ -23,8 +24,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\Error\Error;
 use PHPUnit\Framework\TestCase;
-
-use function count;
 
 class ExecutorLazySchemaTest extends TestCase
 {
@@ -56,7 +55,7 @@ class ExecutorLazySchemaTest extends TestCase
     {
         // isTypeOf used to resolve runtime type for Interface
         $petType = new InterfaceType([
-            'name'   => 'Pet',
+            'name' => 'Pet',
             'fields' => static function (): array {
                 return [
                     'name' => ['type' => Type::string()],
@@ -66,46 +65,46 @@ class ExecutorLazySchemaTest extends TestCase
 
         // Added to interface type when defined
         $dogType = new ObjectType([
-            'name'       => 'Dog',
+            'name' => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj): bool {
+            'isTypeOf' => static function ($obj): bool {
                 return $obj instanceof Dog;
             },
-            'fields'     => static function (): array {
+            'fields' => static function (): array {
                 return [
-                    'name'  => ['type' => Type::string()],
+                    'name' => ['type' => Type::string()],
                     'woofs' => ['type' => Type::boolean()],
                 ];
             },
         ]);
 
         $catType = new ObjectType([
-            'name'       => 'Cat',
+            'name' => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj): bool {
+            'isTypeOf' => static function ($obj): bool {
                 return $obj instanceof Cat;
             },
-            'fields'     => static function (): array {
+            'fields' => static function (): array {
                 return [
-                    'name'  => ['type' => Type::string()],
+                    'name' => ['type' => Type::string()],
                     'meows' => ['type' => Type::boolean()],
                 ];
             },
         ]);
 
         $schema = new Schema([
-            'query'      => new ObjectType([
-                'name'   => 'Query',
+            'query' => new ObjectType([
+                'name' => 'Query',
                 'fields' => [
                     'pets' => [
-                        'type'    => Type::listOf($petType),
+                        'type' => Type::listOf($petType),
                         'resolve' => static function (): array {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
                 ],
             ]),
-            'types'      => [$catType, $dogType],
+            'types' => [$catType, $dogType],
             'typeLoader' => static function ($name) use ($dogType, $petType, $catType) {
                 switch ($name) {
                     case 'Dog':
@@ -149,23 +148,23 @@ class ExecutorLazySchemaTest extends TestCase
         self::assertInstanceOf(Error::class, $result->errors[0]->getPrevious());
 
         self::assertEquals(
-            'GraphQL Interface Type `Pet` returned `null` from its `resolveType` function for value: instance of ' .
-            'GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible ' .
-            'implementations. It requires full schema scan and degrades query performance significantly.  ' .
-            'Make sure your `resolveType` always returns valid implementation or throws.',
+            'GraphQL Interface Type `Pet` returned `null` from its `resolveType` function for value: instance of '
+            . 'GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible '
+            . 'implementations. It requires full schema scan and degrades query performance significantly.  '
+            . 'Make sure your `resolveType` always returns valid implementation or throws.',
             $result->errors[0]->getMessage()
         );
     }
 
     public function testHintsOnConflictingTypeInstancesInDefinitions(): void
     {
-        $calls      = [];
+        $calls = [];
         $typeLoader = static function ($name) use (&$calls): ?ObjectType {
             $calls[] = $name;
             switch ($name) {
                 case 'Test':
                     return new ObjectType([
-                        'name'   => 'Test',
+                        'name' => 'Test',
                         'fields' => static function (): array {
                             return [
                                 'test' => Type::string(),
@@ -179,7 +178,7 @@ class ExecutorLazySchemaTest extends TestCase
         };
 
         $query = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => static function () use ($typeLoader): array {
                 return [
                     'test' => $typeLoader('Test'),
@@ -188,7 +187,7 @@ class ExecutorLazySchemaTest extends TestCase
         ]);
 
         $schema = new Schema([
-            'query'      => $query,
+            'query' => $query,
             'typeLoader' => $typeLoader,
         ]);
 
@@ -217,20 +216,20 @@ class ExecutorLazySchemaTest extends TestCase
     public function testSimpleQuery(): void
     {
         $schema = new Schema([
-            'query'      => $this->loadType('Query'),
+            'query' => $this->loadType('Query'),
             'typeLoader' => function ($name) {
                 return $this->loadType($name, true);
             },
         ]);
 
-        $query  = '{ object { string } }';
+        $query = '{ object { string } }';
         $result = Executor::execute(
             $schema,
             Parser::parse($query),
             ['object' => ['string' => 'test']]
         );
 
-        $expected              = [
+        $expected = [
             'data' => ['object' => ['string' => 'test']],
         ];
         $expectedExecutorCalls = [
@@ -253,21 +252,21 @@ class ExecutorLazySchemaTest extends TestCase
         switch ($name) {
             case 'Query':
                 return $this->queryType ??= new ObjectType([
-                    'name'   => 'Query',
+                    'name' => 'Query',
                     'fields' => function (): array {
                         $this->calls[] = 'Query.fields';
 
                         return [
                             'object' => ['type' => $this->loadType('SomeObject')],
-                            'other'  => ['type' => $this->loadType('OtherObject')],
+                            'other' => ['type' => $this->loadType('OtherObject')],
                         ];
                     },
                 ]);
 
             case 'SomeObject':
                 return $this->someObjectType ??= new ObjectType([
-                    'name'       => 'SomeObject',
-                    'fields'     => function (): array {
+                    'name' => 'SomeObject',
+                    'fields' => function (): array {
                         $this->calls[] = 'SomeObject.fields';
 
                         return [
@@ -286,7 +285,7 @@ class ExecutorLazySchemaTest extends TestCase
 
             case 'OtherObject':
                 return $this->otherObjectType ??= new ObjectType([
-                    'name'   => 'OtherObject',
+                    'name' => 'OtherObject',
                     'fields' => function (): array {
                         $this->calls[] = 'OtherObject.fields';
 
@@ -299,7 +298,7 @@ class ExecutorLazySchemaTest extends TestCase
 
             case 'DeeperObject':
                 return $this->deeperObjectType ??= new ObjectType([
-                    'name'   => 'DeeperObject',
+                    'name' => 'DeeperObject',
                     'fields' => fn (): array => [
                         'scalar' => ['type' => $this->loadType('SomeScalar')],
                     ],
@@ -307,21 +306,21 @@ class ExecutorLazySchemaTest extends TestCase
 
             case 'SomeScalar':
                 return $this->someScalarType ??= new CustomScalarType([
-                    'name'         => 'SomeScalar',
-                    'serialize'    => static fn ($value) => $value,
-                    'parseValue'   => static fn ($value) => $value,
+                    'name' => 'SomeScalar',
+                    'serialize' => static fn ($value) => $value,
+                    'parseValue' => static fn ($value) => $value,
                     'parseLiteral' => static fn () => null,
                 ]);
 
             case 'SomeUnion':
                 return $this->someUnionType ??= new UnionType([
-                    'name'        => 'SomeUnion',
+                    'name' => 'SomeUnion',
                     'resolveType' => function () {
                         $this->calls[] = 'SomeUnion.resolveType';
 
                         return $this->loadType('DeeperObject');
                     },
-                    'types'       => function (): array {
+                    'types' => function (): array {
                         $this->calls[] = 'SomeUnion.types';
 
                         return [$this->loadType('DeeperObject')];
@@ -330,13 +329,13 @@ class ExecutorLazySchemaTest extends TestCase
 
             case 'SomeInterface':
                 return $this->someInterfaceType ??= new InterfaceType([
-                    'name'        => 'SomeInterface',
+                    'name' => 'SomeInterface',
                     'resolveType' => function () {
                         $this->calls[] = 'SomeInterface.resolveType';
 
                         return $this->loadType('SomeObject');
                     },
-                    'fields'      => function (): array {
+                    'fields' => function (): array {
                         $this->calls[] = 'SomeInterface.fields';
 
                         return [
@@ -353,11 +352,11 @@ class ExecutorLazySchemaTest extends TestCase
     public function testDeepQuery(): void
     {
         $schema = new Schema([
-            'query'      => $this->loadType('Query'),
+            'query' => $this->loadType('Query'),
             'typeLoader' => fn (string $name): Type => $this->loadType($name, true),
         ]);
 
-        $query     = '{ object { object { object { string } } } }';
+        $query = '{ object { object { object { string } } } }';
         $rootValue = ['object' => ['object' => ['object' => ['string' => 'test']]]];
 
         $result = Executor::execute(
@@ -372,8 +371,8 @@ class ExecutorLazySchemaTest extends TestCase
         );
         self::assertEquals(
             [
-                'Query'       => true,
-                'SomeObject'  => true,
+                'Query' => true,
+                'SomeObject' => true,
                 'OtherObject' => true,
             ],
             $this->loadedTypes
@@ -391,13 +390,13 @@ class ExecutorLazySchemaTest extends TestCase
     public function testResolveUnion(): void
     {
         $schema = new Schema([
-            'query'      => $this->loadType('Query'),
+            'query' => $this->loadType('Query'),
             'typeLoader' => function ($name) {
                 return $this->loadType($name, true);
             },
         ]);
 
-        $query  = '
+        $query = '
             { 
                 other { 
                     union {
@@ -412,17 +411,17 @@ class ExecutorLazySchemaTest extends TestCase
             ['other' => ['union' => ['scalar' => 'test']]]
         );
 
-        $expected            = [
+        $expected = [
             'data' => ['other' => ['union' => ['scalar' => 'test']]],
         ];
         $expectedLoadedTypes = [
-            'Query'         => true,
-            'SomeObject'    => true,
-            'OtherObject'   => true,
-            'SomeUnion'     => true,
+            'Query' => true,
+            'SomeObject' => true,
+            'OtherObject' => true,
+            'SomeUnion' => true,
             'SomeInterface' => true,
-            'DeeperObject'  => true,
-            'SomeScalar'    => true,
+            'DeeperObject' => true,
+            'SomeScalar' => true,
         ];
 
         self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));

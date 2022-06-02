@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Exception;
 
-use InvalidArgumentException;
-
 use function gettype;
+use InvalidArgumentException;
 use function sprintf;
 
 final class InvalidArgument extends InvalidArgumentException

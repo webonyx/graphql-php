@@ -13,7 +13,6 @@ use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
-
 use function method_exists;
 use function ucfirst;
 

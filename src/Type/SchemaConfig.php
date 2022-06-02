@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace GraphQL\Type;
 
+use function count;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-
-use function count;
 
 /**
  * Configuration options for schema construction.

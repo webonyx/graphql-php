@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use function acos;
 use GraphQL\Error\SerializationError;
 use GraphQL\Tests\Type\TestClasses\ObjectIdStub;
 use GraphQL\Type\Definition\Type;
+use function log;
 use PHPUnit\Framework\TestCase;
 use stdClass;
-
-use function acos;
-use function log;
 
 class ScalarSerializationTest extends TestCase
 {
@@ -131,7 +130,7 @@ class ScalarSerializationTest extends TestCase
         self::assertSame('1', $stringType->serialize(true));
         self::assertSame('', $stringType->serialize(false));
         self::assertSame('', $stringType->serialize(null));
-        self::assertSame('foo', $stringType->serialize(new class {
+        self::assertSame('foo', $stringType->serialize(new class() {
             public function __toString(): string
             {
                 return 'foo';

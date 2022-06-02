@@ -36,7 +36,7 @@ class DirectivesTest extends TestCase
     {
         return self::$schema ??= new Schema([
             'query' => new ObjectType([
-                'name'   => 'TestType',
+                'name' => 'TestType',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                     'b' => ['type' => Type::string()],

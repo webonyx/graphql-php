@@ -10,7 +10,7 @@ use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Validator\SDLValidationContext;
 
 /**
- * Lone Schema definition
+ * Lone Schema definition.
  *
  * A GraphQL document is only valid if it contains only one schema definition.
  */
@@ -28,13 +28,13 @@ class LoneSchemaDefinition extends ValidationRule
 
     public function getSDLVisitor(SDLValidationContext $context): array
     {
-        $oldSchema      = $context->getSchema();
-        $alreadyDefined = $oldSchema !== null
+        $oldSchema = $context->getSchema();
+        $alreadyDefined = null !== $oldSchema
             ? (
-                $oldSchema->getAstNode() !== null ||
-                $oldSchema->getQueryType() !== null ||
-                $oldSchema->getMutationType() !== null ||
-                $oldSchema->getSubscriptionType() !== null
+                null !== $oldSchema->getAstNode()
+                || null !== $oldSchema->getQueryType()
+                || null !== $oldSchema->getMutationType()
+                || null !== $oldSchema->getSubscriptionType()
             )
             : false;
 
@@ -42,7 +42,7 @@ class LoneSchemaDefinition extends ValidationRule
 
         return [
             NodeKind::SCHEMA_DEFINITION => static function (SchemaDefinitionNode $node) use ($alreadyDefined, $context, &$schemaDefinitionsCount): void {
-                if ($alreadyDefined !== false) {
+                if (false !== $alreadyDefined) {
                     $context->reportError(new Error(static::canNotDefineSchemaWithinExtensionMessage(), $node));
 
                     return;

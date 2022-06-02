@@ -6,7 +6,6 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Schema;
-
 use function is_callable;
 use function is_iterable;
 

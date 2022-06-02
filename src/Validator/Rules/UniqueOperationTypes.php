@@ -13,7 +13,7 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\SDLValidationContext;
 
 /**
- * Unique operation types
+ * Unique operation types.
  *
  * A GraphQL document is only valid if it has only one type per operation.
  */
@@ -21,9 +21,9 @@ class UniqueOperationTypes extends ValidationRule
 {
     public function getSDLVisitor(SDLValidationContext $context): array
     {
-        $schema                 = $context->getSchema();
-        $definedOperationTypes  = [];
-        $existingOperationTypes = $schema !== null
+        $schema = $context->getSchema();
+        $definedOperationTypes = [];
+        $existingOperationTypes = null !== $schema
             ? [
                 'query' => $schema->getQueryType(),
                 'mutation' => $schema->getMutationType(),
@@ -36,7 +36,7 @@ class UniqueOperationTypes extends ValidationRule
          */
         $checkOperationTypes = static function ($node) use ($context, &$definedOperationTypes, $existingOperationTypes): VisitorOperation {
             foreach ($node->operationTypes as $operationType) {
-                $operation                   = $operationType->operation;
+                $operation = $operationType->operation;
                 $alreadyDefinedOperationType = $definedOperationTypes[$operation] ?? null;
 
                 if (isset($existingOperationTypes[$operation])) {
@@ -46,7 +46,7 @@ class UniqueOperationTypes extends ValidationRule
                             $operationType,
                         ),
                     );
-                } elseif ($alreadyDefinedOperationType !== null) {
+                } elseif (null !== $alreadyDefinedOperationType) {
                     $context->reportError(
                         new Error(
                             "There can be only one ${operation} type in schema.",

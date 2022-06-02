@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use ArrayObject;
+use function count;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
@@ -15,10 +16,8 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
-use PHPUnit\Framework\TestCase;
-
-use function count;
 use function is_array;
+use PHPUnit\Framework\TestCase;
 
 class EnumTypeTest extends TestCase
 {
@@ -37,16 +36,16 @@ class EnumTypeTest extends TestCase
     public function setUp(): void
     {
         $ColorType = new EnumType([
-            'name'   => 'Color',
+            'name' => 'Color',
             'values' => [
-                'RED'   => ['value' => 0],
+                'RED' => ['value' => 0],
                 'GREEN' => ['value' => 1],
-                'BLUE'  => ['value' => 2],
+                'BLUE' => ['value' => 2],
             ],
         ]);
 
         $simpleEnum = new EnumType([
-            'name'   => 'SimpleEnum',
+            'name' => 'SimpleEnum',
             'values' => [
                 'ONE',
                 'TWO',
@@ -63,14 +62,14 @@ class EnumTypeTest extends TestCase
         $Complex2 = new ArrayObject(['someRandomValue' => 123]);
 
         $ComplexEnum = new EnumType([
-            'name'   => 'Complex',
+            'name' => 'Complex',
             'values' => [
                 'ONE' => ['value' => $Complex1],
                 'TWO' => ['value' => $Complex2],
             ],
         ]);
 
-        $Array1          = ['one', 'ONE'];
+        $Array1 = ['one', 'ONE'];
         $ArrayValuesEnum = new EnumType([
             'name' => 'ArrayValuesEnum',
             'values' => [
@@ -80,13 +79,13 @@ class EnumTypeTest extends TestCase
         ]);
 
         $QueryType = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => [
-                'colorEnum'   => [
-                    'type'    => $ColorType,
-                    'args'    => [
-                        'fromEnum'   => ['type' => $ColorType],
-                        'fromInt'    => ['type' => Type::int()],
+                'colorEnum' => [
+                    'type' => $ColorType,
+                    'args' => [
+                        'fromEnum' => ['type' => $ColorType],
+                        'fromInt' => ['type' => Type::int()],
                         'fromString' => ['type' => Type::string()],
                     ],
                     'resolve' => static function ($rootValue, array $args) {
@@ -105,10 +104,10 @@ class EnumTypeTest extends TestCase
                         return null;
                     },
                 ],
-                'simpleEnum'  => [
-                    'type'    => $simpleEnum,
-                    'args'    => [
-                        'fromName'  => ['type' => Type::string()],
+                'simpleEnum' => [
+                    'type' => $simpleEnum,
+                    'args' => [
+                        'fromName' => ['type' => Type::string()],
                         'fromValue' => ['type' => Type::string()],
                     ],
                     'resolve' => static function ($rootValue, array $args) {
@@ -123,22 +122,22 @@ class EnumTypeTest extends TestCase
                         return null;
                     },
                 ],
-                'otherEnumReturn'  => [
-                    'type'    => $otherEnum,
+                'otherEnumReturn' => [
+                    'type' => $otherEnum,
                     'resolve' => static fn (): string => 'does not matter, enum serializes anything to a constant result',
                 ],
-                'otherEnumArg'  => [
-                    'type'    => Type::string(),
-                    'args'    => [
-                        'from'  => ['type' => $otherEnum],
+                'otherEnumArg' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'from' => ['type' => $otherEnum],
                     ],
                     'resolve' => static fn ($rootValue, array $args): string => $args['from'],
                 ],
-                'colorInt'    => [
-                    'type'    => Type::int(),
-                    'args'    => [
+                'colorInt' => [
+                    'type' => Type::int(),
+                    'args' => [
                         'fromEnum' => ['type' => $ColorType],
-                        'fromInt'  => ['type' => Type::int()],
+                        'fromInt' => ['type' => Type::int()],
                     ],
                     'resolve' => static function ($rootValue, $args) {
                         if (isset($args['fromInt'])) {
@@ -151,10 +150,10 @@ class EnumTypeTest extends TestCase
                     },
                 ],
                 'complexEnum' => [
-                    'type'    => $ComplexEnum,
-                    'args'    => [
-                        'fromEnum'         => [
-                            'type'         => $ComplexEnum,
+                    'type' => $ComplexEnum,
+                    'args' => [
+                        'fromEnum' => [
+                            'type' => $ComplexEnum,
                             // Note: defaultValue is provided an *internal* representation for
                             // Enums, rather than the string name.
                             'defaultValue' => $Complex1,
@@ -162,7 +161,7 @@ class EnumTypeTest extends TestCase
                         'provideGoodValue' => [
                             'type' => Type::boolean(),
                         ],
-                        'provideBadValue'  => [
+                        'provideBadValue' => [
                             'type' => Type::boolean(),
                         ],
                     ],
@@ -184,9 +183,9 @@ class EnumTypeTest extends TestCase
                 ],
                 'arrayValuesEnum' => [
                     'type' => $ArrayValuesEnum,
-                    'args'    => [
-                        'fromEnum'         => [
-                            'type'         => $ArrayValuesEnum,
+                    'args' => [
+                        'fromEnum' => [
+                            'type' => $ArrayValuesEnum,
                             // Note: defaultValue is provided an *internal* representation for
                             // Enums, rather than the string name.
                             'defaultValue' => $Array1,
@@ -194,7 +193,7 @@ class EnumTypeTest extends TestCase
                         'provideOneByReference' => [
                             'type' => Type::boolean(),
                         ],
-                        'provideTwo'  => [
+                        'provideTwo' => [
                             'type' => Type::boolean(),
                         ],
                     ],
@@ -214,11 +213,11 @@ class EnumTypeTest extends TestCase
         ]);
 
         $MutationType = new ObjectType([
-            'name'   => 'Mutation',
+            'name' => 'Mutation',
             'fields' => [
                 'favoriteEnum' => [
-                    'type'    => $ColorType,
-                    'args'    => ['color' => ['type' => $ColorType]],
+                    'type' => $ColorType,
+                    'args' => ['color' => ['type' => $ColorType]],
                     'resolve' => static function ($rootValue, $args) {
                         return $args['color'] ?? null;
                     },
@@ -227,11 +226,11 @@ class EnumTypeTest extends TestCase
         ]);
 
         $SubscriptionType = new ObjectType([
-            'name'   => 'Subscription',
+            'name' => 'Subscription',
             'fields' => [
                 'subscribeToEnum' => [
-                    'type'    => $ColorType,
-                    'args'    => ['color' => ['type' => $ColorType]],
+                    'type' => $ColorType,
+                    'args' => ['color' => ['type' => $ColorType]],
                     'resolve' => static function ($rootValue, $args) {
                         return $args['color'] ?? null;
                     },
@@ -239,13 +238,13 @@ class EnumTypeTest extends TestCase
             ],
         ]);
 
-        $this->Complex1    = $Complex1;
-        $this->Complex2    = $Complex2;
+        $this->Complex1 = $Complex1;
+        $this->Complex2 = $Complex2;
         $this->ComplexEnum = $ComplexEnum;
 
         $this->schema = new Schema([
-            'query'        => $QueryType,
-            'mutation'     => $MutationType,
+            'query' => $QueryType,
+            'mutation' => $MutationType,
             'subscription' => $SubscriptionType,
         ]);
     }
@@ -294,7 +293,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: "GREEN") }',
             null,
             [
-                'message'   => 'Field "colorEnum" argument "fromEnum" requires type Color, found "GREEN"; Did you mean the enum value GREEN?',
+                'message' => 'Field "colorEnum" argument "fromEnum" requires type Color, found "GREEN"; Did you mean the enum value GREEN?',
                 'locations' => [new SourceLocation(1, 23)],
             ]
         );
@@ -335,7 +334,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: GREENISH) }',
             null,
             [
-                'message'   => 'Field "colorEnum" argument "fromEnum" requires type Color, found GREENISH; Did you mean the enum value GREEN?',
+                'message' => 'Field "colorEnum" argument "fromEnum" requires type Color, found GREENISH; Did you mean the enum value GREEN?',
                 'locations' => [new SourceLocation(1, 23)],
             ]
         );
@@ -350,7 +349,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: green) }',
             null,
             [
-                'message'   => 'Field "colorEnum" argument "fromEnum" requires type Color, found green; Did you mean the enum value GREEN?',
+                'message' => 'Field "colorEnum" argument "fromEnum" requires type Color, found green; Did you mean the enum value GREEN?',
                 'locations' => [new SourceLocation(1, 23)],
             ]
         );
@@ -365,9 +364,9 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromString: "GREEN") }',
             null,
             [
-                'message'   => 'Expected a value of type Color but received: GREEN. Cannot serialize value as enum: GREEN',
+                'message' => 'Expected a value of type Color but received: GREEN. Cannot serialize value as enum: GREEN',
                 'locations' => [new SourceLocation(1, 3)],
-                'path'      => ['colorEnum'],
+                'path' => ['colorEnum'],
             ]
         );
     }
@@ -525,7 +524,7 @@ class EnumTypeTest extends TestCase
     public function testPresentsGetValuesAPIForComplexEnums(): void
     {
         $ComplexEnum = $this->ComplexEnum;
-        $values      = $ComplexEnum->getValues();
+        $values = $ComplexEnum->getValues();
 
         self::assertEquals(2, count($values));
         self::assertEquals('ONE', $values[0]->name);
@@ -560,15 +559,15 @@ class EnumTypeTest extends TestCase
         )->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
 
         $expected = [
-            'data'   => [
-                'first'  => 'ONE',
+            'data' => [
+                'first' => 'ONE',
                 'second' => 'TWO',
-                'good'   => 'TWO',
-                'bad'    => null,
+                'good' => 'TWO',
+                'bad' => null,
             ],
             'errors' => [
                 [
-                    'locations'    => [['line' => 5, 'column' => 9]],
+                    'locations' => [['line' => 5, 'column' => 9]],
                     'extensions' => ['debugMessage' => 'Expected a value of type Complex but received: instance of ArrayObject. Cannot serialize value as enum: instance of ArrayObject'],
                 ],
             ],
@@ -590,11 +589,11 @@ class EnumTypeTest extends TestCase
         )->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
 
         $expected = [
-            'data'   => [
-                'defaultValue'  => 'ONE',
+            'data' => [
+                'defaultValue' => 'ONE',
                 'fromName' => 'TWO',
-                'oneRef'   => 'ONE',
-                'two'    => 'TWO',
+                'oneRef' => 'ONE',
+                'two' => 'TWO',
             ],
         ];
 
@@ -620,10 +619,10 @@ class EnumTypeTest extends TestCase
 
         self::assertArraySubset(
             [
-                'data'   => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
+                'data' => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
                 'errors' => [
                     [
-                        'locations'    => [['line' => 4, 'column' => 13]],
+                        'locations' => [['line' => 4, 'column' => 13]],
                         'extensions' => [
                             'debugMessage' => 'Expected a value of type SimpleEnum but received: WRONG. Cannot serialize value as enum: WRONG',
                             'trace' => [
@@ -639,7 +638,7 @@ class EnumTypeTest extends TestCase
 
     public function testCallsOverwrittenEnumTypeMethods(): void
     {
-        $query     = '
+        $query = '
         query ($from: OtherEnum!) {
             serialize: otherEnumReturn
             parseValue: otherEnumArg(from: $from)
@@ -650,7 +649,7 @@ class EnumTypeTest extends TestCase
 
         self::assertArraySubset(
             [
-                'data'   => [
+                'data' => [
                     'serialize' => OtherEnumType::SERIALIZE_RESULT,
                     'parseValue' => OtherEnumType::PARSE_VALUE_RESULT,
                     'parseLiteral' => OtherEnumType::PARSE_LITERAL_RESULT,
@@ -665,19 +664,19 @@ class EnumTypeTest extends TestCase
         $called = 0;
 
         $ColorType = new EnumType([
-            'name'   => 'Color',
+            'name' => 'Color',
             'values' => static function () use (&$called): iterable {
-                $called++;
+                ++$called;
                 yield 'RED' => ['value' => 0];
             },
         ]);
 
         $QueryType = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => [
                 'colorEnum' => [
-                    'type'  => $ColorType,
-                    'args'  => [
+                    'type' => $ColorType,
+                    'args' => [
                         'fromEnum' => ['type' => $ColorType],
                     ],
                     'resolve' => static function ($rootValue, array $args) {

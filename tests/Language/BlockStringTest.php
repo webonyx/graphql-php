@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\BlockString;
-use PHPUnit\Framework\TestCase;
-
 use function implode;
+use PHPUnit\Framework\TestCase;
 
 class BlockStringTest extends TestCase
 {

@@ -26,7 +26,7 @@ class InterfaceImplementations
      */
     public function __construct(array $objects, array $interfaces)
     {
-        $this->objects    = $objects;
+        $this->objects = $objects;
         $this->interfaces = $interfaces;
     }
 

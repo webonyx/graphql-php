@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  * TODO align with:
  *   - https://github.com/graphql/graphql-js/commit/257797a0ebdddd3da6e75b7c237fdc12a1a7c75a
  *   - https://github.com/graphql/graphql-js/commit/3b9ea61f2348215dee755f779caef83df749d2bb
- *   - https://github.com/graphql/graphql-js/commit/64a5c3448a201737f9218856786c51d66f2deabd
+ *   - https://github.com/graphql/graphql-js/commit/64a5c3448a201737f9218856786c51d66f2deabd.
  */
 class BuildSchemaLegacyTest extends TestCase
 {
@@ -157,7 +157,7 @@ class BuildSchemaLegacyTest extends TestCase
     public function testUnknownTypeReferenced(): void
     {
         $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
-        $sdl    = '
+        $sdl = '
             schema {
               query: Hello
             }
@@ -166,7 +166,7 @@ class BuildSchemaLegacyTest extends TestCase
               bar: Bar
             }
         ';
-        $doc    = Parser::parse($sdl);
+        $doc = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($doc);
         $schema->getTypeMap();
     }
@@ -177,12 +177,12 @@ class BuildSchemaLegacyTest extends TestCase
     public function testUnknownTypeInInterfaceList(): void
     {
         $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
-        $sdl    = '
+        $sdl = '
             type Query implements Bar {
               field: String
             }
         ';
-        $doc    = Parser::parse($sdl);
+        $doc = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($doc);
         $schema->getTypeMap();
     }
@@ -193,11 +193,11 @@ class BuildSchemaLegacyTest extends TestCase
     public function testUnknownTypeInUnionList(): void
     {
         $this->expectExceptionObject(BuildSchema::unknownType('Bar'));
-        $sdl    = '
+        $sdl = '
             union TestUnion = Bar
             type Query { testUnion: TestUnion }
         ';
-        $doc    = Parser::parse($sdl);
+        $doc = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($doc);
         $schema->getTypeMap();
     }

@@ -25,7 +25,7 @@ class UniqueFragmentNames extends ValidationRule
             NodeKind::OPERATION_DEFINITION => static function (): VisitorOperation {
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION  => function (FragmentDefinitionNode $node) use ($context): VisitorOperation {
+            NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) use ($context): VisitorOperation {
                 $fragmentName = $node->name->value;
                 if (! isset($this->knownFragmentNames[$fragmentName])) {
                     $this->knownFragmentNames[$fragmentName] = $node->name;

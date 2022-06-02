@@ -29,7 +29,7 @@ schema {
 }
 ';
 
-        $query     = '
+        $query = '
 query echo ($msg: MsgInput) {
           echo (msg: $msg)
 }';

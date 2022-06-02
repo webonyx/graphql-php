@@ -21,7 +21,7 @@ class VariablesAreInputTypes extends ValidationRule
                 $type = TypeInfo::typeFromAST($context->getSchema(), $node->type);
 
                 // If the variable type is not an input type, return an error.
-                if ($type === null || Type::isInputType($type)) {
+                if (null === $type || Type::isInputType($type)) {
                     return;
                 }
 

@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
+use function file_get_contents;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
-use PHPUnit\Framework\TestCase;
-
-use function file_get_contents;
 use function json_encode;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @see describe('Printer: SDL document')
@@ -47,8 +46,8 @@ final class SchemaPrinterTest extends TestCase
         $ast = Parser::parse(file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql'), ['noLocation' => true]);
 
         $astBeforePrintCall = json_encode($ast);
-        $printed            = Printer::doPrint($ast);
-        $printedAST         = Parser::parse($printed, ['noLocation' => true]);
+        $printed = Printer::doPrint($ast);
+        $printedAST = Parser::parse($printed, ['noLocation' => true]);
 
         self::assertEquals($printedAST, $ast);
         self::assertSame($astBeforePrintCall, json_encode($ast));

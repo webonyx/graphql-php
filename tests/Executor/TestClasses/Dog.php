@@ -23,10 +23,10 @@ class Dog
 
     public function __construct(string $name, bool $woofs)
     {
-        $this->name    = $name;
-        $this->woofs   = $woofs;
-        $this->mother  = null;
-        $this->father  = null;
+        $this->name = $name;
+        $this->woofs = $woofs;
+        $this->mother = null;
+        $this->father = null;
         $this->progeny = [];
     }
 }

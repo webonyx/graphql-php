@@ -17,7 +17,7 @@ use GraphQL\GraphQL;
 use GraphQL\Utils\BuildSchema;
 
 try {
-    $schema    = BuildSchema::build(/** @lang GraphQL */ '
+    $schema = BuildSchema::build(/** @lang GraphQL */ '
     type Query {
       echo(message: String!): String!
     }
@@ -32,9 +32,9 @@ try {
         'prefix' => 'You said: ',
     ];
 
-    $rawInput       = file_get_contents('php://input');
-    $input          = json_decode($rawInput, true);
-    $query          = $input['query'];
+    $rawInput = file_get_contents('php://input');
+    $input = json_decode($rawInput, true);
+    $query = $input['query'];
     $variableValues = $input['variables'] ?? null;
 
     $result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Error;
 
+use function array_merge;
 use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
@@ -14,8 +15,6 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use PHPUnit\Framework\TestCase;
 
-use function array_merge;
-
 class ErrorTest extends TestCase
 {
     /**
@@ -24,7 +23,7 @@ class ErrorTest extends TestCase
     public function testUsesTheStackOfAnOriginalError(): void
     {
         $prev = new Exception('Original');
-        $err  = new Error('msg', null, null, [], null, $prev);
+        $err = new Error('msg', null, null, [], null, $prev);
 
         self::assertSame($err->getPrevious(), $prev);
     }
@@ -37,11 +36,11 @@ class ErrorTest extends TestCase
         $source = new Source('{
       field
     }');
-        $ast    = Parser::parse($source);
+        $ast = Parser::parse($source);
         /** @var OperationDefinitionNode $operationDefinition */
         $operationDefinition = $ast->definitions[0];
-        $fieldNode           = $operationDefinition->selectionSet->selections[0];
-        $e                   = new Error('msg', [$fieldNode]);
+        $fieldNode = $operationDefinition->selectionSet->selections[0];
+        $e = new Error('msg', [$fieldNode]);
 
         self::assertEquals([$fieldNode], $e->nodes);
         self::assertEquals($source, $e->getSource());
@@ -57,11 +56,11 @@ class ErrorTest extends TestCase
         $source = new Source('{
       field
     }');
-        $ast    = Parser::parse($source);
+        $ast = Parser::parse($source);
         /** @var OperationDefinitionNode $operationDefinition */
         $operationDefinition = $ast->definitions[0];
-        $fieldNode           = $operationDefinition->selectionSet->selections[0];
-        $e                   = new Error('msg', $fieldNode); // Non-array value.
+        $fieldNode = $operationDefinition->selectionSet->selections[0];
+        $e = new Error('msg', $fieldNode); // Non-array value.
 
         self::assertEquals([$fieldNode], $e->nodes);
         self::assertEquals($source, $e->getSource());
@@ -74,12 +73,12 @@ class ErrorTest extends TestCase
      */
     public function testConvertsNodeWithStart0ToPositionsAndLocations(): void
     {
-        $source        = new Source('{
+        $source = new Source('{
       field
     }');
-        $ast           = Parser::parse($source);
+        $ast = Parser::parse($source);
         $operationNode = $ast->definitions[0];
-        $e             = new Error('msg', [$operationNode]);
+        $e = new Error('msg', [$operationNode]);
 
         self::assertEquals([$operationNode], $e->nodes);
         self::assertEquals($source, $e->getSource());
@@ -95,7 +94,7 @@ class ErrorTest extends TestCase
         $source = new Source('{
       field
     }');
-        $e      = new Error('msg', null, $source, [10]);
+        $e = new Error('msg', null, $source, [10]);
 
         self::assertEquals(null, $e->nodes);
         self::assertEquals($source, $e->getSource());
@@ -120,8 +119,8 @@ class ErrorTest extends TestCase
         $ast = Parser::parse('{ field }');
         /** @var OperationDefinitionNode $operationDefinition */
         $operationDefinition = $ast->definitions[0];
-        $node                = $operationDefinition->selectionSet->selections[0];
-        $e                   = new Error('msg', [$node]);
+        $node = $operationDefinition->selectionSet->selections[0];
+        $e = new Error('msg', [$node]);
 
         self::assertEquals(
             ['message' => 'msg', 'locations' => [['line' => 1, 'column' => 3]]],
@@ -164,7 +163,7 @@ class ErrorTest extends TestCase
         self::assertEquals(['foo' => 'bar'], $e->getExtensions());
         self::assertEquals(
             [
-                'message'    => 'msg',
+                'message' => 'msg',
                 'extensions' => ['foo' => 'bar'],
             ],
             FormattedError::createFromException($e)
@@ -173,15 +172,7 @@ class ErrorTest extends TestCase
 
     public function testErrorReadsOverridenMethods(): void
     {
-        $error = new class (
-            'msg',
-            null,
-            null,
-            [],
-            null,
-            null,
-            ['foo' => 'bar']
-        ) extends Error {
+        $error = new class('msg', null, null, [], null, null, ['foo' => 'bar']) extends Error {
             public function getExtensions(): ?array
             {
                 return array_merge(parent::getExtensions(), ['subfoo' => 'subbar']);
@@ -210,12 +201,7 @@ class ErrorTest extends TestCase
         self::assertEquals([1 => 2], $locatedError->getPositions());
         self::assertNotNull($locatedError->getSource());
 
-        $error = new class (
-            'msg',
-            new NullValueNode([]),
-            null,
-            [],
-        ) extends Error{
+        $error = new class('msg', new NullValueNode([]), null, [], ) extends Error {
             public function getNodes(): ?array
             {
                 return [new NullValueNode([])];

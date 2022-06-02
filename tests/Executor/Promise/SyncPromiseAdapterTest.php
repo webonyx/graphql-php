@@ -42,7 +42,7 @@ class SyncPromiseAdapterTest extends TestCase
 
     public function testConvert(): void
     {
-        $dfd    = new Deferred(static function (): void {
+        $dfd = new Deferred(static function (): void {
         });
         $result = $this->promises->convertThenable($dfd);
 
@@ -56,7 +56,7 @@ class SyncPromiseAdapterTest extends TestCase
 
     public function testThen(): void
     {
-        $dfd     = new Deferred(static function (): void {
+        $dfd = new Deferred(static function (): void {
         });
         $promise = $this->promises->convertThenable($dfd);
 
@@ -86,15 +86,15 @@ class SyncPromiseAdapterTest extends TestCase
     {
         self::assertInstanceOf(SyncPromise::class, $promise->adoptedPromise);
 
-        $actualNextValue   = null;
-        $actualNextReason  = null;
+        $actualNextValue = null;
+        $actualNextReason = null;
         $onFulfilledCalled = false;
-        $onRejectedCalled  = false;
+        $onRejectedCalled = false;
 
         $promise->then(
             static function ($nextValue) use (&$actualNextValue, &$onFulfilledCalled): void {
                 $onFulfilledCalled = true;
-                $actualNextValue   = $nextValue;
+                $actualNextValue = $nextValue;
             },
             static function (Throwable $reason) use (&$actualNextReason, &$onRejectedCalled): void {
                 $onRejectedCalled = true;
@@ -107,8 +107,8 @@ class SyncPromiseAdapterTest extends TestCase
 
         SyncPromise::runQueue();
 
-        if ($expectedNextState !== SyncPromise::PENDING) {
-            if ($expectedNextReason === null) {
+        if (SyncPromise::PENDING !== $expectedNextState) {
+            if (null === $expectedNextReason) {
                 self::assertTrue($onFulfilledCalled);
                 self::assertFalse($onRejectedCalled);
             } else {
@@ -221,7 +221,7 @@ class SyncPromiseAdapterTest extends TestCase
         self::assertEquals([1, 2, 3, 4], $called);
 
         $expectedResult = [0, 1, 2, 3, 4];
-        $result         = $this->promises->wait($all);
+        $result = $this->promises->wait($all);
         self::assertEquals($expectedResult, $result);
         self::assertEquals([1, 2, 3, 4], $called);
         self::assertValidPromise($all, null, [0, 1, 2, 3, 4], SyncPromise::FULFILLED);

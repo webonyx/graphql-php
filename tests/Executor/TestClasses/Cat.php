@@ -23,10 +23,10 @@ class Cat
 
     public function __construct(string $name, bool $meows)
     {
-        $this->name    = $name;
-        $this->meows   = $meows;
-        $this->mother  = null;
-        $this->father  = null;
+        $this->name = $name;
+        $this->meows = $meows;
+        $this->mother = null;
+        $this->father = null;
         $this->progeny = [];
     }
 }

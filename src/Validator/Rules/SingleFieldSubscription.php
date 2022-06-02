@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
-
-use function count;
 
 class SingleFieldSubscription extends ValidationRule
 {
@@ -22,7 +21,7 @@ class SingleFieldSubscription extends ValidationRule
     {
         return [
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use ($context): VisitorOperation {
-                if ($node->operation === 'subscription') {
+                if ('subscription' === $node->operation) {
                     $selections = $node->selectionSet->selections;
 
                     if (count($selections) > 1) {
@@ -42,7 +41,7 @@ class SingleFieldSubscription extends ValidationRule
 
     public static function multipleFieldsInOperation(?string $operationName): string
     {
-        if ($operationName === null) {
+        if (null === $operationName) {
             return 'Anonymous Subscription must select only one top level field.';
         }
 

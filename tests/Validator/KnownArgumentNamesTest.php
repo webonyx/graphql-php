@@ -376,7 +376,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
               foo: String
             }
         ');
-        $sdl    = '
+        $sdl = '
             directive @test(arg: String) on OBJECT
 
             extend type Query  @test(unknown: "")
@@ -401,7 +401,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
               foo: String
             }
         ');
-        $sdl    = '
+        $sdl = '
             extend type Query @test(unknown: "")
         ';
         $this->expectInvalid(

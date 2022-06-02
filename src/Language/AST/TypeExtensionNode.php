@@ -11,7 +11,7 @@ namespace GraphQL\Language\AST;
  * | InterfaceTypeExtensionNode
  * | UnionTypeExtensionNode
  * | EnumTypeExtensionNode
- * | InputObjectTypeExtensionNode;
+ * | InputObjectTypeExtensionNode;.
  */
 interface TypeExtensionNode extends TypeSystemDefinitionNode
 {

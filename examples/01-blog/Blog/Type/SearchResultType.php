@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace GraphQL\Examples\Blog\Type;
 
 use Exception;
+use function get_class;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\UnionType;
-
-use function get_class;
 
 class SearchResultType extends UnionType
 {

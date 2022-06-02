@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use function array_keys;
 use Closure;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
@@ -31,8 +32,6 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
-
-use function array_keys;
 use function preg_match;
 use function preg_replace;
 use function property_exists;
@@ -65,7 +64,7 @@ class BuildSchemaTest extends TestCase
      */
     private function cycleSDL(string $sdl, array $options = []): string
     {
-        $ast    = Parser::parse($sdl);
+        $ast = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($ast, null, $options);
 
         return "\n" . SchemaPrinter::doPrint($schema);
@@ -848,7 +847,7 @@ class BuildSchemaTest extends TestCase
         $output = $this->cycleSDL($sdl);
         self::assertEquals($sdl, $output);
 
-        $ast    = Parser::parse($sdl);
+        $ast = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($ast);
 
         /** @var EnumType $myEnum */
@@ -866,7 +865,7 @@ class BuildSchemaTest extends TestCase
         self::assertEquals('Terrible reasons', $otherValue->deprecationReason);
 
         /** @var ObjectType $queryType */
-        $queryType  = $schema->getType('Query');
+        $queryType = $schema->getType('Query');
         $rootFields = $queryType->getFields();
         self::assertEquals(true, $rootFields['field1']->isDeprecated());
         self::assertEquals('No longer supported', $rootFields['field1']->deprecationReason);
@@ -1169,7 +1168,7 @@ class BuildSchemaTest extends TestCase
         /** @var ObjectType $testType */
         $testType = $schema->getType('TestType');
         /** @var ScalarType $testScalar */
-        $testScalar    = $schema->getType('TestScalar');
+        $testScalar = $schema->getType('TestScalar');
         $testDirective = $schema->getDirective('test');
 
         $schemaASTDefinitions = new NodeList([
@@ -1358,11 +1357,11 @@ class BuildSchemaTest extends TestCase
         $doc = Parser::parse($sdl);
 
         $decorated = [];
-        $calls     = [];
+        $calls = [];
 
         $typeConfigDecorator = static function ($defaultConfig, $node, $allNodesMap) use (&$decorated, &$calls) {
             $decorated[] = $defaultConfig['name'];
-            $calls[]     = [$defaultConfig, $node, $allNodesMap];
+            $calls[] = [$defaultConfig, $node, $allNodesMap];
 
             return ['description' => 'My description of ' . $node->name->value] + $defaultConfig;
         };

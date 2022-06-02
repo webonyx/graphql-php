@@ -38,13 +38,13 @@ class VariablesInAllowedPosition extends ValidationRule
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
-                        $node         = $usage['node'];
-                        $type         = $usage['type'];
+                        $node = $usage['node'];
+                        $type = $usage['type'];
                         $defaultValue = $usage['defaultValue'];
-                        $varName      = $node->name->value;
-                        $varDef       = $this->varDefMap[$varName] ?? null;
+                        $varName = $node->name->value;
+                        $varDef = $this->varDefMap[$varName] ?? null;
 
-                        if ($varDef === null || $type === null) {
+                        if (null === $varDef || null === $type) {
                             continue;
                         }
 
@@ -53,10 +53,10 @@ class VariablesInAllowedPosition extends ValidationRule
                         // the variable type is non-null when the expected type is nullable.
                         // If both are list types, the variable item type can be more strict
                         // than the expected item type (contravariant).
-                        $schema  = $context->getSchema();
+                        $schema = $context->getSchema();
                         $varType = TypeInfo::typeFromAST($schema, $varDef->type);
 
-                        if ($varType === null || $this->allowedVariableUsage($schema, $varType, $varDef->defaultValue, $type, $defaultValue)) {
+                        if (null === $varType || $this->allowedVariableUsage($schema, $varType, $varDef->defaultValue, $type, $defaultValue)) {
                             continue;
                         }
 
@@ -67,7 +67,7 @@ class VariablesInAllowedPosition extends ValidationRule
                     }
                 },
             ],
-            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $varDefNode): void {
+            NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $varDefNode): void {
                 $this->varDefMap[$varDefNode->variable->name->value] = $varDefNode;
             },
         ];
@@ -95,8 +95,8 @@ class VariablesInAllowedPosition extends ValidationRule
     protected function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
     {
         if ($locationType instanceof NonNull && ! $varType instanceof NonNull) {
-            $hasNonNullVariableDefaultValue = $varDefaultValue !== null && ! $varDefaultValue instanceof NullValueNode;
-            $hasLocationDefaultValue        = ! Utils::isInvalid($locationDefaultValue);
+            $hasNonNullVariableDefaultValue = null !== $varDefaultValue && ! $varDefaultValue instanceof NullValueNode;
+            $hasLocationDefaultValue = ! Utils::isInvalid($locationDefaultValue);
             if (! $hasNonNullVariableDefaultValue && ! $hasLocationDefaultValue) {
                 return false;
             }

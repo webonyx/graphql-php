@@ -63,14 +63,14 @@ class ExecutionContext
         callable $fieldResolver,
         PromiseAdapter $promiseAdapter
     ) {
-        $this->schema         = $schema;
-        $this->fragments      = $fragments;
-        $this->rootValue      = $rootValue;
-        $this->contextValue   = $contextValue;
-        $this->operation      = $operation;
+        $this->schema = $schema;
+        $this->fragments = $fragments;
+        $this->rootValue = $rootValue;
+        $this->contextValue = $contextValue;
+        $this->operation = $operation;
         $this->variableValues = $variableValues;
-        $this->errors         = $errors;
-        $this->fieldResolver  = $fieldResolver;
+        $this->errors = $errors;
+        $this->fieldResolver = $fieldResolver;
         $this->promiseAdapter = $promiseAdapter;
     }
 

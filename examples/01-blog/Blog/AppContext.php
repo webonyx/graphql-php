@@ -7,7 +7,7 @@ namespace GraphQL\Examples\Blog;
 use GraphQL\Examples\Blog\Data\User;
 
 /**
- * Instance available in all GraphQL resolvers as 3rd argument
+ * Instance available in all GraphQL resolvers as 3rd argument.
  */
 class AppContext
 {

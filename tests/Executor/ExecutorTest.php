@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Executor;
 
 use ArrayAccess;
+use function count;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Deferred;
@@ -24,13 +25,10 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use function json_encode;
 use PHPUnit\Framework\TestCase;
-// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
 use ReturnTypeWillChange;
 use stdClass;
-
-use function count;
-use function json_encode;
 
 class ExecutorTest extends TestCase
 {
@@ -49,7 +47,7 @@ class ExecutorTest extends TestCase
     public function testExecutesArbitraryCode(): void
     {
         $deepData = null;
-        $data     = null;
+        $data = null;
 
         $promiseData = static function () use (&$data): Deferred {
             return new Deferred(static function () use (&$data) {
@@ -58,42 +56,42 @@ class ExecutorTest extends TestCase
         };
 
         $data = [
-            'a'       => static function (): string {
+            'a' => static function (): string {
                 return 'Apple';
             },
-            'b'       => static function (): string {
+            'b' => static function (): string {
                 return 'Banana';
             },
-            'c'       => static function (): string {
+            'c' => static function (): string {
                 return 'Cookie';
             },
-            'd'       => static function (): string {
+            'd' => static function (): string {
                 return 'Donut';
             },
-            'e'       => static function (): string {
+            'e' => static function (): string {
                 return 'Egg';
             },
-            'f'       => 'Fish',
-            'pic'     => static function ($size = 50): string {
+            'f' => 'Fish',
+            'pic' => static function ($size = 50): string {
                 return 'Pic of size: ' . $size;
             },
             'promise' => static function () use ($promiseData): Deferred {
                 return $promiseData();
             },
-            'deep'    => static function () use (&$deepData) {
+            'deep' => static function () use (&$deepData) {
                 return $deepData;
             },
         ];
 
         // Required for that & reference above
         $deepData = [
-            'a'      => static function (): string {
+            'a' => static function (): string {
                 return 'Already Been Done';
             },
-            'b'      => static function (): string {
+            'b' => static function (): string {
                 return 'Boring';
             },
-            'c'      => static function (): array {
+            'c' => static function (): array {
                 return ['Contrived', null, 'Confusing'];
             },
             'deeper' => static function () use (&$data): array {
@@ -131,21 +129,21 @@ class ExecutorTest extends TestCase
       }
     ';
 
-        $ast      = Parser::parse($doc);
+        $ast = Parser::parse($doc);
         $expected = [
             'data' => [
-                'a'       => 'Apple',
-                'b'       => 'Banana',
-                'x'       => 'Cookie',
-                'd'       => 'Donut',
-                'e'       => 'Egg',
-                'f'       => 'Fish',
-                'pic'     => 'Pic of size: 100',
+                'a' => 'Apple',
+                'b' => 'Banana',
+                'x' => 'Cookie',
+                'd' => 'Donut',
+                'e' => 'Egg',
+                'f' => 'Fish',
+                'pic' => 'Pic of size: 100',
                 'promise' => ['a' => 'Apple'],
-                'deep'    => [
-                    'a'      => 'Already Been Done',
-                    'b'      => 'Boring',
-                    'c'      => ['Contrived', null, 'Confusing'],
+                'deep' => [
+                    'a' => 'Already Been Done',
+                    'b' => 'Boring',
+                    'c' => ['Contrived', null, 'Confusing'],
                     'deeper' => [
                         ['a' => 'Apple', 'b' => 'Banana'],
                         null,
@@ -156,40 +154,40 @@ class ExecutorTest extends TestCase
         ];
 
         $deepDataType = null;
-        $dataType     = new ObjectType([
-            'name'   => 'DataType',
+        $dataType = new ObjectType([
+            'name' => 'DataType',
             'fields' => static function () use (&$dataType, &$deepDataType): array {
                 return [
-                    'a'       => ['type' => Type::string()],
-                    'b'       => ['type' => Type::string()],
-                    'c'       => ['type' => Type::string()],
-                    'd'       => ['type' => Type::string()],
-                    'e'       => ['type' => Type::string()],
-                    'f'       => ['type' => Type::string()],
-                    'pic'     => [
-                        'args'    => ['size' => ['type' => Type::int()]],
-                        'type'    => Type::string(),
+                    'a' => ['type' => Type::string()],
+                    'b' => ['type' => Type::string()],
+                    'c' => ['type' => Type::string()],
+                    'd' => ['type' => Type::string()],
+                    'e' => ['type' => Type::string()],
+                    'f' => ['type' => Type::string()],
+                    'pic' => [
+                        'args' => ['size' => ['type' => Type::int()]],
+                        'type' => Type::string(),
                         'resolve' => static function ($obj, $args) {
                             return $obj['pic']($args['size']);
                         },
                     ],
                     'promise' => ['type' => $dataType],
-                    'deep'    => ['type' => $deepDataType],
+                    'deep' => ['type' => $deepDataType],
                 ];
             },
         ]);
 
         // Required for that & reference above
         $deepDataType = new ObjectType([
-            'name'   => 'DeepDataType',
+            'name' => 'DeepDataType',
             'fields' => [
-                'a'      => ['type' => Type::string()],
-                'b'      => ['type' => Type::string()],
-                'c'      => ['type' => Type::listOf(Type::string())],
+                'a' => ['type' => Type::string()],
+                'b' => ['type' => Type::string()],
+                'c' => ['type' => Type::listOf(Type::string())],
                 'deeper' => ['type' => Type::listOf($dataType)],
             ],
         ]);
-        $schema       = new Schema(['query' => $dataType]);
+        $schema = new Schema(['query' => $dataType]);
 
         self::assertEquals(
             $expected,
@@ -217,29 +215,29 @@ class ExecutorTest extends TestCase
         ');
 
         $Type = new ObjectType([
-            'name'   => 'Type',
+            'name' => 'Type',
             'fields' => static function () use (&$Type): array {
                 return [
-                    'a'    => [
-                        'type'    => Type::string(),
+                    'a' => [
+                        'type' => Type::string(),
                         'resolve' => static function (): string {
                             return 'Apple';
                         },
                     ],
-                    'b'    => [
-                        'type'    => Type::string(),
+                    'b' => [
+                        'type' => Type::string(),
                         'resolve' => static function (): string {
                             return 'Banana';
                         },
                     ],
-                    'c'    => [
-                        'type'    => Type::string(),
+                    'c' => [
+                        'type' => Type::string(),
                         'resolve' => static function (): string {
                             return 'Cherry';
                         },
                     ],
                     'deep' => [
-                        'type'    => $Type,
+                        'type' => $Type,
                         'resolve' => static function (): array {
                             return [];
                         },
@@ -248,15 +246,15 @@ class ExecutorTest extends TestCase
             },
         ]);
 
-        $schema   = new Schema(['query' => $Type]);
+        $schema = new Schema(['query' => $Type]);
         $expected = [
             'data' => [
-                'a'    => 'Apple',
-                'b'    => 'Banana',
-                'c'    => 'Cherry',
+                'a' => 'Apple',
+                'b' => 'Banana',
+                'c' => 'Cherry',
                 'deep' => [
-                    'b'      => 'Banana',
-                    'c'      => 'Cherry',
+                    'b' => 'Banana',
+                    'c' => 'Cherry',
                     'deeper' => [
                         'b' => 'Banana',
                         'c' => 'Cherry',
@@ -276,13 +274,13 @@ class ExecutorTest extends TestCase
         $ast = Parser::parse('query ($var: String) { result: test }');
 
         /** @var ResolveInfo $info */
-        $info   = null;
+        $info = null;
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Test',
+                'name' => 'Test',
                 'fields' => [
                     'test' => [
-                        'type'    => Type::string(),
+                        'type' => Type::string(),
                         'resolve' => static function ($test, $args, $ctx, $_info) use (&$info): void {
                             $info = $_info;
                         },
@@ -323,13 +321,13 @@ class ExecutorTest extends TestCase
 
         $data = ['contextThing' => 'thing'];
 
-        $ast    = Parser::parse($doc);
+        $ast = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'a' => [
-                        'type'    => Type::string(),
+                        'type' => Type::string(),
                         'resolve' => static function ($context) use (&$gotHere): void {
                             self::assertEquals('thing', $context['contextThing']);
                             $gotHere = true;
@@ -359,14 +357,14 @@ class ExecutorTest extends TestCase
         $docAst = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'b' => [
-                        'args'    => [
-                            'numArg'    => ['type' => Type::int()],
+                        'args' => [
+                            'numArg' => ['type' => Type::int()],
                             'stringArg' => ['type' => Type::string()],
                         ],
-                        'type'    => Type::string(),
+                        'type' => Type::string(),
                         'resolve' => static function ($_, $args) use (&$gotHere): void {
                             self::assertEquals(123, $args['numArg']);
                             self::assertEquals('foo', $args['stringArg']);
@@ -402,18 +400,18 @@ class ExecutorTest extends TestCase
         }';
 
         $data = [
-            'sync'                => static function (): string {
+            'sync' => static function (): string {
                 return 'sync';
             },
-            'syncError'           => static function (): void {
+            'syncError' => static function (): void {
                 throw new UserError('Error getting syncError');
             },
-            'syncRawError'        => static function (): void {
+            'syncRawError' => static function (): void {
                 throw new UserError('Error getting syncRawError');
             },
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
-            'syncReturnError'     => static function (): UserError {
+            'syncReturnError' => static function (): UserError {
                 return new UserError('Error getting syncReturnError');
             },
             'syncReturnErrorList' => static function (): array {
@@ -424,39 +422,39 @@ class ExecutorTest extends TestCase
                     new UserError('Error getting syncReturnErrorList3'),
                 ];
             },
-            'async'               => static function (): Deferred {
+            'async' => static function (): Deferred {
                 return new Deferred(static function (): string {
                     return 'async';
                 });
             },
-            'asyncReject'         => static function (): Deferred {
+            'asyncReject' => static function (): Deferred {
                 return new Deferred(static function (): void {
                     throw new UserError('Error getting asyncReject');
                 });
             },
-            'asyncRawReject'      => static function (): Deferred {
+            'asyncRawReject' => static function (): Deferred {
                 return new Deferred(static function (): void {
                     throw new UserError('Error getting asyncRawReject');
                 });
             },
-            'asyncEmptyReject'    => static function (): Deferred {
+            'asyncEmptyReject' => static function (): Deferred {
                 return new Deferred(static function (): void {
                     throw new UserError();
                 });
             },
-            'asyncError'          => static function (): Deferred {
+            'asyncError' => static function (): Deferred {
                 return new Deferred(static function (): void {
                     throw new UserError('Error getting asyncError');
                 });
             },
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
-            'asyncRawError'       => static function (): Deferred {
+            'asyncRawError' => static function (): Deferred {
                 return new Deferred(static function (): void {
                     throw new UserError('Error getting asyncRawError');
                 });
             },
-            'asyncReturnError'    => static function (): Deferred {
+            'asyncReturnError' => static function (): Deferred {
                 return new Deferred(static function (): void {
                     throw new UserError('Error getting asyncReturnError');
                 });
@@ -481,103 +479,103 @@ class ExecutorTest extends TestCase
         $docAst = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
-                    'sync'                => ['type' => Type::string()],
-                    'syncError'           => ['type' => Type::string()],
-                    'syncRawError'        => ['type' => Type::string()],
-                    'syncReturnError'     => ['type' => Type::string()],
+                    'sync' => ['type' => Type::string()],
+                    'syncError' => ['type' => Type::string()],
+                    'syncRawError' => ['type' => Type::string()],
+                    'syncReturnError' => ['type' => Type::string()],
                     'syncReturnErrorList' => ['type' => Type::listOf(Type::string())],
-                    'async'               => ['type' => Type::string()],
-                    'asyncReject'         => ['type' => Type::string()],
-                    'asyncRejectWithExtensions' => [ 'type' => Type::string() ],
-                    'asyncRawReject'      => ['type' => Type::string()],
-                    'asyncEmptyReject'    => ['type' => Type::string()],
-                    'asyncError'          => ['type' => Type::string()],
-                    'asyncRawError'       => ['type' => Type::string()],
-                    'asyncReturnError'    => ['type' => Type::string()],
-                    'asyncReturnErrorWithExtensions' => [ 'type' => Type::string() ],
+                    'async' => ['type' => Type::string()],
+                    'asyncReject' => ['type' => Type::string()],
+                    'asyncRejectWithExtensions' => ['type' => Type::string()],
+                    'asyncRawReject' => ['type' => Type::string()],
+                    'asyncEmptyReject' => ['type' => Type::string()],
+                    'asyncError' => ['type' => Type::string()],
+                    'asyncRawError' => ['type' => Type::string()],
+                    'asyncReturnError' => ['type' => Type::string()],
+                    'asyncReturnErrorWithExtensions' => ['type' => Type::string()],
                 ],
             ]),
         ]);
 
         $expected = [
-            'data'   => [
-                'sync'                => 'sync',
-                'syncError'           => null,
-                'syncRawError'        => null,
-                'syncReturnError'     => null,
+            'data' => [
+                'sync' => 'sync',
+                'syncError' => null,
+                'syncRawError' => null,
+                'syncReturnError' => null,
                 'syncReturnErrorList' => ['sync0', null, 'sync2', null],
-                'async'               => 'async',
-                'asyncReject'         => null,
-                'asyncRawReject'      => null,
-                'asyncEmptyReject'    => null,
-                'asyncError'          => null,
-                'asyncRawError'       => null,
-                'asyncReturnError'    => null,
+                'async' => 'async',
+                'asyncReject' => null,
+                'asyncRawReject' => null,
+                'asyncEmptyReject' => null,
+                'asyncError' => null,
+                'asyncRawError' => null,
+                'asyncReturnError' => null,
                 'asyncReturnErrorWithExtensions' => null,
             ],
             'errors' => [
                 [
-                    'message'   => 'Error getting syncError',
+                    'message' => 'Error getting syncError',
                     'locations' => [['line' => 3, 'column' => 7]],
-                    'path'      => ['syncError'],
+                    'path' => ['syncError'],
                 ],
                 [
-                    'message'   => 'Error getting syncRawError',
+                    'message' => 'Error getting syncRawError',
                     'locations' => [['line' => 4, 'column' => 7]],
-                    'path'      => ['syncRawError'],
+                    'path' => ['syncRawError'],
                 ],
                 [
-                    'message'   => 'Error getting syncReturnError',
+                    'message' => 'Error getting syncReturnError',
                     'locations' => [['line' => 5, 'column' => 7]],
-                    'path'      => ['syncReturnError'],
+                    'path' => ['syncReturnError'],
                 ],
                 [
-                    'message'   => 'Error getting syncReturnErrorList1',
+                    'message' => 'Error getting syncReturnErrorList1',
                     'locations' => [['line' => 6, 'column' => 7]],
-                    'path'      => ['syncReturnErrorList', 1],
+                    'path' => ['syncReturnErrorList', 1],
                 ],
                 [
-                    'message'   => 'Error getting syncReturnErrorList3',
+                    'message' => 'Error getting syncReturnErrorList3',
                     'locations' => [['line' => 6, 'column' => 7]],
-                    'path'      => ['syncReturnErrorList', 3],
+                    'path' => ['syncReturnErrorList', 3],
                 ],
                 [
-                    'message'   => 'Error getting asyncReject',
+                    'message' => 'Error getting asyncReject',
                     'locations' => [['line' => 8, 'column' => 7]],
-                    'path'      => ['asyncReject'],
+                    'path' => ['asyncReject'],
                 ],
                 [
-                    'message'   => 'Error getting asyncRawReject',
+                    'message' => 'Error getting asyncRawReject',
                     'locations' => [['line' => 9, 'column' => 7]],
-                    'path'      => ['asyncRawReject'],
+                    'path' => ['asyncRawReject'],
                 ],
                 [
-                    'message'   => 'An unknown error occurred.',
+                    'message' => 'An unknown error occurred.',
                     'locations' => [['line' => 10, 'column' => 7]],
-                    'path'      => ['asyncEmptyReject'],
+                    'path' => ['asyncEmptyReject'],
                 ],
                 [
-                    'message'   => 'Error getting asyncError',
+                    'message' => 'Error getting asyncError',
                     'locations' => [['line' => 11, 'column' => 7]],
-                    'path'      => ['asyncError'],
+                    'path' => ['asyncError'],
                 ],
                 [
-                    'message'   => 'Error getting asyncRawError',
+                    'message' => 'Error getting asyncRawError',
                     'locations' => [['line' => 12, 'column' => 7]],
-                    'path'      => ['asyncRawError'],
+                    'path' => ['asyncRawError'],
                 ],
                 [
-                    'message'   => 'Error getting asyncReturnError',
+                    'message' => 'Error getting asyncReturnError',
                     'locations' => [['line' => 13, 'column' => 7]],
-                    'path'      => ['asyncReturnError'],
+                    'path' => ['asyncReturnError'],
                 ],
                 [
                     'message' => 'Error getting asyncReturnErrorWithExtensions',
-                    'locations' => [[ 'line' => 14, 'column' => 7 ]],
+                    'locations' => [['line' => 14, 'column' => 7]],
                     'path' => ['asyncReturnErrorWithExtensions'],
-                    'extensions' => [ 'foo' => 'bar' ],
+                    'extensions' => ['foo' => 'bar'],
                 ],
             ],
         ];
@@ -592,12 +590,12 @@ class ExecutorTest extends TestCase
      */
     public function testUsesTheInlineOperationIfNoOperationIsProvided(): void
     {
-        $doc    = '{ a }';
-        $data   = ['a' => 'b'];
-        $ast    = Parser::parse($doc);
+        $doc = '{ a }';
+        $data = ['a' => 'b'];
+        $ast = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
@@ -614,12 +612,12 @@ class ExecutorTest extends TestCase
      */
     public function testUsesTheOnlyOperationIfNoOperationIsProvided(): void
     {
-        $doc    = 'query Example { a }';
-        $data   = ['a' => 'b'];
-        $ast    = Parser::parse($doc);
+        $doc = 'query Example { a }';
+        $data = ['a' => 'b'];
+        $ast = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
@@ -635,12 +633,12 @@ class ExecutorTest extends TestCase
      */
     public function testUsesTheNamedOperationIfOperationNameIsProvided(): void
     {
-        $doc    = 'query Example { first: a } query OtherExample { second: a }';
-        $data   = ['a' => 'b'];
-        $ast    = Parser::parse($doc);
+        $doc = 'query Example { first: a } query OtherExample { second: a }';
+        $data = ['a' => 'b'];
+        $ast = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
@@ -656,19 +654,19 @@ class ExecutorTest extends TestCase
      */
     public function testProvidesErrorIfNoOperationIsProvided(): void
     {
-        $doc    = 'fragment Example on Type { a }';
-        $data   = ['a' => 'b'];
-        $ast    = Parser::parse($doc);
+        $doc = 'fragment Example on Type { a }';
+        $data = ['a' => 'b'];
+        $ast = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
             ]),
         ]);
 
-        $result   = Executor::execute($schema, $ast, $data);
+        $result = Executor::execute($schema, $ast, $data);
         $expected = [
             'errors' => [
                 ['message' => 'Must provide an operation.'],
@@ -683,12 +681,12 @@ class ExecutorTest extends TestCase
      */
     public function testErrorsIfNoOperationIsProvidedWithMultipleOperations(): void
     {
-        $doc    = 'query Example { a } query OtherExample { a }';
-        $data   = ['a' => 'b'];
-        $ast    = Parser::parse($doc);
+        $doc = 'query Example { a } query OtherExample { a }';
+        $data = ['a' => 'b'];
+        $ast = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
@@ -711,11 +709,11 @@ class ExecutorTest extends TestCase
      */
     public function testErrorsIfUnknownOperationNameIsProvided(): void
     {
-        $doc    = 'query Example { a } query OtherExample { a }';
-        $ast    = Parser::parse($doc);
+        $doc = 'query Example { a } query OtherExample { a }';
+        $ast = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
@@ -735,7 +733,6 @@ class ExecutorTest extends TestCase
             'errors' => [
                 ['message' => 'Unknown operation named "UnknownExample".'],
             ],
-
         ];
 
         self::assertArraySubset($expected, $result->toArray());
@@ -746,18 +743,18 @@ class ExecutorTest extends TestCase
      */
     public function testUsesTheQuerySchemaForQueries(): void
     {
-        $doc    = 'query Q { a } mutation M { c }';
-        $data   = ['a' => 'b', 'c' => 'd'];
-        $ast    = Parser::parse($doc);
+        $doc = 'query Q { a } mutation M { c }';
+        $data = ['a' => 'b', 'c' => 'd'];
+        $ast = Parser::parse($doc);
         $schema = new Schema([
-            'query'    => new ObjectType([
-                'name'   => 'Q',
+            'query' => new ObjectType([
+                'name' => 'Q',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
             ]),
             'mutation' => new ObjectType([
-                'name'   => 'M',
+                'name' => 'M',
                 'fields' => [
                     'c' => ['type' => Type::string()],
                 ],
@@ -773,18 +770,18 @@ class ExecutorTest extends TestCase
      */
     public function testUsesTheMutationSchemaForMutations(): void
     {
-        $doc            = 'query Q { a } mutation M { c }';
-        $data           = ['a' => 'b', 'c' => 'd'];
-        $ast            = Parser::parse($doc);
-        $schema         = new Schema([
-            'query'    => new ObjectType([
-                'name'   => 'Q',
+        $doc = 'query Q { a } mutation M { c }';
+        $data = ['a' => 'b', 'c' => 'd'];
+        $ast = Parser::parse($doc);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Q',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
             ]),
             'mutation' => new ObjectType([
-                'name'   => 'M',
+                'name' => 'M',
                 'fields' => [
                     'c' => ['type' => Type::string()],
                 ],
@@ -799,18 +796,18 @@ class ExecutorTest extends TestCase
      */
     public function testUsesTheSubscriptionSchemaForSubscriptions(): void
     {
-        $doc    = 'query Q { a } subscription S { a }';
-        $data   = ['a' => 'b', 'c' => 'd'];
-        $ast    = Parser::parse($doc);
+        $doc = 'query Q { a } subscription S { a }';
+        $data = ['a' => 'b', 'c' => 'd'];
+        $ast = Parser::parse($doc);
         $schema = new Schema([
-            'query'        => new ObjectType([
-                'name'   => 'Q',
+            'query' => new ObjectType([
+                'name' => 'Q',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
             ]),
             'subscription' => new ObjectType([
-                'name'   => 'S',
+                'name' => 'S',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
@@ -823,7 +820,7 @@ class ExecutorTest extends TestCase
 
     public function testCorrectFieldOrderingDespiteExecutionOrder(): void
     {
-        $doc  = '{
+        $doc = '{
       a,
       b,
       c,
@@ -855,7 +852,7 @@ class ExecutorTest extends TestCase
         $ast = Parser::parse($doc);
 
         $queryType = new ObjectType([
-            'name'   => 'DeepDataType',
+            'name' => 'DeepDataType',
             'fields' => [
                 'a' => ['type' => Type::string()],
                 'b' => ['type' => Type::string()],
@@ -864,7 +861,7 @@ class ExecutorTest extends TestCase
                 'e' => ['type' => Type::string()],
             ],
         ]);
-        $schema    = new Schema(['query' => $queryType]);
+        $schema = new Schema(['query' => $queryType]);
 
         $expected = [
             'data' => [
@@ -884,7 +881,7 @@ class ExecutorTest extends TestCase
      */
     public function testAvoidsRecursion(): void
     {
-        $doc    = '
+        $doc = '
       query Q {
         a
         ...Frag
@@ -896,11 +893,11 @@ class ExecutorTest extends TestCase
         ...Frag
       }
         ';
-        $data   = ['a' => 'b'];
-        $ast    = Parser::parse($doc);
+        $data = ['a' => 'b'];
+        $ast = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
@@ -916,19 +913,19 @@ class ExecutorTest extends TestCase
      */
     public function testDoesNotIncludeIllegalFieldsInOutput(): void
     {
-        $doc            = 'mutation M {
+        $doc = 'mutation M {
       thisIsIllegalDontIncludeMe
     }';
-        $ast            = Parser::parse($doc);
-        $schema         = new Schema([
-            'query'    => new ObjectType([
-                'name'   => 'Q',
+        $ast = Parser::parse($doc);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Q',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ],
             ]),
             'mutation' => new ObjectType([
-                'name'   => 'M',
+                'name' => 'M',
                 'fields' => [
                     'c' => ['type' => Type::string()],
                 ],
@@ -945,16 +942,16 @@ class ExecutorTest extends TestCase
     {
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'field' => [
-                        'type'    => Type::string(),
+                        'type' => Type::string(),
                         'resolve' => static function ($data, $args) {
                             return $args
                                 ? json_encode($args)
                                 : '';
                         },
-                        'args'    => [
+                        'args' => [
                             'a' => ['type' => Type::boolean()],
                             'b' => ['type' => Type::boolean()],
                             'c' => ['type' => Type::boolean()],
@@ -966,8 +963,8 @@ class ExecutorTest extends TestCase
             ]),
         ]);
 
-        $query    = Parser::parse('{ field(a: true, c: false, e: 0) }');
-        $result   = Executor::execute($schema, $query);
+        $query = Parser::parse('{ field(a: true, c: false, e: 0) }');
+        $result = Executor::execute($schema, $query);
         $expected = [
             'data' => ['field' => '{"a":true,"c":false,"e":0}'],
         ];
@@ -981,21 +978,21 @@ class ExecutorTest extends TestCase
     public function testFailsWhenAnIsTypeOfCheckIsNotMet(): void
     {
         $SpecialType = new ObjectType([
-            'name'     => 'SpecialType',
+            'name' => 'SpecialType',
             'isTypeOf' => static function ($obj): bool {
                 return $obj instanceof Special;
             },
-            'fields'   => [
+            'fields' => [
                 'value' => ['type' => Type::string()],
             ],
         ]);
 
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Query',
+                'name' => 'Query',
                 'fields' => [
                     'specials' => [
-                        'type'    => Type::listOf($SpecialType),
+                        'type' => Type::listOf($SpecialType),
                         'resolve' => static function ($rootValue) {
                             return $rootValue['specials'];
                         },
@@ -1004,8 +1001,8 @@ class ExecutorTest extends TestCase
             ]),
         ]);
 
-        $query  = Parser::parse('{ specials { value } }');
-        $value  = [
+        $query = Parser::parse('{ specials { value } }');
+        $value = [
             'specials' => [new Special('foo'), new NotSpecial('bar')],
         ];
         $result = Executor::execute($schema, $query, $value);
@@ -1023,9 +1020,9 @@ class ExecutorTest extends TestCase
         self::assertEquals(1, count($result->errors));
         self::assertEquals(
             [
-                'message'   => 'Expected value of type "SpecialType" but got: instance of GraphQL\Tests\Executor\TestClasses\NotSpecial.',
+                'message' => 'Expected value of type "SpecialType" but got: instance of GraphQL\Tests\Executor\TestClasses\NotSpecial.',
                 'locations' => [['line' => 1, 'column' => 3]],
-                'path'      => ['specials', 1],
+                'path' => ['specials', 1],
             ],
             FormattedError::createFromException($result->errors[0])
         );
@@ -1044,7 +1041,7 @@ class ExecutorTest extends TestCase
 
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Query',
+                'name' => 'Query',
                 'fields' => [
                     'foo' => ['type' => Type::string()],
                 ],
@@ -1069,7 +1066,7 @@ class ExecutorTest extends TestCase
 
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Query',
+                'name' => 'Query',
                 'fields' => [
                     'foo' => ['type' => Type::string()],
                 ],
@@ -1102,16 +1099,16 @@ class ExecutorTest extends TestCase
     {
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Type',
+                'name' => 'Type',
                 'fields' => [
                     'field' => [
-                        'type'    => Type::string(),
+                        'type' => Type::string(),
                         'resolve' => static function ($data, $args) {
                             return $args
                                 ? json_encode($args)
                                 : '';
                         },
-                        'args'    => [
+                        'args' => [
                             'a' => ['type' => Type::boolean(), 'defaultValue' => 1],
                             'b' => ['type' => Type::boolean(), 'defaultValue' => null],
                             'c' => ['type' => Type::boolean(), 'defaultValue' => 0],
@@ -1121,7 +1118,7 @@ class ExecutorTest extends TestCase
                             'g' => ['type' => Type::boolean()],
                             'h' => [
                                 'type' => new InputObjectType([
-                                    'name'   => 'ComplexType',
+                                    'name' => 'ComplexType',
                                     'fields' => [
                                         'a' => ['type' => Type::int()],
                                         'b' => ['type' => Type::string()],
@@ -1145,8 +1142,8 @@ class ExecutorTest extends TestCase
             ]),
         ]);
 
-        $query    = Parser::parse('{ field }');
-        $result   = Executor::execute($schema, $query);
+        $query = Parser::parse('{ field }');
+        $result = Executor::execute($schema, $query);
         $expected = [
             'data' => ['field' => '{"a":1,"b":null,"c":0,"d":false,"e":"0","f":"some-string","h":{"a":1,"b":"test"},"i":1}'],
         ];
@@ -1162,8 +1159,8 @@ class ExecutorTest extends TestCase
         $iface = null;
 
         $a = new ObjectType([
-            'name'       => 'A',
-            'fields'     => [
+            'name' => 'A',
+            'fields' => [
                 'id' => Type::id(),
             ],
             'interfaces' => static function () use (&$iface): array {
@@ -1172,8 +1169,8 @@ class ExecutorTest extends TestCase
         ]);
 
         $b = new ObjectType([
-            'name'       => 'B',
-            'fields'     => [
+            'name' => 'B',
+            'fields' => [
                 'id' => Type::id(),
             ],
             'interfaces' => static function () use (&$iface): array {
@@ -1182,18 +1179,18 @@ class ExecutorTest extends TestCase
         ]);
 
         $iface = new InterfaceType([
-            'name'        => 'Iface',
-            'fields'      => [
+            'name' => 'Iface',
+            'fields' => [
                 'id' => Type::id(),
             ],
             'resolveType' => static function ($v) use ($a, $b): ObjectType {
-                return $v['type'] === 'A' ? $a : $b;
+                return 'A' === $v['type'] ? $a : $b;
             },
         ]);
 
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Query',
+                'name' => 'Query',
                 'fields' => [
                     'ab' => Type::listOf($iface),
                 ],
@@ -1240,16 +1237,16 @@ class ExecutorTest extends TestCase
     public function testDefaultResolverGrabsValuesOffOfCommonPhpDataStructures(): void
     {
         $Array = new ObjectType([
-            'name'       => 'Array',
-            'fields'     => [
+            'name' => 'Array',
+            'fields' => [
                 'set' => Type::int(),
                 'unset' => Type::int(),
             ],
         ]);
 
         $ArrayAccess = new ObjectType([
-            'name'        => 'ArrayAccess',
-            'fields'      => [
+            'name' => 'ArrayAccess',
+            'fields' => [
                 'set' => Type::int(),
                 'unsetNull' => Type::int(),
                 'unsetThrow' => Type::int(),
@@ -1257,8 +1254,8 @@ class ExecutorTest extends TestCase
         ]);
 
         $ObjectField = new ObjectType([
-            'name'       => 'ObjectField',
-            'fields'     => [
+            'name' => 'ObjectField',
+            'fields' => [
                 'set' => Type::int(),
                 'unset' => Type::int(),
                 'nonExistent' => Type::int(),
@@ -1266,8 +1263,8 @@ class ExecutorTest extends TestCase
         ]);
 
         $ObjectVirtual = new ObjectType([
-            'name'       => 'ObjectVirtual',
-            'fields'     => [
+            'name' => 'ObjectVirtual',
+            'fields' => [
                 'set' => Type::int(),
                 'unsetNull' => Type::int(),
                 'unsetThrow' => Type::int(),
@@ -1276,7 +1273,7 @@ class ExecutorTest extends TestCase
 
         $schema = new Schema([
             'query' => new ObjectType([
-                'name'   => 'Query',
+                'name' => 'Query',
                 'fields' => [
                     'array' => [
                         'type' => $Array,
@@ -1287,7 +1284,7 @@ class ExecutorTest extends TestCase
                     'arrayAccess' => [
                         'type' => $ArrayAccess,
                         'resolve' => static function (): ArrayAccess {
-                            return new class implements ArrayAccess {
+                            return new class() implements ArrayAccess {
                                 /**
                                  * @param mixed $offset
                                  */
@@ -1343,7 +1340,7 @@ class ExecutorTest extends TestCase
                     'objectField' => [
                         'type' => $ObjectField,
                         'resolve' => static function (): stdClass {
-                            return new class extends stdClass {
+                            return new class() extends stdClass {
                                 public ?int $set = 1;
 
                                 public ?int $unset;
@@ -1353,7 +1350,7 @@ class ExecutorTest extends TestCase
                     'objectVirtual' => [
                         'type' => $ObjectVirtual,
                         'resolve' => static function (): object {
-                            return new class {
+                            return new class() {
                                 public function __isset(string $name): bool
                                 {
                                     switch ($name) {

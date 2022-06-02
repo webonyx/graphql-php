@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Error;
 
+use const E_USER_WARNING;
 use GraphQL\Exception\InvalidArgument;
-
 use function is_int;
 use function trigger_error;
-
-use const E_USER_WARNING;
 
 /**
  * Encapsulates warnings produced by the library.
@@ -21,13 +19,13 @@ use const E_USER_WARNING;
  */
 final class Warning
 {
-    public const NONE                       = 0;
-    public const WARNING_ASSIGN             = 2;
-    public const WARNING_CONFIG             = 4;
-    public const WARNING_FULL_SCHEMA_SCAN   = 8;
+    public const NONE = 0;
+    public const WARNING_ASSIGN = 2;
+    public const WARNING_CONFIG = 4;
+    public const WARNING_FULL_SCHEMA_SCAN = 8;
     public const WARNING_CONFIG_DEPRECATION = 16;
-    public const WARNING_NOT_A_TYPE         = 32;
-    public const ALL                        = 63;
+    public const WARNING_NOT_A_TYPE = 32;
+    public const ALL = 63;
 
     private static int $enableWarnings = self::ALL;
 
@@ -61,13 +59,14 @@ final class Warning
      * @example Warning::suppress(Warning::WARNING_NOT_A_TYPE) suppress a specific warning
      * @example Warning::suppress(true) suppresses all warnings
      * @example Warning::suppress(false) enables all warnings
+     *
      * @api
      */
     public static function suppress($suppress = true): void
     {
-        if ($suppress === true) {
+        if (true === $suppress) {
             self::$enableWarnings = 0;
-        } elseif ($suppress === false) {
+        } elseif (false === $suppress) {
             self::$enableWarnings = self::ALL;
         // @phpstan-ignore-next-line necessary until we can use proper unions
         } elseif (is_int($suppress)) {
@@ -85,13 +84,14 @@ final class Warning
      * @example Warning::suppress(Warning::WARNING_NOT_A_TYPE) re-enables a specific warning
      * @example Warning::suppress(true) re-enables all warnings
      * @example Warning::suppress(false) suppresses all warnings
+     *
      * @api
      */
     public static function enable($enable = true): void
     {
-        if ($enable === true) {
+        if (true === $enable) {
             self::$enableWarnings = self::ALL;
-        } elseif ($enable === false) {
+        } elseif (false === $enable) {
             self::$enableWarnings = 0;
         // @phpstan-ignore-next-line necessary until we can use proper unions
         } elseif (is_int($enable)) {
@@ -105,7 +105,7 @@ final class Warning
     {
         $messageLevel ??= E_USER_WARNING;
 
-        if (self::$warningHandler !== null) {
+        if (null !== self::$warningHandler) {
             (self::$warningHandler)($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0 && ! isset(self::$warned[$warningId])) {
             self::$warned[$warningId] = true;
@@ -117,7 +117,7 @@ final class Warning
     {
         $messageLevel ??= E_USER_WARNING;
 
-        if (self::$warningHandler !== null) {
+        if (null !== self::$warningHandler) {
             (self::$warningHandler)($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0) {
             trigger_error($errorMessage, $messageLevel);

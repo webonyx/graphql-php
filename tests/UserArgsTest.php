@@ -15,7 +15,7 @@ class UserArgsTest extends TestCase
 {
     public function testErrorForNonExistentScalarInputField(): void
     {
-        $query  = '
+        $query = '
         query {
             x: getDummyValue(args: {
                 int: 0
@@ -29,7 +29,7 @@ class UserArgsTest extends TestCase
 
     public function testErrorForNonExistentArrayInputField(): void
     {
-        $query  = '
+        $query = '
         query {
             x: getDummyValue(args: {
                 int: 0
@@ -44,11 +44,11 @@ class UserArgsTest extends TestCase
     private function schema(): Schema
     {
         $inputType = new InputObjectType([
-            'name'   => 'InputType',
+            'name' => 'InputType',
             'fields' => ['int' => ['type' => Type::int()]],
         ]);
-        $query     = new ObjectType([
-            'name'   => 'Query',
+        $query = new ObjectType([
+            'name' => 'Query',
             'fields' => [
                 'getDummyValue' => [
                     'type' => Type::string(),

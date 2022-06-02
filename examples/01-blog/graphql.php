@@ -30,8 +30,8 @@ try {
     ]);
 
     // Prepare context that will be available in all field resolvers (as 3rd argument):
-    $appContext          = new AppContext();
-    $appContext->viewer  = DataSource::findUser(1); // simulated "currently logged-in user"
+    $appContext = new AppContext();
+    $appContext->viewer = DataSource::findUser(1); // simulated "currently logged-in user"
     $appContext->rootUrl = 'http://localhost:8080';
     $appContext->request = $_REQUEST;
 

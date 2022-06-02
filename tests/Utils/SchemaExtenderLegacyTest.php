@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use function array_map;
+use function array_merge;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
@@ -20,11 +22,8 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
-use PHPUnit\Framework\TestCase;
-
-use function array_map;
-use function array_merge;
 use function iterator_to_array;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Contains tests originating from `graphql-js` that previously were in SchemaExtenderTest.
@@ -34,7 +33,7 @@ use function iterator_to_array;
  *   - https://github.com/graphql/graphql-js/commit/c1745228b2ae5ec89b8de36ea766d544607e21ea
  *   - https://github.com/graphql/graphql-js/commit/257797a0ebdddd3da6e75b7c237fdc12a1a7c75a
  *   - https://github.com/graphql/graphql-js/commit/3b9ea61f2348215dee755f779caef83df749d2bb
- *   - https://github.com/graphql/graphql-js/commit/e6a3f08cc92594f68a6e61d3d4b46a6d279f845e
+ *   - https://github.com/graphql/graphql-js/commit/e6a3f08cc92594f68a6e61d3d4b46a6d279f845e.
  */
 class SchemaExtenderLegacyTest extends TestCase
 {
@@ -184,8 +183,8 @@ class SchemaExtenderLegacyTest extends TestCase
      */
     protected function extendTestSchema(string $sdl, array $options = []): Schema
     {
-        $originalPrint  = SchemaPrinter::doPrint($this->testSchema);
-        $ast            = Parser::parse($sdl);
+        $originalPrint = SchemaPrinter::doPrint($this->testSchema);
+        $ast = Parser::parse($sdl);
         $extendedSchema = SchemaExtender::extend($this->testSchema, $ast, $options);
 
         self::assertEquals(SchemaPrinter::doPrint($this->testSchema), $originalPrint);

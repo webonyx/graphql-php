@@ -37,7 +37,7 @@ class HugeSchemaBench
 
         $this->schema = $this->schemaGenerator->buildSchema();
 
-        $queryBuilder     = new QueryGenerator($this->schema, 0.05);
+        $queryBuilder = new QueryGenerator($this->schema, 0.05);
         $this->smallQuery = $queryBuilder->buildQuery();
     }
 

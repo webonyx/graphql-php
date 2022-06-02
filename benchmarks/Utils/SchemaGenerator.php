@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace GraphQL\Benchmarks\Utils;
 
+use function array_merge;
+use function array_rand;
 use Exception;
+use function explode;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-
-use function array_merge;
-use function array_rand;
-use function explode;
 use function ucfirst;
 
 class SchemaGenerator
@@ -49,7 +48,7 @@ class SchemaGenerator
 
     public function buildQueryType(): ObjectType
     {
-        $this->typeIndex   = 0;
+        $this->typeIndex = 0;
         $this->objectTypes = [];
 
         return $this->createType(0);
@@ -57,7 +56,7 @@ class SchemaGenerator
 
     public function loadType(string $name): ObjectType
     {
-        $tokens       = explode('_', $name);
+        $tokens = explode('_', $name);
         $nestingLevel = (int) $tokens[1];
 
         return $this->createType($nestingLevel, $name);
@@ -67,13 +66,13 @@ class SchemaGenerator
     {
         if ($this->typeIndex > $this->config['totalTypes']) {
             throw new Exception(
-                'Cannot create new type: there are already ' . $this->typeIndex . ' ' .
-                'which exceeds allowed number of ' . $this->config['totalTypes'] . ' types total'
+                'Cannot create new type: there are already ' . $this->typeIndex . ' '
+                . 'which exceeds allowed number of ' . $this->config['totalTypes'] . ' types total'
             );
         }
 
-        $this->typeIndex++;
-        if ($typeName === null) {
+        ++$this->typeIndex;
+        if (null === $typeName) {
             $typeName = 'Level_' . $nestingLevel . '_Type' . $this->typeIndex;
         }
 
@@ -114,18 +113,18 @@ class SchemaGenerator
     protected function createTypeFields(string $typeName, int $nestingLevel): array
     {
         $fields = [];
-        for ($index = 0; $index < $this->config['fieldsPerType']; $index++) {
+        for ($index = 0; $index < $this->config['fieldsPerType']; ++$index) {
             [$type, $name] = $this->getFieldTypeAndName($nestingLevel, $index);
-            $fields[]      = [
+            $fields[] = [
                 'name' => $name,
                 'type' => $type,
                 'resolve' => [$this, 'resolveField'],
             ];
         }
 
-        for ($index = 0; $index < $this->config['listFieldsPerType']; $index++) {
+        for ($index = 0; $index < $this->config['listFieldsPerType']; ++$index) {
             [$type, $name] = $this->getFieldTypeAndName($nestingLevel, $index);
-            $name          = 'listOf' . ucfirst($name);
+            $name = 'listOf' . ucfirst($name);
 
             $fields[] = [
                 'name' => $name,

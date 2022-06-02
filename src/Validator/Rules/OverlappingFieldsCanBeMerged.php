@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function array_reduce;
+use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldNode;
@@ -24,15 +29,9 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\PairSet;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
-use SplObjectStorage;
-
-use function array_keys;
-use function array_map;
-use function array_merge;
-use function array_reduce;
-use function count;
 use function implode;
 use function is_array;
+use SplObjectStorage;
 
 /**
  * @phpstan-type ReasonOrReasons string|array<array{string, string|array<array{string, string}>}>
@@ -60,7 +59,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
     public function getVisitor(ValidationContext $context): array
     {
-        $this->comparedFragmentPairs        = new PairSet();
+        $this->comparedFragmentPairs = new PairSet();
         $this->cachedFieldsAndFragmentNames = new SplObjectStorage();
 
         return [
@@ -112,11 +111,11 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         );
 
         $fragmentNamesLength = count($fragmentNames);
-        if ($fragmentNamesLength !== 0) {
+        if (0 !== $fragmentNamesLength) {
             // (B) Then collect conflicts between these fields and those represented by
             // each spread fragment name found.
             $comparedFragments = [];
-            for ($i = 0; $i < $fragmentNamesLength; $i++) {
+            for ($i = 0; $i < $fragmentNamesLength; ++$i) {
                 $this->collectConflictsBetweenFieldsAndFragment(
                     $context,
                     $conflicts,
@@ -129,7 +128,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 // selection set to collect conflicts between fragments spread together.
                 // This compares each item in the list of fragment names to every other item
                 // in that same list (except for itself).
-                for ($j = $i + 1; $j < $fragmentNamesLength; $j++) {
+                for ($j = $i + 1; $j < $fragmentNamesLength; ++$j) {
                     $this->collectConflictsBetweenFragments(
                         $context,
                         $conflicts,
@@ -178,7 +177,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     }
 
     /**
-     * Algorithm:
+     * Algorithm:.
      *
      * Conflicts occur when two fields exist in a query which will produce the same
      * response name, but represent differing values, thus creating a conflict.
@@ -249,10 +248,10 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             switch (true) {
                 case $selection instanceof FieldNode:
                     $fieldName = $selection->name->value;
-                    $fieldDef  = null;
+                    $fieldDef = null;
                     if (
-                        $parentType instanceof ObjectType ||
-                        $parentType instanceof InterfaceType
+                        $parentType instanceof ObjectType
+                        || $parentType instanceof InterfaceType
                     ) {
                         if ($parentType->hasField($fieldName)) {
                             $fieldDef = $parentType->getField($fieldName);
@@ -270,8 +269,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     $fragmentNames[$selection->name->value] = true;
                     break;
                 case $selection instanceof InlineFragmentNode:
-                    $typeCondition      = $selection->typeCondition;
-                    $inlineFragmentType = $typeCondition === null
+                    $typeCondition = $selection->typeCondition;
+                    $inlineFragmentType = null === $typeCondition
                         ? $parentType
                         : TypeInfo::typeFromAST($context->getSchema(), $typeCondition);
 
@@ -311,8 +310,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 continue;
             }
 
-            for ($i = 0; $i < $fieldsLength; $i++) {
-                for ($j = $i + 1; $j < $fieldsLength; $j++) {
+            for ($i = 0; $i < $fieldsLength; ++$i) {
+                for ($j = $i + 1; $j < $fieldsLength; ++$j) {
                     $conflict = $this->findConflict(
                         $context,
                         false, // within one collection is never mutually exclusive
@@ -320,7 +319,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         $fields[$i],
                         $fields[$j]
                     );
-                    if ($conflict === null) {
+                    if (null === $conflict) {
                         continue;
                     }
 
@@ -365,10 +364,10 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             );
 
         // The return type for each field.
-        $type1 = $def1 === null
+        $type1 = null === $def1
             ? null
             : $def1->getType();
-        $type2 = $def2 === null
+        $type2 = null === $def2
             ? null
             : $def2->getType();
 
@@ -394,8 +393,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         }
 
         if (
-            $type1 !== null
-            && $type2 !== null
+            null !== $type1
+            && null !== $type2
             && $this->doTypesConflict($type1, $type2)
         ) {
             return [
@@ -410,7 +409,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         // compared to themselves.
         $selectionSet1 = $ast1->selectionSet;
         $selectionSet2 = $ast2->selectionSet;
-        if ($selectionSet1 !== null && $selectionSet2 !== null) {
+        if (null !== $selectionSet1 && null !== $selectionSet2) {
             $conflicts = $this->findConflictsBetweenSubSelectionSets(
                 $context,
                 $areMutuallyExclusive,
@@ -450,7 +449,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 }
             }
 
-            if ($argument2 === null) {
+            if (null === $argument2) {
                 return false;
             }
 
@@ -542,9 +541,9 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         // (I) Then collect conflicts between the first collection of fields and
         // those referenced by each fragment name associated with the second.
         $fragmentNames2Length = count($fragmentNames2);
-        if ($fragmentNames2Length !== 0) {
+        if (0 !== $fragmentNames2Length) {
             $comparedFragments = [];
-            for ($j = 0; $j < $fragmentNames2Length; $j++) {
+            for ($j = 0; $j < $fragmentNames2Length; ++$j) {
                 $this->collectConflictsBetweenFieldsAndFragment(
                     $context,
                     $conflicts,
@@ -559,9 +558,9 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         // (I) Then collect conflicts between the second collection of fields and
         // those referenced by each fragment name associated with the first.
         $fragmentNames1Length = count($fragmentNames1);
-        if ($fragmentNames1Length !== 0) {
+        if (0 !== $fragmentNames1Length) {
             $comparedFragments = [];
-            for ($i = 0; $i < $fragmentNames1Length; $i++) {
+            for ($i = 0; $i < $fragmentNames1Length; ++$i) {
                 $this->collectConflictsBetweenFieldsAndFragment(
                     $context,
                     $conflicts,
@@ -576,8 +575,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         // (J) Also collect conflicts between any fragment names by the first and
         // fragment names by the second. This compares each item in the first set of
         // names to each item in the second set of names.
-        for ($i = 0; $i < $fragmentNames1Length; $i++) {
-            for ($j = 0; $j < $fragmentNames2Length; $j++) {
+        for ($i = 0; $i < $fragmentNames1Length; ++$i) {
+            for ($j = 0; $j < $fragmentNames2Length; ++$j) {
                 $this->collectConflictsBetweenFragments(
                     $context,
                     $conflicts,
@@ -619,11 +618,11 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 continue;
             }
 
-            $fields2       = $fieldMap2[$responseName];
+            $fields2 = $fieldMap2[$responseName];
             $fields1Length = count($fields1);
             $fields2Length = count($fields2);
-            for ($i = 0; $i < $fields1Length; $i++) {
-                for ($j = 0; $j < $fields2Length; $j++) {
+            for ($i = 0; $i < $fields1Length; ++$i) {
+                for ($j = 0; $j < $fields2Length; ++$j) {
                     $conflict = $this->findConflict(
                         $context,
                         $parentFieldsAreMutuallyExclusive,
@@ -631,7 +630,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         $fields1[$i],
                         $fields2[$j]
                     );
-                    if ($conflict === null) {
+                    if (null === $conflict) {
                         continue;
                     }
 
@@ -664,7 +663,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $comparedFragments[$fragmentName] = true;
 
         $fragment = $context->getFragment($fragmentName);
-        if ($fragment === null) {
+        if (null === $fragment) {
             return;
         }
 
@@ -690,7 +689,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         // (E) Then collect any conflicts between the provided collection of fields
         // and any fragment names found in the given fragment.
         $fragmentNames2Length = count($fragmentNames2);
-        for ($i = 0; $i < $fragmentNames2Length; $i++) {
+        for ($i = 0; $i < $fragmentNames2Length; ++$i) {
             $this->collectConflictsBetweenFieldsAndFragment(
                 $context,
                 $conflicts,
@@ -763,7 +762,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         $fragment1 = $context->getFragment($fragmentName1);
         $fragment2 = $context->getFragment($fragmentName2);
-        if ($fragment1 === null || $fragment2 === null) {
+        if (null === $fragment1 || null === $fragment2) {
             return;
         }
 
@@ -789,7 +788,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         // (G) Then collect conflicts between the first fragment and any nested
         // fragments spread in the second fragment.
         $fragmentNames2Length = count($fragmentNames2);
-        for ($j = 0; $j < $fragmentNames2Length; $j++) {
+        for ($j = 0; $j < $fragmentNames2Length; ++$j) {
             $this->collectConflictsBetweenFragments(
                 $context,
                 $conflicts,
@@ -802,7 +801,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         // (G) Then collect conflicts between the second fragment and any nested
         // fragments spread in the first fragment.
         $fragmentNames1Length = count($fragmentNames1);
-        for ($i = 0; $i < $fragmentNames1Length; $i++) {
+        for ($i = 0; $i < $fragmentNames1Length; ++$i) {
             $this->collectConflictsBetweenFragments(
                 $context,
                 $conflicts,
@@ -827,7 +826,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         FieldNode $ast1,
         FieldNode $ast2
     ): ?array {
-        if (count($conflicts) === 0) {
+        if (0 === count($conflicts)) {
             return null;
         }
 
@@ -877,7 +876,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             $reasons = array_map(
                 static function (array $reason): string {
                     [$responseName, $subReason] = $reason;
-                    $reasonMessage              = static::reasonMessage($subReason);
+                    $reasonMessage = static::reasonMessage($subReason);
 
                     return "subfields \"{$responseName}\" conflict because {$reasonMessage}";
                 },

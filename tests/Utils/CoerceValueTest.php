@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use function acos;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Value;
-use PHPUnit\Framework\TestCase;
-
-use function acos;
 use function log;
+use PHPUnit\Framework\TestCase;
 use function pow;
 
 class CoerceValueTest extends TestCase
@@ -23,7 +22,7 @@ class CoerceValueTest extends TestCase
     public function setUp(): void
     {
         $this->testEnum = new EnumType([
-            'name'   => 'TestEnum',
+            'name' => 'TestEnum',
             'values' => [
                 'FOO' => 'InternalFoo',
                 'BAR' => 123456789,
@@ -31,7 +30,7 @@ class CoerceValueTest extends TestCase
         ]);
 
         $this->testInputObject = new InputObjectType([
-            'name'   => 'TestInputObject',
+            'name' => 'TestInputObject',
             'fields' => [
                 'foo' => Type::nonNull(Type::int()),
                 'bar' => Type::int(),
@@ -40,11 +39,11 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * Describe: coerceValue
+     * Describe: coerceValue.
      */
 
     /**
-     * Describe: for GraphQLString
+     * Describe: for GraphQLString.
      *
      * @see it('returns error for array input as string')
      */
@@ -63,7 +62,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * Describe: for GraphQLID
+     * Describe: for GraphQLID.
      *
      * @see it('returns error for array input as ID')
      */
@@ -82,7 +81,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * Describe: for GraphQLInt
+     * Describe: for GraphQLInt.
      *
      * @param mixed $result returned result
      */
@@ -195,7 +194,7 @@ class CoerceValueTest extends TestCase
      */
     public function testReturnsASingleErrorForInfinityInputAsInt(): void
     {
-        $inf    = log(0);
+        $inf = log(0);
         $result = Value::coerceValue($inf, Type::int());
         $this->expectGraphQLError(
             $result,
@@ -205,7 +204,7 @@ class CoerceValueTest extends TestCase
 
     public function testReturnsASingleErrorForNaNInputAsInt(): void
     {
-        $nan    = acos(8);
+        $nan = acos(8);
         $result = Value::coerceValue($nan, Type::int());
         $this->expectGraphQLError(
             $result,
@@ -304,7 +303,7 @@ class CoerceValueTest extends TestCase
      */
     public function testFloatReturnsASingleErrorForInfinityInput(): void
     {
-        $inf    = log(0);
+        $inf = log(0);
         $result = Value::coerceValue($inf, Type::float());
         $this->expectGraphQLError(
             $result,
@@ -314,7 +313,7 @@ class CoerceValueTest extends TestCase
 
     public function testFloatReturnsASingleErrorForNaNInput(): void
     {
-        $nan    = acos(8);
+        $nan = acos(8);
         $result = Value::coerceValue($nan, Type::float());
         $this->expectGraphQLError(
             $result,
@@ -425,7 +424,7 @@ class CoerceValueTest extends TestCase
     {
         yield [123];
         yield [
-            new class {
+            new class() {
             },
         ];
     }

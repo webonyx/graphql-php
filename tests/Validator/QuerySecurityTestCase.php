@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
+use function array_map;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
@@ -14,8 +15,6 @@ use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QuerySecurityRule;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-
-use function array_map;
 
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
@@ -43,7 +42,7 @@ abstract class QuerySecurityTestCase extends TestCase
     {
         $this->assertDocumentValidator($query, $maxExpected);
         $newMax = $maxExpected - 1;
-        if ($newMax === QuerySecurityRule::DISABLED) {
+        if (QuerySecurityRule::DISABLED === $newMax) {
             return;
         }
 

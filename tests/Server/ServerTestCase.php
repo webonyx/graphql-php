@@ -4,35 +4,33 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Server;
 
+use const E_USER_DEPRECATED;
+use const E_USER_NOTICE;
+use const E_USER_WARNING;
 use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-
 use function trigger_error;
-
-use const E_USER_DEPRECATED;
-use const E_USER_NOTICE;
-use const E_USER_WARNING;
 
 abstract class ServerTestCase extends TestCase
 {
     protected function buildSchema(): Schema
     {
         return new Schema([
-            'query'    => new ObjectType([
-                'name'   => 'Query',
+            'query' => new ObjectType([
+                'name' => 'Query',
                 'fields' => [
-                    'f1'                      => [
-                        'type'    => Type::string(),
+                    'f1' => [
+                        'type' => Type::string(),
                         'resolve' => static function ($rootValue, $args, $context, $info) {
                             return $info->fieldName;
                         },
                     ],
-                    'fieldWithPhpError'       => [
-                        'type'    => Type::string(),
+                    'fieldWithPhpError' => [
+                        'type' => Type::string(),
                         'resolve' => static function ($rootValue, $args, $context, $info) {
                             trigger_error('deprecated', E_USER_DEPRECATED);
                             trigger_error('notice', E_USER_NOTICE);
@@ -54,16 +52,16 @@ abstract class ServerTestCase extends TestCase
                         },
                     ],
                     'testContextAndRootValue' => [
-                        'type'    => Type::string(),
+                        'type' => Type::string(),
                         'resolve' => static function ($rootValue, $args, $context, $info) {
                             $context->testedRootValue = $rootValue;
 
                             return $info->fieldName;
                         },
                     ],
-                    'fieldWithArg'            => [
-                        'type'    => Type::string(),
-                        'args'    => [
+                    'fieldWithArg' => [
+                        'type' => Type::string(),
+                        'args' => [
                             'arg' => [
                                 'type' => Type::nonNull(Type::string()),
                             ],
@@ -72,9 +70,9 @@ abstract class ServerTestCase extends TestCase
                             return $args['arg'];
                         },
                     ],
-                    'dfd'                     => [
-                        'type'    => Type::string(),
-                        'args'    => [
+                    'dfd' => [
+                        'type' => Type::string(),
+                        'args' => [
                             'num' => [
                                 'type' => Type::nonNull(Type::int()),
                             ],
@@ -90,11 +88,11 @@ abstract class ServerTestCase extends TestCase
                 ],
             ]),
             'mutation' => new ObjectType([
-                'name'   => 'Mutation',
+                'name' => 'Mutation',
                 'fields' => [
                     'm1' => [
                         'type' => new ObjectType([
-                            'name'   => 'TestMutation',
+                            'name' => 'TestMutation',
                             'fields' => [
                                 'result' => Type::string(),
                             ],

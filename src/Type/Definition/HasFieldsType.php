@@ -18,16 +18,16 @@ interface HasFieldsType
     public function findField(string $name): ?FieldDefinition;
 
     /**
-     * @return array<string, FieldDefinition>
-     *
      * @throws InvariantViolation
+     *
+     * @return array<string, FieldDefinition>
      */
     public function getFields(): array;
 
     /**
-     * @return array<int, string>
-     *
      * @throws InvariantViolation
+     *
+     * @return array<int, string>
      */
     public function getFieldNames(): array;
 }

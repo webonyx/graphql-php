@@ -9,14 +9,14 @@ use GraphQL\Type\Definition\EnumType;
 
 class OtherEnumType extends EnumType
 {
-    public const SERIALIZE_RESULT     = 'ONE';
+    public const SERIALIZE_RESULT = 'ONE';
     public const PARSE_LITERAL_RESULT = '1';
-    public const PARSE_VALUE_RESULT   = '2';
+    public const PARSE_VALUE_RESULT = '2';
 
     public function __construct()
     {
         parent::__construct([
-            'name'   => 'OtherEnum',
+            'name' => 'OtherEnum',
             'values' => [
                 'ONE',
                 'TWO',

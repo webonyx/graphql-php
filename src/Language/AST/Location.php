@@ -45,7 +45,7 @@ class Location
         $tmp = new static();
 
         $tmp->start = $start;
-        $tmp->end   = $end;
+        $tmp->end = $end;
 
         return $tmp;
     }
@@ -53,15 +53,15 @@ class Location
     public function __construct(?Token $startToken = null, ?Token $endToken = null, ?Source $source = null)
     {
         $this->startToken = $startToken;
-        $this->endToken   = $endToken;
-        $this->source     = $source;
+        $this->endToken = $endToken;
+        $this->source = $source;
 
-        if ($startToken === null || $endToken === null) {
+        if (null === $startToken || null === $endToken) {
             return;
         }
 
         $this->start = $startToken->start;
-        $this->end   = $endToken->end;
+        $this->end = $endToken->end;
     }
 
     /**
@@ -71,7 +71,7 @@ class Location
     {
         return [
             'start' => $this->start,
-            'end'   => $this->end,
+            'end' => $this->end,
         ];
     }
 }

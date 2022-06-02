@@ -27,7 +27,7 @@ class MutationsTest extends TestCase
      */
     public function testEvaluatesMutationsSerially(): void
     {
-        $doc            = 'mutation M {
+        $doc = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {
         theNumber
       },
@@ -44,15 +44,15 @@ class MutationsTest extends TestCase
         theNumber
       }
     }';
-        $ast            = Parser::parse($doc);
+        $ast = Parser::parse($doc);
         $mutationResult = Executor::execute($this->schema(), $ast, new Root(6));
-        $expected       = [
+        $expected = [
             'data' => [
-                'first'  => ['theNumber' => 1],
+                'first' => ['theNumber' => 1],
                 'second' => ['theNumber' => 2],
-                'third'  => ['theNumber' => 3],
+                'third' => ['theNumber' => 3],
                 'fourth' => ['theNumber' => 4],
-                'fifth'  => ['theNumber' => 5],
+                'fifth' => ['theNumber' => 5],
             ],
         ];
         self::assertEquals($expected, $mutationResult->toArray());
@@ -64,48 +64,48 @@ class MutationsTest extends TestCase
             'fields' => [
                 'theNumber' => ['type' => Type::int()],
             ],
-            'name'   => 'NumberHolder',
+            'name' => 'NumberHolder',
         ]);
 
         return new Schema([
-            'query'    => new ObjectType([
+            'query' => new ObjectType([
                 'fields' => [
                     'numberHolder' => ['type' => $numberHolderType],
                 ],
-                'name'   => 'Query',
+                'name' => 'Query',
             ]),
             'mutation' => new ObjectType([
                 'fields' => [
-                    'immediatelyChangeTheNumber'      => [
-                        'type'    => $numberHolderType,
-                        'args'    => ['newNumber' => ['type' => Type::int()]],
+                    'immediatelyChangeTheNumber' => [
+                        'type' => $numberHolderType,
+                        'args' => ['newNumber' => ['type' => Type::int()]],
                         'resolve' => static function (Root $obj, $args): NumberHolder {
                             return $obj->immediatelyChangeTheNumber($args['newNumber']);
                         },
                     ],
-                    'promiseToChangeTheNumber'        => [
-                        'type'    => $numberHolderType,
-                        'args'    => ['newNumber' => ['type' => Type::int()]],
+                    'promiseToChangeTheNumber' => [
+                        'type' => $numberHolderType,
+                        'args' => ['newNumber' => ['type' => Type::int()]],
                         'resolve' => static function (Root $obj, $args): Deferred {
                             return $obj->promiseToChangeTheNumber($args['newNumber']);
                         },
                     ],
-                    'failToChangeTheNumber'           => [
-                        'type'    => $numberHolderType,
-                        'args'    => ['newNumber' => ['type' => Type::int()]],
+                    'failToChangeTheNumber' => [
+                        'type' => $numberHolderType,
+                        'args' => ['newNumber' => ['type' => Type::int()]],
                         'resolve' => static function (Root $obj, $args): void {
                             $obj->failToChangeTheNumber();
                         },
                     ],
                     'promiseAndFailToChangeTheNumber' => [
-                        'type'    => $numberHolderType,
-                        'args'    => ['newNumber' => ['type' => Type::int()]],
+                        'type' => $numberHolderType,
+                        'args' => ['newNumber' => ['type' => Type::int()]],
                         'resolve' => static function (Root $obj, $args): Deferred {
                             return $obj->promiseAndFailToChangeTheNumber();
                         },
                     ],
                 ],
-                'name'   => 'Mutation',
+                'name' => 'Mutation',
             ]),
         ]);
     }
@@ -115,7 +115,7 @@ class MutationsTest extends TestCase
      */
     public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation(): void
     {
-        $doc            = 'mutation M {
+        $doc = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {
         theNumber
       },
@@ -135,24 +135,24 @@ class MutationsTest extends TestCase
         theNumber
       }
     }';
-        $ast            = Parser::parse($doc);
+        $ast = Parser::parse($doc);
         $mutationResult = Executor::execute($this->schema(), $ast, new Root(6));
-        $expected       = [
-            'data'   => [
-                'first'  => ['theNumber' => 1],
+        $expected = [
+            'data' => [
+                'first' => ['theNumber' => 1],
                 'second' => ['theNumber' => 2],
-                'third'  => null,
+                'third' => null,
                 'fourth' => ['theNumber' => 4],
-                'fifth'  => ['theNumber' => 5],
-                'sixth'  => null,
+                'fifth' => ['theNumber' => 5],
+                'sixth' => null,
             ],
             'errors' => [
                 [
-                    'locations'    => [['line' => 8, 'column' => 7]],
+                    'locations' => [['line' => 8, 'column' => 7]],
                     'extensions' => ['debugMessage' => 'Cannot change the number'],
                 ],
                 [
-                    'locations'    => [['line' => 17, 'column' => 7]],
+                    'locations' => [['line' => 17, 'column' => 7]],
                     'extensions' => ['debugMessage' => 'Cannot change the number'],
                 ],
             ],

@@ -27,8 +27,8 @@ class UniqueEnumValueNames extends ValidationRule
         $checkValueUniqueness = static function ($enum) use ($context, &$knownValueNames): VisitorOperation {
             $typeName = $enum->name->value;
 
-            $schema       = $context->getSchema();
-            $existingType = $schema !== null
+            $schema = $context->getSchema();
+            $existingType = null !== $schema
                 ? $schema->getType($typeName)
                 : null;
 
@@ -42,9 +42,9 @@ class UniqueEnumValueNames extends ValidationRule
 
             foreach ($valueNodes as $valueDef) {
                 $valueNameNode = $valueDef->name;
-                $valueName     = $valueNameNode->value;
+                $valueName = $valueNameNode->value;
 
-                if ($existingType instanceof EnumType && $existingType->getValue($valueName) !== null) {
+                if ($existingType instanceof EnumType && null !== $existingType->getValue($valueName)) {
                     $context->reportError(new Error(
                         "Enum value \"${typeName}.${valueName}\" already exists in the schema. It cannot also be defined in this type extension.",
                         $valueNameNode
@@ -64,7 +64,7 @@ class UniqueEnumValueNames extends ValidationRule
 
         return [
             NodeKind::ENUM_TYPE_DEFINITION => $checkValueUniqueness,
-            NodeKind::ENUM_TYPE_EXTENSION  => $checkValueUniqueness,
+            NodeKind::ENUM_TYPE_EXTENSION => $checkValueUniqueness,
         ];
     }
 }

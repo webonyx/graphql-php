@@ -4,26 +4,25 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use function array_keys;
+use function array_merge;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
+use function implode;
 use JsonSerializable;
 use ReturnTypeWillChange;
-
-use function array_keys;
-use function array_merge;
-use function implode;
 
 /**
  * Registry of standard GraphQL types and base class for all other types.
  */
 abstract class Type implements JsonSerializable
 {
-    public const STRING  = 'String';
-    public const INT     = 'Int';
+    public const STRING = 'String';
+    public const INT = 'Int';
     public const BOOLEAN = 'Boolean';
-    public const FLOAT   = 'Float';
-    public const ID      = 'ID';
+    public const FLOAT = 'Float';
+    public const ID = 'ID';
 
     /** @var array<string, ScalarType> */
     protected static array $standardTypes;
@@ -97,6 +96,7 @@ abstract class Type implements JsonSerializable
      * @return ListOfType<T>
      *
      * @template T of Type
+     *
      * @api
      */
     public static function listOf($type): ListOfType
@@ -105,8 +105,6 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
-     * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
      * @param (NullableType&Type)|callable():(NullableType&Type) $type
      *
      * @api
@@ -159,13 +157,13 @@ abstract class Type implements JsonSerializable
             // @phpstan-ignore-next-line generic type is not enforced by PHP
             if (! $type instanceof ScalarType) {
                 $typeClass = ScalarType::class;
-                $notType   = Utils::printSafe($type);
+                $notType = Utils::printSafe($type);
 
                 throw new InvariantViolation("Expecting instance of {$typeClass}, got {$notType}");
             }
 
             if (! isset($type->name, $standardTypes[$type->name])) {
-                $standardTypeNames   = implode(', ', array_keys($standardTypes));
+                $standardTypeNames = implode(', ', array_keys($standardTypes));
                 $notStandardTypeName = Utils::printSafe($type->name ?? null);
 
                 throw new InvariantViolation("Expecting one of the following names for a standard type: {$standardTypeNames}; got {$notStandardTypeName}");

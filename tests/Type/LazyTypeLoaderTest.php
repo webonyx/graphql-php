@@ -38,25 +38,25 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
     {
         parent::setUp();
 
-        $this->node                   = $this->lazyLoad('Node');
-        $this->blogStory              = $this->lazyLoad('BlogStory');
-        $this->content                = $this->lazyLoad('Content');
-        $this->postStoryMutation      = $this->lazyLoad('PostStoryMutation');
+        $this->node = $this->lazyLoad('Node');
+        $this->blogStory = $this->lazyLoad('BlogStory');
+        $this->content = $this->lazyLoad('Content');
+        $this->postStoryMutation = $this->lazyLoad('PostStoryMutation');
         $this->postStoryMutationInput = $this->lazyLoad('PostStoryMutationInput');
-        $this->query                  = new ObjectType([
-            'name'   => 'Query',
+        $this->query = new ObjectType([
+            'name' => 'Query',
             'fields' => function (): array {
                 $this->calls[] = 'Query.fields';
 
                 return [
                     'latestContent' => $this->lazyLoad('Content'),
-                    'node'          => $this->lazyLoad('Node'),
+                    'node' => $this->lazyLoad('Node'),
                 ];
             },
         ]);
 
         $this->mutation = new ObjectType([
-            'name'   => 'Mutation',
+            'name' => 'Mutation',
             'fields' => function (): array {
                 $this->calls[] = 'Mutation.fields';
 
@@ -64,7 +64,7 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
                     'postStory' => [
                         'type' => $this->postStoryMutation,
                         'args' => [
-                            'input'           => Type::nonNull($this->postStoryMutationInput),
+                            'input' => Type::nonNull($this->postStoryMutationInput),
                             'clientRequestId' => Type::string(),
                         ],
                     ],
@@ -152,7 +152,7 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
 
                     case 'PostStoryMutation':
                         $type = new ObjectType([
-                            'name'   => 'PostStoryMutation',
+                            'name' => 'PostStoryMutation',
                             'fields' => [
                                 'story' => $this->blogStory,
                             ],
@@ -161,11 +161,11 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
 
                     case 'PostStoryMutationInput':
                         $type = new InputObjectType([
-                            'name'   => 'PostStoryMutationInput',
+                            'name' => 'PostStoryMutationInput',
                             'fields' => [
-                                'title'    => Type::string(),
-                                'body'     => Type::string(),
-                                'author'   => Type::id(),
+                                'title' => Type::string(),
+                                'body' => Type::string(),
+                                'author' => Type::id(),
                                 'category' => Type::id(),
                             ],
                         ]);
@@ -182,9 +182,9 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
     public function testWorksWithoutTypeLoader(): void
     {
         $schema = new Schema([
-            'query'    => $this->query,
+            'query' => $this->query,
             'mutation' => $this->mutation,
-            'types'    => [Schema::resolveType($this->blogStory)],
+            'types' => [Schema::resolveType($this->blogStory)],
         ]);
 
         $expected = [
@@ -205,12 +205,12 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
         self::assertSame(Schema::resolveType($this->postStoryMutationInput), $schema->getType('PostStoryMutationInput'));
 
         $expectedTypeMap = [
-            'Query'                  => $this->query,
-            'Mutation'               => $this->mutation,
-            'Node'                   => Schema::resolveType($this->node),
-            'String'                 => Type::string(),
-            'Content'                => Schema::resolveType($this->content),
-            'BlogStory'              => Schema::resolveType($this->blogStory),
+            'Query' => $this->query,
+            'Mutation' => $this->mutation,
+            'Node' => Schema::resolveType($this->node),
+            'String' => Type::string(),
+            'Content' => Schema::resolveType($this->content),
+            'BlogStory' => Schema::resolveType($this->blogStory),
             'PostStoryMutationInput' => Schema::resolveType($this->postStoryMutationInput),
         ];
 
@@ -220,8 +220,8 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
     public function testWorksWithTypeLoader(): void
     {
         $schema = new Schema([
-            'query'      => $this->query,
-            'mutation'   => $this->mutation,
+            'query' => $this->query,
+            'mutation' => $this->mutation,
             'typeLoader' => $this->typeLoader,
         ]);
         self::assertEquals([], $this->calls);
@@ -256,7 +256,7 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
     public function testFailsOnInvalidLoad(): void
     {
         $schema = new Schema([
-            'query'      => $this->query,
+            'query' => $this->query,
             'typeLoader' => fn (): Type => Schema::resolveType($this->content),
         ]);
 

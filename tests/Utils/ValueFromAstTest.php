@@ -70,12 +70,12 @@ class ValueFromAstTest extends TestCase
     public function testConvertsEnumValuesAccordingToInputCoercionRules(): void
     {
         $testEnum = new EnumType([
-            'name'   => 'TestColor',
+            'name' => 'TestColor',
             'values' => [
-                'RED'   => ['value' => 1],
+                'RED' => ['value' => 1],
                 'GREEN' => ['value' => 2],
-                'BLUE'  => ['value' => 3],
-                'NULL'  => ['value' => null],
+                'BLUE' => ['value' => 3],
+                'NULL' => ['value' => null],
             ],
         ]);
 
@@ -102,7 +102,7 @@ class ValueFromAstTest extends TestCase
     public function testCoercesListsOfValues(): void
     {
         $listOfBool = Type::listOf(Type::boolean());
-        $undefined  = Utils::undefined();
+        $undefined = Utils::undefined();
 
         $this->runTestCase($listOfBool, 'true', [true]);
         $this->runTestCase($listOfBool, '123', $undefined);
@@ -119,7 +119,7 @@ class ValueFromAstTest extends TestCase
     public function testCoercesNonNullListsOfValues(): void
     {
         $nonNullListOfBool = Type::nonNull(Type::listOf(Type::boolean()));
-        $undefined         = Utils::undefined();
+        $undefined = Utils::undefined();
 
         $this->runTestCase($nonNullListOfBool, 'true', [true]);
         $this->runTestCase($nonNullListOfBool, '123', $undefined);
@@ -135,7 +135,7 @@ class ValueFromAstTest extends TestCase
     public function testCoercesListsOfNonNullValues(): void
     {
         $listOfNonNullBool = Type::listOf(Type::nonNull(Type::boolean()));
-        $undefined         = Utils::undefined();
+        $undefined = Utils::undefined();
 
         $this->runTestCase($listOfNonNullBool, 'true', [true]);
         $this->runTestCase($listOfNonNullBool, '123', $undefined);
@@ -151,7 +151,7 @@ class ValueFromAstTest extends TestCase
     public function testCoercesNonNullListsOfNonNullValues(): void
     {
         $nonNullListOfNonNullBool = Type::nonNull(Type::listOf(Type::nonNull(Type::boolean())));
-        $undefined                = Utils::undefined();
+        $undefined = Utils::undefined();
 
         $this->runTestCase($nonNullListOfNonNullBool, 'true', [true]);
         $this->runTestCase($nonNullListOfNonNullBool, '123', $undefined);
@@ -167,7 +167,7 @@ class ValueFromAstTest extends TestCase
     public function testCoercesInputObjectsAccordingToInputCoercionRules(): void
     {
         $testInputObj = $this->inputObj();
-        $undefined    = Utils::undefined();
+        $undefined = Utils::undefined();
 
         $this->runTestCase($testInputObj, 'null', null);
         $this->runTestCase($testInputObj, '123', $undefined);
@@ -186,10 +186,10 @@ class ValueFromAstTest extends TestCase
     private function inputObj(): InputObjectType
     {
         return $this->inputObj ??= new InputObjectType([
-            'name'   => 'TestInput',
+            'name' => 'TestInput',
             'fields' => [
-                'int'          => ['type' => Type::int(), 'defaultValue' => 42],
-                'bool'         => ['type' => Type::boolean()],
+                'int' => ['type' => Type::int(), 'defaultValue' => 42],
+                'bool' => ['type' => Type::boolean()],
                 'requiredBool' => ['type' => Type::nonNull(Type::boolean())],
             ],
         ]);
@@ -219,7 +219,7 @@ class ValueFromAstTest extends TestCase
      */
     public function testAssertsVariablesAreProvidedAsItemsInLists(): void
     {
-        $listOfBool        = Type::listOf(Type::boolean());
+        $listOfBool = Type::listOf(Type::boolean());
         $listOfNonNullBool = Type::listOf(Type::nonNull(Type::boolean()));
 
         $this->runTestCaseWithVars([], $listOfBool, '[ $foo ]', [null]);

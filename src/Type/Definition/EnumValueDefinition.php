@@ -36,11 +36,11 @@ class EnumValueDefinition
      */
     public function __construct(array $config)
     {
-        $this->name              = $config['name'];
-        $this->value             = $config['value'] ?? null;
+        $this->name = $config['name'];
+        $this->value = $config['value'] ?? null;
         $this->deprecationReason = $config['deprecationReason'] ?? null;
-        $this->description       = $config['description'] ?? null;
-        $this->astNode           = $config['astNode'] ?? null;
+        $this->description = $config['description'] ?? null;
+        $this->astNode = $config['astNode'] ?? null;
 
         $this->config = $config;
     }

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use function array_keys;
+use function array_merge;
+use function arsort;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
@@ -15,10 +18,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
-use function array_keys;
-use function array_merge;
-use function arsort;
-
 /**
  * @phpstan-import-type AbstractTypeAlias from AbstractType
  */
@@ -29,7 +28,7 @@ class FieldsOnCorrectType extends ValidationRule
         return [
             NodeKind::FIELD => function (FieldNode $node) use ($context): void {
                 $fieldDef = $context->getFieldDef();
-                if ($fieldDef !== null) {
+                if (null !== $fieldDef) {
                     return;
                 }
 
@@ -39,12 +38,12 @@ class FieldsOnCorrectType extends ValidationRule
                 }
 
                 // This isn't valid. Let's find suggestions, if any.
-                $schema    = $context->getSchema();
+                $schema = $context->getSchema();
                 $fieldName = $node->name->value;
                 // First determine if there are any suggested types to condition on.
                 $suggestedTypeNames = $this->getSuggestedTypeNames($schema, $type, $fieldName);
                 // If there are no suggested types, then perhaps this was a typo?
-                $suggestedFieldNames = $suggestedTypeNames === []
+                $suggestedFieldNames = [] === $suggestedTypeNames
                     ? $this->getSuggestedFieldNames($type, $fieldName)
                     : [];
 
@@ -74,9 +73,8 @@ class FieldsOnCorrectType extends ValidationRule
     {
         if (Type::isAbstractType($type)) {
             /** @phpstan-var AbstractTypeAlias $type proven by Type::isAbstractType() */
-
             $suggestedObjectTypes = [];
-            $interfaceUsageCount  = [];
+            $interfaceUsageCount = [];
 
             foreach ($schema->getPossibleTypes($type) as $possibleType) {
                 if (! $possibleType->hasField($fieldName)) {
@@ -91,8 +89,8 @@ class FieldsOnCorrectType extends ValidationRule
                     }
 
                     // This interface type defines this field.
-                    $interfaceUsageCount[$possibleInterface->name] =
-                        ! isset($interfaceUsageCount[$possibleInterface->name])
+                    $interfaceUsageCount[$possibleInterface->name]
+                        = ! isset($interfaceUsageCount[$possibleInterface->name])
                             ? 0
                             : $interfaceUsageCount[$possibleInterface->name] + 1;
                 }
@@ -141,11 +139,11 @@ class FieldsOnCorrectType extends ValidationRule
     ): string {
         $message = "Cannot query field \"{$fieldName}\" on type \"{$type}\".";
 
-        if ($suggestedTypeNames !== []) {
+        if ([] !== $suggestedTypeNames) {
             $suggestions = Utils::quotedOrList($suggestedTypeNames);
 
             $message .= " Did you mean to use an inline fragment on {$suggestions}?";
-        } elseif ($suggestedFieldNames !== []) {
+        } elseif ([] !== $suggestedFieldNames) {
             $suggestions = Utils::quotedOrList($suggestedFieldNames);
 
             $message .= " Did you mean {$suggestions}?";

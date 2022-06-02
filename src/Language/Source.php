@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace GraphQL\Language;
 
 use GraphQL\Utils\Utils;
-
 use function json_decode;
 use function mb_strlen;
 use function mb_substr;
 use function preg_match_all;
-
 use const PREG_OFFSET_CAPTURE;
 
 class Source
@@ -34,9 +32,9 @@ class Source
      */
     public function __construct(string $body, ?string $name = null, ?SourceLocation $location = null)
     {
-        $this->body           = $body;
-        $this->length         = mb_strlen($body, 'UTF-8');
-        $this->name           = $name === '' || $name === null
+        $this->body = $body;
+        $this->length = mb_strlen($body, 'UTF-8');
+        $this->name = '' === $name || null === $name
             ? 'GraphQL request'
             : $name;
         $this->locationOffset = $location ?? new SourceLocation(1, 1);
@@ -53,16 +51,16 @@ class Source
 
     public function getLocation(int $position): SourceLocation
     {
-        $line   = 1;
+        $line = 1;
         $column = $position + 1;
 
-        $utfChars   = json_decode('"\u2028\u2029"');
+        $utfChars = json_decode('"\u2028\u2029"');
         $lineRegexp = '/\r\n|[\n\r' . $utfChars . ']/su';
-        $matches    = [];
+        $matches = [];
         preg_match_all($lineRegexp, mb_substr($this->body, 0, $position, 'UTF-8'), $matches, PREG_OFFSET_CAPTURE);
 
         foreach ($matches[0] as $match) {
-            $line += 1;
+            ++$line;
 
             $column = $position + 1 - ($match[1] + mb_strlen($match[0], 'UTF-8'));
         }

@@ -20,10 +20,10 @@ final class QueryPlanTest extends TestCase
     public function testQueryPlan(): void
     {
         $image = new ObjectType([
-            'name'   => 'Image',
+            'name' => 'Image',
             'fields' => [
-                'url'    => ['type' => Type::string()],
-                'width'  => ['type' => Type::int()],
+                'url' => ['type' => Type::string()],
+                'width' => ['type' => Type::int()],
                 'height' => ['type' => Type::int()],
             ],
         ]);
@@ -31,15 +31,15 @@ final class QueryPlanTest extends TestCase
         $article = null;
 
         $author = new ObjectType([
-            'name'   => 'Author',
+            'name' => 'Author',
             'fields' => static function () use ($image, &$article): array {
                 return [
-                    'id'            => ['type' => Type::string()],
-                    'name'          => ['type' => Type::string()],
-                    'pic'           => [
+                    'id' => ['type' => Type::string()],
+                    'name' => ['type' => Type::string()],
+                    'pic' => [
                         'type' => $image,
                         'args' => [
-                            'width'  => ['type' => Type::int()],
+                            'width' => ['type' => Type::int()],
                             'height' => ['type' => Type::int()],
                         ],
                     ],
@@ -49,27 +49,27 @@ final class QueryPlanTest extends TestCase
         ]);
 
         $reply = new ObjectType([
-            'name'   => 'Reply',
+            'name' => 'Reply',
             'fields' => [
                 'author' => ['type' => $author],
-                'body'   => ['type' => Type::string()],
+                'body' => ['type' => Type::string()],
             ],
         ]);
 
         $article = new ObjectType([
-            'name'   => 'Article',
+            'name' => 'Article',
             'fields' => [
-                'id'          => ['type' => Type::string()],
+                'id' => ['type' => Type::string()],
                 'isPublished' => ['type' => Type::boolean()],
-                'author'      => ['type' => $author],
-                'title'       => ['type' => Type::string()],
-                'body'        => ['type' => Type::string()],
-                'image'       => ['type' => $image],
-                'replies'     => ['type' => Type::listOf($reply)],
+                'author' => ['type' => $author],
+                'title' => ['type' => Type::string()],
+                'body' => ['type' => Type::string()],
+                'image' => ['type' => $image],
+                'replies' => ['type' => Type::listOf($reply)],
             ],
         ]);
 
-        $doc               = '
+        $doc = '
       query Test {
         article {
             __typename
@@ -111,7 +111,7 @@ final class QueryPlanTest extends TestCase
       }
 ';
         $expectedQueryPlan = [
-            'author'  => [
+            'author' => [
                 'type' => $author,
                 'args' => [],
                 'fields' => [
@@ -120,14 +120,14 @@ final class QueryPlanTest extends TestCase
                         'args' => [],
                         'fields' => [],
                     ],
-                    'pic'  => [
+                    'pic' => [
                         'type' => $image,
                         'args' => [
                             'width' => 100,
                             'height' => 200,
                         ],
                         'fields' => [
-                            'url'   => [
+                            'url' => [
                                 'type' => Type::string(),
                                 'args' => [],
                                 'fields' => [],
@@ -141,11 +141,11 @@ final class QueryPlanTest extends TestCase
                     ],
                 ],
             ],
-            'image'   => [
+            'image' => [
                 'type' => $image,
                 'args' => [],
                 'fields' => [
-                    'url'   => [
+                    'url' => [
                         'type' => Type::string(),
                         'args' => [],
                         'fields' => [],
@@ -166,7 +166,7 @@ final class QueryPlanTest extends TestCase
                 'type' => Type::listOf($reply),
                 'args' => [],
                 'fields' => [
-                    'body'   => [
+                    'body' => [
                         'type' => Type::string(),
                         'args' => [],
                         'fields' => [],
@@ -185,11 +185,11 @@ final class QueryPlanTest extends TestCase
                                 'args' => [],
                                 'fields' => [],
                             ],
-                            'pic'  => [
+                            'pic' => [
                                 'type' => $image,
                                 'args' => [],
                                 'fields' => [
-                                    'url'   => [
+                                    'url' => [
                                         'type' => Type::string(),
                                         'args' => [],
                                         'fields' => [],
@@ -260,10 +260,10 @@ final class QueryPlanTest extends TestCase
         $queryPlan = null;
 
         $blogQuery = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => [
                 'article' => [
-                    'type'    => $article,
+                    'type' => $article,
                     'resolve' => static function (
                         $value,
                         $args,
@@ -302,13 +302,13 @@ final class QueryPlanTest extends TestCase
     public function testQueryPlanForWrappedTypes(): void
     {
         $article = new ObjectType([
-            'name'   => 'Article',
+            'name' => 'Article',
             'fields' => [
                 'id' => ['type' => Type::string()],
             ],
         ]);
 
-        $doc               = '
+        $doc = '
       query Test {
         articles {
             id
@@ -327,10 +327,10 @@ final class QueryPlanTest extends TestCase
         $queryPlan = null;
 
         $blogQuery = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => [
                 'articles' => [
-                    'type'    => Type::nonNull(Type::listOf($article)),
+                    'type' => Type::nonNull(Type::listOf($article)),
                     'resolve' => static function (
                         $value,
                         $args,
@@ -356,7 +356,7 @@ final class QueryPlanTest extends TestCase
     public function testQueryPlanOnInterface(): void
     {
         $petType = new InterfaceType([
-            'name'   => 'Pet',
+            'name' => 'Pet',
             'fields' => static function (): array {
                 return [
                     'name' => ['type' => Type::string()],
@@ -365,14 +365,14 @@ final class QueryPlanTest extends TestCase
         ]);
 
         $dogType = new ObjectType([
-            'name'       => 'Dog',
+            'name' => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj): bool {
+            'isTypeOf' => static function ($obj): bool {
                 return $obj instanceof Dog;
             },
             'fields' => static function (): array {
                 return [
-                    'name'  => ['type' => Type::string()],
+                    'name' => ['type' => Type::string()],
                     'woofs' => ['type' => Type::boolean()],
                 ];
             },
@@ -388,12 +388,12 @@ final class QueryPlanTest extends TestCase
         }';
 
         $expectedQueryPlan = [
-            'woofs'  => [
+            'woofs' => [
                 'type' => Type::boolean(),
                 'fields' => [],
                 'args' => [],
             ],
-            'name'   => [
+            'name' => [
                 'type' => Type::string(),
                 'args' => [],
                 'fields' => [],
@@ -415,10 +415,10 @@ final class QueryPlanTest extends TestCase
         $hasCalled = false;
 
         $petsQuery = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => [
                 'pets' => [
-                    'type'    => Type::listOf($petType),
+                    'type' => Type::listOf($petType),
                     'resolve' => static function (
                         $value,
                         $args,
@@ -439,7 +439,7 @@ final class QueryPlanTest extends TestCase
 
         $schema = new Schema([
             'query' => $petsQuery,
-            'types'      => [$dogType],
+            'types' => [$dogType],
             'typeLoader' => static function ($name) use ($dogType, $petType) {
                 switch ($name) {
                     case 'Dog':
@@ -468,10 +468,10 @@ final class QueryPlanTest extends TestCase
     public function testMergedFragmentsQueryPlan(): void
     {
         $image = new ObjectType([
-            'name'   => 'Image',
+            'name' => 'Image',
             'fields' => [
-                'url'    => ['type' => Type::string()],
-                'width'  => ['type' => Type::int()],
+                'url' => ['type' => Type::string()],
+                'width' => ['type' => Type::int()],
                 'height' => ['type' => Type::int()],
             ],
         ]);
@@ -479,15 +479,15 @@ final class QueryPlanTest extends TestCase
         $article = null;
 
         $author = new ObjectType([
-            'name'   => 'Author',
+            'name' => 'Author',
             'fields' => static function () use ($image, &$article): array {
                 return [
-                    'id'            => ['type' => Type::string()],
-                    'name'          => ['type' => Type::string()],
-                    'pic'           => [
+                    'id' => ['type' => Type::string()],
+                    'name' => ['type' => Type::string()],
+                    'pic' => [
                         'type' => $image,
                         'args' => [
-                            'width'  => ['type' => Type::int()],
+                            'width' => ['type' => Type::int()],
                             'height' => ['type' => Type::int()],
                         ],
                     ],
@@ -497,23 +497,23 @@ final class QueryPlanTest extends TestCase
         ]);
 
         $reply = new ObjectType([
-            'name'   => 'Reply',
+            'name' => 'Reply',
             'fields' => [
                 'author' => ['type' => $author],
-                'body'   => ['type' => Type::string()],
+                'body' => ['type' => Type::string()],
             ],
         ]);
 
         $article = new ObjectType([
-            'name'   => 'Article',
+            'name' => 'Article',
             'fields' => [
-                'id'          => ['type' => Type::string()],
+                'id' => ['type' => Type::string()],
                 'isPublished' => ['type' => Type::boolean()],
-                'author'      => ['type' => $author],
-                'title'       => ['type' => Type::string()],
-                'body'        => ['type' => Type::string()],
-                'image'       => ['type' => $image],
-                'replies'     => ['type' => Type::listOf($reply)],
+                'author' => ['type' => $author],
+                'title' => ['type' => Type::string()],
+                'body' => ['type' => Type::string()],
+                'image' => ['type' => $image],
+                'replies' => ['type' => Type::listOf($reply)],
             ],
         ]);
 
@@ -568,7 +568,7 @@ final class QueryPlanTest extends TestCase
 ';
 
         $expectedQueryPlan = [
-            'author'  => [
+            'author' => [
                 'type' => $author,
                 'args' => [],
                 'fields' => [
@@ -577,14 +577,14 @@ final class QueryPlanTest extends TestCase
                         'args' => [],
                         'fields' => [],
                     ],
-                    'pic'  => [
+                    'pic' => [
                         'type' => $image,
                         'args' => [
                             'width' => 100,
                             'height' => 200,
                         ],
                         'fields' => [
-                            'url'   => [
+                            'url' => [
                                 'type' => Type::string(),
                                 'args' => [],
                                 'fields' => [],
@@ -598,11 +598,11 @@ final class QueryPlanTest extends TestCase
                     ],
                 ],
             ],
-            'image'   => [
+            'image' => [
                 'type' => $image,
                 'args' => [],
                 'fields' => [
-                    'url'   => [
+                    'url' => [
                         'type' => Type::string(),
                         'args' => [],
                         'fields' => [],
@@ -623,7 +623,7 @@ final class QueryPlanTest extends TestCase
                 'type' => Type::listOf($reply),
                 'args' => [],
                 'fields' => [
-                    'body'   => [
+                    'body' => [
                         'type' => Type::string(),
                         'args' => [],
                         'fields' => [],
@@ -642,11 +642,11 @@ final class QueryPlanTest extends TestCase
                                 'args' => [],
                                 'fields' => [],
                             ],
-                            'pic'  => [
+                            'pic' => [
                                 'type' => $image,
                                 'args' => [],
                                 'fields' => [
-                                    'url'   => [
+                                    'url' => [
                                         'type' => Type::string(),
                                         'args' => [],
                                         'fields' => [],
@@ -717,10 +717,10 @@ final class QueryPlanTest extends TestCase
         $queryPlan = null;
 
         $blogQuery = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => [
                 'article' => [
-                    'type'    => $article,
+                    'type' => $article,
                     'resolve' => static function (
                         $value,
                         $args,
@@ -761,9 +761,9 @@ final class QueryPlanTest extends TestCase
         $car = null;
 
         $item = new InterfaceType([
-            'name'        => 'Item',
-            'fields'      => [
-                'id'    => Type::int(),
+            'name' => 'Item',
+            'fields' => [
+                'id' => Type::int(),
                 'owner' => Type::string(),
             ],
             'resolveType' => static function () use (&$car) {
@@ -796,11 +796,11 @@ final class QueryPlanTest extends TestCase
         ]);
 
         $car = new ObjectType([
-            'name'       => 'Car',
-            'fields'    => [
-                'id'    => Type::int(),
+            'name' => 'Car',
+            'fields' => [
+                'id' => Type::int(),
                 'owner' => Type::string(),
-                'mark'  => Type::string(),
+                'mark' => Type::string(),
                 'model' => Type::string(),
                 'transmission' => $transmission,
             ],
@@ -808,11 +808,11 @@ final class QueryPlanTest extends TestCase
         ]);
 
         $building = new ObjectType([
-            'name'       => 'Building',
-            'fields'     => [
-                'id'      => Type::int(),
-                'owner'   => Type::string(),
-                'city'    => Type::string(),
+            'name' => 'Building',
+            'fields' => [
+                'id' => Type::int(),
+                'owner' => Type::string(),
+                'city' => Type::string(),
                 'address' => Type::string(),
             ],
             'interfaces' => [$item],
@@ -851,31 +851,31 @@ final class QueryPlanTest extends TestCase
         ];
 
         $expectedQueryPlan = [
-            'fields'       => [
-                'id'    => [
-                    'type'   => Type::int(),
+            'fields' => [
+                'id' => [
+                    'type' => Type::int(),
                     'fields' => [],
-                    'args'   => [],
+                    'args' => [],
                 ],
                 'owner' => [
-                    'type'   => Type::string(),
+                    'type' => Type::string(),
                     'fields' => [],
-                    'args'   => [],
+                    'args' => [],
                 ],
             ],
             'implementors' => [
-                'Car'      => [
-                    'type'   => $car,
+                'Car' => [
+                    'type' => $car,
                     'fields' => [
-                        'mark'  => [
-                            'type'   => Type::string(),
+                        'mark' => [
+                            'type' => Type::string(),
                             'fields' => [],
-                            'args'   => [],
+                            'args' => [],
                         ],
                         'model' => [
-                            'type'   => Type::string(),
+                            'type' => Type::string(),
                             'fields' => [],
-                            'args'   => [],
+                            'args' => [],
                         ],
                         'transmission' => [
                             'type' => $transmission,
@@ -917,17 +917,17 @@ final class QueryPlanTest extends TestCase
                     ],
                 ],
                 'Building' => [
-                    'type'   => $building,
+                    'type' => $building,
                     'fields' => [
-                        'city'    => [
-                            'type'   => Type::string(),
+                        'city' => [
+                            'type' => Type::string(),
                             'fields' => [],
-                            'args'   => [],
+                            'args' => [],
                         ],
                         'address' => [
-                            'type'   => Type::string(),
+                            'type' => Type::string(),
                             'fields' => [],
-                            'args'   => [],
+                            'args' => [],
                         ],
                     ],
                 ],
@@ -938,7 +938,7 @@ final class QueryPlanTest extends TestCase
 
         $expectedReferencedFields = ['speed', 'overdrive', 'sportMode', 'mark', 'model', 'transmission', 'city', 'address', 'id', 'owner'];
 
-        $expectedItemSubFields     = ['id', 'owner'];
+        $expectedItemSubFields = ['id', 'owner'];
         $expectedBuildingSubFields = ['city', 'address'];
 
         $hasCalled = false;
@@ -946,10 +946,10 @@ final class QueryPlanTest extends TestCase
         $queryPlan = null;
 
         $root = new ObjectType([
-            'name'   => 'Query',
+            'name' => 'Query',
             'fields' => [
                 'item' => [
-                    'type'    => $item,
+                    'type' => $item,
                     'resolve' => static function ($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$queryPlan) {
                         $hasCalled = true;
                         $queryPlan = $info->lookAhead(['group-implementor-fields']);
@@ -981,17 +981,17 @@ final class QueryPlanTest extends TestCase
         $entity = null;
 
         $subEntity = new ObjectType([
-            'name'   => 'SubEntity',
+            'name' => 'SubEntity',
             'fields' => static function () use (&$entity): array {
                 return [
-                    'id'            => ['type' => Type::string()],
+                    'id' => ['type' => Type::string()],
                     'entity' => ['type' => $entity],
                 ];
             },
         ]);
 
         $entity = new ObjectType([
-            'name'   => 'Entity',
+            'name' => 'Entity',
             'fields' => [
                 'subEntity' => ['type' => $subEntity],
             ],
@@ -1013,7 +1013,7 @@ query Test {
 GRAPHQL;
 
         $expectedQueryPlan = [
-            'subEntity'  => [
+            'subEntity' => [
                 'type' => $subEntity,
                 'args' => [],
                 'fields' => [
@@ -1032,10 +1032,10 @@ GRAPHQL;
 
         $query = new ObjectType(
             [
-                'name'   => 'Query',
+                'name' => 'Query',
                 'fields' => [
                     'entity' => [
-                        'type'    => $entity,
+                        'type' => $entity,
                         'resolve' => static function (
                             $value,
                             $args,

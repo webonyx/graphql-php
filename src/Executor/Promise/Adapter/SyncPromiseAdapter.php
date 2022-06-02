@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor\Promise\Adapter;
 
+use function count;
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Promise;
@@ -11,11 +12,9 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
 use Throwable;
 
-use function count;
-
 /**
  * Allows changing order of field resolution even in sync environments
- * (by leveraging queue of deferreds and promises)
+ * (by leveraging queue of deferreds and promises).
  */
 class SyncPromiseAdapter implements PromiseAdapter
 {
@@ -28,7 +27,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     {
         if (! $thenable instanceof SyncPromise) {
             // End-users should always use Deferred (and don't use SyncPromise directly)
-            $deferred     = Deferred::class;
+            $deferred = Deferred::class;
             $safeThenable = Utils::printSafe($thenable);
 
             throw new InvariantViolation("Expected instance of {$deferred}, got {$safeThenable}");
@@ -79,8 +78,8 @@ class SyncPromiseAdapter implements PromiseAdapter
     {
         $all = new SyncPromise();
 
-        $total  = count($promisesOrValues);
-        $count  = 0;
+        $total = count($promisesOrValues);
+        $count = 0;
         $result = [];
 
         foreach ($promisesOrValues as $index => $promiseOrValue) {
@@ -89,7 +88,7 @@ class SyncPromiseAdapter implements PromiseAdapter
                 $promiseOrValue->then(
                     static function ($value) use ($index, &$count, $total, &$result, $all): void {
                         $result[$index] = $value;
-                        $count++;
+                        ++$count;
                         if ($count < $total) {
                             return;
                         }
@@ -100,7 +99,7 @@ class SyncPromiseAdapter implements PromiseAdapter
                 );
             } else {
                 $result[$index] = $promiseOrValue;
-                $count++;
+                ++$count;
             }
         }
 
@@ -112,7 +111,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * Synchronously wait when promise completes
+     * Synchronously wait when promise completes.
      *
      * @return mixed
      */
@@ -122,8 +121,8 @@ class SyncPromiseAdapter implements PromiseAdapter
         $taskQueue = SyncPromise::getQueue();
 
         while (
-            $promise->adoptedPromise->state === SyncPromise::PENDING &&
-            ! $taskQueue->isEmpty()
+            SyncPromise::PENDING === $promise->adoptedPromise->state
+            && ! $taskQueue->isEmpty()
         ) {
             SyncPromise::runQueue();
             $this->onWait($promise);
@@ -132,11 +131,11 @@ class SyncPromiseAdapter implements PromiseAdapter
         /** @var SyncPromise $syncPromise */
         $syncPromise = $promise->adoptedPromise;
 
-        if ($syncPromise->state === SyncPromise::FULFILLED) {
+        if (SyncPromise::FULFILLED === $syncPromise->state) {
             return $syncPromise->result;
         }
 
-        if ($syncPromise->state === SyncPromise::REJECTED) {
+        if (SyncPromise::REJECTED === $syncPromise->state) {
             throw $syncPromise->result;
         }
 
@@ -144,14 +143,14 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * Execute just before starting to run promise completion
+     * Execute just before starting to run promise completion.
      */
     protected function beforeWait(Promise $promise): void
     {
     }
 
     /**
-     * Execute while running promise completion
+     * Execute while running promise completion.
      */
     protected function onWait(Promise $promise): void
     {

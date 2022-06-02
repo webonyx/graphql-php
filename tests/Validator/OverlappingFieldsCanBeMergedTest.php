@@ -699,95 +699,95 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     private function getSchema(): Schema
     {
         $StringBox = null;
-        $IntBox    = null;
-        $SomeBox   = null;
+        $IntBox = null;
+        $SomeBox = null;
 
         $SomeBox = new InterfaceType([
-            'name'   => 'SomeBox',
+            'name' => 'SomeBox',
             'fields' => static function () use (&$SomeBox): array {
                 return [
-                    'deepBox'        => ['type' => $SomeBox],
+                    'deepBox' => ['type' => $SomeBox],
                     'unrelatedField' => ['type' => Type::string()],
                 ];
             },
         ]);
 
         $StringBox = new ObjectType([
-            'name'       => 'StringBox',
+            'name' => 'StringBox',
             'interfaces' => [$SomeBox],
-            'fields'     => static function () use (&$StringBox, &$IntBox): array {
+            'fields' => static function () use (&$StringBox, &$IntBox): array {
                 return [
-                    'scalar'         => ['type' => Type::string()],
-                    'deepBox'        => ['type' => $StringBox],
+                    'scalar' => ['type' => Type::string()],
+                    'deepBox' => ['type' => $StringBox],
                     'unrelatedField' => ['type' => Type::string()],
-                    'listStringBox'  => ['type' => Type::listOf($StringBox)],
-                    'stringBox'      => ['type' => $StringBox],
-                    'intBox'         => ['type' => $IntBox],
+                    'listStringBox' => ['type' => Type::listOf($StringBox)],
+                    'stringBox' => ['type' => $StringBox],
+                    'intBox' => ['type' => $IntBox],
                 ];
             },
         ]);
 
         $IntBox = new ObjectType([
-            'name'       => 'IntBox',
+            'name' => 'IntBox',
             'interfaces' => [$SomeBox],
-            'fields'     => static function () use (&$StringBox, &$IntBox): array {
+            'fields' => static function () use (&$StringBox, &$IntBox): array {
                 return [
-                    'scalar'         => ['type' => Type::int()],
-                    'deepBox'        => ['type' => $IntBox],
+                    'scalar' => ['type' => Type::int()],
+                    'deepBox' => ['type' => $IntBox],
                     'unrelatedField' => ['type' => Type::string()],
-                    'listStringBox'  => ['type' => Type::listOf($StringBox)],
-                    'stringBox'      => ['type' => $StringBox],
-                    'intBox'         => ['type' => $IntBox],
+                    'listStringBox' => ['type' => Type::listOf($StringBox)],
+                    'stringBox' => ['type' => $StringBox],
+                    'intBox' => ['type' => $IntBox],
                 ];
             },
         ]);
 
         $NonNullStringBox1 = new InterfaceType([
-            'name'   => 'NonNullStringBox1',
+            'name' => 'NonNullStringBox1',
             'fields' => [
                 'scalar' => ['type' => Type::nonNull(Type::string())],
             ],
         ]);
 
         $NonNullStringBox1Impl = new ObjectType([
-            'name'       => 'NonNullStringBox1Impl',
+            'name' => 'NonNullStringBox1Impl',
             'interfaces' => [$SomeBox, $NonNullStringBox1],
-            'fields'     => [
-                'scalar'         => ['type' => Type::nonNull(Type::string())],
+            'fields' => [
+                'scalar' => ['type' => Type::nonNull(Type::string())],
                 'unrelatedField' => ['type' => Type::string()],
-                'deepBox'        => ['type' => $SomeBox],
+                'deepBox' => ['type' => $SomeBox],
             ],
         ]);
 
         $NonNullStringBox2 = new InterfaceType([
-            'name'   => 'NonNullStringBox2',
+            'name' => 'NonNullStringBox2',
             'fields' => [
                 'scalar' => ['type' => Type::nonNull(Type::string())],
             ],
         ]);
 
         $NonNullStringBox2Impl = new ObjectType([
-            'name'       => 'NonNullStringBox2Impl',
+            'name' => 'NonNullStringBox2Impl',
             'interfaces' => [$SomeBox, $NonNullStringBox2],
-            'fields'     => [
-                'scalar'         => ['type' => Type::nonNull(Type::string())],
+            'fields' => [
+                'scalar' => ['type' => Type::nonNull(Type::string())],
                 'unrelatedField' => ['type' => Type::string()],
-                'deepBox'        => ['type' => $SomeBox],
+                'deepBox' => ['type' => $SomeBox],
             ],
         ]);
 
         $Connection = new ObjectType([
-            'name'   => 'Connection',
+            'name' => 'Connection',
             'fields' => [
                 'edges' => [
                     'type' => Type::listOf(new ObjectType([
-                        'name'   => 'Edge',
+                        'name' => 'Edge',
                         'fields' => [
                             'node' => [
                                 'type' => new ObjectType([
-                                    'name'   => 'Node',
+                                    'name' => 'Node',
                                     'fields' => [
-                                        'id'   => ['type' => Type::id()],
+                                        'id' => ['type' => Type::id()],
                                         'name' => ['type' => Type::string()],
                                     ],
                                 ]),
@@ -800,9 +800,9 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
 
         return new Schema([
             'query' => new ObjectType([
-                'name'   => 'QueryRoot',
+                'name' => 'QueryRoot',
                 'fields' => [
-                    'someBox'    => ['type' => $SomeBox],
+                    'someBox' => ['type' => $SomeBox],
                     'connection' => ['type' => $Connection],
                 ],
             ]),
@@ -1074,7 +1074,6 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         }
         ',
             [
-
                 ErrorHelper::create(
                     OverlappingFieldsCanBeMerged::fieldsConflictMessage(
                         'val',
@@ -1273,7 +1272,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         // The error template should end with a hint for the user to try using
         // different aliases.
         $error = OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and b are different fields');
-        $hint  = 'Use different aliases on the fields to fetch both if this was intentional.';
+        $hint = 'Use different aliases on the fields to fetch both if this was intentional.';
 
         self::assertStringEndsWith($hint, $error);
     }
