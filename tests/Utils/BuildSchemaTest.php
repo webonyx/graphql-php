@@ -41,9 +41,6 @@ use function preg_match;
 use function preg_replace;
 use function trim;
 
-/**
- * @phpstan-import-type BuildSchemaOptions from BuildSchema
- */
 class BuildSchemaTest extends TestCaseBase
 {
     use ArraySubsetAsserts;
@@ -63,15 +60,14 @@ class BuildSchemaTest extends TestCaseBase
      * This function does a full cycle of going from a string with the contents of
      * the SDL, parsed in a schema AST, materializing that schema AST into an
      * in-memory GraphQLSchema, and then finally printing that object into the SDL.
-     *
-     * @phpstan-param BuildSchemaOptions $options
      */
-    private function cycleSDL(string $sdl, array $options = []): string
+    private function assertCycle(string $sdl): void
     {
         $ast = Parser::parse($sdl);
-        $schema = BuildSchema::buildAST($ast, null, $options);
+        $schema = BuildSchema::buildAST($ast);
+        $cycled = "\n" . SchemaPrinter::doPrint($schema);
 
-        return "\n" . SchemaPrinter::doPrint($schema);
+        self::assertSame($sdl, $cycled);
     }
 
     /**
@@ -176,8 +172,7 @@ class BuildSchemaTest extends TestCaseBase
         $sdl = $this->dedent('
             type EmptyType
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -194,8 +189,7 @@ class BuildSchemaTest extends TestCaseBase
               bool: Boolean
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
 
         $schema = BuildSchema::build($sdl);
         // Built-ins are used
@@ -235,8 +229,7 @@ class BuildSchemaTest extends TestCaseBase
             
             directive @repeatableFoo(arg: Int) repeatable on FIELD
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -289,8 +282,7 @@ class BuildSchemaTest extends TestCaseBase
               str: String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -355,8 +347,7 @@ class BuildSchemaTest extends TestCaseBase
               nonNullListOfNonNullStrings: [String!]!
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -370,8 +361,7 @@ class BuildSchemaTest extends TestCaseBase
               recurse: Query
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -390,8 +380,7 @@ class BuildSchemaTest extends TestCaseBase
               typeOne: TypeOne
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -408,8 +397,7 @@ class BuildSchemaTest extends TestCaseBase
               strToStr(bool: String): String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -422,8 +410,7 @@ class BuildSchemaTest extends TestCaseBase
               str(int: Int, bool: Boolean): String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -439,8 +426,7 @@ class BuildSchemaTest extends TestCaseBase
         $definition = Parser::parse($sdl)->definitions[0];
         self::assertCount(0, $definition->interfaces, 'The interfaces property must be an empty list.');
 
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -457,8 +443,7 @@ class BuildSchemaTest extends TestCaseBase
               str: String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -484,8 +469,7 @@ class BuildSchemaTest extends TestCaseBase
               str: String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -496,8 +480,7 @@ class BuildSchemaTest extends TestCaseBase
         $sdl = $this->dedent('
             enum EmptyEnum
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -514,8 +497,7 @@ class BuildSchemaTest extends TestCaseBase
               hello: Hello
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -532,8 +514,7 @@ class BuildSchemaTest extends TestCaseBase
               str(hello: Hello): String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -551,8 +532,7 @@ class BuildSchemaTest extends TestCaseBase
               hello: Hello
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -563,8 +543,7 @@ class BuildSchemaTest extends TestCaseBase
         $sdl = $this->dedent('
             union EmptyUnion
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -583,8 +562,7 @@ class BuildSchemaTest extends TestCaseBase
               str: String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -607,8 +585,7 @@ class BuildSchemaTest extends TestCaseBase
               str: String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -639,8 +616,7 @@ class BuildSchemaTest extends TestCaseBase
               customScalar: CustomScalar
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -651,8 +627,7 @@ class BuildSchemaTest extends TestCaseBase
         $sdl = $this->dedent('
             input EmptyInputObject
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -669,8 +644,7 @@ class BuildSchemaTest extends TestCaseBase
               field(in: Input): String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -683,8 +657,7 @@ class BuildSchemaTest extends TestCaseBase
               str(int: Int = 2): String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -699,8 +672,7 @@ class BuildSchemaTest extends TestCaseBase
               str(int: CustomScalar = 2): String
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -724,8 +696,7 @@ class BuildSchemaTest extends TestCaseBase
               addHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -749,8 +720,7 @@ class BuildSchemaTest extends TestCaseBase
               subscribeHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -771,8 +741,7 @@ class BuildSchemaTest extends TestCaseBase
               interface: Interface
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -793,8 +762,7 @@ class BuildSchemaTest extends TestCaseBase
               iface: Parent
             }
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -813,8 +781,7 @@ class BuildSchemaTest extends TestCaseBase
             
             union Union = Concrete
         ');
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
     }
 
     /**
@@ -845,8 +812,7 @@ class BuildSchemaTest extends TestCaseBase
             }
         ');
 
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
 
         $ast = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($ast);
@@ -902,8 +868,7 @@ class BuildSchemaTest extends TestCaseBase
             }
         ');
 
-        $output = $this->cycleSDL($sdl);
-        self::assertEquals($sdl, $output);
+        self::assertCycle($sdl);
 
         $schema = BuildSchema::build($sdl);
 
@@ -1191,7 +1156,7 @@ class BuildSchemaTest extends TestCaseBase
         $testDirective = $schema->getDirective('test');
         self::assertInstanceOf(Directive::class, $testDirective);
 
-        $schemaAst = $schema->getAstNode();
+        $schemaAst = $schema->astNode;
         self::assertInstanceOf(SchemaDefinitionNode::class, $schemaAst);
 
         $queryAst = $query->astNode;

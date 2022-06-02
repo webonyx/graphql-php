@@ -586,10 +586,6 @@ GRAPHQL;
                     'type' => Type::string(),
                     'resolve' => static fn (Directive $directive): ?string => $directive->description,
                 ],
-                'args' => [
-                    'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                    'resolve' => static fn (Directive $directive): array => $directive->args,
-                ],
                 'isRepeatable' => [
                     'type' => Type::nonNull(Type::boolean()),
                     'resolve' => static fn (Directive $directive): bool => $directive->isRepeatable,
@@ -599,6 +595,10 @@ GRAPHQL;
                         self::_directiveLocation()
                     ))),
                     'resolve' => static fn (Directive $directive): array => $directive->locations,
+                ],
+                'args' => [
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
+                    'resolve' => static fn (Directive $directive): array => $directive->args,
                 ],
             ],
         ]);

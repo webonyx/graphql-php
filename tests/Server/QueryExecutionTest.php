@@ -218,6 +218,7 @@ class QueryExecutionTest extends ServerTestCase
 
         self::assertFalse($called);
         $this->executeQuery('{f1}');
+        /** @var bool $called */
         self::assertTrue($called);
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
@@ -258,6 +259,10 @@ class QueryExecutionTest extends ServerTestCase
         $called2 = false;
         $expected = ['errors' => [['message' => 'This is the error we are looking for!']]];
         $this->assertQueryResultEquals($expected, $q2);
+        /**
+         * @var bool $called1
+         * @var bool $called2
+         */
         self::assertFalse($called1);
         self::assertTrue($called2);
     }
@@ -607,6 +612,7 @@ class QueryExecutionTest extends ServerTestCase
 
         self::assertFalse($called);
         $this->executeQuery('{f1}');
+        /** @var bool $called */
         self::assertTrue($called);
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
@@ -627,6 +633,7 @@ class QueryExecutionTest extends ServerTestCase
 
         self::assertFalse($called);
         $this->executeQuery('{f1}');
+        /** @var bool $called */
         self::assertTrue($called);
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
@@ -653,6 +660,7 @@ class QueryExecutionTest extends ServerTestCase
                 $formattedError,
             ],
         ];
+        /** @var bool $called */
         self::assertTrue($called);
         self::assertArraySubset($expected, $formatted);
         self::assertInstanceOf(Error::class, $error);
@@ -697,6 +705,7 @@ class QueryExecutionTest extends ServerTestCase
         $expected = [
             'errors' => $handledErrors,
         ];
+        /** @var bool $called */
         self::assertTrue($called);
         self::assertArraySubset($expected, $formatted);
         self::assertIsArray($errors);

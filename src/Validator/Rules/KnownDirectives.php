@@ -126,7 +126,7 @@ class KnownDirectives extends ValidationRule
 
     public static function unknownDirectiveMessage(string $directiveName): string
     {
-        return "Unknown directive \"{$directiveName}\".";
+        return "Unknown directive \"@{$directiveName}\".";
     }
 
     /**

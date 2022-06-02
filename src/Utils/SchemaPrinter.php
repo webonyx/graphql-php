@@ -28,7 +28,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use function implode;
-use function ksort;
 use function mb_strlen;
 use function str_replace;
 
@@ -115,10 +114,7 @@ class SchemaPrinter
     protected static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
     {
         $directives = array_filter($schema->getDirectives(), $directiveFilter);
-
-        $types = $schema->getTypeMap();
-        ksort($types);
-        $types = array_filter($types, $typeFilter);
+        $types = array_filter($schema->getTypeMap(), $typeFilter);
 
         $elements = [static::printSchemaDefinition($schema)];
 
@@ -273,7 +269,8 @@ class SchemaPrinter
         $firstInBlock = true;
         $previousHasDescription = false;
         foreach ($args as $arg) {
-            if ($previousHasDescription && $arg->description === null) {
+            $hasDescription = $arg->description !== null;
+            if ($previousHasDescription && ! $hasDescription) {
                 $argsStrings[] = '';
             }
 
@@ -282,7 +279,7 @@ class SchemaPrinter
                 . $indentation
                 . static::printInputValue($arg);
             $firstInBlock = false;
-            $previousHasDescription = $arg->description !== null;
+            $previousHasDescription = $hasDescription;
         }
 
         return "(\n"
@@ -344,7 +341,13 @@ class SchemaPrinter
     {
         $fields = [];
         $firstInBlock = true;
+        $previousHasDescription = false;
         foreach ($type->getFields() as $f) {
+            $hasDescription = $f->description !== null;
+            if ($previousHasDescription && ! $hasDescription) {
+                $fields[] = '';
+            }
+
             $fields[] = static::printDescription($options, $f, '  ', $firstInBlock)
                 . '  '
                 . $f->name
@@ -353,6 +356,7 @@ class SchemaPrinter
                 . $f->getType()->toString()
                 . static::printDeprecated($f);
             $firstInBlock = false;
+            $previousHasDescription = $hasDescription;
         }
 
         return self::printBlock($fields);

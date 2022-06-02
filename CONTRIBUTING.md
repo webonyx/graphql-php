@@ -72,6 +72,18 @@ $foo = $cond
     : 2;
 ```
 
+### Extensibility
+
+We cannot foresee every possible use case in advance, extending the code should remain possible.
+
+#### `protected` over `private`
+
+Always use class member visibility `protected` over `private`.
+
+#### `final` classes
+
+Prefer `final` classes in [tests](tests), but never use them in [src](src).
+
 ## Static Analysis
 
 We validate code correctness with [PHPStan](https://phpstan.org).

@@ -80,6 +80,15 @@ class IntrospectionTest extends TestCase
                             'possibleTypes' => null,
                         ],
                         [
+                            'kind' => 'SCALAR',
+                            'name' => 'Boolean',
+                            'fields' => null,
+                            'inputFields' => null,
+                            'interfaces' => null,
+                            'enumValues' => null,
+                            'possibleTypes' => null,
+                        ],
+                        [
                             'kind' => 'OBJECT',
                             'name' => '__Schema',
                             'fields' => [
@@ -396,15 +405,6 @@ class IntrospectionTest extends TestCase
                             'possibleTypes' => null,
                         ],
                         [
-                            'kind' => 'SCALAR',
-                            'name' => 'Boolean',
-                            'fields' => null,
-                            'inputFields' => null,
-                            'interfaces' => null,
-                            'enumValues' => null,
-                            'possibleTypes' => null,
-                        ],
-                        [
                             'kind' => 'OBJECT',
                             'name' => '__Field',
                             'fields' => [
@@ -632,7 +632,7 @@ class IntrospectionTest extends TestCase
                             'kind' => 'OBJECT',
                             'name' => '__Directive',
                             'fields' => [
-                                0 => [
+                                [
                                     'name' => 'name',
                                     'args' => [],
                                     'type' => [
@@ -647,7 +647,7 @@ class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                1 => [
+                                [
                                     'name' => 'description',
                                     'args' => [],
                                     'type' => [
@@ -658,30 +658,7 @@ class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                2 => [
-                                    'name' => 'args',
-                                    'args' => [],
-                                    'type' => [
-                                        'kind' => 'NON_NULL',
-                                        'name' => null,
-                                        'ofType' => [
-                                            'kind' => 'LIST',
-                                            'name' => null,
-                                            'ofType' => [
-                                                'kind' => 'NON_NULL',
-                                                'name' => null,
-                                                'ofType' => [
-                                                    'kind' => 'OBJECT',
-                                                    'name' => '__InputValue',
-                                                    'ofType' => null,
-                                                ],
-                                            ],
-                                        ],
-                                    ],
-                                    'isDeprecated' => false,
-                                    'deprecationReason' => null,
-                                ],
-                                3 => [
+                                [
                                     'name' => 'isRepeatable',
                                     'args' => [],
                                     'type' => [
@@ -696,7 +673,7 @@ class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                4 => [
+                                [
                                     'name' => 'locations',
                                     'args' => [],
                                     'type' => [
@@ -711,6 +688,29 @@ class IntrospectionTest extends TestCase
                                                 'ofType' => [
                                                     'kind' => 'ENUM',
                                                     'name' => '__DirectiveLocation',
+                                                    'ofType' => null,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                [
+                                    'name' => 'args',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => null,
+                                        'ofType' => [
+                                            'kind' => 'LIST',
+                                            'name' => null,
+                                            'ofType' => [
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'OBJECT',
+                                                    'name' => '__InputValue',
                                                     'ofType' => null,
                                                 ],
                                             ],
@@ -832,7 +832,7 @@ class IntrospectionTest extends TestCase
                         ],
                     ],
                     'directives' => [
-                        0 => [
+                        [
                             'name' => 'skip',
                             'args' => [
                                 0 => [
@@ -856,7 +856,7 @@ class IntrospectionTest extends TestCase
                                 2 => 'INLINE_FRAGMENT',
                             ],
                         ],
-                        1 => [
+                        [
                             'name' => 'include',
                             'args' => [
                                 0 => [
@@ -880,7 +880,7 @@ class IntrospectionTest extends TestCase
                                 2 => 'INLINE_FRAGMENT',
                             ],
                         ],
-                        2 => [
+                        [
                             'name' => 'deprecated',
                             'args' => [
                                 0 => [
