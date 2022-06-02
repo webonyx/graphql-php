@@ -48,13 +48,15 @@ class StandardServer
      *
      * @api
      */
-    public static function send500Error(Throwable $error, int $debug = DebugFlag::NONE, bool $exitWhenDone = false): void
+    public static function send500Error(Throwable $error, int $debug = DebugFlag::NONE): void
     {
-        $response = [
-            'errors' => [FormattedError::createFromException($error, $debug)],
-        ];
         $helper = new Helper();
-        $helper->emitResponse($response, 500, $exitWhenDone);
+        $helper->emitResponse(
+            [
+                'errors' => [FormattedError::createFromException($error, $debug)],
+            ],
+            500,
+        );
     }
 
     /**
@@ -93,10 +95,10 @@ class StandardServer
      *
      * @api
      */
-    public function handleRequest($parsedBody = null, bool $exitWhenDone = false): void
+    public function handleRequest($parsedBody = null): void
     {
         $result = $this->executeRequest($parsedBody);
-        $this->helper->sendResponse($result, $exitWhenDone);
+        $this->helper->sendResponse($result);
     }
 
     /**
@@ -119,7 +121,7 @@ class StandardServer
      */
     public function executeRequest($parsedBody = null)
     {
-        if (null === $parsedBody) {
+        if ($parsedBody === null) {
             $parsedBody = $this->helper->parseHttpRequest();
         }
 

@@ -27,7 +27,7 @@ class SyncPromiseTest extends TestCaseBase
 
         $onFulfilledReturnsOtherValue = static fn ($value): string => 'other-' . $value;
 
-        $onFulfilledThrows = static function ($value): void {
+        $onFulfilledThrows = static function (): void {
             throw new Exception('onFulfilled throws this!');
         };
 
@@ -115,7 +115,7 @@ class SyncPromiseTest extends TestCaseBase
             }
         );
 
-        if (null !== $onFulfilled) {
+        if ($onFulfilled !== null) {
             self::assertNotSame($promise, $nextPromise);
             self::assertEquals(SyncPromise::PENDING, $nextPromise->state);
         } else {
@@ -129,7 +129,7 @@ class SyncPromiseTest extends TestCaseBase
         $nextPromise2 = $promise->then($onFulfilled);
         $nextPromise3 = $promise->then($onFulfilled);
 
-        if (null !== $onFulfilled) {
+        if ($onFulfilled !== null) {
             self::assertNotSame($nextPromise, $nextPromise2);
         }
 
@@ -169,7 +169,7 @@ class SyncPromiseTest extends TestCaseBase
 
         SyncPromise::runQueue();
 
-        if (null === $expectedNextReason) {
+        if ($expectedNextReason === null) {
             self::assertTrue($onFulfilledCalled);
             self::assertFalse($onRejectedCalled);
         } else {
@@ -187,19 +187,15 @@ class SyncPromiseTest extends TestCaseBase
      */
     public function rejectedPromiseData(): iterable
     {
-        $onRejectedReturnsNull = static function () {
-            return null;
-        };
+        $onRejectedReturnsNull = static fn () => null;
 
-        $onRejectedReturnsSomeValue = static function ($reason): string {
-            return 'some-value';
-        };
+        $onRejectedReturnsSomeValue = static fn (): string => 'some-value';
 
         $onRejectedThrowsSameReason = static function ($reason): void {
             throw $reason;
         };
 
-        $onRejectedThrowsOtherReason = static function ($value): void {
+        $onRejectedThrowsOtherReason = static function (): void {
             throw new Exception('onRejected throws other!');
         };
 
@@ -300,7 +296,7 @@ class SyncPromiseTest extends TestCaseBase
             $onRejected
         );
 
-        if (null !== $onRejected) {
+        if ($onRejected !== null) {
             self::assertNotSame($promise, $nextPromise);
             self::assertEquals(SyncPromise::PENDING, $nextPromise->state);
         } else {
@@ -313,7 +309,7 @@ class SyncPromiseTest extends TestCaseBase
         $nextPromise2 = $promise->then(null, $onRejected);
         $nextPromise3 = $promise->then(null, $onRejected);
 
-        if (null !== $onRejected) {
+        if ($onRejected !== null) {
             self::assertNotSame($nextPromise, $nextPromise2);
         }
 
@@ -371,9 +367,7 @@ class SyncPromiseTest extends TestCaseBase
         $promise = new SyncPromise();
         $promise2 = $promise->then(
             null,
-            static function (): string {
-                return 'value';
-            }
+            static fn (): string => 'value'
         );
         $promise->reject(new Exception('Rejected Again'));
         self::assertValidPromise($promise2, 'value', null, SyncPromise::FULFILLED);

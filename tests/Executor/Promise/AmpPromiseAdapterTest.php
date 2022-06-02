@@ -19,7 +19,7 @@ use Throwable;
 /**
  * @group AmpPromise
  */
-class AmpPromiseAdapterTest extends TestCase
+final class AmpPromiseAdapterTest extends TestCase
 {
     public function testIsThenableReturnsTrueWhenAnAmpPromiseIsGiven(): void
     {

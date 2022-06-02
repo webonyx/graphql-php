@@ -30,7 +30,7 @@ values as specified by
             ? (float) $value
             : null;
 
-        if (null === $float || ! is_finite($float)) {
+        if ($float === null || ! is_finite($float)) {
             throw new SerializationError(
                 'Float cannot represent non numeric value: '
                 . Utils::printSafe($value)
@@ -46,7 +46,7 @@ values as specified by
             ? (float) $value
             : null;
 
-        if (null === $float || ! is_finite($float)) {
+        if ($float === null || ! is_finite($float)) {
             $notFloat = Utils::printSafe($value);
             throw new Error("Float cannot represent non numeric value: {$notFloat}");
         }

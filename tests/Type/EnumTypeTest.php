@@ -216,10 +216,12 @@ class EnumTypeTest extends TestCase
             'fields' => [
                 'favoriteEnum' => [
                     'type' => $ColorType,
-                    'args' => ['color' => ['type' => $ColorType]],
-                    'resolve' => static function ($rootValue, $args) {
-                        return $args['color'] ?? null;
-                    },
+                    'args' => [
+                        'color' => [
+                            'type' => $ColorType,
+                        ],
+                    ],
+                    'resolve' => static fn ($rootValue, array $args) => $args['color'] ?? null,
                 ],
             ],
         ]);
@@ -230,9 +232,7 @@ class EnumTypeTest extends TestCase
                 'subscribeToEnum' => [
                     'type' => $ColorType,
                     'args' => ['color' => ['type' => $ColorType]],
-                    'resolve' => static function ($rootValue, $args) {
-                        return $args['color'] ?? null;
-                    },
+                    'resolve' => static fn ($rootValue, $args) => $args['color'] ?? null,
                 ],
             ],
         ]);
@@ -348,8 +348,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: green) }',
             null,
             [
-                // Improves upon the reference implementation
-                'message' => 'Value "green" does not exist in "Color" enum. Did you mean the enum value "GREEN"?',
+                'message' => 'Value "green" does not exist in "Color" enum. Did you mean the enum value "GREEN" or "RED"?',
                 'locations' => [new SourceLocation(1, 23)],
             ]
         );
@@ -678,11 +677,11 @@ class EnumTypeTest extends TestCase
                 'colorEnum' => [
                     'type' => $ColorType,
                     'args' => [
-                        'fromEnum' => ['type' => $ColorType],
+                        'fromEnum' => [
+                            'type' => $ColorType,
+                        ],
                     ],
-                    'resolve' => static function ($rootValue, array $args) {
-                        return $args['fromEnum'];
-                    },
+                    'resolve' => static fn ($rootValue, array $args) => $args['fromEnum'],
                 ],
             ],
         ]);

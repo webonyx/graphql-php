@@ -30,11 +30,11 @@ class AmpPromiseAdapter implements PromiseAdapter
     {
         $deferred = new Deferred();
         $onResolve = static function (?Throwable $reason, $value) use ($onFulfilled, $onRejected, $deferred): void {
-            if (null === $reason && null !== $onFulfilled) {
+            if ($reason === null && $onFulfilled !== null) {
                 self::resolveWithCallable($deferred, $onFulfilled, $value);
-            } elseif (null === $reason) {
+            } elseif ($reason === null) {
                 $deferred->resolve($value);
-            } elseif (null !== $onRejected) {
+            } elseif ($onRejected !== null) {
                 self::resolveWithCallable($deferred, $onRejected, $reason);
             } else {
                 $deferred->fail($reason);
@@ -101,7 +101,7 @@ class AmpPromiseAdapter implements PromiseAdapter
         $deferred = new Deferred();
 
         $onResolve = static function (?Throwable $reason, ?array $values) use ($promisesOrValues, $deferred): void {
-            if (null === $reason) {
+            if ($reason === null) {
                 assert(is_array($values), 'Either $reason or $values must be passed');
                 $deferred->resolve(array_replace($promisesOrValues, $values));
 

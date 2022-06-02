@@ -27,13 +27,13 @@ class LoneSchemaDefinition extends ValidationRule
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         $oldSchema = $context->getSchema();
-        $alreadyDefined = null === $oldSchema
+        $alreadyDefined = $oldSchema === null
             ? false
             : (
-                null !== $oldSchema->getAstNode()
-                || null !== $oldSchema->getQueryType()
-                || null !== $oldSchema->getMutationType()
-                || null !== $oldSchema->getSubscriptionType()
+                $oldSchema->getAstNode() !== null
+                || $oldSchema->getQueryType() !== null
+                || $oldSchema->getMutationType() !== null
+                || $oldSchema->getSubscriptionType() !== null
             );
 
         $schemaDefinitionsCount = 0;

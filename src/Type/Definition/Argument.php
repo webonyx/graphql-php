@@ -110,7 +110,7 @@ class Argument
     public function assertValid(FieldDefinition $parentField, Type $parentType): void
     {
         $error = Utils::isValidNameError($this->name);
-        if (null !== $error) {
+        if ($error !== null) {
             throw new InvariantViolation("{$parentType->name}.{$parentField->name}({$this->name}:) {$error->getMessage()}");
         }
 

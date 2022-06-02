@@ -54,6 +54,18 @@ class MyException extends \Exception implements ClientAware
 You can always switch to [custom error formatting](https://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting)
 to revert to the old format.
 
+### `exit` yourself
+
+The argument `bool $exitWhenDone` was removed from `StandardServer::send500Error()` and `StandardServer::handleRequest()`.
+Exit yourself if you need to:
+
+```diff
+$server = new GraphQL\Server\StandardServer();
+-$server->handleRequest($body, true);
++$server->handleRequest($body);
++exit;
+```
+
 ## v0.13.x > v14.x.x
 
 ### BREAKING: Strict coercion of scalar types (#278)
@@ -320,7 +332,6 @@ You can always switch to [custom error formatting](https://webonyx.github.io/gra
 It is disabled by default. To enable it, do the following
 
 ```php
-<?php
 use GraphQL\Executor\Executor;
 use GraphQL\Experimental\Executor\CoroutineExecutor;
 

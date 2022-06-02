@@ -75,14 +75,14 @@ class FormattedError
                     }
                 }
             }
-        } elseif (null !== $error->getSource() && 0 !== count($error->getLocations())) {
+        } elseif ($error->getSource() !== null && count($error->getLocations()) !== 0) {
             $source = $error->getSource();
             foreach ($error->getLocations() as $location) {
                 $printedLocations[] = self::highlightSourceAtLocation($source, $location);
             }
         }
 
-        return 0 === count($printedLocations)
+        return count($printedLocations) === 0
             ? $error->getMessage()
             : implode("\n\n", array_merge([$error->getMessage()], $printedLocations)) . "\n";
     }
@@ -121,7 +121,7 @@ class FormattedError
 
     private static function getColumnOffset(Source $source, SourceLocation $location): int
     {
-        return 1 === $location->line
+        return $location->line === 1
             ? $source->locationOffset->column - 1
             : 0;
     }
@@ -167,7 +167,7 @@ class FormattedError
                 $formattedError['locations'] = $locations;
             }
 
-            if (null !== $exception->path && count($exception->path) > 0) {
+            if ($exception->path !== null && count($exception->path) > 0) {
                 $formattedError['path'] = $exception->path;
             }
         }
@@ -179,7 +179,7 @@ class FormattedError
             }
         }
 
-        if (DebugFlag::NONE !== $debugFlag) {
+        if ($debugFlag !== DebugFlag::NONE) {
             $formattedError = self::addDebugEntries($formattedError, $exception, $debugFlag);
         }
 
@@ -196,7 +196,7 @@ class FormattedError
      */
     public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag): array
     {
-        if (DebugFlag::NONE === $debugFlag) {
+        if ($debugFlag === DebugFlag::NONE) {
             return $formattedError;
         }
 
@@ -205,14 +205,14 @@ class FormattedError
                 throw $e;
             }
 
-            if (null !== $e->getPrevious()) {
+            if ($e->getPrevious() !== null) {
                 throw $e->getPrevious();
             }
         }
 
         $isUnsafe = ! $e instanceof ClientAware || ! $e->isClientSafe();
 
-        if (($debugFlag & DebugFlag::RETHROW_UNSAFE_EXCEPTIONS) !== 0 && $isUnsafe && null !== $e->getPrevious()) {
+        if (($debugFlag & DebugFlag::RETHROW_UNSAFE_EXCEPTIONS) !== 0 && $isUnsafe && $e->getPrevious() !== null) {
             throw $e->getPrevious();
         }
 
@@ -226,7 +226,7 @@ class FormattedError
                 $formattedError['extensions']['line'] = $e->getLine();
             }
 
-            $isTrivial = $e instanceof Error && null === $e->getPrevious();
+            $isTrivial = $e instanceof Error && $e->getPrevious() === null;
 
             if (! $isTrivial) {
                 $formattedError['extensions']['trace'] = static::toSafeTrace($e->getPrevious() ?? $e);
@@ -247,7 +247,7 @@ class FormattedError
     {
         $formatter ??= [self::class, 'createFromException'];
 
-        if (DebugFlag::NONE !== $debug) {
+        if ($debug !== DebugFlag::NONE) {
             $formatter = static fn (Throwable $e): array => self::addDebugEntries($formatter($e), $e, $debug);
         }
 
@@ -273,7 +273,7 @@ class FormattedError
         if (
             isset($trace[0]['function']) && isset($trace[0]['class'])
             // Remove invariant entries as they don't provide much value:
-            && ('GraphQL\Utils\Utils::invariant' === $trace[0]['class'] . '::' . $trace[0]['function'])
+            && ($trace[0]['class'] . '::' . $trace[0]['function'] === 'GraphQL\Utils\Utils::invariant')
         ) {
             array_shift($trace);
         } elseif (! isset($trace[0]['file'])) {
@@ -326,7 +326,7 @@ class FormattedError
             return 'array(' . count($var) . ')';
         }
 
-        if ('' === $var) {
+        if ($var === '') {
             return '(empty string)';
         }
 
@@ -342,7 +342,7 @@ class FormattedError
             return (string) $var;
         }
 
-        if (null === $var) {
+        if ($var === null) {
             return 'null';
         }
 

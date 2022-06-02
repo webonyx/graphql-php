@@ -70,15 +70,13 @@ class SchemaGenerator
         }
 
         ++$this->typeIndex;
-        if (null === $typeName) {
+        if ($typeName === null) {
             $typeName = 'Level_' . $nestingLevel . '_Type' . $this->typeIndex;
         }
 
         $type = new ObjectType([
             'name' => $typeName,
-            'fields' => function () use ($typeName, $nestingLevel): array {
-                return $this->createTypeFields($typeName, $nestingLevel + 1);
-            },
+            'fields' => fn (): array => $this->createTypeFields($typeName, $nestingLevel + 1),
         ]);
 
         $this->objectTypes[$typeName] = $type;
@@ -128,15 +126,13 @@ class SchemaGenerator
                 'name' => $name,
                 'type' => Type::listOf($type),
                 'args' => $this->createFieldArgs($name, $typeName),
-                'resolve' => static function (): array {
-                    return [
-                        'string1',
-                        'string2',
-                        'string3',
-                        'string4',
-                        'string5',
-                    ];
-                },
+                'resolve' => static fn (): array => [
+                    'string1',
+                    'string2',
+                    'string3',
+                    'string4',
+                    'string5',
+                ],
             ];
         }
 

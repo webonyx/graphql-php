@@ -39,9 +39,7 @@ class SchemaTest extends TestCase
             'fields' => [
                 'fieldName' => [
                     'type' => Type::string(),
-                    'resolve' => static function (): string {
-                        return '';
-                    },
+                    'resolve' => static fn (): string => '',
                 ],
             ],
         ]);
@@ -83,9 +81,7 @@ class SchemaTest extends TestCase
                 'fields' => [
                     'getObject' => [
                         'type' => $this->interfaceType,
-                        'resolve' => static function (): array {
-                            return [];
-                        },
+                        'resolve' => static fn (): array => [],
                     ],
                 ],
             ]),

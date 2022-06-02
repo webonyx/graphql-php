@@ -194,7 +194,7 @@ GRAPHQL;
         );
 
         $data = $result->data;
-        if (null === $data) {
+        if ($data === null) {
             $serialized = json_encode($result, JSON_THROW_ON_ERROR);
             throw new InvariantViolation("Introspection query returned no data: {$serialized}");
         }
@@ -342,8 +342,8 @@ GRAPHQL;
                             if (! ($args['includeDeprecated'] ?? false)) {
                                 $fields = array_filter(
                                     $fields,
-                                    static fn (FieldDefinition $field): bool => null === $field->deprecationReason
-                                        || '' === $field->deprecationReason
+                                    static fn (FieldDefinition $field): bool => $field->deprecationReason === null
+                                        || $field->deprecationReason === ''
                                 );
                             }
 
@@ -381,8 +381,8 @@ GRAPHQL;
                                 return array_filter(
                                     $values,
                                     static function (EnumValueDefinition $value): bool {
-                                        return null === $value->deprecationReason
-                                            || '' === $value->deprecationReason;
+                                        return $value->deprecationReason === null
+                                            || $value->deprecationReason === '';
                                     }
                                 );
                             }
@@ -478,8 +478,8 @@ GRAPHQL;
                 ],
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
-                    'resolve' => static fn (FieldDefinition $field): bool => null !== $field->deprecationReason
-                        && '' !== $field->deprecationReason,
+                    'resolve' => static fn (FieldDefinition $field): bool => $field->deprecationReason !== null
+                        && $field->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),
@@ -497,44 +497,42 @@ GRAPHQL;
             'description' => 'Arguments provided to Fields or Directives and the input fields of an '
                     . 'InputObject are represented as Input Values which describe their type '
                     . 'and optionally a default value.',
-            'fields' => static function (): array {
-                return [
-                    'name' => [
-                        'type' => Type::nonNull(Type::string()),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): string => $inputValue->name,
-                    ],
-                    'description' => [
-                        'type' => Type::string(),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): ?string => $inputValue->description,
-                    ],
-                    'type' => [
-                        'type' => Type::nonNull(self::_type()),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): Type => $inputValue->getType(),
-                    ],
-                    'defaultValue' => [
-                        'type' => Type::string(),
-                        'description' => 'A GraphQL-formatted string representing the default value for this input value.',
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static function ($inputValue): ?string {
-                            if ($inputValue->defaultValueExists()) {
-                                $defaultValueAST = AST::astFromValue($inputValue->defaultValue, $inputValue->getType());
+            'fields' => static fn (): array => [
+                'name' => [
+                    'type' => Type::nonNull(Type::string()),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): string => $inputValue->name,
+                ],
+                'description' => [
+                    'type' => Type::string(),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): ?string => $inputValue->description,
+                ],
+                'type' => [
+                    'type' => Type::nonNull(self::_type()),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): Type => $inputValue->getType(),
+                ],
+                'defaultValue' => [
+                    'type' => Type::string(),
+                    'description' => 'A GraphQL-formatted string representing the default value for this input value.',
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static function ($inputValue): ?string {
+                        if ($inputValue->defaultValueExists()) {
+                            $defaultValueAST = AST::astFromValue($inputValue->defaultValue, $inputValue->getType());
 
-                                if (null === $defaultValueAST) {
-                                    $inconvertibleDefaultValue = Utils::printSafe($inputValue->defaultValue);
-                                    throw new InvariantViolation("Unable to convert defaultValue of argument {$inputValue->name} into AST: {$inconvertibleDefaultValue}.");
-                                }
-
-                                return Printer::doPrint($defaultValueAST);
+                            if ($defaultValueAST === null) {
+                                $inconvertibleDefaultValue = Utils::printSafe($inputValue->defaultValue);
+                                throw new InvariantViolation("Unable to convert defaultValue of argument {$inputValue->name} into AST: {$inconvertibleDefaultValue}.");
                             }
 
-                            return null;
-                        },
-                    ],
-                ];
-            },
+                            return Printer::doPrint($defaultValueAST);
+                        }
+
+                        return null;
+                    },
+                ],
+            ],
         ]);
     }
 
@@ -557,8 +555,8 @@ GRAPHQL;
                 ],
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
-                    'resolve' => static fn (EnumValueDefinition $enumValue): bool => null !== $enumValue->deprecationReason
-                        && '' !== $enumValue->deprecationReason,
+                    'resolve' => static fn (EnumValueDefinition $enumValue): bool => $enumValue->deprecationReason !== null
+                        && $enumValue->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),

@@ -29,8 +29,6 @@ use PHPUnit\Framework\TestCase;
  * but these changes to `graphql-js` haven't been reflected in `graphql-php` yet.
  * TODO align with:
  *   - https://github.com/graphql/graphql-js/commit/c1745228b2ae5ec89b8de36ea766d544607e21ea
- *   - https://github.com/graphql/graphql-js/commit/257797a0ebdddd3da6e75b7c237fdc12a1a7c75a
- *   - https://github.com/graphql/graphql-js/commit/3b9ea61f2348215dee755f779caef83df749d2bb
  *   - https://github.com/graphql/graphql-js/commit/e6a3f08cc92594f68a6e61d3d4b46a6d279f845e.
  */
 class SchemaExtenderLegacyTest extends TestCase
@@ -86,21 +84,19 @@ class SchemaExtenderLegacyTest extends TestCase
         $BarType = new ObjectType([
             'name' => 'Bar',
             'interfaces' => [$SomeInterfaceType],
-            'fields' => static function () use ($SomeInterfaceType, $FooType): array {
-                return [
-                    'some' => ['type' => $SomeInterfaceType],
-                    'foo' => ['type' => $FooType],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'some' => ['type' => $SomeInterfaceType],
+                'foo' => ['type' => $FooType],
+            ],
         ]);
 
         $BizType = new ObjectType([
             'name' => 'Biz',
-            'fields' => static function (): array {
-                return [
-                    'fizz' => ['type' => Type::string()],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'fizz' => [
+                    'type' => Type::string(),
+                ],
+            ],
         ]);
 
         $SomeUnionType = new UnionType([
@@ -118,11 +114,11 @@ class SchemaExtenderLegacyTest extends TestCase
 
         $SomeInputType = new InputObjectType([
             'name' => 'SomeInput',
-            'fields' => static function (): array {
-                return [
-                    'fooArg' => ['type' => Type::string()],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'fooArg' => [
+                    'type' => Type::string(),
+                ],
+            ],
         ]);
 
         $FooDirective = new Directive([
@@ -146,26 +142,24 @@ class SchemaExtenderLegacyTest extends TestCase
         $this->testSchema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'fields' => static function () use ($FooType, $SomeScalarType, $SomeUnionType, $SomeEnumType, $SomeInterfaceType, $SomeInputType): array {
-                    return [
-                        'foo' => ['type' => $FooType],
-                        'someScalar' => ['type' => $SomeScalarType],
-                        'someUnion' => ['type' => $SomeUnionType],
-                        'someEnum' => ['type' => $SomeEnumType],
-                        'someInterface' => [
-                            'args' => [
-                                'id' => [
-                                    'type' => Type::nonNull(Type::id()),
-                                ],
+                'fields' => static fn (): array => [
+                    'foo' => ['type' => $FooType],
+                    'someScalar' => ['type' => $SomeScalarType],
+                    'someUnion' => ['type' => $SomeUnionType],
+                    'someEnum' => ['type' => $SomeEnumType],
+                    'someInterface' => [
+                        'args' => [
+                            'id' => [
+                                'type' => Type::nonNull(Type::id()),
                             ],
-                            'type' => $SomeInterfaceType,
                         ],
-                        'someInput' => [
-                            'args' => ['input' => ['type' => $SomeInputType]],
-                            'type' => Type::string(),
-                        ],
-                    ];
-                },
+                        'type' => $SomeInterfaceType,
+                    ],
+                    'someInput' => [
+                        'args' => ['input' => ['type' => $SomeInputType]],
+                        'type' => Type::string(),
+                    ],
+                ],
             ]),
             'types' => [$FooType, $BarType],
             'directives' => array_merge(GraphQL::getStandardDirectives(), [$FooDirective]),
@@ -173,9 +167,10 @@ class SchemaExtenderLegacyTest extends TestCase
 
         $testSchemaAst = Parser::parse(SchemaPrinter::doPrint($this->testSchema));
 
-        $this->testSchemaDefinitions = array_map(static function ($node): string {
-            return Printer::doPrint($node);
-        }, iterator_to_array($testSchemaAst->definitions->getIterator()));
+        $this->testSchemaDefinitions = array_map(
+            static fn ($node): string => Printer::doPrint($node),
+            iterator_to_array($testSchemaAst->definitions->getIterator())
+        );
     }
 
     /**
@@ -188,6 +183,8 @@ class SchemaExtenderLegacyTest extends TestCase
         $extendedSchema = SchemaExtender::extend($this->testSchema, $ast, $options);
 
         self::assertEquals(SchemaPrinter::doPrint($this->testSchema), $originalPrint);
+
+        $extendedSchema->assertValid();
 
         return $extendedSchema;
     }
@@ -220,9 +217,7 @@ class SchemaExtenderLegacyTest extends TestCase
      */
     public function testDoesNotAllowReplacingAnExistingField(): void
     {
-        $existingFieldError = static function (string $type, string $field): string {
-            return 'Field "' . $type . '.' . $field . '" already exists in the schema. It cannot also be defined in this type extension.';
-        };
+        $existingFieldError = static fn (string $type, string $field): string => 'Field "' . $type . '.' . $field . '" already exists in the schema. It cannot also be defined in this type extension.';
 
         $typeSDL = '
           extend type Bar {
@@ -261,144 +256,6 @@ class SchemaExtenderLegacyTest extends TestCase
             self::fail();
         } catch (Error $error) {
             self::assertEquals($existingFieldError('SomeInput', 'fooArg'), $error->getMessage());
-        }
-    }
-
-    // Extract check for unique type names into separate rule
-
-    /**
-     * @see it('does not allow replacing an existing type')
-     */
-    public function testDoesNotAllowReplacingAnExistingType(): void
-    {
-        $existingTypeError = static function ($type): string {
-            return 'Type "' . $type . '" already exists in the schema. It cannot also be defined in this type definition.';
-        };
-
-        $typeSDL = '
-            type Bar
-        ';
-
-        try {
-            $this->extendTestSchema($typeSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('Bar'), $error->getMessage());
-        }
-
-        $scalarSDL = '
-          scalar SomeScalar
-        ';
-
-        try {
-            $this->extendTestSchema($scalarSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeScalar'), $error->getMessage());
-        }
-
-        $interfaceSDL = '
-          interface SomeInterface
-        ';
-
-        try {
-            $this->extendTestSchema($interfaceSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeInterface'), $error->getMessage());
-        }
-
-        $enumSDL = '
-          enum SomeEnum
-        ';
-
-        try {
-            $this->extendTestSchema($enumSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeEnum'), $error->getMessage());
-        }
-
-        $unionSDL = '
-          union SomeUnion
-        ';
-
-        try {
-            $this->extendTestSchema($unionSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeUnion'), $error->getMessage());
-        }
-
-        $inputSDL = '
-          input SomeInput
-        ';
-
-        try {
-            $this->extendTestSchema($inputSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($existingTypeError('SomeInput'), $error->getMessage());
-        }
-    }
-
-    // Validation: add support of SDL to KnownTypeNames
-
-    /**
-     * @see it('does not allow referencing an unknown type')
-     */
-    public function testDoesNotAllowReferencingAnUnknownType(): void
-    {
-        $unknownTypeError = 'Unknown type: "Quix". Ensure that this type exists either in the original schema, or is added in a type definition.';
-
-        $typeSDL = '
-          extend type Bar {
-            quix: Quix
-          }
-        ';
-
-        try {
-            $this->extendTestSchema($typeSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
-        }
-
-        $interfaceSDL = '
-          extend interface SomeInterface {
-            quix: Quix
-          }
-        ';
-
-        try {
-            $this->extendTestSchema($interfaceSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
-        }
-
-        $unionSDL = '
-          extend union SomeUnion = Quix
-        ';
-
-        try {
-            $this->extendTestSchema($unionSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
-        }
-
-        $inputSDL = '
-          extend input SomeInput {
-            quix: Quix
-          }
-        ';
-
-        try {
-            $this->extendTestSchema($inputSDL);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals($unknownTypeError, $error->getMessage());
         }
     }
 

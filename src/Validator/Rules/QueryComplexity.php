@@ -49,8 +49,6 @@ class QueryComplexity extends QuerySecurityRule
     public function getVisitor(QueryValidationContext $context): array
     {
         $this->context = $context;
-
-        // @phpstan-ignore-next-line Initializing with an empty array does not set the generic type
         $this->variableDefs = new NodeList([]);
         $this->fieldNodeAndDefs = new ArrayObject();
 
@@ -135,7 +133,7 @@ class QueryComplexity extends QuerySecurityRule
             case $node instanceof FragmentSpreadNode:
                 $fragment = $this->getFragment($node);
 
-                if (null !== $fragment) {
+                if ($fragment !== null) {
                     return $this->fieldComplexity($fragment->selectionSet);
                 }
         }
@@ -157,7 +155,7 @@ class QueryComplexity extends QuerySecurityRule
     protected function directiveExcludesField(FieldNode $node): bool
     {
         foreach ($node->directives as $directiveNode) {
-            if (Directive::DEPRECATED_NAME === $directiveNode->name->value) {
+            if ($directiveNode->name->value === Directive::DEPRECATED_NAME) {
                 return false;
             }
 
@@ -166,7 +164,7 @@ class QueryComplexity extends QuerySecurityRule
                 $this->variableDefs,
                 $this->getRawVariableValues()
             );
-            if (null !== $errors && count($errors) > 0) {
+            if ($errors !== null && count($errors) > 0) {
                 throw new Error(implode(
                     "\n\n",
                     array_map(
@@ -176,7 +174,7 @@ class QueryComplexity extends QuerySecurityRule
                 ));
             }
 
-            if (Directive::INCLUDE_NAME === $directiveNode->name->value) {
+            if ($directiveNode->name->value === Directive::INCLUDE_NAME) {
                 $includeArguments = Values::getArgumentValues(
                     Directive::includeDirective(),
                     $directiveNode,
@@ -187,7 +185,7 @@ class QueryComplexity extends QuerySecurityRule
                 return ! $includeArguments['if'];
             }
 
-            if (Directive::SKIP_NAME === $directiveNode->name->value) {
+            if ($directiveNode->name->value === Directive::SKIP_NAME) {
                 $skipArguments = Values::getArgumentValues(
                     Directive::skipDirective(),
                     $directiveNode,
@@ -274,6 +272,6 @@ class QueryComplexity extends QuerySecurityRule
 
     protected function isEnabled(): bool
     {
-        return self::DISABLED !== $this->getMaxQueryComplexity();
+        return $this->getMaxQueryComplexity() !== self::DISABLED;
     }
 }

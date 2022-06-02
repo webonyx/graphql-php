@@ -40,6 +40,7 @@ use GraphQL\Validator\Rules\UniqueFragmentNames;
 use GraphQL\Validator\Rules\UniqueInputFieldNames;
 use GraphQL\Validator\Rules\UniqueOperationNames;
 use GraphQL\Validator\Rules\UniqueOperationTypes;
+use GraphQL\Validator\Rules\UniqueTypeNames;
 use GraphQL\Validator\Rules\UniqueVariableNames;
 use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
@@ -97,7 +98,7 @@ class DocumentValidator
     ): array {
         $rules ??= static::allRules();
 
-        if (0 === count($rules)) {
+        if (count($rules) === 0) {
             return [];
         }
 
@@ -201,6 +202,8 @@ class DocumentValidator
         return self::$sdlRules ??= [
             LoneSchemaDefinition::class => new LoneSchemaDefinition(),
             UniqueOperationTypes::class => new UniqueOperationTypes(),
+            UniqueTypeNames::class => new UniqueTypeNames(),
+            KnownTypeNames::class => new KnownTypeNames(),
             KnownDirectives::class => new KnownDirectives(),
             KnownArgumentNamesOnDirectives::class => new KnownArgumentNamesOnDirectives(),
             UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
@@ -259,7 +262,7 @@ class DocumentValidator
     ): array {
         $rules ??= self::sdlRules();
 
-        if (0 === count($rules)) {
+        if (count($rules) === 0) {
             return [];
         }
 

@@ -63,15 +63,13 @@ class ExtractTypesTest extends TestCase
 
         $this->content = new InterfaceType([
             'name' => 'Content',
-            'fields' => function (): array {
-                return [
-                    'title' => Type::string(),
-                    'body' => Type::string(),
-                    'author' => $this->user,
-                    'comments' => Type::listOf($this->comment),
-                    'categories' => Type::listOf($this->category),
-                ];
-            },
+            'fields' => fn (): array => [
+                'title' => Type::string(),
+                'body' => Type::string(),
+                'author' => $this->user,
+                'comments' => Type::listOf($this->comment),
+                'categories' => Type::listOf($this->category),
+            ],
         ]);
 
         $this->blogStory = new ObjectType([
@@ -80,16 +78,14 @@ class ExtractTypesTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields' => function (): array {
-                return [
-                    $this->node->getField('id'),
-                    $this->content->getField('title'),
-                    $this->content->getField('body'),
-                    $this->content->getField('author'),
-                    $this->content->getField('comments'),
-                    $this->content->getField('categories'),
-                ];
-            },
+            'fields' => fn (): array => [
+                $this->node->getField('id'),
+                $this->content->getField('title'),
+                $this->content->getField('body'),
+                $this->content->getField('author'),
+                $this->content->getField('comments'),
+                $this->content->getField('categories'),
+            ],
         ]);
 
         new ObjectType([
@@ -98,17 +94,15 @@ class ExtractTypesTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields' => function (): array {
-                return [
-                    'id' => $this->node->getField('id'),
-                    'title' => $this->content->getField('title'),
-                    'body' => $this->content->getField('body'),
-                    'author' => $this->content->getField('author'),
-                    'comments' => $this->content->getField('comments'),
-                    'categories' => $this->content->getField('categories'),
-                    'url' => Type::string(),
-                ];
-            },
+            'fields' => fn (): array => [
+                'id' => $this->node->getField('id'),
+                'title' => $this->content->getField('title'),
+                'body' => $this->content->getField('body'),
+                'author' => $this->content->getField('author'),
+                'comments' => $this->content->getField('comments'),
+                'categories' => $this->content->getField('categories'),
+                'url' => Type::string(),
+            ],
         ]);
 
         new ObjectType([
@@ -117,25 +111,23 @@ class ExtractTypesTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields' => function (): array {
-                return [
-                    'id' => $this->node->getField('id'),
-                    'title' => $this->content->getField('title'),
-                    'body' => $this->content->getField('body'),
-                    'author' => $this->content->getField('author'),
-                    'comments' => $this->content->getField('comments'),
-                    'categories' => $this->content->getField('categories'),
-                    'streamUrl' => Type::string(),
-                    'downloadUrl' => Type::string(),
-                    'metadata' => new ObjectType([
-                        'name' => 'VideoMetadata',
-                        'fields' => [
-                            'lat' => Type::float(),
-                            'lng' => Type::float(),
-                        ],
-                    ]),
-                ];
-            },
+            'fields' => fn (): array => [
+                'id' => $this->node->getField('id'),
+                'title' => $this->content->getField('title'),
+                'body' => $this->content->getField('body'),
+                'author' => $this->content->getField('author'),
+                'comments' => $this->content->getField('comments'),
+                'categories' => $this->content->getField('categories'),
+                'streamUrl' => Type::string(),
+                'downloadUrl' => Type::string(),
+                'metadata' => new ObjectType([
+                    'name' => 'VideoMetadata',
+                    'fields' => [
+                        'lat' => Type::float(),
+                        'lng' => Type::float(),
+                    ],
+                ]),
+            ],
         ]);
 
         $this->comment = new ObjectType([
@@ -143,16 +135,14 @@ class ExtractTypesTest extends TestCase
             'interfaces' => [
                 $this->node,
             ],
-            'fields' => function (): array {
-                return [
-                    'id' => $this->node->getField('id'),
-                    'author' => $this->user,
-                    'text' => Type::string(),
-                    'replies' => Type::listOf($this->comment),
-                    'parent' => $this->comment,
-                    'content' => $this->content,
-                ];
-            },
+            'fields' => fn (): array => [
+                'id' => $this->node->getField('id'),
+                'author' => $this->user,
+                'text' => Type::string(),
+                'replies' => Type::listOf($this->comment),
+                'parent' => $this->comment,
+                'content' => $this->content,
+            ],
         ]);
 
         $this->user = new ObjectType([
@@ -160,12 +150,10 @@ class ExtractTypesTest extends TestCase
             'interfaces' => [
                 $this->node,
             ],
-            'fields' => function (): array {
-                return [
-                    'id' => $this->node->getField('id'),
-                    'name' => Type::string(),
-                ];
-            },
+            'fields' => fn (): array => [
+                'id' => $this->node->getField('id'),
+                'name' => Type::string(),
+            ],
         ]);
 
         $this->category = new ObjectType([
@@ -173,12 +161,10 @@ class ExtractTypesTest extends TestCase
             'interfaces' => [
                 $this->node,
             ],
-            'fields' => function (): array {
-                return [
-                    'id' => $this->node->getField('id'),
-                    'name' => Type::string(),
-                ];
-            },
+            'fields' => fn (): array => [
+                'id' => $this->node->getField('id'),
+                'name' => Type::string(),
+            ],
         ]);
 
         $this->mention = new UnionType([

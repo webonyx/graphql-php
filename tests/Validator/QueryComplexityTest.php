@@ -27,7 +27,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
             $positions = [];
 
-            if ($maxComplexity < $queryComplexity && QueryComplexity::DISABLED !== $maxComplexity) {
+            if ($maxComplexity < $queryComplexity && $maxComplexity !== QueryComplexity::DISABLED) {
                 $positions = [$this->createFormattedError($maxComplexity, $queryComplexity)];
             }
 
@@ -180,15 +180,13 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $reportedError = new Error('OtherValidatorError');
         $otherRule = new CustomValidationRule(
             'otherRule',
-            static function (ValidationContext $context) use ($reportedError): array {
-                return [
-                    NodeKind::OPERATION_DEFINITION => [
-                        'leave' => static function () use ($context, $reportedError): void {
-                            $context->reportError($reportedError);
-                        },
-                    ],
-                ];
-            }
+            static fn (ValidationContext $context): array => [
+                NodeKind::OPERATION_DEFINITION => [
+                    'leave' => static function () use ($context, $reportedError): void {
+                        $context->reportError($reportedError);
+                    },
+                ],
+            ]
         );
 
         $errors = DocumentValidator::validate(

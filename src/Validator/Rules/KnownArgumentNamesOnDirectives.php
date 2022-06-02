@@ -59,7 +59,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
     {
         $directiveArgs = [];
         $schema = $context->getSchema();
-        $definedDirectives = null !== $schema
+        $definedDirectives = $schema !== null
             ? $schema->getDirectives()
             : Directive::getInternalDirectives();
 

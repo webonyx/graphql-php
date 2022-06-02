@@ -111,7 +111,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         );
 
         $fragmentNamesLength = count($fragmentNames);
-        if (0 !== $fragmentNamesLength) {
+        if ($fragmentNamesLength !== 0) {
             // (B) Then collect conflicts between these fields and those represented by
             // each spread fragment name found.
             $comparedFragments = [];
@@ -270,7 +270,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     break;
                 case $selection instanceof InlineFragmentNode:
                     $typeCondition = $selection->typeCondition;
-                    $inlineFragmentType = null === $typeCondition
+                    $inlineFragmentType = $typeCondition === null
                         ? $parentType
                         : TypeInfo::typeFromAST($context->getSchema(), $typeCondition);
 
@@ -319,7 +319,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         $fields[$i],
                         $fields[$j]
                     );
-                    if (null !== $conflict) {
+                    if ($conflict !== null) {
                         $conflicts[] = $conflict;
                     }
                 }
@@ -362,10 +362,10 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             );
 
         // The return type for each field.
-        $type1 = null === $def1
+        $type1 = $def1 === null
             ? null
             : $def1->getType();
-        $type2 = null === $def2
+        $type2 = $def2 === null
             ? null
             : $def2->getType();
 
@@ -391,8 +391,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         }
 
         if (
-            null !== $type1
-            && null !== $type2
+            $type1 !== null
+            && $type2 !== null
             && $this->doTypesConflict($type1, $type2)
         ) {
             return [
@@ -407,7 +407,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         // compared to themselves.
         $selectionSet1 = $ast1->selectionSet;
         $selectionSet2 = $ast2->selectionSet;
-        if (null !== $selectionSet1 && null !== $selectionSet2) {
+        if ($selectionSet1 !== null && $selectionSet2 !== null) {
             $conflicts = $this->findConflictsBetweenSubSelectionSets(
                 $context,
                 $areMutuallyExclusive,
@@ -447,7 +447,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 }
             }
 
-            if (null === $argument2) {
+            if ($argument2 === null) {
                 return false;
             }
 
@@ -539,7 +539,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         // (I) Then collect conflicts between the first collection of fields and
         // those referenced by each fragment name associated with the second.
         $fragmentNames2Length = count($fragmentNames2);
-        if (0 !== $fragmentNames2Length) {
+        if ($fragmentNames2Length !== 0) {
             $comparedFragments = [];
             for ($j = 0; $j < $fragmentNames2Length; ++$j) {
                 $this->collectConflictsBetweenFieldsAndFragment(
@@ -556,7 +556,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         // (I) Then collect conflicts between the second collection of fields and
         // those referenced by each fragment name associated with the first.
         $fragmentNames1Length = count($fragmentNames1);
-        if (0 !== $fragmentNames1Length) {
+        if ($fragmentNames1Length !== 0) {
             $comparedFragments = [];
             for ($i = 0; $i < $fragmentNames1Length; ++$i) {
                 $this->collectConflictsBetweenFieldsAndFragment(
@@ -628,7 +628,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                         $fields1[$i],
                         $fields2[$j]
                     );
-                    if (null !== $conflict) {
+                    if ($conflict !== null) {
                         $conflicts[] = $conflict;
                     }
                 }
@@ -659,7 +659,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $comparedFragments[$fragmentName] = true;
 
         $fragment = $context->getFragment($fragmentName);
-        if (null === $fragment) {
+        if ($fragment === null) {
             return;
         }
 
@@ -758,7 +758,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         $fragment1 = $context->getFragment($fragmentName1);
         $fragment2 = $context->getFragment($fragmentName2);
-        if (null === $fragment1 || null === $fragment2) {
+        if ($fragment1 === null || $fragment2 === null) {
             return;
         }
 
@@ -821,7 +821,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         FieldNode $ast1,
         FieldNode $ast2
     ): ?array {
-        if (0 === count($conflicts)) {
+        if (count($conflicts) === 0) {
             return null;
         }
 

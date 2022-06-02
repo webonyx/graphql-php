@@ -30,7 +30,7 @@ trait HasFieldsTypeImplementation
     {
         $field = $this->findField($name);
 
-        if (null === $field) {
+        if ($field === null) {
             throw new InvariantViolation("Field \"{$name}\" is not defined for type \"{$this->name}\"");
         }
 

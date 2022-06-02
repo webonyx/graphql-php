@@ -40,6 +40,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - `PromiseAdapter::all()` accepts `iterable`
 - Throw if `Introspection::fromSchema()` returns no data
 - Reorganize abstract class `ASTValidationContext` to interface `ValidationContext`
+- Reorganize AST interfaces related to schema and type extensions
+- Align `Utils::suggestionList()` with the reference implementation (#1075)
 
 ### Added
 
@@ -54,6 +56,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Add ability to remove custom validation rules after adding them via `DocumentValidator::removeRule()`
 - Allow lazy enum values
 - Make `Node` implement `JsonSerializable`
+- Add SDL validation rule `UniqueTypeNames` (#998)
+- Add support for SDL validation to `KnownTypeNames` rule (#999)
 
 ### Optimized
 
@@ -109,6 +113,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove parameter `$options` from `ASTDefinitionBuilder`
 - Remove `FieldDefinition::create()` in favor of `new FieldDefinition()`
 - Remove `GraphQL\Exception\InvalidArgument`
+- Remove `Utils::find()`, `Utils::every()` and `Utils::invariant()`
+- Remove argument `bool $exitWhenDone` from `StandardServer::send500Error()` and `StandardServer::handleRequest()`
 
 ## 14.11.5
 

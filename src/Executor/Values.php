@@ -68,11 +68,11 @@ class Values
                     ? $rawVariableValues[$varName]
                     : Utils::undefined();
 
-                if (! $hasValue && (null !== $varDefNode->defaultValue)) {
+                if (! $hasValue && ($varDefNode->defaultValue !== null)) {
                     // If no value was provided to a variable with a default value,
                     // use the default value.
                     $coercedValues[$varName] = AST::valueFromAST($varDefNode->defaultValue, $varType);
-                } elseif ((! $hasValue || null === $value) && ($varType instanceof NonNull)) {
+                } elseif ((! $hasValue || $value === null) && ($varType instanceof NonNull)) {
                     // If no value or a nullish value was provided to a variable with a
                     // non-null type (required), produce an error.
                     $errors[] = new Error(
@@ -86,7 +86,7 @@ class Values
                         [$varDefNode]
                     );
                 } elseif ($hasValue) {
-                    if (null === $value) {
+                    if ($value === null) {
                         // If the explicit value `null` was provided, an entry in the coerced
                         // values must exist as the value `null`.
                         $coercedValues[$varName] = null;
@@ -96,7 +96,7 @@ class Values
                         $coerced = Value::coerceValue($value, $varType, $varDefNode);
 
                         $coercionErrors = $coerced['errors'];
-                        if (null !== $coercionErrors) {
+                        if ($coercionErrors !== null) {
                             foreach ($coercionErrors as $error) {
                                 $invalidValue = Utils::printSafeJson($value);
 
@@ -139,15 +139,12 @@ class Values
      */
     public static function getDirectiveValues(Directive $directiveDef, Node $node, ?array $variableValues = null): ?array
     {
-        $directiveNode = Utils::find(
-            $node->directives,
-            static function (DirectiveNode $directive) use ($directiveDef): bool {
-                return $directive->name->value === $directiveDef->name;
-            }
-        );
+        $directiveDefName = $directiveDef->name;
 
-        if (null !== $directiveNode) {
-            return self::getArgumentValues($directiveDef, $directiveNode, $variableValues);
+        foreach ($node->directives as $directive) {
+            if ($directive->name->value === $directiveDefName) {
+                return self::getArgumentValues($directiveDef, $directive, $variableValues);
+            }
         }
 
         return null;
@@ -167,7 +164,7 @@ class Values
      */
     public static function getArgumentValues($def, Node $node, ?array $variableValues = null): array
     {
-        if (0 === count($def->args)) {
+        if (count($def->args) === 0) {
             return [];
         }
 
@@ -202,10 +199,10 @@ class Values
 
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
-                $hasValue = null !== $variableValues && array_key_exists($variableName, $variableValues);
-                $isNull = $hasValue && null === $variableValues[$variableName];
+                $hasValue = $variableValues !== null && array_key_exists($variableName, $variableValues);
+                $isNull = $hasValue && $variableValues[$variableName] === null;
             } else {
-                $hasValue = null !== $argumentValueNode;
+                $hasValue = $argumentValueNode !== null;
                 $isNull = $argumentValueNode instanceof NullValueNode;
             }
 

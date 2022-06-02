@@ -104,8 +104,8 @@ class SyncPromiseAdapterTest extends TestCase
 
         SyncPromise::runQueue();
 
-        if (SyncPromise::PENDING !== $expectedNextState) {
-            if (null === $expectedNextReason) {
+        if ($expectedNextState !== SyncPromise::PENDING) {
+            if ($expectedNextReason === null) {
                 self::assertTrue($onFulfilledCalled);
                 self::assertFalse($onRejectedCalled);
             } else {
@@ -141,11 +141,7 @@ class SyncPromiseAdapterTest extends TestCase
 
         $promise1 = new SyncPromise();
         $promise2 = new SyncPromise();
-        $promise3 = $promise2->then(
-            static function ($value): string {
-                return $value . '-value3';
-            }
-        );
+        $promise3 = $promise2->then(static fn ($value): string => $value . '-value3');
 
         $data = [
             '1',

@@ -167,9 +167,8 @@ class ExecutionResult implements JsonSerializable
         $result = [];
 
         if (count($this->errors) > 0) {
-            $errorsHandler = $this->errorsHandler ?? static function (array $errors, callable $formatter): array {
-                return array_map($formatter, $errors);
-            };
+            $errorsHandler = $this->errorsHandler
+                ?? static fn (array $errors, callable $formatter): array => array_map($formatter, $errors);
 
             $handledErrors = $errorsHandler(
                 $this->errors,
@@ -177,16 +176,16 @@ class ExecutionResult implements JsonSerializable
             );
 
             // While we know that there were errors initially, they might have been discarded
-            if ([] !== $handledErrors) {
+            if ($handledErrors !== []) {
                 $result['errors'] = $handledErrors;
             }
         }
 
-        if (null !== $this->data) {
+        if ($this->data !== null) {
             $result['data'] = $this->data;
         }
 
-        if (null !== $this->extensions && count($this->extensions) > 0) {
+        if ($this->extensions !== null && count($this->extensions) > 0) {
             $result['extensions'] = $this->extensions;
         }
 

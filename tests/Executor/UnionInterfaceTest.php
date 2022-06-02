@@ -78,9 +78,7 @@ class UnionInterfaceTest extends TestCase
                     'father' => ['type' => &$DogType],
                 ];
             },
-            'isTypeOf' => static function ($value): bool {
-                return $value instanceof Dog;
-            },
+            'isTypeOf' => static fn ($value): bool => $value instanceof Dog,
         ]);
 
         $CatType = new ObjectType([
@@ -97,9 +95,7 @@ class UnionInterfaceTest extends TestCase
                     'father' => ['type' => &$CatType],
                 ];
             },
-            'isTypeOf' => static function ($value): bool {
-                return $value instanceof Cat;
-            },
+            'isTypeOf' => static fn ($value): bool => $value instanceof Cat,
         ]);
 
         $PetType = new UnionType([
@@ -133,9 +129,7 @@ class UnionInterfaceTest extends TestCase
                     'father' => ['type' => $PersonType],
                 ];
             },
-            'isTypeOf' => static function ($value): bool {
-                return $value instanceof Person;
-            },
+            'isTypeOf' => static fn ($value): bool => $value instanceof Person,
         ]);
 
         $this->schema = new Schema([

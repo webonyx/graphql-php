@@ -7,7 +7,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ImplementingType;
@@ -70,7 +70,7 @@ class Schema
     /** @var array<int, Error> */
     private array $validationErrors;
 
-    /** @var array<int, SchemaTypeExtensionNode> */
+    /** @var array<int, SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
     /**
@@ -97,17 +97,17 @@ class Schema
         // No need to check for the existence of the root query type
         // since we already validated the schema thus it must exist.
         $query = $config->query;
-        if (null !== $query) {
+        if ($query !== null) {
             $this->resolvedTypes[$query->name] = $query;
         }
 
         $mutation = $config->mutation;
-        if (null !== $mutation) {
+        if ($mutation !== null) {
             $this->resolvedTypes[$mutation->name] = $mutation;
         }
 
         $subscription = $config->subscription;
-        if (null !== $subscription) {
+        if ($subscription !== null) {
             $this->resolvedTypes[$subscription->name] = $subscription;
         }
 
@@ -306,7 +306,7 @@ class Schema
             $type = Type::getStandardTypes()[$name]
                 ?? $this->loadType($name);
 
-            if (null === $type) {
+            if ($type === null) {
                 return null;
             }
 
@@ -318,7 +318,7 @@ class Schema
 
     public function hasType(string $name): bool
     {
-        return null !== $this->getType($name);
+        return $this->getType($name) !== null;
     }
 
     /**
@@ -328,13 +328,13 @@ class Schema
     {
         $typeLoader = $this->config->typeLoader;
 
-        if (null === $typeLoader) {
+        if ($typeLoader === null) {
             return $this->defaultTypeLoader($typeName);
         }
 
         $type = $typeLoader($typeName);
 
-        if (null === $type) {
+        if ($type === null) {
             return null;
         }
 
@@ -514,7 +514,7 @@ class Schema
     {
         $errors = $this->validate();
 
-        if ([] !== $errors) {
+        if ($errors !== []) {
             throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 

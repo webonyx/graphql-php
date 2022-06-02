@@ -9,13 +9,13 @@ use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use PHPUnit\Framework\TestCase;
 use function Safe\json_encode;
-use function sprintf;
 
 class IntrospectionTest extends TestCase
 {
@@ -920,9 +920,7 @@ class IntrospectionTest extends TestCase
                 'field' => [
                     'type' => Type::string(),
                     'args' => ['complex' => ['type' => $TestInputObject]],
-                    'resolve' => static function ($testType, $args) {
-                        return json_encode($args['complex']);
-                    },
+                    'resolve' => static fn ($testType, array $args): string => json_encode($args['complex']),
                 ],
             ],
         ]);
@@ -1452,9 +1450,8 @@ class IntrospectionTest extends TestCase
         $source = Introspection::getIntrospectionQuery(['directiveIsRepeatable' => true]);
 
         $calledForFields = [];
-        /* istanbul ignore next */
-        $fieldResolver = static function ($value, $_1, $_2, $info) use (&$calledForFields) {
-            $calledForFields[sprintf('%s::%s', $info->parentType->name, $info->fieldName)] = true;
+        $fieldResolver = static function ($value, array $_1, $_2, ResolveInfo $info) use (&$calledForFields) {
+            $calledForFields["{$info->parentType->name}::{$info->fieldName}"] = true;
 
             return $value;
         };

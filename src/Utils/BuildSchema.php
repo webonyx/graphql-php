@@ -77,7 +77,9 @@ class BuildSchema
      * document.
      *
      * @param DocumentNode|Source|string $source
-     * @param array<string, bool>        $options
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     *
+     * @param array<string, bool> $options
      * @phpstan-param BuildSchemaOptions $options
      *
      * @api
@@ -101,6 +103,8 @@ class BuildSchema
      *
      * Given that AST it constructs a @see \GraphQL\Type\Schema. The resulting schema
      * has no resolve methods, so execution will use default resolvers.
+     *
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      *
      * @param array<string, bool> $options
      * @phpstan-param BuildSchemaOptions $options
@@ -140,12 +144,7 @@ class BuildSchema
                     $schemaDef = $definition;
                     break;
                 case $definition instanceof TypeDefinitionNode:
-                    $typeName = $definition->name->value;
-                    if (isset($this->nodeMap[$typeName])) {
-                        throw new Error('Type "' . $typeName . '" was defined more than once.');
-                    }
-
-                    $this->nodeMap[$typeName] = $definition;
+                    $this->nodeMap[$definition->name->value] = $definition;
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
                     $directiveDefs[] = $definition;
@@ -153,7 +152,7 @@ class BuildSchema
             }
         }
 
-        $operationTypes = null !== $schemaDef
+        $operationTypes = $schemaDef !== null
             ? $this->getOperationTypes($schemaDef)
             : [
                 'query' => 'Query',
@@ -217,26 +216,17 @@ class BuildSchema
     }
 
     /**
-     * @throws Error
-     *
      * @return array<string, string>
      */
     private function getOperationTypes(SchemaDefinitionNode $schemaDef): array
     {
-        $opTypes = [];
-
+        /** @var array<string, string> $operationTypes */
+        $operationTypes = [];
         foreach ($schemaDef->operationTypes as $operationType) {
-            $typeName = $operationType->type->name->value;
-            $operation = $operationType->operation;
-
-            if (! isset($this->nodeMap[$typeName])) {
-                throw new Error('Specified ' . $operation . ' type "' . $typeName . '" not found in document.');
-            }
-
-            $opTypes[$operation] = $typeName;
+            $operationTypes[$operationType->operation] = $operationType->type->name->value;
         }
 
-        return $opTypes;
+        return $operationTypes;
     }
 
     public static function unknownType(string $typeName): Error

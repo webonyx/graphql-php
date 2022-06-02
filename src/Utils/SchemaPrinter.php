@@ -32,9 +32,7 @@ use GraphQL\Type\Schema;
 use function implode;
 use function ksort;
 use function mb_strlen;
-use function sprintf;
 use function str_replace;
-use function strlen;
 
 /**
  * Prints the contents of a Schema in schema definition language.
@@ -106,7 +104,8 @@ class SchemaPrinter
             return static::printInputObject($type, $options);
         }
 
-        throw new Error(sprintf('Unknown type: %s.', Utils::printSafe($type)));
+        $unknownType = Utils::printSafe($type);
+        throw new Error("Unknown type: {$unknownType}.");
     }
 
     /**
@@ -145,21 +144,23 @@ class SchemaPrinter
         $operationTypes = [];
 
         $queryType = $schema->getQueryType();
-        if (null !== $queryType) {
-            $operationTypes[] = sprintf('  query: %s', $queryType->name);
+        if ($queryType !== null) {
+            $operationTypes[] = "  query: {$queryType->name}";
         }
 
         $mutationType = $schema->getMutationType();
-        if (null !== $mutationType) {
-            $operationTypes[] = sprintf('  mutation: %s', $mutationType->name);
+        if ($mutationType !== null) {
+            $operationTypes[] = "  mutation: {$mutationType->name}";
         }
 
         $subscriptionType = $schema->getSubscriptionType();
-        if (null !== $subscriptionType) {
-            $operationTypes[] = sprintf('  subscription: %s', $subscriptionType->name);
+        if ($subscriptionType !== null) {
+            $operationTypes[] = "  subscription: {$subscriptionType->name}";
         }
 
-        return sprintf("schema {\n%s\n}", implode("\n", $operationTypes));
+        $typesString = implode("\n", $operationTypes);
+
+        return "schema {\n{$typesString}\n}";
     }
 
     /**
@@ -177,18 +178,18 @@ class SchemaPrinter
     protected static function isSchemaOfCommonNames(Schema $schema): bool
     {
         $queryType = $schema->getQueryType();
-        if (null !== $queryType && 'Query' !== $queryType->name) {
+        if ($queryType !== null && $queryType->name !== 'Query') {
             return false;
         }
 
         $mutationType = $schema->getMutationType();
-        if (null !== $mutationType && 'Mutation' !== $mutationType->name) {
+        if ($mutationType !== null && $mutationType->name !== 'Mutation') {
             return false;
         }
 
         $subscriptionType = $schema->getSubscriptionType();
 
-        return null === $subscriptionType || 'Subscription' === $subscriptionType->name;
+        return $subscriptionType === null || $subscriptionType->name === 'Subscription';
     }
 
     /**
@@ -211,13 +212,13 @@ class SchemaPrinter
     protected static function printDescription(array $options, $def, string $indentation = '', bool $firstInBlock = true): string
     {
         $description = $def->description;
-        if (null === $description) {
+        if ($description === null) {
             return '';
         }
 
         $preferMultipleLines = mb_strlen($description) > 70;
         $blockString = BlockString::print($description, '', $preferMultipleLines);
-        $prefix = '' !== $indentation && ! $firstInBlock
+        $prefix = $indentation !== '' && ! $firstInBlock
             ? "\n" . $indentation
             : $indentation;
 
@@ -226,9 +227,9 @@ class SchemaPrinter
 
     protected static function printDescriptionWithComments(string $description, string $indentation, bool $firstInBlock): string
     {
-        $comment = '' !== $indentation && ! $firstInBlock ? "\n" : '';
+        $comment = $indentation !== '' && ! $firstInBlock ? "\n" : '';
         foreach (explode("\n", $description) as $line) {
-            if ('' === $line) {
+            if ($line === '') {
                 $comment .= $indentation . "#\n";
             } else {
                 $comment .= $indentation . '# ' . $line . "\n";
@@ -245,43 +246,46 @@ class SchemaPrinter
      */
     protected static function printArgs(array $options, array $args, string $indentation = ''): string
     {
-        if (0 === count($args)) {
+        if (count($args) === 0) {
             return '';
         }
 
-        // If every arg does not have a description, print them on one line.
-        if (
-            Utils::every(
-                $args,
-                static fn (Argument $arg): bool => 0 === strlen($arg->description ?? '')
-            )
-        ) {
-            return '('
+        $everyArgHasDescription = true;
+        foreach ($args as $arg) {
+            $description = $arg->description;
+            if ($description === null || $description === '') {
+                $everyArgHasDescription = false;
+                break;
+            }
+        }
+
+        if ($everyArgHasDescription) {
+            return "(\n"
                 . implode(
-                    ', ',
+                    "\n",
                     array_map(
-                        [static::class, 'printInputValue'],
-                        $args
+                        static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, $i === 0)
+                            . '  '
+                            . $indentation
+                            . static::printInputValue($arg),
+                        $args,
+                        array_keys($args)
                     )
                 )
+                . "\n"
+                . $indentation
                 . ')';
         }
 
-        return sprintf(
-            "(\n%s\n%s)",
-            implode(
-                "\n",
+        return '('
+            . implode(
+                ', ',
                 array_map(
-                    static fn (Argument $arg, int $i): string => static::printDescription($options, $arg, '  ' . $indentation, 0 === $i)
-                        . '  '
-                        . $indentation
-                        . static::printInputValue($arg),
-                    $args,
-                    array_keys($args)
+                    [static::class, 'printInputValue'],
+                    $args
                 )
-            ),
-            $indentation
-        );
+            )
+            . ')';
     }
 
     /**
@@ -294,7 +298,7 @@ class SchemaPrinter
         if ($arg->defaultValueExists()) {
             $defaultValueAST = AST::astFromValue($arg->defaultValue, $arg->getType());
 
-            if (null === $defaultValueAST) {
+            if ($defaultValueAST === null) {
                 $inconvertibleDefaultValue = Utils::printSafe($arg->defaultValue);
                 throw new InvariantViolation("Unable to convert defaultValue of argument {$arg->name} into AST: {$inconvertibleDefaultValue}.");
             }
@@ -337,7 +341,7 @@ class SchemaPrinter
         $fields = array_values($type->getFields());
         $fields = array_map(
             static function (FieldDefinition $f, int $i) use ($options): string {
-                return static::printDescription($options, $f, '  ', 0 === $i)
+                return static::printDescription($options, $f, '  ', $i === 0)
                     . '  '
                     . $f->name
                     . static::printArgs($options, $f->args, '  ')
@@ -358,11 +362,11 @@ class SchemaPrinter
     protected static function printDeprecated($fieldOrEnumVal): string
     {
         $reason = $fieldOrEnumVal->deprecationReason;
-        if (null === $reason) {
+        if ($reason === null) {
             return '';
         }
 
-        if ('' === $reason || Directive::DEFAULT_DEPRECATION_REASON === $reason) {
+        if ($reason === '' || $reason === Directive::DEFAULT_DEPRECATION_REASON) {
             return ' @deprecated';
         }
 
@@ -396,7 +400,7 @@ class SchemaPrinter
     protected static function printInterface(InterfaceType $type, array $options): string
     {
         return static::printDescription($options, $type)
-            . sprintf('interface %s', $type->name)
+            . "interface {$type->name}"
             . self::printImplementedInterfaces($type)
             . static::printFields($options, $type);
     }
@@ -424,7 +428,7 @@ class SchemaPrinter
         $values = $type->getValues();
         $values = array_map(
             static function (EnumValueDefinition $value, int $i) use ($options): string {
-                return static::printDescription($options, $value, '  ', 0 === $i)
+                return static::printDescription($options, $value, '  ', $i === 0)
                     . '  '
                     . $value->name
                     . static::printDeprecated($value);
@@ -434,7 +438,7 @@ class SchemaPrinter
         );
 
         return static::printDescription($options, $type)
-            . sprintf('enum %s', $type->name)
+            . "enum {$type->name}"
             . static::printBlock($values);
     }
 

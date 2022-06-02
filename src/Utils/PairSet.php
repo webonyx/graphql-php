@@ -14,16 +14,16 @@ class PairSet
     public function has(string $a, string $b, bool $areMutuallyExclusive): bool
     {
         $first = $this->data[$a] ?? null;
-        $result = null !== $first && isset($first[$b]) ? $first[$b] : null;
-        if (null === $result) {
+        $result = $first !== null && isset($first[$b]) ? $first[$b] : null;
+        if ($result === null) {
             return false;
         }
 
         // areMutuallyExclusive being false is a superset of being true,
         // hence if we want to know if this PairSet "has" these two with no
         // exclusivity, we have to ensure it was added as such.
-        if (false === $areMutuallyExclusive) {
-            return false === $result;
+        if ($areMutuallyExclusive === false) {
+            return $result === false;
         }
 
         return true;

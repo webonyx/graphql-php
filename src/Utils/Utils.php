@@ -5,17 +5,12 @@ namespace GraphQL\Utils;
 use function array_keys;
 use function array_map;
 use function array_reduce;
-use function array_shift;
 use function array_slice;
-use function asort;
 use function count;
 use function dechex;
-use function func_get_args;
-use function func_num_args;
 use function get_class;
 use function gettype;
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
@@ -24,7 +19,6 @@ use function is_object;
 use function is_scalar;
 use function is_string;
 use function json_encode;
-use function levenshtein;
 use function mb_convert_encoding;
 use function mb_strlen;
 use function mb_substr;
@@ -34,9 +28,7 @@ use function pack;
 use function preg_match;
 use function property_exists;
 use function range;
-use function sprintf;
 use stdClass;
-use function strtolower;
 use function unpack;
 
 class Utils
@@ -69,65 +61,6 @@ class Utils
     }
 
     /**
-     * @template TKey of array-key
-     * @template TValue
-     *
-     * @param iterable<mixed> $iterable
-     * @phpstan-param iterable<TKey, TValue> $iterable
-     * @phpstan-param callable(TValue, TKey): bool $predicate
-     *
-     * @return mixed
-     * @phpstan-return TValue|null
-     */
-    public static function find(iterable $iterable, callable $predicate)
-    {
-        foreach ($iterable as $key => $value) {
-            if ($predicate($value, $key)) {
-                return $value;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     */
-    public static function every($iterable, callable $predicate): bool
-    {
-        foreach ($iterable as $key => $value) {
-            if (! $predicate($value, $key)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param mixed  $test    will be evaluated for truthy-ness
-     * @param string $message
-     *
-     * @throws InvariantViolation
-     */
-    public static function invariant($test, $message = ''): void
-    {
-        // @phpstan-ignore-next-line we want to evaluate for truthy-ness
-        if ($test) {
-            return;
-        }
-
-        if (func_num_args() > 2) {
-            $args = func_get_args();
-            array_shift($args);
-            $message = sprintf(...$args);
-        }
-
-        // TODO switch to Error here
-        throw new InvariantViolation($message);
-    }
-
-    /**
      * @param mixed $var
      */
     public static function printSafeJson($var): string
@@ -140,19 +73,19 @@ class Utils
             return json_encode($var, JSON_THROW_ON_ERROR);
         }
 
-        if ('' === $var) {
+        if ($var === '') {
             return '(empty string)';
         }
 
-        if (null === $var) {
+        if ($var === null) {
             return 'null';
         }
 
-        if (false === $var) {
+        if ($var === false) {
             return 'false';
         }
 
-        if (true === $var) {
+        if ($var === true) {
             return 'true';
         }
 
@@ -188,19 +121,19 @@ class Utils
             return json_encode($var, JSON_THROW_ON_ERROR);
         }
 
-        if ('' === $var) {
+        if ($var === '') {
             return '(empty string)';
         }
 
-        if (null === $var) {
+        if ($var === null) {
             return 'null';
         }
 
-        if (false === $var) {
+        if ($var === false) {
             return 'false';
         }
 
-        if (true === $var) {
+        if ($var === true) {
             return 'true';
         }
 
@@ -220,7 +153,7 @@ class Utils
      */
     public static function chr(int $ord, string $encoding = 'UTF-8'): string
     {
-        if ('UCS-4BE' === $encoding) {
+        if ($encoding === 'UCS-4BE') {
             return pack('N', $ord);
         }
 
@@ -236,7 +169,7 @@ class Utils
             return ord($char);
         }
 
-        if ('UCS-4BE' !== $encoding) {
+        if ($encoding !== 'UCS-4BE') {
             $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
         }
 
@@ -256,7 +189,7 @@ class Utils
 
     public static function printCharCode(?int $code): string
     {
-        if (null === $code) {
+        if ($code === null) {
             return '<EOF>';
         }
 
@@ -275,7 +208,7 @@ class Utils
     public static function assertValidName(string $name): void
     {
         $error = self::isValidNameError($name);
-        if (null !== $error) {
+        if ($error !== null) {
             throw $error;
         }
     }
@@ -285,14 +218,14 @@ class Utils
      */
     public static function isValidNameError(string $name, ?Node $node = null): ?Error
     {
-        if (isset($name[1]) && '_' === $name[0] && '_' === $name[1]) {
+        if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
             return new Error(
                 'Name "' . $name . '" must not begin with "__", which is reserved by GraphQL introspection.',
                 $node
             );
         }
 
-        if (1 !== preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
+        if (preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name) !== 1) {
             return new Error(
                 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "' . $name . '" does not.',
                 $node
@@ -320,7 +253,7 @@ class Utils
      */
     public static function orList(array $items): string
     {
-        if (0 === count($items)) {
+        if (count($items) === 0) {
             return '';
         }
 
@@ -328,7 +261,7 @@ class Utils
         $selectedLength = count($selected);
         $firstSelected = $selected[0];
 
-        if (1 === $selectedLength) {
+        if ($selectedLength === 1) {
             return $firstSelected;
         }
 
@@ -348,34 +281,30 @@ class Utils
      * Given an invalid input string and a list of valid options, returns a filtered
      * list of valid options sorted based on their similarity with the input.
      *
-     * Includes a custom alteration from Damerau-Levenshtein to treat case changes
-     * as a single edit which helps identify mis-cased values with an edit distance
-     * of 1
-     *
      * @param array<string> $options
      *
      * @return array<int, string>
      */
     public static function suggestionList(string $input, array $options): array
     {
+        /** @var array<string, int> $optionsByDistance */
         $optionsByDistance = [];
+        $lexicalDistance = new LexicalDistance($input);
         $threshold = mb_strlen($input) * 0.4 + 1;
         foreach ($options as $option) {
-            if ($input === $option) {
-                $distance = 0;
-            } else {
-                $distance = (strtolower($input) === strtolower($option)
-                    ? 1
-                    : levenshtein($input, $option));
-            }
+            $distance = $lexicalDistance->measure($option, $threshold);
 
-            if ($distance <= $threshold) {
+            if ($distance !== null) {
                 $optionsByDistance[$option] = $distance;
             }
         }
 
-        asort($optionsByDistance);
+        \uksort($optionsByDistance, static function (string $a, string $b) use ($optionsByDistance) {
+            $distanceDiff = $optionsByDistance[$a] - $optionsByDistance[$b];
 
-        return array_keys($optionsByDistance);
+            return $distanceDiff !== 0 ? $distanceDiff : \strnatcmp($a, $b);
+        });
+
+        return array_map('strval', array_keys($optionsByDistance));
     }
 }

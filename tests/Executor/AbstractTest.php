@@ -43,9 +43,7 @@ class AbstractTest extends TestCase
         $dogType = new ObjectType([
             'name' => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Dog;
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Dog,
             'fields' => [
                 'name' => ['type' => Type::string()],
                 'woofs' => ['type' => Type::boolean()],
@@ -55,9 +53,7 @@ class AbstractTest extends TestCase
         $catType = new ObjectType([
             'name' => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Cat;
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Cat,
             'fields' => [
                 'name' => ['type' => Type::string()],
                 'meows' => ['type' => Type::boolean()],
@@ -70,9 +66,10 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($petType),
-                        'resolve' => static function (): array {
-                            return [new Dog('Odie', true), new Cat('Garfield', false)];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                        ],
                     ],
                 ],
             ]),
@@ -109,9 +106,7 @@ class AbstractTest extends TestCase
     {
         $dogType = new ObjectType([
             'name' => 'Dog',
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Dog;
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Dog,
             'fields' => [
                 'name' => ['type' => Type::string()],
                 'woofs' => ['type' => Type::boolean()],
@@ -120,9 +115,7 @@ class AbstractTest extends TestCase
 
         $catType = new ObjectType([
             'name' => 'Cat',
-            'isTypeOf' => static function ($obj): bool {
-                return $obj instanceof Cat;
-            },
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Cat,
             'fields' => [
                 'name' => ['type' => Type::string()],
                 'meows' => ['type' => Type::boolean()],
@@ -140,9 +133,10 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($petType),
-                        'resolve' => static function (): array {
-                            return [new Dog('Odie', true), new Cat('Garfield', false)];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                        ],
                     ],
                 ],
             ]),
@@ -232,13 +226,11 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($PetType),
-                        'resolve' => static function (): array {
-                            return [
-                                new Dog('Odie', true),
-                                new Cat('Garfield', false),
-                                new Human('Jon'),
-                            ];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                            new Human('Jon'),
+                        ],
                     ],
                 ],
             ]),
@@ -332,13 +324,11 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($PetType),
-                        'resolve' => static function (): array {
-                            return [
-                                new Dog('Odie', true),
-                                new Cat('Garfield', false),
-                                new Human('Jon'),
-                            ];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                            new Human('Jon'),
+                        ],
                     ],
                 ],
             ]),
@@ -392,9 +382,7 @@ class AbstractTest extends TestCase
         $fooInterface = new InterfaceType([
             'name' => 'FooInterface',
             'fields' => ['bar' => ['type' => Type::string()]],
-            'resolveType' => static function (): array {
-                return [];
-            },
+            'resolveType' => static fn (): array => [],
         ]);
 
         $fooObject = new ObjectType([
@@ -409,9 +397,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'foo' => [
                         'type' => $fooInterface,
-                        'resolve' => static function (): string {
-                            return 'dummy';
-                        },
+                        'resolve' => static fn (): string => 'dummy',
                     ],
                 ],
             ]),
@@ -490,7 +476,7 @@ class AbstractTest extends TestCase
                             . 'This can happen when an object type is only referenced indirectly through '
                             . 'abstract types and never directly through fields.'
                             . 'List the type in the option "types" during schema construction, '
-                            . 'see https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options.',
+                            . 'see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options.',
                     ],
                 ],
             ],
@@ -545,12 +531,10 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($PetType),
-                        'resolve' => static function (): array {
-                            return [
-                                new Dog('Odie', true),
-                                new Cat('Garfield', false),
-                            ];
-                        },
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                        ],
                     ],
                 ],
             ]),

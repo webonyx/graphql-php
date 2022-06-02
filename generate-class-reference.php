@@ -170,7 +170,7 @@ function renderProp(ReflectionProperty $prop): string
 
 function unwrapDocblock(string $docBlock): string
 {
-    if ('' === $docBlock) {
+    if ($docBlock === '') {
         return '';
     }
 
@@ -191,7 +191,7 @@ function unwrapDocblock(string $docBlock): string
  */
 function unpadDocblock($docBlock): string
 {
-    if (false === $docBlock) {
+    if ($docBlock === false) {
         return '';
     }
 
@@ -210,11 +210,11 @@ function unpadDocblock($docBlock): string
 function isApi(Reflector $reflector): bool
 {
     $comment = $reflector->getDocComment();
-    if (false === $comment) {
+    if ($comment === false) {
         return false;
     }
 
-    return 1 === preg_match('~[\r\n ]+\* @api~', $comment);
+    return preg_match('~[\r\n ]+\* @api~', $comment) === 1;
 }
 
 file_put_contents($outputFile, '');

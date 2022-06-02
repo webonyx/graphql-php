@@ -157,7 +157,7 @@ class BuildClientSchema
     private function getType(array $typeRef): Type
     {
         if (isset($typeRef['kind'])) {
-            if (TypeKind::LIST === $typeRef['kind']) {
+            if ($typeRef['kind'] === TypeKind::LIST) {
                 if (! isset($typeRef['ofType'])) {
                     throw new InvariantViolation('Decorated type deeper than introspection query.');
                 }
@@ -165,7 +165,7 @@ class BuildClientSchema
                 return new ListOfType($this->getType($typeRef['ofType']));
             }
 
-            if (TypeKind::NON_NULL === $typeRef['kind']) {
+            if ($typeRef['kind'] === TypeKind::NON_NULL) {
                 if (! isset($typeRef['ofType'])) {
                     throw new InvariantViolation('Decorated type deeper than introspection query.');
                 }
@@ -301,9 +301,7 @@ class BuildClientSchema
         return new CustomScalarType([
             'name' => $scalar['name'],
             'description' => $scalar['description'],
-            'serialize' => static function ($value): string {
-                return (string) $value;
-            },
+            'serialize' => static fn ($value): string => (string) $value,
         ]);
     }
 
@@ -317,8 +315,8 @@ class BuildClientSchema
         // TODO: Temporary workaround until GraphQL ecosystem will fully support 'interfaces' on interface types.
         if (
             array_key_exists('interfaces', $implementingIntrospection)
-            && null === $implementingIntrospection['interfaces']
-            && TypeKind::INTERFACE === $implementingIntrospection['kind']
+            && $implementingIntrospection['interfaces'] === null
+            && $implementingIntrospection['kind'] === TypeKind::INTERFACE
         ) {
             return [];
         }
@@ -341,12 +339,8 @@ class BuildClientSchema
         return new ObjectType([
             'name' => $object['name'],
             'description' => $object['description'],
-            'interfaces' => function () use ($object): array {
-                return $this->buildImplementationsList($object);
-            },
-            'fields' => function () use ($object) {
-                return $this->buildFieldDefMap($object);
-            },
+            'interfaces' => fn (): array => $this->buildImplementationsList($object),
+            'fields' => fn (): array => $this->buildFieldDefMap($object),
         ]);
     }
 
@@ -358,12 +352,8 @@ class BuildClientSchema
         return new InterfaceType([
             'name' => $interface['name'],
             'description' => $interface['description'],
-            'fields' => function () use ($interface) {
-                return $this->buildFieldDefMap($interface);
-            },
-            'interfaces' => function () use ($interface): array {
-                return $this->buildImplementationsList($interface);
-            },
+            'fields' => fn (): array => $this->buildFieldDefMap($interface),
+            'interfaces' => fn (): array => $this->buildImplementationsList($interface),
         ]);
     }
 
@@ -422,9 +412,7 @@ class BuildClientSchema
         return new InputObjectType([
             'name' => $inputObject['name'],
             'description' => $inputObject['description'],
-            'fields' => function () use ($inputObject): array {
-                return $this->buildInputValueDefMap($inputObject['inputFields']);
-            },
+            'fields' => fn (): array => $this->buildInputValueDefMap($inputObject['inputFields']),
         ]);
     }
 

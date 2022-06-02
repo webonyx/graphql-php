@@ -75,8 +75,8 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
       }
         ',
             [
-                $this->nonExecutableDefinition('Cow', 8, 12),
-                $this->nonExecutableDefinition('Dog', 12, 19),
+                $this->nonExecutableDefinition('"Cow"', 8, 7),
+                $this->nonExecutableDefinition('"Dog"', 12, 7),
             ]
         );
     }

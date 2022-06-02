@@ -7,7 +7,6 @@ In **graphql-php** enum type is an instance of `GraphQL\Type\Definition\EnumType
 which accepts configuration array in constructor:
 
 ```php
-<?php
 use GraphQL\Type\Definition\EnumType;
 
 $episodeEnum = new EnumType([
@@ -57,7 +56,6 @@ If internal representation of enumerated item is the same as item name, then you
 following shorthand for definition:
 
 ```php
-<?php
 use GraphQL\Type\Definition\EnumType;
 
 $episodeEnum = new EnumType([
@@ -68,8 +66,8 @@ $episodeEnum = new EnumType([
 ```
 
 which is equivalent of:
+
 ```php
-<?php
 use GraphQL\Type\Definition\EnumType;
 
 $episodeEnum = new EnumType([
@@ -86,7 +84,6 @@ $episodeEnum = new EnumType([
 which is in turn equivalent of the full form:
 
 ```php
-<?php
 use GraphQL\Type\Definition\EnumType;
 
 $episodeEnum = new EnumType([
@@ -106,7 +103,6 @@ representation of corresponding Enum item (**value** in config). **graphql-php**
 then serialize this **value** to **name** to include in response:
 
 ```php
-<?php
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -134,9 +130,8 @@ $heroType = new ObjectType([
     'fields' => [
         'appearsIn' => [
             'type' => $episodeEnum,
-            'resolve' => function() {
-                return 5; // Actual entry in response will be 'appearsIn' => 'EMPIRE'
-            }
+             // Actual entry in response will be 'appearsIn' => 'EMPIRE'
+            'resolve' => fn (): int => 5,
         ]
     ]
 ]);
@@ -148,7 +143,6 @@ GraphQL will treat enum input as **name** and convert it into **value** before p
 For example, given object type definition:
 
 ```php
-<?php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -160,9 +154,7 @@ $heroType = new ObjectType([
             'args' => [
                 'episode' => Type::nonNull($enumType)
             ],
-            'resolve' => function($hero, $args) {
-                return $args['episode'] === 5 ? true : false; 
-            }
+            'resolve' => fn ($hero, array $args): bool => $args['episode'] === 5,
         ]
     ]
 ]);

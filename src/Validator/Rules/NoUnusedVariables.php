@@ -25,7 +25,7 @@ class NoUnusedVariables extends ValidationRule
                 'leave' => function (OperationDefinitionNode $operation) use ($context): void {
                     $variableNameUsed = [];
                     $usages = $context->getRecursiveVariableUsages($operation);
-                    $opName = null !== $operation->name
+                    $opName = $operation->name !== null
                         ? $operation->name->value
                         : null;
 
@@ -54,7 +54,7 @@ class NoUnusedVariables extends ValidationRule
 
     public static function unusedVariableMessage(string $varName, ?string $opName = null): string
     {
-        return null !== $opName
+        return $opName !== null
             ? "Variable \"\${$varName}\" is never used in operation \"{$opName}\"."
             : "Variable \"\${$varName}\" is never used.";
     }

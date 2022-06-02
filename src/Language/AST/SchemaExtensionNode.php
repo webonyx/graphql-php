@@ -2,7 +2,7 @@
 
 namespace GraphQL\Language\AST;
 
-class SchemaTypeExtensionNode extends Node implements TypeExtensionNode
+class SchemaExtensionNode extends Node implements TypeSystemExtensionNode
 {
     public string $kind = NodeKind::SCHEMA_EXTENSION;
 

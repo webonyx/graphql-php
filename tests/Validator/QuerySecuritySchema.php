@@ -48,26 +48,24 @@ class QuerySecuritySchema
         return self::$humanType ??= new ObjectType(
             [
                 'name' => 'Human',
-                'fields' => static function (): array {
-                    return [
-                        'firstName' => ['type' => Type::nonNull(Type::string())],
-                        'dogs' => [
-                            'type' => Type::nonNull(
-                                Type::listOf(
-                                    Type::nonNull(self::buildDogType())
-                                )
-                            ),
-                            'complexity' => static function (int $childrenComplexity, array $args): int {
-                                $ownComplexity = isset($args['name'])
-                                    ? 1
-                                    : 10;
+                'fields' => static fn (): array => [
+                    'firstName' => ['type' => Type::nonNull(Type::string())],
+                    'dogs' => [
+                        'type' => Type::nonNull(
+                            Type::listOf(
+                                Type::nonNull(self::buildDogType())
+                            )
+                        ),
+                        'complexity' => static function (int $childrenComplexity, array $args): int {
+                            $ownComplexity = isset($args['name'])
+                                ? 1
+                                : 10;
 
-                                return $childrenComplexity + $ownComplexity;
-                            },
-                            'args' => ['name' => ['type' => Type::string()]],
-                        ],
-                    ];
-                },
+                            return $childrenComplexity + $ownComplexity;
+                        },
+                        'args' => ['name' => ['type' => Type::string()]],
+                    ],
+                ],
             ]
         );
     }

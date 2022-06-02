@@ -90,7 +90,7 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             $this->nodes = array_filter(iterator_to_array($nodes));
         } elseif (is_array($nodes)) {
             $this->nodes = array_filter($nodes);
-        } elseif (null !== $nodes) {
+        } elseif ($nodes !== null) {
             $this->nodes = [$nodes];
         } else {
             $this->nodes = null;
@@ -110,7 +110,7 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-        } elseif (null !== $previous) {
+        } elseif ($previous !== null) {
             $this->isClientSafe = false;
         } else {
             $this->isClientSafe = true;
@@ -158,7 +158,7 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             $message = (string) $error;
         }
 
-        $nonEmptyMessage = '' === $message
+        $nonEmptyMessage = $message === ''
             ? 'An unknown error occurred.'
             : $message;
 
@@ -178,9 +178,9 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
         $path = $this->getPath();
         $nodes = $this->getNodes();
 
-        return null !== $path
+        return $path !== null
             && count($path) > 0
-            && null !== $nodes
+            && $nodes !== null
             && count($nodes) > 0;
     }
 
@@ -239,11 +239,11 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             $nodes = $this->getNodes();
 
             $this->locations = [];
-            if (null !== $source && 0 !== count($positions)) {
+            if ($source !== null && count($positions) !== 0) {
                 foreach ($positions as $position) {
                     $this->locations[] = $source->getLocation($position);
                 }
-            } elseif (null !== $nodes && 0 !== count($nodes)) {
+            } elseif ($nodes !== null && count($nodes) !== 0) {
                 foreach ($nodes as $node) {
                     if (isset($node->loc->source)) {
                         $this->locations[] = $node->loc->source->getLocation($node->loc->start);
