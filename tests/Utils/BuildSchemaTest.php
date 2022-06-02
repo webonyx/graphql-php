@@ -63,12 +63,12 @@ class BuildSchemaTest extends TestCase
      *
      * @phpstan-param BuildSchemaOptions $options
      */
-    private function cycleSDL(string $sdl, $options = []): string
+    private function cycleSDL(string $sdl, array $options = []): string
     {
         $ast    = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($ast, null, $options);
 
-        return SchemaPrinter::doPrint($schema, $options);
+        return "\n" . SchemaPrinter::doPrint($schema);
     }
 
     private function printASTNode($obj): string
