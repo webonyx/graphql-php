@@ -61,7 +61,7 @@ final class BuildSchemaTest extends TestCaseBase
      * the SDL, parsed in a schema AST, materializing that schema AST into an
      * in-memory GraphQLSchema, and then finally printing that object into the SDL.
      */
-    private function assertCycle(string $sdl): void
+    private static function assertCycle(string $sdl): void
     {
         $ast = Parser::parse($sdl);
         $schema = BuildSchema::buildAST($ast);
