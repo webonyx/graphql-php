@@ -39,7 +39,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use function is_array;
 use function is_callable;
@@ -501,7 +501,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return true;
         }
 
-        $conditionalType = TypeInfo::typeFromAST($this->exeContext->schema, $typeConditionNode);
+        $conditionalType = AST::typeFromAST([$this->exeContext->schema, 'getType'], $typeConditionNode);
         if ($conditionalType === $type) {
             return true;
         }

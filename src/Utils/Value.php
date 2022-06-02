@@ -222,7 +222,7 @@ class Value
         }
 
         return $errors === []
-            ? self::ofValue($coercedValue)
+            ? self::ofValue($type->parseValue($coercedValue))
             : self::ofErrors($errors);
     }
 

@@ -34,8 +34,7 @@ use function str_replace;
 /**
  * Prints the contents of a Schema in schema definition language.
  *
- * @phpstan-type Options array{}
- * @psalm-type Options array<never, never>
+ * @phpstan-type Options array{sortTypes?: bool}
  */
 class SchemaPrinter
 {
@@ -115,6 +114,10 @@ class SchemaPrinter
     {
         $directives = array_filter($schema->getDirectives(), $directiveFilter);
         $types = array_filter($schema->getTypeMap(), $typeFilter);
+
+        if (isset($options['sortTypes']) && $options['sortTypes'] === true) {
+            ksort($types);
+        }
 
         $elements = [static::printSchemaDefinition($schema)];
 

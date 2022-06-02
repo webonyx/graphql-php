@@ -96,6 +96,11 @@ parameters:
 			path: src/Type/Definition/ObjectType.php
 
 		-
+			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\UnionType\\:\\:getTypes\\(\\) should return array\\<int, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\> but returns array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			count: 1
+			path: src/Type/Definition/UnionType.php
+
+		-
 			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\UnionType\\:\\:\\$types \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
 			count: 1
 			path: src/Type/Definition/UnionType.php
@@ -139,16 +144,6 @@ parameters:
 			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\}\\> does not accept array\\<int, mixed\\>\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with array\\{extensions\\: array\\{bar\\: 'foo'\\}\\} and array\\{data\\?\\: array\\<string, mixed\\>, errors\\?\\: array\\<int, array\\{message\\: string, locations\\?\\: array\\<int, array\\{line\\: int, column\\: int\\}\\>, path\\?\\: array\\<int, int\\|string\\>, extensions\\?\\: array\\<string, mixed\\>\\}\\>, extensions\\?\\: array\\<string, mixed\\>\\} will always evaluate to false\\.$#"
-			count: 1
-			path: tests/Executor/ExecutionResultTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with array\\{extensions\\: array\\{foo\\: 'bar'\\}\\} and array\\{data\\?\\: array\\<string, mixed\\>, errors\\?\\: array\\<int, array\\{message\\: string, locations\\?\\: array\\<int, array\\{line\\: int, column\\: int\\}\\>, path\\?\\: array\\<int, int\\|string\\>, extensions\\?\\: array\\<string, mixed\\>\\}\\>, extensions\\?\\: array\\<string, mixed\\>\\} will always evaluate to false\\.$#"
-			count: 1
-			path: tests/Executor/ExecutionResultTest.php
 
 		-
 			message: "#^Instanceof between mixed and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"

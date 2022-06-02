@@ -216,8 +216,7 @@ class Visitor
 
                 if ($isEdited) {
                     if ($node instanceof Node || $node instanceof NodeList) {
-                        // TODO should we use cloneDeep()?
-                        $node = clone $node;
+                        $node = $node->cloneDeep();
                     }
 
                     $editOffset = 0;

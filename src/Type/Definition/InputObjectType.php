@@ -20,6 +20,7 @@ use function is_string;
  *   name?: string|null,
  *   description?: string|null,
  *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
+ *   parseValue?: callable(array<string, mixed>): mixed,
  *   astNode?: InputObjectTypeDefinitionNode|null,
  *   extensionASTNodes?: array<int, InputObjectTypeExtensionNode>|null
  * }
@@ -140,6 +141,24 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         }
 
         $this->fields[$field->name] = $field;
+    }
+
+    /**
+     * Parses an externally provided value (query variable) to use as an input.
+     *
+     * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
+     *
+     * @param array<string, mixed> $value
+     *
+     * @return mixed
+     */
+    public function parseValue(array $value)
+    {
+        if (isset($this->config['parseValue'])) {
+            return $this->config['parseValue']($value);
+        }
+
+        return $value;
     }
 
     /**

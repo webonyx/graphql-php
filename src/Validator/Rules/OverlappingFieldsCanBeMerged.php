@@ -23,8 +23,8 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\AST;
 use GraphQL\Utils\PairSet;
-use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\QueryValidationContext;
 use function implode;
 use function is_array;
@@ -272,7 +272,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     $typeCondition = $selection->typeCondition;
                     $inlineFragmentType = $typeCondition === null
                         ? $parentType
-                        : TypeInfo::typeFromAST($context->getSchema(), $typeCondition);
+                        : AST::typeFromAST([$context->getSchema(), 'getType'], $typeCondition);
 
                     $this->internalCollectFieldsAndFragmentNames(
                         $context,
@@ -712,7 +712,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             return $this->cachedFieldsAndFragmentNames[$fragment->selectionSet];
         }
 
-        $fragmentType = TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition);
+        $fragmentType = AST::typeFromAST([$context->getSchema(), 'getType'], $fragment->typeCondition);
 
         return $this->getFieldsAndFragmentNames(
             $context,

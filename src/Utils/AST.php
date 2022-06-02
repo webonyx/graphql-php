@@ -40,7 +40,6 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
 use function is_array;
 use function is_bool;
 use function is_float;
@@ -540,16 +539,17 @@ class AST
     /**
      * Returns type definition for given AST Type node.
      *
+     * @param callable(string): ?Type $typeLoader
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      *
      * @throws Exception
      *
      * @api
      */
-    public static function typeFromAST(Schema $schema, Node $inputTypeNode): ?Type
+    public static function typeFromAST(callable $typeLoader, Node $inputTypeNode): ?Type
     {
         if ($inputTypeNode instanceof ListTypeNode) {
-            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
+            $innerType = self::typeFromAST($typeLoader, $inputTypeNode->type);
 
             return $innerType === null
                 ? null
@@ -557,7 +557,7 @@ class AST
         }
 
         if ($inputTypeNode instanceof NonNullTypeNode) {
-            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
+            $innerType = self::typeFromAST($typeLoader, $inputTypeNode->type);
             if ($innerType === null) {
                 return null;
             }
@@ -567,7 +567,7 @@ class AST
             return new NonNull($innerType);
         }
 
-        return $schema->getType($inputTypeNode->name->value);
+        return $typeLoader($inputTypeNode->name->value);
     }
 
     /**

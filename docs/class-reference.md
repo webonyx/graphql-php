@@ -2489,13 +2489,14 @@ static function valueFromASTUntyped(GraphQL\Language\AST\Node $valueNode, ?array
 /**
  * Returns type definition for given AST Type node.
  *
+ * @param callable(string): ?Type $typeLoader
  * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
  *
  * @throws Exception
  *
  * @api
  */
-static function typeFromAST(GraphQL\Type\Schema $schema, GraphQL\Language\AST\Node $inputTypeNode): ?GraphQL\Type\Definition\Type
+static function typeFromAST(callable $typeLoader, GraphQL\Language\AST\Node $inputTypeNode): ?GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -2526,8 +2527,7 @@ static function concatAST(array $documents): GraphQL\Language\AST\DocumentNode
 
 Prints the contents of a Schema in schema definition language.
 
-@phpstan-type Options array{}
-@psalm-type Options array<never, never>
+@phpstan-type Options array{sortTypes?: bool}
 
 ### GraphQL\Utils\SchemaPrinter Methods
 
