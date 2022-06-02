@@ -41,7 +41,7 @@ use function preg_match;
 use function preg_replace;
 use function trim;
 
-class BuildSchemaTest extends TestCaseBase
+final class BuildSchemaTest extends TestCaseBase
 {
     use ArraySubsetAsserts;
 
