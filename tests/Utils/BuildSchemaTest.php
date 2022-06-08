@@ -37,24 +37,10 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\Rules\KnownDirectives;
-use function preg_match;
-use function preg_replace;
-use function trim;
 
 final class BuildSchemaTest extends TestCaseBase
 {
     use ArraySubsetAsserts;
-
-    protected function dedent(string $str): string
-    {
-        $trimmedStr = trim($str, "\n");
-        $trimmedStr = preg_replace('/[ \t]*$/', '', $trimmedStr);
-
-        preg_match('/^[ \t]*/', $trimmedStr, $indentMatch); // @phpstan-ignore-line dedent() will be removed
-        $indent = $indentMatch[0];
-
-        return preg_replace('/^' . $indent . '/m', '', $trimmedStr); // @phpstan-ignore-line dedent() will be removed
-    }
 
     /**
      * This function does a full cycle of going from a string with the contents of
@@ -169,9 +155,10 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testEmptyType(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type EmptyType
-        ');
+
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -180,7 +167,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSimpleType(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type Query {
               str: String
               int: Int
@@ -188,7 +175,8 @@ final class BuildSchemaTest extends TestCaseBase
               id: ID
               bool: Boolean
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
 
         $schema = BuildSchema::build($sdl);
@@ -224,11 +212,12 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testWithDirectives(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             directive @foo(arg: Int) on FIELD
             
             directive @repeatableFoo(arg: Int) repeatable on FIELD
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -243,7 +232,7 @@ final class BuildSchemaTest extends TestCaseBase
               query: Query
             }
         */
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             """This is a directive"""
             directive @foo(
               """It has an argument"""
@@ -282,7 +271,8 @@ final class BuildSchemaTest extends TestCaseBase
               """And a field to boot"""
               str: String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -329,9 +319,10 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testAddingDirectivesMaintainsIncludeSkipAndSpecifiedBy(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             directive @foo(arg: Int) on FIELD
-        ');
+            
+            GRAPHQL;
         $schema = BuildSchema::buildAST(Parser::parse($sdl));
 
         // TODO switch to 5 when adding @specifiedBy - see https://github.com/webonyx/graphql-php/issues/1140
@@ -350,7 +341,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testTypeModifiers(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type Query {
               nonNullStr: String!
               listOfStrings: [String]
@@ -358,7 +349,8 @@ final class BuildSchemaTest extends TestCaseBase
               nonNullListOfStrings: [String]!
               nonNullListOfNonNullStrings: [String!]!
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -367,12 +359,13 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testRecursiveType(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type Query {
               str: String
               recurse: Query
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -381,7 +374,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testTwoTypesCircular(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type TypeOne {
               str: String
               typeTwo: TypeTwo
@@ -391,7 +384,8 @@ final class BuildSchemaTest extends TestCaseBase
               str: String
               typeOne: TypeOne
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -400,7 +394,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSingleArgumentField(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type Query {
               str(int: Int): String
               floatToStr(float: Float): String
@@ -408,7 +402,8 @@ final class BuildSchemaTest extends TestCaseBase
               booleanToStr(bool: Boolean): String
               strToStr(bool: String): String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -417,11 +412,12 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSimpleTypeWithMultipleArguments(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type Query {
               str(int: Int, bool: Boolean): String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -430,9 +426,10 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testEmptyInterface(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             interface EmptyInterface
-        ');
+            
+            GRAPHQL;
 
         $definition = Parser::parse($sdl)->definitions[0];
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $definition);
@@ -446,7 +443,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSimpleTypeWithInterface(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type Query implements WorldInterface {
               str: String
             }
@@ -454,7 +451,8 @@ final class BuildSchemaTest extends TestCaseBase
             interface WorldInterface {
               str: String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -464,7 +462,7 @@ final class BuildSchemaTest extends TestCaseBase
     public function testSimpleInterfaceHierarchy(): void
     {
         // `graphql-js` has `query: Child` but that's incorrect as `query` has to be Object type
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             schema {
               query: Hello
             }
@@ -480,7 +478,8 @@ final class BuildSchemaTest extends TestCaseBase
             interface Parent {
               str: String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -489,9 +488,10 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testEmptyEnum(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             enum EmptyEnum
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -500,7 +500,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSimpleOutputEnum(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             enum Hello {
               WORLD
             }
@@ -508,7 +508,8 @@ final class BuildSchemaTest extends TestCaseBase
             type Query {
               hello: Hello
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -517,7 +518,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSimpleInputEnum(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             enum Hello {
               WORLD
             }
@@ -525,7 +526,8 @@ final class BuildSchemaTest extends TestCaseBase
             type Query {
               str(hello: Hello): String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -534,7 +536,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testMultipleValueEnum(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             enum Hello {
               WO
               RLD
@@ -543,7 +545,8 @@ final class BuildSchemaTest extends TestCaseBase
             type Query {
               hello: Hello
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -552,9 +555,10 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testEmptyUnion(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             union EmptyUnion
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -563,7 +567,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSimpleUnion(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             union Hello = World
             
             type Query {
@@ -573,7 +577,8 @@ final class BuildSchemaTest extends TestCaseBase
             type World {
               str: String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -582,7 +587,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testMultipleUnion(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             union Hello = WorldOne | WorldTwo
             
             type Query {
@@ -596,7 +601,8 @@ final class BuildSchemaTest extends TestCaseBase
             type WorldTwo {
               str: String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -621,13 +627,14 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testCustomScalar(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             scalar CustomScalar
             
             type Query {
               customScalar: CustomScalar
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -636,9 +643,10 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testEmptyInputObject(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             input EmptyInputObject
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -647,7 +655,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testInputObject(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             input Input {
               int: Int
             }
@@ -655,7 +663,8 @@ final class BuildSchemaTest extends TestCaseBase
             type Query {
               field(in: Input): String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -664,11 +673,12 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSimpleArgumentFieldWithDefault(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type Query {
               str(int: Int = 2): String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -677,13 +687,14 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testCustomScalarArgumentFieldWithDefault(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             scalar CustomScalar
             
             type Query {
               str(int: CustomScalar = 2): String
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -692,7 +703,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSimpleTypeWithMutation(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             schema {
               query: HelloScalars
               mutation: Mutation
@@ -707,7 +718,8 @@ final class BuildSchemaTest extends TestCaseBase
             type Mutation {
               addHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -716,7 +728,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSimpleTypeWithSubscription(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             schema {
               query: HelloScalars
               subscription: Subscription
@@ -731,7 +743,8 @@ final class BuildSchemaTest extends TestCaseBase
             type Subscription {
               subscribeHelloScalars(str: String, int: Int, bool: Boolean): HelloScalars
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -740,7 +753,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testUnreferencedTypeImplementingReferencedInterface(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type Concrete implements Interface {
               key: String
             }
@@ -752,7 +765,8 @@ final class BuildSchemaTest extends TestCaseBase
             type Query {
               interface: Interface
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -761,7 +775,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testUnreferencedInterfaceImplementingReferencedInterface(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             interface Child implements Parent {
               key: String
             }
@@ -773,7 +787,8 @@ final class BuildSchemaTest extends TestCaseBase
             type Query {
               iface: Parent
             }
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -782,7 +797,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testUnreferencedTypeImplementingReferencedUnion(): void
     {
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             type Concrete {
               key: String
             }
@@ -792,7 +807,8 @@ final class BuildSchemaTest extends TestCaseBase
             }
             
             union Union = Concrete
-        ');
+            
+            GRAPHQL;
         self::assertCycle($sdl);
     }
 
@@ -802,7 +818,7 @@ final class BuildSchemaTest extends TestCaseBase
     public function testSupportsDeprecated(): void
     {
         // TODO restore @deprecated on inputs - see https://github.com/webonyx/graphql-php/issues/110
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             enum MyEnum {
               VALUE
               OLD_VALUE @deprecated
@@ -823,7 +839,8 @@ final class BuildSchemaTest extends TestCaseBase
               field4(oldArg: String, arg: String): String
               field5(arg: MyInput): String
             }
-        ');
+            
+            GRAPHQL;
 
         self::assertCycle($sdl);
 
@@ -875,13 +892,14 @@ final class BuildSchemaTest extends TestCaseBase
     public function testSupportsSpecifiedBy(): void
     {
         self::markTestSkipped('See https://github.com/webonyx/graphql-php/issues/1140');
-        $sdl = $this->dedent('
+        $sdl = <<<GRAPHQL
             scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
             
             type Query {
               foo: Foo @deprecated
             }
-        ');
+            
+            GRAPHQL;
 
         self::assertCycle($sdl);
 
