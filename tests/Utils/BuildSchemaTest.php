@@ -1507,13 +1507,17 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame(['Query'], $created);
 
         $schema->getType('Color');
+        /** @var array<string> $created reset the type for PHPStan */
         self::assertSame(['Query', 'Color'], $created);
 
         $schema->getType('Hello');
+        /** @var array<string> $created reset the type for PHPStan */
         self::assertSame(['Query', 'Color', 'Hello'], $created);
 
         $types = $schema->getTypeMap();
+        /** @var array<string> $created reset the type for PHPStan */
         self::assertSame(['Query', 'Color', 'Hello', 'World'], $created);
+
         self::assertArrayHasKey('Query', $types);
         self::assertArrayHasKey('Color', $types);
         self::assertArrayHasKey('Hello', $types);
