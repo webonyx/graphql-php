@@ -292,10 +292,12 @@ final class BuildSchemaTest extends TestCaseBase
     {
         $schema = BuildSchema::buildAST(Parser::parse('type Query'));
 
-        self::assertCount(4, $schema->getDirectives());
+        // TODO switch to 4 when adding @specifiedBy - see https://github.com/webonyx/graphql-php/issues/1140
+        self::assertCount(3, $schema->getDirectives());
         self::assertEquals(Directive::skipDirective(), $schema->getDirective('skip'));
         self::assertEquals(Directive::includeDirective(), $schema->getDirective('include'));
         self::assertEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
+
         self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
         self::assertEquals(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
@@ -311,10 +313,12 @@ final class BuildSchemaTest extends TestCaseBase
             directive @deprecated on FIELD_DEFINITION
             directive @specifiedBy on FIELD_DEFINITION
         '));
+
         self::assertCount(4, $schema->getDirectives());
         self::assertNotEquals(Directive::skipDirective(), $schema->getDirective('skip'));
         self::assertNotEquals(Directive::includeDirective(), $schema->getDirective('include'));
         self::assertNotEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
+
         self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
         self::assertNotEquals(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
@@ -328,12 +332,16 @@ final class BuildSchemaTest extends TestCaseBase
             directive @foo(arg: Int) on FIELD
         ');
         $schema = BuildSchema::buildAST(Parser::parse($sdl));
-        self::assertCount(5, $schema->getDirectives());
-        self::assertNotEquals(null, $schema->getDirective('skip'));
-        self::assertNotEquals(null, $schema->getDirective('include'));
-        self::assertNotEquals(null, $schema->getDirective('deprecated'));
+
+        // TODO switch to 5 when adding @specifiedBy - see https://github.com/webonyx/graphql-php/issues/1140
+        self::assertCount(4, $schema->getDirectives());
+        self::assertNotNull($schema->getDirective('foo'));
+        self::assertNotNull($schema->getDirective('skip'));
+        self::assertNotNull($schema->getDirective('include'));
+        self::assertNotNull($schema->getDirective('deprecated'));
+
         self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
-        self::assertNotEquals(null, $schema->getDirective('specifiedBy'));
+        self::assertNotNull($schema->getDirective('specifiedBy'));
     }
 
     /**
