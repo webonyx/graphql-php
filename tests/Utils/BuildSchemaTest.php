@@ -98,9 +98,9 @@ final class BuildSchemaTest extends TestCaseBase
             }
         '));
 
-        $data = ['str' => 123];
+        $data = ['str' => '123'];
 
-        self::assertEquals(
+        self::assertSame(
             [
                 'data' => $data,
             ],
@@ -128,7 +128,7 @@ final class BuildSchemaTest extends TestCaseBase
             '{ add(x: 34, y: 55) }',
             $root
         );
-        self::assertEquals(['data' => ['add' => 89]], $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
+        self::assertSame(['data' => ['add' => 89]], $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
     /**
@@ -160,8 +160,8 @@ final class BuildSchemaTest extends TestCaseBase
             new DocumentNode(['definitions' => new NodeList([])])
         );
 
-        self::assertEquals($schema->getDirectives(), $sdlSchema->getDirectives());
-        self::assertEquals($schema->getTypeMap(), $sdlSchema->getTypeMap());
+        self::assertSame($schema->getDirectives(), $sdlSchema->getDirectives());
+        self::assertSame($schema->getTypeMap(), $sdlSchema->getTypeMap());
     }
 
     /**
@@ -294,12 +294,12 @@ final class BuildSchemaTest extends TestCaseBase
 
         // TODO switch to 4 when adding @specifiedBy - see https://github.com/webonyx/graphql-php/issues/1140
         self::assertCount(3, $schema->getDirectives());
-        self::assertEquals(Directive::skipDirective(), $schema->getDirective('skip'));
-        self::assertEquals(Directive::includeDirective(), $schema->getDirective('include'));
-        self::assertEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
+        self::assertSame(Directive::skipDirective(), $schema->getDirective('skip'));
+        self::assertSame(Directive::includeDirective(), $schema->getDirective('include'));
+        self::assertSame(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
 
         self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
-        self::assertEquals(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
+        self::assertSame(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
 
     /**
@@ -838,33 +838,33 @@ final class BuildSchemaTest extends TestCaseBase
         $oldValue = $myEnum->getValue('OLD_VALUE');
         self::assertInstanceOf(EnumValueDefinition::class, $oldValue);
         self::assertTrue($oldValue->isDeprecated());
-        self::assertEquals('No longer supported', $oldValue->deprecationReason);
+        self::assertSame('No longer supported', $oldValue->deprecationReason);
 
         $otherValue = $myEnum->getValue('OTHER_VALUE');
         self::assertInstanceOf(EnumValueDefinition::class, $otherValue);
         self::assertTrue($otherValue->isDeprecated());
-        self::assertEquals('Terrible reasons', $otherValue->deprecationReason);
+        self::assertSame('Terrible reasons', $otherValue->deprecationReason);
 
         $queryType = $schema->getType('Query');
         self::assertInstanceOf(ObjectType::class, $queryType);
 
         $rootFields = $queryType->getFields();
-        self::assertEquals(true, $rootFields['field1']->isDeprecated());
-        self::assertEquals('No longer supported', $rootFields['field1']->deprecationReason);
+        self::assertSame(true, $rootFields['field1']->isDeprecated());
+        self::assertSame('No longer supported', $rootFields['field1']->deprecationReason);
 
-        self::assertEquals(true, $rootFields['field2']->isDeprecated());
-        self::assertEquals('Because I said so', $rootFields['field2']->deprecationReason);
+        self::assertSame(true, $rootFields['field2']->isDeprecated());
+        self::assertSame('Because I said so', $rootFields['field2']->deprecationReason);
 
         self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/110');
         $type = $schema->getType('MyInput');
         self::assertInstanceOf(InputObjectType::class, $type);
         $inputFields = $type->getFields();
-        self::assertEquals(null, $inputFields['newInput']->deprecationReason);
-        self::assertEquals('No longer supported', $inputFields['oldInput']->deprecationReason);
-        self::assertEquals('Use newInput', $inputFields['otherInput']->deprecationReason);
+        self::assertSame(null, $inputFields['newInput']->deprecationReason);
+        self::assertSame('No longer supported', $inputFields['oldInput']->deprecationReason);
+        self::assertSame('Use newInput', $inputFields['otherInput']->deprecationReason);
 
-        self::assertEquals('No longer supported', $rootFields['field3']->args[0]->deprecationReason);
-        self::assertEquals('Why not?', $rootFields['field4']->args[0]->deprecationReason);
+        self::assertSame('No longer supported', $rootFields['field3']->args[0]->deprecationReason);
+        self::assertSame('Why not?', $rootFields['field4']->args[0]->deprecationReason);
     }
 
     /**
@@ -885,7 +885,7 @@ final class BuildSchemaTest extends TestCaseBase
 
         $schema = BuildSchema::build($sdl);
 
-        self::assertEquals('https://example.com/foo_spec', $schema->getType('Foo')->specifiedByURL);
+        self::assertSame('https://example.com/foo_spec', $schema->getType('Foo')->specifiedByURL);
     }
 
     /**
@@ -915,8 +915,8 @@ final class BuildSchemaTest extends TestCaseBase
             scalar SomeScalar
             GRAPHQL;
 
-        self::assertEquals($expectedSomeScalarSDL, SchemaPrinter::printType($someScalar));
-        self::assertEquals($scalarSDL, $this->printAllASTNodes($someScalar));
+        self::assertSame($expectedSomeScalarSDL, SchemaPrinter::printType($someScalar));
+        self::assertSame($scalarSDL, $this->printAllASTNodes($someScalar));
     }
 
     /**
@@ -957,8 +957,8 @@ final class BuildSchemaTest extends TestCaseBase
             }
             GRAPHQL;
 
-        self::assertEquals($expectedSomeObjectSDL, SchemaPrinter::printType($someObject));
-        self::assertEquals($objectSDL, $this->printAllASTNodes($someObject));
+        self::assertSame($expectedSomeObjectSDL, SchemaPrinter::printType($someObject));
+        self::assertSame($objectSDL, $this->printAllASTNodes($someObject));
     }
 
     /**
@@ -994,8 +994,8 @@ final class BuildSchemaTest extends TestCaseBase
             }
             GRAPHQL;
 
-        self::assertEquals($expectedSomeInterfaceSDL, SchemaPrinter::printType($someInterface));
-        self::assertEquals($interfaceSDL, $this->printAllASTNodes($someInterface));
+        self::assertSame($expectedSomeInterfaceSDL, SchemaPrinter::printType($someInterface));
+        self::assertSame($interfaceSDL, $this->printAllASTNodes($someInterface));
     }
 
     /**
@@ -1026,8 +1026,8 @@ final class BuildSchemaTest extends TestCaseBase
             union SomeUnion = FirstType | SecondType | ThirdType
             GRAPHQL;
 
-        self::assertEquals($expectedSomeUnionSDL, SchemaPrinter::printType($someUnion));
-        self::assertEquals($unionSDL, $this->printAllASTNodes($someUnion));
+        self::assertSame($expectedSomeUnionSDL, SchemaPrinter::printType($someUnion));
+        self::assertSame($unionSDL, $this->printAllASTNodes($someUnion));
     }
 
     /**
@@ -1063,8 +1063,8 @@ final class BuildSchemaTest extends TestCaseBase
             }
             GRAPHQL;
 
-        self::assertEquals($expectedSomeEnumSDL, SchemaPrinter::printType($someEnum));
-        self::assertEquals($enumSDL, $this->printAllASTNodes($someEnum));
+        self::assertSame($expectedSomeEnumSDL, SchemaPrinter::printType($someEnum));
+        self::assertSame($enumSDL, $this->printAllASTNodes($someEnum));
     }
 
     /**
@@ -1100,8 +1100,8 @@ final class BuildSchemaTest extends TestCaseBase
             }
             GRAPHQL;
 
-        self::assertEquals($expectedSomeInputSDL, SchemaPrinter::printType($someInput));
-        self::assertEquals($inputSDL, $this->printAllASTNodes($someInput));
+        self::assertSame($expectedSomeInputSDL, SchemaPrinter::printType($someInput));
+        self::assertSame($inputSDL, $this->printAllASTNodes($someInput));
     }
 
     /**
@@ -1208,7 +1208,7 @@ final class BuildSchemaTest extends TestCaseBase
             $testDirectiveAst,
         ]);
 
-        self::assertEquals($schemaASTDefinitions, $ast->definitions);
+        self::assertSame($schemaASTDefinitions, $ast->definitions);
 
         $testField = $query->getField('testField');
         self::assertASTMatches('testField(testArg: TestInput): TestUnion', $testField->astNode);
@@ -1238,15 +1238,15 @@ final class BuildSchemaTest extends TestCaseBase
 
         $query = $schema->getQueryType();
         self::assertInstanceOf(ObjectType::class, $query);
-        self::assertEquals('SomeQuery', $query->name);
+        self::assertSame('SomeQuery', $query->name);
 
         $mutation = $schema->getMutationType();
         self::assertInstanceOf(ObjectType::class, $mutation);
-        self::assertEquals('SomeMutation', $mutation->name);
+        self::assertSame('SomeMutation', $mutation->name);
 
         $subscription = $schema->getSubscriptionType();
         self::assertInstanceOf(ObjectType::class, $subscription);
-        self::assertEquals('SomeSubscription', $subscription->name);
+        self::assertSame('SomeSubscription', $subscription->name);
     }
 
     /**
@@ -1262,15 +1262,15 @@ final class BuildSchemaTest extends TestCaseBase
 
         $query = $schema->getQueryType();
         self::assertInstanceOf(ObjectType::class, $query);
-        self::assertEquals('Query', $query->name);
+        self::assertSame('Query', $query->name);
 
         $mutation = $schema->getMutationType();
         self::assertInstanceOf(ObjectType::class, $mutation);
-        self::assertEquals('Mutation', $mutation->name);
+        self::assertSame('Mutation', $mutation->name);
 
         $subscription = $schema->getSubscriptionType();
         self::assertInstanceOf(ObjectType::class, $subscription);
-        self::assertEquals('Subscription', $subscription->name);
+        self::assertSame('Subscription', $subscription->name);
     }
 
     /**
@@ -1317,7 +1317,7 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertNotNull($queryType);
         $type = $queryType->getField('introspectionField')->getType();
         self::assertInstanceOf(ObjectType::class, $type);
-        self::assertEquals('__EnumValue', $type->name);
+        self::assertSame('__EnumValue', $type->name);
         self::assertSame(Introspection::_enumValue(), $schema->getType('__EnumValue'));
     }
 
@@ -1416,24 +1416,24 @@ final class BuildSchemaTest extends TestCaseBase
 
         $schema = BuildSchema::buildAST($doc, $typeConfigDecorator);
         $schema->getTypeMap();
-        self::assertEquals(['Query', 'Color', 'Hello'], $decorated);
+        self::assertSame(['Query', 'Color', 'Hello'], $decorated);
 
         [$defaultConfig, $node, $allNodesMap] = $calls[0]; // type Query
         self::assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
-        self::assertEquals('Query', $defaultConfig['name']);
+        self::assertSame('Query', $defaultConfig['name']);
         self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
         self::assertInstanceOf(Closure::class, $defaultConfig['interfaces']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertCount(6, $defaultConfig);
-        self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
 
         $query = $schema->getType('Query');
         self::assertInstanceOf(ObjectType::class, $query);
-        self::assertEquals('My description of Query', $query->description);
+        self::assertSame('My description of Query', $query->description);
 
         [$defaultConfig, $node, $allNodesMap] = $calls[1]; // enum Color
         self::assertInstanceOf(EnumTypeDefinitionNode::class, $node);
-        self::assertEquals('Color', $defaultConfig['name']);
+        self::assertSame('Color', $defaultConfig['name']);
         $enumValue = [
             'description' => '',
             'deprecationReason' => '',
@@ -1447,24 +1447,24 @@ final class BuildSchemaTest extends TestCaseBase
             $defaultConfig['values']
         );
         self::assertCount(5, $defaultConfig); // 3 + astNode + extensionASTNodes
-        self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
 
         $color = $schema->getType('Color');
         self::assertInstanceOf(EnumType::class, $color);
-        self::assertEquals('My description of Color', $color->description);
+        self::assertSame('My description of Color', $color->description);
 
         [$defaultConfig, $node, $allNodesMap] = $calls[2]; // interface Hello
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
-        self::assertEquals('Hello', $defaultConfig['name']);
+        self::assertSame('Hello', $defaultConfig['name']);
         self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertArrayHasKey('interfaces', $defaultConfig);
         self::assertCount(6, $defaultConfig);
-        self::assertEquals(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
 
         $hello = $schema->getType('Hello');
         self::assertInstanceOf(InterfaceType::class, $hello);
-        self::assertEquals('My description of Hello', $hello->description);
+        self::assertSame('My description of Hello', $hello->description);
     }
 
     public function testCreatesTypesLazily(): void
@@ -1504,16 +1504,16 @@ final class BuildSchemaTest extends TestCaseBase
         };
 
         $schema = BuildSchema::buildAST($doc, $typeConfigDecorator);
-        self::assertEquals(['Query'], $created);
+        self::assertSame(['Query'], $created);
 
         $schema->getType('Color');
-        self::assertEquals(['Query', 'Color'], $created);
+        self::assertSame(['Query', 'Color'], $created);
 
         $schema->getType('Hello');
-        self::assertEquals(['Query', 'Color', 'Hello'], $created);
+        self::assertSame(['Query', 'Color', 'Hello'], $created);
 
         $types = $schema->getTypeMap();
-        self::assertEquals(['Query', 'Color', 'Hello', 'World'], $created);
+        self::assertSame(['Query', 'Color', 'Hello', 'World'], $created);
         self::assertArrayHasKey('Query', $types);
         self::assertArrayHasKey('Color', $types);
         self::assertArrayHasKey('Hello', $types);
@@ -1537,7 +1537,7 @@ final class BuildSchemaTest extends TestCaseBase
         $schema = BuildSchema::build($sdl);
         $myType = $schema->getType('MyType');
         self::assertNotNull($myType);
-        self::assertEquals($expectedSdl, SchemaPrinter::printType($myType));
+        self::assertSame($expectedSdl, SchemaPrinter::printType($myType));
         self::assertCount(\count($sdlExts), $myType->extensionASTNodes);
         $assert($myType);
     }
