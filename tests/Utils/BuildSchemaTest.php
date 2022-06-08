@@ -851,17 +851,17 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertInstanceOf(ObjectType::class, $queryType);
 
         $rootFields = $queryType->getFields();
-        self::assertSame(true, $rootFields['field1']->isDeprecated());
+        self::assertTrue($rootFields['field1']->isDeprecated());
         self::assertSame('No longer supported', $rootFields['field1']->deprecationReason);
 
-        self::assertSame(true, $rootFields['field2']->isDeprecated());
+        self::assertTrue($rootFields['field2']->isDeprecated());
         self::assertSame('Because I said so', $rootFields['field2']->deprecationReason);
 
         self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/110');
         $type = $schema->getType('MyInput');
         self::assertInstanceOf(InputObjectType::class, $type);
         $inputFields = $type->getFields();
-        self::assertSame(null, $inputFields['newInput']->deprecationReason);
+        self::assertNull($inputFields['newInput']->deprecationReason);
         self::assertSame('No longer supported', $inputFields['oldInput']->deprecationReason);
         self::assertSame('Use newInput', $inputFields['otherInput']->deprecationReason);
 
@@ -1198,7 +1198,7 @@ final class BuildSchemaTest extends TestCaseBase
         $testDirectiveAst = $testDirective->astNode;
         self::assertInstanceOf(DirectiveDefinitionNode::class, $testDirectiveAst);
 
-        $schemaASTDefinitions = new NodeList([
+        self::assertSame([
             $schemaAst,
             $queryAst,
             $testInputAst,
@@ -1208,9 +1208,7 @@ final class BuildSchemaTest extends TestCaseBase
             $testTypeAst,
             $testScalarAst,
             $testDirectiveAst,
-        ]);
-
-        self::assertSame($schemaASTDefinitions, $ast->definitions);
+        ], iterator_to_array($ast->definitions));
 
         $testField = $query->getField('testField');
         self::assertASTMatches('testField(testArg: TestInput): TestUnion', $testField->astNode);
