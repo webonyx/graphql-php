@@ -833,7 +833,7 @@ class IntrospectionTest extends TestCase
                     ],
                     'directives' => [
                         [
-                            'name' => 'skip',
+                            'name' => 'include',
                             'args' => [
                                 0 => [
                                     'name' => 'if',
@@ -857,7 +857,7 @@ class IntrospectionTest extends TestCase
                             ],
                         ],
                         [
-                            'name' => 'include',
+                            'name' => 'skip',
                             'args' => [
                                 0 => [
                                     'name' => 'if',

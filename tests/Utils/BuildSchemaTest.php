@@ -160,7 +160,7 @@ final class BuildSchemaTest extends TestCaseBase
             new DocumentNode(['definitions' => new NodeList([])])
         );
 
-        self::assertSame($schema->getDirectives(), $sdlSchema->getDirectives());
+        self::assertEquals(array_values($schema->getDirectives()), $sdlSchema->getDirectives());
         self::assertSame($schema->getTypeMap(), $sdlSchema->getTypeMap());
     }
 
