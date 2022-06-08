@@ -237,12 +237,13 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSupportsDescriptions(): void
     {
-        $sdl = $this->dedent('
+        /* TODO add schema description - see https://github.com/webonyx/graphql-php/issues/1158
             """Do you agree that this is the most creative schema ever?"""
             schema {
               query: Query
             }
-
+        */
+        $sdl = $this->dedent('
             """This is a directive"""
             directive @foo(
               """It has an argument"""
