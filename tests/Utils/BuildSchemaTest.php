@@ -801,6 +801,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSupportsDeprecated(): void
     {
+        // TODO restore @deprecated on inputs - see https://github.com/webonyx/graphql-php/issues/110
         $sdl = $this->dedent('
             enum MyEnum {
               VALUE
@@ -809,8 +810,8 @@ final class BuildSchemaTest extends TestCaseBase
             }
 
             input MyInput {
-              oldInput: String @deprecated
-              otherInput: String @deprecated(reason: "Use newInput")
+              oldInput: String
+              otherInput: String
               newInput: String
             }
             
@@ -818,8 +819,8 @@ final class BuildSchemaTest extends TestCaseBase
               field1: String @deprecated
               field2: Int @deprecated(reason: "Because I said so")
               enum: MyEnum
-              field3(oldArg: String @deprecated, arg: String): String
-              field4(oldArg: String @deprecated(reason: "Why not?"), arg: String): String
+              field3(oldArg: String, arg: String): String
+              field4(oldArg: String, arg: String): String
               field5(arg: MyInput): String
             }
         ');
