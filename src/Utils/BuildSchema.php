@@ -179,20 +179,18 @@ class BuildSchema
             $directiveDefs
         );
 
-        // If specified directives were not explicitly declared, add them.
         $directivesByName = [];
         foreach ($directives as $directive) {
             $directivesByName[$directive->name][] = $directive;
         }
 
-        if (! isset($directivesByName['skip'])) {
-            $directives[] = Directive::skipDirective();
-        }
-
+        // If specified directives were not explicitly declared, add them.
         if (! isset($directivesByName['include'])) {
             $directives[] = Directive::includeDirective();
         }
-
+        if (! isset($directivesByName['skip'])) {
+            $directives[] = Directive::skipDirective();
+        }
         if (! isset($directivesByName['deprecated'])) {
             $directives[] = Directive::deprecatedDirective();
         }
