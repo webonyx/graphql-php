@@ -442,42 +442,6 @@ class Helper
     }
 
     /**
-     * @param ExecutionResult|array<ExecutionResult> $result
-     */
-    protected function resolveHttpStatus($result): int
-    {
-        if (is_array($result) && isset($result[0])) {
-            foreach ($result as $index => $executionResult) {
-                // @phpstan-ignore-next-line unless PHP gains generic support, this is unsure
-                if (! $executionResult instanceof ExecutionResult) {
-                    throw new InvariantViolation(
-                        'Expecting every entry of batched query result to be instance of '
-                        . ExecutionResult::class . ' but entry at position ' . $index
-                        . ' is ' . Utils::printSafe($executionResult)
-                    );
-                }
-            }
-
-            $httpStatus = 200;
-        } else {
-            if (! $result instanceof ExecutionResult) {
-                throw new InvariantViolation(
-                    'Expecting query result to be instance of ' . ExecutionResult::class
-                    . ' but got ' . Utils::printSafe($result)
-                );
-            }
-
-            if ($result->data === null && count($result->errors) > 0) {
-                $httpStatus = 400;
-            } else {
-                $httpStatus = 200;
-            }
-        }
-
-        return $httpStatus;
-    }
-
-    /**
      * Converts PSR-7 request to OperationParams or an array thereof.
      *
      * @throws RequestError
