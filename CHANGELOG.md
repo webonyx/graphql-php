@@ -44,7 +44,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Align `Utils::suggestionList()` with the reference implementation (#1075)
 - Order schema topologically and according to the user-defined order, affects introspection and printing
 - `GraphQL\Utils\AST::typeFromAST()` now needs a type loader callable instead of the Schema
-- Removed `GraphQL\Utils\TypeInfo::typeFromAST()` (use `GraphQL\Utils\AST::typeFromAST()` instead)
+- Do not change HTTP status code in `StandardServer`
 
 ### Added
 
@@ -124,6 +124,9 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove argument `bool $exitWhenDone` from `StandardServer::send500Error()` and `StandardServer::handleRequest()`
 - Remove `Schema::getAstNode()` in favor of `Schema::$astNode`
 - Remove ability to override standard types through `Schema` option `types`, use `Type::overrideStandardTypes()`
+- Remove `GraphQL\Utils\TypeInfo::typeFromAST()`, use `GraphQL\Utils\AST::typeFromAST()`
+- Remove `StandardServer::send500Error()`, handle non-GraphQL errors yourself
+- Remove `StandardServer::getHelper()`, use `new Helper`
 
 ## 14.11.6
 

@@ -415,30 +415,20 @@ class Helper
     {
         if ($result instanceof Promise) {
             $result->then(function ($actualResult): void {
-                $this->doSendResponse($actualResult);
+                $this->emitResponse($actualResult);
             });
         } else {
-            $this->doSendResponse($result);
+            $this->emitResponse($result);
         }
-    }
-
-    /**
-     * @param ExecutionResult|array<ExecutionResult> $result
-     */
-    protected function doSendResponse($result): void
-    {
-        $httpStatus = $this->resolveHttpStatus($result);
-        $this->emitResponse($result, $httpStatus);
     }
 
     /**
      * @param array<mixed>|JsonSerializable $jsonSerializable
      */
-    public function emitResponse($jsonSerializable, int $httpStatus): void
+    public function emitResponse($jsonSerializable): void
     {
-        $body = json_encode($jsonSerializable);
-        header('Content-Type: application/json', true, $httpStatus);
-        echo $body;
+        header('Content-Type: application/json');
+        echo json_encode($jsonSerializable);
     }
 
     protected function readRawBody(): string
@@ -449,42 +439,6 @@ class Helper
         }
 
         return $body;
-    }
-
-    /**
-     * @param ExecutionResult|array<ExecutionResult> $result
-     */
-    protected function resolveHttpStatus($result): int
-    {
-        if (is_array($result) && isset($result[0])) {
-            foreach ($result as $index => $executionResult) {
-                // @phpstan-ignore-next-line unless PHP gains generic support, this is unsure
-                if (! $executionResult instanceof ExecutionResult) {
-                    throw new InvariantViolation(
-                        'Expecting every entry of batched query result to be instance of '
-                        . ExecutionResult::class . ' but entry at position ' . $index
-                        . ' is ' . Utils::printSafe($executionResult)
-                    );
-                }
-            }
-
-            $httpStatus = 200;
-        } else {
-            if (! $result instanceof ExecutionResult) {
-                throw new InvariantViolation(
-                    'Expecting query result to be instance of ' . ExecutionResult::class
-                    . ' but got ' . Utils::printSafe($result)
-                );
-            }
-
-            if ($result->data === null && count($result->errors) > 0) {
-                $httpStatus = 400;
-            } else {
-                $httpStatus = 200;
-            }
-        }
-
-        return $httpStatus;
     }
 
     /**
@@ -607,7 +561,6 @@ class Helper
         $writableBodyStream->write(json_encode($result, JSON_THROW_ON_ERROR));
 
         return $response
-            ->withStatus($this->resolveHttpStatus($result))
             ->withHeader('Content-Type', 'application/json')
             ->withBody($writableBodyStream);
     }
