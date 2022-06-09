@@ -415,30 +415,20 @@ class Helper
     {
         if ($result instanceof Promise) {
             $result->then(function ($actualResult): void {
-                $this->doSendResponse($actualResult);
+                $this->emitResponse($actualResult);
             });
         } else {
-            $this->doSendResponse($result);
+            $this->emitResponse($result);
         }
-    }
-
-    /**
-     * @param ExecutionResult|array<ExecutionResult> $result
-     */
-    protected function doSendResponse($result): void
-    {
-        $httpStatus = $this->resolveHttpStatus($result);
-        $this->emitResponse($result, $httpStatus);
     }
 
     /**
      * @param array<mixed>|JsonSerializable $jsonSerializable
      */
-    public function emitResponse($jsonSerializable, int $httpStatus): void
+    public function emitResponse($jsonSerializable): void
     {
-        $body = json_encode($jsonSerializable);
-        header('Content-Type: application/json', true, $httpStatus);
-        echo $body;
+        header('Content-Type: application/json');
+        echo json_encode($jsonSerializable);
     }
 
     protected function readRawBody(): string
@@ -607,7 +597,6 @@ class Helper
         $writableBodyStream->write(json_encode($result, JSON_THROW_ON_ERROR));
 
         return $response
-            ->withStatus($this->resolveHttpStatus($result))
             ->withHeader('Content-Type', 'application/json')
             ->withBody($writableBodyStream);
     }
