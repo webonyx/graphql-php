@@ -1,6 +1,6 @@
 <?php
 // Test this using following command
-// php -S localhost:8080 ./graphql.php
+// php graphql.php
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use GraphQL\Examples\Blog\Type\QueryType;
