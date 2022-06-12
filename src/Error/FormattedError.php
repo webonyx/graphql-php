@@ -247,10 +247,6 @@ class FormattedError
     {
         $formatter ??= [self::class, 'createFromException'];
 
-        if ($debug !== DebugFlag::NONE) {
-            $formatter = static fn (Throwable $e): array => self::addDebugEntries($formatter($e), $e, $debug);
-        }
-
         return $formatter;
     }
 
