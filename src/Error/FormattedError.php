@@ -245,13 +245,9 @@ class FormattedError
      */
     public static function prepareFormatter(?callable $formatter, int $debug): callable
     {
-        $formatter ??= [self::class, 'createFromException'];
-
-        if ($debug !== DebugFlag::NONE) {
-            $formatter = static fn (Throwable $e): array => self::addDebugEntries($formatter($e), $e, $debug);
-        }
-
-        return $formatter;
+        return null === $formatter
+            ? static fn (Throwable $e): array => static::createFromException($e, $debug)
+            : static fn (Throwable $e): array => static::addDebugEntries($formatter($e), $e, $debug);
     }
 
     /**
