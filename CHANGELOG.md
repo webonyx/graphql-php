@@ -83,6 +83,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Clone `NodeList` in `Node::cloneDeep()`
 - Calling `Schema::getType()` on a schema built from SDL returns `null` for unknown types (#1068)
 - Avoid crash on typeless inline fragment when using `QueryComplexity` rule
+- Avoid calling `FormattedError::addDebugEntries()` twice when using default error formatting
 
 ### Removed
 
