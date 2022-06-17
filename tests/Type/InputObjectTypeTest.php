@@ -4,10 +4,14 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Examples\Blog\Types;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\BuildSchema;
+use GraphQL\Utils\SchemaExtender;
 use PHPUnit\Framework\TestCase;
 
 final class Tag
@@ -170,6 +174,99 @@ final class InputObjectTypeTest extends TestCase
             null,
             [
                 'input' => null,
+            ]
+        );
+
+        self::assertEquals(
+            ['data' => ['action' => true]],
+            $result->toArray()
+        );
+        GraphQL::executeQuery($schema, $query);
+    }
+
+    public function testParseWithResolveFnOnObject(): void
+    {
+
+        $schema = <<<SCHEMA
+schema {
+  mutation: Mutation
+}
+
+type Mutation {
+  action(input: StoryFiltersInput!): Boolean!
+}
+
+input Tag {
+  name: String
+  value: String
+}
+
+input StoryFiltersInput {
+  author: ID
+  popular: Boolean
+  tag: Tag
+}
+SCHEMA;
+
+        $extendedSchema = <<<SCHEMA
+extend input StoryFiltersInput {
+  valueFromExtended: String
+}
+SCHEMA;
+
+        $typeConfigDecorator = function (array $typeConfig, TypeDefinitionNode $node) {
+            switch ($typeConfig['name']) {
+                case 'Tag':
+                    $typeConfig['parseValue'] = static function (array $values) {
+                        return new Tag(
+                            $values['name'],
+                            $values['value'],
+                        );
+                    };
+                    break;
+                case 'StoryFiltersInput':
+                    $typeConfig['parseValue'] = static function (array $values) {
+                        return new StoryFiltersInput(
+                            $values['author'],
+                            $values['popular'],
+                            $values['tag'],
+                        );
+                    };
+                    break;
+                case 'Mutation':
+                    $typeConfig['resolveField'] = static function ($parent, $args) {
+                        return $args['input'] instanceof StoryFiltersInput;
+                    };
+                    break;
+            }
+
+            return $typeConfig;
+        };
+        $schema = BuildSchema::build(Parser::parse($schema), $typeConfigDecorator);
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse($extendedSchema),
+            [],
+            $typeConfigDecorator
+        );
+
+        $query = 'mutation DoAction($input: StoryFiltersInput!) { action(input: $input) }';
+
+        $result = GraphQL::executeQuery(
+            $schema,
+            $query,
+            null,
+            null,
+            [
+                'input' => [
+                    'author' => 'John',
+                    'popular' => true,
+                    'tag' => [
+                        'name' => 'foo',
+                        'value' => 'bar',
+                    ],
+                ],
             ]
         );
 
