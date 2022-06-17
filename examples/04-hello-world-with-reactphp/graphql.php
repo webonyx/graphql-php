@@ -24,13 +24,14 @@ use GraphQL\Type\Schema;
                 'args' => [
                     'message' => ['type' => Type::string()],
                 ],
-                'resolve' => function($rootValue, array $args){
+                'resolve' => function ($rootValue, array $args) {
                     $deferred = new \React\Promise\Deferred();
                     $promise = $deferred->promise();
-                    $promise = $promise->then(function()use($rootValue, $args){
+                    $promise = $promise->then(function () use ($rootValue, $args) {
                         return $rootValue['prefix'] . $args['message'];
                     });
                     $deferred->resolve();
+
                     return $promise;
                 },
             ],
@@ -59,23 +60,25 @@ use GraphQL\Type\Schema;
     ]);
 
     $react = new \GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter();
-    $server = new \React\Http\HttpServer(function (\Psr\Http\Message\ServerRequestInterface $request) use ($schema, $react) {
-            $rawInput = (string)$request->getBody();
-            $input = json_decode($rawInput, true);
-            $query = $input['query'];
-            $variableValues = $input['variables'] ?? null;
-            $rootValue = ['prefix' => 'You said: '];
-            $promise = GraphQL::promiseToExecute($react, $schema, $query, $rootValue, null, $variableValues);
-            return $promise->then(function (\GraphQL\Executor\ExecutionResult $result) {
-                $output = $result->toArray(1);
-                return new \React\Http\Message\Response(
-                    200,
-                    array(
-                        'Content-Type' => 'text/json'
-                    ),
-                    json_encode($output)
-                );
-            });
+    $server = new \React\Http\HttpServer(function (Psr\Http\Message\ServerRequestInterface $request) use ($schema, $react) {
+        $rawInput = (string) $request->getBody();
+        $input = json_decode($rawInput, true);
+        $query = $input['query'];
+        $variableValues = $input['variables'] ?? null;
+        $rootValue = ['prefix' => 'You said: '];
+        $promise = GraphQL::promiseToExecute($react, $schema, $query, $rootValue, null, $variableValues);
+
+        return $promise->then(function (GraphQL\Executor\ExecutionResult $result) {
+            $output = $result->toArray(1);
+
+            return new \React\Http\Message\Response(
+                200,
+                [
+                    'Content-Type' => 'text/json',
+                ],
+                json_encode($output)
+            );
+        });
     });
     $socket = new \React\Socket\SocketServer('127.0.0.1:8010');
     $server->listen($socket);
