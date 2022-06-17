@@ -43,6 +43,25 @@ final class StoryFiltersInput
     }
 }
 
+final class StoryFiltersInputExtended
+{
+    public string $author;
+
+    public bool $popular;
+
+    public Tag $tag;
+
+    public $valueFromExtended;
+
+    public function __construct(string $author, bool $popular, Tag $tag, ?string $valueFromExtended)
+    {
+        $this->author = $author;
+        $this->popular = $popular;
+        $this->tag = $tag;
+        $this->valueFromExtended = $valueFromExtended;
+    }
+}
+
 final class InputObjectTypeTest extends TestCase
 {
     public function testParseValue(): void
@@ -184,9 +203,7 @@ final class InputObjectTypeTest extends TestCase
         GraphQL::executeQuery($schema, $query);
     }
 
-    public function testParseWithResolveFnOnObject(): void
-    {
-
+    private function prepareExtendedSchema() {
         $schema = <<<SCHEMA
 schema {
   mutation: Mutation
@@ -226,16 +243,17 @@ SCHEMA;
                     break;
                 case 'StoryFiltersInput':
                     $typeConfig['parseValue'] = static function (array $values) {
-                        return new StoryFiltersInput(
+                        return new StoryFiltersInputExtended(
                             $values['author'],
                             $values['popular'],
                             $values['tag'],
+                            $values['valueFromExtended'] ?? null
                         );
                     };
                     break;
                 case 'Mutation':
                     $typeConfig['resolveField'] = static function ($parent, $args) {
-                        return $args['input'] instanceof StoryFiltersInput;
+                        return $args['input'] instanceof StoryFiltersInputExtended;
                     };
                     break;
             }
@@ -244,15 +262,18 @@ SCHEMA;
         };
         $schema = BuildSchema::build(Parser::parse($schema), $typeConfigDecorator);
 
-        $schema = SchemaExtender::extend(
+        return SchemaExtender::extend(
             $schema,
             Parser::parse($extendedSchema),
             [],
             $typeConfigDecorator
         );
+    }
 
+    public function testParseWithExtendedSchema(): void
+    {
+        $schema = $this->prepareExtendedSchema();
         $query = 'mutation DoAction($input: StoryFiltersInput!) { action(input: $input) }';
-
         $result = GraphQL::executeQuery(
             $schema,
             $query,
@@ -262,6 +283,7 @@ SCHEMA;
                 'input' => [
                     'author' => 'John',
                     'popular' => true,
+                    'valueFromExtended' => null,
                     'tag' => [
                         'name' => 'foo',
                         'value' => 'bar',
@@ -274,6 +296,31 @@ SCHEMA;
             ['data' => ['action' => true]],
             $result->toArray()
         );
-        GraphQL::executeQuery($schema, $query);
+    }
+
+    public function testParseWithExtendedSchemaAndLiterals(): void
+    {
+        $schema = $this->prepareExtendedSchema();
+
+        $query = <<<QUERY
+mutation DoAction {
+    action(input: {
+        author: "John"
+        popular: true,
+        valueFromExtended: null
+        tag: {
+            name: "foo"
+            value: "bar"
+        }
+    })
+}
+QUERY;
+
+        $result = GraphQL::executeQuery($schema, $query);
+
+        self::assertEquals(
+            ['data' => ['action' => true]],
+            $result->toArray()
+        );
     }
 }
