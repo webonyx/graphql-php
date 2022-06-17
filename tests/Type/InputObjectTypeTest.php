@@ -54,7 +54,7 @@ final class StoryFiltersInputExtended
 
     public Tag $tag;
 
-    public $valueFromExtended;
+    public ?string $valueFromExtended;
 
     public function __construct(string $author, bool $popular, Tag $tag, ?string $valueFromExtended)
     {
@@ -337,8 +337,6 @@ QUERY;
             Assert::assertEquals('John', $args['input']->author);
             Assert::assertTrue($args['input']->popular);
             Assert::assertEquals('value', $args['input']->valueFromExtended);
-
-            Assert::assertInstanceOf(Tag::class, $args['input']->tag);
             Assert::assertEquals('foo', $args['input']->tag->name);
             Assert::assertEquals('bar', $args['input']->tag->value);
 
