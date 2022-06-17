@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Type;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\TypeDefinitionNode;
@@ -203,7 +204,8 @@ final class InputObjectTypeTest extends TestCase
         GraphQL::executeQuery($schema, $query);
     }
 
-    private function prepareExtendedSchema() {
+    private function prepareExtendedSchema()
+    {
         $schema = <<<SCHEMA
 schema {
   mutation: Mutation
@@ -294,7 +296,7 @@ SCHEMA;
 
         self::assertEquals(
             ['data' => ['action' => true]],
-            $result->toArray()
+            $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS)
         );
     }
 
@@ -320,7 +322,33 @@ QUERY;
 
         self::assertEquals(
             ['data' => ['action' => true]],
-            $result->toArray()
+            $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS)
+        );
+    }
+
+    public function testParseWithExtendedSchemaAndVariablesAndLiterals(): void
+    {
+        $schema = $this->prepareExtendedSchema();
+
+        $query = <<<QUERY
+mutation DoAction(\$authorName: ID!, \$tagName: String!) {
+    action(input: {
+        author: \$authorName
+        popular: true,
+        valueFromExtended: null
+        tag: {
+            name: \$tagName
+            value: "bar"
+        }
+    })
+}
+QUERY;
+
+        $result = GraphQL::executeQuery($schema, $query, null, null, ['authorName' => 'John', 'tagName' => 'foo']);
+
+        self::assertEquals(
+            ['data' => ['action' => true]],
+            $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS)
         );
     }
 }
