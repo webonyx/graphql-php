@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Type;
 
+use Closure;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\GraphQL;
@@ -13,6 +14,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 
 final class Tag
@@ -204,7 +206,7 @@ final class InputObjectTypeTest extends TestCase
         GraphQL::executeQuery($schema, $query);
     }
 
-    private function prepareExtendedSchema()
+    private function prepareExtendedSchema(Closure $assertFn): Schema
     {
         $schema = <<<SCHEMA
 schema {
@@ -233,7 +235,7 @@ extend input StoryFiltersInput {
 }
 SCHEMA;
 
-        $typeConfigDecorator = function (array $typeConfig, TypeDefinitionNode $node) {
+        $typeConfigDecorator = static function (array $typeConfig, TypeDefinitionNode $node) use ($assertFn) {
             switch ($typeConfig['name']) {
                 case 'Tag':
                     $typeConfig['parseValue'] = static function (array $values) {
@@ -254,9 +256,7 @@ SCHEMA;
                     };
                     break;
                 case 'Mutation':
-                    $typeConfig['resolveField'] = static function ($parent, $args) {
-                        return $args['input'] instanceof StoryFiltersInputExtended;
-                    };
+                    $typeConfig['resolveField'] = $assertFn;
                     break;
             }
 
@@ -274,7 +274,9 @@ SCHEMA;
 
     public function testParseWithExtendedSchema(): void
     {
-        $schema = $this->prepareExtendedSchema();
+        $schema = $this->prepareExtendedSchema(static function ($parent, $args) {
+            return $args['input'] instanceof StoryFiltersInputExtended;
+        });
         $query = 'mutation DoAction($input: StoryFiltersInput!) { action(input: $input) }';
         $result = GraphQL::executeQuery(
             $schema,
@@ -302,7 +304,9 @@ SCHEMA;
 
     public function testParseWithExtendedSchemaAndLiterals(): void
     {
-        $schema = $this->prepareExtendedSchema();
+        $schema = $this->prepareExtendedSchema(static function ($parent, $args) {
+            return $args['input'] instanceof StoryFiltersInputExtended;
+        });
 
         $query = <<<QUERY
 mutation DoAction {
@@ -328,14 +332,25 @@ QUERY;
 
     public function testParseWithExtendedSchemaAndVariablesAndLiterals(): void
     {
-        $schema = $this->prepareExtendedSchema();
+        $schema = $this->prepareExtendedSchema(static function ($parent, $args) {
+            Assert::assertInstanceOf(StoryFiltersInputExtended::class, $args['input']);
+            Assert::assertEquals('John', $args['input']->author);
+            Assert::assertTrue($args['input']->popular);
+            Assert::assertEquals('value', $args['input']->valueFromExtended);
+
+            Assert::assertInstanceOf(Tag::class, $args['input']->tag);
+            Assert::assertEquals('foo', $args['input']->tag->name);
+            Assert::assertEquals('bar', $args['input']->tag->value);
+
+            return true;
+        });
 
         $query = <<<QUERY
 mutation DoAction(\$authorName: ID!, \$tagName: String!) {
     action(input: {
         author: \$authorName
         popular: true,
-        valueFromExtended: null
+        valueFromExtended: "value"
         tag: {
             name: \$tagName
             value: "bar"
