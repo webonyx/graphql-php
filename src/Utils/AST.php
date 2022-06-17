@@ -432,7 +432,7 @@ class AST
                 $coercedObj[$fieldName] = $fieldValue;
             }
 
-            return $coercedObj;
+            return $type->parseValue($coercedObj);
         }
 
         if ($type instanceof EnumType) {
