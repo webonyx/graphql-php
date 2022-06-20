@@ -21,7 +21,7 @@
     "nyholm/psr7": "^1.4",
     "phpbench/phpbench": "^1.2",
     "phpstan/extension-installer": "^1.1",
-    "phpstan/phpstan": "1.7.14",
+    "phpstan/phpstan": "1.7.15",
     "phpstan/phpstan-phpunit": "1.1.1",
     "phpstan/phpstan-strict-rules": "1.2.3",
     "phpunit/phpunit": "^9.5",
