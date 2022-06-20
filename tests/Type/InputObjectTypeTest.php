@@ -123,15 +123,14 @@ final class InputObjectTypeTest extends TestCase
 
         $schema = new Schema(['mutation' => $mutation]);
 
-        $query = /** @lang GraphQL */ '
-            mutation ($input: StoryFiltersInput!) {
-                action(input: $input)
-            }
-        ';
-
         $result = GraphQL::executeQuery(
             $schema,
-            $query,
+            /** @lang text */ 
+            '
+                mutation ($input: StoryFiltersInput!) {
+                    action(input: $input)
+                }
+            ',
             null,
             null,
             [
@@ -150,7 +149,6 @@ final class InputObjectTypeTest extends TestCase
             ['data' => ['action' => true]],
             $result->toArray()
         );
-        GraphQL::executeQuery($schema, $query);
     }
 
     public function testParseValueFromLiterals(): void
@@ -296,7 +294,7 @@ final class InputObjectTypeTest extends TestCase
 
         $result = GraphQL::executeQuery(
             $schema,
-            /** @lang GraphQL */ 
+            /** @lang GraphQL */
             '
                 mutation ($authorName: ID!, $tagName: String!) {
                     action(input: {
@@ -354,15 +352,14 @@ final class InputObjectTypeTest extends TestCase
 
         $schema = new Schema(['mutation' => $mutation]);
 
-        $query = /** @lang GraphQL */ '
-            mutation ($input: StoryFiltersInput) {
-                action(input: $input)
-            }
-        ';
-
         $result = GraphQL::executeQuery(
             $schema,
-            $query,
+            /** @lang GraphQL */ 
+            '
+                mutation ($input: StoryFiltersInput) {
+                    action(input: $input)
+                }
+            ',
             null,
             null,
             [
@@ -374,7 +371,6 @@ final class InputObjectTypeTest extends TestCase
             ['data' => ['action' => true]],
             $result->toArray()
         );
-        GraphQL::executeQuery($schema, $query);
     }
 
     public function testParseValueWithExtendedSchema(): void
@@ -436,7 +432,7 @@ final class InputObjectTypeTest extends TestCase
 
         $result = GraphQL::executeQuery(
             $schema,
-            /** @lang GraphQL */ 
+            /** @lang GraphQL */
             '
                 mutation ($input: StoryFiltersInput!) {
                     action(input: $input)
