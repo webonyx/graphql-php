@@ -253,7 +253,7 @@ class SchemaExtender
             'fields' => fn (): array => $this->extendInputFieldMap($type),
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
-            'parseValue' => [$type, 'parseValue']
+            'parseValue' => [$type, 'parseValue'],
         ]);
     }
 

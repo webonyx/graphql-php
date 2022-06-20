@@ -2,11 +2,10 @@
 
 namespace GraphQL\Tests\Type;
 
-use Closure;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Examples\Blog\Types;
+use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
@@ -14,7 +13,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
-use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 
 final class Tag
@@ -65,9 +63,12 @@ final class StoryFiltersInputExtended
     }
 }
 
+/**
+ * @phpstan-import-type FieldResolver from Executor
+ */
 final class InputObjectTypeTest extends TestCase
 {
-    public function testParseValue(): void
+    public function testParseValueFromVariables(): void
     {
         $tag = new InputObjectType([
             'name' => 'Tag',
@@ -79,12 +80,10 @@ final class InputObjectTypeTest extends TestCase
                     'type' => Type::string(),
                 ],
             ],
-            'parseValue' => function (array $values) {
-                return new Tag(
-                    $values['name'],
-                    $values['value'],
-                );
-            },
+            'parseValue' => static fn (array $values): Tag => new Tag(
+                $values['name'],
+                $values['value'],
+            ),
         ]);
 
         $input = new InputObjectType([
@@ -100,13 +99,11 @@ final class InputObjectTypeTest extends TestCase
                     'type' => $tag,
                 ],
             ],
-            'parseValue' => function (array $values) {
-                return new StoryFiltersInput(
-                    $values['author'],
-                    $values['popular'],
-                    $values['tag'],
-                );
-            },
+            'parseValue' => static fn (array $values): StoryFiltersInput => new StoryFiltersInput(
+                $values['author'],
+                $values['popular'],
+                $values['tag'],
+            ),
         ]);
 
         $mutation = new ObjectType([
@@ -119,16 +116,18 @@ final class InputObjectTypeTest extends TestCase
                             'type' => $input,
                         ],
                     ],
-                    'resolve' => function ($rootValue, array $args) {
-                        return $args['input'] instanceof StoryFiltersInput;
-                    },
+                    'resolve' => static fn ($rootValue, array $args): bool => $args['input'] instanceof StoryFiltersInput,
                 ],
             ],
         ]);
 
         $schema = new Schema(['mutation' => $mutation]);
 
-        $query = 'mutation DoAction($input: StoryFiltersInput!) { action(input: $input) }';
+        $query = /** @lang GraphQL */ '
+            mutation ($input: StoryFiltersInput!) {
+                action(input: $input)
+            }
+        ';
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -147,11 +146,181 @@ final class InputObjectTypeTest extends TestCase
             ]
         );
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['action' => true]],
             $result->toArray()
         );
         GraphQL::executeQuery($schema, $query);
+    }
+
+    public function testParseValueFromLiterals(): void
+    {
+        $tag = new InputObjectType([
+            'name' => 'Tag',
+            'fields' => [
+                'name' => [
+                    'type' => Type::string(),
+                ],
+                'value' => [
+                    'type' => Type::string(),
+                ],
+            ],
+            'parseValue' => static fn (array $values): Tag => new Tag(
+                $values['name'],
+                $values['value'],
+            ),
+        ]);
+
+        $input = new InputObjectType([
+            'name' => 'StoryFiltersInput',
+            'fields' => [
+                'author' => [
+                    'type' => Type::id(),
+                ],
+                'popular' => [
+                    'type' => Type::boolean(),
+                ],
+                'tag' => [
+                    'type' => $tag,
+                ],
+            ],
+            'parseValue' => static fn (array $values): StoryFiltersInput => new StoryFiltersInput(
+                $values['author'],
+                $values['popular'],
+                $values['tag'],
+            ),
+        ]);
+
+        $mutation = new ObjectType([
+            'name' => 'Mutation',
+            'fields' => [
+                'action' => [
+                    'type' => Types::boolean(),
+                    'args' => [
+                        'input' => [
+                            'type' => $input,
+                        ],
+                    ],
+                    'resolve' => static fn ($rootValue, array $args): bool => $args['input'] instanceof StoryFiltersInput,
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['mutation' => $mutation]);
+
+        $result = GraphQL::executeQuery($schema, /** @lang GraphQL */ '
+            mutation {
+                action(input: {
+                    author: "John"
+                    popular: true,
+                    tag: {
+                        name: "foo"
+                        value: "bar"
+                    }
+                })
+            }
+        ');
+
+        self::assertSame(
+            ['data' => ['action' => true]],
+            $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS)
+        );
+    }
+
+    public function testParseValueFromVariablesAndLiterals(): void
+    {
+        $tag = new InputObjectType([
+            'name' => 'Tag',
+            'fields' => [
+                'name' => [
+                    'type' => Type::string(),
+                ],
+                'value' => [
+                    'type' => Type::string(),
+                ],
+            ],
+            'parseValue' => static fn (array $values): Tag => new Tag(
+                $values['name'],
+                $values['value'],
+            ),
+        ]);
+
+        $input = new InputObjectType([
+            'name' => 'StoryFiltersInput',
+            'fields' => [
+                'author' => [
+                    'type' => Type::id(),
+                ],
+                'popular' => [
+                    'type' => Type::boolean(),
+                ],
+                'tag' => [
+                    'type' => $tag,
+                ],
+            ],
+            'parseValue' => static fn (array $values): StoryFiltersInput => new StoryFiltersInput(
+                $values['author'],
+                $values['popular'],
+                $values['tag'],
+            ),
+        ]);
+
+        $mutation = new ObjectType([
+            'name' => 'Mutation',
+            'fields' => [
+                'action' => [
+                    'type' => Types::boolean(),
+                    'args' => [
+                        'input' => [
+                            'type' => $input,
+                        ],
+                    ],
+                    'resolve' => static function ($parent, array $args): bool {
+                        $input = $args['input'];
+
+                        self::assertInstanceOf(StoryFiltersInput::class, $input);
+                        self::assertSame('John', $input->author);
+                        self::assertTrue($input->popular);
+
+                        $tag = $input->tag;
+                        self::assertSame('foo', $tag->name);
+                        self::assertSame('bar', $tag->value);
+
+                        return true;
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['mutation' => $mutation]);
+
+        $result = GraphQL::executeQuery(
+            $schema,
+            /** @lang GraphQL */ 
+            '
+                mutation ($authorName: ID!, $tagName: String!) {
+                    action(input: {
+                        author: $authorName
+                        popular: true,
+                        tag: {
+                            name: $tagName
+                            value: "bar"
+                        }
+                    })
+                }
+            ',
+            null,
+            null,
+            [
+                'authorName' => 'John',
+                'tagName' => 'foo',
+            ]
+        );
+
+        self::assertSame(
+            ['data' => ['action' => true]],
+            $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS)
+        );
     }
 
     public function testParseValueNotCalledWhenNull(): void
@@ -163,7 +332,7 @@ final class InputObjectTypeTest extends TestCase
                     'type' => Type::id(),
                 ],
             ],
-            'parseValue' => function (array $values) {
+            'parseValue' => function (): void {
                 throw new \Exception('Should not be called');
             },
         ]);
@@ -178,16 +347,18 @@ final class InputObjectTypeTest extends TestCase
                             'type' => $input,
                         ],
                     ],
-                    'resolve' => function ($rootValue, array $args) {
-                        return $args['input'] === null;
-                    },
+                    'resolve' => static fn ($rootValue, array $args): bool => $args['input'] === null,
                 ],
             ],
         ]);
 
         $schema = new Schema(['mutation' => $mutation]);
 
-        $query = 'mutation DoAction($input: StoryFiltersInput) { action(input: $input) }';
+        $query = /** @lang GraphQL */ '
+            mutation ($input: StoryFiltersInput) {
+                action(input: $input)
+            }
+        ';
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -199,88 +370,78 @@ final class InputObjectTypeTest extends TestCase
             ]
         );
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['action' => true]],
             $result->toArray()
         );
         GraphQL::executeQuery($schema, $query);
     }
 
-    private function prepareExtendedSchema(Closure $assertFn): Schema
+    public function testParseValueWithExtendedSchema(): void
     {
-        $schema = <<<SCHEMA
-schema {
-  mutation: Mutation
-}
+        $sdl = /** @lang GraphQL */ <<<SCHEMA
+            type Mutation {
+              action(input: StoryFiltersInput!): Boolean!
+            }
+            
+            input Tag {
+              name: String
+              value: String
+            }
+            
+            input StoryFiltersInput {
+              author: ID
+              popular: Boolean
+              tag: Tag
+            }
+            SCHEMA;
 
-type Mutation {
-  action(input: StoryFiltersInput!): Boolean!
-}
+        $extendSdl = /** @lang GraphQL */ <<<SCHEMA
+            extend input StoryFiltersInput {
+              valueFromExtended: String
+            }
+            SCHEMA;
 
-input Tag {
-  name: String
-  value: String
-}
-
-input StoryFiltersInput {
-  author: ID
-  popular: Boolean
-  tag: Tag
-}
-SCHEMA;
-
-        $extendedSchema = <<<SCHEMA
-extend input StoryFiltersInput {
-  valueFromExtended: String
-}
-SCHEMA;
-
-        $typeConfigDecorator = static function (array $typeConfig, TypeDefinitionNode $node) use ($assertFn) {
+        $typeConfigDecorator = static function (array $typeConfig): array {
             switch ($typeConfig['name']) {
                 case 'Tag':
-                    $typeConfig['parseValue'] = static function (array $values) {
-                        return new Tag(
-                            $values['name'],
-                            $values['value'],
-                        );
-                    };
+                    $typeConfig['parseValue'] = static fn (array $values): Tag => new Tag(
+                        $values['name'],
+                        $values['value'],
+                    );
                     break;
                 case 'StoryFiltersInput':
-                    $typeConfig['parseValue'] = static function (array $values) {
-                        return new StoryFiltersInputExtended(
-                            $values['author'],
-                            $values['popular'],
-                            $values['tag'],
-                            $values['valueFromExtended'] ?? null
-                        );
-                    };
+                    $typeConfig['parseValue'] = static fn (array $values): StoryFiltersInputExtended => new StoryFiltersInputExtended(
+                        $values['author'],
+                        $values['popular'],
+                        $values['tag'],
+                        $values['valueFromExtended'] ?? null
+                    );
                     break;
                 case 'Mutation':
-                    $typeConfig['resolveField'] = $assertFn;
+                    $typeConfig['resolveField'] = static fn ($parent, array $args): bool => $args['input'] instanceof StoryFiltersInputExtended;
                     break;
             }
 
             return $typeConfig;
         };
-        $schema = BuildSchema::build(Parser::parse($schema), $typeConfigDecorator);
+        $baseSchema = BuildSchema::build(Parser::parse($sdl), $typeConfigDecorator);
 
-        return SchemaExtender::extend(
-            $schema,
-            Parser::parse($extendedSchema),
+        $schema = SchemaExtender::extend(
+            $baseSchema,
+            Parser::parse($extendSdl),
             [],
             $typeConfigDecorator
         );
-    }
 
-    public function testParseWithExtendedSchema(): void
-    {
-        $schema = $this->prepareExtendedSchema(static function ($parent, $args) {
-            return $args['input'] instanceof StoryFiltersInputExtended;
-        });
-        $query = 'mutation DoAction($input: StoryFiltersInput!) { action(input: $input) }';
         $result = GraphQL::executeQuery(
             $schema,
-            $query,
+            /** @lang GraphQL */ 
+            '
+                mutation ($input: StoryFiltersInput!) {
+                    action(input: $input)
+                }
+            ',
             null,
             null,
             [
@@ -296,70 +457,7 @@ SCHEMA;
             ]
         );
 
-        self::assertEquals(
-            ['data' => ['action' => true]],
-            $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS)
-        );
-    }
-
-    public function testParseWithExtendedSchemaAndLiterals(): void
-    {
-        $schema = $this->prepareExtendedSchema(static function ($parent, $args) {
-            return $args['input'] instanceof StoryFiltersInputExtended;
-        });
-
-        $query = <<<QUERY
-mutation DoAction {
-    action(input: {
-        author: "John"
-        popular: true,
-        valueFromExtended: null
-        tag: {
-            name: "foo"
-            value: "bar"
-        }
-    })
-}
-QUERY;
-
-        $result = GraphQL::executeQuery($schema, $query);
-
-        self::assertEquals(
-            ['data' => ['action' => true]],
-            $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS)
-        );
-    }
-
-    public function testParseWithExtendedSchemaAndVariablesAndLiterals(): void
-    {
-        $schema = $this->prepareExtendedSchema(static function ($parent, $args) {
-            Assert::assertInstanceOf(StoryFiltersInputExtended::class, $args['input']);
-            Assert::assertEquals('John', $args['input']->author);
-            Assert::assertTrue($args['input']->popular);
-            Assert::assertEquals('value', $args['input']->valueFromExtended);
-            Assert::assertEquals('foo', $args['input']->tag->name);
-            Assert::assertEquals('bar', $args['input']->tag->value);
-
-            return true;
-        });
-
-        $query = <<<QUERY
-mutation DoAction(\$authorName: ID!, \$tagName: String!) {
-    action(input: {
-        author: \$authorName
-        popular: true,
-        valueFromExtended: "value"
-        tag: {
-            name: \$tagName
-            value: "bar"
-        }
-    })
-}
-QUERY;
-
-        $result = GraphQL::executeQuery($schema, $query, null, null, ['authorName' => 'John', 'tagName' => 'foo']);
-
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['action' => true]],
             $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS)
         );
