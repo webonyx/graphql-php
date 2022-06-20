@@ -125,7 +125,7 @@ final class InputObjectTypeTest extends TestCase
 
         $result = GraphQL::executeQuery(
             $schema,
-            /** @lang text */ 
+            /** @lang text */
             '
                 mutation ($input: StoryFiltersInput!) {
                     action(input: $input)
@@ -354,7 +354,7 @@ final class InputObjectTypeTest extends TestCase
 
         $result = GraphQL::executeQuery(
             $schema,
-            /** @lang GraphQL */ 
+            /** @lang GraphQL */
             '
                 mutation ($input: StoryFiltersInput) {
                     action(input: $input)
