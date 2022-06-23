@@ -68,7 +68,7 @@ use GraphQL\Type\Schema;
         $rootValue = ['prefix' => 'You said: '];
         $promise = GraphQL::promiseToExecute($react, $schema, $query, $rootValue, null, $variableValues);
 
-        return $promise->then(function (\GraphQL\Executor\ExecutionResult $result) {
+        return $promise->then(function (GraphQL\Executor\ExecutionResult $result) {
             $output = $result->toArray(1);
 
             return new \React\Http\Message\Response(
@@ -76,7 +76,7 @@ use GraphQL\Type\Schema;
                 [
                     'Content-Type' => 'text/json',
                 ],
-                (json_encode($output)!==false) ? json_encode($output) : ''
+                (json_encode($output) !== false) ? json_encode($output) : ''
             );
         });
     });
