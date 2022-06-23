@@ -69,6 +69,14 @@ class TypeInfo
     }
 
     /**
+     * @return array<int, (CompositeType&Type)|null>
+     */
+    public function getParentTypeStack(): array
+    {
+        return $this->parentTypeStack;
+    }
+
+    /**
      * Given root type scans through all fields to find nested types.
      *
      * Returns array where keys are for type name
