@@ -76,7 +76,7 @@ use GraphQL\Type\Schema;
                 [
                     'Content-Type' => 'text/json',
                 ],
-                json_encode($output) ?? ''
+                json_encode($output) ? json_encode($output) : ''
             );
         });
     });
