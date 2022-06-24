@@ -77,6 +77,14 @@ class TypeInfo
     }
 
     /**
+     * @return array<int, FieldDefinition|null>
+     */
+    public function getFieldDefStack(): array
+    {
+        return $this->fieldDefStack;
+    }
+
+    /**
      * Given root type scans through all fields to find nested types.
      *
      * Returns array where keys are for type name
