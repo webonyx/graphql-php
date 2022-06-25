@@ -11,16 +11,16 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use GraphQL\Executor\ExecutionResult;
+use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
-use React\Http\HttpServer;
 use Psr\Http\Message\ServerRequestInterface;
-use React\Socket\SocketServer;
-use GraphQL\Executor\ExecutionResult;
+use React\Http\HttpServer;
 use React\Http\Message\Response;
+use React\Socket\SocketServer;
 
 $queryType = new ObjectType([
     'name' => 'Query',
@@ -33,8 +33,9 @@ $queryType = new ObjectType([
             'resolve' => function ($rootValue, array $args) {
                 $deferred = new \React\Promise\Deferred();
                 $promise = $deferred->promise();
-                $promise =  $promise = $promise->then(static fn (): string => $rootValue['prefix'] . $args['message']);
+                $promise = $promise = $promise->then(static fn (): string => $rootValue['prefix'] . $args['message']);
                 $deferred->resolve();
+
                 return $promise;
             },
         ],
@@ -67,8 +68,10 @@ $server = new HttpServer(function (ServerRequestInterface $request) use ($schema
     $variableValues = $input['variables'] ?? null;
     $rootValue = ['prefix' => 'You said: '];
     $promise = GraphQL::promiseToExecute($react, $schema, $query, $rootValue, null, $variableValues);
+
     return $promise->then(function (ExecutionResult $result) {
         $output = json_encode($result->toArray(1));
+
         return new Response(
             200,
             [
