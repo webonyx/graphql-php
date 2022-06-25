@@ -1,6 +1,6 @@
 ## Hello World Example With Reactphp
 
-This is a Simple yet full-featured example with reactphp.
+This is a basic example using [ReactPHP](https://reactphp.org).
 
 ### Install reactphp
 
