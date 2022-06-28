@@ -410,7 +410,7 @@ class Printer
 
             case $node instanceof StringValueNode:
                 if ($node->block) {
-                    return BlockString::print($node->value, $isDescription ? '' : '  ');
+                    return BlockString::print($node->value, $isDescription ? '' : '  ', true);
                 }
 
                 return json_encode($node->value, JSON_THROW_ON_ERROR);

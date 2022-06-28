@@ -146,7 +146,7 @@ final class SchemaExtenderTest extends TestCaseBase
           type SomeObject implements AnotherInterface & SomeInterface {
             self: SomeObject
             tree: [SomeObject]!
-            """Old field description."""
+            "Old field description."
             oldField: String
           }
 
@@ -160,7 +160,7 @@ final class SchemaExtenderTest extends TestCaseBase
         ');
         $extensionSDL = '
           extend type SomeObject {
-            """New field description."""
+            "New field description."
             newField(arg: Boolean): String
           }
         ';
@@ -172,9 +172,9 @@ final class SchemaExtenderTest extends TestCaseBase
 type SomeObject implements AnotherInterface & SomeInterface {
   self: SomeObject
   tree: [SomeObject]!
-  """Old field description."""
+  "Old field description."
   oldField: String
-  """New field description."""
+  "New field description."
   newField(arg: Boolean): String
 }
 GRAPHQL,
@@ -201,7 +201,7 @@ GRAPHQL,
         self::assertSame(
             <<<GRAPHQL
               type Query {
-                """Actually use this description."""
+                "Actually use this description."
                 newField: String
               }
               GRAPHQL,
@@ -296,13 +296,13 @@ GRAPHQL,
           directive @foo(arg: SomeEnum) on SCHEMA
 
           enum SomeEnum {
-            """Old value description."""
+            "Old value description."
             OLD_VALUE
           }
         ');
         $extendAST = Parser::parse('
           extend enum SomeEnum {
-            """New value description."""
+            "New value description."
             NEW_VALUE
           }
         ');
@@ -312,9 +312,9 @@ GRAPHQL,
         self::assertSame(
             <<<GRAPHQL
               enum SomeEnum {
-                """Old value description."""
+                "Old value description."
                 OLD_VALUE
-                """New value description."""
+                "New value description."
                 NEW_VALUE
               }
               GRAPHQL,
@@ -387,13 +387,13 @@ GRAPHQL,
           directive @foo(arg: SomeInput) on SCHEMA
 
           input SomeInput {
-            """Old field description."""
+            "Old field description."
             oldField: String
           }
         ');
         $extendAST = Parser::parse('
           extend input SomeInput {
-            """New field description."""
+            "New field description."
             newField: String
           }
         ');
@@ -403,9 +403,9 @@ GRAPHQL,
         self::assertSame(
             <<<GRAPHQL
               input SomeInput {
-                """Old field description."""
+                "Old field description."
                 oldField: String
-                """New field description."""
+                "New field description."
                 newField: String
               }
               GRAPHQL,
@@ -1391,7 +1391,7 @@ GRAPHQL,
             }
         ');
         $extensionSDL = <<<GRAPHQL
-            """New directive."""
+            "New directive."
             directive @new(enable: Boolean!, tag: String) repeatable on QUERY | FIELD
             GRAPHQL;
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
