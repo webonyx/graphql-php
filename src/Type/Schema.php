@@ -256,6 +256,7 @@ class Schema
         if (isset($this->resolvedTypes[$name])) {
             return $this->resolvedTypes[$name];
         }
+
         $introspectionTypes = Introspection::getTypes();
         if (isset($introspectionTypes[$name])) {
             return $introspectionTypes[$name];
