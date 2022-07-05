@@ -139,10 +139,13 @@ class BlockString
             : $value;
         if ($printAsMultipleLines) {
             $result .= "\n";
+            $quoting = '"""';
+        } else {
+            $quoting = '"';
         }
 
-        return '"""'
-            . str_replace('"""', '\\"""', $result)
-            . '"""';
+        return $quoting
+            . str_replace($quoting, '\\' . $quoting, $result)
+            . $quoting;
     }
 }

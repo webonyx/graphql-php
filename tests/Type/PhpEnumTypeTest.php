@@ -34,9 +34,9 @@ final class PhpEnumTypeTest extends TestCaseBase
         $enumType = new PhpEnumType(PhpEnum::class);
         self::assertSame(
             <<<'GRAPHQL'
-"""foo"""
+"foo"
 enum PhpEnum {
-  """bar"""
+  "bar"
   A
   B @deprecated
   C @deprecated(reason: "baz")
@@ -51,9 +51,9 @@ GRAPHQL,
         $enumType = new PhpEnumType(DocBlockPhpEnum::class);
         self::assertSame(
             <<<'GRAPHQL'
-"""foo"""
+"foo"
 enum DocBlockPhpEnum {
-  """preferred"""
+  "preferred"
   A
 
   """
