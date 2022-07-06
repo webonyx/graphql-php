@@ -439,25 +439,23 @@ final class ExecutorLazySchemaTest extends TestCase
 
     public function testSchemaWithConcreteTypeWithPhpFunctionName(): void
     {
-        $interfaceConfig = new InterfaceType([
-            'name' => 'TestInterface',
-            'resolveType' => function () {
-                return 'Link';
-            },
+        $interface = new InterfaceType([
+            'name' => 'Foo',
+            'resolveType' => static fn (): string => 'count',
             'fields' => static fn (): array => [
-                'value' => [
+                'bar' => [
                     'type' => Type::string(),
                 ],
             ],
         ]);
 
-        $linkType = new ObjectType([
-            'name' => 'Link',
-            'interfaces' => [$interfaceConfig],
+        $namedLikePhpFunction = new ObjectType([
+            'name' => 'count',
+            'interfaces' => [$interface],
             'isTypeOf' => static fn ($obj): bool => $obj instanceof stdClass,
             'fields' => static fn (): array => [
-                'value' => ['type' => Type::string()],
-                'secondValue' => ['type' => Type::string()],
+                'bar' => ['type' => Type::string()],
+                'baz' => ['type' => Type::string()],
             ],
         ]);
 
@@ -465,35 +463,35 @@ final class ExecutorLazySchemaTest extends TestCase
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [
-                    'php_function' => [
-                        'type' => Type::listOf($interfaceConfig),
+                    'foo' => [
+                        'type' => Type::listOf($interface),
                         'resolve' => static fn (): array => [
                             new stdClass(),
                         ],
                     ],
                 ],
             ]),
-            'types' => [$linkType],
-            'typeLoader' => static function ($name) use ($interfaceConfig, $linkType): ?Type {
+            'types' => [$namedLikePhpFunction],
+            'typeLoader' => static function ($name) use ($interface, $namedLikePhpFunction): ?Type {
                 switch ($name) {
-                    case 'TestInterface': return $interfaceConfig;
-                    case 'Link': return $linkType;
+                    case 'Foo': return $interface;
+                    case 'count': return $namedLikePhpFunction;
                     default: return null;
                 }
             },
         ]);
 
         $query = '{
-          php_function {
-            value
-            ... on Link {
-              secondValue
+          foo {
+            bar
+            ... on count {
+              baz
             }
           }
         }';
 
         $result = Executor::execute($schema, Parser::parse($query));
 
-        self::assertCount(0, $result->errors);
+        self::assertSame([], $result->errors);
     }
 }
