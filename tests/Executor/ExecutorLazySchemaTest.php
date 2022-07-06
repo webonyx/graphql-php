@@ -22,6 +22,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\Error\Error;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 final class ExecutorLazySchemaTest extends TestCase
 {
@@ -434,5 +435,65 @@ final class ExecutorLazySchemaTest extends TestCase
             'SomeScalar',
         ];
         self::assertEquals($expectedCalls, $this->calls);
+    }
+
+    public function testSchemaWithConcreteTypeWithPhpFunctionName(): void
+    {
+        $interfaceConfig = new InterfaceType([
+            'name' => 'TestInterface',
+            'resolveType' => function () {
+                return 'Link';
+            },
+            'fields' => static fn (): array => [
+                'value' => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+
+        $linkType = new ObjectType([
+            'name' => 'Link',
+            'interfaces' => [$interfaceConfig],
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof stdClass,
+            'fields' => static fn (): array => [
+                'value' => ['type' => Type::string()],
+                'secondValue' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'php_function' => [
+                        'type' => Type::listOf($interfaceConfig),
+                        'resolve' => static fn (): array => [
+                            new stdClass(),
+                        ],
+                    ],
+                ],
+            ]),
+            'types' => [$linkType],
+            'typeLoader' => static function ($name) use ($interfaceConfig, $linkType): ?Type {
+                switch ($name) {
+                    case 'TestInterface': return $interfaceConfig;
+                    case 'Link': return $linkType;
+                    default: return null;
+                }
+            },
+        ]);
+
+        $query = '{
+          php_function {
+            value
+            ... on Link {
+              secondValue
+            }
+          }
+        }';
+
+        $result = Executor::execute($schema, Parser::parse($query));
+
+        self::assertCount(0, $result->errors);
     }
 }
