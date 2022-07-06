@@ -22,6 +22,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\Error\Error;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 final class ExecutorLazySchemaTest extends TestCase
 {
@@ -434,5 +435,63 @@ final class ExecutorLazySchemaTest extends TestCase
             'SomeScalar',
         ];
         self::assertEquals($expectedCalls, $this->calls);
+    }
+
+    public function testSchemaWithConcreteTypeWithPhpFunctionName(): void
+    {
+        $interface = new InterfaceType([
+            'name' => 'Foo',
+            'resolveType' => static fn (): string => 'count',
+            'fields' => static fn (): array => [
+                'bar' => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+
+        $namedLikePhpFunction = new ObjectType([
+            'name' => 'count',
+            'interfaces' => [$interface],
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof stdClass,
+            'fields' => static fn (): array => [
+                'bar' => ['type' => Type::string()],
+                'baz' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'foo' => [
+                        'type' => Type::listOf($interface),
+                        'resolve' => static fn (): array => [
+                            new stdClass(),
+                        ],
+                    ],
+                ],
+            ]),
+            'types' => [$namedLikePhpFunction],
+            'typeLoader' => static function ($name) use ($interface, $namedLikePhpFunction): ?Type {
+                switch ($name) {
+                    case 'Foo': return $interface;
+                    case 'count': return $namedLikePhpFunction;
+                    default: return null;
+                }
+            },
+        ]);
+
+        $query = '{
+          foo {
+            bar
+            ... on count {
+              baz
+            }
+          }
+        }';
+
+        $result = Executor::execute($schema, Parser::parse($query));
+
+        self::assertSame([], $result->errors);
     }
 }
