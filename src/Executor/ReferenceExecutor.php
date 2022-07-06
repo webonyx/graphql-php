@@ -1025,7 +1025,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
         if ($typeCandidate === null) {
             $runtimeType = static::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
-        } elseif (!is_string($typeCandidate) && is_callable($typeCandidate)) {
+        } elseif (! is_string($typeCandidate) && is_callable($typeCandidate)) {
             $runtimeType = $typeCandidate();
         } else {
             $runtimeType = $typeCandidate;
