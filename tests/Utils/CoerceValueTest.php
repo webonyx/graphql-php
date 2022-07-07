@@ -3,7 +3,7 @@
 namespace GraphQL\Tests\Utils;
 
 use function acos;
-use GraphQL\Error\Error;
+use GraphQL\Error\CoercionError;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
@@ -12,6 +12,9 @@ use function log;
 use PHPUnit\Framework\TestCase;
 use function pow;
 
+/**
+ * @phpstan-import-type InputPath from CoercionError
+ */
 class CoerceValueTest extends TestCase
 {
     private EnumType $testEnum;
@@ -28,11 +31,19 @@ class CoerceValueTest extends TestCase
             ],
         ]);
 
+        $nestedObject = new InputObjectType([
+            'name' => 'TestInputObject',
+            'fields' => [
+                'foobar' => Type::nonNull(Type::int()),
+            ],
+        ]);
+
         $this->testInputObject = new InputObjectType([
             'name' => 'TestInputObject',
             'fields' => [
                 'foo' => Type::nonNull(Type::int()),
                 'bar' => Type::int(),
+                'nested' => $nestedObject,
             ],
         ]);
     }
@@ -76,17 +87,23 @@ class CoerceValueTest extends TestCase
      * Describe: for GraphQLInt.
      *
      * @param mixed $result returned result
+     * @param InputPath|null $expectedPath
      */
-    private function expectGraphQLError($result, string $expected): void
+    private function expectGraphQLError($result, string $expected, ?array $expectedPath = null): void
     {
         self::assertIsArray($result);
 
         $errors = $result['errors'];
         self::assertIsArray($errors);
         self::assertCount(1, $errors);
+        self::assertInstanceOf(CoercionError::class, $errors[0]);
         self::assertSame($expected, $errors[0]->getMessage());
 
         self::assertNull($result['value']);
+
+        if ($expectedPath !== null) {
+            self::assertSame($expectedPath, $errors[0]->inputPath);
+        }
     }
 
     /**
@@ -375,11 +392,11 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @see it('returns no error for a valid input')
-     *
      * @param mixed $input
      *
      * @dataProvider validInputObjects
+     *
+     * @see it('returns no error for a valid input')
      */
     public function testReturnsNoErrorForValidInputObject($input): void
     {
@@ -397,27 +414,32 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @see it('returns no error for a non-object type')
-     *
      * @param mixed $input
+     * @param InputPath|null $path
      *
      * @dataProvider invalidInputObjects
+     *
+     * @see it('returns no error for a non-object type')
      */
-    public function testReturnsErrorForInvalidInputObject($input): void
+    public function testReturnsErrorForInvalidInputObject($input, string $message, ?array $path): void
     {
         $result = Value::coerceValue($input, $this->testInputObject);
-        $this->expectGraphQLError($result, 'Expected type TestInputObject to be an object.');
+        $this->expectGraphQLError($result, $message, $path);
     }
 
     /**
-     * @return iterable<int, array{mixed}>
+     * @return iterable<int, array{0: mixed, 1: string, 2: InputPath|null}>
      */
     public function invalidInputObjects(): iterable
     {
-        yield [123];
+        yield [['foo' => 1234, 'nested' => ['foobar' => null]], 'Expected non-nullable type Int! not to be null at value.nested.foobar.', ['nested', 'foobar']];
+        yield [['foo' => null, 'bar' => 1234], 'Expected non-nullable type Int! not to be null at value.foo.', ['foo']];
+        yield [123, 'Expected type TestInputObject to be an object.', null];
         yield [
             new class() {
             },
+            'Expected type TestInputObject to be an object.',
+            null,
         ];
     }
 
