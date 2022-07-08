@@ -472,6 +472,11 @@ class CoerceValueTest extends TestCase
     public function testReturnsMultipleErrorsForMultipleInvalidFields(): void
     {
         $result = Value::coerceValue(['foo' => 'abc', 'bar' => 'def'], $this->testInputObject);
+
+        self::assertNotNull($result['errors']);
+        self::assertArrayHasKey(0, $result['errors']);
+        self::assertArrayHasKey(1, $result['errors']);
+
         self::assertEquals(
             [
                 'Expected type Int at value.foo; Int cannot represent non-integer value: abc',
