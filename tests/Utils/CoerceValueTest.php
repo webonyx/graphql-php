@@ -101,9 +101,7 @@ class CoerceValueTest extends TestCase
 
         self::assertNull($result['value']);
 
-        if ($expectedPath !== null) {
-            self::assertSame($expectedPath, $errors[0]->inputPath);
-        }
+        self::assertSame($expectedPath, $errors[0]->inputPath);
     }
 
     /**
@@ -392,11 +390,11 @@ class CoerceValueTest extends TestCase
     }
 
     /**
+     * @see it('returns no error for a valid input')
+     *
      * @param mixed $input
      *
      * @dataProvider validInputObjects
-     *
-     * @see it('returns no error for a valid input')
      */
     public function testReturnsNoErrorForValidInputObject($input): void
     {
