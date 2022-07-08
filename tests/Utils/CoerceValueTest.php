@@ -432,9 +432,21 @@ class CoerceValueTest extends TestCase
      */
     public function invalidInputObjects(): iterable
     {
-        yield [['foo' => 1234, 'nested' => ['foobar' => null]], 'Expected non-nullable type Int! not to be null at value.nested.foobar.', ['nested', 'foobar']];
-        yield [['foo' => null, 'bar' => 1234], 'Expected non-nullable type Int! not to be null at value.foo.', ['foo']];
-        yield [123, 'Expected type TestInputObject to be an object.', null];
+        yield [
+            ['foo' => 1234, 'nested' => ['foobar' => null]],
+            'Expected non-nullable type Int! not to be null at value.nested.foobar.',
+            ['nested', 'foobar'],
+        ];
+        yield [
+            ['foo' => null, 'bar' => 1234],
+            'Expected non-nullable type Int! not to be null at value.foo.',
+            ['foo'],
+        ];
+        yield [
+            123,
+            'Expected type TestInputObject to be an object.',
+            null,
+        ];
         yield [
             new class() {
             },
