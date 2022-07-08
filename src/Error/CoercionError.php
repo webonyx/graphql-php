@@ -11,13 +11,13 @@ use Throwable;
 class CoercionError extends Error
 {
     /**
-     * @phpstan-var InputPath|null
+     * @var InputPath|null
      */
     public ?array $inputPath;
 
     /**
      * @param iterable<array-key, Node|null>|Node|null $nodes
-     * @phpstan-param InputPath|null $inputPath
+     * @param InputPath|null $inputPath
      */
     public function __construct(
         string $message,
