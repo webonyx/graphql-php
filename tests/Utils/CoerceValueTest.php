@@ -461,7 +461,8 @@ class CoerceValueTest extends TestCase
         $result = Value::coerceValue(['foo' => 'abc'], $this->testInputObject);
         $this->expectGraphQLError(
             $result,
-            'Expected type Int at value.foo; Int cannot represent non-integer value: abc'
+            'Expected type Int at value.foo; Int cannot represent non-integer value: abc',
+            ['foo']
         );
     }
 
@@ -478,6 +479,8 @@ class CoerceValueTest extends TestCase
             ],
             $result['errors']
         );
+        self::assertEquals(['foo'], $result['errors'][0]->inputPath);
+        self::assertEquals(['bar'], $result['errors'][1]->inputPath);
     }
 
     /**
