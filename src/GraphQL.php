@@ -3,6 +3,7 @@
 namespace GraphQL;
 
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;

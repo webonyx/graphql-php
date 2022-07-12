@@ -3,10 +3,12 @@
 namespace GraphQL\Type\Definition;
 
 use function array_key_exists;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 
 /**

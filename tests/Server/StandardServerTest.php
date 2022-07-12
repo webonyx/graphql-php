@@ -11,6 +11,7 @@ use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 use Nyholm\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
+
 use function Safe\json_encode;
 
 class StandardServerTest extends ServerTestCase

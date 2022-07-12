@@ -4,6 +4,7 @@ namespace GraphQL\Validator\Rules;
 
 use function array_keys;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NodeKind;
@@ -15,6 +16,7 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function in_array;
 
 /**

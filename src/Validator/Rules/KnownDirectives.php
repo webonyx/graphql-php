@@ -3,8 +3,11 @@
 namespace GraphQL\Validator\Rules;
 
 use function count;
+
 use Exception;
+
 use function get_class;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -40,6 +43,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function in_array;
 
 /**

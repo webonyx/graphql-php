@@ -19,6 +19,7 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Language\Token;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function Safe\file_get_contents;
 

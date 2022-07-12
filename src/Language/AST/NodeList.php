@@ -4,12 +4,17 @@ namespace GraphQL\Language\AST;
 
 use function array_merge;
 use function array_splice;
+
 use ArrayAccess;
+
 use function count;
+
 use Countable;
 use GraphQL\Utils\AST;
+
 use function is_array;
 use function iterator_to_array;
+
 use IteratorAggregate;
 use ReturnTypeWillChange;
 use Traversable;

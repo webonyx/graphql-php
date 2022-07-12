@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Executor;
 
 use function count;
+
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;

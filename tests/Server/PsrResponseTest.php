@@ -8,6 +8,7 @@ use Nyholm\Psr7\Response;
 use Nyholm\Psr7\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
+
 use function Safe\json_encode;
 
 final class PsrResponseTest extends TestCase

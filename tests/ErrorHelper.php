@@ -4,6 +4,7 @@ namespace GraphQL\Tests;
 
 use function array_map;
 use function count;
+
 use GraphQL\Language\SourceLocation;
 
 /**

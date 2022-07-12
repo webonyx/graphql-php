@@ -8,14 +8,18 @@ use function array_map;
 use function array_merge;
 use function array_shift;
 use function count;
+
 use Countable;
 use ErrorException;
+
 use function get_class;
 use function gettype;
+
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
+
 use function implode;
 use function is_array;
 use function is_bool;
@@ -26,6 +30,7 @@ use function mb_strlen;
 use function preg_split;
 use function str_repeat;
 use function strlen;
+
 use Throwable;
 
 /**

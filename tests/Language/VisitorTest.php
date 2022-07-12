@@ -7,6 +7,7 @@ use function array_pop;
 use function array_slice;
 use function count;
 use function func_get_args;
+
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
@@ -23,6 +24,7 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Tests\Validator\ValidatorTestCase;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
+
 use function is_numeric;
 use function Safe\file_get_contents;
 

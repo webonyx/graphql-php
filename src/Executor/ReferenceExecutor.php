@@ -6,11 +6,16 @@ use function array_keys;
 use function array_merge;
 use function array_reduce;
 use function array_values;
+
 use ArrayAccess;
 use ArrayObject;
+
 use function count;
+
 use Exception;
+
 use function gettype;
+
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
@@ -41,10 +46,12 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function is_callable;
 use function is_iterable;
 use function is_string;
+
 use RuntimeException;
 use SplObjectStorage;
 use stdClass;

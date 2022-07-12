@@ -40,7 +40,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+
 use function is_array;
+
 use Throwable;
 
 /**

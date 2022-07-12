@@ -4,6 +4,7 @@ namespace GraphQL\Executor;
 
 use function array_map;
 use function count;
+
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;

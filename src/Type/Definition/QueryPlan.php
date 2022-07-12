@@ -11,6 +11,7 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\FieldNode;
@@ -20,6 +21,7 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+
 use function in_array;
 use function is_array;
 use function is_numeric;

@@ -16,6 +16,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use PHPUnit\Framework\TestCase;
+
 use function Safe\json_encode;
 
 class IntrospectionTest extends TestCase

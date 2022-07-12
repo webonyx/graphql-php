@@ -6,6 +6,7 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldNode;
@@ -26,8 +27,10 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\PairSet;
 use GraphQL\Validator\QueryValidationContext;
+
 use function implode;
 use function is_array;
+
 use SplObjectStorage;
 
 /**

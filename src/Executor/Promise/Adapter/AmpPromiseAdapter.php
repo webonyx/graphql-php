@@ -4,14 +4,20 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use Amp\Deferred;
 use Amp\Failure;
+
 use function Amp\Promise\all;
+
 use Amp\Promise as AmpPromise;
 use Amp\Success;
+
 use function array_replace;
 use function assert;
+
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
+
 use function is_array;
+
 use Throwable;
 
 class AmpPromiseAdapter implements PromiseAdapter

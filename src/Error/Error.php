@@ -3,12 +3,15 @@
 namespace GraphQL\Error;
 
 use function count;
+
 use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
+
 use function is_array;
 use function iterator_to_array;
+
 use JsonSerializable;
 use ReturnTypeWillChange;
 use Throwable;

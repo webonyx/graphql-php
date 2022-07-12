@@ -3,10 +3,13 @@
 namespace GraphQL\Tests\Type;
 
 use function acos;
+
 use GraphQL\Error\SerializationError;
 use GraphQL\Tests\Type\TestClasses\ObjectIdStub;
 use GraphQL\Type\Definition\Type;
+
 use function log;
+
 use PHPUnit\Framework\TestCase;
 use stdClass;
 

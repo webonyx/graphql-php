@@ -7,8 +7,11 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
+
 use function json_decode;
+
 use PHPUnit\Framework\TestCase;
+
 use function Safe\json_encode;
 
 class NodeTest extends TestCase

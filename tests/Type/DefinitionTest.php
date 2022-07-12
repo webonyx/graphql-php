@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Type;
 
 use function count;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Generator;
 use GraphQL\Error\Error;
@@ -30,7 +31,9 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use RuntimeException;
+
 use function Safe\json_encode;
+
 use stdClass;
 
 final class DefinitionTest extends TestCaseBase

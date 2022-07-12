@@ -8,6 +8,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
+
 use function is_object;
 use function is_scalar;
 use function is_string;

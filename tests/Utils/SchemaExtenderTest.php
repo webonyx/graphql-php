@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Utils;
 
 use function count;
+
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -926,7 +927,7 @@ GRAPHQL,
             union NewUnion = NewObject
             GRAPHQL;
         $extendAST = Parser::parse("
-            ${newTypesSDL}
+            {$newTypesSDL}
             extend type SomeObject {
               newObject: NewObject
               newInterface: NewInterface
@@ -951,7 +952,7 @@ GRAPHQL,
                   newTree: [SomeObject]!
                 }
 
-                ${newTypesSDL}
+                {$newTypesSDL}
                 GRAPHQL,
             self::printSchemaChanges($schema, $extendedSchema)
         );
@@ -1122,7 +1123,7 @@ GRAPHQL,
                   anotherNewField: String
                 }
 
-                ${newTypesSDL}
+                {$newTypesSDL}
                 GRAPHQL,
             self::printSchemaChanges($schema, $extendedSchema)
         );

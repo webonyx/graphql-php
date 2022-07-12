@@ -3,12 +3,14 @@
 namespace GraphQL\Type\Definition;
 
 use function floor;
+
 use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
+
 use function is_bool;
 use function is_float;
 use function is_int;

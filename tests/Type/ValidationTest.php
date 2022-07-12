@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Type;
 
 use function array_map;
 use function array_merge;
+
 use Closure;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -29,6 +30,7 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
 use TypeError;
+
 use function ucfirst;
 
 class ValidationTest extends TestCaseBase

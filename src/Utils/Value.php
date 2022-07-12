@@ -6,6 +6,7 @@ use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_merge;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Type\Definition\EnumType;
@@ -16,8 +17,10 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+
 use function is_array;
 use function is_string;
+
 use stdClass;
 use Throwable;
 use Traversable;

@@ -8,6 +8,7 @@ use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use PHPUnit\Framework\TestCase;
+
 use function Safe\file_get_contents;
 use function Safe\json_encode;
 

@@ -3,7 +3,9 @@
 namespace GraphQL\Tests\Executor;
 
 use ArrayAccess;
+
 use function count;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Deferred;
@@ -24,7 +26,9 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use ReturnTypeWillChange;
+
 use function Safe\json_encode;
+
 use stdClass;
 
 class ExecutorTest extends TestCase

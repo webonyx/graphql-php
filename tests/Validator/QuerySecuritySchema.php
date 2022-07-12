@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Validator;
 
 use function array_merge;
+
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Directive;

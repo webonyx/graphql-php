@@ -3,6 +3,7 @@
 namespace GraphQL\Language;
 
 use function count;
+
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
@@ -498,7 +499,7 @@ class Parser
                 case 'fragment':
                     return $this->parseExecutableDefinition();
 
-                // Note: The schema definition language is an experimental addition.
+                    // Note: The schema definition language is an experimental addition.
                 case 'schema':
                 case 'scalar':
                 case 'type':
@@ -867,12 +868,12 @@ class Parser
                         'loc' => $this->loc($token),
                     ]);
                 }
-                    $this->lexer->advance();
+                $this->lexer->advance();
 
-                    return new EnumValueNode([
-                        'value' => $token->value,
-                        'loc' => $this->loc($token),
-                    ]);
+                return new EnumValueNode([
+                    'value' => $token->value,
+                    'loc' => $this->loc($token),
+                ]);
 
             case Token::DOLLAR:
                 if (! $isConst) {

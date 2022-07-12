@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Server;
 use const E_USER_DEPRECATED;
 use const E_USER_NOTICE;
 use const E_USER_WARNING;
+
 use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
@@ -12,6 +13,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+
 use function trigger_error;
 
 abstract class ServerTestCase extends TestCase

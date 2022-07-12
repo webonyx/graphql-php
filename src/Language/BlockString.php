@@ -4,7 +4,9 @@ namespace GraphQL\Language;
 
 use function array_slice;
 use function count;
+
 use GraphQL\Utils\Utils;
+
 use function implode;
 use function mb_strlen;
 use function mb_substr;

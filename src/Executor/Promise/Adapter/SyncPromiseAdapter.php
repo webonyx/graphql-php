@@ -4,12 +4,15 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use function assert;
 use function count;
+
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
+
 use function is_array;
+
 use Throwable;
 
 /**

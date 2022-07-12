@@ -10,6 +10,7 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\Rules\ValidationRule;
+
 use function is_array;
 use function is_callable;
 

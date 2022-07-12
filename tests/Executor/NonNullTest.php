@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Executor;
 
 use function count;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Deferred;
@@ -15,9 +16,12 @@ use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+
 use function is_string;
+
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+
 use function Safe\json_encode;
 
 class NonNullTest extends TestCase

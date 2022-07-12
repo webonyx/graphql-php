@@ -3,8 +3,11 @@
 namespace GraphQL\Utils;
 
 use function array_key_exists;
+
 use ArrayAccess;
+
 use function count;
+
 use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -40,6 +43,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+
 use function is_array;
 use function is_bool;
 use function is_float;
@@ -47,6 +51,7 @@ use function is_int;
 use function is_object;
 use function is_string;
 use function property_exists;
+
 use Throwable;
 
 /**

@@ -4,14 +4,19 @@ namespace GraphQL\Language;
 
 use function array_pop;
 use function count;
+
 use Exception;
+
 use function func_get_args;
+
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
+
 use function is_array;
 use function json_encode;
+
 use SplFixedArray;
 
 /**

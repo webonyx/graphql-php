@@ -3,6 +3,7 @@
 namespace GraphQL\Benchmarks\Utils;
 
 use function count;
+
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
@@ -15,6 +16,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+
 use function max;
 use function round;
 

@@ -3,7 +3,9 @@
 namespace GraphQL\Examples\Blog\Type\Scalar;
 
 use const FILTER_VALIDATE_EMAIL;
+
 use function filter_var;
+
 use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\Node;

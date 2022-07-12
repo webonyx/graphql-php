@@ -3,7 +3,9 @@
 namespace GraphQL\Tests\Type;
 
 use ArrayObject;
+
 use function count;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
@@ -15,7 +17,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+
 use function is_array;
+
 use PHPUnit\Framework\TestCase;
 
 class EnumTypeTest extends TestCase

@@ -7,6 +7,7 @@ use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
+
 use function is_bool;
 
 class BooleanType extends ScalarType

@@ -3,8 +3,11 @@
 namespace GraphQL\Validator\Rules;
 
 use function array_map;
+
 use ArrayObject;
+
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\FieldNode;
@@ -21,6 +24,7 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\QueryValidationContext;
+
 use function implode;
 
 /**

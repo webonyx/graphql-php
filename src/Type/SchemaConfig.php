@@ -3,6 +3,7 @@
 namespace GraphQL\Type;
 
 use function count;
+
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\Directive;

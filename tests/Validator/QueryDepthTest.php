@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\QueryDepth;
+
 use function sprintf;
 use function str_replace;
 

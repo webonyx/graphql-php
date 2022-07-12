@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 
 use function array_pop;
 use function count;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;

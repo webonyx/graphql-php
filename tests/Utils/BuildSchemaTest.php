@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Utils;
 
 use function array_keys;
+
 use Closure;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
@@ -923,7 +924,7 @@ final class BuildSchemaTest extends TestCaseBase
             GRAPHQL;
 
         $schema = BuildSchema::build("
-            ${scalarSDL}
+            {$scalarSDL}
             directive @foo on SCALAR
             directive @bar on SCALAR
         ");
@@ -960,7 +961,7 @@ final class BuildSchemaTest extends TestCaseBase
             GRAPHQL;
 
         $schema = BuildSchema::build("
-            ${objectSDL}
+            {$objectSDL}
             interface Foo
             interface Bar
             interface Baz
@@ -1033,7 +1034,7 @@ final class BuildSchemaTest extends TestCaseBase
             GRAPHQL;
 
         $schema = BuildSchema::build("
-            ${unionSDL}
+            {$unionSDL}
             type FirstType
             type SecondType
             type ThirdType
@@ -1578,7 +1579,7 @@ final class BuildSchemaTest extends TestCaseBase
             ],
             'scalar MyType',
             function (ScalarType $type): void {
-                // nothing else to assert here, scalar extensions can add only directives
+            // nothing else to assert here, scalar extensions can add only directives
             },
         ];
         yield 'object' => [

@@ -3,9 +3,13 @@
 namespace GraphQL\Examples\Blog;
 
 use Closure;
+
 use function count;
+
 use Exception;
+
 use function explode;
+
 use GraphQL\Examples\Blog\Type\CommentType;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
 use GraphQL\Examples\Blog\Type\Enum\ImageSizeType;
@@ -19,6 +23,7 @@ use GraphQL\Examples\Blog\Type\StoryType;
 use GraphQL\Examples\Blog\Type\UserType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+
 use function lcfirst;
 use function method_exists;
 use function preg_replace;

@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use function array_merge_recursive;
+
 use ArrayObject;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;

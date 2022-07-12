@@ -4,10 +4,13 @@ namespace GraphQL\Type\Definition;
 
 use function array_keys;
 use function array_merge;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
+
 use function implode;
+
 use JsonSerializable;
 use ReturnTypeWillChange;
 

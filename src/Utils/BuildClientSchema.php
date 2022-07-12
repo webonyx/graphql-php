@@ -5,6 +5,7 @@ namespace GraphQL\Utils;
 use function array_key_exists;
 use function array_map;
 use function array_merge;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -27,6 +28,7 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\TypeKind;
+
 use function json_encode;
 
 /**

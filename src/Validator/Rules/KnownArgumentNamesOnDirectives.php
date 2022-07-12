@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use function array_map;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -15,6 +16,7 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function in_array;
 
 /**

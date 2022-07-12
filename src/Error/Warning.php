@@ -3,8 +3,11 @@
 namespace GraphQL\Error;
 
 use const E_USER_WARNING;
+
 use function gettype;
+
 use InvalidArgumentException;
+
 use function is_int;
 use function trigger_error;
 

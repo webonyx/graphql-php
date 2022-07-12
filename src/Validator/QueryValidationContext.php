@@ -5,6 +5,7 @@ namespace GraphQL\Validator;
 use function array_merge;
 use function array_pop;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
