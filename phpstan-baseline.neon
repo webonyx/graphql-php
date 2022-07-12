@@ -146,11 +146,6 @@ parameters:
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
 		-
-			message: "#^Instanceof between mixed and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
-			count: 1
-			path: tests/Language/VisitorTest.php
-
-		-
 			message: "#^Method GraphQL\\\\Tests\\\\Language\\\\VisitorTest\\:\\:getNodeByPath\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
 			count: 1
 			path: tests/Language/VisitorTest.php
