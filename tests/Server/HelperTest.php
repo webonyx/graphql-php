@@ -12,17 +12,15 @@ final class HelperTest extends TestCase {
      */
     public function testSendResponseWithUtf8Support(): void
     {
-        $dataArray = [
-            'data' => [
-                'user' => 'Петя'
-            ]
-        ];
-        
-        $expected = json_encode($dataArray, JSON_UNESCAPED_UNICODE);
+        $expected = '{"data":{"name":"Петя"}}';
+        $this->expectOutputString($expected);
 
         $helper = new Helper();
-        $helper->sendResponse($dataArray);
-
-        $this->expectOutputString($expected);
+        $data = [
+            'data' => [
+                'name' => 'Петя'
+            ]
+        ];
+        $helper->sendResponse($data);
     }
 }
