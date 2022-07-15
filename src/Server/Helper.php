@@ -435,8 +435,8 @@ class Helper
      */
     public function emitResponse($jsonSerializable): void
     {
-        header('Content-Type: application/json');
-        echo json_encode($jsonSerializable);
+        header('Content-Type: application/json;charset=utf-8');
+        echo json_encode($jsonSerializable, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
 
     protected function readRawBody(): string
