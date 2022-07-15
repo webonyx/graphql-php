@@ -3,10 +3,14 @@
 namespace GraphQL\Tests\Server;
 
 use PHPUnit\Framework\TestCase;
+use GraphQL\Server\Helper;
 
-final class EmitResponseTest extends TestCase {
+final class HelperTest extends TestCase {
 
-    public function testJsonEncodeWithUtf8Support(): void
+    /**
+     * @runInSeparateProcess
+     */
+    public function testSendResponseWithUtf8Support(): void
     {
         $dataArray = [
             'data' => [
@@ -14,10 +18,11 @@ final class EmitResponseTest extends TestCase {
             ]
         ];
         
-        $response = json_encode($dataArray);
-
         $expected = json_encode($dataArray, JSON_UNESCAPED_UNICODE);
 
-        self::assertSame($expected, $response);
+        $helper = new Helper();
+        $helper->sendResponse($dataArray);
+
+        $this->expectOutputString($expected);
     }
 }
