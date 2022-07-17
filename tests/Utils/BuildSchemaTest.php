@@ -1579,7 +1579,7 @@ final class BuildSchemaTest extends TestCaseBase
             ],
             'scalar MyType',
             function (ScalarType $type): void {
-            // nothing else to assert here, scalar extensions can add only directives
+                // nothing else to assert here, scalar extensions can add only directives
             },
         ];
         yield 'object' => [
