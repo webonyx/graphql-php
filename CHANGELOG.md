@@ -47,6 +47,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Do not change HTTP status code in `StandardServer`
 - Use `"` instead of `"""` for single line descriptions
 - Make `Helper::emitResponse()` private, use `Helper::sendResponse()`
+- Emit unescaped UTF-8 from `StandardServer`
 
 ### Added
 
