@@ -69,6 +69,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Add option `sortTypes` to have `SchemaPrinter` order types alphabetically
 - Allow constructing `EnumType` from PHP enum
 - Add `TypeInfo::getParentTypeStack()` and `TypeInfo::getFieldDefStack()`
+- Include path to faulty input in coercion errors
 
 ### Optimized
 
