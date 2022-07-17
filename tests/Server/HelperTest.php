@@ -2,12 +2,12 @@
 
 namespace GraphQL\Tests\Server;
 
-use PHPUnit\Framework\TestCase;
-use GraphQL\Server\Helper;
 use GraphQL\Executor\ExecutionResult;
+use GraphQL\Server\Helper;
+use PHPUnit\Framework\TestCase;
 
-final class HelperTest extends TestCase {
-
+final class HelperTest extends TestCase
+{
     /**
      * @runInSeparateProcess
      */
