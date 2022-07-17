@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Utils;
 
 use function acos;
+use GraphQL\Error\CoercionError;
 
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\EnumType;
@@ -16,6 +17,9 @@ use PHPUnit\Framework\TestCase;
 
 use function pow;
 
+/**
+ * @phpstan-import-type InputPath from CoercionError
+ */
 class CoerceValueTest extends TestCase
 {
     private EnumType $testEnum;
@@ -32,11 +36,19 @@ class CoerceValueTest extends TestCase
             ],
         ]);
 
+        $nestedObject = new InputObjectType([
+            'name' => 'TestInputObject',
+            'fields' => [
+                'foobar' => Type::nonNull(Type::int()),
+            ],
+        ]);
+
         $this->testInputObject = new InputObjectType([
             'name' => 'TestInputObject',
             'fields' => [
                 'foo' => Type::nonNull(Type::int()),
                 'bar' => Type::int(),
+                'nested' => $nestedObject,
             ],
         ]);
     }
@@ -80,15 +92,20 @@ class CoerceValueTest extends TestCase
      * Describe: for GraphQLInt.
      *
      * @param mixed $result returned result
+     * @param InputPath|null $expectedPath
      */
-    private function expectGraphQLError($result, string $expected): void
+    private function expectGraphQLError($result, string $expected, ?array $expectedPath = null): void
     {
         self::assertIsArray($result);
 
         $errors = $result['errors'];
         self::assertIsArray($errors);
         self::assertCount(1, $errors);
-        self::assertSame($expected, $errors[0]->getMessage());
+
+        $error = $errors[0];
+        self::assertInstanceOf(CoercionError::class, $error);
+        self::assertSame($expected, $error->getMessage());
+        self::assertSame($expectedPath, $error->inputPath);
 
         self::assertNull($result['value']);
     }
@@ -401,27 +418,44 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @see it('returns no error for a non-object type')
-     *
      * @param mixed $input
+     * @param InputPath|null $path
      *
      * @dataProvider invalidInputObjects
+     *
+     * @see it('returns no error for a non-object type')
      */
-    public function testReturnsErrorForInvalidInputObject($input): void
+    public function testReturnsErrorForInvalidInputObject($input, string $message, ?array $path): void
     {
         $result = Value::coerceValue($input, $this->testInputObject);
-        $this->expectGraphQLError($result, 'Expected type TestInputObject to be an object.');
+        $this->expectGraphQLError($result, $message, $path);
     }
 
     /**
-     * @return iterable<int, array{mixed}>
+     * @return iterable<int, array{0: mixed, 1: string, 2: InputPath|null}>
      */
     public function invalidInputObjects(): iterable
     {
-        yield [123];
+        yield [
+            ['foo' => 1234, 'nested' => ['foobar' => null]],
+            'Expected non-nullable type Int! not to be null at value.nested.foobar.',
+            ['nested', 'foobar'],
+        ];
+        yield [
+            ['foo' => null, 'bar' => 1234],
+            'Expected non-nullable type Int! not to be null at value.foo.',
+            ['foo'],
+        ];
+        yield [
+            123,
+            'Expected type TestInputObject to be an object.',
+            null,
+        ];
         yield [
             new class() {
             },
+            'Expected type TestInputObject to be an object.',
+            null,
         ];
     }
 
@@ -433,7 +467,8 @@ class CoerceValueTest extends TestCase
         $result = Value::coerceValue(['foo' => 'abc'], $this->testInputObject);
         $this->expectGraphQLError(
             $result,
-            'Expected type Int at value.foo; Int cannot represent non-integer value: abc'
+            'Expected type Int at value.foo; Int cannot represent non-integer value: abc',
+            ['foo']
         );
     }
 
@@ -443,6 +478,11 @@ class CoerceValueTest extends TestCase
     public function testReturnsMultipleErrorsForMultipleInvalidFields(): void
     {
         $result = Value::coerceValue(['foo' => 'abc', 'bar' => 'def'], $this->testInputObject);
+
+        self::assertNotNull($result['errors']);
+        self::assertArrayHasKey(0, $result['errors']);
+        self::assertArrayHasKey(1, $result['errors']);
+
         self::assertEquals(
             [
                 'Expected type Int at value.foo; Int cannot represent non-integer value: abc',
@@ -450,6 +490,8 @@ class CoerceValueTest extends TestCase
             ],
             $result['errors']
         );
+        self::assertEquals(['foo'], $result['errors'][0]->inputPath);
+        self::assertEquals(['bar'], $result['errors'][1]->inputPath);
     }
 
     /**
