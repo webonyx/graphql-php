@@ -15,9 +15,7 @@ final class HelperTest extends TestCase {
     {
         $helper = new Helper();
         $result = new ExecutionResult([
-            'data' => [
-                'name' => 'Петя'
-            ]
+            'name' => 'Петя',
         ]);
 
         $this->expectOutputString('{"data":{"name":"Петя"}}');
