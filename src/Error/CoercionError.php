@@ -2,6 +2,7 @@
 
 namespace GraphQL\Error;
 
+use GraphQL\Utils\Utils;
 use Throwable;
 
 /**
@@ -15,11 +16,18 @@ class CoercionError extends Error
     public ?array $inputPath;
 
     /**
+     * @var mixed whatever invalid value was passed
+     */
+    public $invalidValue;
+
+    /**
      * @param InputPath|null $inputPath
+     * @param mixed $invalidValue whatever invalid value was passed
      */
     public function __construct(
         string $message,
         ?array $inputPath,
+        $invalidValue,
         ?Throwable $previous = null
     ) {
         parent::__construct($message, null, null, [], null, $previous);
@@ -40,5 +48,10 @@ class CoercionError extends Error
         }
 
         return $path;
+    }
+
+    public function printInvalidValue(): string
+    {
+        return Utils::printSafeJson($this->invalidValue);
     }
 }

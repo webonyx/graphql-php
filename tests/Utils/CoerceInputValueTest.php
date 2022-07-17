@@ -75,6 +75,17 @@ class CoerceInputValueTest extends TestCase
     public function testReturnsNoErrorForNullValue(): void
     {
         $result = Value::coerceInputValue(null, $this->testNonNull);
+        $this->expectGraphQLError($result, [new CoercionError('Expected non-nullable type "Int!" not to be null.', null, null)]);
+    }
+
+    /**
+     * @see describe('for GraphQLScalar', () => {
+     * @see it('returns no error for valid input', () => {
+     */
+    public function testReturnsNoErrorForNonNullValue(): void
+    {
+        $result = Value::coerceInputValue(1, $this->testNonNull);
+        $this->expectGraphQLValue($result, 1);
     }
 
     /**
@@ -113,23 +124,23 @@ class CoerceInputValueTest extends TestCase
     }
 
     /**
-     * Describe: for GraphQLInt.
-     *
      * @param mixed $result returned result
-     * @param InputPath|null $expectedPath
+     * @param list<CoercionError> $coercionErrors
      */
-    private function expectGraphQLError($result, string $expected, ?array $expectedPath = null): void
+    private function expectGraphQLError($result, array $coercionErrors): void
     {
         self::assertIsArray($result);
 
         $errors = $result['errors'];
         self::assertIsArray($errors);
-        self::assertCount(1, $errors);
+        self::assertCount(count($coercionErrors), $errors);
 
-        $error = $errors[0];
-        self::assertInstanceOf(CoercionError::class, $error);
-        self::assertSame($expected, $error->getMessage());
-        self::assertSame($expectedPath, $error->inputPath);
+        foreach ($errors as $i => $error) {
+            $expected = $coercionErrors[$i];
+            self::assertSame($expected->getMessage(), $error->getMessage());
+            self::assertSame($expected->inputPath, $error->inputPath);
+            self::assertSame($expected->invalidValue, $error->invalidValue);
+        }
 
         self::assertNull($result['value']);
     }

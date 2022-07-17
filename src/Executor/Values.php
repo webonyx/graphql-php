@@ -115,7 +115,7 @@ class Values
                         $coercionErrors = $coerced['errors'];
                         if ($coercionErrors !== null) {
                             foreach ($coercionErrors as $error) {
-                                $invalidValue = Utils::printSafeJson($value);
+                                $invalidValue = $error->printInvalidValue();
 
                                 $inputPath = $error->printInputPath();
                                 $message = "Variable \"\${$varName}\" got invalid value {$invalidValue}"
