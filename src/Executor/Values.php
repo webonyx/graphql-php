@@ -119,7 +119,7 @@ class Values
 
                                 $inputPath = $error->printInputPath();
                                 $message = "Variable \"\${$varName}\" got invalid value {$invalidValue}"
-                                    . ($inputPath
+                                    . ($inputPath !== null
                                         ? " at \"{$varName}{$inputPath}\""
                                         : '')
                                     . '; ' . $error->getMessage();

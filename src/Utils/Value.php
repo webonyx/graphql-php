@@ -2,14 +2,7 @@
 
 namespace GraphQL\Utils;
 
-use function array_key_exists;
-use function array_keys;
-use function array_map;
-use function array_merge;
-use function assert;
-
 use GraphQL\Error\CoercionError;
-use GraphQL\Error\Error;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -18,21 +11,15 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
-
-use function is_array;
-
 use stdClass;
 use Throwable;
 use Traversable;
 
 /**
- * Coerces a PHP value given a GraphQL Input Type.
- *
  * @phpstan-type CoercedValue array{errors: null, value: mixed}
  * @phpstan-type CoercedErrors array{errors: array<int, CoercionError>, value: null}
  *
- * The key prev should actually also be typed as Path, but PHPStan does not support recursive types.
- * @phpstan-type Path array{prev: array<string, mixed>|null, key: string|int}
+ * @phpstan-import-type InputPath from CoercionError
  */
 class Value
 {
@@ -44,7 +31,7 @@ class Value
      *
      * @param mixed $value
      * @param InputType&Type $type
-     * @phpstan-param Path|null $path
+     * @phpstan-param InputPath|null $path
      *
      * @phpstan-return CoercedValue|CoercedErrors
      */
@@ -91,10 +78,10 @@ class Value
                     )
                 );
 
-                $message = "Expected type {$type->name}"
-                    . count($suggestions) > 0
-                        ? ', did you mean ' . Utils::orList($suggestions) . '?'
-                        : '.';
+                $message = "Expected type {$type->name}."
+                    . (count($suggestions) > 0
+                        ? ' Did you mean ' . Utils::orList($suggestions) . '?'
+                        : '');
 
                 return self::ofErrors([
                     new CoercionError($message, $path, $error),
@@ -185,10 +172,10 @@ class Value
                 (string) $fieldName,
                 array_keys($fields)
             );
-            $message = "Field \"{$fieldName}\" is not defined by type {$type->name}"
-                . count($suggestions) > 0
-                    ? 'did you mean ' . Utils::orList($suggestions) . '?'
-                    : '.';
+            $message = "Field \"{$fieldName}\" is not defined by type {$type->name}."
+                . (count($suggestions) > 0
+                    ? ' Did you mean ' . Utils::orList($suggestions) . '?'
+                    : '');
 
             $errors = self::add(
                 $errors,

@@ -20,7 +20,7 @@ class CoercionError extends Error
     public function __construct(
         string $message,
         ?array $inputPath,
-        ?Throwable $previous = null,
+        ?Throwable $previous = null
     ) {
         parent::__construct($message, null, null, [], null, $previous);
         $this->inputPath = $inputPath;
