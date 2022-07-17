@@ -117,8 +117,15 @@ class Values
                             foreach ($coercionErrors as $error) {
                                 $invalidValue = Utils::printSafeJson($value);
 
+                                $inputPath = $error->printInputPath();
+                                $message = "Variable \"\${$varName}\" got invalid value {$invalidValue}"
+                                    . ($inputPath
+                                        ? " at \"{$varName}{$inputPath}\""
+                                        : '')
+                                    . '; ' . $error->getMessage();
+
                                 $errors[] = new Error(
-                                    "Variable \"\${$varName}\" got invalid value {$invalidValue}; {$error->getMessage()}",
+                                    $message,
                                     $varDefNode,
                                     $error->getSource(),
                                     $error->getPositions(),

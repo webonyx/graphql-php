@@ -10,7 +10,6 @@ use function assert;
 
 use GraphQL\Error\CoercionError;
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -21,7 +20,6 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 
 use function is_array;
-use function is_string;
 
 use stdClass;
 use Throwable;
@@ -55,10 +53,7 @@ class Value
         if ($type instanceof NonNull) {
             if ($value === null) {
                 return self::ofErrors([
-                    self::coercionError(
-                        "Expected non-nullable type {$type} not to be null",
-                        $path
-                    ),
+                    new CoercionError("Expected non-nullable type {$type} not to be null.", $path),
                 ]);
             }
 
@@ -79,12 +74,7 @@ class Value
                 return self::ofValue($type->parseValue($value));
             } catch (Throwable $error) {
                 return self::ofErrors([
-                    self::coercionError(
-                        "Expected type {$type->name}",
-                        $path,
-                        $error->getMessage(),
-                        $error
-                    ),
+                    new CoercionError("Expected type {$type->name}.", $path, $error),
                 ]);
             }
         }
@@ -101,17 +91,13 @@ class Value
                     )
                 );
 
-                $didYouMean = $suggestions === []
-                    ? null
-                    : 'did you mean ' . Utils::orList($suggestions) . '?';
+                $message = "Expected type {$type->name}"
+                    . count($suggestions) > 0
+                        ? ', did you mean ' . Utils::orList($suggestions) . '?'
+                        : '.';
 
                 return self::ofErrors([
-                    self::coercionError(
-                        "Expected type {$type->name}",
-                        $path,
-                        $didYouMean,
-                        $error
-                    ),
+                    new CoercionError($message, $path, $error),
                 ]);
             }
         }
@@ -127,7 +113,7 @@ class Value
                     $coercedItem = self::coerceInputValue(
                         $itemValue,
                         $itemType,
-                        self::atPath($path, $index)
+                        [...$path ?? [], $index]
                     );
 
                     if (isset($coercedItem['errors'])) {
@@ -158,10 +144,7 @@ class Value
             $value = (array) $value;
         } elseif (! is_array($value)) {
             return self::ofErrors([
-                self::coercionError(
-                    "Expected type {$type->name} to be an object",
-                    $path
-                ),
+                new CoercionError("Expected type {$type->name} to be an object.", $path),
             ]);
         }
 
@@ -174,7 +157,7 @@ class Value
                 $coercedField = self::coerceInputValue(
                     $fieldValue,
                     $field->getType(),
-                    self::atPath($path, $fieldName)
+                    [...$path ?? [], $fieldName],
                 );
 
                 if (isset($coercedField['errors'])) {
@@ -185,12 +168,9 @@ class Value
             } elseif ($field->defaultValueExists()) {
                 $coercedValue[$fieldName] = $field->defaultValue;
             } elseif ($field->getType() instanceof NonNull) {
-                $fieldPath = self::printPath(self::atPath($path, $fieldName));
                 $errors = self::add(
                     $errors,
-                    self::coercionError(
-                        "Field {$fieldPath} of required type {$field->getType()->toString()} was not provided",
-                    )
+                    new CoercionError("Field {$fieldName} of required type {$field->getType()->toString()} was not provided.", $path)
                 );
             }
         }
@@ -205,16 +185,14 @@ class Value
                 (string) $fieldName,
                 array_keys($fields)
             );
-            $didYouMean = $suggestions === []
-                ? null
-                : 'did you mean ' . Utils::orList($suggestions) . '?';
+            $message = "Field \"{$fieldName}\" is not defined by type {$type->name}"
+                . count($suggestions) > 0
+                    ? 'did you mean ' . Utils::orList($suggestions) . '?'
+                    : '.';
+
             $errors = self::add(
                 $errors,
-                self::coercionError(
-                    "Field \"{$fieldName}\" is not defined by type {$type->name}",
-                    $path,
-                    $didYouMean
-                )
+                new CoercionError($message, $path)
             );
         }
 
@@ -234,66 +212,6 @@ class Value
     }
 
     /**
-     * @phpstan-param Path|null $path
-     */
-    private static function coercionError(
-        string $message,
-        ?array $path = null,
-        ?string $subMessage = null,
-        ?Throwable $originalError = null
-    ): CoercionError {
-        $pathStr = self::printPath($path);
-
-        $fullMessage = $message
-            . ($pathStr === ''
-                ? ''
-                : ' at ' . $pathStr)
-            . ($subMessage === null || $subMessage === ''
-                ? '.'
-                : '; ' . $subMessage);
-
-        $atPath = null;
-        if ($path !== null) {
-            $atPath = [];
-            do {
-                $key = $path['key'];
-                array_unshift($atPath, $key);
-                $path = $path['prev'];
-            } while ($path !== null);
-        }
-
-        return new CoercionError(
-            $fullMessage,
-            $originalError,
-            $atPath
-        );
-    }
-
-    /**
-     * Build a string describing the path into the value where the error was found.
-     *
-     * @phpstan-param Path|null $path
-     */
-    private static function printPath(?array $path = null): string
-    {
-        if ($path === null) {
-            return '';
-        }
-
-        $pathStr = '';
-        do {
-            $key = $path['key'];
-            $pathStr = (is_string($key)
-                    ? ".{$key}"
-                    : "[{$key}]")
-                . $pathStr;
-            $path = $path['prev'];
-        } while ($path !== null);
-
-        return "value{$pathStr}";
-    }
-
-    /**
      * @param mixed $value any value
      *
      * @phpstan-return CoercedValue
@@ -301,17 +219,6 @@ class Value
     private static function ofValue($value): array
     {
         return ['errors' => null, 'value' => $value];
-    }
-
-    /**
-     * @param string|int $key
-     * @phpstan-param Path|null $prev
-     *
-     * @return Path
-     */
-    private static function atPath(?array $prev, $key): array
-    {
-        return ['prev' => $prev, 'key' => $key];
     }
 
     /**

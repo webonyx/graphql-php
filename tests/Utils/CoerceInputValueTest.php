@@ -2,13 +2,13 @@
 
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\Type\Definition\NonNull;
 use function acos;
 
 use GraphQL\Error\CoercionError;
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Value;
 
@@ -26,6 +26,7 @@ class CoerceInputValueTest extends TestCase
     private NonNull $testNonNull;
 
     private EnumType $testEnum;
+
     private InputObjectType $testInputObject;
 
     public function setUp(): void

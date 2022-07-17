@@ -111,13 +111,9 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             $this->extensions = null;
         }
 
-        if ($previous instanceof ClientAware) {
-            $this->isClientSafe = $previous->isClientSafe();
-        } elseif ($previous !== null) {
-            $this->isClientSafe = false;
-        } else {
-            $this->isClientSafe = true;
-        }
+        $this->isClientSafe = $previous instanceof ClientAware
+            ? $previous->isClientSafe()
+            : $previous === null;
     }
 
     /**
