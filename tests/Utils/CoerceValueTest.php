@@ -101,12 +101,13 @@ class CoerceValueTest extends TestCase
         $errors = $result['errors'];
         self::assertIsArray($errors);
         self::assertCount(1, $errors);
-        self::assertInstanceOf(CoercionError::class, $errors[0]);
-        self::assertSame($expected, $errors[0]->getMessage());
+
+        $error = $errors[0];
+        self::assertInstanceOf(CoercionError::class, $error);
+        self::assertSame($expected, $error->getMessage());
+        self::assertSame($expectedPath, $error->inputPath);
 
         self::assertNull($result['value']);
-
-        self::assertSame($expectedPath, $errors[0]->inputPath);
     }
 
     /**
