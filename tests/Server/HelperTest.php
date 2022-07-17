@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Server;
 
 use PHPUnit\Framework\TestCase;
 use GraphQL\Server\Helper;
+use GraphQL\Executor\ExecutionResult;
 
 final class HelperTest extends TestCase {
 
@@ -13,12 +14,13 @@ final class HelperTest extends TestCase {
     public function testSendResponseWithUtf8Support(): void
     {
         $helper = new Helper();
-
-        $this->expectOutputString('{"data":{"name":"Петя"}}');
-        $helper->sendResponse([
+        $result = new ExecutionResult([
             'data' => [
                 'name' => 'Петя'
             ]
         ]);
+
+        $this->expectOutputString('{"data":{"name":"Петя"}}');
+        $helper->sendResponse($result);
     }
 }
