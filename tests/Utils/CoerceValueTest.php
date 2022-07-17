@@ -3,8 +3,8 @@
 namespace GraphQL\Tests\Utils;
 
 use function acos;
-use GraphQL\Error\CoercionError;
 
+use GraphQL\Error\CoercionError;
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
