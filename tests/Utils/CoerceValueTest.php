@@ -4,12 +4,17 @@ namespace GraphQL\Tests\Utils;
 
 use function acos;
 use GraphQL\Error\CoercionError;
+
+use GraphQL\Error\Error;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Value;
+
 use function log;
+
 use PHPUnit\Framework\TestCase;
+
 use function pow;
 
 /**

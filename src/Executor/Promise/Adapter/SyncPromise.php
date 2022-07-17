@@ -4,8 +4,10 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use Exception;
 use GraphQL\Error\InvariantViolation;
+
 use function is_object;
 use function method_exists;
+
 use SplQueue;
 use Throwable;
 

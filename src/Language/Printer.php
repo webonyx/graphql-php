@@ -4,6 +4,7 @@ namespace GraphQL\Language;
 
 use function array_filter;
 use function count;
+
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
@@ -49,6 +50,7 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
+
 use function implode;
 use function json_encode;
 use function str_replace;
@@ -410,7 +412,7 @@ class Printer
 
             case $node instanceof StringValueNode:
                 if ($node->block) {
-                    return BlockString::print($node->value, $isDescription ? '' : '  ');
+                    return BlockString::print($node->value, $isDescription ? '' : '  ', true);
                 }
 
                 return json_encode($node->value, JSON_THROW_ON_ERROR);

@@ -6,6 +6,7 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function count;
+
 use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -253,6 +254,7 @@ class SchemaExtender
             'fields' => fn (): array => $this->extendInputFieldMap($type),
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
+            'parseValue' => [$type, 'parseValue'],
         ]);
     }
 

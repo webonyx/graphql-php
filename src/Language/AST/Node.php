@@ -4,8 +4,11 @@ namespace GraphQL\Language\AST;
 
 use function count;
 use function get_object_vars;
+
 use GraphQL\Utils\Utils;
+
 use function json_encode;
+
 use JsonSerializable;
 
 /**

@@ -4,6 +4,7 @@ namespace GraphQL\Executor;
 
 use function array_key_exists;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -42,6 +43,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
+
 use function sprintf;
 
 /**

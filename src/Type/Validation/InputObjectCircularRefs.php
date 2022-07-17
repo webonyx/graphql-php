@@ -6,11 +6,13 @@ use function array_map;
 use function array_pop;
 use function array_slice;
 use function count;
+
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\SchemaValidationContext;
+
 use function implode;
 
 class InputObjectCircularRefs

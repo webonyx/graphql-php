@@ -10,10 +10,12 @@ use function count;
 use function dechex;
 use function get_class;
 use function gettype;
+
 use GraphQL\Error\Error;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
+
 use function is_array;
 use function is_object;
 use function is_scalar;
@@ -28,7 +30,9 @@ use function pack;
 use function preg_match;
 use function property_exists;
 use function range;
+
 use stdClass;
+
 use function unpack;
 
 class Utils

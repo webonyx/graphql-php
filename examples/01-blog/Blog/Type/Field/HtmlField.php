@@ -4,6 +4,7 @@ namespace GraphQL\Examples\Blog\Type\Field;
 
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
 use GraphQL\Examples\Blog\Types;
+
 use function mb_substr;
 use function nl2br;
 use function strip_tags;
@@ -44,7 +45,7 @@ class HtmlField
                             return nl2br($safeText);
                         }
 
-                            return $html;
+                        return $html;
 
                     case ContentFormatType::FORMAT_TEXT:
                     default:

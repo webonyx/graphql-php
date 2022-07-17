@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 
 use function array_pop;
 use function count;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -66,6 +67,22 @@ class TypeInfo
     public function __construct(Schema $schema)
     {
         $this->schema = $schema;
+    }
+
+    /**
+     * @return array<int, (CompositeType&Type)|null>
+     */
+    public function getParentTypeStack(): array
+    {
+        return $this->parentTypeStack;
+    }
+
+    /**
+     * @return array<int, FieldDefinition|null>
+     */
+    public function getFieldDefStack(): array
+    {
+        return $this->fieldDefStack;
     }
 
     /**

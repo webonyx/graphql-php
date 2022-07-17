@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;

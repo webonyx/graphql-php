@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Validator;
 
 use function array_map;
+
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;

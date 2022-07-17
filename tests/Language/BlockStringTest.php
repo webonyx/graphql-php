@@ -3,7 +3,9 @@
 namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\BlockString;
+
 use function implode;
+
 use PHPUnit\Framework\TestCase;
 
 class BlockStringTest extends TestCase
@@ -191,7 +193,7 @@ class BlockStringTest extends TestCase
     {
         $str = 'one liner';
 
-        self::assertEquals('"""one liner"""', BlockString::print($str));
+        self::assertEquals('"one liner"', BlockString::print($str));
         self::assertEquals("\"\"\"\none liner\n\"\"\"", BlockString::print($str, '', true));
     }
 
@@ -202,7 +204,7 @@ class BlockStringTest extends TestCase
     {
         $str = '    space-led string';
 
-        self::assertEquals('"""    space-led string"""', BlockString::print($str));
+        self::assertEquals('"    space-led string"', BlockString::print($str));
         self::assertEquals("\"\"\"    space-led string\n\"\"\"", BlockString::print($str, '', true));
     }
 
@@ -257,7 +259,7 @@ class BlockStringTest extends TestCase
     {
         $str = '';
 
-        self::assertEquals('""""""', BlockString::print($str));
+        self::assertEquals('""', BlockString::print($str));
         self::assertEquals("\"\"\"\n\n\"\"\"", BlockString::print($str, '', true));
     }
 }

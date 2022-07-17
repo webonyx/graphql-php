@@ -4,6 +4,7 @@ namespace GraphQL\Tests;
 
 use function array_intersect_key;
 use function array_map;
+
 use Exception;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InterfaceType;

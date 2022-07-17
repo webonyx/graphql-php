@@ -3,6 +3,7 @@
 namespace GraphQL\Utils;
 
 use function array_map;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;

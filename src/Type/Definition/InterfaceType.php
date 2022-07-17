@@ -6,6 +6,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Utils\Utils;
+
 use function is_callable;
 
 /**

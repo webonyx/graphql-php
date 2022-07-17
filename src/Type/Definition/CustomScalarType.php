@@ -8,6 +8,7 @@ use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Utils\AST;
+
 use function is_callable;
 
 /**

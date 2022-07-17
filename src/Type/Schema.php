@@ -18,6 +18,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\InterfaceImplementations;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
+
 use function implode;
 use function is_array;
 use function is_callable;
@@ -253,26 +254,26 @@ class Schema
      */
     public function getType(string $name): ?Type
     {
-        if (! isset($this->resolvedTypes[$name])) {
-            $introspectionTypes = Introspection::getTypes();
-            if (isset($introspectionTypes[$name])) {
-                return $introspectionTypes[$name];
-            }
-
-            $standardTypes = Type::getStandardTypes();
-            if (isset($standardTypes[$name])) {
-                return $standardTypes[$name];
-            }
-
-            $type = $this->loadType($name);
-            if ($type === null) {
-                return null;
-            }
-
-            return $this->resolvedTypes[$name] = self::resolveType($type);
+        if (isset($this->resolvedTypes[$name])) {
+            return $this->resolvedTypes[$name];
         }
 
-        return $this->resolvedTypes[$name];
+        $introspectionTypes = Introspection::getTypes();
+        if (isset($introspectionTypes[$name])) {
+            return $introspectionTypes[$name];
+        }
+
+        $standardTypes = Type::getStandardTypes();
+        if (isset($standardTypes[$name])) {
+            return $standardTypes[$name];
+        }
+
+        $type = $this->loadType($name);
+        if ($type === null) {
+            return null;
+        }
+
+        return $this->resolvedTypes[$name] = self::resolveType($type);
     }
 
     public function hasType(string $name): bool

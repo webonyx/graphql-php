@@ -6,6 +6,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function is_callable;
 use function is_iterable;

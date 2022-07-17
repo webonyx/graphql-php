@@ -8,6 +8,7 @@ use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
+
 use function is_callable;
 
 /**

@@ -8,6 +8,8 @@ use function array_map;
 use function array_merge;
 use function assert;
 use GraphQL\Error\CoercionError;
+
+use GraphQL\Error\Error;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
@@ -17,8 +19,10 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+
 use function is_array;
 use function is_string;
+
 use stdClass;
 use Throwable;
 use Traversable;

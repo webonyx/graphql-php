@@ -6,6 +6,7 @@ use function array_filter;
 use function array_map;
 use function count;
 use function explode;
+
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
@@ -27,6 +28,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+
 use function implode;
 use function mb_strlen;
 use function str_replace;

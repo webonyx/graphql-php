@@ -3,8 +3,10 @@
 namespace GraphQL\Language;
 
 use function chr;
+
 use GraphQL\Error\SyntaxError;
 use GraphQL\Utils\Utils;
+
 use function hexdec;
 use function mb_convert_encoding;
 use function ord;
@@ -171,7 +173,7 @@ class Lexer
                 return new Token(Token::PIPE, $position, $position + 1, $line, $col, $prev);
             case self::TOKEN_BRACE_R:
                 return new Token(Token::BRACE_R, $position, $position + 1, $line, $col, $prev);
-            // A-Z
+                // A-Z
             case 65:
             case 66:
             case 67:
@@ -198,9 +200,9 @@ class Lexer
             case 88:
             case 89:
             case 90:
-            // _
+                // _
             case 95:
-            // a-z
+                // a-z
             case 97:
             case 98:
             case 99:
@@ -229,9 +231,9 @@ class Lexer
             case 122:
                 return $this->moveStringCursor(-1, -1 * $bytes)
                     ->readName($line, $col, $prev);
-            // -
+                // -
             case 45:
-            // 0-9
+                // 0-9
             case 48:
             case 49:
             case 50:
@@ -244,7 +246,7 @@ class Lexer
             case 57:
                 return $this->moveStringCursor(-1, -1 * $bytes)
                     ->readNumber($line, $col, $prev);
-            // "
+                // "
             case 34:
                 [, $nextCode] = $this->readChar();
                 [, $nextNextCode] = $this->moveStringCursor(1, 1)
@@ -518,7 +520,7 @@ class Lexer
 
                         $value .= Utils::chr($code);
                         break;
-                    // null means EOF, will delegate to general handling of unterminated strings
+                        // null means EOF, will delegate to general handling of unterminated strings
                     case null:
                         continue 2;
                     default:

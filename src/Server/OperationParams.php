@@ -3,10 +3,14 @@
 namespace GraphQL\Server;
 
 use function array_change_key_case;
+
 use const CASE_LOWER;
+
 use function is_string;
 use function json_decode;
+
 use const JSON_ERROR_NONE;
+
 use function json_last_error;
 
 /**

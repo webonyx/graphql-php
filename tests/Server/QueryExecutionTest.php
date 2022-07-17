@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Server;
 
 use function count;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Error\DebugFlag;

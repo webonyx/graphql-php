@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Executor;
 
 use function acos;
 use function array_key_exists;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;

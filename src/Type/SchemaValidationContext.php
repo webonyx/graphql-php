@@ -6,6 +6,7 @@ use function array_filter;
 use function array_key_exists;
 use function array_merge;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -47,6 +48,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Validation\InputObjectCircularRefs;
 use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\Utils;
+
 use function in_array;
 use function is_array;
 use function is_object;

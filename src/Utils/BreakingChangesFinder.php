@@ -6,6 +6,7 @@ use function array_flip;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
+
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;

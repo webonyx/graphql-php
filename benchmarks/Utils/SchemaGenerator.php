@@ -4,14 +4,18 @@ namespace GraphQL\Benchmarks\Utils;
 
 use function array_merge;
 use function array_rand;
+
 use Exception;
+
 use function explode;
+
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+
 use function ucfirst;
 
 class SchemaGenerator

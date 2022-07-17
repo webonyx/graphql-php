@@ -4,11 +4,15 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
+
 use function React\Promise\all;
+
 use React\Promise\Promise as ReactPromise;
 use React\Promise\PromiseInterface as ReactPromiseInterface;
+
 use function React\Promise\reject;
 use function React\Promise\resolve;
+
 use Throwable;
 
 class ReactPromiseAdapter implements PromiseAdapter

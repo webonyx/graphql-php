@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Language;
 
 use function array_map;
 use function count;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Lexer;
@@ -11,7 +12,9 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Language\Token;
 use GraphQL\Utils\Utils;
+
 use function json_decode;
+
 use PHPUnit\Framework\TestCase;
 
 final class LexerTest extends TestCase

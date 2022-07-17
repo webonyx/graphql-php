@@ -5,13 +5,16 @@ namespace GraphQL\Utils;
 use function array_key_exists;
 use function array_search;
 use function array_splice;
+
 use ArrayAccess;
 use InvalidArgumentException;
+
 use function is_array;
 use function is_float;
 use function is_int;
 use function is_object;
 use function is_string;
+
 use ReturnTypeWillChange;
 use SplObjectStorage;
 

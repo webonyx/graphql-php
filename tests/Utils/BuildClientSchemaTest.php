@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Utils;
 
 use function array_filter;
+
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;

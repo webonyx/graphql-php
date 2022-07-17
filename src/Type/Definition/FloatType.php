@@ -9,6 +9,7 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
+
 use function is_bool;
 use function is_finite;
 use function is_float;

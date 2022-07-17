@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use function array_keys;
+
 use GraphQL\Error\InvariantViolation;
 
 /**

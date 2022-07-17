@@ -6,6 +6,7 @@ use Exception;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Tests\TestCaseBase;
 use Throwable;
+
 use function uniqid;
 
 class SyncPromiseTest extends TestCaseBase

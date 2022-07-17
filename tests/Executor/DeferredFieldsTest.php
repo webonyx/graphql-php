@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Executor;
 
 use function array_filter;
 use function count;
+
 use GraphQL\Deferred;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
@@ -11,8 +12,11 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+
 use function in_array;
+
 use PHPUnit\Framework\TestCase;
+
 use function Safe\json_encode;
 
 class DeferredFieldsTest extends TestCase

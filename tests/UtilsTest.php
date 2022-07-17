@@ -3,7 +3,9 @@
 namespace GraphQL\Tests;
 
 use GraphQL\Utils\Utils;
+
 use function mb_check_encoding;
+
 use PHPUnit\Framework\TestCase;
 
 final class UtilsTest extends TestCase

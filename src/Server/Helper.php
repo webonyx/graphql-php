@@ -5,6 +5,7 @@ namespace GraphQL\Server;
 use function array_map;
 use function count;
 use function file_get_contents;
+
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
@@ -18,6 +19,7 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
+
 use function header;
 use function html_entity_decode;
 use function is_array;
@@ -25,15 +27,21 @@ use function is_callable;
 use function is_string;
 use function json_decode;
 use function json_encode;
+
 use const JSON_ERROR_NONE;
+
 use function json_last_error;
 use function json_last_error_msg;
+
 use JsonSerializable;
+
 use function parse_str;
+
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+
 use function stripos;
 
 /**
@@ -425,10 +433,10 @@ class Helper
     /**
      * @param array<mixed>|JsonSerializable $jsonSerializable
      */
-    public function emitResponse($jsonSerializable): void
+    protected function emitResponse($jsonSerializable): void
     {
-        header('Content-Type: application/json');
-        echo json_encode($jsonSerializable);
+        header('Content-Type: application/json;charset=utf-8');
+        echo json_encode($jsonSerializable, JSON_UNESCAPED_UNICODE);
     }
 
     protected function readRawBody(): string

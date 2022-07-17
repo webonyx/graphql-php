@@ -7,6 +7,7 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function is_callable;
 use function is_iterable;
 

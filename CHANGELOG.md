@@ -45,6 +45,9 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Order schema topologically and according to the user-defined order, affects introspection and printing
 - `GraphQL\Utils\AST::typeFromAST()` now needs a type loader callable instead of the Schema
 - Do not change HTTP status code in `StandardServer`
+- Use `"` instead of `"""` for single line descriptions
+- Make `Helper::emitResponse()` private, use `Helper::sendResponse()`
+- Emit unescaped UTF-8 from `StandardServer`
 
 ### Added
 
@@ -65,6 +68,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Add `parseValue` config option to InputObjectType to parse input value to custom value object
 - Add option `sortTypes` to have `SchemaPrinter` order types alphabetically
 - Allow constructing `EnumType` from PHP enum
+- Add `TypeInfo::getParentTypeStack()` and `TypeInfo::getFieldDefStack()`
 
 ### Optimized
 
@@ -84,6 +88,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Calling `Schema::getType()` on a schema built from SDL returns `null` for unknown types (#1068)
 - Avoid crash on typeless inline fragment when using `QueryComplexity` rule
 - Avoid calling `FormattedError::addDebugEntries()` twice when using default error formatting
+- Avoid calling defined functions named like lazily loaded types
 
 ### Removed
 

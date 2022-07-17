@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use function array_key_exists;
+
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 

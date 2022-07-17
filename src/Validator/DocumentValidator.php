@@ -4,6 +4,7 @@ namespace GraphQL\Validator;
 
 use function array_merge;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Visitor;
@@ -50,6 +51,7 @@ use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
+
 use function implode;
 
 /**

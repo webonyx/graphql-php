@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Executor;
 
 use function array_map;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Deferred;
 use GraphQL\Error\FormattedError;

@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Validator;
 
 use function array_map;
+
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\SingleFieldSubscription;

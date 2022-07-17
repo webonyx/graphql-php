@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Utils;
 
 use function array_keys;
+
 use Closure;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
@@ -233,42 +234,42 @@ final class BuildSchemaTest extends TestCaseBase
             }
         */
         $sdl = <<<GRAPHQL
-            """This is a directive"""
+            "This is a directive"
             directive @foo(
-              """It has an argument"""
+              "It has an argument"
               arg: Int
             ) on FIELD
             
-            """Who knows what inside this scalar?"""
+            "Who knows what inside this scalar?"
             scalar MysteryScalar
             
-            """This is a input object type"""
+            "This is a input object type"
             input FooInput {
-              """It has a field"""
+              "It has a field"
               field: Int
             }
             
-            """This is a interface type"""
+            "This is a interface type"
             interface Energy {
-              """It also has a field"""
+              "It also has a field"
               str: String
             }
             
-            """There is nothing inside!"""
+            "There is nothing inside!"
             union BlackHole
 
-            """With an enum"""
+            "With an enum"
             enum Color {
               RED
             
-              """Not a creative color"""
+              "Not a creative color"
               GREEN
               BLUE
             }
             
-            """What a great type"""
+            "What a great type"
             type Query {
-              """And a field to boot"""
+              "And a field to boot"
               str: String
             }
             
@@ -923,7 +924,7 @@ final class BuildSchemaTest extends TestCaseBase
             GRAPHQL;
 
         $schema = BuildSchema::build("
-            ${scalarSDL}
+            {$scalarSDL}
             directive @foo on SCALAR
             directive @bar on SCALAR
         ");
@@ -960,7 +961,7 @@ final class BuildSchemaTest extends TestCaseBase
             GRAPHQL;
 
         $schema = BuildSchema::build("
-            ${objectSDL}
+            {$objectSDL}
             interface Foo
             interface Bar
             interface Baz
@@ -1033,7 +1034,7 @@ final class BuildSchemaTest extends TestCaseBase
             GRAPHQL;
 
         $schema = BuildSchema::build("
-            ${unionSDL}
+            {$unionSDL}
             type FirstType
             type SecondType
             type ThirdType

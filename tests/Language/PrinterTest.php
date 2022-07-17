@@ -10,6 +10,7 @@ use GraphQL\Language\Printer;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
+
 use function Safe\file_get_contents;
 
 class PrinterTest extends TestCaseBase
