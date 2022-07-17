@@ -110,7 +110,7 @@ class Values
                     } else {
                         // Otherwise, a non-null value was provided, coerce it to the expected
                         // type or report an error if coercion fails.
-                        $coerced = Value::coerceValue($value, $varType, $varDefNode);
+                        $coerced = Value::coerceInputValue($value, $varType);
 
                         $coercionErrors = $coerced['errors'];
                         if ($coercionErrors !== null) {
@@ -119,7 +119,7 @@ class Values
 
                                 $errors[] = new Error(
                                     "Variable \"\${$varName}\" got invalid value {$invalidValue}; {$error->getMessage()}",
-                                    $error->getNodes(),
+                                    $varDefNode,
                                     $error->getSource(),
                                     $error->getPositions(),
                                     $error->getPath(),

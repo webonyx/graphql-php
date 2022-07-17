@@ -16,16 +16,14 @@ class CoercionError extends Error
     public ?array $inputPath;
 
     /**
-     * @param iterable<array-key, Node|null>|Node|null $nodes
      * @param InputPath|null $inputPath
      */
     public function __construct(
         string $message,
-        $nodes = null,
         ?Throwable $previous = null,
         ?array $inputPath = null
     ) {
-        parent::__construct($message, $nodes, null, [], null, $previous);
+        parent::__construct($message, null, null, [], null, $previous);
         $this->inputPath = $inputPath;
     }
 }

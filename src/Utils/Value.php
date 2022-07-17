@@ -28,10 +28,7 @@ use Throwable;
 use Traversable;
 
 /**
- * Coerces a PHP value given a GraphQL Type.
- *
- * Returns either a value which is valid for the provided type or a list of
- * encountered coercion errors.
+ * Coerces a PHP value given a GraphQL Input Type.
  *
  * @phpstan-type CoercedValue array{errors: null, value: mixed}
  * @phpstan-type CoercedErrors array{errors: array<int, CoercionError>, value: null}
@@ -42,7 +39,10 @@ use Traversable;
 class Value
 {
     /**
-     * Given a type and any value, return a runtime value coerced to match the type.
+     * Coerce the given value to match the given GraphQL Input Type.
+     *
+     * Returns either a value which is valid for the provided type,
+     * or a list of encountered coercion errors.
      *
      * @param mixed $value
      * @param InputType&Type $type
@@ -50,21 +50,20 @@ class Value
      *
      * @phpstan-return CoercedValue|CoercedErrors
      */
-    public static function coerceValue($value, InputType $type, ?VariableDefinitionNode $blameNode = null, ?array $path = null): array
+    public static function coerceInputValue($value, InputType $type, ?array $path = null): array
     {
         if ($type instanceof NonNull) {
             if ($value === null) {
                 return self::ofErrors([
                     self::coercionError(
                         "Expected non-nullable type {$type} not to be null",
-                        $blameNode,
                         $path
                     ),
                 ]);
             }
 
             // @phpstan-ignore-next-line wrapped type is known to be input type after schema validation
-            return self::coerceValue($value, $type->getWrappedType(), $blameNode, $path);
+            return self::coerceInputValue($value, $type->getWrappedType(), $path);
         }
 
         if ($value === null) {
@@ -82,7 +81,6 @@ class Value
                 return self::ofErrors([
                     self::coercionError(
                         "Expected type {$type->name}",
-                        $blameNode,
                         $path,
                         $error->getMessage(),
                         $error
@@ -110,7 +108,6 @@ class Value
                 return self::ofErrors([
                     self::coercionError(
                         "Expected type {$type->name}",
-                        $blameNode,
                         $path,
                         $didYouMean,
                         $error
@@ -127,10 +124,9 @@ class Value
                 $errors = [];
                 $coercedValue = [];
                 foreach ($value as $index => $itemValue) {
-                    $coercedItem = self::coerceValue(
+                    $coercedItem = self::coerceInputValue(
                         $itemValue,
                         $itemType,
-                        $blameNode,
                         self::atPath($path, $index)
                     );
 
@@ -147,7 +143,7 @@ class Value
             }
 
             // Lists accept a non-list value as a list of one.
-            $coercedItem = self::coerceValue($value, $itemType, $blameNode);
+            $coercedItem = self::coerceInputValue($value, $itemType);
 
             return isset($coercedItem['errors'])
                 ? $coercedItem
@@ -164,7 +160,6 @@ class Value
             return self::ofErrors([
                 self::coercionError(
                     "Expected type {$type->name} to be an object",
-                    $blameNode,
                     $path
                 ),
             ]);
@@ -176,10 +171,9 @@ class Value
         foreach ($fields as $fieldName => $field) {
             if (array_key_exists($fieldName, $value)) {
                 $fieldValue = $value[$fieldName];
-                $coercedField = self::coerceValue(
+                $coercedField = self::coerceInputValue(
                     $fieldValue,
                     $field->getType(),
-                    $blameNode,
                     self::atPath($path, $fieldName)
                 );
 
@@ -196,7 +190,6 @@ class Value
                     $errors,
                     self::coercionError(
                         "Field {$fieldPath} of required type {$field->getType()->toString()} was not provided",
-                        $blameNode
                     )
                 );
             }
@@ -219,7 +212,6 @@ class Value
                 $errors,
                 self::coercionError(
                     "Field \"{$fieldName}\" is not defined by type {$type->name}",
-                    $blameNode,
                     $path,
                     $didYouMean
                 )
@@ -246,7 +238,6 @@ class Value
      */
     private static function coercionError(
         string $message,
-        ?VariableDefinitionNode $blameNode,
         ?array $path = null,
         ?string $subMessage = null,
         ?Throwable $originalError = null
@@ -273,7 +264,6 @@ class Value
 
         return new CoercionError(
             $fullMessage,
-            $blameNode,
             $originalError,
             $atPath
         );
