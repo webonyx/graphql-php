@@ -46,6 +46,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - `GraphQL\Utils\AST::typeFromAST()` now needs a type loader callable instead of the Schema
 - Do not change HTTP status code in `StandardServer`
 - Use `"` instead of `"""` for single line descriptions
+- Make `Helper::emitResponse()` private, use `Helper::sendResponse()`
 
 ### Added
 
