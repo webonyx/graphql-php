@@ -12,15 +12,13 @@ final class HelperTest extends TestCase {
      */
     public function testSendResponseWithUtf8Support(): void
     {
-        $expected = '{"data":{"name":"Петя"}}';
-        $this->expectOutputString($expected);
-
         $helper = new Helper();
-        $data = [
+
+        $this->expectOutputString('{"data":{"name":"Петя"}}');
+        $helper->sendResponse([
             'data' => [
                 'name' => 'Петя'
             ]
-        ];
-        $helper->sendResponse($data);
+        ]);
     }
 }
