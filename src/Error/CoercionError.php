@@ -23,15 +23,20 @@ class CoercionError extends Error
     /**
      * @param InputPath|null $inputPath
      * @param mixed $invalidValue whatever invalid value was passed
+     *
+     * @return static
      */
-    public function __construct(
+    public static function make(
         string $message,
         ?array $inputPath,
         $invalidValue,
         ?Throwable $previous = null
-    ) {
-        parent::__construct($message, null, null, [], null, $previous);
-        $this->inputPath = $inputPath;
+    ): self {
+        $instance = new static($message, null, null, [], null, $previous);
+        $instance->inputPath = $inputPath;
+        $instance->invalidValue = $invalidValue;
+
+        return $instance;
     }
 
     public function printInputPath(): ?string

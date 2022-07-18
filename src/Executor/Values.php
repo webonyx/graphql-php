@@ -114,24 +114,24 @@ class Values
 
                         $coercionErrors = $coerced['errors'];
                         if ($coercionErrors !== null) {
-                            foreach ($coercionErrors as $error) {
-                                $invalidValue = $error->printInvalidValue();
+                            foreach ($coercionErrors as $coercionError) {
+                                $invalidValue = $coercionError->printInvalidValue();
 
-                                $inputPath = $error->printInputPath();
+                                $inputPath = $coercionError->printInputPath();
                                 $message = "Variable \"\${$varName}\" got invalid value {$invalidValue}"
                                     . ($inputPath !== null
                                         ? " at \"{$varName}{$inputPath}\""
                                         : '')
-                                    . '; ' . $error->getMessage();
+                                    . '; ' . $coercionError->getMessage();
 
                                 $errors[] = new Error(
                                     $message,
                                     $varDefNode,
-                                    $error->getSource(),
-                                    $error->getPositions(),
-                                    $error->getPath(),
-                                    $error->getPrevious(),
-                                    $error->getExtensions()
+                                    $coercionError->getSource(),
+                                    $coercionError->getPositions(),
+                                    $coercionError->getPath(),
+                                    $coercionError,
+                                    $coercionError->getExtensions()
                                 );
                             }
                         } else {

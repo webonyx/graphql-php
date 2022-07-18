@@ -75,7 +75,7 @@ class CoerceInputValueTest extends TestCase
     public function testReturnsNoErrorForNullValue(): void
     {
         $result = Value::coerceInputValue(null, $this->testNonNull);
-        $this->expectGraphQLError($result, [new CoercionError('Expected non-nullable type "Int!" not to be null.', null, null)]);
+        $this->expectGraphQLError($result, [CoercionError::make('Expected non-nullable type "Int!" not to be null.', null, null)]);
     }
 
     /**

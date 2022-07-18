@@ -40,7 +40,7 @@ class Value
         if ($type instanceof NonNull) {
             if ($value === null) {
                 return self::ofErrors([
-                    new CoercionError("Expected non-nullable type \"{$type}\" not to be null.", $value, $path),
+                    CoercionError::make("Expected non-nullable type \"{$type}\" not to be null.", $value, $path),
                 ]);
             }
 
@@ -61,7 +61,7 @@ class Value
                 return self::ofValue($type->parseValue($value));
             } catch (Throwable $error) {
                 return self::ofErrors([
-                    new CoercionError("Expected type {$type->name}.", $path, $value, $error),
+                    CoercionError::make("Expected type {$type->name}.", $path, $value, $error),
                 ]);
             }
         }
@@ -84,7 +84,7 @@ class Value
                         : '');
 
                 return self::ofErrors([
-                    new CoercionError($message, $path, $value, $error),
+                    CoercionError::make($message, $path, $value, $error),
                 ]);
             }
         }
@@ -131,7 +131,7 @@ class Value
             $value = (array) $value;
         } elseif (! is_array($value)) {
             return self::ofErrors([
-                new CoercionError("Expected type {$type->name} to be an object.", $path, $value),
+                CoercionError::make("Expected type {$type->name} to be an object.", $path, $value),
             ]);
         }
 
@@ -157,7 +157,7 @@ class Value
             } elseif ($field->getType() instanceof NonNull) {
                 $errors = self::add(
                     $errors,
-                    new CoercionError("Field {$fieldName} of required type {$field->getType()->toString()} was not provided.", $path, $value)
+                    CoercionError::make("Field {$fieldName} of required type {$field->getType()->toString()} was not provided.", $path, $value)
                 );
             }
         }
@@ -179,7 +179,7 @@ class Value
 
             $errors = self::add(
                 $errors,
-                new CoercionError($message, $path, $value)
+                CoercionError::make($message, $path, $value)
             );
         }
 
