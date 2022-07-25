@@ -156,11 +156,13 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             $this->initializeNameLookup();
         }
 
-        if (isset($this->nameLookup[$value])) {
+        if (is_string($value) && isset($this->nameLookup[$value])) {
             return $this->nameLookup[$value]->value;
         }
 
-        throw new Error('Cannot represent value as enum: ' . Utils::printSafe($value));
+        $safeValue = Utils::printSafe($value);
+
+        throw new Error("Enum \"{$this->name}\" cannot represent non-string value: {$safeValue}.");
     }
 
     public function parseLiteral(Node $valueNode, ?array $variables = null)

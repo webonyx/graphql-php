@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Type\Definition\CustomScalarType;
 use function acos;
 
 use GraphQL\Error\CoercionError;
@@ -25,6 +26,8 @@ class CoerceInputValueTest extends TestCase
 {
     private NonNull $testNonNull;
 
+    private CustomScalarType $testScalar;
+
     private EnumType $testEnum;
 
     private InputObjectType $testInputObject;
@@ -32,6 +35,19 @@ class CoerceInputValueTest extends TestCase
     public function setUp(): void
     {
         $this->testNonNull = Type::nonNull(Type::int());
+
+        $this->testScalar = new CustomScalarType([
+            'name' => 'TestScalar',
+            'parseValue' => function ($input) {
+                if (isset($input['error'])) {
+                    throw new \Exception($input['error']);
+                }
+
+                return $input['value'];
+            },
+            'parseLiteral' => fn () => null,
+        ]);
+
         $this->testEnum = new EnumType([
             'name' => 'TestEnum',
             'values' => [
@@ -82,10 +98,82 @@ class CoerceInputValueTest extends TestCase
      * @see describe('for GraphQLScalar', () => {
      * @see it('returns no error for valid input', () => {
      */
-    public function testReturnsNoErrorForNonNullValue(): void
+    public function testReturnsNoErrorForValidInput(): void
     {
-        $result = Value::coerceInputValue(1, $this->testNonNull);
+        $result = Value::coerceInputValue(['value' => 1], $this->testScalar);
         $this->expectGraphQLValue($result, 1);
+    }
+
+    /**
+     * @see it('returns no error for null result', () => {
+     * @see it('returns no error for NaN result', () => {
+     * @see it('returns an error for undefined result', () => {
+     */
+    public function testReturnsNoErrorForNullResult(): void
+    {
+        $result = Value::coerceInputValue(['value' => null], $this->testScalar);
+        $this->expectGraphQLValue($result, null);
+    }
+
+    /**
+     * @see it('it('returns a thrown error', () => {', () => {
+     */
+    public function testReturnsAThrownError(): void
+    {
+        $result = Value::coerceInputValue(['error' => 'Some error message'], $this->testScalar);
+        $this->expectGraphQLError($result, [CoercionError::make(
+            'Expected type "TestScalar".',
+            null,
+            ['error' => 'Some error message'],
+            new \Exception('Some error message'),
+        )]);
+    }
+
+    /**
+     * @see describe('for GraphQLEnum', () => {
+     * @see it('returns no error for a known enum name', () => {
+     */
+    public function testReturnsNoErrorForAKnownEnumName(): void
+    {
+        $fooResult = Value::coerceInputValue('FOO', $this->testEnum);
+        $this->expectGraphQLValue($fooResult, 'InternalFoo');
+
+        $barResult = Value::coerceInputValue('BAR', $this->testEnum);
+        $this->expectGraphQLValue($barResult, 123456789);
+    }
+
+    /**
+     * @see it('returns an error for misspelled enum value', () => {
+     */
+    public function testReturnsAnErrorForMisspelledEnumValue(): void
+    {
+        $result = Value::coerceInputValue('foo', $this->testEnum);
+        $this->expectGraphQLError($result, [CoercionError::make(
+            'Value "foo" does not exist in "TestEnum" enum. Did you mean the enum value "FOO"?',
+            null,
+            'foo',
+        )]);
+    }
+
+    /**
+     * @see it('returns an error for incorrect value type', () => {
+     */
+    public function testReturnsErrorForIncorrectValueType(): void
+    {
+        $result1 = Value::coerceInputValue(123, $this->testEnum);
+        $this->expectGraphQLError($result1, [CoercionError::make(
+            'Enum "TestEnum" cannot represent non-string value: 123.',
+            null,
+            123
+        )]);
+
+        $result2 = Value::coerceInputValue(['field' => 'value'], $this->testEnum);
+        $this->expectGraphQLError($result2, [CoercionError::make(
+            // Differs from graphql-js due to JSON serialization
+            'Enum "TestEnum" cannot represent non-string value: {"field":"value"}.',
+            null,
+            ['field' => 'value'],
+        )]);
     }
 
     /**
@@ -395,40 +483,7 @@ class CoerceInputValueTest extends TestCase
         );
     }
 
-    /**
-     * @see it('returns no error for a known enum name')
-     */
-    public function testReturnsNoErrorForAKnownEnumName(): void
-    {
-        $fooResult = Value::coerceInputValue('FOO', $this->testEnum);
-        $this->expectGraphQLValue($fooResult, 'InternalFoo');
-
-        $barResult = Value::coerceInputValue('BAR', $this->testEnum);
-        $this->expectGraphQLValue($barResult, 123456789);
-    }
-
     // DESCRIBE: for GraphQLInputObject
-
-    /**
-     * @see it('results error for misspelled enum value')
-     */
-    public function testReturnsErrorForMisspelledEnumValue(): void
-    {
-        $result = Value::coerceInputValue('foo', $this->testEnum);
-        $this->expectGraphQLError($result, 'Expected type TestEnum; did you mean FOO?');
-    }
-
-    /**
-     * @see it('results error for incorrect value type')
-     */
-    public function testReturnsErrorForIncorrectValueType(): void
-    {
-        $result1 = Value::coerceInputValue(123, $this->testEnum);
-        $this->expectGraphQLError($result1, 'Expected type TestEnum.');
-
-        $result2 = Value::coerceInputValue(['field' => 'value'], $this->testEnum);
-        $this->expectGraphQLError($result2, 'Expected type TestEnum.');
-    }
 
     /**
      * @see it('returns no error for a valid input')

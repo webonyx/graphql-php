@@ -3,6 +3,7 @@
 namespace GraphQL\Utils;
 
 use GraphQL\Error\CoercionError;
+use GraphQL\Error\Error;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -61,7 +62,7 @@ class Value
                 return self::ofValue($type->parseValue($value));
             } catch (Throwable $error) {
                 return self::ofErrors([
-                    CoercionError::make("Expected type {$type->name}.", $path, $value, $error),
+                    CoercionError::make("Expected type \"{$type->name}\".", $path, $value, $error),
                 ]);
             }
         }
@@ -70,17 +71,25 @@ class Value
             try {
                 return self::ofValue($type->parseValue($value));
             } catch (Throwable $error) {
+                if ($error instanceof Error) {
+                    return self::ofErrors([
+                        CoercionError::make($error->getMessage(), $path, $value, $error),
+                    ]);
+                }
+
+                $safeValue = Utils::printSafeJson($value);
+
                 $suggestions = Utils::suggestionList(
-                    Utils::printSafe($value),
+                    $safeValue,
                     array_map(
                         static fn (EnumValueDefinition $enumValue): string => $enumValue->name,
                         $type->getValues()
                     )
                 );
 
-                $message = "Expected type {$type->name}."
+                $message = "Value {$safeValue} does not exist in \"{$type->name}\" enum."
                     . (count($suggestions) > 0
-                        ? ' Did you mean ' . Utils::orList($suggestions) . '?'
+                        ? ' Did you mean the enum value ' . Utils::quotedOrList($suggestions) . '?'
                         : '');
 
                 return self::ofErrors([
