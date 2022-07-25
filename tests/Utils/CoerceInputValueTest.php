@@ -2,11 +2,11 @@
 
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\Type\Definition\CustomScalarType;
 use function acos;
 
 use GraphQL\Error\CoercionError;
 use GraphQL\Error\Error;
+use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\NonNull;
