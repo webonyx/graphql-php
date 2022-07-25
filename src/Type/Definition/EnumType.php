@@ -152,7 +152,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     public function parseValue($value)
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             $safeValue = Utils::printSafe($value);
 
             throw new Error("Enum \"{$this->name}\" cannot represent non-string value: {$safeValue}.{$this->didYouMean($value)}");
@@ -162,7 +162,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             $this->initializeNameLookup();
         }
 
-        if (!isset($this->nameLookup[$value])) {
+        if (! isset($this->nameLookup[$value])) {
             throw new Error("Value \"{$value}\" does not exist in \"{$this->name}\" enum.{$this->didYouMean($value)}");
         }
 

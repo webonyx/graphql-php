@@ -5,7 +5,6 @@ namespace GraphQL\Utils;
 use GraphQL\Error\CoercionError;
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
@@ -77,10 +76,7 @@ class Value
             try {
                 return self::ofValue($type->parseValue($value));
             } catch (Throwable $error) {
-
                 $safeValue = Utils::printSafeJson($value);
-
-
 
                 return self::ofErrors([
                     CoercionError::make($message, $path, $value, $error),

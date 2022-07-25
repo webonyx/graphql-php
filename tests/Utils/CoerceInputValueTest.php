@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Utils;
 
-use stdClass;
 use function acos;
 
 use GraphQL\Error\CoercionError;
@@ -18,6 +17,8 @@ use function log;
 use PHPUnit\Framework\TestCase;
 
 use function pow;
+
+use stdClass;
 
 /**
  * @phpstan-import-type InputPath from CoercionError
@@ -530,8 +531,6 @@ class CoerceInputValueTest extends TestCase
     }
 
     // DESCRIBE: for GraphQLInputObject
-
-
 
     /**
      * @return iterable<int, array{0: mixed, 1: string, 2: InputPath|null}>
