@@ -2,10 +2,10 @@
 
 namespace GraphQL\Tests\Utils;
 
+use stdClass;
 use function acos;
 
 use GraphQL\Error\CoercionError;
-use GraphQL\Error\Error;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -177,8 +177,54 @@ class CoerceInputValueTest extends TestCase
     }
 
     /**
-     * Describe: coerceValue.
+     * @see describe('for GraphQLInputObject', () => {
+     * @see it('returns no error for a valid input')
+     *
+     * @param mixed $input
+     *
+     * @dataProvider validInputObjects
      */
+    public function testReturnsNoErrorForAValidInput($input): void
+    {
+        $result = Value::coerceInputValue($input, $this->testInputObject);
+        $this->expectGraphQLValue($result, ['foo' => 123]);
+    }
+
+    /**
+     * @return iterable<int, array{mixed}>
+     */
+    public function validInputObjects(): iterable
+    {
+        yield [['foo' => 123]];
+        yield [(object) ['foo' => 123]];
+    }
+
+    /**
+     * @see it('returns an error for a non-object type', () => {
+     */
+    public function testReturnsAnErrorForANonObjectType(): void
+    {
+        $result = Value::coerceInputValue(123, $this->testInputObject);
+        $this->expectGraphQLError($result, [CoercionError::make(
+            'Expected type "TestInputObject" to be an object.',
+            null,
+            123
+        )]);
+    }
+
+    /**
+     * @see it('returns an error for an invalid field', () => {
+     */
+    public function testReturnsAnErrorForAnInvalidField(): void
+    {
+        $notInt = new stdClass();
+        $result = Value::coerceInputValue(['foo' => $notInt], $this->testInputObject);
+        $this->expectGraphQLError($result, [CoercionError::make(
+            'Int cannot represent non-integer value: instance of stdClass',
+            ['foo'],
+            $notInt
+        )]);
+    }
 
     /**
      * Describe: for GraphQLString.
@@ -485,41 +531,7 @@ class CoerceInputValueTest extends TestCase
 
     // DESCRIBE: for GraphQLInputObject
 
-    /**
-     * @see it('returns no error for a valid input')
-     *
-     * @param mixed $input
-     *
-     * @dataProvider validInputObjects
-     */
-    public function testReturnsNoErrorForValidInputObject($input): void
-    {
-        $result = Value::coerceInputValue($input, $this->testInputObject);
-        $this->expectGraphQLValue($result, ['foo' => 123]);
-    }
 
-    /**
-     * @return iterable<int, array{mixed}>
-     */
-    public function validInputObjects(): iterable
-    {
-        yield [['foo' => 123]];
-        yield [(object) ['foo' => 123]];
-    }
-
-    /**
-     * @param mixed $input
-     * @param InputPath|null $path
-     *
-     * @dataProvider invalidInputObjects
-     *
-     * @see it('returns no error for a non-object type')
-     */
-    public function testReturnsErrorForInvalidInputObject($input, string $message, ?array $path): void
-    {
-        $result = Value::coerceInputValue($input, $this->testInputObject);
-        $this->expectGraphQLError($result, $message, $path);
-    }
 
     /**
      * @return iterable<int, array{0: mixed, 1: string, 2: InputPath|null}>

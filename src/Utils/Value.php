@@ -55,12 +55,18 @@ class Value
         }
 
         if ($type instanceof ScalarType) {
-            // Scalars determine if a value is valid via parseValue(), which can
+            // Scalars and Enums determine if a input value is valid via parseValue(), which can
             // throw to indicate failure. If it throws, maintain a reference to
             // the original error.
             try {
                 return self::ofValue($type->parseValue($value));
             } catch (Throwable $error) {
+                if ($error instanceof Error) {
+                    return self::ofErrors([
+                        CoercionError::make($error->getMessage(), $path, $value, $error),
+                    ]);
+                }
+
                 return self::ofErrors([
                     CoercionError::make("Expected type \"{$type->name}\".", $path, $value, $error),
                 ]);
@@ -71,26 +77,10 @@ class Value
             try {
                 return self::ofValue($type->parseValue($value));
             } catch (Throwable $error) {
-                if ($error instanceof Error) {
-                    return self::ofErrors([
-                        CoercionError::make($error->getMessage(), $path, $value, $error),
-                    ]);
-                }
 
                 $safeValue = Utils::printSafeJson($value);
 
-                $suggestions = Utils::suggestionList(
-                    $safeValue,
-                    array_map(
-                        static fn (EnumValueDefinition $enumValue): string => $enumValue->name,
-                        $type->getValues()
-                    )
-                );
 
-                $message = "Value {$safeValue} does not exist in \"{$type->name}\" enum."
-                    . (count($suggestions) > 0
-                        ? ' Did you mean the enum value ' . Utils::quotedOrList($suggestions) . '?'
-                        : '');
 
                 return self::ofErrors([
                     CoercionError::make($message, $path, $value, $error),
@@ -140,7 +130,7 @@ class Value
             $value = (array) $value;
         } elseif (! is_array($value)) {
             return self::ofErrors([
-                CoercionError::make("Expected type {$type->name} to be an object.", $path, $value),
+                CoercionError::make("Expected type \"{$type->name}\" to be an object.", $path, $value),
             ]);
         }
 
