@@ -123,7 +123,7 @@ class QueryExecutionTest extends ServerTestCase
 
         self::assertEquals(44, $result['errors'][0]['extensions']['line'] ?? null);
 
-        self::assertStringContainsString('tests/Server/ServerTestCase.php', $result['errors'][0]['extensions']['file'] ?? null);
+        self::assertStringContainsString('tests/Server/ServerTestCase.php', $result['errors'][0]['extensions']['file'] ?? '');
     }
 
     public function testRethrowUnsafeExceptions(): void
