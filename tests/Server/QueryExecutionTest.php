@@ -120,6 +120,12 @@ class QueryExecutionTest extends ServerTestCase
 
         $result = $this->executeQuery($query)->toArray();
         self::assertArraySubset($expected, $result);
+
+        self::assertNotNull($result['errors'][0]['extensions']['line'] ?? null, 'expected to have line in extensions');
+        self::assertEquals(42, $result['errors'][0]['extensions']['line']);
+
+        self::assertNotNull($result['errors'][0]['extensions']['file'] ?? null, 'expected to have file in extensions');
+        self::assertStringContainsString('tests/Server/ServerTestCase.php', $result['errors'][0]['extensions']['file']);
     }
 
     public function testRethrowUnsafeExceptions(): void
