@@ -7,6 +7,7 @@ use function array_filter;
 use function array_map;
 use function array_merge;
 use function array_shift;
+use function assert;
 use function count;
 
 use Countable;
@@ -226,15 +227,19 @@ class FormattedError
         }
 
         if (($debugFlag & DebugFlag::INCLUDE_TRACE) !== 0) {
+            $actualError = $e->getPrevious() ?? $e;
             if ($e instanceof ErrorException || $e instanceof \Error) {
                 $formattedError['extensions']['file'] = $e->getFile();
                 $formattedError['extensions']['line'] = $e->getLine();
+            } else {
+                $formattedError['extensions']['file'] = $actualError->getFile();
+                $formattedError['extensions']['line'] = $actualError->getLine();
             }
 
             $isTrivial = $e instanceof Error && $e->getPrevious() === null;
 
             if (! $isTrivial) {
-                $formattedError['extensions']['trace'] = static::toSafeTrace($e->getPrevious() ?? $e);
+                $formattedError['extensions']['trace'] = static::toSafeTrace($actualError);
             }
         }
 
