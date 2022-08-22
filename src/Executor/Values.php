@@ -123,7 +123,7 @@ class Values
                                     $error->getSource(),
                                     $error->getPositions(),
                                     $error->getPath(),
-                                    $error->getPrevious(),
+                                    $error,
                                     $error->getExtensions()
                                 );
                             }
