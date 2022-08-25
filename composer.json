@@ -23,7 +23,7 @@
     "phpstan/extension-installer": "^1.1",
     "phpstan/phpstan": "1.8.2",
     "phpstan/phpstan-phpunit": "1.1.1",
-    "phpstan/phpstan-strict-rules": "1.4.0",
+    "phpstan/phpstan-strict-rules": "1.4.2",
     "phpunit/phpunit": "^9.5",
     "psalm/plugin-phpunit": "^0.17",
     "psr/http-message": "^1",
