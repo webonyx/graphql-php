@@ -21,6 +21,7 @@ use InvalidArgumentException;
  * @see Visitor, FieldDefinition
  *
  * @phpstan-import-type VisitorArray from Visitor
+ *
  * @phpstan-type ASTAndDefs ArrayObject<string, ArrayObject<int, array{FieldNode, FieldDefinition|null}>>
  */
 abstract class QuerySecurityRule extends ValidationRule
@@ -91,6 +92,7 @@ abstract class QuerySecurityRule extends ValidationRule
      * @see \GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
      *
      * @param ArrayObject<string, true>|null $visitedFragmentNames
+     *
      * @phpstan-param ASTAndDefs|null $astAndDefs
      *
      * @phpstan-return ASTAndDefs

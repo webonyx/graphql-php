@@ -20,16 +20,20 @@ use function is_object;
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
  *
  * @see https://github.com/vimeo/psalm/issues/6928
+ *
  * @psalm-type FieldResolver callable(mixed, array, mixed, ResolveInfo): mixed
+ *
  * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
  *
  * @see https://github.com/vimeo/psalm/issues/6928, https://github.com/vimeo/psalm/issues/7527
+ *
  * @psalm-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array, ?string, callable): ExecutorImplementation
  */
 class Executor
 {
     /**
      * @var callable
+     *
      * @phpstan-var FieldResolver
      */
     private static $defaultFieldResolver = [self::class, 'defaultFieldResolver'];
@@ -38,6 +42,7 @@ class Executor
 
     /**
      * @var callable
+     *
      * @phpstan-var ImplementationFactory
      */
     private static $implementationFactory = [ReferenceExecutor::class, 'create'];
@@ -100,6 +105,7 @@ class Executor
      * @param mixed                     $rootValue
      * @param mixed                     $contextValue
      * @param array<string, mixed>|null $variableValues
+     *
      * @phpstan-param FieldResolver|null $fieldResolver
      *
      * @api
@@ -138,6 +144,7 @@ class Executor
      * @param mixed                     $rootValue
      * @param mixed                     $contextValue
      * @param array<string, mixed>|null $variableValues
+     *
      * @phpstan-param FieldResolver|null $fieldResolver
      *
      * @api

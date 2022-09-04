@@ -37,7 +37,6 @@ use SplObjectStorage;
  * ReasonOrReasons is recursive, but PHPStan does not support that.
  *
  * @phpstan-type ReasonOrReasons string|array<array{string, string|array<mixed>}>
- *
  * @phpstan-type Conflict array{array{string, ReasonOrReasons}, array<int, FieldNode>, array<int, FieldNode>}
  * @phpstan-type FieldInfo array{Type, FieldNode, FieldDefinition|null}
  * @phpstan-type FieldMap array<string, array<int, FieldInfo>>
@@ -238,6 +237,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * as well as a list of nested fragment names referenced via fragment spreads.
      *
      * @param array<string, bool> $fragmentNames
+     *
      * @phpstan-param FieldMap $astAndDefs
      */
     protected function internalCollectFieldsAndFragmentNames(
@@ -293,6 +293,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * Collect all Conflicts "within" one collection of fields.
      *
      * @param array<int, Conflict> $conflicts
+     *
      * @phpstan-param FieldMap $fieldMap
      */
     protected function collectConflictsWithin(
@@ -644,6 +645,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * including via spreading in any nested fragments.
      *
      * @param array<string, true> $comparedFragments
+     *
      * @phpstan-param array<int, Conflict> $conflicts
      * @phpstan-param FieldMap $fieldMap
      */
@@ -859,6 +861,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
     /**
      * @param string|array $reasonOrReasons
+     *
      * @phpstan-param ReasonOrReasons $reasonOrReasons
      */
     public static function fieldsConflictMessage(string $responseName, $reasonOrReasons): string
@@ -870,6 +873,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
     /**
      * @param string|array $reasonOrReasons
+     *
      * @phpstan-param ReasonOrReasons $reasonOrReasons
      */
     public static function reasonMessage($reasonOrReasons): string

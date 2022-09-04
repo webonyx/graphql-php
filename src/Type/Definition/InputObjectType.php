@@ -14,6 +14,7 @@ use function is_string;
 
 /**
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+ *
  * @phpstan-type EagerFieldConfig InputObjectField|(Type&InputType)|UnnamedInputObjectFieldConfig
  * @phpstan-type LazyFieldConfig callable(): EagerFieldConfig
  * @phpstan-type FieldConfig EagerFieldConfig|LazyFieldConfig
@@ -117,6 +118,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     /**
      * @param string|int $nameOrIndex
+     *
      * @phpstan-param FieldConfig $field
      */
     protected function initializeField($nameOrIndex, $field): void

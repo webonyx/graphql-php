@@ -18,6 +18,7 @@ use function is_string;
  *
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type ArgumentListConfig from Argument
+ *
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
  * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int
  * @phpstan-type FieldDefinitionConfig array{
@@ -61,6 +62,7 @@ class FieldDefinition
      * Callback for resolving field value given parent value.
      *
      * @var callable|null
+     *
      * @phpstan-var FieldResolver|null
      */
     public $resolveFn;
@@ -73,6 +75,7 @@ class FieldDefinition
 
     /**
      * @var callable|null
+     *
      * @phpstan-var ComplexityFn|null
      */
     public $complexityFn;
@@ -108,6 +111,7 @@ class FieldDefinition
     /**
      * @param ObjectType|InterfaceType $parentType
      * @param callable|iterable $fields
+     *
      * @phpstan-param FieldsConfig $fields
      *
      * @return array<string, self|UnresolvedFieldDefinition>

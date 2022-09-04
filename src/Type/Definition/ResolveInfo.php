@@ -19,6 +19,7 @@ use GraphQL\Type\Schema;
  * Passed as 4th argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
  *
  * @phpstan-import-type QueryPlanOptions from QueryPlan
+ *
  * @phpstan-type Path array<int, string|int>
  */
 class ResolveInfo
@@ -66,6 +67,7 @@ class ResolveInfo
      * @api
      *
      * @var array<int, string|int>
+     *
      * @phpstan-var Path
      */
     public array $path;
@@ -119,6 +121,7 @@ class ResolveInfo
     /**
      * @param ArrayObject<int, FieldNode> $fieldNodes
      * @param array<int, string|int> $path
+     *
      * @phpstan-param Path $path
      *
      * @param array<string, FragmentDefinitionNode> $fragments

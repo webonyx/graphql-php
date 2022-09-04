@@ -38,6 +38,7 @@ use Throwable;
  * @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
  *
  * @see https://github.com/vimeo/psalm/issues/6928
+ *
  * @psalm-type ErrorsHandler callable(Error[], ErrorFormatter): SerializableErrors
  */
 class ExecutionResult implements JsonSerializable
@@ -74,12 +75,14 @@ class ExecutionResult implements JsonSerializable
 
     /**
      * @var callable|null
+     *
      * @phpstan-var ErrorFormatter|null
      */
     private $errorFormatter = null;
 
     /**
      * @var callable|null
+     *
      * @phpstan-var ErrorsHandler|null
      */
     private $errorsHandler = null;

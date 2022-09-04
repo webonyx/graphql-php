@@ -46,6 +46,7 @@ class Value
      *
      * @param mixed $value
      * @param InputType&Type $type
+     *
      * @phpstan-param Path|null $path
      *
      * @phpstan-return CoercedValue|CoercedErrors
@@ -315,6 +316,7 @@ class Value
 
     /**
      * @param string|int $key
+     *
      * @phpstan-param Path|null $prev
      *
      * @return Path

@@ -17,6 +17,7 @@ class CustomValidationRule extends ValidationRule
 {
     /**
      * @var callable
+     *
      * @phpstan-var VisitorFn
      */
     protected $visitorFn;

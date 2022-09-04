@@ -181,6 +181,7 @@ class Parser
      * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions       $options
      *
      * @throws SyntaxError
@@ -203,6 +204,7 @@ class Parser
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
      *
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions $options
      *
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode
@@ -230,6 +232,7 @@ class Parser
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
      *
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions       $options
      *
      * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
@@ -304,6 +307,7 @@ class Parser
 
     /**
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions        $options
      */
     public function __construct($source, array $options = [])

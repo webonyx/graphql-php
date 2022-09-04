@@ -312,6 +312,7 @@ class Schema
      * @template T of Type
      *
      * @param Type|callable $type
+     *
      * @phpstan-param T|callable():T $type
      *
      * @phpstan-return T

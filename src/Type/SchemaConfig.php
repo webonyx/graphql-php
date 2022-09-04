@@ -40,6 +40,7 @@ class SchemaConfig
 
     /**
      * @var array|callable
+     *
      * @phpstan-var Types
      */
     public $types = [];
@@ -49,6 +50,7 @@ class SchemaConfig
 
     /**
      * @var callable|null
+     *
      * @phpstan-var TypeLoader|null
      */
     public $typeLoader = null;
@@ -169,6 +171,7 @@ class SchemaConfig
 
     /**
      * @return array|callable
+     *
      * @phpstan-return Types
      *
      * @api
@@ -180,6 +183,7 @@ class SchemaConfig
 
     /**
      * @param array|callable $types
+     *
      * @phpstan-param Types $types
      *
      * @api
@@ -215,6 +219,7 @@ class SchemaConfig
 
     /**
      * @return callable|null $typeLoader
+     *
      * @phpstan-return TypeLoader|null $typeLoader
      *
      * @api

@@ -13,6 +13,7 @@ use function is_iterable;
 
 /**
  * @phpstan-import-type ResolveType from AbstractType
+ *
  * @phpstan-type ObjectTypeReference ObjectType|callable(): ObjectType
  * @phpstan-type UnionConfig array{
  *   name?: string|null,

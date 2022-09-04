@@ -74,6 +74,7 @@ type Hello {
     /**
      * @param array<string, mixed> $name
      * @param array<string, mixed> $type
+     *
      * @phpstan-param LocationArray $loc
      *
      * @return array<string, mixed>
@@ -87,6 +88,7 @@ type Hello {
      * @param array<string, mixed> $name
      * @param array<string, mixed> $type
      * @param array<int, mixed>    $args
+     *
      * @phpstan-param LocationArray $loc
      *
      * @return array<string, mixed>
@@ -897,6 +899,7 @@ type Hello {
      * @param array<string, mixed> $name
      * @param array<string, mixed> $type
      * @param mixed                $defaultValue
+     *
      * @phpstan-param LocationArray $loc
      *
      * @return array<string, mixed>

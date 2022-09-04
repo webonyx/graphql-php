@@ -11,12 +11,14 @@ class ListOfType extends Type implements WrappingType, OutputType, NullableType,
 {
     /**
      * @var Type|callable
+     *
      * @phpstan-var OfType|callable(): OfType
      */
     private $wrappedType;
 
     /**
      * @param Type|callable $type
+     *
      * @phpstan-param OfType|callable(): OfType $type
      */
     public function __construct($type)

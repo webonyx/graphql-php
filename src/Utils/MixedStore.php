@@ -24,6 +24,7 @@ use SplObjectStorage;
  * When storing array as key, access and modification is O(N). Avoid if possible.
  *
  * @template TValue of mixed
+ *
  * @implements ArrayAccess<mixed, TValue>
  */
 class MixedStore implements ArrayAccess

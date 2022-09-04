@@ -59,6 +59,7 @@ class SchemaExtender
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      *
      * @api
@@ -74,6 +75,7 @@ class SchemaExtender
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      */
     protected function doExtend(

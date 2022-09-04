@@ -40,6 +40,7 @@ class CustomScalarType extends ScalarType
 
     /**
      * @param array<string, mixed> $config
+     *
      * @phpstan-param CustomScalarConfig $config
      */
     public function __construct(array $config)

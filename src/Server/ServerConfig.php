@@ -32,6 +32,7 @@ use function is_callable;
  * @phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
  * @phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
  * @phpstan-type ValidationRulesOption array<ValidationRule>|null|callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>
+ *
  * @phpstan-import-type ErrorsHandler from ExecutionResult
  * @phpstan-import-type ErrorFormatter from ExecutionResult
  */
@@ -98,18 +99,21 @@ class ServerConfig
 
     /**
      * @var mixed|callable
+     *
      * @phpstan-var mixed|RootValueResolver
      */
     private $rootValue = null;
 
     /**
      * @var callable|null
+     *
      * @phpstan-var ErrorFormatter|null
      */
     private $errorFormatter = null;
 
     /**
      * @var callable|null
+     *
      * @phpstan-var ErrorsHandler|null
      */
     private $errorsHandler = null;
@@ -120,6 +124,7 @@ class ServerConfig
 
     /**
      * @var array<ValidationRule>|callable|null
+     *
      * @phpstan-var ValidationRulesOption
      */
     private $validationRules = null;
@@ -131,6 +136,7 @@ class ServerConfig
 
     /**
      * @var callable|null
+     *
      * @phpstan-var PersistedQueryLoader|null
      */
     private $persistedQueryLoader = null;
@@ -159,6 +165,7 @@ class ServerConfig
 
     /**
      * @param mixed|callable $rootValue
+     *
      * @phpstan-param mixed|RootValueResolver $rootValue
      *
      * @api
@@ -198,6 +205,7 @@ class ServerConfig
      * Set validation rules for this server.
      *
      * @param array<ValidationRule>|callable|null $validationRules
+     *
      * @phpstan-param ValidationRulesOption $validationRules
      *
      * @api
@@ -284,6 +292,7 @@ class ServerConfig
 
     /**
      * @return mixed|callable
+     *
      * @phpstan-return mixed|RootValueResolver
      */
     public function getRootValue()
@@ -319,6 +328,7 @@ class ServerConfig
 
     /**
      * @return array<ValidationRule>|callable|null
+     *
      * @phpstan-return ValidationRulesOption
      */
     public function getValidationRules()

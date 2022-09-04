@@ -12,6 +12,7 @@ use function is_callable;
 /**
  * @phpstan-import-type ResolveType from AbstractType
  * @phpstan-import-type FieldsConfig from FieldDefinition
+ *
  * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
  * @phpstan-type InterfaceConfig array{
  *   name?: string|null,

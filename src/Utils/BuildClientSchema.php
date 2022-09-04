@@ -34,6 +34,7 @@ use function json_encode;
 /**
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+ *
  * @phpstan-type Options array{
  *   assumeValid?: bool
  * }
@@ -52,6 +53,7 @@ class BuildClientSchema
 
     /**
      * @var array<string, bool>
+     *
      * @phpstan-var Options
      */
     private array $options;
@@ -62,6 +64,7 @@ class BuildClientSchema
     /**
      * @param array<string, mixed> $introspectionQuery
      * @param array<string, bool>  $options
+     *
      * @phpstan-param Options    $options
      */
     public function __construct(array $introspectionQuery, array $options = [])
@@ -84,6 +87,7 @@ class BuildClientSchema
      *
      * @param array<string, mixed> $introspectionQuery
      * @param array<string, bool>  $options
+     *
      * @phpstan-param Options    $options
      *
      * @api

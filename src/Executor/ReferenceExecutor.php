@@ -60,6 +60,7 @@ use Throwable;
 /**
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type Path from ResolveInfo
+ *
  * @phpstan-type Fields ArrayObject<string, ArrayObject<int, FieldNode>>
  */
 class ReferenceExecutor implements ExecutorImplementation
@@ -96,6 +97,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed $rootValue
      * @param mixed $contextValue
      * @param array<string, mixed> $variableValues
+     *
      * @phpstan-param FieldResolver $fieldResolver
      */
     public static function create(
@@ -145,6 +147,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed                $rootValue
      * @param mixed                $contextValue
      * @param array<string, mixed> $rawVariableValues
+     *
      * @phpstan-param FieldResolver $fieldResolver
      *
      * @return ExecutionContext|array<int, Error>
@@ -391,6 +394,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * Object type returned by that field.
      *
      * @param ArrayObject<string, true> $visitedFragmentNames
+     *
      * @phpstan-param Fields $fields
      *
      * @phpstan-return Fields
@@ -525,6 +529,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed             $rootValue
      * @param array<string|int> $path
+     *
      * @phpstan-param Fields $fields
      *
      * @return array<mixed>|Promise|stdClass
@@ -579,6 +584,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed                       $rootValue
      * @param array<int, string|int>      $path
+     *
      * @phpstan-param Path                $path
      *
      * @param ArrayObject<int, FieldNode> $fieldNodes
@@ -680,6 +686,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * Returns the result of resolveFn or the abrupt-return Error object.
      *
      * @param mixed $rootValue
+     *
      * @phpstan-param FieldResolver $resolveFn
      *
      * @return Throwable|Promise|mixed
@@ -713,6 +720,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param ArrayObject<int, FieldNode> $fieldNodes
      * @param array<string|int>           $path
+     *
      * @phpstan-param Path                $path
      *
      * @param mixed                       $result
@@ -1270,6 +1278,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed             $rootValue
      * @param array<string|int> $path
+     *
      * @phpstan-param Fields $fields
      *
      * @return Promise|stdClass|array<mixed>
