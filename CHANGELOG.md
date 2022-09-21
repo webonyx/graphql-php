@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.11.8
+
+Fixed:
+- Correct the broken 14.11.7 release - see https://github.com/webonyx/graphql-php/issues/1221
+
 #### 14.11.7
 
 Fixed:
