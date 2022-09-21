@@ -282,7 +282,7 @@ class SchemaPrinter
                 return strlen($arg->description ?? '') === 0;
             }
         )) {
-            return '(' . implode(', ', array_map('static::printInputValue', $args)) . ')';
+            return '(' . implode(', ', array_map([static::class, 'printInputValue'], $args)) . ')';
         }
 
         return sprintf(
