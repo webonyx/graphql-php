@@ -136,6 +136,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove `StandardServer::send500Error()`, handle non-GraphQL errors yourself
 - Remove `StandardServer::getHelper()`, use `new Helper`
 
+## 14.11.7
+
+### Fixed
+
+- Fix PHP 8.2 deprecation of "static" in callables
+
 ## 14.11.6
 
 ### Fixed
