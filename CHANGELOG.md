@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.11.7
+
+Fixed:
+- Fix PHP 8.2 deprecation of "static" in callables
+
 #### 14.11.6
 
 Fixed:
