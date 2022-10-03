@@ -301,8 +301,8 @@ class CoerceInputValueTest extends TestCase
                         'parseLiteral' => static fn () => null,
                     ]),
                     'defaultValue' => $defaultValue,
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
@@ -334,8 +334,6 @@ class CoerceInputValueTest extends TestCase
         $result = Value::coerceInputValue([], $this->makeTestInputObject(null));
         $this->expectGraphQLValue($result, ['foo' => null]);
     }
-
-
 
     /**
      * Describe: for GraphQLString.
