@@ -24,6 +24,7 @@ use GraphQL\Validator\DocumentValidator;
  * See [schema definition language docs](schema-definition-language.md) for details.
  *
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+ *
  * @phpstan-type BuildSchemaOptions array{
  *   assumeValid?: bool,
  *   assumeValidSDL?: bool
@@ -47,18 +48,21 @@ class BuildSchema
 
     /**
      * @var callable|null
+     *
      * @phpstan-var TypeConfigDecorator|null
      */
     private $typeConfigDecorator;
 
     /**
      * @var array<string, bool>
+     *
      * @phpstan-var BuildSchemaOptions
      */
     private array $options;
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      * @phpstan-param BuildSchemaOptions $options
      */
@@ -77,9 +81,11 @@ class BuildSchema
      * document.
      *
      * @param DocumentNode|Source|string $source
+     *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      *
      * @param array<string, bool> $options
+     *
      * @phpstan-param BuildSchemaOptions $options
      *
      * @api
@@ -107,6 +113,7 @@ class BuildSchema
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      *
      * @param array<string, bool> $options
+     *
      * @phpstan-param BuildSchemaOptions $options
      *
      * @throws Error

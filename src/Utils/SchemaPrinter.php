@@ -42,6 +42,7 @@ class SchemaPrinter
 {
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      *
      * @api
@@ -58,6 +59,7 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      *
      * @api
@@ -74,6 +76,7 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      */
     public static function printType(Type $type, array $options = []): string
@@ -110,6 +113,7 @@ class SchemaPrinter
      * @param callable(Directive  $directive): bool $directiveFilter
      * @param callable(Type       &NamedType   $type):      bool $typeFilter
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      */
     protected static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
@@ -193,6 +197,7 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      */
     protected static function printDirective(Directive $directive, array $options): string
@@ -241,6 +246,7 @@ class SchemaPrinter
     /**
      * @param array<string, bool>  $options
      * @param array<int, Argument> $args
+     *
      * @phpstan-param Options $options
      */
     protected static function printArgs(array $options, array $args, string $indentation = ''): string
@@ -317,6 +323,7 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      */
     protected static function printScalar(ScalarType $type, array $options): string
@@ -327,6 +334,7 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      */
     protected static function printObject(ObjectType $type, array $options): string
@@ -340,6 +348,7 @@ class SchemaPrinter
     /**
      * @param array<string, bool>      $options
      * @param ObjectType|InterfaceType $type
+     *
      * @phpstan-param Options $options
      */
     protected static function printFields(array $options, $type): string
@@ -406,6 +415,7 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      */
     protected static function printInterface(InterfaceType $type, array $options): string
@@ -418,6 +428,7 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      */
     protected static function printUnion(UnionType $type, array $options): string
@@ -432,6 +443,7 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      */
     protected static function printEnum(EnumType $type, array $options): string
@@ -453,6 +465,7 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param Options $options
      */
     protected static function printInputObject(InputObjectType $type, array $options): string

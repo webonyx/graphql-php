@@ -21,6 +21,7 @@ use Traversable;
 
 /**
  * @template T of Node
+ *
  * @phpstan-implements ArrayAccess<array-key, T>
  * @phpstan-implements IteratorAggregate<array-key, T>
  */
@@ -28,6 +29,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
      * @var array<Node|array>
+     *
      * @phpstan-var array<T|array<string, mixed>>
      */
     private $nodes;
@@ -36,6 +38,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      * @template TT of Node
      *
      * @param array<Node|array<string, mixed>> $nodes
+     *
      * @phpstan-param array<TT|array<string, mixed>> $nodes
      *
      * @phpstan-return self<TT>
@@ -47,6 +50,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * @param array<Node|array> $nodes
+     *
      * @phpstan-param array<T|array<string, mixed>> $nodes
      */
     public function __construct(array $nodes)
@@ -84,6 +88,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * @param int|string|null           $offset
      * @param Node|array<string, mixed> $value
+     *
      * @phpstan-param T|array<string, mixed> $value
      */
     #[ReturnTypeWillChange]

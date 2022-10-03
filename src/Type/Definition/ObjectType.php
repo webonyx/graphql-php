@@ -51,6 +51,7 @@ use function is_callable;
  *     ]);
  *
  * @phpstan-import-type FieldResolver from Executor
+ *
  * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
  * @phpstan-type ObjectConfig array{
  *   name?: string|null,
@@ -76,6 +77,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
     /**
      * @var callable|null
+     *
      * @phpstan-var FieldResolver|null
      */
     public $resolveFieldFn;

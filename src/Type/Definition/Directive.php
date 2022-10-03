@@ -9,6 +9,7 @@ use GraphQL\Language\DirectiveLocation;
 
 /**
  * @phpstan-import-type ArgumentListConfig from Argument
+ *
  * @phpstan-type DirectiveConfig array{
  *   name: string,
  *   description?: string|null,
@@ -51,12 +52,14 @@ class Directive
 
     /**
      * @var array<string, mixed>
+     *
      * @phpstan-var DirectiveConfig
      */
     public array $config;
 
     /**
      * @param array<string, mixed> $config
+     *
      * @phpstan-param DirectiveConfig $config
      */
     public function __construct(array $config)

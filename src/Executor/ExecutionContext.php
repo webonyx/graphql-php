@@ -36,6 +36,7 @@ class ExecutionContext
 
     /**
      * @var callable
+     *
      * @phpstan-var FieldResolver
      */
     public $fieldResolver;
@@ -51,6 +52,7 @@ class ExecutionContext
      * @param mixed                                 $contextValue
      * @param array<string, mixed>                  $variableValues
      * @param array<int, Error>                     $errors
+     *
      * @phpstan-param FieldResolver $fieldResolver
      */
     public function __construct(

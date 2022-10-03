@@ -51,6 +51,7 @@ use Throwable;
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type InputObjectFieldConfig from InputObjectField
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+ *
  * @phpstan-type ResolveType callable(string, Node|null): Type
  * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
  */
@@ -61,12 +62,14 @@ class ASTDefinitionBuilder
 
     /**
      * @var callable
+     *
      * @phpstan-var ResolveType
      */
     private $resolveType;
 
     /**
      * @var callable|null
+     *
      * @phpstan-var TypeConfigDecorator|null
      */
     private $typeConfigDecorator;
@@ -80,6 +83,7 @@ class ASTDefinitionBuilder
     /**
      * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
      * @param array<string, array<int, Node&TypeExtensionNode>> $typeExtensionsMap
+     *
      * @phpstan-param ResolveType $resolveType
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      */

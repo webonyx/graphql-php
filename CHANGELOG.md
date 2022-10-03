@@ -90,6 +90,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Avoid crash on typeless inline fragment when using `QueryComplexity` rule
 - Avoid calling `FormattedError::addDebugEntries()` twice when using default error formatting
 - Avoid calling defined functions named like lazily loaded types
+- Show actual error in debug entries
 
 ### Removed
 
@@ -134,6 +135,18 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove `GraphQL\Utils\TypeInfo::typeFromAST()`, use `GraphQL\Utils\AST::typeFromAST()`
 - Remove `StandardServer::send500Error()`, handle non-GraphQL errors yourself
 - Remove `StandardServer::getHelper()`, use `new Helper`
+
+## 14.11.8
+
+### Fixed
+
+- Correct the broken 14.11.7 release - see https://github.com/webonyx/graphql-php/issues/1221
+
+## 14.11.7
+
+### Fixed
+
+- Fix PHP 8.2 deprecation of "static" in callables
 
 ## 14.11.6
 

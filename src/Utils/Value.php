@@ -31,6 +31,7 @@ class Value
      *
      * @param mixed $value
      * @param InputType&Type $type
+     *
      * @phpstan-param InputPath|null $path
      *
      * @phpstan-return CoercedValue|CoercedErrors
