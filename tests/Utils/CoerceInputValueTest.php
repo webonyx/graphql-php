@@ -325,8 +325,15 @@ class CoerceInputValueTest extends TestCase
         $this->expectGraphQLValue($result, ['foo' => 7]);
     }
 
-
-
+    /**
+     * @see it('returns null as value', () => {
+     * @see it('returns NaN as value', () => {
+     */
+    public function testReturnsNullAsValue(): void
+    {
+        $result = Value::coerceInputValue([], $this->makeTestInputObject(null));
+        $this->expectGraphQLValue($result, ['foo' => null]);
+    }
 
 
 
