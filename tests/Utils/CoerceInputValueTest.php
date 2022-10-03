@@ -228,6 +228,79 @@ class CoerceInputValueTest extends TestCase
     }
 
     /**
+     * @see it('returns multiple errors for multiple invalid fields', () => {
+     */
+    public function testReturnsMultipleErrorsForMultipleInvalidFields(): void
+    {
+        $result = Value::coerceInputValue(['foo' => 'abc', 'bar' => 'def'], $this->testInputObject);
+        $this->expectGraphQLError($result, [
+            CoercionError::make(
+                'Int cannot represent non-integer value: abc',
+                ['foo'],
+                'abc'
+            ),
+            CoercionError::make(
+                'Int cannot represent non-integer value: def',
+                ['bar'],
+                'def'
+            ),
+        ]);
+    }
+
+    /**
+     * @see it('returns error for a missing required field', () => {
+     */
+    public function testReturnsErrorForAMissingRequiredField(): void
+    {
+        $result = Value::coerceInputValue(['bar' => 123], $this->testInputObject);
+        $this->expectGraphQLError($result, [CoercionError::make(
+            'Field "foo" of required type "Int!" was not provided.',
+            null,
+            ['bar' => 123]
+        )]);
+    }
+
+    /**
+     * @see it('returns error for an unknown field', () => {
+     */
+    public function testReturnsErrorForAnUnknownField(): void
+    {
+        $result = Value::coerceInputValue(['foo' => 123, 'unknownField' => 123], $this->testInputObject);
+        $this->expectGraphQLError($result, [CoercionError::make(
+            'Field "unknownField" is not defined by type "TestInputObject".',
+            null,
+            ['foo' => 123, 'unknownField' => 123],
+        )]);
+    }
+
+    /**
+     * @see it('returns error for a misspelled field', () => {
+     */
+    public function testReturnsErrorForAMisspelledField(): void
+    {
+        $result = Value::coerceInputValue(['foo' => 123, 'bart' => 123], $this->testInputObject);
+        $this->expectGraphQLError($result, [CoercionError::make(
+            'Field "bart" is not defined by type "TestInputObject". Did you mean "bar"?',
+            null,
+            ['foo' => 123, 'bart' => 123],
+        )]);
+    }
+
+    /**
+     * @see describe('for GraphQLInputObject with default value', () => {
+     * @see it('returns no errors for valid input value', () => {
+     */
+    public function itReturnsNoErrorsForValidInputValue(): void
+    {
+
+    }
+
+
+
+
+
+
+    /**
      * Describe: for GraphQLString.
      *
      * @see it('returns error for array input as string')
@@ -558,67 +631,5 @@ class CoerceInputValueTest extends TestCase
             'Expected type TestInputObject to be an object.',
             null,
         ];
-    }
-
-    /**
-     * @see it('returns no error for an invalid field')
-     */
-    public function testReturnErrorForAnInvalidField(): void
-    {
-        $result = Value::coerceInputValue(['foo' => 'abc'], $this->testInputObject);
-        $this->expectGraphQLError(
-            $result,
-            'Expected type Int at value.foo; Int cannot represent non-integer value: abc',
-            ['foo']
-        );
-    }
-
-    /**
-     * @see it('returns multiple errors for multiple invalid fields')
-     */
-    public function testReturnsMultipleErrorsForMultipleInvalidFields(): void
-    {
-        $result = Value::coerceInputValue(['foo' => 'abc', 'bar' => 'def'], $this->testInputObject);
-
-        self::assertNotNull($result['errors']);
-        self::assertArrayHasKey(0, $result['errors']);
-        self::assertArrayHasKey(1, $result['errors']);
-
-        self::assertEquals(
-            [
-                'Expected type Int at value.foo; Int cannot represent non-integer value: abc',
-                'Expected type Int at value.bar; Int cannot represent non-integer value: def',
-            ],
-            $result['errors']
-        );
-        self::assertEquals(['foo'], $result['errors'][0]->inputPath);
-        self::assertEquals(['bar'], $result['errors'][1]->inputPath);
-    }
-
-    /**
-     * @see it('returns error for a missing required field')
-     */
-    public function testReturnsErrorForAMissingRequiredField(): void
-    {
-        $result = Value::coerceInputValue(['bar' => 123], $this->testInputObject);
-        $this->expectGraphQLError($result, 'Field value.foo of required type Int! was not provided.');
-    }
-
-    /**
-     * @see it('returns error for an unknown field')
-     */
-    public function testReturnsErrorForAnUnknownField(): void
-    {
-        $result = Value::coerceInputValue(['foo' => 123, 'unknownField' => 123], $this->testInputObject);
-        $this->expectGraphQLError($result, 'Field "unknownField" is not defined by type TestInputObject.');
-    }
-
-    /**
-     * @see it('returns error for a misspelled field')
-     */
-    public function testReturnsErrorForAMisspelledField(): void
-    {
-        $result = Value::coerceInputValue(['foo' => 123, 'bart' => 123], $this->testInputObject);
-        $this->expectGraphQLError($result, 'Field "bart" is not defined by type TestInputObject; did you mean bar?');
     }
 }

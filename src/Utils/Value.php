@@ -152,7 +152,7 @@ class Value
             } elseif ($field->getType() instanceof NonNull) {
                 $errors = self::add(
                     $errors,
-                    CoercionError::make("Field {$fieldName} of required type {$field->getType()->toString()} was not provided.", $path, $value)
+                    CoercionError::make("Field \"{$fieldName}\" of required type \"{$field->getType()->toString()}\" was not provided.", $path, $value)
                 );
             }
         }
@@ -167,9 +167,9 @@ class Value
                 (string) $fieldName,
                 array_keys($fields)
             );
-            $message = "Field \"{$fieldName}\" is not defined by type {$type->name}."
+            $message = "Field \"{$fieldName}\" is not defined by type \"{$type->name}\"."
                 . (count($suggestions) > 0
-                    ? ' Did you mean ' . Utils::orList($suggestions) . '?'
+                    ? ' Did you mean ' . Utils::quotedOrList($suggestions) . '?'
                     : '');
 
             $errors = self::add(

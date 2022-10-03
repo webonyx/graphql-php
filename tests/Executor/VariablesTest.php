@@ -408,7 +408,7 @@ class VariablesTest extends TestCase
                 [
                     'message' => 'Variable "$input" got invalid value '
                         . '{"a":"foo","b":"bar","c":"baz","extra":"dog"}; '
-                        . 'Field "extra" is not defined by type TestInputObject.',
+                        . 'Field "extra" is not defined by type "TestInputObject".',
                     'locations' => [['line' => 2, 'column' => 21]],
                 ],
             ],
