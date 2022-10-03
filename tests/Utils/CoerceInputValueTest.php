@@ -287,12 +287,42 @@ class CoerceInputValueTest extends TestCase
     }
 
     /**
+     * @param mixed $defaultValue Anything goes
+     */
+    private function makeTestInputObject($defaultValue): InputObjectType
+    {
+        return new InputObjectType([
+            'name' => 'TestInputObject',
+            'fields' => [
+                'foo' => [
+                    'type' => new CustomScalarType([
+                        'name' => 'TestScalar',
+                        'parseValue' => static fn ($value) => $value,
+                        'parseLiteral' => static fn () => null,
+                    ]),
+                    'defaultValue' => $defaultValue,
+                ]
+            ]
+        ]);
+    }
+
+    /**
      * @see describe('for GraphQLInputObject with default value', () => {
      * @see it('returns no errors for valid input value', () => {
      */
-    public function itReturnsNoErrorsForValidInputValue(): void
+    public function testReturnsNoErrorsForValidInputValue(): void
     {
+        $result = Value::coerceInputValue(['foo' => 5], $this->makeTestInputObject(7));
+        $this->expectGraphQLValue($result, ['foo' => 5]);
+    }
 
+    /**
+     * @see it('returns object with default value', () => {
+     */
+    public function testReturnsObjectWithDefaultValue(): void
+    {
+        $result = Value::coerceInputValue([], $this->makeTestInputObject(7));
+        $this->expectGraphQLValue($result, ['foo' => 7]);
     }
 
 
