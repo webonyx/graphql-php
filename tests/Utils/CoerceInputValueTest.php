@@ -346,7 +346,7 @@ final class CoerceInputValueTest extends TestCase
     }
 
     /**
-     * @see TODO describe('for GraphQLList', () => {
+     * @see describe('for GraphQLList', () => {
      * @see it('returns no error for a valid input', () => {
      */
     public function testGraphQLListReturnsNoErrorForAValidInput(): void
