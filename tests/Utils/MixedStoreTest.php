@@ -76,8 +76,9 @@ class MixedStoreTest extends TestCase
      */
     private function assertProvidesArrayAccess($key, $value): void
     {
-        $err = 'Failed assertion that MixedStore provides array access for key '
-            . Utils::printSafe($key) . ' with value ' . Utils::printSafe($value);
+        $safeKey = Utils::printSafe($key);
+        $safeValue = Utils::printSafe($value);
+        $err = "Failed assertion that MixedStore provides array access for key {$safeKey} with value {$safeValue}";
 
         self::assertFalse(isset($this->mixedStore[$key]), $err);
         $this->mixedStore[$key] = $value;

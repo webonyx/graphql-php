@@ -44,12 +44,12 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             : null;
 
         if ($float === null || floor($float) !== $float) {
-            $notInt = Utils::printSafeJson($value);
+            $notInt = Utils::printSafe($value);
             throw new SerializationError("Int cannot represent non-integer value: {$notInt}");
         }
 
         if ($float > self::MAX_INT || $float < self::MIN_INT) {
-            $outOfRangeInt = Utils::printSafeJson($value);
+            $outOfRangeInt = Utils::printSafe($value);
             throw new SerializationError("Int cannot represent non 32-bit signed integer value: {$outOfRangeInt}");
         }
 

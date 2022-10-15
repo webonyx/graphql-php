@@ -53,7 +53,8 @@ class StandardServer
 
         // @phpstan-ignore-next-line necessary until we can use proper union types
         if (! $config instanceof ServerConfig) {
-            throw new InvariantViolation('Expecting valid server config, but got ' . Utils::printSafe($config));
+            $safeConfig = Utils::printSafe($config);
+            throw new InvariantViolation("Expecting valid server config, but got {$safeConfig}");
         }
 
         $this->config = $config;

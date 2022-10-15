@@ -181,10 +181,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
         if (! is_iterable($fields)) {
             $invalidFields = Utils::printSafe($fields);
-
-            throw new InvariantViolation(
-                "{$this->name} fields must be an iterable or a callable which returns an iterable, got: {$invalidFields}."
-            );
+            throw new InvariantViolation("{$this->name} fields must be an iterable or a callable which returns an iterable, got: {$invalidFields}.");
         }
 
         $resolvedFields = $this->getFields();

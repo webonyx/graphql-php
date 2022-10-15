@@ -161,10 +161,7 @@ class FieldDefinition
                 ]);
             } else {
                 $invalidFieldConfig = Utils::printSafe($field);
-
-                throw new InvariantViolation(
-                    "{$parentType->name}.{$maybeName} field config must be an array, but got: {$invalidFieldConfig}"
-                );
+                throw new InvariantViolation("{$parentType->name}.{$maybeName} field config must be an array, but got: {$invalidFieldConfig}");
             }
 
             $map[$fieldDef->getName()] = $fieldDef;
@@ -218,13 +215,11 @@ class FieldDefinition
 
         if (! $type instanceof OutputType) {
             $safeType = Utils::printSafe($this->type);
-
             throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}");
         }
 
         if ($this->resolveFn !== null && ! is_callable($this->resolveFn)) {
             $safeResolveFn = Utils::printSafe($this->resolveFn);
-
             throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}");
         }
 

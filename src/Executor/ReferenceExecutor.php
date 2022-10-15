@@ -890,8 +890,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         $safeReturnType = Utils::printSafe($returnType);
-
-        throw new RuntimeException("Cannot complete value of unexpected type \"{$safeReturnType}\".");
+        throw new RuntimeException("Cannot complete value of unexpected type {$safeReturnType}.");
     }
 
     /**
@@ -1007,8 +1006,10 @@ class ReferenceExecutor implements ExecutorImplementation
         try {
             return $returnType->serialize($result);
         } catch (Throwable $error) {
+            $safeReturnType = Utils::printSafe($returnType);
+            $safeResult = Utils::printSafe($result);
             throw new InvariantViolation(
-                'Expected a value of type ' . Utils::printSafe($returnType) . ' but received: ' . Utils::printSafe($result) . '. ' . $error->getMessage(),
+                "Expected a value of type {$safeReturnType} but received: {$safeResult}. {$error->getMessage()}",
                 0,
                 $error
             );
@@ -1213,8 +1214,10 @@ class ReferenceExecutor implements ExecutorImplementation
         $result,
         ArrayObject $fieldNodes
     ): Error {
+        $safeResult = Utils::printSafe($result);
+
         return new Error(
-            'Expected value of type "' . $returnType->name . '" but got: ' . Utils::printSafe($result) . '.',
+            "Expected value of type \"{$returnType->name}\" but got: {$safeResult}.",
             $fieldNodes
         );
     }
@@ -1370,28 +1373,19 @@ class ReferenceExecutor implements ExecutorImplementation
         if (! $runtimeType instanceof ObjectType) {
             $safeResult = Utils::printSafe($result);
             $notObjectType = Utils::printSafe($runtimeType);
-
-            throw new InvariantViolation(
-                "Abstract type {$returnType} must resolve to an Object type at runtime for field {$info->parentType}.{$info->fieldName} with value \"{$safeResult}\", received \"{$notObjectType}\". Either the {$returnType} type should provide a \"resolveType\" function or each possible type should provide an \"isTypeOf\" function."
-            );
+            throw new InvariantViolation("Abstract type {$returnType} must resolve to an Object type at runtime for field {$info->parentType}.{$info->fieldName} with value {$safeResult}, received \"{$notObjectType}\". Either the {$returnType} type should provide a \"resolveType\" function or each possible type should provide an \"isTypeOf\" function.");
         }
 
         if (! $this->exeContext->schema->isSubType($returnType, $runtimeType)) {
-            throw new InvariantViolation(
-                "Runtime Object type \"{$runtimeType}\" is not a possible type for \"{$returnType}\"."
-            );
+            throw new InvariantViolation("Runtime Object type \"{$runtimeType}\" is not a possible type for \"{$returnType}\".");
         }
 
         if ($this->exeContext->schema->getType($runtimeType->name) === null) {
-            throw new InvariantViolation(
-                "Schema does not contain type \"{$runtimeType}\". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields.List the type in the option \"types\" during schema construction, see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options."
-            );
+            throw new InvariantViolation("Schema does not contain type \"{$runtimeType}\". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields.List the type in the option \"types\" during schema construction, see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options.");
         }
 
         if ($runtimeType !== $this->exeContext->schema->getType($runtimeType->name)) {
-            throw new InvariantViolation(
-                "Schema must contain unique named types but contains multiple types named \"{$runtimeType}\". Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry)."
-            );
+            throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$runtimeType}\". Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
         }
 
         return $runtimeType;

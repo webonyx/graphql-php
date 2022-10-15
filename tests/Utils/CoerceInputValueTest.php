@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Value;
 use PHPUnit\Framework\TestCase;
@@ -16,7 +17,7 @@ use stdClass;
 /**
  * @phpstan-import-type InputPath from CoercionError
  */
-class CoerceInputValueTest extends TestCase
+final class CoerceInputValueTest extends TestCase
 {
     private NonNull $testNonNull;
 
@@ -26,8 +27,14 @@ class CoerceInputValueTest extends TestCase
 
     private InputObjectType $testInputObject;
 
+    /**
+     * @var ListOfType<ScalarType>
+     */
     private ListOfType $testList;
 
+    /**
+     * @var ListOfType<ListOfType<ScalarType>>
+     */
     private ListOfType $testNestedList;
 
     public function setUp(): void
@@ -236,12 +243,12 @@ class CoerceInputValueTest extends TestCase
         $result = Value::coerceValue(['foo' => 'abc', 'bar' => 'def'], $this->testInputObject);
         $this->expectGraphQLError($result, [
             CoercionError::make(
-                'Int cannot represent non-integer value: abc',
+                'Int cannot represent non-integer value: "abc"',
                 ['foo'],
                 'abc'
             ),
             CoercionError::make(
-                'Int cannot represent non-integer value: def',
+                'Int cannot represent non-integer value: "def"',
                 ['bar'],
                 'def'
             ),
@@ -357,7 +364,7 @@ class CoerceInputValueTest extends TestCase
             yield 3;
         };
 
-        $result = Value::coerceValue($listGenerator, $this->testList);
+        $result = Value::coerceValue($listGenerator(), $this->testList);
         $this->expectGraphQLValue($result, [1, 2, 3]);
     }
 
@@ -419,7 +426,7 @@ class CoerceInputValueTest extends TestCase
         $this->expectGraphQLError($result, [
             CoercionError::make(
                 'Int cannot represent non-integer value: "INVALID"',
-                [],
+                null,
                 'INVALID',
             ),
         ]);

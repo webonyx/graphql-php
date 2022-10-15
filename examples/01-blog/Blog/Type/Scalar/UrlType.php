@@ -29,7 +29,7 @@ class UrlType extends ScalarType
     public function parseValue($value): string
     {
         if (! $this->isUrl($value)) {
-            throw new Error('Cannot represent value as URL: ' . Utils::printSafe($value));
+            throw new Error('Cannot represent value as URL: ' . Utils::printSafeJson($value));
         }
 
         return $value;

@@ -13,7 +13,6 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use stdClass;
 use Throwable;
-use Traversable;
 
 /**
  * @phpstan-type CoercedValue array{errors: null, value: mixed}
@@ -41,7 +40,7 @@ class Value
         if ($type instanceof NonNull) {
             if ($value === null) {
                 return self::ofErrors([
-                    CoercionError::make("Expected non-nullable type \"{$type}\" not to be null.", $value, $path),
+                    CoercionError::make("Expected non-nullable type \"{$type}\" not to be null.", $path, $value),
                 ]);
             }
 
@@ -54,7 +53,7 @@ class Value
             return self::ofValue(null);
         }
 
-        if ($type instanceof ScalarType) {
+        if ($type instanceof ScalarType || $type instanceof EnumType) {
             // Scalars and Enums determine if a input value is valid via parseValue(), which can
             // throw to indicate failure. If it throws, maintain a reference to
             // the original error.
@@ -73,23 +72,11 @@ class Value
             }
         }
 
-        if ($type instanceof EnumType) {
-            try {
-                return self::ofValue($type->parseValue($value));
-            } catch (Throwable $error) {
-                $safeValue = Utils::printSafeJson($value);
-
-                return self::ofErrors([
-                    CoercionError::make($message, $path, $value, $error),
-                ]);
-            }
-        }
-
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
             assert($itemType instanceof InputType, 'known through schema validation');
 
-            if (is_array($value) || $value instanceof Traversable) {
+            if (is_iterable($value)) {
                 $errors = [];
                 $coercedValue = [];
                 foreach ($value as $index => $itemValue) {

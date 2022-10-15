@@ -188,7 +188,8 @@ class MixedStore implements ArrayAccess
             $this->nullValue = $value;
             $this->nullValueIsSet = true;
         } else {
-            throw new InvalidArgumentException('Unexpected offset type: ' . Utils::printSafe($offset));
+            $unexpectedOffset = Utils::printSafe($offset);
+            throw new InvalidArgumentException("Unexpected offset type: {$unexpectedOffset}");
         }
     }
 

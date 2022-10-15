@@ -55,7 +55,6 @@ class PhpEnumType extends EnumType
     {
         if (! is_a($value, $this->enumClass)) {
             $notEnum = Utils::printSafe($value);
-
             throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$this->enumClass}.");
         }
 

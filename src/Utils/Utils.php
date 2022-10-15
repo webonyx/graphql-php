@@ -65,6 +65,8 @@ class Utils
     }
 
     /**
+     * Print a value that came from JSON for debugging purposes.
+     *
      * @param mixed $var
      */
     public static function printSafeJson($var): string
@@ -105,7 +107,9 @@ class Utils
     }
 
     /**
-     * @param Type|mixed $var
+     * Print a value that came from PHP for debugging purposes.
+     *
+     * @param mixed $var
      */
     public static function printSafe($var): string
     {
@@ -142,7 +146,7 @@ class Utils
         }
 
         if (is_string($var)) {
-            return $var;
+            return "\"{$var}\"";
         }
 
         if (is_scalar($var)) {

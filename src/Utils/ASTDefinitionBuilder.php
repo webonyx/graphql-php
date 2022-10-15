@@ -243,9 +243,9 @@ class ASTDefinitionBuilder
 
                 // @phpstan-ignore-next-line should not happen, but function types are not enforced by PHP
                 if (! is_array($config) || isset($config[0])) {
-                    throw new Error(
-                        'Type config decorator passed to ' . static::class . ' is expected to return an array, but got ' . Utils::printSafe($config)
-                    );
+                    $class = static::class;
+                    $notArray = Utils::printSafe($config);
+                    throw new Error("Type config decorator passed to {$class} is expected to return an array, but got {$notArray}");
                 }
 
                 $type = $this->makeSchemaDefFromConfig($this->typeDefinitionsMap[$typeName], $config);

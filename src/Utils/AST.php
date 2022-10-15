@@ -286,7 +286,8 @@ class AST
             return new StringValueNode(['value' => $serialized]);
         }
 
-        throw new InvariantViolation('Cannot convert value to AST: ' . Utils::printSafe($serialized));
+        $notConvertible = Utils::printSafe($serialized);
+        throw new InvariantViolation("Cannot convert value to AST: {$notConvertible}");
     }
 
     /**

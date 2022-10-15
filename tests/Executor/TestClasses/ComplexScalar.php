@@ -23,7 +23,8 @@ class ComplexScalar extends ScalarType
             return 'SerializedValue';
         }
 
-        throw new SerializationError('Cannot serialize value as ComplexScalar: ' . Utils::printSafe($value));
+        $notComplexScalar = Utils::printSafe($value);
+        throw new SerializationError("Cannot serialize value as ComplexScalar: {$notComplexScalar}");
     }
 
     public function parseValue($value): string
@@ -32,7 +33,8 @@ class ComplexScalar extends ScalarType
             return 'DeserializedValue';
         }
 
-        throw new Error('Cannot represent value as ComplexScalar: ' . Utils::printSafe($value));
+        $notComplexScalar = Utils::printSafeJson($value);
+        throw new Error("Cannot represent value as ComplexScalar: {$notComplexScalar}");
     }
 
     public function parseLiteral(Node $valueNode, ?array $variables = null): string
@@ -45,6 +47,7 @@ class ComplexScalar extends ScalarType
             return 'DeserializedValue';
         }
 
-        throw new Error('Cannot represent literal as ComplexScalar: ' . Utils::printSafe($value));
+        $notComplexScalar = Utils::printSafeJson($value);
+        throw new Error("Cannot represent literal as ComplexScalar: {$notComplexScalar}");
     }
 }

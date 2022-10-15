@@ -27,7 +27,7 @@ class EmailType extends ScalarType
     public function parseValue($value): string
     {
         if (! $this->isEmail($value)) {
-            throw new Error('Cannot represent value as email: ' . Utils::printSafe($value));
+            throw new Error('Cannot represent value as email: ' . Utils::printSafeJson($value));
         }
 
         return $value;

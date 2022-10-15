@@ -215,7 +215,6 @@ class ServerConfig
         // @phpstan-ignore-next-line necessary until we can use proper union types
         if (! is_array($validationRules) && ! is_callable($validationRules) && $validationRules !== null) {
             $invalidValidationRules = Utils::printSafe($validationRules);
-
             throw new InvariantViolation("Server config expects array of validation rules or callable returning such array, but got {$invalidValidationRules}");
         }
 

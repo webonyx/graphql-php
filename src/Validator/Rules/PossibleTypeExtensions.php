@@ -132,7 +132,8 @@ class PossibleTypeExtensions extends ValidationRule
             case $type instanceof InputObjectType:
                 return NodeKind::INPUT_OBJECT_TYPE_EXTENSION;
             default:
-                throw new InvariantViolation('Unexpected type: ' . Utils::printSafe($type));
+                $unexpectedType = Utils::printSafe($type);
+                throw new InvariantViolation("Unexpected type: {$unexpectedType}");
         }
     }
 

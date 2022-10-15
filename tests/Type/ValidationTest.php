@@ -480,7 +480,7 @@ class ValidationTest extends TestCaseBase
 
         $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [['message' => 'Expected directive but got: somedirective.']]
+            [['message' => 'Expected directive but got: "somedirective".']]
         );
     }
 
@@ -824,12 +824,12 @@ class ValidationTest extends TestCaseBase
                     'types' => [$memberType],
                 ])
             );
+            $notOutputType = Utils::printSafe($memberType);
             $this->assertMatchesValidationMessage(
                 $badSchema->validate(),
                 [
                     [
-                        'message' => 'Union type BadUnion can only include Object types, '
-                        . 'it cannot include ' . Utils::printSafe($memberType) . '.',
+                        'message' => "Union type BadUnion can only include Object types, it cannot include {$notOutputType}.",
                     ],
                 ]
             );
@@ -1183,12 +1183,12 @@ class ValidationTest extends TestCaseBase
     {
         foreach ($this->notOutputTypes as $type) {
             $schema = $this->schemaWithObjectFieldOfType($type);
-
+            $notOutputType = Utils::printSafe($type);
             $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [
                     [
-                        'message' => 'The type of BadObject.badField must be Output Type but got: ' . Utils::printSafe($type) . '.',
+                        'message' => "The type of BadObject.badField must be Output Type but got: {$notOutputType}.",
                     ],
                 ]
             );
@@ -1506,12 +1506,12 @@ class ValidationTest extends TestCaseBase
     {
         foreach ($this->notOutputTypes as $type) {
             $schema = $this->schemaWithInterfaceFieldOfType($type);
-
+            $notOutputType = Utils::printSafe($type);
             $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [
-                    ['message' => 'The type of BadImplementing.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
-                    ['message' => 'The type of BadInterface.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
+                    ['message' => "The type of BadImplementing.badField must be Output Type but got: {$notOutputType}."],
+                    ['message' => "The type of BadInterface.badField must be Output Type but got: {$notOutputType}."],
                 ]
             );
         }
@@ -1621,10 +1621,11 @@ class ValidationTest extends TestCaseBase
     {
         foreach ($this->notInputTypes as $type) {
             $schema = $this->schemaWithArgOfType($type);
+            $notInputType = Utils::printSafe($type);
             $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [
-                    ['message' => 'The type of BadObject.badField(badArg:) must be Input Type but got: ' . Utils::printSafe($type) . '.'],
+                    ['message' => "The type of BadObject.badField(badArg:) must be Input Type but got: {$notInputType}."],
                 ]
             );
         }
@@ -1701,11 +1702,12 @@ class ValidationTest extends TestCaseBase
     {
         foreach ($this->notInputTypes as $type) {
             $schema = $this->schemaWithInputFieldOfType($type);
+            $notInputType = Utils::printSafe($type);
             $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [
                     [
-                        'message' => 'The type of BadInputObject.badField must be Input Type but got: ' . Utils::printSafe($type) . '.',
+                        'message' => "The type of BadInputObject.badField must be Input Type but got: {$notInputType}.",
                     ],
                 ]
             );
