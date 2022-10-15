@@ -174,7 +174,7 @@ class BreakingChangesFinder
             return 'an Input type';
         }
 
-        throw new TypeError('unknown type ' . $type->name);
+        throw new TypeError('Unknown type: ' . $type->name);
     }
 
     /**

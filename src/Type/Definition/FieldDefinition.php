@@ -123,9 +123,7 @@ class FieldDefinition
         }
 
         if (! is_iterable($fields)) {
-            throw new InvariantViolation(
-                "{$parentType->name} fields must be an iterable or a callable which returns such an iterable."
-            );
+            throw new InvariantViolation("{$parentType->name} fields must be an iterable or a callable which returns such an iterable.");
         }
 
         $map = [];
@@ -133,9 +131,7 @@ class FieldDefinition
             if (is_array($field)) {
                 if (! isset($field['name'])) {
                     if (! is_string($maybeName)) {
-                        throw new InvariantViolation(
-                            "{$parentType->name} fields must be an associative array with field names as keys or a function which returns such an array."
-                        );
+                        throw new InvariantViolation("{$parentType->name} fields must be an associative array with field names as keys or a function which returns such an array.");
                     }
 
                     $field['name'] = $maybeName;
@@ -147,9 +143,7 @@ class FieldDefinition
                 $fieldDef = $field;
             } elseif (is_callable($field)) {
                 if (! is_string($maybeName)) {
-                    throw new InvariantViolation(
-                        "{$parentType->name} lazy fields must be an associative array with field names as keys."
-                    );
+                    throw new InvariantViolation("{$parentType->name} lazy fields must be an associative array with field names as keys.");
                 }
 
                 $fieldDef = new UnresolvedFieldDefinition($maybeName, $field);
@@ -161,10 +155,7 @@ class FieldDefinition
                 ]);
             } else {
                 $invalidFieldConfig = Utils::printSafe($field);
-
-                throw new InvariantViolation(
-                    "{$parentType->name}.{$maybeName} field config must be an array, but got: {$invalidFieldConfig}"
-                );
+                throw new InvariantViolation("{$parentType->name}.{$maybeName} field config must be an array, but got: {$invalidFieldConfig}");
             }
 
             $map[$fieldDef->getName()] = $fieldDef;
@@ -218,13 +209,11 @@ class FieldDefinition
 
         if (! $type instanceof OutputType) {
             $safeType = Utils::printSafe($this->type);
-
             throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}");
         }
 
         if ($this->resolveFn !== null && ! is_callable($this->resolveFn)) {
             $safeResolveFn = Utils::printSafe($this->resolveFn);
-
             throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}");
         }
 

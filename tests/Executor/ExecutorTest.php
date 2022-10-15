@@ -1281,10 +1281,8 @@ class ExecutorTest extends TestCase
                                 switch ($name) {
                                     case 'set':
                                         return 1;
-
                                     case 'unsetNull':
                                         return null;
-
                                     default:
                                         throw new Exception('unsetThrow');
                                 }

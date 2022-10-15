@@ -367,7 +367,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromString: "GREEN") }',
             null,
             [
-                'message' => 'Expected a value of type Color but received: GREEN. Cannot serialize value as enum: GREEN',
+                'message' => 'Expected a value of type Color but received: "GREEN". Cannot serialize value as enum: "GREEN"',
                 'locations' => [new SourceLocation(1, 3)],
                 'path' => ['colorEnum'],
             ]
@@ -459,7 +459,7 @@ class EnumTypeTest extends TestCase
         $this->expectFailure(
             'query test($color: Color!) { colorEnum(fromEnum: $color) }',
             ['color' => 2],
-            'Variable "$color" got invalid value 2; Expected type Color.'
+            'Variable "$color" got invalid value 2; Enum "Color" cannot represent non-string value: 2.'
         );
     }
 
@@ -628,7 +628,7 @@ class EnumTypeTest extends TestCase
                     [
                         'locations' => [['line' => 4, 'column' => 13]],
                         'extensions' => [
-                            'debugMessage' => 'Expected a value of type SimpleEnum but received: WRONG. Cannot serialize value as enum: WRONG',
+                            'debugMessage' => 'Expected a value of type SimpleEnum but received: "WRONG". Cannot serialize value as enum: "WRONG"',
                             'trace' => [
                                 ['call' => 'GraphQL\Type\Definition\EnumType::serialize()'],
                             ],

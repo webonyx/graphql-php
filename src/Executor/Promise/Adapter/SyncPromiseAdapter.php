@@ -32,7 +32,6 @@ class SyncPromiseAdapter implements PromiseAdapter
             // End-users should always use Deferred (and don't use SyncPromise directly)
             $deferred = Deferred::class;
             $safeThenable = Utils::printSafe($thenable);
-
             throw new InvariantViolation("Expected instance of {$deferred}, got {$safeThenable}");
         }
 

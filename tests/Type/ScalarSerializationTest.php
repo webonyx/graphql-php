@@ -43,14 +43,14 @@ class ScalarSerializationTest extends TestCase
             [0.1, 'Int cannot represent non-integer value: 0.1'],
             [1.1, 'Int cannot represent non-integer value: 1.1'],
             [-1.1, 'Int cannot represent non-integer value: -1.1'],
-            ['-1.1', 'Int cannot represent non-integer value: -1.1'],
+            ['-1.1', 'Int cannot represent non-integer value: "-1.1"'],
             [9876504321, 'Int cannot represent non 32-bit signed integer value: 9876504321'],
             [-9876504321, 'Int cannot represent non 32-bit signed integer value: -9876504321'],
             [1e100, 'Int cannot represent non 32-bit signed integer value: 1.0E+100'],
             [-1e100, 'Int cannot represent non 32-bit signed integer value: -1.0E+100'],
             [log(0), 'Int cannot represent non 32-bit signed integer value: -INF'],
             [acos(8), 'Int cannot represent non-integer value: NAN'],
-            ['one', 'Int cannot represent non-integer value: one'],
+            ['one', 'Int cannot represent non-integer value: "one"'],
             ['', 'Int cannot represent non-integer value: (empty string)'],
             [[5], 'Int cannot represent non-integer value: [5]'],
         ];
@@ -97,7 +97,7 @@ class ScalarSerializationTest extends TestCase
     public function badFloatValues(): iterable
     {
         return [
-            ['one', 'Float cannot represent non numeric value: one'],
+            ['one', 'Float cannot represent non numeric value: "one"'],
             ['', 'Float cannot represent non numeric value: (empty string)'],
             [log(0), 'Float cannot represent non numeric value: -INF'],
             [acos(8), 'Float cannot represent non numeric value: NAN'],

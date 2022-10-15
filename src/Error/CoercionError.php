@@ -2,11 +2,11 @@
 
 namespace GraphQL\Error;
 
-use GraphQL\Language\AST\Node;
+use GraphQL\Utils\Utils;
 use Throwable;
 
 /**
- * @phpstan-type InputPath list<string>
+ * @phpstan-type InputPath list<string|int>
  */
 class CoercionError extends Error
 {
@@ -16,16 +16,47 @@ class CoercionError extends Error
     public ?array $inputPath;
 
     /**
-     * @param iterable<array-key, Node|null>|Node|null $nodes
-     * @param InputPath|null $inputPath
+     * @var mixed whatever invalid value was passed
      */
-    public function __construct(
+    public $invalidValue;
+
+    /**
+     * @param InputPath|null $inputPath
+     * @param mixed $invalidValue whatever invalid value was passed
+     *
+     * @return static
+     */
+    public static function make(
         string $message,
-        $nodes = null,
-        ?Throwable $previous = null,
-        ?array $inputPath = null
-    ) {
-        parent::__construct($message, $nodes, null, [], null, $previous);
-        $this->inputPath = $inputPath;
+        ?array $inputPath,
+        $invalidValue,
+        ?Throwable $previous = null
+    ): self {
+        $instance = new static($message, null, null, [], null, $previous);
+        $instance->inputPath = $inputPath;
+        $instance->invalidValue = $invalidValue;
+
+        return $instance;
+    }
+
+    public function printInputPath(): ?string
+    {
+        if ($this->inputPath === null) {
+            return null;
+        }
+
+        $path = '';
+        foreach ($this->inputPath as $segment) {
+            $path .= is_int($segment)
+                ? "[{$segment}]"
+                : ".{$segment}";
+        }
+
+        return $path;
+    }
+
+    public function printInvalidValue(): string
+    {
+        return Utils::printSafeJson($this->invalidValue);
     }
 }

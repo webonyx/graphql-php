@@ -137,7 +137,7 @@ GRAPHQL,
 
         $result = GraphQL::executeQuery($schema, '{ foo }');
 
-        self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: A, expected instance of GraphQL\\Tests\\Type\\PhpEnumType\\PhpEnum.'));
+        self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: "A", expected instance of GraphQL\\Tests\\Type\\PhpEnumType\\PhpEnum.'));
         $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS);
     }
 }

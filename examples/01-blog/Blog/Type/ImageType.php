@@ -51,10 +51,10 @@ class ImageType extends ObjectType
     {
         switch ($value->type) {
             case Image::TYPE_USERPIC:
-                $path = '/images/user/' . $value->id . '-' . $value->size . '.jpg';
+                $path = "/images/user/{$value->id}-{$value->size}.jpg";
                 break;
             default:
-                throw new UnexpectedValueException('Unexpected image type: ' . $value->type);
+                throw new UnexpectedValueException("Unexpected image type: {$value->type}");
         }
 
         return $context->rootUrl . $path;

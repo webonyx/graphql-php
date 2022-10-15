@@ -62,12 +62,12 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             || (is_float($value) && floor($value) === $value);
 
         if (! $isInt) {
-            $notInt = Utils::printSafe($value);
+            $notInt = Utils::printSafeJson($value);
             throw new Error("Int cannot represent non-integer value: {$notInt}");
         }
 
         if ($value > self::MAX_INT || $value < self::MIN_INT) {
-            $outOfRangeInt = Utils::printSafe($value);
+            $outOfRangeInt = Utils::printSafeJson($value);
             throw new Error("Int cannot represent non 32-bit signed integer value: {$outOfRangeInt}");
         }
 

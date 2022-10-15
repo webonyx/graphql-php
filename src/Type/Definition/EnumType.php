@@ -131,7 +131,8 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             return $lookup[$value]->name;
         }
 
-        throw new SerializationError('Cannot serialize value as enum: ' . Utils::printSafe($value));
+        $safeValue = Utils::printSafe($value);
+        throw new SerializationError("Cannot serialize value as enum: {$safeValue}");
     }
 
     /**
@@ -152,15 +153,20 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     public function parseValue($value)
     {
+        if (! is_string($value)) {
+            $safeValue = Utils::printSafeJson($value);
+            throw new Error("Enum \"{$this->name}\" cannot represent non-string value: {$safeValue}.{$this->didYouMean($safeValue)}");
+        }
+
         if (! isset($this->nameLookup)) {
             $this->initializeNameLookup();
         }
 
-        if (isset($this->nameLookup[$value])) {
-            return $this->nameLookup[$value]->value;
+        if (! isset($this->nameLookup[$value])) {
+            throw new Error("Value \"{$value}\" does not exist in \"{$this->name}\" enum.{$this->didYouMean($value)}");
         }
 
-        throw new Error('Cannot represent value as enum: ' . Utils::printSafe($value));
+        return $this->nameLookup[$value]->value;
     }
 
     public function parseLiteral(Node $valueNode, ?array $variables = null)
@@ -197,7 +203,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         $values = $this->config['values'] ?? null;
         if (! is_iterable($values) && ! is_callable($values)) {
             $notIterable = Utils::printSafe($values);
-
             throw new InvariantViolation("{$this->name} values must be an iterable or callable, got: {$notIterable}");
         }
 

@@ -112,7 +112,7 @@ class PossibleTypeExtensions extends ValidationRule
             case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
                 return NodeKind::INPUT_OBJECT_TYPE_EXTENSION;
             default:
-                throw new InvariantViolation("Unexpected definition kind: {$kind}");
+                throw new InvariantViolation("Unexpected definition kind: {$kind}.");
         }
     }
 
@@ -132,7 +132,8 @@ class PossibleTypeExtensions extends ValidationRule
             case $type instanceof InputObjectType:
                 return NodeKind::INPUT_OBJECT_TYPE_EXTENSION;
             default:
-                throw new InvariantViolation('Unexpected type: ' . Utils::printSafe($type));
+                $unexpectedType = Utils::printSafe($type);
+                throw new InvariantViolation("Unexpected type: {$unexpectedType}.");
         }
     }
 
@@ -152,7 +153,7 @@ class PossibleTypeExtensions extends ValidationRule
             case NodeKind::INPUT_OBJECT_TYPE_EXTENSION:
                 return 'input object';
             default:
-                throw new InvariantViolation("Unexpected extension kind: {$kind}");
+                throw new InvariantViolation("Unexpected extension kind: {$kind}.");
         }
     }
 }

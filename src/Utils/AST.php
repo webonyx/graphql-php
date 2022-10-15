@@ -88,12 +88,14 @@ class AST
     {
         $kind = $node['kind'] ?? null;
         if ($kind === null) {
-            throw new InvariantViolation('Node is missing kind:' . Utils::printSafeJson($node));
+            $safeNode = Utils::printSafeJson($node);
+            throw new InvariantViolation("Node is missing kind: {$safeNode}");
         }
 
         $class = NodeKind::CLASS_MAP[$kind] ?? null;
         if ($class === null) {
-            throw new InvariantViolation('Node has unexpected kind:' . Utils::printSafeJson($node));
+            $safeNode = Utils::printSafeJson($node);
+            throw new InvariantViolation("Node has unexpected kind: {$safeNode}");
         }
 
         $instance = new $class([]);
@@ -286,7 +288,8 @@ class AST
             return new StringValueNode(['value' => $serialized]);
         }
 
-        throw new InvariantViolation('Cannot convert value to AST: ' . Utils::printSafe($serialized));
+        $notConvertible = Utils::printSafe($serialized);
+        throw new InvariantViolation("Cannot convert value to AST: {$notConvertible}");
     }
 
     /**
@@ -538,7 +541,7 @@ class AST
                     : null;
         }
 
-        throw new Error('Unexpected value kind: ' . $valueNode->kind . '.');
+        throw new Error("Unexpected value kind: {$valueNode->kind}");
     }
 
     /**

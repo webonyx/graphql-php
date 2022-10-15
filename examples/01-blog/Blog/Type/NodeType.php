@@ -43,6 +43,7 @@ class NodeType extends InterfaceType
             return Types::story();
         }
 
-        throw new Exception('Unknown type: ' . Utils::printSafe($object));
+        $notNode = Utils::printSafe($object);
+        throw new Exception("Unknown type: {$notNode}");
     }
 }

@@ -342,10 +342,9 @@ class Helper
 
         // @phpstan-ignore-next-line Necessary until PHP gains function types
         if (! is_string($source) && ! $source instanceof DocumentNode) {
-            throw new InvariantViolation(
-                'Persisted query loader must return query string or instance of ' . DocumentNode::class
-                . ' but got: ' . Utils::printSafe($source)
-            );
+            $documentNode = DocumentNode::class;
+            $safeSource = Utils::printSafe($source);
+            throw new InvariantViolation("Persisted query loader must return query string or instance of {$documentNode} but got: {$safeSource}");
         }
 
         return $source;
@@ -368,9 +367,8 @@ class Helper
 
         // @phpstan-ignore-next-line unless PHP gains function types, we have to check this at runtime
         if ($validationRules !== null && ! is_array($validationRules)) {
-            throw new InvariantViolation(
-                'Expecting validation rules to be array or callable returning array, but got: ' . Utils::printSafe($validationRules)
-            );
+            $safeValidationRules = Utils::printSafe($validationRules);
+            throw new InvariantViolation("Expecting validation rules to be array or callable returning array, but got: {$safeValidationRules}");
         }
 
         return $validationRules;
@@ -535,9 +533,8 @@ class Helper
     protected function assertJsonObjectOrArray($bodyParams): void
     {
         if (! is_array($bodyParams)) {
-            throw new RequestError(
-                'Expected JSON object or array for "application/json" request, got: ' . Utils::printSafeJson($bodyParams)
-            );
+            $notArray = Utils::printSafeJson($bodyParams);
+            throw new RequestError("Expected JSON object or array for \"application/json\" request, got: {$notArray}");
         }
     }
 

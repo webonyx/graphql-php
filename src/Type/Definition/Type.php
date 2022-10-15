@@ -159,14 +159,12 @@ abstract class Type implements JsonSerializable
             if (! $type instanceof ScalarType) {
                 $typeClass = ScalarType::class;
                 $notType = Utils::printSafe($type);
-
                 throw new InvariantViolation("Expecting instance of {$typeClass}, got {$notType}");
             }
 
             if (! isset($type->name, $standardTypes[$type->name])) {
                 $standardTypeNames = implode(', ', array_keys($standardTypes));
                 $notStandardTypeName = Utils::printSafe($type->name ?? null);
-
                 throw new InvariantViolation("Expecting one of the following names for a standard type: {$standardTypeNames}; got {$notStandardTypeName}");
             }
 

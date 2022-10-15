@@ -119,7 +119,6 @@ class Argument
 
         if (! $type instanceof InputType) {
             $notInputType = Utils::printSafe($this->type);
-
             throw new InvariantViolation("{$parentType->name}.{$parentField->name}({$this->name}): argument type must be Input Type but got: {$notInputType}");
         }
     }

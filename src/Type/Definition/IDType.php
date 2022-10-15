@@ -46,7 +46,7 @@ When expected as an input type, any string (such as `"4"`) or integer
             return (string) $value;
         }
 
-        $notID = Utils::printSafe($value);
+        $notID = Utils::printSafeJson($value);
         throw new Error("ID cannot represent a non-string and non-integer value: {$notID}");
     }
 

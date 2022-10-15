@@ -196,8 +196,8 @@ GRAPHQL;
 
         $data = $result->data;
         if ($data === null) {
-            $serialized = json_encode($result, JSON_THROW_ON_ERROR);
-            throw new InvariantViolation("Introspection query returned no data: {$serialized}");
+            $noDataResult = json_encode($result, JSON_THROW_ON_ERROR);
+            throw new InvariantViolation("Introspection query returned no data: {$noDataResult}");
         }
 
         return $data;
@@ -289,30 +289,23 @@ GRAPHQL;
                         switch (true) {
                             case $type instanceof ListOfType:
                                 return TypeKind::LIST;
-
                             case $type instanceof NonNull:
                                 return TypeKind::NON_NULL;
-
                             case $type instanceof ScalarType:
                                 return TypeKind::SCALAR;
-
                             case $type instanceof ObjectType:
                                 return TypeKind::OBJECT;
-
                             case $type instanceof EnumType:
                                 return TypeKind::ENUM;
-
                             case $type instanceof InputObjectType:
                                 return TypeKind::INPUT_OBJECT;
-
                             case $type instanceof InterfaceType:
                                 return TypeKind::INTERFACE;
-
                             case $type instanceof UnionType:
                                 return TypeKind::UNION;
-
                             default:
-                                throw new Exception('Unknown kind of type: ' . Utils::printSafe($type));
+                                $safeType = Utils::printSafe($type);
+                                throw new Exception("Unknown kind of type: {$safeType}");
                         }
                     },
                 ],

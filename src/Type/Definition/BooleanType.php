@@ -33,7 +33,7 @@ class BooleanType extends ScalarType
             return $value;
         }
 
-        $notBoolean = Utils::printSafe($value);
+        $notBoolean = Utils::printSafeJson($value);
         throw new Error("Boolean cannot represent a non boolean value: {$notBoolean}");
     }
 

@@ -96,7 +96,6 @@ class InputObjectField
 
         if (! $type instanceof InputType) {
             $notInputType = Utils::printSafe($this->type);
-
             throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Input Type but got: {$notInputType}");
         }
 
