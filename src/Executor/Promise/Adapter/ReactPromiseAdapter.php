@@ -63,23 +63,16 @@ class ReactPromiseAdapter implements PromiseAdapter
             'ReactPromiseAdapter::all(): Argument #1 ($promisesOrValues) must be of type array'
         );
 
-        // TODO: rework with generators when PHP minimum required version is changed to 5.5+
-
         foreach ($promisesOrValues as &$promiseOrValue) {
             if ($promiseOrValue instanceof Promise) {
                 $promiseOrValue = $promiseOrValue->adoptedPromise;
             }
         }
 
-        $promise = all($promisesOrValues)->then(static function ($values) use ($promisesOrValues): array {
-            $orderedResults = [];
-
-            foreach ($promisesOrValues as $key => $value) {
-                $orderedResults[$key] = $values[$key];
-            }
-
-            return $orderedResults;
-        });
+        $promise = all($promisesOrValues)->then(static fn ($values): array => array_map(
+            static fn ($key) => $values[$key],
+            array_keys($promisesOrValues),
+        ));
 
         return new Promise($promise, $this);
     }
