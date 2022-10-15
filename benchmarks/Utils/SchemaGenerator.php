@@ -67,10 +67,7 @@ class SchemaGenerator
     protected function createType(int $nestingLevel, ?string $typeName = null): ObjectType
     {
         if ($this->typeIndex > $this->config['totalTypes']) {
-            throw new Exception(
-                'Cannot create new type: there are already ' . $this->typeIndex . ' '
-                . 'which exceeds allowed number of ' . $this->config['totalTypes'] . ' types total'
-            );
+            throw new Exception("Cannot create new type: there are already {$this->typeIndex} types which exceeds allowed number of {$this->config['totalTypes']} types total");
         }
 
         ++$this->typeIndex;

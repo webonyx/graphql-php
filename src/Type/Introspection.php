@@ -196,8 +196,8 @@ GRAPHQL;
 
         $data = $result->data;
         if ($data === null) {
-            $serialized = json_encode($result, JSON_THROW_ON_ERROR);
-            throw new InvariantViolation("Introspection query returned no data: {$serialized}");
+            $noDataResult = json_encode($result, JSON_THROW_ON_ERROR);
+            throw new InvariantViolation("Introspection query returned no data: {$noDataResult}");
         }
 
         return $data;

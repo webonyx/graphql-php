@@ -20,7 +20,8 @@ class UrlType extends ScalarType
     public function serialize($value): string
     {
         if (! $this->isUrl($value)) {
-            throw new SerializationError('Cannot represent value as URL: ' . Utils::printSafe($value));
+            $notUrl = Utils::printSafe($value);
+            throw new SerializationError("Cannot represent value as URL: {$notUrl}");
         }
 
         return $value;
@@ -29,7 +30,8 @@ class UrlType extends ScalarType
     public function parseValue($value): string
     {
         if (! $this->isUrl($value)) {
-            throw new Error('Cannot represent value as URL: ' . Utils::printSafeJson($value));
+            $notUrl = Utils::printSafeJson($value);
+            throw new Error("Cannot represent value as URL: {$notUrl}");
         }
 
         return $value;
@@ -39,7 +41,7 @@ class UrlType extends ScalarType
     {
         // Throwing GraphQL\Error\Error to benefit from GraphQL error location in query
         if (! ($valueNode instanceof StringValueNode)) {
-            throw new Error('Query error: Can only parse strings got: ' . $valueNode->kind, [$valueNode]);
+            throw new Error("Query error: Can only parse strings got: {$valueNode->kind}", [$valueNode]);
         }
 
         $value = $valueNode->value;

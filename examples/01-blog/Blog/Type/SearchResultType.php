@@ -30,7 +30,8 @@ class SearchResultType extends UnionType
                     return Types::user();
                 }
 
-                throw new Exception('Unknown type: ' . get_class($value));
+                $unknownType = get_class($value);
+                throw new Exception("Unknown type: {$unknownType}");
             },
         ]);
     }

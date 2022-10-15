@@ -871,9 +871,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
                 : '';
 
-            throw new InvariantViolation(
-                "Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry."
-            );
+            throw new InvariantViolation("Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.");
         }
 
         if ($returnType instanceof LeafType) {

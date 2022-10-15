@@ -123,9 +123,7 @@ class FieldDefinition
         }
 
         if (! is_iterable($fields)) {
-            throw new InvariantViolation(
-                "{$parentType->name} fields must be an iterable or a callable which returns such an iterable."
-            );
+            throw new InvariantViolation("{$parentType->name} fields must be an iterable or a callable which returns such an iterable.");
         }
 
         $map = [];
@@ -133,9 +131,7 @@ class FieldDefinition
             if (is_array($field)) {
                 if (! isset($field['name'])) {
                     if (! is_string($maybeName)) {
-                        throw new InvariantViolation(
-                            "{$parentType->name} fields must be an associative array with field names as keys or a function which returns such an array."
-                        );
+                        throw new InvariantViolation("{$parentType->name} fields must be an associative array with field names as keys or a function which returns such an array.");
                     }
 
                     $field['name'] = $maybeName;
@@ -147,9 +143,7 @@ class FieldDefinition
                 $fieldDef = $field;
             } elseif (is_callable($field)) {
                 if (! is_string($maybeName)) {
-                    throw new InvariantViolation(
-                        "{$parentType->name} lazy fields must be an associative array with field names as keys."
-                    );
+                    throw new InvariantViolation("{$parentType->name} lazy fields must be an associative array with field names as keys.");
                 }
 
                 $fieldDef = new UnresolvedFieldDefinition($maybeName, $field);

@@ -133,7 +133,7 @@ class SchemaExtender
             function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
                 if ($existingType === null) {
-                    throw new InvariantViolation('Unknown type: "' . $typeName . '".');
+                    throw new InvariantViolation("Unknown type: \"{$typeName}\".");
                 }
 
                 return $this->extendNamedType($existingType);
@@ -547,7 +547,9 @@ class SchemaExtender
             case $type instanceof UnionType: return $this->extendUnionType($type);
             case $type instanceof EnumType: return $this->extendEnumType($type);
             case $type instanceof InputObjectType: return $this->extendInputObjectType($type);
-            default: throw new Exception('Unconsidered type: ' . get_class($type));
+            default:
+                $unconsideredType = get_class($type);
+                throw new Exception("Unconsidered type: {$unconsideredType}.");
         }
     }
 

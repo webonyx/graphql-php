@@ -48,6 +48,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Use `"` instead of `"""` for single line descriptions
 - Make `Helper::emitResponse()` private, use `Helper::sendResponse()`
 - Emit unescaped UTF-8 from `StandardServer`
+- Sync input value coercion with `graphql-js` reference implementation
 
 ### Added
 

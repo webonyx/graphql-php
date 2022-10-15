@@ -139,7 +139,7 @@ final class Types
         }
 
         if (! $type) {
-            throw new Exception('Unknown graphql type: ' . $shortName);
+            throw new Exception("Unknown graphql type: {$shortName}");
         }
 
         return $type;

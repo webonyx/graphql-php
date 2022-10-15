@@ -95,9 +95,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
             }
 
             if (! is_iterable($types)) {
-                throw new InvariantViolation(
-                    "Must provide iterable of types or a callable which returns such an iterable for Union {$this->name}."
-                );
+                throw new InvariantViolation("Must provide iterable of types or a callable which returns such an iterable for Union {$this->name}.");
             }
 
             foreach ($types as $type) {

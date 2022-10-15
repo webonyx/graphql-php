@@ -192,9 +192,10 @@ class KnownDirectives extends ValidationRule
                 return $parentNode instanceof InputObjectTypeDefinitionNode
                     ? DirectiveLocation::INPUT_FIELD_DEFINITION
                     : DirectiveLocation::ARGUMENT_DEFINITION;
+            default:
+                $unknownLocation = get_class($appliedTo);
+                throw new Exception("Unknown directive location: {$unknownLocation}.");
         }
-
-        throw new Exception('Unknown directive location: ' . get_class($appliedTo));
     }
 
     public static function misplacedDirectiveMessage(string $directiveName, string $location): string

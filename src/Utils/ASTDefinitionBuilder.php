@@ -231,8 +231,9 @@ class ASTDefinitionBuilder
                         $this->typeDefinitionsMap
                     );
                 } catch (Throwable $e) {
+                    $class = static::class;
                     throw new Error(
-                        'Type config decorator passed to ' . static::class . ' threw an error when building ' . $typeName . ' type: ' . $e->getMessage(),
+                        "Type config decorator passed to {$class} threw an error when building {$typeName} type: {$e->getMessage()}",
                         null,
                         null,
                         [],

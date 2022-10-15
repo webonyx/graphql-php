@@ -81,9 +81,7 @@ trait ImplementingTypeImplementation
 
         // @phpstan-ignore-next-line should not happen if used correctly
         if (! is_iterable($interfaces)) {
-            throw new InvariantViolation(
-                "{$this->name} interfaces must be an iterable or a callable which returns an iterable."
-            );
+            throw new InvariantViolation("{$this->name} interfaces must be an iterable or a callable which returns an iterable.");
         }
     }
 }

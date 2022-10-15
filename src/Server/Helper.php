@@ -533,9 +533,8 @@ class Helper
     protected function assertJsonObjectOrArray($bodyParams): void
     {
         if (! is_array($bodyParams)) {
-            throw new RequestError(
-                'Expected JSON object or array for "application/json" request, got: ' . Utils::printSafeJson($bodyParams)
-            );
+            $notArray = Utils::printSafeJson($bodyParams);
+            throw new RequestError("Expected JSON object or array for \"application/json\" request, got: {$notArray}");
         }
     }
 
