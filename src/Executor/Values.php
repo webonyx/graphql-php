@@ -110,7 +110,7 @@ class Values
                     } else {
                         // Otherwise, a non-null value was provided, coerce it to the expected
                         // type or report an error if coercion fails.
-                        $coerced = Value::coerceInputValue($value, $varType);
+                        $coerced = Value::coerceValue($value, $varType);
 
                         $coercionErrors = $coerced['errors'];
                         if ($coercionErrors !== null) {

@@ -36,7 +36,7 @@ class Value
      *
      * @phpstan-return CoercedValue|CoercedErrors
      */
-    public static function coerceInputValue($value, InputType $type, ?array $path = null): array
+    public static function coerceValue($value, InputType $type, ?array $path = null): array
     {
         if ($type instanceof NonNull) {
             if ($value === null) {
@@ -46,7 +46,7 @@ class Value
             }
 
             // @phpstan-ignore-next-line wrapped type is known to be input type after schema validation
-            return self::coerceInputValue($value, $type->getWrappedType(), $path);
+            return self::coerceValue($value, $type->getWrappedType(), $path);
         }
 
         if ($value === null) {
@@ -93,7 +93,7 @@ class Value
                 $errors = [];
                 $coercedValue = [];
                 foreach ($value as $index => $itemValue) {
-                    $coercedItem = self::coerceInputValue(
+                    $coercedItem = self::coerceValue(
                         $itemValue,
                         $itemType,
                         [...$path ?? [], $index]
@@ -112,7 +112,7 @@ class Value
             }
 
             // Lists accept a non-list value as a list of one.
-            $coercedItem = self::coerceInputValue($value, $itemType);
+            $coercedItem = self::coerceValue($value, $itemType);
 
             return isset($coercedItem['errors'])
                 ? $coercedItem
@@ -137,7 +137,7 @@ class Value
         foreach ($fields as $fieldName => $field) {
             if (array_key_exists($fieldName, $value)) {
                 $fieldValue = $value[$fieldName];
-                $coercedField = self::coerceInputValue(
+                $coercedField = self::coerceValue(
                     $fieldValue,
                     $field->getType(),
                     [...$path ?? [], $fieldName],
