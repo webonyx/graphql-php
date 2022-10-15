@@ -15,6 +15,8 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 
 /**
+ * @see coerceInputValue-test.ts
+ *
  * @phpstan-import-type InputPath from CoercionError
  */
 final class CoerceInputValueTest extends TestCase
@@ -229,7 +231,7 @@ final class CoerceInputValueTest extends TestCase
         $notInt = new stdClass();
         $result = Value::coerceValue(['foo' => $notInt], $this->testInputObject);
         $this->expectGraphQLError($result, [CoercionError::make(
-            'Int cannot represent non-integer value: instance of stdClass',
+            'Int cannot represent non-integer value: {}',
             ['foo'],
             $notInt
         )]);

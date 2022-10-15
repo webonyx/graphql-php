@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Executor\TestClasses;
 use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
 
@@ -47,7 +48,7 @@ class ComplexScalar extends ScalarType
             return 'DeserializedValue';
         }
 
-        $notComplexScalar = Utils::printSafeJson($value);
+        $notComplexScalar = Printer::doPrint($value);
         throw new Error("Cannot represent literal as ComplexScalar: {$notComplexScalar}");
     }
 }
