@@ -227,7 +227,7 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSupportsDescriptions(): void
     {
-        /* TODO add schema description - see https://github.com/webonyx/graphql-php/issues/1158
+        /* TODO add schema description - see https://github.com/webonyx/graphql-php/issues/1027
             """Do you agree that this is the most creative schema ever?"""
             schema {
               query: Query
