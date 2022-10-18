@@ -133,14 +133,11 @@ final class ExecutorLazySchemaTest extends TestCase
 
         Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = Executor::execute($schema, Parser::parse($query));
-        self::assertEquals(1, count($result->errors));
+        self::assertCount(1, $result->errors);
         self::assertInstanceOf(Error::class, $result->errors[0]->getPrevious());
 
-        self::assertEquals(
-            'GraphQL Interface Type `Pet` returned `null` from its `resolveType` function for value: instance of '
-            . 'GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible '
-            . 'implementations. It requires full schema scan and degrades query performance significantly.  '
-            . 'Make sure your `resolveType` always returns valid implementation or throws.',
+        self::assertSame(
+            'GraphQL Interface Type `Pet` returned `null` from its `resolveType` function for value: instance of GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly. Make sure your `resolveType` function always returns a valid implementation or throws.',
             $result->errors[0]->getMessage()
         );
     }
