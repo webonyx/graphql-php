@@ -1093,25 +1093,19 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
     {
-        // First, look for `__typename`.
-        if (
-            $value !== null
-            && (is_array($value) || $value instanceof ArrayAccess)
-            && isset($value['__typename'])
-            && is_string($value['__typename'])
-        ) {
-            return $value['__typename'];
+        $typename = Utils::extractKey($value, '__typename');
+        if (is_string($typename)) {
+            return $typename;
         }
 
         if ($abstractType instanceof InterfaceType && $info->schema->getConfig()->typeLoader !== null) {
             $safeValue = Utils::printSafe($value);
             Warning::warnOnce(
-                "GraphQL Interface Type `{$abstractType->name}` returned `null` from its `resolveType` function for value: {$safeValue}. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly.  Make sure your `resolveType` always returns valid implementation or throws.",
+                "GraphQL Interface Type `{$abstractType->name}` returned `null` from its `resolveType` function for value: {$safeValue}. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly. Make sure your `resolveType` function always returns a valid implementation or throws.",
                 Warning::WARNING_FULL_SCHEMA_SCAN
             );
         }
 
-        // Otherwise, test each possible type.
         $possibleTypes = $info->schema->getPossibleTypes($abstractType);
         $promisedIsTypeOfResults = [];
         foreach ($possibleTypes as $index => $type) {

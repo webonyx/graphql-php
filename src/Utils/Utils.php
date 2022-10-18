@@ -2,6 +2,7 @@
 
 namespace GraphQL\Utils;
 
+use ArrayAccess;
 use function array_keys;
 use function array_map;
 use function array_reduce;
@@ -314,5 +315,25 @@ class Utils
         });
 
         return array_map('strval', array_keys($optionsByDistance));
+    }
+
+    /**
+     * Try to extract the value for a key from an object like value.
+     *
+     * @param mixed $objectLikeValue
+     *
+     * @return mixed
+     */
+    public static function extractKey($objectLikeValue, string $key)
+    {
+        if (is_array($objectLikeValue) || $objectLikeValue instanceof ArrayAccess) {
+            return $objectLikeValue[$key] ?? null;
+        }
+
+        if (is_object($objectLikeValue)) {
+            return $objectLikeValue->{$key} ?? null;
+        }
+
+        return null;
     }
 }
