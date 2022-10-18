@@ -10,10 +10,10 @@ use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\Cat;
+use GraphQL\Tests\Executor\TestClasses\CatWithTypename;
 use GraphQL\Tests\Executor\TestClasses\Dog;
+use GraphQL\Tests\Executor\TestClasses\DogWithTypename;
 use GraphQL\Tests\Executor\TestClasses\Human;
-use GraphQL\Tests\Executor\TestClasses\ResolvableCat;
-use GraphQL\Tests\Executor\TestClasses\ResolvableDog;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -474,8 +474,8 @@ class AbstractTest extends TestCase
 
         $rootValue = [
             'pets' => [
-                new ResolvableDog('Odie', true),
-                new ResolvableCat('Garfield', false),
+                new DogWithTypename('Odie', true),
+                new CatWithTypename('Garfield', false),
             ],
         ];
 

@@ -2,15 +2,16 @@
 
 namespace GraphQL\Tests\Executor\TestClasses;
 
-use GraphQL\Resolvable;
-
-class ResolvableCat implements Resolvable
+class CatWithTypename
 {
     /** @var string */
     public $name;
 
     /** @var bool */
     public $meows;
+
+    /** @var string */
+    public $__typename = 'Cat';
 
     public function __construct(string $name, bool $meows)
     {
