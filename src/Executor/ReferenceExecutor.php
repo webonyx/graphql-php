@@ -30,6 +30,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Resolvable;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -1094,13 +1095,15 @@ class ReferenceExecutor implements ExecutorImplementation
     protected function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
     {
         // First, look for `__typename`.
-        if (
-            $value !== null
-            && (is_array($value) || $value instanceof ArrayAccess)
+        if ((is_array($value) || $value instanceof ArrayAccess)
             && isset($value['__typename'])
             && is_string($value['__typename'])
         ) {
             return $value['__typename'];
+        }
+
+        if ($value instanceof Resolvable) {
+            return $value->resolveGraphQLType();
         }
 
         if ($abstractType instanceof InterfaceType && $info->schema->getConfig()->typeLoader !== null) {

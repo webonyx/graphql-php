@@ -12,6 +12,8 @@ use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\Cat;
 use GraphQL\Tests\Executor\TestClasses\Dog;
 use GraphQL\Tests\Executor\TestClasses\Human;
+use GraphQL\Tests\Executor\TestClasses\ResolvableCat;
+use GraphQL\Tests\Executor\TestClasses\ResolvableDog;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -375,7 +377,7 @@ class AbstractTest extends TestCase
     }
 
     /** @see it('resolve Union type using __typename on source object') */
-    public function testResolveUnionTypeUsingTypenameOnSourceObject(): void
+    public function testResolveUnionTypeUsingTypenameOnSourceArray(): void
     {
         $schema = BuildSchema::build('
           type Query {
@@ -421,6 +423,59 @@ class AbstractTest extends TestCase
                     'name' => 'Garfield',
                     'meows' => false,
                 ],
+            ],
+        ];
+
+        $expected = new ExecutionResult([
+            'pets' => [
+                ['name' => 'Odie', 'woofs' => true],
+                ['name' => 'Garfield', 'meows' => false],
+            ],
+        ]);
+
+        $result = Executor::execute($schema, Parser::parse($query), $rootValue);
+        self::assertEquals($expected, $result);
+    }
+
+    /** @see it('resolve Union type using __typename on source object') */
+    public function testResolveUnionTypeUsingTypenameOnSourceObject(): void
+    {
+        $schema = BuildSchema::build('
+          type Query {
+            pets: [Pet]
+          }
+    
+          union Pet = Cat | Dog
+    
+          type Cat {
+            name: String
+            meows: Boolean
+          }
+    
+          type Dog {
+            name: String
+            woofs: Boolean
+          }
+        ');
+
+        $query = '
+          {
+            pets {
+              name
+              ... on Dog {
+                woofs
+              }
+              ... on Cat {
+                meows
+              }
+            }
+          }
+        ';
+
+        $rootValue = [
+            'pets' => [
+                new ResolvableDog('Odie', true),
+                new ResolvableCat('Garfield', false),
             ],
         ];
 
