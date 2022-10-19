@@ -27,10 +27,10 @@ parameters:
         # allow partial parsing of language fragments.
         - "~Variable method call on GraphQL\\\\Language\\\\Parser\\.~"
 
-        # Useful/necessary in the default field resolver, deals with arbitrary user data
+        # Useful/necessary when dealing with arbitrary user data
         -
             message: "~Variable property access on object~"
-            path: src/Executor/Executor.php
+            path: src/Utils/Utils.php
             count: 2
 
         # Those come from graphql-php\tests\Language\VisitorTest.php
