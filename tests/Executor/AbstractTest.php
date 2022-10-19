@@ -374,8 +374,15 @@ class AbstractTest extends TestCase
         self::assertArraySubset($expected, $result);
     }
 
-    /** @see it('resolve Union type using __typename on source object') */
-    public function testResolveUnionTypeUsingTypenameOnSourceObject(): void
+    /**
+     * @dataProvider dogCatRootValues
+     *
+     * @param mixed $dog
+     * @param mixed $cat
+     *
+     * @see it('resolve Union type using __typename on source object')
+     */
+    public function testResolveUnionTypeUsingTypenameOnSourceObject($dog, $cat): void
     {
         $schema = BuildSchema::build('
           type Query {
@@ -411,16 +418,8 @@ class AbstractTest extends TestCase
 
         $rootValue = [
             'pets' => [
-                [
-                    '__typename' => 'Dog',
-                    'name' => 'Odie',
-                    'woofs' => true,
-                ],
-                [
-                    '__typename' => 'Cat',
-                    'name' => 'Garfield',
-                    'meows' => false,
-                ],
+                $dog,
+                $cat,
             ],
         ];
 
@@ -435,8 +434,64 @@ class AbstractTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /** @see it('resolve Interface type using __typename on source object') */
-    public function testResolveInterfaceTypeUsingTypenameOnSourceObject(): void
+    /**
+     * Return possible representations of root values for a dog and a cat with valid __typename.
+     *
+     * @return iterable<array{mixed, mixed}>
+     */
+    public function dogCatRootValues(): iterable
+    {
+        yield [
+            [
+                '__typename' => 'Dog',
+                'name' => 'Odie',
+                'woofs' => true,
+            ],
+            [
+                '__typename' => 'Cat',
+                'name' => 'Garfield',
+                'meows' => false,
+            ],
+        ];
+        yield [
+            (object) [
+                '__typename' => 'Dog',
+                'name' => 'Odie',
+                'woofs' => true,
+            ],
+            (object) [
+                '__typename' => 'Cat',
+                'name' => 'Garfield',
+                'meows' => false,
+            ],
+        ];
+        yield [
+            new class() {
+                public string $__typename = 'Dog';
+
+                public string $name = 'Odie';
+
+                public bool $woofs = true;
+            },
+            new class() {
+                public string $__typename = 'Cat';
+
+                public string $name = 'Garfield';
+
+                public bool $meows = false;
+            },
+        ];
+    }
+
+    /**
+     * @dataProvider dogCatRootValues
+     *
+     * @param mixed $dog
+     * @param mixed $cat
+     *
+     * @see it('resolve Interface type using __typename on source object')
+     */
+    public function testResolveInterfaceTypeUsingTypenameOnSourceObject($dog, $cat): void
     {
         $schema = BuildSchema::build('
           type Query {
@@ -445,7 +500,7 @@ class AbstractTest extends TestCase
     
           interface Pet {
             name: String
-            }
+          }
     
           type Cat implements Pet {
             name: String
@@ -474,16 +529,8 @@ class AbstractTest extends TestCase
 
         $rootValue = [
             'pets' => [
-                [
-                    '__typename' => 'Dog',
-                    'name' => 'Odie',
-                    'woofs' => true,
-                ],
-                [
-                    '__typename' => 'Cat',
-                    'name' => 'Garfield',
-                    'meows' => false,
-                ],
+                $dog,
+                $cat,
             ],
         ];
 

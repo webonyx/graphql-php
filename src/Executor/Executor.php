@@ -2,7 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use ArrayAccess;
 use Closure;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
@@ -10,9 +9,7 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Schema;
-
-use function is_array;
-use function is_object;
+use GraphQL\Utils\Utils;
 
 /**
  * Implements the "Evaluating requests" section of the GraphQL specification.
@@ -179,29 +176,18 @@ class Executor
      * and returns it as the result, or if it's a function, returns the result
      * of calling that function while passing along args and context.
      *
-     * @param mixed                $objectValue
+     * @param mixed $objectLikeValue
      * @param array<string, mixed> $args
-     * @param mixed                $contextValue
+     * @param mixed $contextValue
      *
      * @return mixed
      */
-    public static function defaultFieldResolver($objectValue, array $args, $contextValue, ResolveInfo $info)
+    public static function defaultFieldResolver($objectLikeValue, array $args, $contextValue, ResolveInfo $info)
     {
-        $fieldName = $info->fieldName;
-        $property = null;
-
-        if (is_array($objectValue) || $objectValue instanceof ArrayAccess) {
-            if (isset($objectValue[$fieldName])) {
-                $property = $objectValue[$fieldName];
-            }
-        } elseif (is_object($objectValue)) {
-            if (isset($objectValue->{$fieldName})) {
-                $property = $objectValue->{$fieldName};
-            }
-        }
+        $property = Utils::extractKey($objectLikeValue, $info->fieldName);
 
         return $property instanceof Closure
-            ? $property($objectValue, $args, $contextValue, $info)
+            ? $property($objectLikeValue, $args, $contextValue, $info)
             : $property;
     }
 }
