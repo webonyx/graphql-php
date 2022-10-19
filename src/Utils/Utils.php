@@ -2,11 +2,13 @@
 
 namespace GraphQL\Utils;
 
-use ArrayAccess;
 use function array_keys;
 use function array_map;
 use function array_reduce;
 use function array_slice;
+
+use ArrayAccess;
+
 use function count;
 use function dechex;
 use function get_class;

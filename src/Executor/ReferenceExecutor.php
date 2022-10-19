@@ -7,7 +7,6 @@ use function array_merge;
 use function array_reduce;
 use function array_values;
 
-use ArrayAccess;
 use ArrayObject;
 
 use function count;

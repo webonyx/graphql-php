@@ -466,16 +466,20 @@ class AbstractTest extends TestCase
             ],
         ];
         yield [
-            new class {
+            new class() {
                 public string $__typename = 'Dog';
+
                 public string $name = 'Odie';
+
                 public bool $woofs = true;
             },
-            new class {
+            new class() {
                 public string $__typename = 'Cat';
+
                 public string $name = 'Garfield';
+
                 public bool $meows = false;
-            }
+            },
         ];
     }
 
@@ -484,6 +488,7 @@ class AbstractTest extends TestCase
      *
      * @param mixed $dog
      * @param mixed $cat
+     *
      * @see it('resolve Interface type using __typename on source object')
      */
     public function testResolveInterfaceTypeUsingTypenameOnSourceObject($dog, $cat): void

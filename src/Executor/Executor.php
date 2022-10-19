@@ -2,7 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use ArrayAccess;
 use Closure;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
@@ -10,10 +9,7 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Schema;
-
 use GraphQL\Utils\Utils;
-use function is_array;
-use function is_object;
 
 /**
  * Implements the "Evaluating requests" section of the GraphQL specification.
