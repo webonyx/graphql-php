@@ -49,6 +49,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Make `Helper::emitResponse()` private, use `Helper::sendResponse()`
 - Emit unescaped UTF-8 from `StandardServer`
 - Sync input value coercion with `graphql-js` reference implementation
+- Store rules exclusively by class name in `DocumentValidator`
 
 ### Added
 
