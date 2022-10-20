@@ -254,6 +254,11 @@ class QueryComplexity extends QuerySecurityRule
         return $args;
     }
 
+    public function getMaxQueryComplexity(): int
+    {
+        return $this->maxQueryComplexity;
+    }
+
     /**
      * Set max query complexity. If equal to 0 no check is done. Must be greater or equal to 0.
      */
