@@ -30,15 +30,15 @@ use GraphQL\Type\Definition\Type;
  * @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
  * @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
  * @phpstan-type SchemaConfigOptions array{
- *   query?: ObjectType,
- *   mutation?: ObjectType,
- *   subscription?: ObjectType,
- *   types?: Types,
- *   directives?: array<Directive>,
- *   typeLoader?: TypeLoader,
- *   assumeValid?: bool,
+ *   query?: ObjectType|null,
+ *   mutation?: ObjectType|null,
+ *   subscription?: ObjectType|null,
+ *   types?: Types|null,
+ *   directives?: array<Directive>|null,
+ *   typeLoader?: TypeLoader|null,
+ *   assumeValid?: bool|null,
  *   astNode?: SchemaDefinitionNode|null,
- *   extensionASTNodes?: array<SchemaTypeExtensionNode>,
+ *   extensionASTNodes?: array<SchemaExtensionNode>|null,
  * }
  */
 class SchemaConfig

@@ -5,6 +5,7 @@ namespace GraphQL\Type;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\AbstractType;
@@ -42,6 +43,9 @@ use function is_callable;
  *         ->setMutation($MyAppMutationRootType);
  *
  *     $schema = new GraphQL\Type\Schema($config);
+ *
+ * @phpstan-import-type SchemaConfigOptions from SchemaConfig
+ * @phpstan-import-type OperationType from OperationDefinitionNode
  */
 class Schema
 {
@@ -76,6 +80,8 @@ class Schema
 
     /**
      * @param SchemaConfig|array<string, mixed> $config
+     *
+     * @phpstan-param SchemaConfig|SchemaConfigOptions $config
      *
      * @api
      */
@@ -118,7 +124,9 @@ class Schema
             $this->resolvedTypes = [];
 
             foreach ($types as $typeOrLazyType) {
+                /** @var Type|callable(): Type $typeOrLazyType */
                 $type = self::resolveType($typeOrLazyType);
+                assert($type instanceof NamedType);
 
                 $typeName = $type->name;
                 if (isset($this->resolvedTypes[$typeName])) {
@@ -190,20 +198,16 @@ class Schema
         return "Type loader is expected to return type {$expectedTypeName}, but it returned type {$actualTypeName}.";
     }
 
+    /**
+     * @phpstan-param OperationType $operation
+     */
     public function getOperationType(string $operation): ?ObjectType
     {
         switch ($operation) {
-            case 'query':
-                return $this->getQueryType();
-
-            case 'mutation':
-                return $this->getMutationType();
-
-            case 'subscription':
-                return $this->getSubscriptionType();
-
-            default:
-                return null;
+            case 'query': return $this->getQueryType();
+            case 'mutation': return $this->getMutationType();
+            case 'subscription': return $this->getSubscriptionType();
+            default: return null;
         }
     }
 

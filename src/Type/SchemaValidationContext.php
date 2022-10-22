@@ -346,7 +346,7 @@ class SchemaValidationContext
             $fieldType = $field->getType();
             // @phpstan-ignore-next-line not statically provable until we can use union types
             if (! Type::isOutputType($fieldType)) {
-                $safeFieldType = Utils::printSafe($field->getType());
+                $safeFieldType = Utils::printSafe($fieldType);
                 $this->reportError(
                     "The type of {$type->name}.{$fieldName} must be Output Type but got: {$safeFieldType}.",
                     $this->getFieldTypeNode($type, $fieldName)
@@ -618,7 +618,6 @@ class SchemaValidationContext
         $typeFieldMap = $type->getFields();
         $ifaceFieldMap = $iface->getFields();
 
-        // Assert each interface field is implemented.
         foreach ($ifaceFieldMap as $fieldName => $ifaceField) {
             $typeField = $typeFieldMap[$fieldName] ?? null;
 

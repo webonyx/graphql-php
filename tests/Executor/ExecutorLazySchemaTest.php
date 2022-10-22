@@ -14,6 +14,7 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
@@ -192,8 +193,11 @@ final class ExecutorLazySchemaTest extends TestCase
 
     public function testSimpleQuery(): void
     {
+        $Query = $this->loadType('Query');
+        assert($Query instanceof ObjectType);
+
         $schema = new Schema([
-            'query' => $this->loadType('Query'),
+            'query' => $Query,
             'typeLoader' => fn (string $name): ?Type => $this->loadType($name, true),
         ]);
 
@@ -216,6 +220,9 @@ final class ExecutorLazySchemaTest extends TestCase
         self::assertEquals($expectedExecutorCalls, $this->calls);
     }
 
+    /**
+     * @return (Type&NamedType)|null
+     */
     public function loadType(string $name, bool $isExecutorCall = false): ?Type
     {
         if ($isExecutorCall) {
@@ -346,8 +353,11 @@ final class ExecutorLazySchemaTest extends TestCase
 
     public function testDeepQuery(): void
     {
+        $Query = $this->loadType('Query');
+        assert($Query instanceof ObjectType);
+
         $schema = new Schema([
-            'query' => $this->loadType('Query'),
+            'query' => $Query,
             'typeLoader' => fn (string $name): ?Type => $this->loadType($name, true),
         ]);
 
@@ -384,8 +394,11 @@ final class ExecutorLazySchemaTest extends TestCase
 
     public function testResolveUnion(): void
     {
+        $Query = $this->loadType('Query');
+        assert($Query instanceof ObjectType);
+
         $schema = new Schema([
-            'query' => $this->loadType('Query'),
+            'query' => $Query,
             'typeLoader' => fn (string $name): ?Type => $this->loadType($name, true),
         ]);
 
