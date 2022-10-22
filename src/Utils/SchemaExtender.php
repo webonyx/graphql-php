@@ -177,19 +177,11 @@ class SchemaExtender
 
         $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
 
-        $query = $operationTypes['query'];
-        assert($query instanceof ObjectType || $query === null);
-
-        $mutation = $operationTypes['mutation'];
-        assert($mutation instanceof ObjectType || $mutation === null);
-
-        $subscription = $operationTypes['subscription'];
-        assert($subscription instanceof ObjectType || $subscription === null);
-
+        // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
         return new Schema([
-            'query' => $query,
-            'mutation' => $mutation,
-            'subscription' => $subscription,
+            'query' => $operationTypes['query'],
+            'mutation' => $operationTypes['mutation'],
+            'subscription' => $operationTypes['subscription'],
             'types' => $types,
             'directives' => $this->getMergedDirectives($schema, $directiveDefinitions),
             'astNode' => $schema->astNode ?? $schemaDef,
