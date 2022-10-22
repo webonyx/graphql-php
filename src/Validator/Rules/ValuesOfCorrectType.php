@@ -180,7 +180,7 @@ class ValuesOfCorrectType extends ValidationRule
                 $nodeStr = Printer::doPrint($node);
                 $context->reportError(
                     new Error(
-                        "Expected value of type \"{$typeStr}\", found {$nodeStr}; " . $error->getMessage(),
+                        "Expected value of type \"{$typeStr}\", found {$nodeStr}; {$error->getMessage()}",
                         $node,
                         null,
                         [],

@@ -36,6 +36,7 @@ use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
@@ -52,7 +53,7 @@ use Throwable;
  * @phpstan-import-type InputObjectFieldConfig from InputObjectField
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
  *
- * @phpstan-type ResolveType callable(string, Node|null): Type
+ * @phpstan-type ResolveType callable(string, Node|null): Type&NamedType
  * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
  */
 class ASTDefinitionBuilder
@@ -74,7 +75,7 @@ class ASTDefinitionBuilder
      */
     private $typeConfigDecorator;
 
-    /** @var array<string, Type> */
+    /** @var array<string, Type&NamedType> */
     private array $cache;
 
     /** @var array<string, array<int, Node&TypeExtensionNode>> */
@@ -186,6 +187,8 @@ class ASTDefinitionBuilder
 
     /**
      * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+     *
+     * @return Type&NamedType
      */
     public function buildType($ref): Type
     {
@@ -213,6 +216,8 @@ class ASTDefinitionBuilder
      * @param (Node&NamedTypeNode)|(Node&TypeDefinitionNode)|null $typeNode
      *
      * @throws Error
+     *
+     * @return Type&NamedType
      */
     private function internalBuildType(string $typeName, ?Node $typeNode = null): Type
     {

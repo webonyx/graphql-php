@@ -127,12 +127,9 @@ class StandardTypesTest extends TestCase
     {
         return new CustomScalarType([
             'name' => $name,
-            'serialize' => static function (): void {
-            },
-            'parseValue' => static function (): void {
-            },
-            'parseLiteral' => static function (): void {
-            },
+            'serialize' => static fn () => null,
+            'parseValue' => static fn () => null,
+            'parseLiteral' => static fn () => null,
         ]);
     }
 }

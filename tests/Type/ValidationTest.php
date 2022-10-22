@@ -19,6 +19,7 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ObjectType;
@@ -473,6 +474,7 @@ class ValidationTest extends TestCaseBase
      */
     public function testRejectsASchemaWhoseDirectivesAreIncorrectlyTyped(): void
     {
+        // @phpstan-ignore-next-line intentionally wrong
         $schema = new Schema([
             'query' => $this->SomeObjectType,
             'directives' => ['somedirective'],
@@ -552,6 +554,8 @@ class ValidationTest extends TestCaseBase
 
     /**
      * DESCRIBE: Type System: Fields args must be properly named.
+     *
+     * @param Type&NamedType $type
      */
     private function schemaWithFieldType(Type $type): Schema
     {
@@ -2871,8 +2875,11 @@ class ValidationTest extends TestCaseBase
             }
         };
 
+        $query = $typeLoader('Query');
+        assert($query instanceof ObjectType);
+
         $schema = new Schema([
-            'query' => $typeLoader('Query'),
+            'query' => $query,
             'typeLoader' => $typeLoader,
         ]);
         $this->expectException(InvariantViolation::class);

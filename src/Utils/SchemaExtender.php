@@ -130,6 +130,7 @@ class SchemaExtender
         $this->astBuilder = new ASTDefinitionBuilder(
             $typeDefinitionMap,
             [],
+            // @phpstan-ignore-next-line no idea what is wrong here
             function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
                 if ($existingType === null) {
@@ -176,10 +177,19 @@ class SchemaExtender
 
         $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
 
+        $query = $operationTypes['query'];
+        assert($query instanceof ObjectType || $query === null);
+
+        $mutation = $operationTypes['mutation'];
+        assert($mutation instanceof ObjectType || $mutation === null);
+
+        $subscription = $operationTypes['subscription'];
+        assert($subscription instanceof ObjectType || $subscription === null);
+
         return new Schema([
-            'query' => $operationTypes['query'],
-            'mutation' => $operationTypes['mutation'],
-            'subscription' => $operationTypes['subscription'],
+            'query' => $query,
+            'mutation' => $mutation,
+            'subscription' => $subscription,
             'types' => $types,
             'directives' => $this->getMergedDirectives($schema, $directiveDefinitions),
             'astNode' => $schema->astNode ?? $schemaDef,

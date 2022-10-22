@@ -656,9 +656,6 @@ class AbstractTest extends TestCase
         self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
-    /**
-     * @see it('resolveType allows resolving with type name')
-     */
     public function testResolveTypeAllowsResolvingWithTypeName(): void
     {
         $PetType = new InterfaceType([

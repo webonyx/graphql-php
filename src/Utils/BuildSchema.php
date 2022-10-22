@@ -176,6 +176,7 @@ class BuildSchema
         $definitionBuilder = new ASTDefinitionBuilder(
             $typeDefinitionsMap,
             $typeExtensionsMap,
+            // @phpstan-ignore-next-line TODO add union type when available
             static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
@@ -206,7 +207,7 @@ class BuildSchema
         // Note: While this could make early assertions to get the correctly
         // typed values below, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
-
+        // @phpstan-ignore-next-line
         return new Schema([
             'query' => isset($operationTypes['query'])
                 ? $definitionBuilder->maybeBuildType($operationTypes['query'])
