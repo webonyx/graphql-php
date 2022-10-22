@@ -190,20 +190,16 @@ class Schema
         return "Type loader is expected to return type {$expectedTypeName}, but it returned type {$actualTypeName}.";
     }
 
+    /**
+     * @phpstan-param OperationType $operation
+     */
     public function getOperationType(string $operation): ?ObjectType
     {
         switch ($operation) {
-            case 'query':
-                return $this->getQueryType();
-
-            case 'mutation':
-                return $this->getMutationType();
-
-            case 'subscription':
-                return $this->getSubscriptionType();
-
-            default:
-                return null;
+            case 'query': return $this->getQueryType();
+            case 'mutation': return $this->getMutationType();
+            case 'subscription': return $this->getSubscriptionType();
+            default: return null;
         }
     }
 
