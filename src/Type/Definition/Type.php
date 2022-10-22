@@ -28,7 +28,7 @@ abstract class Type implements JsonSerializable
     /** @var array<string, ScalarType> */
     protected static array $standardTypes;
 
-    /** @var array<string, Type> */
+    /** @var array<string, Type&NamedType> */
     private static array $builtInTypes;
 
     /**
@@ -36,11 +36,7 @@ abstract class Type implements JsonSerializable
      */
     public static function id(): ScalarType
     {
-        if (! isset(static::$standardTypes[self::ID])) {
-            static::$standardTypes[self::ID] = new IDType();
-        }
-
-        return static::$standardTypes[self::ID];
+        return static::$standardTypes[self::ID] ??= new IDType();
     }
 
     /**
@@ -48,11 +44,7 @@ abstract class Type implements JsonSerializable
      */
     public static function string(): ScalarType
     {
-        if (! isset(static::$standardTypes[self::STRING])) {
-            static::$standardTypes[self::STRING] = new StringType();
-        }
-
-        return static::$standardTypes[self::STRING];
+        return static::$standardTypes[self::STRING] ??= new StringType();
     }
 
     /**
@@ -60,11 +52,7 @@ abstract class Type implements JsonSerializable
      */
     public static function boolean(): ScalarType
     {
-        if (! isset(static::$standardTypes[self::BOOLEAN])) {
-            static::$standardTypes[self::BOOLEAN] = new BooleanType();
-        }
-
-        return static::$standardTypes[self::BOOLEAN];
+        return static::$standardTypes[self::BOOLEAN] ??= new BooleanType();
     }
 
     /**
@@ -72,11 +60,7 @@ abstract class Type implements JsonSerializable
      */
     public static function int(): ScalarType
     {
-        if (! isset(static::$standardTypes[self::INT])) {
-            static::$standardTypes[self::INT] = new IntType();
-        }
-
-        return static::$standardTypes[self::INT];
+        return static::$standardTypes[self::INT] ??= new IntType();
     }
 
     /**
@@ -84,11 +68,7 @@ abstract class Type implements JsonSerializable
      */
     public static function float(): ScalarType
     {
-        if (! isset(static::$standardTypes[self::FLOAT])) {
-            static::$standardTypes[self::FLOAT] = new FloatType();
-        }
-
-        return static::$standardTypes[self::FLOAT];
+        return static::$standardTypes[self::FLOAT] ??= new FloatType();
     }
 
     /**
@@ -118,18 +98,14 @@ abstract class Type implements JsonSerializable
     /**
      * Returns all builtin in types including base scalar and introspection types.
      *
-     * @return array<string, Type>
+     * @return array<string, Type&NamedType>
      */
     public static function getAllBuiltInTypes(): array
     {
-        if (! isset(self::$builtInTypes)) {
-            self::$builtInTypes = array_merge(
-                Introspection::getTypes(),
-                self::getStandardTypes()
-            );
-        }
-
-        return self::$builtInTypes;
+        return self::$builtInTypes ??= array_merge(
+            Introspection::getTypes(),
+            self::getStandardTypes()
+        );
     }
 
     /**
