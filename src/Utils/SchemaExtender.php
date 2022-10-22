@@ -2,7 +2,6 @@
 
 namespace GraphQL\Utils;
 
-use GraphQL\Type\SchemaConfig;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -41,6 +40,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
 use GraphQL\Validator\DocumentValidator;
 
 /**
@@ -178,7 +178,8 @@ class SchemaExtender
 
         $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
 
-        return new Schema((new SchemaConfig())
+        return new Schema(
+            (new SchemaConfig())
             // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
             ->setQuery($operationTypes['query'])
             // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors

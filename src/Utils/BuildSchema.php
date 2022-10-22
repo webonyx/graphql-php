@@ -2,7 +2,6 @@
 
 namespace GraphQL\Utils;
 
-use GraphQL\Type\SchemaConfig;
 use function array_map;
 
 use GraphQL\Error\Error;
@@ -17,6 +16,7 @@ use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
 use GraphQL\Validator\DocumentValidator;
 
 /**
@@ -208,7 +208,8 @@ class BuildSchema
         // Note: While this could make early assertions to get the correctly
         // typed values below, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
-        return new Schema((new SchemaConfig())
+        return new Schema(
+            (new SchemaConfig())
             // @phpstan-ignore-next-line
             ->setQuery(isset($operationTypes['query'])
                 ? $definitionBuilder->maybeBuildType($operationTypes['query'])

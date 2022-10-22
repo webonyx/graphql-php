@@ -47,7 +47,8 @@ try {
 
     // See docs on schema options:
     // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
-    $schema = new Schema((new SchemaConfig())
+    $schema = new Schema(
+        (new SchemaConfig())
         ->setQuery($queryType)
         ->setMutation($mutationType)
     );

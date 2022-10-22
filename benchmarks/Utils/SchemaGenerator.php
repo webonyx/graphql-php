@@ -2,7 +2,6 @@
 
 namespace GraphQL\Benchmarks\Utils;
 
-use GraphQL\Type\SchemaConfig;
 use function array_merge;
 use function array_rand;
 
@@ -16,6 +15,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
 
 use function ucfirst;
 
@@ -44,7 +44,8 @@ class SchemaGenerator
 
     public function buildSchema(): Schema
     {
-        return new Schema((new SchemaConfig())
+        return new Schema(
+            (new SchemaConfig())
             ->setQuery($this->buildQueryType())
         );
     }

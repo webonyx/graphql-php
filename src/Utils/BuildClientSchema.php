@@ -144,7 +144,8 @@ class BuildClientSchema
             )
             : [];
 
-        return new Schema((new SchemaConfig())
+        return new Schema(
+            (new SchemaConfig())
             ->setQuery($queryType)
             ->setMutation($mutationType)
             ->setSubscription($subscriptionType)

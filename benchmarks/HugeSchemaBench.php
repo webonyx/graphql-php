@@ -64,7 +64,8 @@ class HugeSchemaBench
 
     private function createLazySchema(): Schema
     {
-        return new Schema((new SchemaConfig())
+        return new Schema(
+            (new SchemaConfig())
             ->setQuery($this->schemaGenerator->buildQueryType())
             ->setTypeLoader(fn (string $name): Type => $this->schemaGenerator->loadType($name))
         );

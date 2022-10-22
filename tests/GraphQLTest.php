@@ -16,7 +16,8 @@ class GraphQLTest extends TestCase
     public function testPromiseToExecute(): void
     {
         $promiseAdapter = new SyncPromiseAdapter();
-        $schema = new Schema((new SchemaConfig())
+        $schema = new Schema(
+            (new SchemaConfig())
             ->setQuery(new ObjectType([
                 'name' => 'Query',
                 'fields' => [
