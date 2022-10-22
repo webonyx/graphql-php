@@ -2,7 +2,6 @@
 
 namespace GraphQL\Type\Definition;
 
-use function array_keys;
 use function array_merge;
 
 use GraphQL\Error\InvariantViolation;
@@ -19,24 +18,37 @@ use ReturnTypeWillChange;
  */
 abstract class Type implements JsonSerializable
 {
-    public const STRING = 'String';
     public const INT = 'Int';
-    public const BOOLEAN = 'Boolean';
     public const FLOAT = 'Float';
+    public const STRING = 'String';
+    public const BOOLEAN = 'Boolean';
     public const ID = 'ID';
+
+    public const STANDARD_TYPE_NAMES = [
+        self::INT,
+        self::FLOAT,
+        self::STRING,
+        self::BOOLEAN,
+        self::ID,
+    ];
 
     /** @var array<string, ScalarType> */
     protected static array $standardTypes;
 
-    /** @var array<string, Type&NamedType> */
-    private static array $builtInTypes;
+    /**
+     * @api
+     */
+    public static function int(): ScalarType
+    {
+        return static::$standardTypes[self::INT] ??= new IntType();
+    }
 
     /**
      * @api
      */
-    public static function id(): ScalarType
+    public static function float(): ScalarType
     {
-        return static::$standardTypes[self::ID] ??= new IDType();
+        return static::$standardTypes[self::FLOAT] ??= new FloatType();
     }
 
     /**
@@ -58,17 +70,9 @@ abstract class Type implements JsonSerializable
     /**
      * @api
      */
-    public static function int(): ScalarType
+    public static function id(): ScalarType
     {
-        return static::$standardTypes[self::INT] ??= new IntType();
-    }
-
-    /**
-     * @api
-     */
-    public static function float(): ScalarType
-    {
-        return static::$standardTypes[self::FLOAT] ??= new FloatType();
+        return static::$standardTypes[self::ID] ??= new IDType();
     }
 
     /**
@@ -100,9 +104,11 @@ abstract class Type implements JsonSerializable
      *
      * @return array<string, Type&NamedType>
      */
-    public static function getAllBuiltInTypes(): array
+    public static function builtInTypes(): array
     {
-        return self::$builtInTypes ??= array_merge(
+        static $builtInTypes;
+
+        return $builtInTypes ??= array_merge(
             Introspection::getTypes(),
             self::getStandardTypes()
         );
@@ -116,11 +122,11 @@ abstract class Type implements JsonSerializable
     public static function getStandardTypes(): array
     {
         return [
-            self::ID => static::id(),
-            self::STRING => static::string(),
-            self::FLOAT => static::float(),
             self::INT => static::int(),
+            self::FLOAT => static::float(),
+            self::STRING => static::string(),
             self::BOOLEAN => static::boolean(),
+            self::ID => static::id(),
         ];
     }
 
@@ -129,7 +135,6 @@ abstract class Type implements JsonSerializable
      */
     public static function overrideStandardTypes(array $types): void
     {
-        $standardTypes = self::getStandardTypes();
         foreach ($types as $type) {
             // @phpstan-ignore-next-line generic type is not enforced by PHP
             if (! $type instanceof ScalarType) {
@@ -138,9 +143,9 @@ abstract class Type implements JsonSerializable
                 throw new InvariantViolation("Expecting instance of {$typeClass}, got {$notType}");
             }
 
-            if (! isset($type->name, $standardTypes[$type->name])) {
-                $standardTypeNames = implode(', ', array_keys($standardTypes));
-                $notStandardTypeName = Utils::printSafe($type->name ?? null);
+            if (! in_array($type->name, self::STANDARD_TYPE_NAMES, true)) {
+                $standardTypeNames = implode(', ', self::STANDARD_TYPE_NAMES);
+                $notStandardTypeName = Utils::printSafe($type->name);
                 throw new InvariantViolation("Expecting one of the following names for a standard type: {$standardTypeNames}; got {$notStandardTypeName}");
             }
 
