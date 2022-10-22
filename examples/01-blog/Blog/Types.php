@@ -21,6 +21,7 @@ use GraphQL\Examples\Blog\Type\Scalar\UrlType;
 use GraphQL\Examples\Blog\Type\SearchResultType;
 use GraphQL\Examples\Blog\Type\StoryType;
 use GraphQL\Examples\Blog\Type\UserType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 
@@ -37,7 +38,7 @@ use function strtolower;
  */
 final class Types
 {
-    /** @var array<string, Type> */
+    /** @var array<string, Type&NamedType> */
     private static array $types = [];
 
     public static function user(): callable
@@ -96,7 +97,7 @@ final class Types
     }
 
     /**
-     * @param class-string<Type> $classname
+     * @param class-string<Type&NamedType> $classname
      *
      * @return Closure(): Type
      */
@@ -106,7 +107,7 @@ final class Types
     }
 
     /**
-     * @param class-string<Type> $classname
+     * @param class-string<Type&NamedType> $classname
      */
     private static function byClassName(string $classname): Type
     {
@@ -124,6 +125,9 @@ final class Types
         return self::$types[$cacheName];
     }
 
+    /**
+     * @return Type&NamedType
+     */
     public static function byTypeName(string $shortName): Type
     {
         $cacheName = strtolower($shortName);

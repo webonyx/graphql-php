@@ -23,7 +23,7 @@ DataSource::init();
 // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
 $schema = new Schema([
     'query' => new QueryType(),
-    'typeLoader' => static fn (string $name): Type => Types::byTypeName($name),
+    'typeLoader' => [Types::class, 'byTypename'],
 ]);
 
 // Prepare context that will be available in all field resolvers (as 3rd argument):
