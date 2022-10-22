@@ -4,6 +4,7 @@ namespace GraphQL\Validator;
 
 use function array_merge;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Visitor;
@@ -26,6 +27,7 @@ use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
+use GraphQL\Validator\Rules\PossibleTypeExtensions;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
 use GraphQL\Validator\Rules\QueryComplexity;
@@ -33,9 +35,12 @@ use GraphQL\Validator\Rules\QueryDepth;
 use GraphQL\Validator\Rules\QuerySecurityRule;
 use GraphQL\Validator\Rules\ScalarLeafs;
 use GraphQL\Validator\Rules\SingleFieldSubscription;
+use GraphQL\Validator\Rules\UniqueArgumentDefinitionNames;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
+use GraphQL\Validator\Rules\UniqueDirectiveNames;
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 use GraphQL\Validator\Rules\UniqueEnumValueNames;
+use GraphQL\Validator\Rules\UniqueFieldDefinitionNames;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
 use GraphQL\Validator\Rules\UniqueInputFieldNames;
 use GraphQL\Validator\Rules\UniqueOperationNames;
@@ -46,6 +51,8 @@ use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
+
+use function implode;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -203,11 +210,16 @@ class DocumentValidator
             LoneSchemaDefinition::class => new LoneSchemaDefinition(),
             UniqueOperationTypes::class => new UniqueOperationTypes(),
             UniqueTypeNames::class => new UniqueTypeNames(),
-            KnownDirectives::class => new KnownDirectives(),
-            KnownArgumentNamesOnDirectives::class => new KnownArgumentNamesOnDirectives(),
-            UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
-            UniqueArgumentNames::class => new UniqueArgumentNames(),
             UniqueEnumValueNames::class => new UniqueEnumValueNames(),
+            UniqueFieldDefinitionNames::class => new UniqueFieldDefinitionNames(),
+            UniqueArgumentDefinitionNames::class => new UniqueArgumentDefinitionNames(),
+            UniqueDirectiveNames::class => new UniqueDirectiveNames(),
+            KnownTypeNames::class => new KnownTypeNames(),
+            KnownDirectives::class => new KnownDirectives(),
+            UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
+            PossibleTypeExtensions::class => new PossibleTypeExtensions(),
+            KnownArgumentNamesOnDirectives::class => new KnownArgumentNamesOnDirectives(),
+            UniqueArgumentNames::class => new UniqueArgumentNames(),
             UniqueInputFieldNames::class => new UniqueInputFieldNames(),
             ProvidedRequiredArgumentsOnDirectives::class => new ProvidedRequiredArgumentsOnDirectives(),
         ];
@@ -301,11 +313,11 @@ class DocumentValidator
      */
     private static function combineErrorMessages(array $errors): string
     {
-        $str = '';
+        $messages = [];
         foreach ($errors as $error) {
-            $str .= $error->getMessage() . "\n\n";
+            $messages[] = $error->getMessage();
         }
 
-        return $str;
+        return implode("\n\n", $messages);
     }
 }

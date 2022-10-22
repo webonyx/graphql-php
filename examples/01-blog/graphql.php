@@ -16,33 +16,29 @@ use GraphQL\Server\StandardServer;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-try {
-    // Initialize our fake data source
-    DataSource::init();
+// Initialize our fake data source
+DataSource::init();
 
-    // See docs on schema options:
-    // https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options
-    $schema = new Schema([
-        'query' => new QueryType(),
-        'typeLoader' => [Types::class, 'byTypename'],
-    ]);
+// See docs on schema options:
+// https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
+$schema = new Schema([
+    'query' => new QueryType(),
+    'typeLoader' => [Types::class, 'byTypename'],
+]);
 
-    // Prepare context that will be available in all field resolvers (as 3rd argument):
-    $appContext = new AppContext();
-    $currentlyLoggedInUser = DataSource::findUser(1);
-    assert($currentlyLoggedInUser !== null);
-    $appContext->viewer = $currentlyLoggedInUser;
-    $appContext->rootUrl = 'http://localhost:8080';
-    $appContext->request = $_REQUEST;
+// Prepare context that will be available in all field resolvers (as 3rd argument):
+$appContext = new AppContext();
+$currentlyLoggedInUser = DataSource::findUser(1);
+assert($currentlyLoggedInUser !== null);
+$appContext->viewer = $currentlyLoggedInUser;
+$appContext->rootUrl = 'http://localhost:8080';
+$appContext->request = $_REQUEST;
 
-    // See docs on server options:
-    // https://webonyx.github.io/graphql-php/executing-queries/#server-configuration-options
-    $server = new StandardServer([
-        'schema' => $schema,
-        'context' => $appContext,
-    ]);
+// See docs on server options:
+// https://webonyx.github.io/graphql-php/executing-queries/#server-configuration-options
+$server = new StandardServer([
+    'schema' => $schema,
+    'context' => $appContext,
+]);
 
-    $server->handleRequest();
-} catch (Throwable $error) {
-    StandardServer::send500Error($error);
-}
+$server->handleRequest();

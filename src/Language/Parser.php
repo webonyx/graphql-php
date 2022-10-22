@@ -3,6 +3,7 @@
 namespace GraphQL\Language;
 
 use function count;
+
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
@@ -58,7 +59,6 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
-use function sprintf;
 
 /**
  * Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
@@ -181,6 +181,7 @@ class Parser
      * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions       $options
      *
      * @throws SyntaxError
@@ -189,9 +190,7 @@ class Parser
      */
     public static function parse($source, array $options = []): DocumentNode
     {
-        $parser = new self($source, $options);
-
-        return $parser->parseDocument();
+        return (new self($source, $options))->parseDocument();
     }
 
     /**
@@ -205,6 +204,7 @@ class Parser
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
      *
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions $options
      *
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode
@@ -232,6 +232,7 @@ class Parser
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
      *
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions       $options
      *
      * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
@@ -306,6 +307,7 @@ class Parser
 
     /**
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions        $options
      */
     public function __construct($source, array $options = [])
@@ -369,7 +371,7 @@ class Parser
         throw new SyntaxError(
             $this->lexer->source,
             $token->start,
-            sprintf('Expected %s, found %s', $kind, $token->getDescription())
+            "Expected {$kind}, found {$token->getDescription()}"
         );
     }
 
@@ -501,7 +503,7 @@ class Parser
                 case 'fragment':
                     return $this->parseExecutableDefinition();
 
-                // Note: The schema definition language is an experimental addition.
+                    // Note: The schema definition language is an experimental addition.
                 case 'schema':
                 case 'scalar':
                 case 'type':
@@ -606,7 +608,6 @@ class Parser
      */
     private function parseVariableDefinitions(): NodeList
     {
-        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
         return $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
@@ -704,7 +705,6 @@ class Parser
             ? fn (): ArgumentNode => $this->parseConstArgument()
             : fn (): ArgumentNode => $this->parseArgument();
 
-        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
         return $this->peek(Token::PAREN_L)
             ? $this->many(Token::PAREN_L, $parseFn, Token::PAREN_R)
             : new NodeList([]);
@@ -872,12 +872,12 @@ class Parser
                         'loc' => $this->loc($token),
                     ]);
                 }
-                    $this->lexer->advance();
+                $this->lexer->advance();
 
-                    return new EnumValueNode([
-                        'value' => $token->value,
-                        'loc' => $this->loc($token),
-                    ]);
+                return new EnumValueNode([
+                    'value' => $token->value,
+                    'loc' => $this->loc($token),
+                ]);
 
             case Token::DOLLAR:
                 if (! $isConst) {
@@ -1088,9 +1088,7 @@ class Parser
 
         $operationTypes = $this->many(
             Token::BRACE_L,
-            function (): OperationTypeDefinitionNode {
-                return $this->parseOperationTypeDefinition();
-            },
+            fn (): OperationTypeDefinitionNode => $this->parseOperationTypeDefinition(),
             Token::BRACE_R
         );
 
@@ -1227,7 +1225,6 @@ class Parser
      */
     private function parseArgumentsDefinition(): NodeList
     {
-        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
         return $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
@@ -1343,7 +1340,6 @@ class Parser
      */
     private function parseEnumValuesDefinition(): NodeList
     {
-        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
         return $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
@@ -1391,13 +1387,10 @@ class Parser
      */
     private function parseInputFieldsDefinition(): NodeList
     {
-        // @phpstan-ignore-next-line generic type of empty NodeList is not initialized
         return $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                function (): InputValueDefinitionNode {
-                    return $this->parseInputValueDefinition();
-                },
+                fn (): InputValueDefinitionNode => $this->parseInputValueDefinition(),
                 Token::BRACE_R
             )
             : new NodeList([]);

@@ -46,11 +46,6 @@ parameters:
 			path: examples/01-blog/Blog/Types.php
 
 		-
-			message: "#^Parameter \\#1 \\$message of method Exception\\:\\:__construct\\(\\) expects string, GraphQL\\\\Exception\\\\LazyException given\\.$#"
-			count: 1
-			path: src/Exception/LazyException.php
-
-		-
 			message: "#^SplObjectStorage\\<GraphQL\\\\Type\\\\Definition\\\\ObjectType, SplObjectStorage\\<ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>, ArrayObject\\<string, ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>\\>\\>\\> does not accept SplObjectStorage\\<ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>, ArrayObject\\<string, ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>\\>\\>\\|SplObjectStorage\\<object, mixed\\>\\.$#"
 			count: 1
 			path: src/Executor/ReferenceExecutor.php
@@ -64,21 +59,6 @@ parameters:
 			message: "#^Variable property access on TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
-
-		-
-			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printList\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\DefinitionNode&GraphQL\\\\Language\\\\AST\\\\Node\\> given\\.$#"
-			count: 1
-			path: src/Language/Printer.php
-
-		-
-			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printList\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node&GraphQL\\\\Language\\\\AST\\\\ValueNode\\> given\\.$#"
-			count: 1
-			path: src/Language/Printer.php
-
-		-
-			message: "#^Parameter \\#1 \\$list of method GraphQL\\\\Language\\\\Printer\\:\\:printListBlock\\(\\) expects GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node\\>, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\Node&GraphQL\\\\Language\\\\AST\\\\SelectionNode\\> given\\.$#"
-			count: 1
-			path: src/Language/Printer.php
 
 		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
@@ -96,34 +76,39 @@ parameters:
 			path: src/Type/Definition/Argument.php
 
 		-
-			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition constructor expects array\\{name\\: string, value\\?\\: mixed, deprecationReason\\?\\: string\\|null, description\\?\\: string\\|null, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\|null\\}, array given\\.$#"
+			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\:\\:\\$interfaces \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
 			count: 1
-			path: src/Type/Definition/EnumType.php
+			path: src/Type/Definition/InterfaceType.php
 
 		-
-			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:getType\\(\\) should return GraphQL\\\\Type\\\\Definition\\\\OutputType&GraphQL\\\\Type\\\\Definition\\\\Type but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
 			count: 1
-			path: src/Type/Definition/FieldDefinition.php
+			path: src/Type/Definition/InterfaceType.php
 
 		-
-			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:\\$type \\(GraphQL\\\\Type\\\\Definition\\\\OutputType&GraphQL\\\\Type\\\\Definition\\\\Type\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\ObjectType\\:\\:\\$interfaces \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
 			count: 1
-			path: src/Type/Definition/FieldDefinition.php
+			path: src/Type/Definition/ObjectType.php
 
 		-
-			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\NonNull\\:\\:getWrappedType\\(\\) should return GraphQL\\\\Type\\\\Definition\\\\NullableType&GraphQL\\\\Type\\\\Definition\\\\Type but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
 			count: 1
-			path: src/Type/Definition/NonNull.php
+			path: src/Type/Definition/ObjectType.php
 
 		-
-			message: "#^Array \\(array\\<string, GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\>\\) does not accept GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
-			count: 2
-			path: src/Type/Schema.php
+			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\UnionType\\:\\:getTypes\\(\\) should return array\\<int, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\> but returns array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			count: 1
+			path: src/Type/Definition/UnionType.php
 
 		-
-			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:getType\\(\\) should return \\(GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null but returns GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\UnionType\\:\\:\\$types \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
 			count: 1
-			path: src/Type/Schema.php
+			path: src/Type/Definition/UnionType.php
+
+		-
+			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
+			count: 1
+			path: src/Type/Definition/UnionType.php
 
 		-
 			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\) should return T of GraphQL\\\\Type\\\\Definition\\\\Type but returns \\(callable&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|T of GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
@@ -139,21 +124,6 @@ parameters:
 			message: "#^Variable property access on mixed\\.$#"
 			count: 1
 			path: src/Utils/AST.php
-
-		-
-			message: "#^Parameter \\#2 \\$resolveType of class GraphQL\\\\Utils\\\\ASTDefinitionBuilder constructor expects callable\\(string, GraphQL\\\\Language\\\\AST\\\\Node\\|null\\)\\: GraphQL\\\\Type\\\\Definition\\\\Type&GraphQL\\\\Type\\\\Definition\\\\NamedType, Closure\\(string\\)\\: \\*NEVER\\* given\\.$#"
-			count: 1
-			path: src/Utils/BuildSchema.php
-
-		-
-			message: "#^Parameter \\#2 \\$resolveType of class GraphQL\\\\Utils\\\\ASTDefinitionBuilder constructor expects callable\\(string, GraphQL\\\\Language\\\\AST\\\\Node\\|null\\)\\: GraphQL\\\\Type\\\\Definition\\\\Type&GraphQL\\\\Type\\\\Definition\\\\NamedType, Closure\\(string\\)\\: GraphQL\\\\Type\\\\Definition\\\\NamedType&GraphQL\\\\Type\\\\Definition\\\\Type given\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
-
-		-
-			message: "#^Variable property access on object\\.$#"
-			count: 1
-			path: src/Utils/Utils.php
 
 		-
 			message: "#^Method GraphQL\\\\Validator\\\\Rules\\\\KnownDirectives\\:\\:getDirectiveLocationForASTPath\\(\\) has parameter \\$ancestors with generic class GraphQL\\\\Language\\\\AST\\\\NodeList but does not specify its types\\: T$#"

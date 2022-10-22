@@ -3,12 +3,15 @@
 namespace GraphQL\Error;
 
 use function count;
+
 use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
+
 use function is_array;
 use function iterator_to_array;
+
 use JsonSerializable;
 use ReturnTypeWillChange;
 use Throwable;
@@ -108,13 +111,9 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             $this->extensions = null;
         }
 
-        if ($previous instanceof ClientAware) {
-            $this->isClientSafe = $previous->isClientSafe();
-        } elseif ($previous !== null) {
-            $this->isClientSafe = false;
-        } else {
-            $this->isClientSafe = true;
-        }
+        $this->isClientSafe = $previous instanceof ClientAware
+            ? $previous->isClientSafe()
+            : $previous === null;
     }
 
     /**

@@ -3,10 +3,12 @@
 namespace GraphQL\Type\Definition;
 
 use function array_key_exists;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 
 /**
@@ -84,7 +86,6 @@ class Argument
     public function getType(): Type
     {
         if (! isset($this->type)) {
-            // @phpstan-ignore-next-line schema validation will catch a Type that is not an InputType
             $this->type = Schema::resolveType($this->config['type']);
         }
 
@@ -118,7 +119,6 @@ class Argument
 
         if (! $type instanceof InputType) {
             $notInputType = Utils::printSafe($this->type);
-
             throw new InvariantViolation("{$parentType->name}.{$parentField->name}({$this->name}): argument type must be Input Type but got: {$notInputType}");
         }
     }

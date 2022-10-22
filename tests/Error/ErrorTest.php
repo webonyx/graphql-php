@@ -201,7 +201,7 @@ class ErrorTest extends TestCase
         self::assertEquals([1 => 2], $locatedError->getPositions());
         self::assertNotNull($locatedError->getSource());
 
-        $error = new class('msg', new NullValueNode([]), null, [], ) extends Error {
+        $error = new class('msg', new NullValueNode([]), null, []) extends Error {
             public function getNodes(): ?array
             {
                 return [new NullValueNode([])];

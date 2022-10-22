@@ -6,14 +6,18 @@ use function array_keys;
 use function count;
 use function get_class;
 use function get_object_vars;
+
 use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
+
 use function implode;
 use function json_decode;
+
 use PHPUnit\Framework\TestCase;
+
 use function Safe\file_get_contents;
 
 class SerializationTest extends TestCase

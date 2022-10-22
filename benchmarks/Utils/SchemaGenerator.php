@@ -4,14 +4,18 @@ namespace GraphQL\Benchmarks\Utils;
 
 use function array_merge;
 use function array_rand;
+
 use Exception;
+
 use function explode;
+
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+
 use function ucfirst;
 
 class SchemaGenerator
@@ -63,10 +67,7 @@ class SchemaGenerator
     protected function createType(int $nestingLevel, ?string $typeName = null): ObjectType
     {
         if ($this->typeIndex > $this->config['totalTypes']) {
-            throw new Exception(
-                'Cannot create new type: there are already ' . $this->typeIndex . ' '
-                . 'which exceeds allowed number of ' . $this->config['totalTypes'] . ' types total'
-            );
+            throw new Exception("Cannot create new type: there are already {$this->typeIndex} types which exceeds allowed number of {$this->config['totalTypes']} types total");
         }
 
         ++$this->typeIndex;
@@ -76,9 +77,7 @@ class SchemaGenerator
 
         $type = new ObjectType([
             'name' => $typeName,
-            'fields' => function () use ($typeName, $nestingLevel): array {
-                return $this->createTypeFields($typeName, $nestingLevel + 1);
-            },
+            'fields' => fn (): array => $this->createTypeFields($typeName, $nestingLevel + 1),
         ]);
 
         $this->objectTypes[$typeName] = $type;
@@ -128,15 +127,13 @@ class SchemaGenerator
                 'name' => $name,
                 'type' => Type::listOf($type),
                 'args' => $this->createFieldArgs($name, $typeName),
-                'resolve' => static function (): array {
-                    return [
-                        'string1',
-                        'string2',
-                        'string3',
-                        'string4',
-                        'string5',
-                    ];
-                },
+                'resolve' => static fn (): array => [
+                    'string1',
+                    'string2',
+                    'string3',
+                    'string4',
+                    'string5',
+                ],
             ];
         }
 

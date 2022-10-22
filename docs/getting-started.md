@@ -46,7 +46,6 @@ query {
 We need an object type with the field `echo`:
 
 ```php
-<?php
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -58,9 +57,7 @@ $queryType = new ObjectType([
             'args' => [
                 'message' => Type::nonNull(Type::string()),
             ],
-            'resolve' => function ($rootValue, $args) {
-                return $rootValue['prefix'] . $args['message'];
-            }
+            'resolve' => fn ($rootValue, array $args): string => $rootValue['prefix'] . $args['message'],
         ],
     ],
 ]);
@@ -77,7 +74,6 @@ a value of our field. Values of **scalar** fields will be directly included in t
 Now when our type is ready, let's create a GraphQL endpoint file for it **graphql.php**:
 
 ```php
-<?php
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
 

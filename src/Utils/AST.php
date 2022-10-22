@@ -3,8 +3,11 @@
 namespace GraphQL\Utils;
 
 use function array_key_exists;
+
 use ArrayAccess;
+
 use function count;
+
 use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -40,7 +43,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
+
 use function is_array;
 use function is_bool;
 use function is_float;
@@ -48,6 +51,7 @@ use function is_int;
 use function is_object;
 use function is_string;
 use function property_exists;
+
 use Throwable;
 
 /**
@@ -84,12 +88,14 @@ class AST
     {
         $kind = $node['kind'] ?? null;
         if ($kind === null) {
-            throw new InvariantViolation('Node is missing kind:' . Utils::printSafeJson($node));
+            $safeNode = Utils::printSafeJson($node);
+            throw new InvariantViolation("Node is missing kind: {$safeNode}");
         }
 
         $class = NodeKind::CLASS_MAP[$kind] ?? null;
         if ($class === null) {
-            throw new InvariantViolation('Node has unexpected kind:' . Utils::printSafeJson($node));
+            $safeNode = Utils::printSafeJson($node);
+            throw new InvariantViolation("Node has unexpected kind: {$safeNode}");
         }
 
         $instance = new $class([]);
@@ -282,7 +288,8 @@ class AST
             return new StringValueNode(['value' => $serialized]);
         }
 
-        throw new InvariantViolation('Cannot convert value to AST: ' . Utils::printSafe($serialized));
+        $notConvertible = Utils::printSafe($serialized);
+        throw new InvariantViolation("Cannot convert value to AST: {$notConvertible}");
     }
 
     /**
@@ -433,7 +440,7 @@ class AST
                 $coercedObj[$fieldName] = $fieldValue;
             }
 
-            return $coercedObj;
+            return $type->parseValue($coercedObj);
         }
 
         if ($type instanceof EnumType) {
@@ -534,22 +541,23 @@ class AST
                     : null;
         }
 
-        throw new Error('Unexpected value kind: ' . $valueNode->kind . '.');
+        throw new Error("Unexpected value kind: {$valueNode->kind}");
     }
 
     /**
      * Returns type definition for given AST Type node.
      *
+     * @param callable(string): ?Type $typeLoader
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      *
      * @throws Exception
      *
      * @api
      */
-    public static function typeFromAST(Schema $schema, Node $inputTypeNode): ?Type
+    public static function typeFromAST(callable $typeLoader, Node $inputTypeNode): ?Type
     {
         if ($inputTypeNode instanceof ListTypeNode) {
-            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
+            $innerType = self::typeFromAST($typeLoader, $inputTypeNode->type);
 
             return $innerType === null
                 ? null
@@ -557,7 +565,7 @@ class AST
         }
 
         if ($inputTypeNode instanceof NonNullTypeNode) {
-            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
+            $innerType = self::typeFromAST($typeLoader, $inputTypeNode->type);
             if ($innerType === null) {
                 return null;
             }
@@ -567,7 +575,7 @@ class AST
             return new NonNull($innerType);
         }
 
-        return $schema->getType($inputTypeNode->name->value);
+        return $typeLoader($inputTypeNode->name->value);
     }
 
     /**

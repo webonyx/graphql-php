@@ -7,6 +7,7 @@ use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function is_callable;
 use function is_iterable;
@@ -17,6 +18,7 @@ use function is_string;
  *
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type ArgumentListConfig from Argument
+ *
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
  * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int
  * @phpstan-type FieldDefinitionConfig array{
@@ -60,6 +62,7 @@ class FieldDefinition
      * Callback for resolving field value given parent value.
      *
      * @var callable|null
+     *
      * @phpstan-var FieldResolver|null
      */
     public $resolveFn;
@@ -72,6 +75,7 @@ class FieldDefinition
 
     /**
      * @var callable|null
+     *
      * @phpstan-var ComplexityFn|null
      */
     public $complexityFn;
@@ -107,6 +111,7 @@ class FieldDefinition
     /**
      * @param ObjectType|InterfaceType $parentType
      * @param callable|iterable $fields
+     *
      * @phpstan-param FieldsConfig $fields
      *
      * @return array<string, self|UnresolvedFieldDefinition>
@@ -117,11 +122,8 @@ class FieldDefinition
             $fields = $fields();
         }
 
-        // @phpstan-ignore-next-line should not happen if used correctly
         if (! is_iterable($fields)) {
-            throw new InvariantViolation(
-                "{$parentType->name} fields must be an iterable or a callable which returns such an iterable."
-            );
+            throw new InvariantViolation("{$parentType->name} fields must be an iterable or a callable which returns such an iterable.");
         }
 
         $map = [];
@@ -129,9 +131,7 @@ class FieldDefinition
             if (is_array($field)) {
                 if (! isset($field['name'])) {
                     if (! is_string($maybeName)) {
-                        throw new InvariantViolation(
-                            "{$parentType->name} fields must be an associative array with field names as keys or a function which returns such an array."
-                        );
+                        throw new InvariantViolation("{$parentType->name} fields must be an associative array with field names as keys or a function which returns such an array.");
                     }
 
                     $field['name'] = $maybeName;
@@ -143,9 +143,7 @@ class FieldDefinition
                 $fieldDef = $field;
             } elseif (is_callable($field)) {
                 if (! is_string($maybeName)) {
-                    throw new InvariantViolation(
-                        "{$parentType->name} lazy fields must be an associative array with field names as keys."
-                    );
+                    throw new InvariantViolation("{$parentType->name} lazy fields must be an associative array with field names as keys.");
                 }
 
                 $fieldDef = new UnresolvedFieldDefinition($maybeName, $field);
@@ -157,10 +155,7 @@ class FieldDefinition
                 ]);
             } else {
                 $invalidFieldConfig = Utils::printSafe($field);
-
-                throw new InvariantViolation(
-                    "{$parentType->name}.{$maybeName} field config must be an array, but got: {$invalidFieldConfig}"
-                );
+                throw new InvariantViolation("{$parentType->name}.{$maybeName} field config must be an array, but got: {$invalidFieldConfig}");
             }
 
             $map[$fieldDef->getName()] = $fieldDef;
@@ -214,13 +209,11 @@ class FieldDefinition
 
         if (! $type instanceof OutputType) {
             $safeType = Utils::printSafe($this->type);
-
             throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}");
         }
 
         if ($this->resolveFn !== null && ! is_callable($this->resolveFn)) {
             $safeResolveFn = Utils::printSafe($this->resolveFn);
-
             throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}");
         }
 

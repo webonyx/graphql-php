@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Executor;
 
 use function acos;
 use function array_key_exists;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
@@ -202,7 +203,7 @@ class VariablesTest extends TestCase
         return [
             'type' => Type::string(),
             'args' => ['input' => $inputArg],
-            'resolve' => static function ($_, $args): ?string {
+            'resolve' => static function ($_, array $args): ?string {
                 if (isset($args['input'])) {
                     return Utils::printSafeJson($args['input']);
                 }
@@ -335,9 +336,7 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'Variable "$input" got invalid value '
-                        . '{"a":"foo","b":"bar","c":null}; '
-                        . 'Expected non-nullable type String! not to be null at value.c.',
+                    'message' => 'Variable "$input" got invalid value null at "input.c"; Expected non-nullable type "String!" not to be null.',
                     'locations' => [['line' => 2, 'column' => 21]],
                 ],
             ],
@@ -351,8 +350,7 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'Variable "$input" got invalid value "foo bar"; '
-                        . 'Expected type TestInputObject to be an object.',
+                    'message' => 'Variable "$input" got invalid value "foo bar"; Expected type "TestInputObject" to be an object.',
                     'locations' => [['line' => 2, 'column' => 21]],
                 ],
             ],
@@ -366,8 +364,7 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'Variable "$input" got invalid value {"a":"foo","b":"bar"}; '
-                        . 'Field value.c of required type String! was not provided.',
+                    'message' => 'Variable "$input" got invalid value {"a":"foo","b":"bar"}; Field "c" of required type "String!" was not provided.',
                     'locations' => [['line' => 2, 'column' => 21]],
                 ],
             ],
@@ -386,13 +383,11 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'Variable "$input" got invalid value {"na":{"a":"foo"}}; '
-                        . 'Field value.na.c of required type String! was not provided.',
+                    'message' => 'Variable "$input" got invalid value {"a":"foo"} at "input.na"; Field "c" of required type "String!" was not provided.',
                     'locations' => [['line' => 2, 'column' => 19]],
                 ],
                 [
-                    'message' => 'Variable "$input" got invalid value {"na":{"a":"foo"}}; '
-                        . 'Field value.nb of required type String! was not provided.',
+                    'message' => 'Variable "$input" got invalid value {"na":{"a":"foo"}}; Field "nb" of required type "String!" was not provided.',
                     'locations' => [['line' => 2, 'column' => 19]],
                 ],
             ],
@@ -407,7 +402,7 @@ class VariablesTest extends TestCase
                 [
                     'message' => 'Variable "$input" got invalid value '
                         . '{"a":"foo","b":"bar","c":"baz","extra":"dog"}; '
-                        . 'Field "extra" is not defined by type TestInputObject.',
+                        . 'Field "extra" is not defined by type "TestInputObject".',
                     'locations' => [['line' => 2, 'column' => 21]],
                 ],
             ],
@@ -707,8 +702,7 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'Variable "$value" got invalid value [1,2,3]; Expected type '
-                        . 'String; String cannot represent a non string value: [1,2,3]',
+                    'message' => 'Variable "$value" got invalid value [1,2,3]; String cannot represent a non string value: [1,2,3]',
                     'locations' => [
                         ['line' => 2, 'column' => 31],
                     ],
@@ -889,8 +883,7 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'Variable "$input" got invalid value ["A",null,"B"]; '
-                        . 'Expected non-nullable type String! not to be null at value[1].',
+                    'message' => 'Variable "$input" got invalid value null at "input[1]"; Expected non-nullable type "String!" not to be null.',
                     'locations' => [['line' => 2, 'column' => 17]],
                 ],
             ],
@@ -951,8 +944,7 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'Variable "$input" got invalid value ["A",null,"B"]; '
-                        . 'Expected non-nullable type String! not to be null at value[1].',
+                    'message' => 'Variable "$input" got invalid value null at "input[1]"; Expected non-nullable type "String!" not to be null.',
                     'locations' => [['line' => 2, 'column' => 17]],
                 ],
             ],

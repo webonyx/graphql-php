@@ -7,15 +7,20 @@ use function array_filter;
 use function array_map;
 use function array_merge;
 use function array_shift;
+use function assert;
 use function count;
+
 use Countable;
 use ErrorException;
+
 use function get_class;
 use function gettype;
+
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
+
 use function implode;
 use function is_array;
 use function is_bool;
@@ -26,6 +31,7 @@ use function mb_strlen;
 use function preg_split;
 use function str_repeat;
 use function strlen;
+
 use Throwable;
 
 /**
@@ -221,15 +227,19 @@ class FormattedError
         }
 
         if (($debugFlag & DebugFlag::INCLUDE_TRACE) !== 0) {
+            $actualError = $e->getPrevious() ?? $e;
             if ($e instanceof ErrorException || $e instanceof \Error) {
                 $formattedError['extensions']['file'] = $e->getFile();
                 $formattedError['extensions']['line'] = $e->getLine();
+            } else {
+                $formattedError['extensions']['file'] = $actualError->getFile();
+                $formattedError['extensions']['line'] = $actualError->getLine();
             }
 
             $isTrivial = $e instanceof Error && $e->getPrevious() === null;
 
             if (! $isTrivial) {
-                $formattedError['extensions']['trace'] = static::toSafeTrace($e->getPrevious() ?? $e);
+                $formattedError['extensions']['trace'] = static::toSafeTrace($actualError);
             }
         }
 
@@ -245,13 +255,9 @@ class FormattedError
      */
     public static function prepareFormatter(?callable $formatter, int $debug): callable
     {
-        $formatter ??= [self::class, 'createFromException'];
-
-        if ($debug !== DebugFlag::NONE) {
-            $formatter = static fn (Throwable $e): array => self::addDebugEntries($formatter($e), $e, $debug);
-        }
-
-        return $formatter;
+        return $formatter === null
+            ? static fn (Throwable $e): array => static::createFromException($e, $debug)
+            : static fn (Throwable $e): array => static::addDebugEntries($formatter($e), $e, $debug);
     }
 
     /**

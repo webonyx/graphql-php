@@ -3,8 +3,11 @@
 namespace GraphQL\Validator\Rules;
 
 use function array_map;
+
 use ArrayObject;
+
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\FieldNode;
@@ -21,6 +24,7 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\QueryValidationContext;
+
 use function implode;
 
 /**
@@ -49,8 +53,6 @@ class QueryComplexity extends QuerySecurityRule
     public function getVisitor(QueryValidationContext $context): array
     {
         $this->context = $context;
-
-        // @phpstan-ignore-next-line Initializing with an empty array does not set the generic type
         $this->variableDefs = new NodeList([]);
         $this->fieldNodeAndDefs = new ArrayObject();
 
@@ -274,6 +276,6 @@ class QueryComplexity extends QuerySecurityRule
 
     protected function isEnabled(): bool
     {
-        return $this->getMaxQueryComplexity() !== self::DISABLED;
+        return $this->maxQueryComplexity !== self::DISABLED;
     }
 }

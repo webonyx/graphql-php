@@ -9,6 +9,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
+
 use function is_int;
 use function is_object;
 use function is_string;
@@ -45,7 +46,7 @@ When expected as an input type, any string (such as `"4"`) or integer
             return (string) $value;
         }
 
-        $notID = Utils::printSafe($value);
+        $notID = Utils::printSafeJson($value);
         throw new Error("ID cannot represent a non-string and non-integer value: {$notID}");
     }
 

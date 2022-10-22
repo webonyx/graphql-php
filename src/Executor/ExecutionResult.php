@@ -4,6 +4,7 @@ namespace GraphQL\Executor;
 
 use function array_map;
 use function count;
+
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
@@ -37,6 +38,7 @@ use Throwable;
  * @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
  *
  * @see https://github.com/vimeo/psalm/issues/6928
+ *
  * @psalm-type ErrorsHandler callable(Error[], ErrorFormatter): SerializableErrors
  */
 class ExecutionResult implements JsonSerializable
@@ -73,12 +75,14 @@ class ExecutionResult implements JsonSerializable
 
     /**
      * @var callable|null
+     *
      * @phpstan-var ErrorFormatter|null
      */
     private $errorFormatter = null;
 
     /**
      * @var callable|null
+     *
      * @phpstan-var ErrorsHandler|null
      */
     private $errorsHandler = null;
@@ -122,12 +126,11 @@ class ExecutionResult implements JsonSerializable
     /**
      * Define custom logic for error handling (filtering, logging, etc).
      *
-     * Expected handler signature is: function (array $errors, callable $formatter): array
+     * Expected handler signature is:
+     * fn (array $errors, callable $formatter): array
      *
      * Default handler is:
-     * function (array $errors, callable $formatter) {
-     *     return array_map($formatter, $errors);
-     * }
+     * fn (array $errors, callable $formatter): array => array_map($formatter, $errors)
      *
      * @phpstan-param ErrorsHandler|null $errorsHandler
      *
@@ -167,9 +170,8 @@ class ExecutionResult implements JsonSerializable
         $result = [];
 
         if (count($this->errors) > 0) {
-            $errorsHandler = $this->errorsHandler ?? static function (array $errors, callable $formatter): array {
-                return array_map($formatter, $errors);
-            };
+            $errorsHandler = $this->errorsHandler
+                ?? static fn (array $errors, callable $formatter): array => array_map($formatter, $errors);
 
             $handledErrors = $errorsHandler(
                 $this->errors,

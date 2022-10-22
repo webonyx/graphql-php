@@ -31,9 +31,7 @@ type Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -76,6 +74,7 @@ type Hello {
     /**
      * @param array<string, mixed> $name
      * @param array<string, mixed> $type
+     *
      * @phpstan-param LocationArray $loc
      *
      * @return array<string, mixed>
@@ -89,6 +88,7 @@ type Hello {
      * @param array<string, mixed> $name
      * @param array<string, mixed> $type
      * @param array<int, mixed>    $args
+     *
      * @phpstan-param LocationArray $loc
      *
      * @return array<string, mixed>
@@ -131,9 +131,7 @@ type Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -178,9 +176,7 @@ type Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -222,9 +218,7 @@ extend type Hello {
 }
 ';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -256,9 +250,7 @@ extend type Hello {
     {
         $body = 'extend type Hello implements Greeting';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -286,9 +278,7 @@ extend type Hello {
     {
         $body = 'extend interface Hello implements Greeting';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -502,9 +492,7 @@ type Hello {
 }';
         $doc = Parser::parse($body);
 
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -542,9 +530,7 @@ type Hello {
     {
         $body = 'interface Hello implements World { field: String }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -580,9 +566,7 @@ type Hello {
     {
         $body = 'type Hello implements World { field: String }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -618,9 +602,7 @@ type Hello {
     {
         $body = 'type Hello implements Wo & rld { field: String }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -657,9 +639,7 @@ type Hello {
     {
         $body = 'interface Hello implements Wo & rld { field: String }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -696,9 +676,7 @@ type Hello {
     {
         $body = 'type Hello implements & Wo & rld { field: String }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => 'Document',
@@ -734,9 +712,7 @@ type Hello {
     {
         $body = 'interface Hello implements & Wo & rld { field: String }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => 'Document',
@@ -772,9 +748,7 @@ type Hello {
     {
         $body = 'enum Hello { WORLD }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -817,9 +791,7 @@ type Hello {
     {
         $body = 'enum Hello { WO, RLD }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -852,9 +824,7 @@ interface Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -890,9 +860,7 @@ type Hello {
   world(flag: Boolean): String
 }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -931,6 +899,7 @@ type Hello {
      * @param array<string, mixed> $name
      * @param array<string, mixed> $type
      * @param mixed                $defaultValue
+     *
      * @phpstan-param LocationArray $loc
      *
      * @return array<string, mixed>
@@ -963,9 +932,7 @@ type Hello {
   world(flag: Boolean = true): String
 }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -1009,9 +976,7 @@ type Hello {
   world(things: [String]): String
 }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -1063,9 +1028,7 @@ type Hello {
   world(argOne: Boolean, argTwo: Int): String
 }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -1113,9 +1076,7 @@ type Hello {
     {
         $body = 'union Hello = World';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -1142,9 +1103,7 @@ type Hello {
     {
         $body = 'union Hello = Wo | Rld';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -1248,9 +1207,7 @@ type Hello {
     {
         $body = 'scalar Hello';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -1278,9 +1235,7 @@ input Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -1329,9 +1284,7 @@ input Hello {
     {
         $body = 'directive @foo on OBJECT | INTERFACE';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -1369,9 +1322,7 @@ input Hello {
     {
         $body = 'directive @foo repeatable on OBJECT | INTERFACE';
         $doc = Parser::parse($body);
-        $loc = static function ($start, $end): array {
-            return Location::create($start, $end)->toArray();
-        };
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,

@@ -3,6 +3,8 @@
 namespace GraphQL\Type\Definition;
 
 use function array_merge_recursive;
+
+use ArrayObject;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -17,6 +19,8 @@ use GraphQL\Type\Schema;
  * Passed as 4th argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
  *
  * @phpstan-import-type QueryPlanOptions from QueryPlan
+ *
+ * @phpstan-type Path array<int, string|int>
  */
 class ResolveInfo
 {
@@ -46,9 +50,9 @@ class ResolveInfo
      *
      * @api
      *
-     * @var iterable<int, FieldNode>
+     * @var ArrayObject<int, FieldNode>
      */
-    public iterable $fieldNodes = [];
+    public ArrayObject $fieldNodes;
 
     /**
      * Parent type of the field being resolved.
@@ -63,6 +67,8 @@ class ResolveInfo
      * @api
      *
      * @var array<int, string|int>
+     *
+     * @phpstan-var Path
      */
     public array $path;
 
@@ -113,15 +119,18 @@ class ResolveInfo
     private QueryPlan $queryPlan;
 
     /**
-     * @param iterable<int, FieldNode>              $fieldNodes
-     * @param array<int, string|int>                $path
+     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param array<int, string|int> $path
+     *
+     * @phpstan-param Path $path
+     *
      * @param array<string, FragmentDefinitionNode> $fragments
-     * @param mixed|null                            $rootValue
-     * @param array<string, mixed>                  $variableValues
+     * @param mixed|null $rootValue
+     * @param array<string, mixed> $variableValues
      */
     public function __construct(
         FieldDefinition $fieldDefinition,
-        iterable $fieldNodes,
+        ArrayObject $fieldNodes,
         ObjectType $parentType,
         array $path,
         Schema $schema,
@@ -216,11 +225,13 @@ class ResolveInfo
     }
 
     /**
-     * @return bool[]
+     * @return array<string, bool>
      */
     private function foldSelectionSet(SelectionSetNode $selectionSet, int $descend): array
     {
+        /** @var array<string, bool> $fields */
         $fields = [];
+
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
                 $fields[$selectionNode->name->value] = $descend > 0 && $selectionNode->selectionSet !== null

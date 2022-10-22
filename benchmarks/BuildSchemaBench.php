@@ -3,6 +3,7 @@
 namespace GraphQL\Benchmarks;
 
 use GraphQL\Utils\BuildSchema;
+
 use function range;
 
 /**

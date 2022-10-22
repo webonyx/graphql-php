@@ -3,8 +3,11 @@
 namespace GraphQL\Validator\Rules;
 
 use function count;
+
 use Exception;
+
 use function get_class;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -40,6 +43,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
+
 use function in_array;
 
 /**
@@ -126,7 +130,7 @@ class KnownDirectives extends ValidationRule
 
     public static function unknownDirectiveMessage(string $directiveName): string
     {
-        return "Unknown directive \"{$directiveName}\".";
+        return "Unknown directive \"@{$directiveName}\".";
     }
 
     /**
@@ -141,73 +145,57 @@ class KnownDirectives extends ValidationRule
                 switch ($appliedTo->operation) {
                     case 'query':
                         return DirectiveLocation::QUERY;
-
                     case 'mutation':
                         return DirectiveLocation::MUTATION;
-
                     case 'subscription':
                         return DirectiveLocation::SUBSCRIPTION;
                 }
-
-                break;
+                // no break, since all possible cases were handled
             case $appliedTo instanceof FieldNode:
                 return DirectiveLocation::FIELD;
-
             case $appliedTo instanceof FragmentSpreadNode:
                 return DirectiveLocation::FRAGMENT_SPREAD;
-
             case $appliedTo instanceof InlineFragmentNode:
                 return DirectiveLocation::INLINE_FRAGMENT;
-
             case $appliedTo instanceof FragmentDefinitionNode:
                 return DirectiveLocation::FRAGMENT_DEFINITION;
-
             case $appliedTo instanceof VariableDefinitionNode:
                 return DirectiveLocation::VARIABLE_DEFINITION;
-
             case $appliedTo instanceof SchemaDefinitionNode:
             case $appliedTo instanceof SchemaExtensionNode:
                 return DirectiveLocation::SCHEMA;
-
             case $appliedTo instanceof ScalarTypeDefinitionNode:
             case $appliedTo instanceof ScalarTypeExtensionNode:
                 return DirectiveLocation::SCALAR;
-
             case $appliedTo instanceof ObjectTypeDefinitionNode:
             case $appliedTo instanceof ObjectTypeExtensionNode:
                 return DirectiveLocation::OBJECT;
-
             case $appliedTo instanceof FieldDefinitionNode:
                 return DirectiveLocation::FIELD_DEFINITION;
-
             case $appliedTo instanceof InterfaceTypeDefinitionNode:
             case $appliedTo instanceof InterfaceTypeExtensionNode:
                 return DirectiveLocation::IFACE;
-
             case $appliedTo instanceof UnionTypeDefinitionNode:
             case $appliedTo instanceof UnionTypeExtensionNode:
                 return DirectiveLocation::UNION;
-
             case $appliedTo instanceof EnumTypeDefinitionNode:
             case $appliedTo instanceof EnumTypeExtensionNode:
                 return DirectiveLocation::ENUM;
-
             case $appliedTo instanceof EnumValueDefinitionNode:
                 return DirectiveLocation::ENUM_VALUE;
-
             case $appliedTo instanceof InputObjectTypeDefinitionNode:
             case $appliedTo instanceof InputObjectTypeExtensionNode:
                 return DirectiveLocation::INPUT_OBJECT;
-
             case $appliedTo instanceof InputValueDefinitionNode:
                 $parentNode = $ancestors[count($ancestors) - 3];
 
                 return $parentNode instanceof InputObjectTypeDefinitionNode
                     ? DirectiveLocation::INPUT_FIELD_DEFINITION
                     : DirectiveLocation::ARGUMENT_DEFINITION;
+            default:
+                $unknownLocation = get_class($appliedTo);
+                throw new Exception("Unknown directive location: {$unknownLocation}.");
         }
-
-        throw new Exception('Unknown directive location: ' . get_class($appliedTo));
     }
 
     public static function misplacedDirectiveMessage(string $directiveName, string $location): string

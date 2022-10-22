@@ -6,21 +6,28 @@ use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -34,7 +41,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+
 use function is_array;
+
 use Throwable;
 
 /**
@@ -43,6 +52,7 @@ use Throwable;
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type InputObjectFieldConfig from InputObjectField
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+ *
  * @phpstan-type ResolveType callable(string, Node|null): Type&NamedType
  * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
  */
@@ -53,12 +63,14 @@ class ASTDefinitionBuilder
 
     /**
      * @var callable
+     *
      * @phpstan-var ResolveType
      */
     private $resolveType;
 
     /**
      * @var callable|null
+     *
      * @phpstan-var TypeConfigDecorator|null
      */
     private $typeConfigDecorator;
@@ -66,17 +78,24 @@ class ASTDefinitionBuilder
     /** @var array<string, Type&NamedType> */
     private array $cache;
 
+    /** @var array<string, array<int, Node&TypeExtensionNode>> */
+    private array $typeExtensionsMap;
+
     /**
      * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
+     * @param array<string, array<int, Node&TypeExtensionNode>> $typeExtensionsMap
+     *
      * @phpstan-param ResolveType $resolveType
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      */
     public function __construct(
         array $typeDefinitionsMap,
+        array $typeExtensionsMap,
         callable $resolveType,
         ?callable $typeConfigDecorator = null
     ) {
         $this->typeDefinitionsMap = $typeDefinitionsMap;
+        $this->typeExtensionsMap = $typeExtensionsMap;
         $this->resolveType = $resolveType;
         $this->typeConfigDecorator = $typeConfigDecorator;
 
@@ -131,6 +150,22 @@ class ASTDefinitionBuilder
         }
 
         return $map;
+    }
+
+    /**
+     * @param array<InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode> $nodes
+     *
+     * @return array<string, UnnamedInputObjectFieldConfig>
+     */
+    private function makeInputFields(array $nodes): array
+    {
+        /** @var array<int, InputValueDefinitionNode>> $fields */
+        $fields = [];
+        foreach ($nodes as $node) {
+            \array_push($fields, ...$node->fields);
+        }
+
+        return $this->makeInputValues(new NodeList($fields));
     }
 
     /**
@@ -201,8 +236,9 @@ class ASTDefinitionBuilder
                         $this->typeDefinitionsMap
                     );
                 } catch (Throwable $e) {
+                    $class = static::class;
                     throw new Error(
-                        'Type config decorator passed to ' . static::class . ' threw an error when building ' . $typeName . ' type: ' . $e->getMessage(),
+                        "Type config decorator passed to {$class} threw an error when building {$typeName} type: {$e->getMessage()}",
                         null,
                         null,
                         [],
@@ -213,9 +249,9 @@ class ASTDefinitionBuilder
 
                 // @phpstan-ignore-next-line should not happen, but function types are not enforced by PHP
                 if (! is_array($config) || isset($config[0])) {
-                    throw new Error(
-                        'Type config decorator passed to ' . static::class . ' is expected to return an array, but got ' . Utils::printSafe($config)
-                    );
+                    $class = static::class;
+                    $notArray = Utils::printSafe($config);
+                    throw new Error("Type config decorator passed to {$class} is expected to return an array, but got {$notArray}");
                 }
 
                 $type = $this->makeSchemaDefFromConfig($this->typeDefinitionsMap[$typeName], $config);
@@ -261,25 +297,33 @@ class ASTDefinitionBuilder
 
     private function makeTypeDef(ObjectTypeDefinitionNode $def): ObjectType
     {
+        $name = $def->name->value;
+        /** @var array<int, ObjectTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
+        $allNodes = [$def, ...$extensionASTNodes];
+
         return new ObjectType([
-            'name' => $def->name->value,
+            'name' => $name,
             'description' => $def->description->value ?? null,
-            'fields' => fn (): array => $this->makeFieldDefMap($def),
-            'interfaces' => fn (): array => $this->makeImplementedInterfaces($def),
+            'fields' => fn (): array => $this->makeFieldDefMap($allNodes),
+            'interfaces' => fn (): array => $this->makeImplementedInterfaces($allNodes),
             'astNode' => $def,
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
     /**
-     * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode $def
+     * @param array<ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode> $nodes
      *
      * @phpstan-return array<string, UnnamedFieldDefinitionConfig>
      */
-    private function makeFieldDefMap(Node $def): array
+    private function makeFieldDefMap(array $nodes): array
     {
         $map = [];
-        foreach ($def->fields as $field) {
-            $map[$field->name->value] = $this->buildField($field);
+        foreach ($nodes as $node) {
+            foreach ($node->fields as $field) {
+                $map[$field->name->value] = $this->buildField($field);
+            }
         }
 
         return $map;
@@ -322,19 +366,21 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode $def
+     * @param array<ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode> $nodes
      *
      * @return array<int, InterfaceType>
      */
-    private function makeImplementedInterfaces($def): array
+    private function makeImplementedInterfaces(array $nodes): array
     {
         // Note: While this could make early assertions to get the correctly
         // typed values, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
 
         $interfaces = [];
-        foreach ($def->interfaces as $interface) {
-            $interfaces[] = $this->buildType($interface);
+        foreach ($nodes as $node) {
+            foreach ($node->interfaces as $interface) {
+                $interfaces[] = $this->buildType($interface);
+            }
         }
 
         // @phpstan-ignore-next-line generic type will be validated during schema validation
@@ -343,72 +389,102 @@ class ASTDefinitionBuilder
 
     private function makeInterfaceDef(InterfaceTypeDefinitionNode $def): InterfaceType
     {
+        $name = $def->name->value;
+        /** @var array<int, InterfaceTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
+        $allNodes = [$def, ...$extensionASTNodes];
+
         return new InterfaceType([
-            'name' => $def->name->value,
+            'name' => $name,
             'description' => $def->description->value ?? null,
-            'fields' => fn (): array => $this->makeFieldDefMap($def),
-            'interfaces' => fn (): array => $this->makeImplementedInterfaces($def),
+            'fields' => fn (): array => $this->makeFieldDefMap($allNodes),
+            'interfaces' => fn (): array => $this->makeImplementedInterfaces($allNodes),
             'astNode' => $def,
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
     private function makeEnumDef(EnumTypeDefinitionNode $def): EnumType
     {
+        $name = $def->name->value;
+        /** @var array<int, EnumTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
+
         $values = [];
-        foreach ($def->values as $value) {
-            $values[$value->name->value] = [
-                'description' => $value->description->value ?? null,
-                'deprecationReason' => $this->getDeprecationReason($value),
-                'astNode' => $value,
-            ];
+        foreach ([$def, ...$extensionASTNodes] as $node) {
+            foreach ($node->values as $value) {
+                $values[$value->name->value] = [
+                    'description' => $value->description->value ?? null,
+                    'deprecationReason' => $this->getDeprecationReason($value),
+                    'astNode' => $value,
+                ];
+            }
         }
 
         return new EnumType([
-            'name' => $def->name->value,
+            'name' => $name,
             'description' => $def->description->value ?? null,
             'values' => $values,
             'astNode' => $def,
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
     private function makeUnionDef(UnionTypeDefinitionNode $def): UnionType
     {
+        $name = $def->name->value;
+        /** @var array<int, UnionTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
+
         return new UnionType([
-            'name' => $def->name->value,
+            'name' => $name,
             'description' => $def->description->value ?? null,
             // Note: While this could make assertions to get the correctly typed
             // values below, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
-            'types' => function () use ($def): array {
+            'types' => function () use ($def, $extensionASTNodes): array {
                 $types = [];
-                foreach ($def->types as $type) {
-                    $types[] = $this->buildType($type);
+                foreach ([$def, ...$extensionASTNodes] as $node) {
+                    foreach ($node->types as $type) {
+                        $types[] = $this->buildType($type);
+                    }
                 }
 
                 /** @var array<int, ObjectType> $types */
                 return $types;
             },
             'astNode' => $def,
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
     private function makeScalarDef(ScalarTypeDefinitionNode $def): CustomScalarType
     {
+        $name = $def->name->value;
+        /** @var array<int, ScalarTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
+
         return new CustomScalarType([
-            'name' => $def->name->value,
+            'name' => $name,
             'description' => $def->description->value ?? null,
             'astNode' => $def,
+            'extensionASTNodes' => $extensionASTNodes,
             'serialize' => static fn ($value) => $value,
         ]);
     }
 
     private function makeInputObjectDef(InputObjectTypeDefinitionNode $def): InputObjectType
     {
+        $name = $def->name->value;
+        /** @var array<int, InputObjectTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
+
         return new InputObjectType([
-            'name' => $def->name->value,
+            'name' => $name,
             'description' => $def->description->value ?? null,
-            'fields' => fn (): array => $this->makeInputValues($def->fields),
+            'fields' => fn (): array => $this->makeInputFields([$def, ...$extensionASTNodes]),
             'astNode' => $def,
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
@@ -439,6 +515,7 @@ class ASTDefinitionBuilder
                 return new UnionType($config);
 
             case $def instanceof ScalarTypeDefinitionNode:
+                // @phpstan-ignore-next-line assume the config matches
                 return new CustomScalarType($config);
 
             case $def instanceof InputObjectTypeDefinitionNode:

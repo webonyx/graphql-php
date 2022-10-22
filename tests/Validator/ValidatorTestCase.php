@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Validator;
 
 use function array_map;
+
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
@@ -69,14 +70,12 @@ abstract class ValidatorTestCase extends TestCase
 
         $Canine = new InterfaceType([
             'name' => 'Canine',
-            'fields' => static function (): array {
-                return [
-                    'name' => [
-                        'type' => Type::string(),
-                        'args' => ['surname' => ['type' => Type::boolean()]],
-                    ],
-                ];
-            },
+            'fields' => static fn (): array => [
+                'name' => [
+                    'type' => Type::string(),
+                    'args' => ['surname' => ['type' => Type::boolean()]],
+                ],
+            ],
         ]);
 
         $DogCommand = new EnumType([
@@ -209,9 +208,6 @@ abstract class ValidatorTestCase extends TestCase
 
         $ComplicatedArgs = new ObjectType([
             'name' => 'ComplicatedArgs',
-            // TODO List
-            // TODO Coercion
-            // TODO NotNulls
             'fields' => [
                 'intArgField' => [
                     'type' => Type::string(),

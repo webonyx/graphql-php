@@ -3,8 +3,11 @@
 namespace GraphQL\Error;
 
 use const E_USER_WARNING;
+
 use function gettype;
+
 use InvalidArgumentException;
+
 use function is_int;
 use function trigger_error;
 
@@ -17,6 +20,7 @@ use function trigger_error;
  * @phpstan-type WarningHandler callable(string $errorMessage, int $warningId, ?int $messageLevel): void
  *
  * @see https://github.com/vimeo/psalm/issues/7527
+ *
  * @psalm-type WarningHandler callable(string, int, int|null): void
  */
 final class Warning
@@ -36,6 +40,7 @@ final class Warning
 
     /**
      * @var callable|null
+     *
      * @phpstan-var WarningHandler|null
      */
     private static $warningHandler;

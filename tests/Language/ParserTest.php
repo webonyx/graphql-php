@@ -19,6 +19,7 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Language\Token;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function Safe\file_get_contents;
 
@@ -340,12 +341,10 @@ GRAPHQL
 ');
         $result = Parser::parse($source);
 
-        $loc = static function (int $start, int $end): array {
-            return [
-                'start' => $start,
-                'end' => $end,
-            ];
-        };
+        $loc = static fn (int $start, int $end): array => [
+            'start' => $start,
+            'end' => $end,
+        ];
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -443,12 +442,10 @@ GRAPHQL
 ');
         $result = Parser::parse($source);
 
-        $loc = static function ($start, $end): array {
-            return [
-                'start' => $start,
-                'end' => $end,
-            ];
-        };
+        $loc = static fn (int $start, int $end): array => [
+            'start' => $start,
+            'end' => $end,
+        ];
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,

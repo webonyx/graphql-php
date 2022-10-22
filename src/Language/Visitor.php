@@ -4,14 +4,19 @@ namespace GraphQL\Language;
 
 use function array_pop;
 use function count;
+
 use Exception;
+
 use function func_get_args;
+
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
+
 use function is_array;
 use function json_encode;
+
 use SplFixedArray;
 
 /**
@@ -216,15 +221,11 @@ class Visitor
 
                 if ($isEdited) {
                     if ($node instanceof Node || $node instanceof NodeList) {
-                        // TODO should we use cloneDeep()?
-                        $node = clone $node;
+                        $node = $node->cloneDeep();
                     }
 
                     $editOffset = 0;
-                    for ($ii = 0; $ii < count($edits); ++$ii) {
-                        $editKey = $edits[$ii][0];
-                        $editValue = $edits[$ii][1];
-
+                    foreach ($edits as [$editKey, $editValue]) {
                         if ($inArray) {
                             $editKey -= $editOffset;
                         }

@@ -18,10 +18,10 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\InterfaceImplementations;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
+
 use function implode;
 use function is_array;
 use function is_callable;
-use function is_iterable;
 
 /**
  * Schema Definition (see [schema definition docs](schema-definition.md)).
@@ -42,8 +42,6 @@ use function is_iterable;
  *         ->setMutation($MyAppMutationRootType);
  *
  *     $schema = new GraphQL\Type\Schema($config);
- *
- * @phpstan-import-type SchemaConfigOptions from SchemaConfig
  */
 class Schema
 {
@@ -71,11 +69,13 @@ class Schema
     /** @var array<int, Error> */
     private array $validationErrors;
 
+    public ?SchemaDefinitionNode $astNode;
+
     /** @var array<int, SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
     /**
-     * @param SchemaConfig|SchemaConfigOptions $config
+     * @param SchemaConfig|array<string, mixed> $config
      *
      * @api
      */
@@ -84,7 +84,6 @@ class Schema
         if (is_array($config)) {
             $config = SchemaConfig::create($config);
         }
-        $this->config = $config;
 
         // If this schema was built from a source known to be valid, then it may be
         // marked with assumeValid to avoid an additional type system validation.
@@ -92,48 +91,10 @@ class Schema
             $this->validationErrors = [];
         }
 
+        $this->astNode = $config->astNode;
         $this->extensionASTNodes = $config->extensionASTNodes;
 
-        $query = $config->query;
-        if ($query !== null) {
-            $this->resolvedTypes[$query->name] = $query;
-        }
-
-        $mutation = $config->mutation;
-        if ($mutation !== null) {
-            $this->resolvedTypes[$mutation->name] = $mutation;
-        }
-
-        $subscription = $config->subscription;
-        if ($subscription !== null) {
-            $this->resolvedTypes[$subscription->name] = $subscription;
-        }
-
-        $types = $config->types;
-        if (is_iterable($types)) {
-            foreach ($types as $typeOrLazyType) {
-                $type = static::resolveType($typeOrLazyType);
-
-                $typeName = $type->name;
-                if (isset($this->resolvedTypes[$typeName])) {
-                    if ($type !== $this->resolvedTypes[$typeName]) {
-                        throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
-                    }
-                }
-
-                $this->resolvedTypes[$typeName] = $type;
-            }
-        } else {
-            // @phpstan-ignore-next-line not strictly enforced until we can use actual union types
-            assert(is_callable($types), '"types" must be iterable or callable if provided but got: ' . Utils::printSafe($types));
-        }
-
-        $this->resolvedTypes += Introspection::getTypes();
-
-        if (! isset($config->typeLoader)) {
-            // Perform full scan of the schema
-            $this->collectAllTypes();
-        }
+        $this->config = $config;
     }
 
     /**
@@ -148,43 +109,57 @@ class Schema
     public function getTypeMap(): array
     {
         if (! $this->fullyLoaded) {
-            $this->collectAllTypes();
+            $types = $this->config->types;
+            if (is_callable($types)) {
+                $types = $types();
+            }
+
+            // Reset order of user provided types, since calls to getType() may have loaded them
+            $this->resolvedTypes = [];
+
+            foreach ($types as $typeOrLazyType) {
+                $type = self::resolveType($typeOrLazyType);
+
+                $typeName = $type->name;
+                if (isset($this->resolvedTypes[$typeName])) {
+                    if ($type !== $this->resolvedTypes[$typeName]) {
+                        throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"$type\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
+                    }
+                }
+
+                $this->resolvedTypes[$typeName] = $type;
+            }
+
+            // To preserve order of user-provided types, we add first to add them to
+            // the set of "collected" types, so `collectReferencedTypes` ignore them.
+            /** @var array<string, Type&NamedType> $allReferencedTypes */
+            $allReferencedTypes = [];
+            foreach ($this->resolvedTypes as $type) {
+                // When we ready to process this type, we remove it from "collected" types
+                // and then add it together with all dependent types in the correct position.
+                unset($allReferencedTypes[$type->name]);
+                TypeInfo::extractTypes($type, $allReferencedTypes);
+            }
+
+            foreach ([$this->config->query, $this->config->mutation, $this->config->subscription] as $rootType) {
+                if ($rootType instanceof ObjectType) {
+                    TypeInfo::extractTypes($rootType, $allReferencedTypes);
+                }
+            }
+
+            foreach ($this->getDirectives() as $directive) {
+                // @phpstan-ignore-next-line generics are not strictly enforceable, error will be caught during schema validation
+                if ($directive instanceof Directive) {
+                    TypeInfo::extractTypesFromDirectives($directive, $allReferencedTypes);
+                }
+            }
+            TypeInfo::extractTypes(Introspection::_schema(), $allReferencedTypes);
+
+            $this->resolvedTypes = $allReferencedTypes;
+            $this->fullyLoaded = true;
         }
 
         return $this->resolvedTypes;
-    }
-
-    private function collectAllTypes(): void
-    {
-        /** @var array<string, Type&NamedType> $typeMap */
-        $typeMap = [];
-
-        foreach ($this->resolvedTypes as $type) {
-            TypeInfo::extractTypes($type, $typeMap);
-        }
-
-        foreach ($this->getDirectives() as $directive) {
-            // @phpstan-ignore-next-line generics are not strictly enforceable, error will be caught during schema validation
-            if ($directive instanceof Directive) {
-                TypeInfo::extractTypesFromDirectives($directive, $typeMap);
-            }
-        }
-
-        $typesOrLazyTypes = $this->config->types;
-        // When types are set as iterable they are resolved in constructor
-        if (is_callable($typesOrLazyTypes)) {
-            $types = $typesOrLazyTypes();
-
-            // @phpstan-ignore-next-line not strictly enforced unless PHP supports function types
-            assert(is_iterable($types), 'Schema "types" callable must return iterable but got: ' . Utils::printSafe($types));
-
-            foreach ($types as $typeOrLazyType) {
-                TypeInfo::extractTypes(static::resolveType($typeOrLazyType), $typeMap);
-            }
-        }
-
-        $this->resolvedTypes = $typeMap;
-        $this->fullyLoaded = true;
     }
 
     /**
@@ -279,23 +254,28 @@ class Schema
      */
     public function getType(string $name): ?Type
     {
-        if (! isset($this->resolvedTypes[$name])) {
-            $type = Type::getStandardTypes()[$name]
-                ?? $this->loadType($name);
-
-            if ($type === null) {
-                return null;
-            }
-
-            return $this->resolvedTypes[$name] = self::resolveType($type);
+        if (isset($this->resolvedTypes[$name])) {
+            return $this->resolvedTypes[$name];
         }
 
-        return $this->resolvedTypes[$name];
+        $introspectionTypes = Introspection::getTypes();
+        if (isset($introspectionTypes[$name])) {
+            return $introspectionTypes[$name];
+        }
+
+        $standardTypes = Type::getStandardTypes();
+        if (isset($standardTypes[$name])) {
+            return $standardTypes[$name];
+        }
+
+        $type = $this->loadType($name);
+        if ($type === null) {
+            return null;
+        }
+
+        return $this->resolvedTypes[$name] = self::resolveType($type);
     }
 
-    /**
-     * Does the schema contain a type with the given name?
-     */
     public function hasType(string $name): bool
     {
         return $this->getType($name) !== null;
@@ -307,13 +287,11 @@ class Schema
     private function loadType(string $typeName): ?Type
     {
         $typeLoader = $this->config->typeLoader;
-
         if ($typeLoader === null) {
-            return $this->defaultTypeLoader($typeName);
+            return $this->getTypeMap()[$typeName] ?? null;
         }
 
         $type = $typeLoader($typeName);
-
         if ($type === null) {
             return null;
         }
@@ -331,18 +309,10 @@ class Schema
     }
 
     /**
-     * @return (Type&NamedType)|null
-     */
-    private function defaultTypeLoader(string $typeName): ?Type
-    {
-        // Default type loader simply falls back to collecting all types
-        return $this->getTypeMap()[$typeName] ?? null;
-    }
-
-    /**
      * @template T of Type
      *
      * @param Type|callable $type
+     *
      * @phpstan-param T|callable():T $type
      *
      * @phpstan-return T
@@ -352,9 +322,6 @@ class Schema
         if ($type instanceof Type) {
             return $type;
         }
-
-        // @phpstan-ignore-next-line Should not happen if used correctly
-        assert(is_callable($type), 'Expected type to be either a Type or a callable returning a type, got: ' . Utils::printSafe($type));
 
         return $type();
     }
@@ -479,11 +446,6 @@ class Schema
         return null;
     }
 
-    public function getAstNode(): ?SchemaDefinitionNode
-    {
-        return $this->config->getAstNode();
-    }
-
     /**
      * Throws if the schema is not valid.
      *
@@ -501,8 +463,9 @@ class Schema
             throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
+        $internalTypes = Type::getStandardTypes() + Introspection::getTypes();
         foreach ($this->getTypeMap() as $name => $type) {
-            if ($type->isBuiltInType()) {
+            if (isset($internalTypes[$name])) {
                 continue;
             }
 
@@ -541,6 +504,8 @@ class Schema
 
         // Persist the results of validation before returning to ensure validation
         // does not run multiple times for this schema.
-        return $this->validationErrors = $context->getErrors();
+        $this->validationErrors = $context->getErrors();
+
+        return $this->validationErrors;
     }
 }

@@ -5,26 +5,25 @@ namespace GraphQL\Utils;
 use function array_keys;
 use function array_map;
 use function array_reduce;
-use function array_shift;
 use function array_slice;
-use function asort;
+
+use ArrayAccess;
+
 use function count;
 use function dechex;
-use function func_get_args;
-use function func_num_args;
 use function get_class;
 use function gettype;
+
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
+
 use function is_array;
 use function is_object;
 use function is_scalar;
 use function is_string;
 use function json_encode;
-use function levenshtein;
 use function mb_convert_encoding;
 use function mb_strlen;
 use function mb_substr;
@@ -34,9 +33,9 @@ use function pack;
 use function preg_match;
 use function property_exists;
 use function range;
-use function sprintf;
+
 use stdClass;
-use function strtolower;
+
 use function unpack;
 
 class Utils
@@ -69,65 +68,8 @@ class Utils
     }
 
     /**
-     * @template TKey of array-key
-     * @template TValue
+     * Print a value that came from JSON for debugging purposes.
      *
-     * @param iterable<mixed> $iterable
-     * @phpstan-param iterable<TKey, TValue> $iterable
-     * @phpstan-param callable(TValue, TKey): bool $predicate
-     *
-     * @return mixed
-     * @phpstan-return TValue|null
-     */
-    public static function find(iterable $iterable, callable $predicate)
-    {
-        foreach ($iterable as $key => $value) {
-            if ($predicate($value, $key)) {
-                return $value;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     */
-    public static function every($iterable, callable $predicate): bool
-    {
-        foreach ($iterable as $key => $value) {
-            if (! $predicate($value, $key)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param mixed  $test    will be evaluated for truthy-ness
-     * @param string $message
-     *
-     * @throws InvariantViolation
-     */
-    public static function invariant($test, $message = ''): void
-    {
-        // @phpstan-ignore-next-line we want to evaluate for truthy-ness
-        if ($test) {
-            return;
-        }
-
-        if (func_num_args() > 2) {
-            $args = func_get_args();
-            array_shift($args);
-            $message = sprintf(...$args);
-        }
-
-        // TODO switch to Error here
-        throw new InvariantViolation($message);
-    }
-
-    /**
      * @param mixed $var
      */
     public static function printSafeJson($var): string
@@ -168,7 +110,9 @@ class Utils
     }
 
     /**
-     * @param Type|mixed $var
+     * Print a value that came from PHP for debugging purposes.
+     *
+     * @param mixed $var
      */
     public static function printSafe($var): string
     {
@@ -205,7 +149,7 @@ class Utils
         }
 
         if (is_string($var)) {
-            return $var;
+            return "\"{$var}\"";
         }
 
         if (is_scalar($var)) {
@@ -348,34 +292,50 @@ class Utils
      * Given an invalid input string and a list of valid options, returns a filtered
      * list of valid options sorted based on their similarity with the input.
      *
-     * Includes a custom alteration from Damerau-Levenshtein to treat case changes
-     * as a single edit which helps identify mis-cased values with an edit distance
-     * of 1
-     *
      * @param array<string> $options
      *
      * @return array<int, string>
      */
     public static function suggestionList(string $input, array $options): array
     {
+        /** @var array<string, int> $optionsByDistance */
         $optionsByDistance = [];
+        $lexicalDistance = new LexicalDistance($input);
         $threshold = mb_strlen($input) * 0.4 + 1;
         foreach ($options as $option) {
-            if ($input === $option) {
-                $distance = 0;
-            } else {
-                $distance = (strtolower($input) === strtolower($option)
-                    ? 1
-                    : levenshtein($input, $option));
-            }
+            $distance = $lexicalDistance->measure($option, $threshold);
 
-            if ($distance <= $threshold) {
+            if ($distance !== null) {
                 $optionsByDistance[$option] = $distance;
             }
         }
 
-        asort($optionsByDistance);
+        \uksort($optionsByDistance, static function (string $a, string $b) use ($optionsByDistance) {
+            $distanceDiff = $optionsByDistance[$a] - $optionsByDistance[$b];
 
-        return array_keys($optionsByDistance);
+            return $distanceDiff !== 0 ? $distanceDiff : \strnatcmp($a, $b);
+        });
+
+        return array_map('strval', array_keys($optionsByDistance));
+    }
+
+    /**
+     * Try to extract the value for a key from an object like value.
+     *
+     * @param mixed $objectLikeValue
+     *
+     * @return mixed
+     */
+    public static function extractKey($objectLikeValue, string $key)
+    {
+        if (is_array($objectLikeValue) || $objectLikeValue instanceof ArrayAccess) {
+            return $objectLikeValue[$key] ?? null;
+        }
+
+        if (is_object($objectLikeValue)) {
+            return $objectLikeValue->{$key} ?? null;
+        }
+
+        return null;
     }
 }

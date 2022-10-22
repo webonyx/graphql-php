@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Validator\Rules;
 
 use function array_key_exists;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;

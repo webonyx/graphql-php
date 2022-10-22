@@ -9,6 +9,7 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
+
 use function is_bool;
 use function is_finite;
 use function is_float;
@@ -31,10 +32,8 @@ values as specified by
             : null;
 
         if ($float === null || ! is_finite($float)) {
-            throw new SerializationError(
-                'Float cannot represent non numeric value: '
-                . Utils::printSafe($value)
-            );
+            $notFloat = Utils::printSafe($value);
+            throw new SerializationError("Float cannot represent non numeric value: {$notFloat}");
         }
 
         return $float;
@@ -47,7 +46,7 @@ values as specified by
             : null;
 
         if ($float === null || ! is_finite($float)) {
-            $notFloat = Utils::printSafe($value);
+            $notFloat = Utils::printSafeJson($value);
             throw new Error("Float cannot represent non numeric value: {$notFloat}");
         }
 

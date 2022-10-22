@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
@@ -41,6 +41,15 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Throw if `Introspection::fromSchema()` returns no data
 - Reorganize abstract class `ASTValidationContext` to interface `ValidationContext`
 - Reorganize AST interfaces related to schema and type extensions
+- Align `Utils::suggestionList()` with the reference implementation (#1075)
+- Order schema topologically and according to the user-defined order, affects introspection and printing
+- `GraphQL\Utils\AST::typeFromAST()` now needs a type loader callable instead of the Schema
+- Do not change HTTP status code in `StandardServer`
+- Use `"` instead of `"""` for single line descriptions
+- Make `Helper::emitResponse()` private, use `Helper::sendResponse()`
+- Emit unescaped UTF-8 from `StandardServer`
+- Sync input value coercion with `graphql-js` reference implementation
+- Store rules exclusively by class name in `DocumentValidator`
 
 ### Added
 
@@ -56,6 +65,14 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Allow lazy enum values
 - Make `Node` implement `JsonSerializable`
 - Add SDL validation rule `UniqueTypeNames` (#998)
+- Add support for SDL validation to `KnownTypeNames` rule (#999)
+- Add SDL validation rule `UniqueArgumentDefinitionNames` (#1136)
+- Add `parseValue` config option to InputObjectType to parse input value to custom value object
+- Add option `sortTypes` to have `SchemaPrinter` order types alphabetically
+- Allow constructing `EnumType` from PHP enum
+- Add `TypeInfo::getParentTypeStack()` and `TypeInfo::getFieldDefStack()`
+- Include path to faulty input in coercion errors
+- Add ability to resolve abstract type of object via `__typename`
 
 ### Optimized
 
@@ -74,9 +91,35 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Clone `NodeList` in `Node::cloneDeep()`
 - Calling `Schema::getType()` on a schema built from SDL returns `null` for unknown types (#1068)
 - Avoid crash on typeless inline fragment when using `QueryComplexity` rule
+- Avoid calling `FormattedError::addDebugEntries()` twice when using default error formatting
+- Avoid calling defined functions named like lazily loaded types
+- Show actual error in debug entries
 
 ### Removed
 
+- Remove `OperationParams` method `getOriginalInput()` in favor of public property `$originalInput`
+- Remove `OperationParams` method `isReadOnly()` in favor of public property `$readOnly`
+- Remove `Utils::withErrorHandling()`
+- Remove `TypeComparators::doTypesOverlap()`
+- Remove `DocumentValidator::isError()`
+- Remove `DocumentValidator::append()`
+- Remove `Utils::getVariableType()` in favor of `Utils::printSafe()`
+- Remove warning for passing `isDeprecated` in field definition config
+- Remove `WrappingType::getWrappedType()` argument `$recurse` in favor of `WrappingType::getInnermostType()`
+- Remove `Type::assertType()`
+- Remove `ListOfType::$ofType`, `ListOfType::getOfType()` and `NonNull::getOfType()`
+- Remove option `commentDescriptions` from `BuildSchema::buildAST()`, `BuildSchema::build()` and `Printer::doPrint()`
+- Remove parameter `$options` from `ASTDefinitionBuilder`
+- Remove `FieldDefinition::create()` in favor of `new FieldDefinition()`
+- Remove `GraphQL\Exception\InvalidArgument`
+- Remove `Utils::find()`, `Utils::every()` and `Utils::invariant()`
+- Remove argument `bool $exitWhenDone` from `StandardServer::send500Error()` and `StandardServer::handleRequest()`
+- Remove `Schema::getAstNode()` in favor of `Schema::$astNode`
+- Remove ability to override standard types through `Schema` option `types`, use `Type::overrideStandardTypes()`
+- Remove `GraphQL\Utils\TypeInfo::typeFromAST()`, use `GraphQL\Utils\AST::typeFromAST()`
+- Remove `StandardServer::send500Error()`, handle non-GraphQL errors yourself
+- Remove `StandardServer::getHelper()`, use `new Helper`
+- Remove error extension field `category`, use custom error formatting if you still need it
 - Remove deprecated `Type::getInternalTypes()`
 - Remove deprecated `GraphQL::execute()`
 - Remove deprecated `GraphQL::executeAndReturnResult()`
@@ -96,21 +139,24 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
 - Remove alias `GraphQL\Utils\FindBreakingChanges`, use `GraphQL\Utils\BreakingChangesFinder`
-- Remove `OperationParams` method `getOriginalInput()` in favor of public property `$originalInput`
-- Remove `OperationParams` method `isReadOnly()` in favor of public property `$readOnly`
-- Remove `Utils::withErrorHandling()`
-- Remove `TypeComparators::doTypesOverlap()`
-- Remove `DocumentValidator::isError()`
-- Remove `DocumentValidator::append()`
-- Remove `Utils::getVariableType()` in favor of `Utils::printSafe()`
-- Remove warning for passing `isDeprecated` in field definition config
-- Remove `WrappingType::getWrappedType()` argument `$recurse` in favor of `WrappingType::getInnermostType()`
-- Remove `Type::assertType()`
-- Remove `ListOfType::$ofType`, `ListOfType::getOfType()` and `NonNull::getOfType()`
-- Remove option `commentDescriptions` from `BuildSchema::buildAST()`, `BuildSchema::build()` and `Printer::doPrint()`
-- Remove parameter `$options` from `ASTDefinitionBuilder`
-- Remove `FieldDefinition::create()` in favor of `new FieldDefinition()`
-- Remove `GraphQL\Exception\InvalidArgument`
+
+## 14.11.8
+
+### Fixed
+
+- Correct the broken 14.11.7 release - see https://github.com/webonyx/graphql-php/issues/1221
+
+## 14.11.7
+
+### Fixed
+
+- Fix PHP 8.2 deprecation of "static" in callables
+
+## 14.11.6
+
+### Fixed
+
+- Fix validation of modified sparse ASTs
 
 ## 14.11.5
 

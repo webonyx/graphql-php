@@ -4,6 +4,7 @@ namespace GraphQL\Language;
 
 use function array_filter;
 use function count;
+
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
@@ -49,7 +50,7 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
-use GraphQL\Utils\Utils;
+
 use function implode;
 use function json_encode;
 use function str_replace;
@@ -118,9 +119,13 @@ class Printer
                     $argStrings[] = $this->p($arg);
                 }
 
-                $noIndent = Utils::every($argStrings, static function (string $arg): bool {
-                    return strpos($arg, "\n") === false;
-                });
+                $noIndent = true;
+                foreach ($argStrings as $argString) {
+                    if (strpos($argString, "\n") !== false) {
+                        $noIndent = false;
+                        break;
+                    }
+                }
 
                 return $this->addDescription($node->description, 'directive @'
                     . $this->p($node->name)
@@ -175,9 +180,13 @@ class Printer
                     $argStrings[] = $this->p($item);
                 }
 
-                $noIndent = Utils::every($argStrings, static function (string $arg): bool {
-                    return strpos($arg, "\n") === false;
-                });
+                $noIndent = true;
+                foreach ($argStrings as $argString) {
+                    if (strpos($argString, "\n") !== false) {
+                        $noIndent = false;
+                        break;
+                    }
+                }
 
                 return $this->addDescription(
                     $node->description,
@@ -211,7 +220,6 @@ class Printer
                 return 'fragment ' . $this->p($node->name)
                     . $this->wrap(
                         '(',
-                        // @phpstan-ignore-next-line generic type of empty NodeList is not recognized
                         $this->printList($node->variableDefinitions ?? new NodeList([]), ', '),
                         ')'
                     )
@@ -404,7 +412,7 @@ class Printer
 
             case $node instanceof StringValueNode:
                 if ($node->block) {
-                    return BlockString::print($node->value, $isDescription ? '' : '  ');
+                    return BlockString::print($node->value, $isDescription ? '' : '  ', true);
                 }
 
                 return json_encode($node->value, JSON_THROW_ON_ERROR);

@@ -4,6 +4,7 @@ namespace GraphQL\Validator\Rules;
 
 use function array_map;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NodeKind;

@@ -6,13 +6,16 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\RequestError;
+
 use function http_build_query;
+
 use InvalidArgumentException;
 use Nyholm\Psr7\Request;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\Uri;
 use PHPUnit\Framework\TestCase;
+
 use function Safe\json_encode;
 
 class RequestParsingTest extends TestCase

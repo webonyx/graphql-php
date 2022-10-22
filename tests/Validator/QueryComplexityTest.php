@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Validator;
 
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
@@ -11,7 +12,7 @@ use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\ValidationContext;
 
-class QueryComplexityTest extends QuerySecurityTestCase
+final class QueryComplexityTest extends QuerySecurityTestCase
 {
     private static QueryComplexity $rule;
 
@@ -180,15 +181,13 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $reportedError = new Error('OtherValidatorError');
         $otherRule = new CustomValidationRule(
             'otherRule',
-            static function (ValidationContext $context) use ($reportedError): array {
-                return [
-                    NodeKind::OPERATION_DEFINITION => [
-                        'leave' => static function () use ($context, $reportedError): void {
-                            $context->reportError($reportedError);
-                        },
-                    ],
-                ];
-            }
+            static fn (ValidationContext $context): array => [
+                NodeKind::OPERATION_DEFINITION => [
+                    'leave' => static function () use ($context, $reportedError): void {
+                        $context->reportError($reportedError);
+                    },
+                ],
+            ]
         );
 
         $errors = DocumentValidator::validate(

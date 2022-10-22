@@ -5,6 +5,7 @@ namespace GraphQL\Validator\Rules;
 use function array_pop;
 use function array_slice;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -12,6 +13,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\QueryValidationContext;
+
 use function implode;
 
 class NoFragmentCycles extends ValidationRule
@@ -38,9 +40,7 @@ class NoFragmentCycles extends ValidationRule
         $this->spreadPathIndexByName = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => static function (): VisitorOperation {
-                return Visitor::skipNode();
-            },
+            NodeKind::OPERATION_DEFINITION => static fn (): VisitorOperation => Visitor::skipNode(),
             NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) use ($context): VisitorOperation {
                 $this->detectCycleRecursive($node, $context);
 
@@ -66,8 +66,7 @@ class NoFragmentCycles extends ValidationRule
 
         $this->spreadPathIndexByName[$fragmentName] = count($this->spreadPath);
 
-        for ($i = 0; $i < count($spreadNodes); ++$i) {
-            $spreadNode = $spreadNodes[$i];
+        foreach ($spreadNodes as $spreadNode) {
             $spreadName = $spreadNode->name->value;
             $cycleIndex = $this->spreadPathIndexByName[$spreadName] ?? null;
 

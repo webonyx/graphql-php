@@ -4,12 +4,15 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use function assert;
 use function count;
+
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
+
 use function is_array;
+
 use Throwable;
 
 /**
@@ -29,7 +32,6 @@ class SyncPromiseAdapter implements PromiseAdapter
             // End-users should always use Deferred (and don't use SyncPromise directly)
             $deferred = Deferred::class;
             $safeThenable = Utils::printSafe($thenable);
-
             throw new InvariantViolation("Expected instance of {$deferred}, got {$safeThenable}");
         }
 

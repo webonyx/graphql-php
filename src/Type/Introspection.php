@@ -5,6 +5,8 @@ namespace GraphQL\Type;
 use function array_filter;
 use function array_key_exists;
 use function array_merge;
+use function array_values;
+
 use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
@@ -194,8 +196,8 @@ GRAPHQL;
 
         $data = $result->data;
         if ($data === null) {
-            $serialized = json_encode($result, JSON_THROW_ON_ERROR);
-            throw new InvariantViolation("Introspection query returned no data: {$serialized}");
+            $noDataResult = json_encode($result, JSON_THROW_ON_ERROR);
+            throw new InvariantViolation("Introspection query returned no data: {$noDataResult}");
         }
 
         return $data;
@@ -287,30 +289,23 @@ GRAPHQL;
                         switch (true) {
                             case $type instanceof ListOfType:
                                 return TypeKind::LIST;
-
                             case $type instanceof NonNull:
                                 return TypeKind::NON_NULL;
-
                             case $type instanceof ScalarType:
                                 return TypeKind::SCALAR;
-
                             case $type instanceof ObjectType:
                                 return TypeKind::OBJECT;
-
                             case $type instanceof EnumType:
                                 return TypeKind::ENUM;
-
                             case $type instanceof InputObjectType:
                                 return TypeKind::INPUT_OBJECT;
-
                             case $type instanceof InterfaceType:
                                 return TypeKind::INTERFACE;
-
                             case $type instanceof UnionType:
                                 return TypeKind::UNION;
-
                             default:
-                                throw new Exception('Unknown kind of type: ' . Utils::printSafe($type));
+                                $safeType = Utils::printSafe($type);
+                                throw new Exception("Unknown kind of type: {$safeType}");
                         }
                     },
                 ],
@@ -496,44 +491,42 @@ GRAPHQL;
             'description' => 'Arguments provided to Fields or Directives and the input fields of an '
                     . 'InputObject are represented as Input Values which describe their type '
                     . 'and optionally a default value.',
-            'fields' => static function (): array {
-                return [
-                    'name' => [
-                        'type' => Type::nonNull(Type::string()),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): string => $inputValue->name,
-                    ],
-                    'description' => [
-                        'type' => Type::string(),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): ?string => $inputValue->description,
-                    ],
-                    'type' => [
-                        'type' => Type::nonNull(self::_type()),
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static fn ($inputValue): Type => $inputValue->getType(),
-                    ],
-                    'defaultValue' => [
-                        'type' => Type::string(),
-                        'description' => 'A GraphQL-formatted string representing the default value for this input value.',
-                        /** @param Argument|InputObjectField $inputValue */
-                        'resolve' => static function ($inputValue): ?string {
-                            if ($inputValue->defaultValueExists()) {
-                                $defaultValueAST = AST::astFromValue($inputValue->defaultValue, $inputValue->getType());
+            'fields' => static fn (): array => [
+                'name' => [
+                    'type' => Type::nonNull(Type::string()),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): string => $inputValue->name,
+                ],
+                'description' => [
+                    'type' => Type::string(),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): ?string => $inputValue->description,
+                ],
+                'type' => [
+                    'type' => Type::nonNull(self::_type()),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): Type => $inputValue->getType(),
+                ],
+                'defaultValue' => [
+                    'type' => Type::string(),
+                    'description' => 'A GraphQL-formatted string representing the default value for this input value.',
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static function ($inputValue): ?string {
+                        if ($inputValue->defaultValueExists()) {
+                            $defaultValueAST = AST::astFromValue($inputValue->defaultValue, $inputValue->getType());
 
-                                if ($defaultValueAST === null) {
-                                    $inconvertibleDefaultValue = Utils::printSafe($inputValue->defaultValue);
-                                    throw new InvariantViolation("Unable to convert defaultValue of argument {$inputValue->name} into AST: {$inconvertibleDefaultValue}.");
-                                }
-
-                                return Printer::doPrint($defaultValueAST);
+                            if ($defaultValueAST === null) {
+                                $inconvertibleDefaultValue = Utils::printSafe($inputValue->defaultValue);
+                                throw new InvariantViolation("Unable to convert defaultValue of argument {$inputValue->name} into AST: {$inconvertibleDefaultValue}.");
                             }
 
-                            return null;
-                        },
-                    ],
-                ];
-            },
+                            return Printer::doPrint($defaultValueAST);
+                        }
+
+                        return null;
+                    },
+                ],
+            ],
         ]);
     }
 
@@ -587,10 +580,6 @@ GRAPHQL;
                     'type' => Type::string(),
                     'resolve' => static fn (Directive $directive): ?string => $directive->description,
                 ],
-                'args' => [
-                    'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                    'resolve' => static fn (Directive $directive): array => $directive->args,
-                ],
                 'isRepeatable' => [
                     'type' => Type::nonNull(Type::boolean()),
                     'resolve' => static fn (Directive $directive): bool => $directive->isRepeatable,
@@ -600,6 +589,10 @@ GRAPHQL;
                         self::_directiveLocation()
                     ))),
                     'resolve' => static fn (Directive $directive): array => $directive->locations,
+                ],
+                'args' => [
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
+                    'resolve' => static fn (Directive $directive): array => $directive->args,
                 ],
             ],
         ]);

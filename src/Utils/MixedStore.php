@@ -5,13 +5,16 @@ namespace GraphQL\Utils;
 use function array_key_exists;
 use function array_search;
 use function array_splice;
+
 use ArrayAccess;
 use InvalidArgumentException;
+
 use function is_array;
 use function is_float;
 use function is_int;
 use function is_object;
 use function is_string;
+
 use ReturnTypeWillChange;
 use SplObjectStorage;
 
@@ -21,6 +24,7 @@ use SplObjectStorage;
  * When storing array as key, access and modification is O(N). Avoid if possible.
  *
  * @template TValue of mixed
+ *
  * @implements ArrayAccess<mixed, TValue>
  */
 class MixedStore implements ArrayAccess
@@ -184,7 +188,8 @@ class MixedStore implements ArrayAccess
             $this->nullValue = $value;
             $this->nullValueIsSet = true;
         } else {
-            throw new InvalidArgumentException('Unexpected offset type: ' . Utils::printSafe($offset));
+            $unexpectedOffset = Utils::printSafe($offset);
+            throw new InvalidArgumentException("Unexpected offset type: {$unexpectedOffset}");
         }
     }
 

@@ -3,10 +3,11 @@
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\QueryDepth;
+
 use function sprintf;
 use function str_replace;
 
-class QueryDepthTest extends QuerySecurityTestCase
+final class QueryDepthTest extends QuerySecurityTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $expectedErrors
@@ -25,18 +26,18 @@ class QueryDepthTest extends QuerySecurityTestCase
 
     private function buildRecursiveQueryPart(int $depth): string
     {
-        $templates = [
-            'human' => ' { firstName%s } ',
-            'dog' => ' dogs { name%s } ',
-        ];
+        $human = ' { firstName%s } ';
+        $dog = ' dogs { name%s } ';
 
-        $part = $templates['human'];
+        $part = $human;
 
-        for ($i = 1; $i <= $depth; ++$i) {
-            $key = $i % 2 === 1 ? 'human' : 'dog';
-            $template = $templates[$key];
+        foreach (range(1, $depth) as $i) {
+            $isOdd = $i % 2 === 1;
+            $template = $isOdd
+                ? $human
+                : $dog;
 
-            $part = sprintf($part, ($key === 'human' ? ' owner ' : '') . $template);
+            $part = sprintf($part, ($isOdd ? ' owner ' : '') . $template);
         }
 
         return str_replace('%s', '', $part);

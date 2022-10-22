@@ -5,6 +5,7 @@ namespace GraphQL\Validator\Rules;
 use function array_keys;
 use function array_merge;
 use function arsort;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;

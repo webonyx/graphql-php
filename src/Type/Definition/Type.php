@@ -3,10 +3,13 @@
 namespace GraphQL\Type\Definition;
 
 use function array_merge;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
+
 use function implode;
+
 use JsonSerializable;
 use ReturnTypeWillChange;
 
@@ -137,14 +140,12 @@ abstract class Type implements JsonSerializable
             if (! $type instanceof ScalarType) {
                 $typeClass = ScalarType::class;
                 $notType = Utils::printSafe($type);
-
                 throw new InvariantViolation("Expecting instance of {$typeClass}, got {$notType}");
             }
 
             if (! in_array($type->name, self::STANDARD_TYPE_NAMES, true)) {
                 $standardTypeNames = implode(', ', self::STANDARD_TYPE_NAMES);
                 $notStandardTypeName = Utils::printSafe($type->name);
-
                 throw new InvariantViolation("Expecting one of the following names for a standard type: {$standardTypeNames}; got {$notStandardTypeName}");
             }
 

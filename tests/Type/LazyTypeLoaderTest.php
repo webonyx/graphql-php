@@ -176,15 +176,15 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
             'mutation' => $this->mutation,
             'types' => [Schema::resolveType($this->blogStory)],
         ]);
+        $schema->assertValid();
 
-        $expected = [
-            'Query.fields',
-            'Content.fields',
+        self::assertEquals([
             'Node.fields',
-            'Mutation.fields',
+            'Content.fields',
             'BlogStory.fields',
-        ];
-        self::assertEquals($expected, $this->calls);
+            'Query.fields',
+            'Mutation.fields',
+        ], $this->calls);
 
         self::assertSame($this->query, $schema->getType('Query'));
         self::assertSame($this->mutation, $schema->getType('Mutation'));
@@ -194,7 +194,7 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
         self::assertSame(Schema::resolveType($this->postStoryMutation), $schema->getType('PostStoryMutation'));
         self::assertSame(Schema::resolveType($this->postStoryMutationInput), $schema->getType('PostStoryMutationInput'));
 
-        $expectedTypeMap = [
+        self::assertArraySubset([
             'Query' => $this->query,
             'Mutation' => $this->mutation,
             'Node' => Schema::resolveType($this->node),
@@ -202,9 +202,7 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
             'Content' => Schema::resolveType($this->content),
             'BlogStory' => Schema::resolveType($this->blogStory),
             'PostStoryMutationInput' => Schema::resolveType($this->postStoryMutationInput),
-        ];
-
-        self::assertArraySubset($expectedTypeMap, $schema->getTypeMap());
+        ], $schema->getTypeMap());
     }
 
     public function testWorksWithTypeLoader(): void

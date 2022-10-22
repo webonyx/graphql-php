@@ -2,17 +2,16 @@
 
 namespace GraphQL\Server;
 
-use GraphQL\Error\DebugFlag;
-use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Utils\Utils;
+
 use function is_array;
+
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Throwable;
 
 /**
  * GraphQL server compatible with both: [express-graphql](https://github.com/graphql/express-graphql)
@@ -37,29 +36,11 @@ use Throwable;
  */
 class StandardServer
 {
-    private ServerConfig $config;
+    protected ServerConfig $config;
 
-    private Helper $helper;
-
-    /**
-     * Converts and exception to error and sends spec-compliant HTTP 500 error.
-     * Useful when an exception is thrown somewhere outside of server execution context
-     * (e.g. during schema instantiation).
-     *
-     * @api
-     */
-    public static function send500Error(Throwable $error, int $debug = DebugFlag::NONE, bool $exitWhenDone = false): void
-    {
-        $response = [
-            'errors' => [FormattedError::createFromException($error, $debug)],
-        ];
-        $helper = new Helper();
-        $helper->emitResponse($response, 500, $exitWhenDone);
-    }
+    protected Helper $helper;
 
     /**
-     * Creates new instance of a standard GraphQL HTTP server.
-     *
      * @param ServerConfig|array<string, mixed> $config
      *
      * @api
@@ -72,7 +53,8 @@ class StandardServer
 
         // @phpstan-ignore-next-line necessary until we can use proper union types
         if (! $config instanceof ServerConfig) {
-            throw new InvariantViolation('Expecting valid server config, but got ' . Utils::printSafe($config));
+            $safeConfig = Utils::printSafe($config);
+            throw new InvariantViolation("Expecting valid server config, but got {$safeConfig}");
         }
 
         $this->config = $config;
@@ -82,36 +64,34 @@ class StandardServer
     /**
      * Parses HTTP request, executes and emits response (using standard PHP `header` function and `echo`).
      *
-     * By default (when $parsedBody is not set) it uses PHP globals to parse a request.
+     * When $parsedBody is not set, it uses PHP globals to parse a request.
      * It is possible to implement request parsing elsewhere (e.g. using framework Request instance)
      * and then pass it to the server.
      *
-     * See `executeRequest()` if you prefer to emit response yourself
-     * (e.g. using Response object of some framework)
+     * See `executeRequest()` if you prefer to emit the response yourself
+     * (e.g. using the Response object of some framework).
      *
      * @param OperationParams|array<OperationParams> $parsedBody
      *
      * @api
      */
-    public function handleRequest($parsedBody = null, bool $exitWhenDone = false): void
+    public function handleRequest($parsedBody = null): void
     {
         $result = $this->executeRequest($parsedBody);
-        $this->helper->sendResponse($result, $exitWhenDone);
+        $this->helper->sendResponse($result);
     }
 
     /**
-     * Executes GraphQL operation and returns execution result
+     * Executes a GraphQL operation and returns an execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter).
      *
-     * By default (when $parsedBody is not set) it uses PHP globals to parse a request.
+     * When $parsedBody is not set, it uses PHP globals to parse a request.
      * It is possible to implement request parsing elsewhere (e.g. using framework Request instance)
      * and then pass it to the server.
      *
      * PSR-7 compatible method executePsrRequest() does exactly this.
      *
      * @param OperationParams|array<OperationParams> $parsedBody
-     *
-     * @throws InvariantViolation
      *
      * @return ExecutionResult|array<int, ExecutionResult>|Promise
      *
@@ -163,16 +143,5 @@ class StandardServer
         $parsedBody = $this->helper->parsePsrRequest($request);
 
         return $this->executeRequest($parsedBody);
-    }
-
-    /**
-     * Returns an instance of Server helper, which contains most of the actual logic for
-     * parsing / validating / executing request (which could be re-used by other server implementations).
-     *
-     * @api
-     */
-    public function getHelper(): Helper
-    {
-        return $this->helper;
     }
 }

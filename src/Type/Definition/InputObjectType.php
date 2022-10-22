@@ -6,6 +6,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
+
 use function is_array;
 use function is_callable;
 use function is_iterable;
@@ -13,6 +14,7 @@ use function is_string;
 
 /**
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+ *
  * @phpstan-type EagerFieldConfig InputObjectField|(Type&InputType)|UnnamedInputObjectFieldConfig
  * @phpstan-type LazyFieldConfig callable(): EagerFieldConfig
  * @phpstan-type FieldConfig EagerFieldConfig|LazyFieldConfig
@@ -20,6 +22,7 @@ use function is_string;
  *   name?: string|null,
  *   description?: string|null,
  *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
+ *   parseValue?: callable(array<string, mixed>): mixed,
  *   astNode?: InputObjectTypeDefinitionNode|null,
  *   extensionASTNodes?: array<int, InputObjectTypeExtensionNode>|null
  * }
@@ -115,6 +118,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     /**
      * @param string|int $nameOrIndex
+     *
      * @phpstan-param FieldConfig $field
      */
     protected function initializeField($nameOrIndex, $field): void
@@ -131,15 +135,31 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             $field['name'] ??= $nameOrIndex;
 
             if (! is_string($field['name'])) {
-                throw new InvariantViolation(
-                    "{$this->name} fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those."
-                );
+                throw new InvariantViolation("{$this->name} fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those.");
             }
 
             $field = new InputObjectField($field);
         }
 
         $this->fields[$field->name] = $field;
+    }
+
+    /**
+     * Parses an externally provided value (query variable) to use as an input.
+     *
+     * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
+     *
+     * @param array<string, mixed> $value
+     *
+     * @return mixed
+     */
+    public function parseValue(array $value)
+    {
+        if (isset($this->config['parseValue'])) {
+            return $this->config['parseValue']($value);
+        }
+
+        return $value;
     }
 
     /**
@@ -159,10 +179,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
         if (! is_iterable($fields)) {
             $invalidFields = Utils::printSafe($fields);
-
-            throw new InvariantViolation(
-                "{$this->name} fields must be an iterable or a callable which returns an iterable, got: {$invalidFields}."
-            );
+            throw new InvariantViolation("{$this->name} fields must be an iterable or a callable which returns an iterable, got: {$invalidFields}.");
         }
 
         $resolvedFields = $this->getFields();

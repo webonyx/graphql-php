@@ -4,7 +4,9 @@ namespace GraphQL\Language;
 
 use function array_slice;
 use function count;
+
 use GraphQL\Utils\Utils;
+
 use function implode;
 use function mb_strlen;
 use function mb_substr;
@@ -32,8 +34,7 @@ class BlockString
 
         if ($commonIndent > 0) {
             for ($i = 1; $i < $linesLength; ++$i) {
-                $line = $lines[$i];
-                $lines[$i] = mb_substr($line, $commonIndent);
+                $lines[$i] = mb_substr($lines[$i], $commonIndent);
             }
         }
 
@@ -140,10 +141,13 @@ class BlockString
             : $value;
         if ($printAsMultipleLines) {
             $result .= "\n";
+            $quoting = '"""';
+        } else {
+            $quoting = '"';
         }
 
-        return '"""'
-            . str_replace('"""', '\\"""', $result)
-            . '"""';
+        return $quoting
+            . str_replace($quoting, '\\' . $quoting, $result)
+            . $quoting;
     }
 }

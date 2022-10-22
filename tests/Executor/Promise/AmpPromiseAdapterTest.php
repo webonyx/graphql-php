@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Executor\Promise;
 
 use function Amp\call;
+
 use Amp\Deferred;
 use Amp\Delayed;
 use Amp\Failure;
@@ -19,7 +20,7 @@ use Throwable;
 /**
  * @group AmpPromise
  */
-class AmpPromiseAdapterTest extends TestCase
+final class AmpPromiseAdapterTest extends TestCase
 {
     public function testIsThenableReturnsTrueWhenAnAmpPromiseIsGiven(): void
     {

@@ -8,6 +8,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
+
 use function is_object;
 use function is_scalar;
 use function is_string;
@@ -29,9 +30,8 @@ represent free-form human-readable text.';
             || $value === null;
 
         if (! $canCast) {
-            throw new SerializationError(
-                'String cannot represent value: ' . Utils::printSafe($value)
-            );
+            $notStringable = Utils::printSafe($value);
+            throw new SerializationError("String cannot represent value: {$notStringable}");
         }
 
         return (string) $value;
@@ -40,7 +40,7 @@ represent free-form human-readable text.';
     public function parseValue($value): string
     {
         if (! is_string($value)) {
-            $notString = Utils::printSafe($value);
+            $notString = Utils::printSafeJson($value);
             throw new Error("String cannot represent a non string value: {$notString}");
         }
 

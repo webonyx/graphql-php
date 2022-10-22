@@ -5,6 +5,7 @@ namespace GraphQL\Server;
 use function array_map;
 use function count;
 use function file_get_contents;
+
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
@@ -18,6 +19,7 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
+
 use function header;
 use function html_entity_decode;
 use function is_array;
@@ -25,15 +27,21 @@ use function is_callable;
 use function is_string;
 use function json_decode;
 use function json_encode;
+
 use const JSON_ERROR_NONE;
+
 use function json_last_error;
 use function json_last_error_msg;
+
 use JsonSerializable;
+
 use function parse_str;
+
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+
 use function stripos;
 
 /**
@@ -233,7 +241,7 @@ class Helper
         return $result;
     }
 
-    private function promiseToExecuteOperation(
+    protected function promiseToExecuteOperation(
         PromiseAdapter $promiseAdapter,
         ServerConfig $config,
         OperationParams $op,
@@ -322,7 +330,7 @@ class Helper
      *
      * @return mixed
      */
-    private function loadPersistedQuery(ServerConfig $config, OperationParams $operationParams)
+    protected function loadPersistedQuery(ServerConfig $config, OperationParams $operationParams)
     {
         $loader = $config->getPersistedQueryLoader();
 
@@ -334,10 +342,9 @@ class Helper
 
         // @phpstan-ignore-next-line Necessary until PHP gains function types
         if (! is_string($source) && ! $source instanceof DocumentNode) {
-            throw new InvariantViolation(
-                'Persisted query loader must return query string or instance of ' . DocumentNode::class
-                . ' but got: ' . Utils::printSafe($source)
-            );
+            $documentNode = DocumentNode::class;
+            $safeSource = Utils::printSafe($source);
+            throw new InvariantViolation("Persisted query loader must return query string or instance of {$documentNode} but got: {$safeSource}");
         }
 
         return $source;
@@ -346,7 +353,7 @@ class Helper
     /**
      * @return array<mixed>|null
      */
-    private function resolveValidationRules(
+    protected function resolveValidationRules(
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
@@ -360,9 +367,8 @@ class Helper
 
         // @phpstan-ignore-next-line unless PHP gains function types, we have to check this at runtime
         if ($validationRules !== null && ! is_array($validationRules)) {
-            throw new InvariantViolation(
-                'Expecting validation rules to be array or callable returning array, but got: ' . Utils::printSafe($validationRules)
-            );
+            $safeValidationRules = Utils::printSafe($validationRules);
+            throw new InvariantViolation("Expecting validation rules to be array or callable returning array, but got: {$safeValidationRules}");
         }
 
         return $validationRules;
@@ -371,7 +377,7 @@ class Helper
     /**
      * @return mixed
      */
-    private function resolveRootValue(
+    protected function resolveRootValue(
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
@@ -389,7 +395,7 @@ class Helper
     /**
      * @return mixed user defined
      */
-    private function resolveContextValue(
+    protected function resolveContextValue(
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
@@ -411,41 +417,27 @@ class Helper
      *
      * @api
      */
-    public function sendResponse($result, bool $exitWhenDone = false): void
+    public function sendResponse($result): void
     {
         if ($result instanceof Promise) {
-            $result->then(function ($actualResult) use ($exitWhenDone): void {
-                $this->doSendResponse($actualResult, $exitWhenDone);
+            $result->then(function ($actualResult): void {
+                $this->emitResponse($actualResult);
             });
         } else {
-            $this->doSendResponse($result, $exitWhenDone);
+            $this->emitResponse($result);
         }
-    }
-
-    /**
-     * @param ExecutionResult|array<ExecutionResult> $result
-     */
-    private function doSendResponse($result, bool $exitWhenDone): void
-    {
-        $httpStatus = $this->resolveHttpStatus($result);
-        $this->emitResponse($result, $httpStatus, $exitWhenDone);
     }
 
     /**
      * @param array<mixed>|JsonSerializable $jsonSerializable
      */
-    public function emitResponse($jsonSerializable, int $httpStatus, bool $exitWhenDone): void
+    protected function emitResponse($jsonSerializable): void
     {
-        $body = json_encode($jsonSerializable);
-        header('Content-Type: application/json', true, $httpStatus);
-        echo $body;
-
-        if ($exitWhenDone) {
-            exit;
-        }
+        header('Content-Type: application/json;charset=utf-8');
+        echo json_encode($jsonSerializable, JSON_UNESCAPED_UNICODE);
     }
 
-    private function readRawBody(): string
+    protected function readRawBody(): string
     {
         $body = file_get_contents('php://input');
         if ($body === false) {
@@ -453,42 +445,6 @@ class Helper
         }
 
         return $body;
-    }
-
-    /**
-     * @param ExecutionResult|array<ExecutionResult> $result
-     */
-    private function resolveHttpStatus($result): int
-    {
-        if (is_array($result) && isset($result[0])) {
-            foreach ($result as $index => $executionResult) {
-                // @phpstan-ignore-next-line unless PHP gains generic support, this is unsure
-                if (! $executionResult instanceof ExecutionResult) {
-                    throw new InvariantViolation(
-                        'Expecting every entry of batched query result to be instance of '
-                        . ExecutionResult::class . ' but entry at position ' . $index
-                        . ' is ' . Utils::printSafe($executionResult)
-                    );
-                }
-            }
-
-            $httpStatus = 200;
-        } else {
-            if (! $result instanceof ExecutionResult) {
-                throw new InvariantViolation(
-                    'Expecting query result to be instance of ' . ExecutionResult::class
-                    . ' but got ' . Utils::printSafe($result)
-                );
-            }
-
-            if ($result->data === null && count($result->errors) > 0) {
-                $httpStatus = 400;
-            } else {
-                $httpStatus = 200;
-            }
-        }
-
-        return $httpStatus;
     }
 
     /**
@@ -577,9 +533,8 @@ class Helper
     protected function assertJsonObjectOrArray($bodyParams): void
     {
         if (! is_array($bodyParams)) {
-            throw new RequestError(
-                'Expected JSON object or array for "application/json" request, got: ' . Utils::printSafeJson($bodyParams)
-            );
+            $notArray = Utils::printSafeJson($bodyParams);
+            throw new RequestError("Expected JSON object or array for \"application/json\" request, got: {$notArray}");
         }
     }
 
@@ -606,12 +561,11 @@ class Helper
     /**
      * @param ExecutionResult|array<ExecutionResult> $result
      */
-    private function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream): ResponseInterface
+    protected function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream): ResponseInterface
     {
         $writableBodyStream->write(json_encode($result, JSON_THROW_ON_ERROR));
 
         return $response
-            ->withStatus($this->resolveHttpStatus($result))
             ->withHeader('Content-Type', 'application/json')
             ->withBody($writableBodyStream);
     }

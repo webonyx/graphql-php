@@ -4,6 +4,7 @@ namespace GraphQL\Tests;
 
 use function array_intersect_key;
 use function array_map;
+
 use Exception;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -166,7 +167,7 @@ class StarWarsSchema
                 'friends' => [
                     'type' => Type::listOf($characterInterface),
                     'description' => 'The friends of the human, or an empty list if they have none.',
-                    'resolve' => static function ($human, $args, $context, ResolveInfo $info): array {
+                    'resolve' => static function ($human, array $args, $context, ResolveInfo $info): array {
                         $fieldSelection = $info->getFieldSelection();
                         $fieldSelection['id'] = true;
 
@@ -226,9 +227,7 @@ class StarWarsSchema
                 'friends' => [
                     'type' => Type::listOf($characterInterface),
                     'description' => 'The friends of the droid, or an empty list if they have none.',
-                    'resolve' => static function ($droid) {
-                        return StarWarsData::getFriends($droid);
-                    },
+                    'resolve' => static fn (array $droid): array => StarWarsData::getFriends($droid),
                 ],
                 'appearsIn' => [
                     'type' => Type::listOf($episodeEnum),
@@ -274,9 +273,7 @@ class StarWarsSchema
                             'type' => $episodeEnum,
                         ],
                     ],
-                    'resolve' => static function ($rootValue, $args): array {
-                        return StarWarsData::getHero($args['episode'] ?? null);
-                    },
+                    'resolve' => static fn ($rootValue, array $args): array => StarWarsData::getHero($args['episode'] ?? null),
                 ],
                 'human' => [
                     'type' => $humanType,
@@ -287,11 +284,7 @@ class StarWarsSchema
                             'type' => Type::nonNull(Type::string()),
                         ],
                     ],
-                    'resolve' => static function ($rootValue, $args) {
-                        $humans = StarWarsData::humans();
-
-                        return $humans[$args['id']] ?? null;
-                    },
+                    'resolve' => static fn ($rootValue, array $args): ?array => StarWarsData::humans()[$args['id']] ?? null,
                 ],
                 'droid' => [
                     'type' => $droidType,
@@ -302,15 +295,14 @@ class StarWarsSchema
                             'type' => Type::nonNull(Type::string()),
                         ],
                     ],
-                    'resolve' => static function ($rootValue, $args) {
-                        $droids = StarWarsData::droids();
-
-                        return $droids[$args['id']] ?? null;
-                    },
+                    'resolve' => static fn ($rootValue, array $args): ?array => StarWarsData::droids()[$args['id']] ?? null,
                 ],
             ],
         ]);
 
-        return new Schema(['query' => $queryType]);
+        return new Schema([
+            'query' => $queryType,
+            'types' => [$humanType, $droidType],
+        ]);
     }
 }

@@ -13,7 +13,7 @@ use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\HasFieldsType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
-use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\AST;
 use GraphQL\Validator\QueryValidationContext;
 use InvalidArgumentException;
 
@@ -21,6 +21,7 @@ use InvalidArgumentException;
  * @see Visitor, FieldDefinition
  *
  * @phpstan-import-type VisitorArray from Visitor
+ *
  * @phpstan-type ASTAndDefs ArrayObject<string, ArrayObject<int, array{FieldNode, FieldDefinition|null}>>
  */
 abstract class QuerySecurityRule extends ValidationRule
@@ -91,6 +92,7 @@ abstract class QuerySecurityRule extends ValidationRule
      * @see \GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
      *
      * @param ArrayObject<string, true>|null $visitedFragmentNames
+     *
      * @phpstan-param ASTAndDefs|null $astAndDefs
      *
      * @phpstan-return ASTAndDefs
@@ -137,7 +139,7 @@ abstract class QuerySecurityRule extends ValidationRule
                     $typeCondition = $selection->typeCondition;
                     $fragmentParentType = $typeCondition === null
                         ? $parentType
-                        : TypeInfo::typeFromAST($context->getSchema(), $typeCondition);
+                        : AST::typeFromAST([$context->getSchema(), 'getType'], $typeCondition);
                     $astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $fragmentParentType,
@@ -157,7 +159,7 @@ abstract class QuerySecurityRule extends ValidationRule
                         if ($fragment !== null) {
                             $astAndDefs = $this->collectFieldASTsAndDefs(
                                 $context,
-                                TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition),
+                                AST::typeFromAST([$context->getSchema(), 'getType'], $fragment->typeCondition),
                                 $fragment->selectionSet,
                                 $visitedFragmentNames,
                                 $astAndDefs

@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use function array_pop;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;

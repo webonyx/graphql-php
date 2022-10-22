@@ -3,11 +3,13 @@
 namespace GraphQL\Type\Definition;
 
 use function array_key_exists;
+
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 
 /**
  * @phpstan-import-type ArgumentListConfig from Argument
+ *
  * @phpstan-type DirectiveConfig array{
  *   name: string,
  *   description?: string|null,
@@ -50,12 +52,14 @@ class Directive
 
     /**
      * @var array<string, mixed>
+     *
      * @phpstan-var DirectiveConfig
      */
     public array $config;
 
     /**
      * @param array<string, mixed> $config
+     *
      * @phpstan-param DirectiveConfig $config
      */
     public function __construct(array $config)
@@ -125,9 +129,7 @@ class Directive
                 'args' => [
                     self::REASON_ARGUMENT_NAME => [
                         'type' => Type::string(),
-                        'description' => 'Explains why this element was deprecated, usually also including a '
-                            . 'suggestion for how to access supported similar data. Formatted using '
-                            . 'the Markdown syntax (as specified by [CommonMark](https://commonmark.org/).',
+                        'description' => 'Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).',
                         'defaultValue' => self::DEFAULT_DEPRECATION_REASON,
                     ],
                 ],

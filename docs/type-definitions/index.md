@@ -1,4 +1,5 @@
-# Type Definitions 
+# Type Definitions
+
 graphql-php represents a **type** as a class instance from the `GraphQL\Type\Definition` namespace:
 
 - [`ObjectType`](object-types.md)
@@ -9,12 +10,13 @@ graphql-php represents a **type** as a class instance from the `GraphQL\Type\Def
 - [`EnumType`](enums.md)
 
 ## Input vs. Output Types
+
 All types in GraphQL are of two categories: **input** and **output**.
 
-* **Output** types (or field types) are: [Scalar](scalars.md), [Enum](enums.md), [Object](object-types.md),
+- **Output** types (or field types) are: [Scalar](scalars.md), [Enum](enums.md), [Object](object-types.md),
   [Interface](interfaces.md), [Union](unions.md)
 
-* **Input** types (or argument types) are: [Scalar](scalars.md), [Enum](enums.md), [Inputs](inputs.md)
+- **Input** types (or argument types) are: [Scalar](scalars.md), [Enum](enums.md), [Inputs](inputs.md)
 
 Obviously, [NonNull and List](lists-and-nonnulls.md) types belong to both categories depending on their
 inner type.
@@ -26,9 +28,6 @@ Several styles of type definitions are supported depending on your preferences.
 ### Inline definitions
 
 ```php
-<?php
-namespace MyApp;
-
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -43,9 +42,6 @@ $myType = new ObjectType([
 ### Class per type
 
 ```php
-<?php
-namespace MyApp;
-
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -66,19 +62,20 @@ class MyType extends ObjectType
 ```
 
 ### Schema definition language
+
 ```graphql
 schema {
-    query: Query
-    mutation: Mutation
+  query: Query
+  mutation: Mutation
 }
 
 type Query {
-    greetings(input: HelloInput!): String!
+  greetings(input: HelloInput!): String!
 }
 
 input HelloInput {
-    firstName: String!
-    lastName: String
+  firstName: String!
+  lastName: String
 }
 ```
 

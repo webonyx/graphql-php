@@ -13,7 +13,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BreakingChangesFinder;
 use PHPUnit\Framework\TestCase;
-use function sprintf;
 
 class BreakingChangesFinderTest extends TestCase
 {
@@ -31,7 +30,7 @@ class BreakingChangesFinderTest extends TestCase
         ]);
     }
 
-    //DESCRIBE: findBreakingChanges
+    // DESCRIBE: findBreakingChanges
 
     /**
      * @see it('should detect if a type was removed or not')
@@ -1373,7 +1372,7 @@ class BreakingChangesFinderTest extends TestCase
         $expectedBreakingChanges = [
             [
                 'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
-                'description' => sprintf('%s was removed', $includeDirective->name),
+                'description' => "{$includeDirective->name} was removed",
             ],
         ];
 
@@ -1399,7 +1398,7 @@ class BreakingChangesFinderTest extends TestCase
         $expectedBreakingChanges = [
             [
                 'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
-                'description' => sprintf('%s was removed', $deprecatedDirective->name),
+                'description' => "{$deprecatedDirective->name} was removed",
             ],
         ];
 
@@ -1770,7 +1769,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ]);
         // logially equivalent to type1; findTypesRemovedFromUnions should not
-        //treat this as different than type1
+        // treat this as different than type1
         $type1a = new ObjectType([
             'name' => 'Type1',
             'fields' => [

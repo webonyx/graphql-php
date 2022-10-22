@@ -8,6 +8,7 @@ use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
+
 use function is_callable;
 
 /**
@@ -50,6 +51,7 @@ use function is_callable;
  *     ]);
  *
  * @phpstan-import-type FieldResolver from Executor
+ *
  * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
  * @phpstan-type ObjectConfig array{
  *   name?: string|null,
@@ -75,6 +77,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
     /**
      * @var callable|null
+     *
      * @phpstan-var FieldResolver|null
      */
     public $resolveFieldFn;
@@ -140,7 +143,6 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
         if (isset($this->config['isTypeOf']) && ! is_callable($this->config['isTypeOf'])) {
             $notCallable = Utils::printSafe($this->config['isTypeOf']);
-
             throw new InvariantViolation("{$this->name} must provide \"isTypeOf\" as a callable, but got: {$notCallable}");
         }
 

@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 
 use function array_pop;
 use function count;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -11,11 +12,8 @@ use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\InlineFragmentNode;
-use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\ListValueNode;
-use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
@@ -69,6 +67,22 @@ class TypeInfo
     public function __construct(Schema $schema)
     {
         $this->schema = $schema;
+    }
+
+    /**
+     * @return array<int, (CompositeType&Type)|null>
+     */
+    public function getParentTypeStack(): array
+    {
+        return $this->parentTypeStack;
+    }
+
+    /**
+     * @return array<int, FieldDefinition|null>
+     */
+    public function getFieldDefStack(): array
+    {
+        return $this->fieldDefStack;
     }
 
     /**
@@ -130,16 +144,14 @@ class TypeInfo
             }
         }
 
-        if (! ($type instanceof HasFieldsType)) {
-            return;
-        }
+        if ($type instanceof HasFieldsType) {
+            foreach ($type->getFields() as $field) {
+                foreach ($field->args as $arg) {
+                    self::extractTypes($arg->getType(), $typeMap);
+                }
 
-        foreach ($type->getFields() as $field) {
-            foreach ($field->args as $arg) {
-                self::extractTypes($arg->getType(), $typeMap);
+                self::extractTypes($field->getType(), $typeMap);
             }
-
-            self::extractTypes($field->getType(), $typeMap);
         }
     }
 
@@ -226,12 +238,12 @@ class TypeInfo
                 $typeConditionNode = $node->typeCondition;
                 $outputType = $typeConditionNode === null
                     ? Type::getNamedType($this->getType())
-                    : self::typeFromAST($schema, $typeConditionNode);
+                    : AST::typeFromAST([$schema, 'getType'], $typeConditionNode);
                 $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null;
                 break;
 
             case $node instanceof VariableDefinitionNode:
-                $inputType = self::typeFromAST($schema, $node->type);
+                $inputType = AST::typeFromAST([$schema, 'getType'], $node->type);
                 $this->inputTypeStack[] = Type::isInputType($inputType) ? $inputType : null; // push
                 break;
 
@@ -342,16 +354,6 @@ class TypeInfo
         }
 
         return null;
-    }
-
-    /**
-     * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
-     *
-     * @throws InvariantViolation
-     */
-    public static function typeFromAST(Schema $schema, Node $inputTypeNode): ?Type
-    {
-        return AST::typeFromAST($schema, $inputTypeNode);
     }
 
     public function getDirective(): ?Directive

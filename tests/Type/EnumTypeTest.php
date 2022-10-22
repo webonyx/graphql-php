@@ -3,7 +3,9 @@
 namespace GraphQL\Tests\Type;
 
 use ArrayObject;
+
 use function count;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
@@ -15,7 +17,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+
 use function is_array;
+
 use PHPUnit\Framework\TestCase;
 
 class EnumTypeTest extends TestCase
@@ -216,10 +220,12 @@ class EnumTypeTest extends TestCase
             'fields' => [
                 'favoriteEnum' => [
                     'type' => $ColorType,
-                    'args' => ['color' => ['type' => $ColorType]],
-                    'resolve' => static function ($rootValue, $args) {
-                        return $args['color'] ?? null;
-                    },
+                    'args' => [
+                        'color' => [
+                            'type' => $ColorType,
+                        ],
+                    ],
+                    'resolve' => static fn ($rootValue, array $args) => $args['color'] ?? null,
                 ],
             ],
         ]);
@@ -230,9 +236,7 @@ class EnumTypeTest extends TestCase
                 'subscribeToEnum' => [
                     'type' => $ColorType,
                     'args' => ['color' => ['type' => $ColorType]],
-                    'resolve' => static function ($rootValue, $args) {
-                        return $args['color'] ?? null;
-                    },
+                    'resolve' => static fn ($rootValue, $args) => $args['color'] ?? null,
                 ],
             ],
         ]);
@@ -348,8 +352,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: green) }',
             null,
             [
-                // Improves upon the reference implementation
-                'message' => 'Value "green" does not exist in "Color" enum. Did you mean the enum value "GREEN"?',
+                'message' => 'Value "green" does not exist in "Color" enum. Did you mean the enum value "GREEN" or "RED"?',
                 'locations' => [new SourceLocation(1, 23)],
             ]
         );
@@ -364,7 +367,7 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromString: "GREEN") }',
             null,
             [
-                'message' => 'Expected a value of type Color but received: GREEN. Cannot serialize value as enum: GREEN',
+                'message' => 'Expected a value of type Color but received: "GREEN". Cannot serialize value as enum: "GREEN"',
                 'locations' => [new SourceLocation(1, 3)],
                 'path' => ['colorEnum'],
             ]
@@ -456,7 +459,7 @@ class EnumTypeTest extends TestCase
         $this->expectFailure(
             'query test($color: Color!) { colorEnum(fromEnum: $color) }',
             ['color' => 2],
-            'Variable "$color" got invalid value 2; Expected type Color.'
+            'Variable "$color" got invalid value 2; Enum "Color" cannot represent non-string value: 2.'
         );
     }
 
@@ -625,7 +628,7 @@ class EnumTypeTest extends TestCase
                     [
                         'locations' => [['line' => 4, 'column' => 13]],
                         'extensions' => [
-                            'debugMessage' => 'Expected a value of type SimpleEnum but received: WRONG. Cannot serialize value as enum: WRONG',
+                            'debugMessage' => 'Expected a value of type SimpleEnum but received: "WRONG". Cannot serialize value as enum: "WRONG"',
                             'trace' => [
                                 ['call' => 'GraphQL\Type\Definition\EnumType::serialize()'],
                             ],
@@ -678,11 +681,11 @@ class EnumTypeTest extends TestCase
                 'colorEnum' => [
                     'type' => $ColorType,
                     'args' => [
-                        'fromEnum' => ['type' => $ColorType],
+                        'fromEnum' => [
+                            'type' => $ColorType,
+                        ],
                     ],
-                    'resolve' => static function ($rootValue, array $args) {
-                        return $args['fromEnum'];
-                    },
+                    'resolve' => static fn ($rootValue, array $args) => $args['fromEnum'],
                 ],
             ],
         ]);

@@ -77,30 +77,24 @@ class MutationsTest extends TestCase
                     'immediatelyChangeTheNumber' => [
                         'type' => $numberHolderType,
                         'args' => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args): NumberHolder {
-                            return $obj->immediatelyChangeTheNumber($args['newNumber']);
-                        },
+                        'resolve' => static fn (Root $obj, array $args): NumberHolder => $obj->immediatelyChangeTheNumber($args['newNumber']),
                     ],
                     'promiseToChangeTheNumber' => [
                         'type' => $numberHolderType,
                         'args' => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args): Deferred {
-                            return $obj->promiseToChangeTheNumber($args['newNumber']);
-                        },
+                        'resolve' => static fn (Root $obj, array $args): Deferred => $obj->promiseToChangeTheNumber($args['newNumber']),
                     ],
                     'failToChangeTheNumber' => [
                         'type' => $numberHolderType,
                         'args' => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args): void {
+                        'resolve' => static function (Root $obj, array $args): void {
                             $obj->failToChangeTheNumber();
                         },
                     ],
                     'promiseAndFailToChangeTheNumber' => [
                         'type' => $numberHolderType,
                         'args' => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args): Deferred {
-                            return $obj->promiseAndFailToChangeTheNumber();
-                        },
+                        'resolve' => static fn (Root $obj, array $args): Deferred => $obj->promiseAndFailToChangeTheNumber(),
                     ],
                 ],
                 'name' => 'Mutation',

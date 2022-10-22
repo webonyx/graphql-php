@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Executor;
 
 use function count;
+
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use GraphQL\Deferred;
@@ -15,9 +16,12 @@ use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+
 use function is_string;
+
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+
 use function Safe\json_encode;
 
 class NonNullTest extends TestCase
@@ -56,67 +60,39 @@ class NonNullTest extends TestCase
             'syncNonNull' => function (): void {
                 throw $this->syncNonNullError;
             },
-            'promise' => function (): Deferred {
-                return new Deferred(function (): void {
-                    throw $this->promiseError;
-                });
-            },
-            'promiseNonNull' => function (): Deferred {
-                return new Deferred(function (): void {
-                    throw $this->promiseNonNullError;
-                });
-            },
-            'syncNest' => function (): array {
-                return $this->throwingData;
-            },
-            'syncNonNullNest' => function (): array {
-                return $this->throwingData;
-            },
-            'promiseNest' => function (): Deferred {
-                return new Deferred(function (): array {
-                    return $this->throwingData;
-                });
-            },
-            'promiseNonNullNest' => function (): Deferred {
-                return new Deferred(function (): array {
-                    return $this->throwingData;
-                });
-            },
+            'promise' => fn (): Deferred => new Deferred(function (): void {
+                throw $this->promiseError;
+            }),
+            'promiseNonNull' => fn (): Deferred => new Deferred(function (): void {
+                throw $this->promiseNonNullError;
+            }),
+            'syncNest' => fn (): array => $this->throwingData,
+            'syncNonNullNest' => fn (): array => $this->throwingData,
+            'promiseNest' => fn (): Deferred => new Deferred(
+                fn (): array => $this->throwingData
+            ),
+            'promiseNonNullNest' => fn (): Deferred => new Deferred(
+                fn (): array => $this->throwingData
+            ),
         ];
 
         $this->nullingData = [
-            'sync' => static function () {
-                return null;
-            },
-            'syncNonNull' => static function () {
-                return null;
-            },
-            'promise' => static function (): Deferred {
-                return new Deferred(static function () {
-                    return null;
-                });
-            },
-            'promiseNonNull' => static function (): Deferred {
-                return new Deferred(static function () {
-                    return null;
-                });
-            },
-            'syncNest' => function (): array {
-                return $this->nullingData;
-            },
-            'syncNonNullNest' => function (): array {
-                return $this->nullingData;
-            },
-            'promiseNest' => function (): Deferred {
-                return new Deferred(function (): array {
-                    return $this->nullingData;
-                });
-            },
-            'promiseNonNullNest' => function (): Deferred {
-                return new Deferred(function (): array {
-                    return $this->nullingData;
-                });
-            },
+            'sync' => static fn () => null,
+            'syncNonNull' => static fn () => null,
+            'promise' => static fn (): Deferred => new Deferred(
+                static fn () => null
+            ),
+            'promiseNonNull' => static fn (): Deferred => new Deferred(
+                static fn () => null
+            ),
+            'syncNest' => fn (): array => $this->nullingData,
+            'syncNonNullNest' => fn (): array => $this->nullingData,
+            'promiseNest' => fn (): Deferred => new Deferred(
+                fn (): array => $this->nullingData
+            ),
+            'promiseNonNullNest' => fn (): Deferred => new Deferred(
+                fn (): array => $this->nullingData
+            ),
         ];
 
         $dataType = new ObjectType([
@@ -150,13 +126,9 @@ class NonNullTest extends TestCase
                                 'type' => Type::nonNull(Type::string()),
                             ],
                         ],
-                        'resolve' => static function ($value, $args): ?string {
-                            if (is_string($args['cannotBeNull'])) {
-                                return 'Passed: ' . $args['cannotBeNull'];
-                            }
-
-                            return null;
-                        },
+                        'resolve' => static fn ($value, array $args): ?string => is_string($args['cannotBeNull'])
+                            ? "Passed: {$args['cannotBeNull']}"
+                            : null,
                     ],
                 ],
             ]),

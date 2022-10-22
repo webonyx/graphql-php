@@ -9,6 +9,15 @@ parameters:
         - src
         - tests
 
+    excludePaths:
+        # PHP 8 attributes
+        - src/Type/Definition/Deprecated.php
+        - src/Type/Definition/Description.php
+        # PHP 8.1 enums
+        - src/Type/Definition/PhpEnumType.php
+        - tests/Type/PhpEnumTypeTest.php
+        - tests/Type/PhpEnumType
+
     ignoreErrors:
         # Since this is a library that is supposed to be flexible, we don't
         # want to lock down every possible extension point.
@@ -18,13 +27,10 @@ parameters:
         # allow partial parsing of language fragments.
         - "~Variable method call on GraphQL\\\\Language\\\\Parser\\.~"
 
-        # We utilize lazy initialization of non-nullable properties
-        - "~Property .+? on left side of \\?\\?= is not nullable~"
-
-        # Useful/necessary in the default field resolver, deals with arbitrary user data
+        # Useful/necessary when dealing with arbitrary user data
         -
             message: "~Variable property access on object~"
-            path: src/Executor/Executor.php
+            path: src/Utils/Utils.php
             count: 2
 
         # Those come from graphql-php\tests\Language\VisitorTest.php

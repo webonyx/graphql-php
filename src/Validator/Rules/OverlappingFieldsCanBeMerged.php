@@ -6,6 +6,7 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldNode;
@@ -23,18 +24,19 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\AST;
 use GraphQL\Utils\PairSet;
-use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\QueryValidationContext;
+
 use function implode;
 use function is_array;
+
 use SplObjectStorage;
 
 /**
  * ReasonOrReasons is recursive, but PHPStan does not support that.
  *
  * @phpstan-type ReasonOrReasons string|array<array{string, string|array<mixed>}>
- *
  * @phpstan-type Conflict array{array{string, ReasonOrReasons}, array<int, FieldNode>, array<int, FieldNode>}
  * @phpstan-type FieldInfo array{Type, FieldNode, FieldDefinition|null}
  * @phpstan-type FieldMap array<string, array<int, FieldInfo>>
@@ -102,7 +104,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         $conflicts = [];
 
-        // (A) Find find all conflicts "within" the fields of this selection set.
+        // (A) Find all conflicts "within" the fields of this selection set.
         // Note: this is the *only place* `collectConflictsWithin` is called.
         $this->collectConflictsWithin(
             $context,
@@ -235,6 +237,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * as well as a list of nested fragment names referenced via fragment spreads.
      *
      * @param array<string, bool> $fragmentNames
+     *
      * @phpstan-param FieldMap $astAndDefs
      */
     protected function internalCollectFieldsAndFragmentNames(
@@ -272,7 +275,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     $typeCondition = $selection->typeCondition;
                     $inlineFragmentType = $typeCondition === null
                         ? $parentType
-                        : TypeInfo::typeFromAST($context->getSchema(), $typeCondition);
+                        : AST::typeFromAST([$context->getSchema(), 'getType'], $typeCondition);
 
                     $this->internalCollectFieldsAndFragmentNames(
                         $context,
@@ -290,6 +293,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * Collect all Conflicts "within" one collection of fields.
      *
      * @param array<int, Conflict> $conflicts
+     *
      * @phpstan-param FieldMap $fieldMap
      */
     protected function collectConflictsWithin(
@@ -641,6 +645,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * including via spreading in any nested fragments.
      *
      * @param array<string, true> $comparedFragments
+     *
      * @phpstan-param array<int, Conflict> $conflicts
      * @phpstan-param FieldMap $fieldMap
      */
@@ -712,7 +717,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             return $this->cachedFieldsAndFragmentNames[$fragment->selectionSet];
         }
 
-        $fragmentType = TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition);
+        $fragmentType = AST::typeFromAST([$context->getSchema(), 'getType'], $fragment->typeCondition);
 
         return $this->getFieldsAndFragmentNames(
             $context,
@@ -856,6 +861,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
     /**
      * @param string|array $reasonOrReasons
+     *
      * @phpstan-param ReasonOrReasons $reasonOrReasons
      */
     public static function fieldsConflictMessage(string $responseName, $reasonOrReasons): string
@@ -867,6 +873,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
     /**
      * @param string|array $reasonOrReasons
+     *
      * @phpstan-param ReasonOrReasons $reasonOrReasons
      */
     public static function reasonMessage($reasonOrReasons): string

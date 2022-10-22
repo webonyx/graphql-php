@@ -3,8 +3,11 @@
 namespace GraphQL\Type\Definition;
 
 use function array_key_exists;
+
 use GraphQL\Error\InvariantViolation;
+
 use function preg_replace;
+
 use ReflectionClass;
 
 /**
