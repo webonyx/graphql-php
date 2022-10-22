@@ -262,65 +262,26 @@ class SchemaValidationContext
             $this->validateName($type);
 
             if ($type instanceof ObjectType) {
-                // Ensure fields are valid
                 $this->validateFields($type);
-
-                // Ensure objects implement the interfaces they claim to.
                 $this->validateInterfaces($type);
-
-                // Ensure directives are valid
-                $this->validateDirectivesAtLocation(
-                    $this->getDirectives($type),
-                    DirectiveLocation::OBJECT
-                );
+                $this->validateDirectivesAtLocation($this->getDirectives($type), DirectiveLocation::OBJECT);
             } elseif ($type instanceof InterfaceType) {
-                // Ensure fields are valid.
                 $this->validateFields($type);
-
-                // Ensure interfaces implement the interfaces they claim to.
                 $this->validateInterfaces($type);
-
-                // Ensure directives are valid
-                $this->validateDirectivesAtLocation(
-                    $this->getDirectives($type),
-                    DirectiveLocation::IFACE
-                );
+                $this->validateDirectivesAtLocation($this->getDirectives($type), DirectiveLocation::IFACE);
             } elseif ($type instanceof UnionType) {
-                // Ensure Unions include valid member types.
                 $this->validateUnionMembers($type);
-
-                // Ensure directives are valid
-                $this->validateDirectivesAtLocation(
-                    $this->getDirectives($type),
-                    DirectiveLocation::UNION
-                );
+                $this->validateDirectivesAtLocation($this->getDirectives($type), DirectiveLocation::UNION);
             } elseif ($type instanceof EnumType) {
-                // Ensure Enums have valid values.
                 $this->validateEnumValues($type);
-
-                // Ensure directives are valid
-                $this->validateDirectivesAtLocation(
-                    $this->getDirectives($type),
-                    DirectiveLocation::ENUM
-                );
+                $this->validateDirectivesAtLocation($this->getDirectives($type), DirectiveLocation::ENUM);
             } elseif ($type instanceof InputObjectType) {
-                // Ensure Input Object fields are valid.
                 $this->validateInputFields($type);
-
-                // Ensure directives are valid
-                $this->validateDirectivesAtLocation(
-                    $this->getDirectives($type),
-                    DirectiveLocation::INPUT_OBJECT
-                );
-
-                // Ensure Input Objects do not contain non-nullable circular references
+                $this->validateDirectivesAtLocation($this->getDirectives($type), DirectiveLocation::INPUT_OBJECT);
                 $this->inputObjectCircularRefs->validate($type);
-            } elseif ($type instanceof ScalarType) {
-                // Ensure directives are valid
-                $this->validateDirectivesAtLocation(
-                    $this->getDirectives($type),
-                    DirectiveLocation::SCALAR
-                );
+            } else {
+                assert($type instanceof ScalarType, 'only remaining option');
+                $this->validateDirectivesAtLocation($this->getDirectives($type), DirectiveLocation::SCALAR);
             }
         }
     }
@@ -388,7 +349,6 @@ class SchemaValidationContext
     {
         $fieldMap = $type->getFields();
 
-        // Objects and Interfaces both must define one or more fields.
         if ($fieldMap === []) {
             $this->reportError(
                 "Type {$type->name} must define one or more fields.",
@@ -397,10 +357,8 @@ class SchemaValidationContext
         }
 
         foreach ($fieldMap as $fieldName => $field) {
-            // Ensure they are named correctly.
             $this->validateName($field);
 
-            // Ensure they were defined at most once.
             $fieldNodes = $this->getAllFieldNodes($type, $fieldName);
             if (count($fieldNodes) > 1) {
                 $this->reportError(
@@ -410,7 +368,6 @@ class SchemaValidationContext
                 continue;
             }
 
-            // Ensure the type is an output type
             // @phpstan-ignore-next-line not statically provable until we can use union types
             if (! Type::isOutputType($field->getType())) {
                 $safeFieldType = Utils::printSafe($field->getType());
@@ -420,12 +377,10 @@ class SchemaValidationContext
                 );
             }
 
-            // Ensure the arguments are valid
             $argNames = [];
             foreach ($field->args as $arg) {
                 $argName = $arg->name;
 
-                // Ensure they are named correctly.
                 $this->validateName($arg);
 
                 if (isset($argNames[$argName])) {
@@ -437,7 +392,6 @@ class SchemaValidationContext
 
                 $argNames[$argName] = true;
 
-                // Ensure the type is an input type
                 // @phpstan-ignore-next-line the type of $arg->getType() says it is an input type, but it might not always be true
                 if (! Type::isInputType($arg->getType())) {
                     $safeType = Utils::printSafe($arg->getType());
@@ -447,7 +401,6 @@ class SchemaValidationContext
                     );
                 }
 
-                // Ensure argument definition directives are valid
                 if (isset($arg->astNode, $arg->astNode->directives)) {
                     $this->validateDirectivesAtLocation(
                         $arg->astNode->directives,
@@ -456,7 +409,6 @@ class SchemaValidationContext
                 }
             }
 
-            // Ensure any directives are valid
             if (isset($field->astNode, $field->astNode->directives)) {
                 $this->validateDirectivesAtLocation(
                     $field->astNode->directives,
@@ -689,13 +641,11 @@ class SchemaValidationContext
         $typeFieldMap = $type->getFields();
         $ifaceFieldMap = $iface->getFields();
 
-        // Assert each interface field is implemented.
         foreach ($ifaceFieldMap as $fieldName => $ifaceField) {
             $typeField = array_key_exists($fieldName, $typeFieldMap)
                 ? $typeFieldMap[$fieldName]
                 : null;
 
-            // Assert interface field exists on type.
             if ($typeField === null) {
                 $this->reportError(
                     "Interface field {$iface->name}.{$fieldName} expected but {$type->name} does not provide it.",
@@ -707,8 +657,6 @@ class SchemaValidationContext
                 continue;
             }
 
-            // Assert interface field type is satisfied by type field type, by being
-            // a valid subtype. (covariant)
             if (
                 ! TypeComparators::isTypeSubTypeOf(
                     $this->schema,
@@ -726,7 +674,6 @@ class SchemaValidationContext
                 );
             }
 
-            // Assert each interface field arg is implemented.
             foreach ($ifaceField->args as $ifaceArg) {
                 $argName = $ifaceArg->name;
                 $typeArg = null;
@@ -738,7 +685,6 @@ class SchemaValidationContext
                     }
                 }
 
-                // Assert interface field arg exists on type field.
                 if ($typeArg === null) {
                     $this->reportError(
                         "Interface field argument {$iface->name}.{$fieldName}({$argName}:) expected but {$type->name}.{$fieldName} does not provide it.",
@@ -750,9 +696,6 @@ class SchemaValidationContext
                     continue;
                 }
 
-                // Assert interface field arg type matches type field arg type.
-                // (invariant)
-                // TODO: change to contravariant?
                 if (! TypeComparators::isEqualType($ifaceArg->getType(), $typeArg->getType())) {
                     $safeIFaceArgType = Utils::printSafe($ifaceArg->getType());
                     $safeTypeArgType = Utils::printSafe($typeArg->getType());
@@ -769,7 +712,6 @@ class SchemaValidationContext
                 // TODO: validate default values?
             }
 
-            // Assert additional arguments must not be required.
             foreach ($typeField->args as $typeArg) {
                 $argName = $typeArg->name;
                 $ifaceArg = null;
