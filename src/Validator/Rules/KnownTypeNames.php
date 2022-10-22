@@ -52,7 +52,7 @@ class KnownTypeNames extends ValidationRule
             }
         }
 
-        $standardTypeNames = array_keys(Type::getAllBuiltInTypes());
+        $standardTypeNames = array_keys(Type::builtInTypes());
 
         return [
             NodeKind::NAMED_TYPE => static function (NamedTypeNode $node, $_1, $parent, $_2, $ancestors) use ($context, $definedTypes, $standardTypeNames): void {
