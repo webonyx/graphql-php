@@ -8,6 +8,7 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
 use PHPUnit\Framework\TestCase;
 
 class GraphQLTest extends TestCase
@@ -15,25 +16,21 @@ class GraphQLTest extends TestCase
     public function testPromiseToExecute(): void
     {
         $promiseAdapter = new SyncPromiseAdapter();
-        $schema = new Schema(
-            [
-                'query' => new ObjectType(
-                    [
-                        'name' => 'Query',
-                        'fields' => [
-                            'sayHi' => [
+        $schema = new Schema((new SchemaConfig())
+            ->setQuery(new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'sayHi' => [
+                        'type' => Type::nonNull(Type::string()),
+                        'args' => [
+                            'name' => [
                                 'type' => Type::nonNull(Type::string()),
-                                'args' => [
-                                    'name' => [
-                                        'type' => Type::nonNull(Type::string()),
-                                    ],
-                                ],
-                                'resolve' => static fn ($rootValue, array $args): Promise => $promiseAdapter->createFulfilled("Hi {$args['name']}!"),
                             ],
                         ],
-                    ]
-                ),
-            ]
+                        'resolve' => static fn ($rootValue, array $args): Promise => $promiseAdapter->createFulfilled("Hi {$args['name']}!"),
+                    ],
+                ],
+            ]))
         );
 
         $promise = GraphQL::promiseToExecute($promiseAdapter, $schema, '{ sayHi(name: "John") }');

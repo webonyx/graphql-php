@@ -2,6 +2,7 @@
 
 namespace GraphQL\Utils;
 
+use GraphQL\Type\SchemaConfig;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -177,16 +178,18 @@ class SchemaExtender
 
         $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
 
-        // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
-        return new Schema([
-            'query' => $operationTypes['query'],
-            'mutation' => $operationTypes['mutation'],
-            'subscription' => $operationTypes['subscription'],
-            'types' => $types,
-            'directives' => $this->getMergedDirectives($schema, $directiveDefinitions),
-            'astNode' => $schema->astNode ?? $schemaDef,
-            'extensionASTNodes' => $schemaExtensionASTNodes,
-        ]);
+        return new Schema((new SchemaConfig())
+            // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
+            ->setQuery($operationTypes['query'])
+            // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
+            ->setMutation($operationTypes['mutation'])
+            // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
+            ->setSubscription($operationTypes['subscription'])
+            ->setTypes($types)
+            ->setDirectives($this->getMergedDirectives($schema, $directiveDefinitions))
+            ->setAstNode($schema->astNode ?? $schemaDef)
+            ->setExtensionASTNodes($schemaExtensionASTNodes)
+        );
     }
 
     /**

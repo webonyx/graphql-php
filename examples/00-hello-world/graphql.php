@@ -15,6 +15,7 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
 
 try {
     $queryType = new ObjectType([
@@ -46,10 +47,10 @@ try {
 
     // See docs on schema options:
     // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
-    $schema = new Schema([
-        'query' => $queryType,
-        'mutation' => $mutationType,
-    ]);
+    $schema = new Schema((new SchemaConfig())
+        ->setQuery($queryType)
+        ->setMutation($mutationType)
+    );
 
     $rawInput = file_get_contents('php://input');
     if ($rawInput === false) {

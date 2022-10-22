@@ -144,15 +144,14 @@ class BuildClientSchema
             )
             : [];
 
-        $schemaConfig = (new SchemaConfig())
+        return new Schema((new SchemaConfig())
             ->setQuery($queryType)
             ->setMutation($mutationType)
             ->setSubscription($subscriptionType)
             ->setTypes($this->typeMap)
             ->setDirectives($directives)
-            ->setAssumeValid($this->options['assumeValid'] ?? false);
-
-        return new Schema($schemaConfig);
+            ->setAssumeValid($this->options['assumeValid'] ?? false)
+        );
     }
 
     /**

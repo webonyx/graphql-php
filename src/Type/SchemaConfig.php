@@ -269,7 +269,7 @@ class SchemaConfig
         return $this->astNode;
     }
 
-    public function setAstNode(SchemaDefinitionNode $astNode): self
+    public function setAstNode(?SchemaDefinitionNode $astNode): self
     {
         $this->astNode = $astNode;
 

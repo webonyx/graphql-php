@@ -204,6 +204,8 @@ class ASTDefinitionBuilder
      * It is legal to access a type from the map of already-built types that doesn't exist in the map.
      * Since we build types lazily, and we don't have a such map of built types,
      * this method provides a way to build a type that may not exist in the SDL definitions and returns null instead.
+     *
+     * @return (Type&NamedType)|null
      */
     public function maybeBuildType(string $name): ?Type
     {
