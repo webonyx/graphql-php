@@ -16,14 +16,13 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "7.4"
           - "8.0"
           - "8.1"
         dependencies:
           - "highest"
         include:
           - dependencies: "lowest"
-            php-version: "7.4"
+            php-version: "8.0"
 
     steps:
       - name: "Checkout"
@@ -89,7 +88,7 @@ jobs:
         uses: "shivammathur/setup-php@v2"
         with:
           # Run on the lowest support version to ensure compatibility
-          php-version: "7.4"
+          php-version: "8.0"
           coverage: "none"
 
       - name: "Install dependencies with Composer"
