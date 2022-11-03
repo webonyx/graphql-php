@@ -480,7 +480,7 @@ class Helper
                     $bodyParams = $request->getParsedBody();
                 }
 
-                $bodyParams ??= $this->decodeContent((string) $request->getBody(), $contentType[0]);
+                $bodyParams ??= $this->decodeContent((string) $request->getBody());
             }
         }
 
@@ -512,15 +512,11 @@ class Helper
     /**
      * @throws RequestError
      *
-     * @return array<string, mixed>
+     * @return array<mixed>
      */
-    protected function decodeContent(string $rawBody, string $contentType): array
+    protected function decodeContent(string $rawBody): array
     {
         parse_str($rawBody, $bodyParams);
-
-        if (! is_array($bodyParams)) {
-            throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType));
-        }
 
         return $bodyParams;
     }
