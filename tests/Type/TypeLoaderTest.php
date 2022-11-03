@@ -9,8 +9,6 @@ use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use stdClass;
-use TypeError;
 
 abstract class TypeLoaderTest extends TestCaseBase
 {
@@ -45,7 +43,7 @@ abstract class TypeLoaderTest extends TestCaseBase
 
     public function testSchemaRejectsNonCallableTypeLoader(): void
     {
-        $this->expectException(TypeError::class);
+        $this->expectException(\TypeError::class);
         $this->expectExceptionMessageMatches('/callable.*, array given/');
 
         // @phpstan-ignore-next-line intentionally wrong
@@ -84,12 +82,12 @@ abstract class TypeLoaderTest extends TestCaseBase
 
     public function testFailsOnNonType(): void
     {
-        $notType = new stdClass();
+        $notType = new \stdClass();
 
         // @phpstan-ignore-next-line intentionally wrong
         $schema = new Schema([
             'query' => $this->query,
-            'typeLoader' => static fn (): stdClass => $notType,
+            'typeLoader' => static fn (): \stdClass => $notType,
         ]);
 
         $this->expectException(InvariantViolation::class);

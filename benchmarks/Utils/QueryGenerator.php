@@ -2,8 +2,6 @@
 
 namespace GraphQL\Benchmarks\Utils;
 
-use function count;
-
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
@@ -16,9 +14,6 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-
-use function max;
-use function round;
 
 class QueryGenerator
 {
@@ -37,11 +32,11 @@ class QueryGenerator
         $totalFields = 0;
         foreach ($schema->getTypeMap() as $type) {
             if ($type instanceof ObjectType) {
-                $totalFields += count($type->getFieldNames());
+                $totalFields += \count($type->getFieldNames());
             }
         }
 
-        $this->maxLeafFields = max(1, (int) round($totalFields * $percentOfLeafFields));
+        $this->maxLeafFields = \max(1, (int) \round($totalFields * $percentOfLeafFields));
         $this->currentLeafFields = 0;
     }
 

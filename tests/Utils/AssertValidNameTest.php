@@ -5,7 +5,6 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Error\Error;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
-use TypeError;
 
 class AssertValidNameTest extends TestCase
 {
@@ -26,7 +25,7 @@ class AssertValidNameTest extends TestCase
      */
     public function testThrowsForNonStrings(): void
     {
-        $this->expectException(TypeError::class);
+        $this->expectException(\TypeError::class);
         // @phpstan-ignore-next-line purposefully wrong
         Utils::assertValidName([]);
     }

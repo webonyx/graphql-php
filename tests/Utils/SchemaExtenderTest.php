@@ -2,8 +2,6 @@
 
 namespace GraphQL\Tests\Utils;
 
-use function count;
-
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -36,7 +34,6 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\Rules\KnownDirectives;
-use stdClass;
 
 final class SchemaExtenderTest extends TestCaseBase
 {
@@ -366,7 +363,7 @@ GRAPHQL,
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
-        self::assertGreaterThan(0, count($extendedSchema->validate()));
+        self::assertGreaterThan(0, \count($extendedSchema->validate()));
         self::assertSame(
             <<<GRAPHQL
                 union SomeUnion = SomeUnion
@@ -1937,7 +1934,7 @@ GRAPHQL,
                 'someUnion' => ['type' => $SomeUnionClassType],
                 'someInterface' => ['type' => $SomeInterfaceClassType],
             ],
-            'resolveField' => static fn (): stdClass => new stdClass(),
+            'resolveField' => static fn (): \stdClass => new \stdClass(),
         ]);
 
         $schema = new Schema(['query' => $QueryType]);
@@ -1998,7 +1995,7 @@ GRAPHQL,
             'fields' => [
                 'someInterface' => ['type' => $SomeInterfaceType],
             ],
-            'resolveField' => static fn (): stdClass => new stdClass(),
+            'resolveField' => static fn (): \stdClass => new \stdClass(),
         ]);
 
         $schema = new Schema([

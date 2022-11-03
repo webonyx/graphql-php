@@ -2,7 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use Closure;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
@@ -186,7 +185,7 @@ class Executor
     {
         $property = Utils::extractKey($objectLikeValue, $info->fieldName);
 
-        return $property instanceof Closure
+        return $property instanceof \Closure
             ? $property($objectLikeValue, $args, $contextValue, $info)
             : $property;
     }

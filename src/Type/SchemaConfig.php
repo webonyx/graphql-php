@@ -2,8 +2,6 @@
 
 namespace GraphQL\Type;
 
-use function count;
-
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\Directive;
@@ -85,7 +83,7 @@ class SchemaConfig
     {
         $config = new static();
 
-        if (count($options) > 0) {
+        if (\count($options) > 0) {
             if (isset($options['query'])) {
                 $config->setQuery($options['query']);
             }

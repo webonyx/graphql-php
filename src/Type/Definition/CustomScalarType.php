@@ -9,8 +9,6 @@ use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Utils\AST;
 
-use function is_callable;
-
 /**
  * @phpstan-type InputCustomScalarConfig array{
  *   name?: string|null,
@@ -79,7 +77,7 @@ class CustomScalarType extends ScalarType
     {
         parent::assertValid();
 
-        if (isset($this->config['serialize']) && ! is_callable($this->config['serialize'])) {
+        if (isset($this->config['serialize']) && ! \is_callable($this->config['serialize'])) {
             throw new InvariantViolation("{$this->name} must provide \"serialize\" function. If this custom Scalar is also used as an input type, ensure \"parseValue\" and \"parseLiteral\" functions are also provided.");
         }
 
@@ -89,7 +87,7 @@ class CustomScalarType extends ScalarType
             return;
         }
 
-        if (! is_callable($parseValue) || ! is_callable($parseLiteral)) {
+        if (! \is_callable($parseValue) || ! \is_callable($parseLiteral)) {
             throw new InvariantViolation("{$this->name} must provide both \"parseValue\" and \"parseLiteral\" functions.");
         }
     }

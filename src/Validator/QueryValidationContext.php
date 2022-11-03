@@ -2,10 +2,6 @@
 
 namespace GraphQL\Validator;
 
-use function array_merge;
-use function array_pop;
-use function count;
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
@@ -27,7 +23,6 @@ use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
-use SplObjectStorage;
 
 /**
  * An instance of this class is passed as the "this" context to all validators,
@@ -50,17 +45,17 @@ class QueryValidationContext implements ValidationContext
     /** @var array<string, FragmentDefinitionNode> */
     private array $fragments;
 
-    /** @var SplObjectStorage<HasSelectionSet, array<int, FragmentSpreadNode>> */
-    private SplObjectStorage $fragmentSpreads;
+    /** @var \SplObjectStorage<HasSelectionSet, array<int, FragmentSpreadNode>> */
+    private \SplObjectStorage $fragmentSpreads;
 
-    /** @var SplObjectStorage<OperationDefinitionNode, array<int, FragmentDefinitionNode>> */
-    private SplObjectStorage $recursivelyReferencedFragments;
+    /** @var \SplObjectStorage<OperationDefinitionNode, array<int, FragmentDefinitionNode>> */
+    private \SplObjectStorage $recursivelyReferencedFragments;
 
-    /** @var SplObjectStorage<HasSelectionSet, array<int, VariableUsage>> */
-    private SplObjectStorage $variableUsages;
+    /** @var \SplObjectStorage<HasSelectionSet, array<int, VariableUsage>> */
+    private \SplObjectStorage $variableUsages;
 
-    /** @var SplObjectStorage<HasSelectionSet, array<int, VariableUsage>> */
-    private SplObjectStorage $recursiveVariableUsages;
+    /** @var \SplObjectStorage<HasSelectionSet, array<int, VariableUsage>> */
+    private \SplObjectStorage $recursiveVariableUsages;
 
     public function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)
     {
@@ -68,10 +63,10 @@ class QueryValidationContext implements ValidationContext
         $this->ast = $ast;
         $this->typeInfo = $typeInfo;
 
-        $this->fragmentSpreads = new SplObjectStorage();
-        $this->recursivelyReferencedFragments = new SplObjectStorage();
-        $this->variableUsages = new SplObjectStorage();
-        $this->recursiveVariableUsages = new SplObjectStorage();
+        $this->fragmentSpreads = new \SplObjectStorage();
+        $this->recursivelyReferencedFragments = new \SplObjectStorage();
+        $this->variableUsages = new \SplObjectStorage();
+        $this->recursiveVariableUsages = new \SplObjectStorage();
     }
 
     public function reportError(Error $error): void
@@ -113,7 +108,7 @@ class QueryValidationContext implements ValidationContext
                 $allUsages[] = $this->getVariableUsages($fragment);
             }
 
-            $usages = array_merge(...$allUsages);
+            $usages = \array_merge(...$allUsages);
             $this->recursiveVariableUsages[$operation] = $usages;
         }
 
@@ -167,8 +162,8 @@ class QueryValidationContext implements ValidationContext
             $fragments = [];
             $collectedNames = [];
             $nodesToVisit = [$operation];
-            while (count($nodesToVisit) > 0) {
-                $node = array_pop($nodesToVisit);
+            while (\count($nodesToVisit) > 0) {
+                $node = \array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 foreach ($spreads as $spread) {
                     $fragName = $spread->name->value;
@@ -207,8 +202,8 @@ class QueryValidationContext implements ValidationContext
 
             /** @var array<int, SelectionSetNode> $setsToVisit */
             $setsToVisit = [$node->selectionSet];
-            while (count($setsToVisit) > 0) {
-                $set = array_pop($setsToVisit);
+            while (\count($setsToVisit) > 0) {
+                $set = \array_pop($setsToVisit);
 
                 foreach ($set->selections as $selection) {
                     if ($selection instanceof FragmentSpreadNode) {

@@ -2,9 +2,6 @@
 
 namespace GraphQL\Tests\Utils;
 
-use function array_keys;
-
-use Closure;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
@@ -1440,11 +1437,11 @@ final class BuildSchemaTest extends TestCaseBase
         [$defaultConfig, $node, $allNodesMap] = $calls[0]; // type Query
         self::assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
         self::assertSame('Query', $defaultConfig['name']);
-        self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
-        self::assertInstanceOf(Closure::class, $defaultConfig['interfaces']);
+        self::assertInstanceOf(\Closure::class, $defaultConfig['fields']);
+        self::assertInstanceOf(\Closure::class, $defaultConfig['interfaces']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertCount(6, $defaultConfig);
-        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], \array_keys($allNodesMap));
 
         $query = $schema->getType('Query');
         self::assertInstanceOf(ObjectType::class, $query);
@@ -1466,7 +1463,7 @@ final class BuildSchemaTest extends TestCaseBase
             $defaultConfig['values']
         );
         self::assertCount(5, $defaultConfig); // 3 + astNode + extensionASTNodes
-        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], \array_keys($allNodesMap));
 
         $color = $schema->getType('Color');
         self::assertInstanceOf(EnumType::class, $color);
@@ -1475,11 +1472,11 @@ final class BuildSchemaTest extends TestCaseBase
         [$defaultConfig, $node, $allNodesMap] = $calls[2]; // interface Hello
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
         self::assertSame('Hello', $defaultConfig['name']);
-        self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
+        self::assertInstanceOf(\Closure::class, $defaultConfig['fields']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertArrayHasKey('interfaces', $defaultConfig);
         self::assertCount(6, $defaultConfig);
-        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], \array_keys($allNodesMap));
 
         $hello = $schema->getType('Hello');
         self::assertInstanceOf(InterfaceType::class, $hello);

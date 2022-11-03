@@ -2,20 +2,12 @@
 
 namespace GraphQL\Error;
 
-use function count;
-
 use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
-
-use function is_array;
-use function iterator_to_array;
-
 use JsonSerializable;
 use ReturnTypeWillChange;
-use Throwable;
-use Traversable;
 
 /**
  * Describes an Error found during the parse, validate, or
@@ -31,7 +23,7 @@ use Traversable;
  * Class extends standard PHP `\Exception`, so all standard methods of base `\Exception` class
  * are available in addition to those listed below.
  */
-class Error extends Exception implements JsonSerializable, ClientAware, ProvidesExtensions
+class Error extends \Exception implements \JsonSerializable, ClientAware, ProvidesExtensions
 {
     /**
      * Lazily initialized.
@@ -83,15 +75,15 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
         ?Source $source = null,
         ?array $positions = null,
         ?array $path = null,
-        ?Throwable $previous = null,
+        ?\Throwable $previous = null,
         ?array $extensions = null
     ) {
         parent::__construct($message, 0, $previous);
 
         // Compute list of blame nodes.
-        if ($nodes instanceof Traversable) {
-            $this->nodes = array_filter(iterator_to_array($nodes));
-        } elseif (is_array($nodes)) {
+        if ($nodes instanceof \Traversable) {
+            $this->nodes = array_filter(\iterator_to_array($nodes));
+        } elseif (\is_array($nodes)) {
             $this->nodes = array_filter($nodes);
         } elseif ($nodes !== null) {
             $this->nodes = [$nodes];
@@ -103,7 +95,7 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
         $this->positions = $positions;
         $this->path = $path;
 
-        if (is_array($extensions) && count($extensions) > 0) {
+        if (\is_array($extensions) && \count($extensions) > 0) {
             $this->extensions = $extensions;
         } elseif ($previous instanceof ProvidesExtensions) {
             $this->extensions = $previous->getExtensions();
@@ -150,7 +142,7 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
         } elseif ($error instanceof InvariantViolation) {
             $message = $error->getMessage();
             $originalError = $error->getPrevious() ?? $error;
-        } elseif ($error instanceof Throwable) {
+        } elseif ($error instanceof \Throwable) {
             $message = $error->getMessage();
             $originalError = $error;
         } else {
@@ -178,9 +170,9 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
         $nodes = $this->getNodes();
 
         return $path !== null
-            && count($path) > 0
+            && \count($path) > 0
             && $nodes !== null
-            && count($nodes) > 0;
+            && \count($nodes) > 0;
     }
 
     public function isClientSafe(): bool
@@ -238,11 +230,11 @@ class Error extends Exception implements JsonSerializable, ClientAware, Provides
             $nodes = $this->getNodes();
 
             $this->locations = [];
-            if ($source !== null && count($positions) !== 0) {
+            if ($source !== null && \count($positions) !== 0) {
                 foreach ($positions as $position) {
                     $this->locations[] = $source->getLocation($position);
                 }
-            } elseif ($nodes !== null && count($nodes) !== 0) {
+            } elseif ($nodes !== null && \count($nodes) !== 0) {
                 foreach ($nodes as $node) {
                     if (isset($node->loc->source)) {
                         $this->locations[] = $node->loc->source->getLocation($node->loc->start);

@@ -7,8 +7,6 @@ use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Utils\Utils;
 
-use function is_callable;
-
 /**
  * @phpstan-import-type ResolveType from AbstractType
  * @phpstan-import-type FieldsConfig from FieldDefinition
@@ -82,7 +80,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     {
         Utils::assertValidName($this->name);
 
-        if (isset($this->config['resolveType']) && ! is_callable($this->config['resolveType'])) {
+        if (isset($this->config['resolveType']) && ! \is_callable($this->config['resolveType'])) {
             $notCallable = Utils::printSafe($this->config['resolveType']);
             throw new InvariantViolation("{$this->name} must provide \"resolveType\" as a callable, but got: {$notCallable}");
         }

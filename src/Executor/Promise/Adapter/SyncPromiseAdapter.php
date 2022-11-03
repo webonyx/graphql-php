@@ -2,18 +2,11 @@
 
 namespace GraphQL\Executor\Promise\Adapter;
 
-use function assert;
-use function count;
-
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
-
-use function is_array;
-
-use Throwable;
 
 /**
  * Allows changing order of field resolution even in sync environments
@@ -41,7 +34,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $adoptedPromise = $promise->adoptedPromise;
-        assert($adoptedPromise instanceof SyncPromise);
+        \assert($adoptedPromise instanceof SyncPromise);
 
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
@@ -55,7 +48,7 @@ class SyncPromiseAdapter implements PromiseAdapter
                 [$promise, 'resolve'],
                 [$promise, 'reject']
             );
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $promise->reject($e);
         }
 
@@ -69,7 +62,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->resolve($value), $this);
     }
 
-    public function createRejected(Throwable $reason): Promise
+    public function createRejected(\Throwable $reason): Promise
     {
         $promise = new SyncPromise();
 
@@ -78,14 +71,14 @@ class SyncPromiseAdapter implements PromiseAdapter
 
     public function all(iterable $promisesOrValues): Promise
     {
-        assert(
-            is_array($promisesOrValues),
+        \assert(
+            \is_array($promisesOrValues),
             'SyncPromiseAdapter::all(): Argument #1 ($promisesOrValues) must be of type array'
         );
 
         $all = new SyncPromise();
 
-        $total = count($promisesOrValues);
+        $total = \count($promisesOrValues);
         $count = 0;
         $result = [];
 
@@ -128,7 +121,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         $taskQueue = SyncPromise::getQueue();
 
         $syncPromise = $promise->adoptedPromise;
-        assert($syncPromise instanceof SyncPromise);
+        \assert($syncPromise instanceof SyncPromise);
 
         while (
             $syncPromise->state === SyncPromise::PENDING

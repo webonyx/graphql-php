@@ -3,9 +3,6 @@
 namespace GraphQL\Tests;
 
 use GraphQL\Utils\Utils;
-
-use function mb_check_encoding;
-
 use PHPUnit\Framework\TestCase;
 
 final class UtilsTest extends TestCase
@@ -17,7 +14,7 @@ final class UtilsTest extends TestCase
     {
         $result = Utils::chr($input);
 
-        self::assertTrue(mb_check_encoding($result, 'UTF-8'));
+        self::assertTrue(\mb_check_encoding($result, 'UTF-8'));
         self::assertEquals($expected, $result);
     }
 

@@ -8,8 +8,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
 
-use function is_bool;
-
 class BooleanType extends ScalarType
 {
     public string $name = Type::BOOLEAN;
@@ -29,7 +27,7 @@ class BooleanType extends ScalarType
 
     public function parseValue($value): bool
     {
-        if (is_bool($value)) {
+        if (\is_bool($value)) {
             return $value;
         }
 

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
-use function array_key_exists;
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
@@ -39,7 +37,7 @@ class UniqueTypeNames extends ValidationRule
                 return null;
             }
 
-            if (array_key_exists($typeName, $knownTypeNames)) {
+            if (\array_key_exists($typeName, $knownTypeNames)) {
                 $context->reportError(
                     new Error(
                         'There can be only one type named "' . $typeName . '".',

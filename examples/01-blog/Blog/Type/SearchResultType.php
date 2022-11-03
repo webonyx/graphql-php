@@ -2,10 +2,6 @@
 
 namespace GraphQL\Examples\Blog\Type;
 
-use Exception;
-
-use function get_class;
-
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
@@ -30,8 +26,8 @@ class SearchResultType extends UnionType
                     return Types::user();
                 }
 
-                $unknownType = get_class($value);
-                throw new Exception("Unknown type: {$unknownType}");
+                $unknownType = \get_class($value);
+                throw new \Exception("Unknown type: {$unknownType}");
             },
         ]);
     }

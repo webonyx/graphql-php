@@ -2,12 +2,6 @@
 
 namespace GraphQL\Utils;
 
-use function array_keys;
-use function array_map;
-use function array_merge;
-use function count;
-
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
@@ -119,10 +113,10 @@ class SchemaExtender
         }
 
         if (
-            count($this->typeExtensionsMap) === 0
-            && count($typeDefinitionMap) === 0
-            && count($directiveDefinitions) === 0
-            && count($schemaExtensions) === 0
+            \count($this->typeExtensionsMap) === 0
+            && \count($typeDefinitionMap) === 0
+            && \count($directiveDefinitions) === 0
+            && \count($schemaExtensions) === 0
             && $schemaDef === null
         ) {
             return $schema;
@@ -176,7 +170,7 @@ class SchemaExtender
             }
         }
 
-        $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
+        $schemaExtensionASTNodes = \array_merge($schema->extensionASTNodes, $schemaExtensions);
 
         return new Schema(
             (new SchemaConfig())
@@ -200,7 +194,7 @@ class SchemaExtender
      */
     protected function extensionASTNodes(NamedType $type): ?array
     {
-        return array_merge(
+        return \array_merge(
             $type->extensionASTNodes ?? [],
             $this->typeExtensionsMap[$type->name] ?? []
         );
@@ -339,7 +333,7 @@ class SchemaExtender
      */
     protected function extendUnionPossibleTypes(UnionType $type): array
     {
-        $possibleTypes = array_map(
+        $possibleTypes = \array_map(
             [$this, 'extendNamedType'],
             $type->getTypes()
         );
@@ -365,7 +359,7 @@ class SchemaExtender
      */
     protected function extendImplementedInterfaces(ImplementingType $type): array
     {
-        $interfaces = array_map(
+        $interfaces = \array_map(
             [$this, 'extendNamedType'],
             $type->getInterfaces()
         );
@@ -452,7 +446,7 @@ class SchemaExtender
         $newFieldMap = [];
         $oldFieldMap = $type->getFields();
 
-        foreach (array_keys($oldFieldMap) as $fieldName) {
+        foreach (\array_keys($oldFieldMap) as $fieldName) {
             $field = $oldFieldMap[$fieldName];
 
             $newFieldMap[$fieldName] = [
@@ -555,7 +549,7 @@ class SchemaExtender
             case $type instanceof InputObjectType: return $this->extendInputObjectType($type);
             default:
                 $unconsideredType = get_class($type);
-                throw new Exception("Unconsidered type: {$unconsideredType}.");
+                throw new \Exception("Unconsidered type: {$unconsideredType}.");
         }
     }
 
@@ -582,12 +576,12 @@ class SchemaExtender
      */
     protected function getMergedDirectives(Schema $schema, array $directiveDefinitions): array
     {
-        $directives = array_map(
+        $directives = \array_map(
             [$this, 'extendDirective'],
             $schema->getDirectives()
         );
 
-        if (count($directives) === 0) {
+        if (\count($directives) === 0) {
             throw new InvariantViolation('Schema must have default directives.');
         }
 

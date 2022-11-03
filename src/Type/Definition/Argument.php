@@ -2,14 +2,10 @@
 
 namespace GraphQL\Type\Definition;
 
-use function array_key_exists;
-
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
-
-use function is_array;
 
 /**
  * @phpstan-type ArgumentType (Type&InputType)|callable(): (Type&InputType)
@@ -70,7 +66,7 @@ class Argument
         $list = [];
 
         foreach ($config as $name => $argConfig) {
-            if (! is_array($argConfig)) {
+            if (! \is_array($argConfig)) {
                 $argConfig = ['type' => $argConfig];
             }
 
@@ -94,7 +90,7 @@ class Argument
 
     public function defaultValueExists(): bool
     {
-        return array_key_exists('defaultValue', $this->config);
+        return \array_key_exists('defaultValue', $this->config);
     }
 
     public function isRequired(): bool

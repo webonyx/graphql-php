@@ -2,16 +2,9 @@
 
 namespace GraphQL\Executor;
 
-use function array_keys;
-use function array_merge;
 use function array_reduce;
-use function array_values;
 
 use ArrayObject;
-
-use function count;
-
-use Exception;
 
 use function gettype;
 
@@ -45,16 +38,7 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
-
-use function is_array;
-use function is_callable;
-use function is_iterable;
-use function is_string;
-
-use RuntimeException;
 use SplObjectStorage;
-use stdClass;
-use Throwable;
 
 /**
  * @phpstan-import-type FieldResolver from Executor
@@ -64,7 +48,7 @@ use Throwable;
  */
 class ReferenceExecutor implements ExecutorImplementation
 {
-    protected static stdClass $UNDEFINED;
+    protected static \stdClass $UNDEFINED;
 
     protected ExecutionContext $exeContext;
 
@@ -80,7 +64,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *     >
      * >
      */
-    protected SplObjectStorage $subFieldCache;
+    protected \SplObjectStorage $subFieldCache;
 
     protected function __construct(ExecutionContext $context)
     {
@@ -89,7 +73,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         $this->exeContext = $context;
-        $this->subFieldCache = new SplObjectStorage();
+        $this->subFieldCache = new \SplObjectStorage();
     }
 
     /**
@@ -120,7 +104,7 @@ class ReferenceExecutor implements ExecutorImplementation
             $promiseAdapter
         );
 
-        if (is_array($exeContext)) {
+        if (\is_array($exeContext)) {
             return new class($promiseAdapter->createFulfilled(new ExecutionResult(null, $exeContext))) implements ExecutorImplementation {
                 private Promise $result;
 
@@ -215,16 +199,16 @@ class ReferenceExecutor implements ExecutorImplementation
             if ($coercionErrors === null) {
                 $variableValues = $coercedVariableValues;
             } else {
-                $errors = array_merge($errors, $coercionErrors);
+                $errors = \array_merge($errors, $coercionErrors);
             }
         }
 
-        if (count($errors) > 0) {
+        if (\count($errors) > 0) {
             return $errors;
         }
 
         assert($operation instanceof OperationDefinitionNode, 'Has operation if no errors.');
-        assert(is_array($variableValues), 'Has variables if no errors.');
+        assert(\is_array($variableValues), 'Has variables if no errors.');
 
         return new ExecutionContext(
             $schema,
@@ -291,12 +275,12 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed $rootValue
      *
-     * @return array<mixed>|Promise|stdClass|null
+     * @return array<mixed>|Promise|\stdClass|null
      */
     protected function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
         $type = $this->getOperationRootType($this->exeContext->schema, $operation);
-        $fields = $this->collectFields($type, $operation->selectionSet, new ArrayObject(), new ArrayObject());
+        $fields = $this->collectFields($type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
         $path = [];
         // Errors from sub-fields of a NonNull type may propagate to the top level,
         // at which point we still log the error and null the parent field, which
@@ -392,7 +376,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * returns an Interface or Union type, the "runtime type" will be the actual
      * Object type returned by that field.
      *
-     * @param ArrayObject<string, true> $visitedFragmentNames
+     * @param \ArrayObject<string, true> $visitedFragmentNames
      *
      * @phpstan-param Fields $fields
      *
@@ -401,9 +385,9 @@ class ReferenceExecutor implements ExecutorImplementation
     protected function collectFields(
         ObjectType $runtimeType,
         SelectionSetNode $selectionSet,
-        ArrayObject $fields,
-        ArrayObject $visitedFragmentNames
-    ): ArrayObject {
+        \ArrayObject $fields,
+        \ArrayObject $visitedFragmentNames
+    ): \ArrayObject {
         $exeContext = $this->exeContext;
         foreach ($selectionSet->selections as $selection) {
             switch (true) {
@@ -413,7 +397,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     }
 
                     $name = static::getFieldEntryKey($selection);
-                    $fields[$name] ??= new ArrayObject();
+                    $fields[$name] ??= new \ArrayObject();
                     $fields[$name][] = $selection;
                     break;
                 case $selection instanceof InlineFragmentNode:
@@ -531,15 +515,15 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @phpstan-param Fields $fields
      *
-     * @return array<mixed>|Promise|stdClass
+     * @return array<mixed>|Promise|\stdClass
      */
-    protected function executeFieldsSerially(ObjectType $parentType, $rootValue, array $path, ArrayObject $fields)
+    protected function executeFieldsSerially(ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
     {
         $result = $this->promiseReduce(
-            array_keys($fields->getArrayCopy()),
+            \array_keys($fields->getArrayCopy()),
             function ($results, $responseName) use ($path, $parentType, $rootValue, $fields) {
                 $fieldNodes = $fields[$responseName];
-                assert($fieldNodes instanceof ArrayObject, 'The keys of $fields populate $responseName');
+                assert($fieldNodes instanceof \ArrayObject, 'The keys of $fields populate $responseName');
 
                 $fieldPath = $path;
                 $fieldPath[] = $responseName;
@@ -586,11 +570,11 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @phpstan-param Path                $path
      *
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      *
-     * @return array<mixed>|Throwable|mixed|null
+     * @return array<mixed>|\Throwable|mixed|null
      */
-    protected function resolveField(ObjectType $parentType, $rootValue, ArrayObject $fieldNodes, array $path)
+    protected function resolveField(ObjectType $parentType, $rootValue, \ArrayObject $fieldNodes, array $path)
     {
         $exeContext = $this->exeContext;
         $fieldNode = $fieldNodes[0];
@@ -688,7 +672,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @phpstan-param FieldResolver $resolveFn
      *
-     * @return Throwable|Promise|mixed
+     * @return \Throwable|Promise|mixed
      */
     protected function resolveFieldValueOrError(
         FieldDefinition $fieldDef,
@@ -708,7 +692,7 @@ class ReferenceExecutor implements ExecutorImplementation
             $contextValue = $this->exeContext->contextValue;
 
             return $resolveFn($rootValue, $args, $contextValue, $info);
-        } catch (Throwable $error) {
+        } catch (\Throwable $error) {
             return $error;
         }
     }
@@ -717,18 +701,18 @@ class ReferenceExecutor implements ExecutorImplementation
      * This is a small wrapper around completeValue which detects and logs errors
      * in the execution context.
      *
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<string|int>           $path
      *
      * @phpstan-param Path                $path
      *
      * @param mixed                       $result
      *
-     * @return array<mixed>|Promise|stdClass|null
+     * @return array<mixed>|Promise|\stdClass|null
      */
     protected function completeValueCatchingError(
         Type $returnType,
-        ArrayObject $fieldNodes,
+        \ArrayObject $fieldNodes,
         ResolveInfo $info,
         array $path,
         $result
@@ -753,7 +737,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
 
             return $completed;
-        } catch (Throwable $err) {
+        } catch (\Throwable $err) {
             $this->handleFieldError($err, $fieldNodes, $path, $returnType);
 
             return null;
@@ -762,12 +746,12 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param mixed                       $rawError
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<int, string|int>      $path
      *
      * @throws Error
      */
-    protected function handleFieldError($rawError, ArrayObject $fieldNodes, array $path, Type $returnType): void
+    protected function handleFieldError($rawError, \ArrayObject $fieldNodes, array $path, Type $returnType): void
     {
         $error = Error::createLocatedError(
             $rawError,
@@ -807,24 +791,24 @@ class ReferenceExecutor implements ExecutorImplementation
      * Otherwise, the field type expects a sub-selection set, and will complete the
      * value by evaluating all sub-selections.
      *
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<string|int>           $path
      * @param mixed                       $result
      *
      * @throws Error
-     * @throws Throwable
+     * @throws \Throwable
      *
      * @return array<mixed>|mixed|Promise|null
      */
     protected function completeValue(
         Type $returnType,
-        ArrayObject $fieldNodes,
+        \ArrayObject $fieldNodes,
         ResolveInfo $info,
         array $path,
         &$result
     ) {
         // If result is an Error, throw a located error.
-        if ($result instanceof Throwable) {
+        if ($result instanceof \Throwable) {
             throw $result;
         }
 
@@ -851,8 +835,8 @@ class ReferenceExecutor implements ExecutorImplementation
 
         // If field type is List, complete each item in the list with the inner type
         if ($returnType instanceof ListOfType) {
-            if (! is_iterable($result)) {
-                $resultType = gettype($result);
+            if (! \is_iterable($result)) {
+                $resultType = \gettype($result);
 
                 throw new InvariantViolation("Expected field {$info->parentType}.{$info->fieldName} to return iterable, but got: {$resultType}.");
             }
@@ -887,7 +871,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         $safeReturnType = Utils::printSafe($returnType);
-        throw new RuntimeException("Cannot complete value of unexpected type {$safeReturnType}.");
+        throw new \RuntimeException("Cannot complete value of unexpected type {$safeReturnType}.");
     }
 
     /**
@@ -933,7 +917,7 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function promiseReduce(array $values, callable $callback, $initialValue)
     {
-        return array_reduce(
+        return \array_reduce(
             $values,
             function ($previous, $value) use ($callback) {
                 $promise = $this->getPromise($previous);
@@ -951,17 +935,17 @@ class ReferenceExecutor implements ExecutorImplementation
      * Complete a list value by completing each item in the list with the inner type.
      *
      * @param ListOfType<Type&OutputType> $returnType
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param list<string|int> $path
      * @param iterable<mixed> $results
      *
-     * @throws Exception
+     * @throws \Exception
      *
-     * @return array<mixed>|Promise|stdClass
+     * @return array<mixed>|Promise|\stdClass
      */
     protected function completeListValue(
         ListOfType $returnType,
-        ArrayObject $fieldNodes,
+        \ArrayObject $fieldNodes,
         ResolveInfo $info,
         array $path,
         iterable &$results
@@ -994,7 +978,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed $result
      *
-     * @throws Exception
+     * @throws \Exception
      *
      * @return mixed
      */
@@ -1002,7 +986,7 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         try {
             return $returnType->serialize($result);
-        } catch (Throwable $error) {
+        } catch (\Throwable $error) {
             $safeReturnType = Utils::printSafe($returnType);
             $safeResult = Utils::printSafe($result);
             throw new InvariantViolation(
@@ -1018,17 +1002,17 @@ class ReferenceExecutor implements ExecutorImplementation
      * of that value, then complete the value for that type.
      *
      * @param AbstractType&Type $returnType
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<string|int> $path
      * @param array<mixed> $result
      *
      * @throws Error
      *
-     * @return array<mixed>|Promise|stdClass
+     * @return array<mixed>|Promise|\stdClass
      */
     protected function completeAbstractValue(
         AbstractType $returnType,
-        ArrayObject $fieldNodes,
+        \ArrayObject $fieldNodes,
         ResolveInfo $info,
         array $path,
         &$result
@@ -1038,7 +1022,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
         if ($typeCandidate === null) {
             $runtimeType = static::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
-        } elseif (! is_string($typeCandidate) && is_callable($typeCandidate)) {
+        } elseif (! \is_string($typeCandidate) && \is_callable($typeCandidate)) {
             $runtimeType = $typeCandidate();
         } else {
             $runtimeType = $typeCandidate;
@@ -1093,7 +1077,7 @@ class ReferenceExecutor implements ExecutorImplementation
     protected function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
     {
         $typename = Utils::extractKey($value, '__typename');
-        if (is_string($typename)) {
+        if (\is_string($typename)) {
             return $typename;
         }
 
@@ -1121,7 +1105,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
         }
 
-        if (count($promisedIsTypeOfResults) > 0) {
+        if (\count($promisedIsTypeOfResults) > 0) {
             return $this->exeContext->promiseAdapter
                 ->all($promisedIsTypeOfResults)
                 ->then(static function ($isTypeOfResults) use ($possibleTypes): ?ObjectType {
@@ -1141,17 +1125,17 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Complete an Object value by executing all sub-selections.
      *
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<string|int>           $path
      * @param mixed                       $result
      *
      * @throws Error
      *
-     * @return array<mixed>|Promise|stdClass
+     * @return array<mixed>|Promise|\stdClass
      */
     protected function completeObjectValue(
         ObjectType $returnType,
-        ArrayObject $fieldNodes,
+        \ArrayObject $fieldNodes,
         ResolveInfo $info,
         array $path,
         &$result
@@ -1197,13 +1181,13 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<mixed>                $result
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
         $result,
-        ArrayObject $fieldNodes
+        \ArrayObject $fieldNodes
     ): Error {
         $safeResult = Utils::printSafe($result);
 
@@ -1214,17 +1198,17 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<string|int>           $path
      * @param mixed                       $result
      *
      * @throws Error
      *
-     * @return array<mixed>|Promise|stdClass
+     * @return array<mixed>|Promise|\stdClass
      */
     protected function collectAndExecuteSubfields(
         ObjectType $returnType,
-        ArrayObject $fieldNodes,
+        \ArrayObject $fieldNodes,
         array $path,
         &$result
     ) {
@@ -1238,18 +1222,18 @@ class ReferenceExecutor implements ExecutorImplementation
      * type. Memoizing ensures the subfields are not repeatedly calculated, which
      * saves overhead when resolving lists of values.
      *
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      *
      * @phpstan-return Fields
      */
-    protected function collectSubFields(ObjectType $returnType, ArrayObject $fieldNodes): ArrayObject
+    protected function collectSubFields(ObjectType $returnType, \ArrayObject $fieldNodes): \ArrayObject
     {
-        $returnTypeCache = $this->subFieldCache[$returnType] ??= new SplObjectStorage();
+        $returnTypeCache = $this->subFieldCache[$returnType] ??= new \SplObjectStorage();
 
         if (! isset($returnTypeCache[$fieldNodes])) {
             // Collect sub-fields to execute to complete this value.
-            $subFieldNodes = new ArrayObject();
-            $visitedFragmentNames = new ArrayObject();
+            $subFieldNodes = new \ArrayObject();
+            $visitedFragmentNames = new \ArrayObject();
             foreach ($fieldNodes as $fieldNode) {
                 if (isset($fieldNode->selectionSet)) {
                     $subFieldNodes = $this->collectFields(
@@ -1275,9 +1259,9 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @phpstan-param Fields $fields
      *
-     * @return Promise|stdClass|array<mixed>
+     * @return Promise|\stdClass|array<mixed>
      */
-    protected function executeFields(ObjectType $parentType, $rootValue, array $path, ArrayObject $fields)
+    protected function executeFields(ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
     {
         $containsPromise = false;
         $results = [];
@@ -1314,12 +1298,12 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param array<mixed>|mixed $results
      *
-     * @return array<mixed>|stdClass|mixed
+     * @return array<mixed>|\stdClass|mixed
      */
     protected static function fixResultsIfEmptyArray($results)
     {
         if ($results === []) {
-            return new stdClass();
+            return new \stdClass();
         }
 
         return $results;
@@ -1333,8 +1317,8 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function promiseForAssocArray(array $assoc): Promise
     {
-        $keys = array_keys($assoc);
-        $valuesAndPromises = array_values($assoc);
+        $keys = \array_keys($assoc);
+        $valuesAndPromises = \array_values($assoc);
         $promise = $this->exeContext->promiseAdapter->all($valuesAndPromises);
 
         return $promise->then(static function ($values) use ($keys) {
@@ -1358,7 +1342,7 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         &$result
     ): ObjectType {
-        $runtimeType = is_string($runtimeTypeOrName)
+        $runtimeType = \is_string($runtimeTypeOrName)
             ? $this->exeContext->schema->getType($runtimeTypeOrName)
             : $runtimeTypeOrName;
         if (! $runtimeType instanceof ObjectType) {

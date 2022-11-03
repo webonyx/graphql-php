@@ -2,15 +2,12 @@
 
 namespace GraphQL\Tests\Executor\Promise;
 
-use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use PHPUnit\Framework\TestCase;
-use stdClass;
-use Throwable;
 
 class SyncPromiseAdapterTest extends TestCase
 {
@@ -35,7 +32,7 @@ class SyncPromiseAdapterTest extends TestCase
         self::assertEquals(false, $this->promises->isThenable('test'));
         self::assertEquals(false, $this->promises->isThenable(''));
         self::assertEquals(false, $this->promises->isThenable([]));
-        self::assertEquals(false, $this->promises->isThenable(new stdClass()));
+        self::assertEquals(false, $this->promises->isThenable(new \stdClass()));
     }
 
     public function testConvert(): void
@@ -93,7 +90,7 @@ class SyncPromiseAdapterTest extends TestCase
                 $onFulfilledCalled = true;
                 $actualNextValue = $nextValue;
             },
-            static function (Throwable $reason) use (&$actualNextReason, &$onRejectedCalled): void {
+            static function (\Throwable $reason) use (&$actualNextReason, &$onRejectedCalled): void {
                 $onRejectedCalled = true;
                 $actualNextReason = $reason->getMessage();
             }
@@ -131,7 +128,7 @@ class SyncPromiseAdapterTest extends TestCase
 
     public function testCreateRejectedPromise(): void
     {
-        $promise = $this->promises->createRejected(new Exception('test reason'));
+        $promise = $this->promises->createRejected(new \Exception('test reason'));
         self::assertValidPromise($promise, 'test reason', null, SyncPromise::REJECTED);
     }
 

@@ -2,9 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function array_keys;
-use function count;
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\EnumValueNode;
@@ -28,7 +25,6 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\QueryValidationContext;
-use Throwable;
 
 /**
  * Value literals of correct type.
@@ -111,9 +107,9 @@ class ValuesOfCorrectType extends ValidationRule
 
                 $suggestions = Utils::suggestionList(
                     $node->name->value,
-                    array_keys($parentType->getFields())
+                    \array_keys($parentType->getFields())
                 );
-                $didYouMean = count($suggestions) > 0
+                $didYouMean = \count($suggestions) > 0
                     ? ' Did you mean ' . Utils::quotedOrList($suggestions) . '?'
                     : null;
 
@@ -172,7 +168,7 @@ class ValuesOfCorrectType extends ValidationRule
         // may throw to indicate failure.
         try {
             $type->parseLiteral($node);
-        } catch (Throwable $error) {
+        } catch (\Throwable $error) {
             if ($error instanceof Error) {
                 $context->reportError($error);
             } else {

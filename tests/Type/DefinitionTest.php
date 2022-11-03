@@ -2,10 +2,7 @@
 
 namespace GraphQL\Tests\Type;
 
-use function count;
-
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use Generator;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
@@ -31,11 +28,8 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use RuntimeException;
 
 use function Safe\json_encode;
-
-use stdClass;
 
 final class DefinitionTest extends TestCaseBase
 {
@@ -299,7 +293,7 @@ final class DefinitionTest extends TestCaseBase
 
         $actual = $EnumTypeWithNullishValue->getValues();
 
-        self::assertEquals(count($expected), count($actual));
+        self::assertEquals(\count($expected), \count($actual));
         self::assertArraySubset($expected[0], (array) $actual[0]);
         self::assertArraySubset($expected[1], (array) $actual[1]);
     }
@@ -733,7 +727,7 @@ final class DefinitionTest extends TestCaseBase
 
         self::assertSame($inputObject, $schema->getType('InputObject'));
         self::assertTrue($called);
-        self::assertEquals(count($inputObject->getFields()), 2);
+        self::assertEquals(\count($inputObject->getFields()), 2);
         self::assertSame($inputObject->getField('nested')->getType(), $inputObject);
 
         $input = $someMutation->getField('mutateSomething')->getArg('input');
@@ -767,7 +761,7 @@ final class DefinitionTest extends TestCaseBase
 
         self::assertSame($interface, $schema->getType('SomeInterface'));
         self::assertTrue($called);
-        self::assertEquals(count($interface->getFields()), 2);
+        self::assertEquals(\count($interface->getFields()), 2);
         self::assertSame($interface->getField('nested')->getType(), $interface);
         self::assertSame($interface->getField('value')->getType(), Type::string());
     }
@@ -965,7 +959,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $objType = new ObjectType([
             'name' => 'SomeObject',
-            'interfaces' => new stdClass(),
+            'interfaces' => new \stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
 
@@ -983,7 +977,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $objType = new ObjectType([
             'name' => 'SomeObject',
-            'interfaces' => static fn (): stdClass => new stdClass(),
+            'interfaces' => static fn (): \stdClass => new \stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
         $this->expectException(InvariantViolation::class);
@@ -1112,7 +1106,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $objType = new InterfaceType([
             'name' => 'AnotherInterface',
-            'interfaces' => new stdClass(),
+            'interfaces' => new \stdClass(),
             'fields' => [],
         ]);
 
@@ -1130,7 +1124,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $objType = new ObjectType([
             'name' => 'AnotherInterface',
-            'interfaces' => static fn (): stdClass => new stdClass(),
+            'interfaces' => static fn (): \stdClass => new \stdClass(),
             'fields' => [],
         ]);
         $this->expectException(InvariantViolation::class);
@@ -1207,7 +1201,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $type = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => new stdClass(),
+            'resolveType' => new \stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
 
@@ -1276,7 +1270,7 @@ final class DefinitionTest extends TestCaseBase
             // @phpstan-ignore-next-line intentionally wrong
             new UnionType([
                 'name' => 'SomeUnion',
-                'resolveType' => new stdClass(),
+                'resolveType' => new \stdClass(),
                 'types' => [$this->objectWithIsTypeOf],
             ])
         );
@@ -1313,7 +1307,7 @@ final class DefinitionTest extends TestCaseBase
             // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
-                'serialize' => new stdClass(),
+                'serialize' => new \stdClass(),
             ])
         );
     }
@@ -1392,8 +1386,8 @@ final class DefinitionTest extends TestCaseBase
                 'name' => 'SomeScalar',
                 'serialize' => static function (): void {
                 },
-                'parseValue' => new stdClass(),
-                'parseLiteral' => new stdClass(),
+                'parseValue' => new \stdClass(),
+                'parseLiteral' => new \stdClass(),
             ])
         );
     }
@@ -1428,7 +1422,7 @@ final class DefinitionTest extends TestCaseBase
             // @phpstan-ignore-next-line intentionally wrong
             new ObjectType([
                 'name' => 'AnotherObject',
-                'isTypeOf' => new stdClass(),
+                'isTypeOf' => new \stdClass(),
                 'fields' => ['f' => ['type' => Type::string()]],
             ])
         );
@@ -1696,7 +1690,7 @@ final class DefinitionTest extends TestCaseBase
             'fields' => [
                 'f' => [
                     'type' => Type::string(),
-                    'resolve' => new stdClass(),
+                    'resolve' => new \stdClass(),
                 ],
             ],
         ]);
@@ -1755,7 +1749,7 @@ final class DefinitionTest extends TestCaseBase
         new Schema(
             [
                 'query' => $QueryType,
-                'types' => [new stdClass()], ]
+                'types' => [new \stdClass()], ]
         );
     }
 
@@ -1934,7 +1928,7 @@ final class DefinitionTest extends TestCaseBase
             'fields' => [
                 'f' => $fieldCallback,
                 'b' => static function (): void {
-                    throw new RuntimeException('Would not expect this to be called!');
+                    throw new \RuntimeException('Would not expect this to be called!');
                 },
             ],
         ]);
@@ -1957,7 +1951,7 @@ final class DefinitionTest extends TestCaseBase
             'fields' => [
                 'f' => $lazyField,
                 'b' => static function (): void {
-                    throw new RuntimeException('Would not expect this to be called!');
+                    throw new \RuntimeException('Would not expect this to be called!');
                 },
             ],
         ]);
@@ -2013,7 +2007,7 @@ final class DefinitionTest extends TestCaseBase
     {
         $type = new ObjectType([
             'name' => 'Query',
-            'fields' => static function (): Generator {
+            'fields' => static function (): \Generator {
                 yield 'url' => ['type' => Type::string()];
                 yield 'width' => ['type' => Type::int()];
             },

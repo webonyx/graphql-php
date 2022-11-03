@@ -2,11 +2,6 @@
 
 namespace GraphQL\Utils;
 
-use function array_filter;
-use function array_map;
-use function count;
-use function explode;
-
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
@@ -28,10 +23,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
-
-use function implode;
-use function mb_strlen;
-use function str_replace;
 
 /**
  * Prints the contents of a Schema in schema definition language.
@@ -118,8 +109,8 @@ class SchemaPrinter
      */
     protected static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
     {
-        $directives = array_filter($schema->getDirectives(), $directiveFilter);
-        $types = array_filter($schema->getTypeMap(), $typeFilter);
+        $directives = \array_filter($schema->getDirectives(), $directiveFilter);
+        $types = \array_filter($schema->getTypeMap(), $typeFilter);
 
         if (isset($options['sortTypes']) && $options['sortTypes'] === true) {
             ksort($types);
@@ -135,7 +126,7 @@ class SchemaPrinter
             $elements[] = static::printType($type, $options);
         }
 
-        return implode("\n\n", array_filter($elements)) . "\n";
+        return \implode("\n\n", \array_filter($elements)) . "\n";
     }
 
     protected static function printSchemaDefinition(Schema $schema): string
@@ -161,7 +152,7 @@ class SchemaPrinter
             $operationTypes[] = "  subscription: {$subscriptionType->name}";
         }
 
-        $typesString = implode("\n", $operationTypes);
+        $typesString = \implode("\n", $operationTypes);
 
         return "schema {\n{$typesString}\n}";
     }
@@ -206,7 +197,7 @@ class SchemaPrinter
             . 'directive @' . $directive->name
             . static::printArgs($options, $directive->args)
             . ($directive->isRepeatable ? ' repeatable' : '')
-            . ' on ' . implode(' | ', $directive->locations);
+            . ' on ' . \implode(' | ', $directive->locations);
     }
 
     /**
@@ -220,19 +211,19 @@ class SchemaPrinter
             return '';
         }
 
-        $preferMultipleLines = mb_strlen($description) > 70;
+        $preferMultipleLines = \mb_strlen($description) > 70;
         $blockString = BlockString::print($description, '', $preferMultipleLines);
         $prefix = $indentation !== '' && ! $firstInBlock
             ? "\n" . $indentation
             : $indentation;
 
-        return $prefix . str_replace("\n", "\n" . $indentation, $blockString) . "\n";
+        return $prefix . \str_replace("\n", "\n" . $indentation, $blockString) . "\n";
     }
 
     protected static function printDescriptionWithComments(string $description, string $indentation, bool $firstInBlock): string
     {
         $comment = $indentation !== '' && ! $firstInBlock ? "\n" : '';
-        foreach (explode("\n", $description) as $line) {
+        foreach (\explode("\n", $description) as $line) {
             if ($line === '') {
                 $comment .= $indentation . "#\n";
             } else {
@@ -251,7 +242,7 @@ class SchemaPrinter
      */
     protected static function printArgs(array $options, array $args, string $indentation = ''): string
     {
-        if (count($args) === 0) {
+        if (\count($args) === 0) {
             return '';
         }
 
@@ -266,9 +257,9 @@ class SchemaPrinter
 
         if ($allArgsWithoutDescription) {
             return '('
-                . implode(
+                . \implode(
                     ', ',
-                    array_map(
+                    \array_map(
                         [static::class, 'printInputValue'],
                         $args
                     )
@@ -294,7 +285,7 @@ class SchemaPrinter
         }
 
         return "(\n"
-            . implode("\n", $argsStrings)
+            . \implode("\n", $argsStrings)
             . "\n"
             . $indentation
             . ')';
@@ -402,10 +393,10 @@ class SchemaPrinter
     {
         $interfaces = $type->getInterfaces();
 
-        return count($interfaces) > 0
-        ? ' implements ' . implode(
+        return \count($interfaces) > 0
+        ? ' implements ' . \implode(
             ' & ',
-            array_map(
+            \array_map(
                 static fn (InterfaceType $interface): string => $interface->name,
                 $interfaces
             )
@@ -434,8 +425,8 @@ class SchemaPrinter
     protected static function printUnion(UnionType $type, array $options): string
     {
         $types = $type->getTypes();
-        $types = count($types) > 0
-            ? ' = ' . implode(' | ', $types)
+        $types = \count($types) > 0
+            ? ' = ' . \implode(' | ', $types)
             : '';
 
         return static::printDescription($options, $type) . 'union ' . $type->name . $types;
@@ -490,8 +481,8 @@ class SchemaPrinter
      */
     protected static function printBlock(array $items): string
     {
-        return count($items) > 0
-            ? " {\n" . implode("\n", $items) . "\n}"
+        return \count($items) > 0
+            ? " {\n" . \implode("\n", $items) . "\n}"
             : '';
     }
 }

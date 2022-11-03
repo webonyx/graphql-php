@@ -2,9 +2,6 @@
 
 namespace GraphQL\Language;
 
-use function array_filter;
-use function count;
-
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
@@ -50,12 +47,6 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
-
-use function implode;
-use function json_encode;
-use function str_replace;
-use function strlen;
-use function strpos;
 
 /**
  * Prints AST to string. Capable of printing GraphQL queries and Type definition language.
@@ -121,7 +112,7 @@ class Printer
 
                 $noIndent = true;
                 foreach ($argStrings as $argString) {
-                    if (strpos($argString, "\n") !== false) {
+                    if (\strpos($argString, "\n") !== false) {
                         $noIndent = false;
                         break;
                     }
@@ -182,7 +173,7 @@ class Printer
 
                 $noIndent = true;
                 foreach ($argStrings as $argString) {
-                    if (strpos($argString, "\n") !== false) {
+                    if (\strpos($argString, "\n") !== false) {
                         $noIndent = false;
                         break;
                     }
@@ -363,7 +354,7 @@ class Printer
 
                 // Anonymous queries with no directives or variable definitions can use
                 // the query short form.
-                return (strlen($name) === 0) && (strlen($directives) === 0) && $varDefs === '' && $op === 'query'
+                return (\strlen($name) === 0) && (\strlen($directives) === 0) && $varDefs === '' && $op === 'query'
                     ? $selectionSet
                     : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
 
@@ -415,7 +406,7 @@ class Printer
                     return BlockString::print($node->value, $isDescription ? '' : '  ', true);
                 }
 
-                return json_encode($node->value, JSON_THROW_ON_ERROR);
+                return \json_encode($node->value, JSON_THROW_ON_ERROR);
 
             case $node instanceof UnionTypeDefinitionNode:
                 $typesStr = $this->printList($node->types, ' | ');
@@ -425,7 +416,7 @@ class Printer
                         'union',
                         $this->p($node->name),
                         $this->printList($node->directives, ' '),
-                        strlen($typesStr) > 0
+                        \strlen($typesStr) > 0
                             ? '= ' . $typesStr
                             : '',
                     ],
@@ -440,7 +431,7 @@ class Printer
                         'extend union',
                         $this->p($node->name),
                         $this->printList($node->directives, ' '),
-                        strlen($typesStr) > 0
+                        \strlen($typesStr) > 0
                             ? '= ' . $typesStr
                             : '',
                     ],
@@ -485,7 +476,7 @@ class Printer
      */
     protected function printListBlock(NodeList $list): string
     {
-        if (count($list) === 0) {
+        if (\count($list) === 0) {
             return '';
         }
 
@@ -521,7 +512,7 @@ class Printer
             return '';
         }
 
-        return '  ' . str_replace("\n", "\n  ", $string);
+        return '  ' . \str_replace("\n", "\n  ", $string);
     }
 
     /**
@@ -529,6 +520,6 @@ class Printer
      */
     protected function join(array $parts, string $separator = ''): string
     {
-        return implode($separator, array_filter($parts));
+        return \implode($separator, \array_filter($parts));
     }
 }

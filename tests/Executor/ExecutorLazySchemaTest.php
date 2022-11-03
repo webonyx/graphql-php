@@ -22,7 +22,6 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\Error\Error;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 
 final class ExecutorLazySchemaTest extends TestCase
 {
@@ -461,7 +460,7 @@ final class ExecutorLazySchemaTest extends TestCase
         $namedLikePhpFunction = new ObjectType([
             'name' => 'count',
             'interfaces' => [$interface],
-            'isTypeOf' => static fn ($obj): bool => $obj instanceof stdClass,
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof \stdClass,
             'fields' => static fn (): array => [
                 'bar' => ['type' => Type::string()],
                 'baz' => ['type' => Type::string()],
@@ -475,7 +474,7 @@ final class ExecutorLazySchemaTest extends TestCase
                     'foo' => [
                         'type' => Type::listOf($interface),
                         'resolve' => static fn (): array => [
-                            new stdClass(),
+                            new \stdClass(),
                         ],
                     ],
                 ],

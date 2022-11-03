@@ -2,10 +2,6 @@
 
 namespace GraphQL\Tests\Type;
 
-use ArrayObject;
-
-use function count;
-
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
@@ -17,9 +13,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
-
-use function is_array;
-
 use PHPUnit\Framework\TestCase;
 
 class EnumTypeTest extends TestCase
@@ -33,8 +26,8 @@ class EnumTypeTest extends TestCase
     /** @var array{someRandomFunction: callable(): void} */
     private array $Complex1;
 
-    /** @var ArrayObject<string, int> */
-    private ArrayObject $Complex2;
+    /** @var \ArrayObject<string, int> */
+    private \ArrayObject $Complex2;
 
     public function setUp(): void
     {
@@ -62,7 +55,7 @@ class EnumTypeTest extends TestCase
             'someRandomFunction' => static function (): void {
             },
         ];
-        $Complex2 = new ArrayObject(['someRandomValue' => 123]);
+        $Complex2 = new \ArrayObject(['someRandomValue' => 123]);
 
         $ComplexEnum = new EnumType([
             'name' => 'Complex',
@@ -178,7 +171,7 @@ class EnumTypeTest extends TestCase
                         if ($args['provideBadValue'] ?? false) {
                             // Note: similar shape, but not the same *reference*
                             // as Complex2 above. Enum internal values require === equality.
-                            return new ArrayObject(['someRandomValue' => 123]);
+                            return new \ArrayObject(['someRandomValue' => 123]);
                         }
 
                         return $args['fromEnum'];
@@ -311,7 +304,7 @@ class EnumTypeTest extends TestCase
         $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
         self::assertCount(1, $result->errors);
 
-        if (is_array($err)) {
+        if (\is_array($err)) {
             self::assertEquals(
                 $err['message'],
                 $result->errors[0]->getMessage()
@@ -529,7 +522,7 @@ class EnumTypeTest extends TestCase
         $ComplexEnum = $this->ComplexEnum;
         $values = $ComplexEnum->getValues();
 
-        self::assertEquals(2, count($values));
+        self::assertEquals(2, \count($values));
         self::assertEquals('ONE', $values[0]->name);
         self::assertEquals($this->Complex1, $values[0]->value);
         self::assertEquals('TWO', $values[1]->name);

@@ -9,11 +9,6 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
 
-use function is_object;
-use function is_scalar;
-use function is_string;
-use function method_exists;
-
 class StringType extends ScalarType
 {
     public string $name = Type::STRING;
@@ -25,8 +20,8 @@ represent free-form human-readable text.';
 
     public function serialize($value): string
     {
-        $canCast = is_scalar($value)
-            || (is_object($value) && method_exists($value, '__toString'))
+        $canCast = \is_scalar($value)
+            || (\is_object($value) && \method_exists($value, '__toString'))
             || $value === null;
 
         if (! $canCast) {
@@ -39,7 +34,7 @@ represent free-form human-readable text.';
 
     public function parseValue($value): string
     {
-        if (! is_string($value)) {
+        if (! \is_string($value)) {
             $notString = Utils::printSafeJson($value);
             throw new Error("String cannot represent a non string value: {$notString}");
         }

@@ -2,8 +2,6 @@
 
 namespace GraphQL\Utils;
 
-use function array_map;
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -184,7 +182,7 @@ class BuildSchema
             $this->typeConfigDecorator
         );
 
-        $directives = array_map(
+        $directives = \array_map(
             [$definitionBuilder, 'buildDirective'],
             $directiveDefs
         );
@@ -225,7 +223,7 @@ class BuildSchema
             ->setTypeLoader(static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name))
             ->setDirectives($directives)
             ->setAstNode($schemaDef)
-            ->setTypes(fn (): array => array_map(
+            ->setTypes(fn (): array => \array_map(
                 static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value),
                 $typeDefinitionsMap,
             ))

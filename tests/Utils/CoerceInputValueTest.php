@@ -12,7 +12,6 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Value;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 
 /**
  * @see coerceInputValue-test.ts
@@ -228,7 +227,7 @@ final class CoerceInputValueTest extends TestCase
      */
     public function testReturnsAnErrorForAnInvalidField(): void
     {
-        $notInt = new stdClass();
+        $notInt = new \stdClass();
         $result = Value::coerceInputValue(['foo' => $notInt], $this->testInputObject);
         $this->expectGraphQLError($result, [CoercionError::make(
             'Int cannot represent non-integer value: {}',

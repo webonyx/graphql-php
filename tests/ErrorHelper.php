@@ -2,9 +2,6 @@
 
 namespace GraphQL\Tests;
 
-use function array_map;
-use function count;
-
 use GraphQL\Language\SourceLocation;
 
 /**
@@ -24,8 +21,8 @@ class ErrorHelper
     {
         $formatted = ['message' => $error];
 
-        if (count($locations) > 0) {
-            $formatted['locations'] = array_map(
+        if (\count($locations) > 0) {
+            $formatted['locations'] = \array_map(
                 static fn (SourceLocation $loc): array => $loc->toArray(),
                 $locations
             );

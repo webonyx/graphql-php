@@ -2,9 +2,6 @@
 
 namespace GraphQL\Tests\Executor;
 
-use function array_filter;
-use function count;
-
 use GraphQL\Deferred;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
@@ -12,9 +9,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-
-use function in_array;
-
 use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
@@ -165,9 +159,9 @@ class DeferredFieldsTest extends TestCase
                     'resolve' => function ($category, array $args, $context, ResolveInfo $info): array {
                         $this->paths[] = $info->path;
 
-                        return array_filter(
+                        return \array_filter(
                             $this->storyDataSource,
-                            static fn ($story): bool => in_array($category['id'], $story['categoryIds'], true)
+                            static fn ($story): bool => \in_array($category['id'], $story['categoryIds'], true)
                         );
                     },
                 ],
@@ -216,7 +210,7 @@ class DeferredFieldsTest extends TestCase
                     'resolve' => function ($rootValue, array $args, $context, ResolveInfo $info): array {
                         $this->paths[] = $info->path;
 
-                        return array_filter(
+                        return \array_filter(
                             $this->storyDataSource,
                             static fn ($story): bool => $story['id'] % 2 === 1
                         );
@@ -333,7 +327,7 @@ class DeferredFieldsTest extends TestCase
             ['featuredCategory', 'stories', 2, 'author', 'name'],
             ['featuredCategory', 'stories', 3, 'author', 'name'],
         ];
-        self::assertCount(count($expectedPaths), $this->paths);
+        self::assertCount(\count($expectedPaths), $this->paths);
         foreach ($expectedPaths as $expectedPath) {
             self::assertContains($expectedPath, $this->paths, 'Missing path: ' . json_encode($expectedPath));
         }
@@ -413,9 +407,9 @@ class DeferredFieldsTest extends TestCase
             ['categories', 1, 'topStory', 'author', 'bestFriend', 'name'],
             ['categories', 2, 'topStory', 'author', 'bestFriend', 'name'],
         ];
-        self::assertCount(count($expectedPaths), $this->paths);
+        self::assertCount(\count($expectedPaths), $this->paths);
         foreach ($expectedPaths as $expectedPath) {
-            self::assertTrue(in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
+            self::assertTrue(\in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
         }
     }
 
@@ -565,9 +559,9 @@ class DeferredFieldsTest extends TestCase
             ['!dfd for: ', ['deferredNest', 'deferredNest', 'deferred']],
         ];
 
-        self::assertCount(count($expectedPaths), $this->paths);
+        self::assertCount(\count($expectedPaths), $this->paths);
         foreach ($expectedPaths as $expectedPath) {
-            self::assertTrue(in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
+            self::assertTrue(\in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
         }
     }
 

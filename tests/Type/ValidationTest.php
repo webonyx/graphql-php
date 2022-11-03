@@ -2,10 +2,6 @@
 
 namespace GraphQL\Tests\Type;
 
-use function array_map;
-use function array_merge;
-
-use Closure;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
@@ -30,9 +26,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
-use TypeError;
-
-use function ucfirst;
 
 class ValidationTest extends TestCaseBase
 {
@@ -150,20 +143,20 @@ class ValidationTest extends TestCaseBase
      */
     private function withModifiers(array $types): array
     {
-        return array_merge(
+        return \array_merge(
             $types,
-            array_map(
+            \array_map(
                 static fn (Type $type): ListOfType => Type::listOf($type),
                 $types
             ),
-            array_map(
+            \array_map(
                 static function (Type $type): NonNull {
                     /** @var Type&NullableType $type */
                     return Type::nonNull($type);
                 },
                 $types
             ),
-            array_map(
+            \array_map(
                 static fn (Type $type): NonNull => Type::nonNull(Type::listOf($type)),
                 $types
             )
@@ -197,7 +190,7 @@ class ValidationTest extends TestCaseBase
     }
 
     /**
-     * @param array<int, Closure(): Type> $closures
+     * @param array<int, \Closure(): Type> $closures
      */
     private function assertEachCallableThrows(array $closures, string $expectedError): void
     {
@@ -346,7 +339,7 @@ class ValidationTest extends TestCaseBase
      */
     private function formatLocations(Error $error): array
     {
-        return array_map(
+        return \array_map(
             static fn (SourceLocation $loc): array => [
                 'line' => $loc->line,
                 'column' => $loc->column,
@@ -362,7 +355,7 @@ class ValidationTest extends TestCaseBase
      */
     private function formatErrors(array $errors, bool $withLocation = true): array
     {
-        return array_map(
+        return \array_map(
             fn (Error $error): array => $withLocation
                 ? [
                     'message' => $error->getMessage(),
@@ -402,7 +395,7 @@ class ValidationTest extends TestCaseBase
         $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
 
         BuildSchema::build('
-      input ' . ucfirst($rootType) . ' {
+      input ' . \ucfirst($rootType) . ' {
         test: String
       }
         ');
@@ -465,8 +458,8 @@ class ValidationTest extends TestCaseBase
 
     private function expectRootTypeMustBeObjectTypeNotInputType(string $rootType): void
     {
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessageMatches('/.*GraphQL\\\\Type\\\\SchemaConfig::set' . ucfirst($rootType) . '.*GraphQL\\\\Type\\\\Definition\\\\ObjectType.*GraphQL\\\\Type\\\\Definition\\\\InputObjectType given.*/');
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessageMatches('/.*GraphQL\\\\Type\\\\SchemaConfig::set' . \ucfirst($rootType) . '.*GraphQL\\\\Type\\\\Definition\\\\ObjectType.*GraphQL\\\\Type\\\\Definition\\\\InputObjectType given.*/');
     }
 
     /**

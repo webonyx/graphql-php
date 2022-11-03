@@ -15,7 +15,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\AST;
 use GraphQL\Validator\QueryValidationContext;
-use InvalidArgumentException;
 
 /**
  * @see Visitor, FieldDefinition
@@ -34,7 +33,7 @@ abstract class QuerySecurityRule extends ValidationRule
     protected function checkIfGreaterOrEqualToZero(string $name, int $value): void
     {
         if ($value < 0) {
-            throw new InvalidArgumentException("\${$name} argument must be greater or equal to 0.");
+            throw new \InvalidArgumentException("\${$name} argument must be greater or equal to 0.");
         }
     }
 
@@ -91,7 +90,7 @@ abstract class QuerySecurityRule extends ValidationRule
      *
      * @see \GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
      *
-     * @param ArrayObject<string, true>|null $visitedFragmentNames
+     * @param \ArrayObject<string, true>|null $visitedFragmentNames
      *
      * @phpstan-param ASTAndDefs|null $astAndDefs
      *
@@ -101,11 +100,11 @@ abstract class QuerySecurityRule extends ValidationRule
         QueryValidationContext $context,
         ?Type $parentType,
         SelectionSetNode $selectionSet,
-        ?ArrayObject $visitedFragmentNames = null,
-        ?ArrayObject $astAndDefs = null
-    ): ArrayObject {
-        $visitedFragmentNames ??= new ArrayObject();
-        $astAndDefs ??= new ArrayObject();
+        ?\ArrayObject $visitedFragmentNames = null,
+        ?\ArrayObject $astAndDefs = null
+    ): \ArrayObject {
+        $visitedFragmentNames ??= new \ArrayObject();
+        $astAndDefs ??= new \ArrayObject();
 
         foreach ($selectionSet->selections as $selection) {
             switch (true) {
@@ -132,7 +131,7 @@ abstract class QuerySecurityRule extends ValidationRule
                     }
 
                     $responseName = $this->getFieldName($selection);
-                    $responseContext = $astAndDefs[$responseName] ??= new ArrayObject();
+                    $responseContext = $astAndDefs[$responseName] ??= new \ArrayObject();
                     $responseContext[] = [$selection, $fieldDef];
                     break;
                 case $selection instanceof InlineFragmentNode:

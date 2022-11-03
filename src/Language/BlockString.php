@@ -2,17 +2,7 @@
 
 namespace GraphQL\Language;
 
-use function array_slice;
-use function count;
-
 use GraphQL\Utils\Utils;
-
-use function implode;
-use function mb_strlen;
-use function mb_substr;
-use function preg_split;
-use function str_replace;
-use function strpos;
 
 class BlockString
 {
@@ -25,16 +15,16 @@ class BlockString
     public static function dedentValue(string $rawString): string
     {
         // Expand a block string's raw value into independent lines.
-        $lines = preg_split('/\\r\\n|[\\n\\r]/', $rawString);
+        $lines = \preg_split('/\\r\\n|[\\n\\r]/', $rawString);
         assert(is_array($lines), 'given the regex is valid');
 
         // Remove common indentation from all lines but first.
         $commonIndent = self::getIndentation($rawString);
-        $linesLength = count($lines);
+        $linesLength = \count($lines);
 
         if ($commonIndent > 0) {
             for ($i = 1; $i < $linesLength; ++$i) {
-                $lines[$i] = mb_substr($lines[$i], $commonIndent);
+                $lines[$i] = \mb_substr($lines[$i], $commonIndent);
             }
         }
 
@@ -50,12 +40,12 @@ class BlockString
         }
 
         // Return a string of the lines joined with U+000A.
-        return implode("\n", array_slice($lines, $startLine, $endLine - $startLine));
+        return \implode("\n", \array_slice($lines, $startLine, $endLine - $startLine));
     }
 
     private static function isBlank(string $str): bool
     {
-        $strLength = mb_strlen($str);
+        $strLength = \mb_strlen($str);
         for ($i = 0; $i < $strLength; ++$i) {
             if ($str[$i] !== ' ' && $str[$i] !== '\t') {
                 return false;
@@ -71,7 +61,7 @@ class BlockString
         $isEmptyLine = true;
         $indent = 0;
         $commonIndent = null;
-        $valueLength = mb_strlen($value);
+        $valueLength = \mb_strlen($value);
 
         for ($i = 0; $i < $valueLength; ++$i) {
             switch (Utils::charCodeAt($value, $i)) {
@@ -116,8 +106,8 @@ class BlockString
         string $indentation = '',
         bool $preferMultipleLines = false
     ): string {
-        $valueLength = mb_strlen($value);
-        $isSingleLine = strpos($value, "\n") === false;
+        $valueLength = \mb_strlen($value);
+        $isSingleLine = \strpos($value, "\n") === false;
         $hasLeadingSpace = $value !== '' && ($value[0] === ' ' || $value[0] === '\t');
         $hasTrailingQuote = $value !== '' && $value[$valueLength - 1] === '"';
         $hasTrailingSlash = $value !== '' && $value[$valueLength - 1] === '\\';
@@ -137,7 +127,7 @@ class BlockString
         }
 
         $result .= $indentation !== ''
-            ? str_replace("\n", "\n" . $indentation, $value)
+            ? \str_replace("\n", "\n" . $indentation, $value)
             : $value;
         if ($printAsMultipleLines) {
             $result .= "\n";
@@ -147,7 +137,7 @@ class BlockString
         }
 
         return $quoting
-            . str_replace($quoting, '\\' . $quoting, $result)
+            . \str_replace($quoting, '\\' . $quoting, $result)
             . $quoting;
     }
 }

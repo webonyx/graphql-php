@@ -2,10 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function array_pop;
-use function array_slice;
-use function count;
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -13,8 +9,6 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\QueryValidationContext;
-
-use function implode;
 
 class NoFragmentCycles extends ValidationRule
 {
@@ -60,11 +54,11 @@ class NoFragmentCycles extends ValidationRule
 
         $spreadNodes = $context->getFragmentSpreads($fragment);
 
-        if (count($spreadNodes) === 0) {
+        if (\count($spreadNodes) === 0) {
             return;
         }
 
-        $this->spreadPathIndexByName[$fragmentName] = count($this->spreadPath);
+        $this->spreadPathIndexByName[$fragmentName] = \count($this->spreadPath);
 
         foreach ($spreadNodes as $spreadNode) {
             $spreadName = $spreadNode->name->value;
@@ -77,9 +71,9 @@ class NoFragmentCycles extends ValidationRule
                     $this->detectCycleRecursive($spreadFragment, $context);
                 }
             } else {
-                $cyclePath = array_slice($this->spreadPath, $cycleIndex);
+                $cyclePath = \array_slice($this->spreadPath, $cycleIndex);
                 $fragmentNames = [];
-                foreach (array_slice($cyclePath, 0, -1) as $frag) {
+                foreach (\array_slice($cyclePath, 0, -1) as $frag) {
                     $fragmentNames[] = $frag->name->value;
                 }
 
@@ -89,7 +83,7 @@ class NoFragmentCycles extends ValidationRule
                 ));
             }
 
-            array_pop($this->spreadPath);
+            \array_pop($this->spreadPath);
         }
 
         $this->spreadPathIndexByName[$fragmentName] = null;
@@ -100,8 +94,8 @@ class NoFragmentCycles extends ValidationRule
      */
     public static function cycleErrorMessage(string $fragName, array $spreadNames = []): string
     {
-        $via = count($spreadNames) > 0
-            ? ' via ' . implode(', ', $spreadNames)
+        $via = \count($spreadNames) > 0
+            ? ' via ' . \implode(', ', $spreadNames)
             : '';
 
         return "Cannot spread fragment \"{$fragName}\" within itself{$via}.";
