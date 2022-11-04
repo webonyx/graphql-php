@@ -1264,16 +1264,7 @@ const CLASS_MAP = [
 Implements the "Evaluating requests" section of the GraphQL specification.
 
 @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
-
-@see https://github.com/vimeo/psalm/issues/6928
-
-@psalm-type FieldResolver callable(mixed, array, mixed, ResolveInfo): mixed
-
 @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
-
-@see https://github.com/vimeo/psalm/issues/6928, https://github.com/vimeo/psalm/issues/7527
-
-@psalm-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array, ?string, callable): ExecutorImplementation
 
 ### GraphQL\Executor\Executor Methods
 
@@ -1355,10 +1346,6 @@ extensions?: array<string, mixed>
 }
 @phpstan-type ErrorFormatter callable(Throwable): SerializableError
 @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
-
-@see https://github.com/vimeo/psalm/issues/6928
-
-@psalm-type ErrorsHandler callable(Error[], ErrorFormatter): SerializableErrors
 
 ### GraphQL\Executor\ExecutionResult Props
 
@@ -1675,10 +1662,6 @@ Warnings can be suppressed (individually or all) if required.
 Also, it is possible to override warning handler (which is **trigger_error()** by default).
 
 @phpstan-type WarningHandler callable(string $errorMessage, int $warningId, ?int $messageLevel): void
-
-@see https://github.com/vimeo/psalm/issues/7527
-
-@psalm-type WarningHandler callable(string, int, int|null): void
 
 ### GraphQL\Error\Warning Constants
 
