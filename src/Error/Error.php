@@ -7,7 +7,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use JsonSerializable;
-use ReturnTypeWillChange;
 
 /**
  * Describes an Error found during the parse, validate, or

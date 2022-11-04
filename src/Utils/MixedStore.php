@@ -3,7 +3,6 @@
 namespace GraphQL\Utils;
 
 use ArrayAccess;
-use ReturnTypeWillChange;
 
 /**
  * Similar to PHP array, but allows any type of data to act as key (including arrays, objects, scalars).

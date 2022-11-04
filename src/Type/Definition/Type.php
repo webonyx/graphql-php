@@ -5,7 +5,6 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
-use ReturnTypeWillChange;
 
 /**
  * Registry of standard GraphQL types and base class for all other types.

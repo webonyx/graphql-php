@@ -2,7 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use GraphQL\Type\SchemaValidationContext;
 use function array_reduce;
 
 use ArrayObject;
@@ -37,6 +36,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaValidationContext;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\LazyException;
 use GraphQL\Utils\Utils;
