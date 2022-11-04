@@ -2,10 +2,6 @@
 
 namespace GraphQL\Type;
 
-use function array_filter;
-use function array_merge;
-use function count;
-
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
@@ -296,14 +292,14 @@ class SchemaValidationContext
                 continue;
             }
 
-            if (! in_array($location, $directiveDefinition->locations, true)) {
+            if (! in_array($location, $schemaDirective->locations, true)) {
                 $this->reportError(
                     "Directive @{$directiveName} not allowed at {$location} location.",
-                    array_filter([$directiveNode, $directiveDefinition->astNode])
+                    \array_filter([$directiveNode, $schemaDirective->astNode])
                 );
             }
 
-            if (! $directiveDefinition->isRepeatable) {
+            if (! $schemaDirective->isRepeatable) {
                 $potentiallyDuplicateDirectives[$directiveName][] = $directiveNode;
             }
         }
@@ -839,6 +835,7 @@ class SchemaValidationContext
     private function validateTypeIsSingleton(Type $type, string $path): void
     {
         $namedType = Type::getNamedType($type);
+        assert($namedType instanceof Type, 'because getNamedType() was called with non-null type');
         $name = $namedType->name;
 
         // TODO does this really ensure every usage of the type is unique?

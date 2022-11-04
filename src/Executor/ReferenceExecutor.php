@@ -11,7 +11,6 @@ use function gettype;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
-use GraphQL\Exception\LazyException;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
@@ -38,6 +37,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
+use GraphQL\Utils\LazyException;
 use GraphQL\Utils\Utils;
 use SplObjectStorage;
 
@@ -849,18 +849,16 @@ class ReferenceExecutor implements ExecutorImplementation
 
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
-        $schema = $this->exeContext->schema;
+        assert(
+            $returnType === $this->exeContext->schema->getType($returnType->name),
+            new LazyException(function () use ($info, $returnType): string {
+                $hint = $this->exeContext->schema->getConfig()->typeLoader !== null
+                    ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
+                    : '';
 
-//        assert(
-//            $returnType === $schema->getType($returnType->name),
-//            new LazyException(function () use ($schema, $info, $returnType): string {
-//                $hint = null !== $schema->getConfig()->typeLoader
-//                    ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
-//                    : '';
-//
-//                return "Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.";
-//            })
-//        );
+                return "Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.";
+            })
+        );
 
         if ($returnType instanceof LeafType) {
             return $this->completeLeafValue($returnType, $result);
@@ -1350,6 +1348,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $runtimeType = \is_string($runtimeTypeOrName)
             ? $this->exeContext->schema->getType($runtimeTypeOrName)
             : $runtimeTypeOrName;
+
         if (! $runtimeType instanceof ObjectType) {
             $safeResult = Utils::printSafe($result);
             $notObjectType = Utils::printSafe($runtimeType);
@@ -1360,14 +1359,15 @@ class ReferenceExecutor implements ExecutorImplementation
             throw new InvariantViolation("Runtime Object type \"{$runtimeType}\" is not a possible type for \"{$returnType}\".");
         }
 
-        // TODO replace with assert() or remove entirely
-//        if ($this->exeContext->schema->getType($runtimeType->name) === null) {
-//            throw new InvariantViolation("Schema does not contain type \"{$runtimeType}\". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields.List the type in the option \"types\" during schema construction, see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options.");
-//        }
-//
-//        if ($runtimeType !== $this->exeContext->schema->getType($runtimeType->name)) {
-//            throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$runtimeType}\". Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
-//        }
+        assert(
+            $this->exeContext->schema->getType($runtimeType->name) !== null,
+            "Schema does not contain type \"{$runtimeType}\". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields.List the type in the option \"types\" during schema construction, see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options."
+        );
+
+        assert(
+            $runtimeType === $this->exeContext->schema->getType($runtimeType->name),
+            "Schema must contain unique named types but contains multiple types named \"{$runtimeType}\". Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry)."
+        );
 
         return $runtimeType;
     }

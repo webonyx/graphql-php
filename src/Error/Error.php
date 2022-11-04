@@ -283,7 +283,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
      * @return array<string, mixed> data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function jsonSerialize(): array
     {
         return FormattedError::createFromException($this);

@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Executor;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
@@ -780,13 +781,15 @@ class AbstractTest extends TestCase
         ';
 
         $result = Executor::execute($schema, Parser::parse($query), ['node' => ['a' => 'value']]);
+        $error = $result->errors[0] ?? null;
 
+        self::assertInstanceOf(Error::class, $error);
         self::assertEquals(
             'Schema must contain unique named types but contains multiple types named "Test". '
             . 'Make sure that `resolveType` function of abstract type "Node" returns the same type instance '
             . 'as referenced anywhere else within the schema '
             . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
-            $result->errors[0]->getMessage()
+            $error->getMessage()
         );
     }
 }

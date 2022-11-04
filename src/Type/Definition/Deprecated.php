@@ -4,7 +4,7 @@ namespace GraphQL\Type\Definition;
 
 use Attribute;
 
-#[Attribute(Attribute::TARGET_ALL)]
+#[\Attribute(\Attribute::TARGET_ALL)]
 class Deprecated
 {
     public function __construct(

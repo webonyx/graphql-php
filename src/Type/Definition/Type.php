@@ -236,7 +236,7 @@ abstract class Type implements \JsonSerializable
         return $this->toString();
     }
 
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function jsonSerialize(): string
     {
         return $this->toString();

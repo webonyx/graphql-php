@@ -60,7 +60,7 @@ class MixedStore implements \ArrayAccess
     /**
      * @param mixed $offset
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {
         if ($offset === false) {
@@ -106,7 +106,7 @@ class MixedStore implements \ArrayAccess
      *
      * @return TValue|null
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         if ($offset === true) {
@@ -153,7 +153,7 @@ class MixedStore implements \ArrayAccess
      * @param mixed  $offset
      * @param TValue $value
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
     {
         if ($offset === false) {
@@ -183,7 +183,7 @@ class MixedStore implements \ArrayAccess
     /**
      * @param mixed $offset
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {
         if ($offset === true) {

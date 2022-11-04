@@ -27,7 +27,7 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
 
-class ValidationTest extends TestCaseBase
+final class ValidationTest extends TestCaseBase
 {
     public ScalarType $SomeScalarType;
 

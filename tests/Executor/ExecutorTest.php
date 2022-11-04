@@ -1199,7 +1199,7 @@ class ExecutorTest extends TestCase
                             /**
                              * @param mixed $offset
                              */
-                            #[ReturnTypeWillChange]
+                            #[\ReturnTypeWillChange]
                             public function offsetExists($offset): bool
                             {
                                 switch ($offset) {
@@ -1214,7 +1214,7 @@ class ExecutorTest extends TestCase
                             /**
                              * @param mixed $offset
                              */
-                            #[ReturnTypeWillChange]
+                            #[\ReturnTypeWillChange]
                             public function offsetGet($offset): ?int
                             {
                                 switch ($offset) {
@@ -1233,7 +1233,7 @@ class ExecutorTest extends TestCase
                              * @param mixed $offset
                              * @param mixed $value
                              */
-                            #[ReturnTypeWillChange]
+                            #[\ReturnTypeWillChange]
                             public function offsetSet($offset, $value): void
                             {
                             }
@@ -1241,7 +1241,7 @@ class ExecutorTest extends TestCase
                             /**
                              * @param mixed $offset
                              */
-                            #[ReturnTypeWillChange]
+                            #[\ReturnTypeWillChange]
                             public function offsetUnset($offset): void
                             {
                             }

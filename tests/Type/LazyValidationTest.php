@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -10,7 +11,7 @@ use GraphQL\Type\Schema;
 /**
  * Additional tests that ensure the proper usage of lazy type loading in the schema.
  */
-class LazyValidationTest extends ValidationTest
+final class LazyValidationTest extends TestCaseBase
 {
     public function testRejectsDifferentQueryInstance(): void
     {
@@ -34,7 +35,7 @@ class LazyValidationTest extends ValidationTest
 
     public function testRejectsDifferentFieldTypeInstance(): void
     {
-        $typeLoader = static function (string $name) use (&$query): ObjectType {
+        $typeLoader = static function (string $name) use (&$query): ?ObjectType {
             if ($name === 'Query') {
                 return $query;
             }
@@ -60,7 +61,7 @@ class LazyValidationTest extends ValidationTest
         ]);
 
         $this->expectExceptionObject(new InvariantViolation(
-            'Type loader returned duplicate type in schema at Query.test: Test. See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.'
+            'Type loader returns different instance for Test than field/argument definitions. Make sure you always return the same instance for the same type name.'
         ));
         $schema->assertValid();
     }

@@ -38,7 +38,7 @@ class SourceLocation implements \JsonSerializable
     /**
      * @return array{line: int, column: int}
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function jsonSerialize(): array
     {
         return $this->toArray();
