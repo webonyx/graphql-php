@@ -5,7 +5,6 @@ namespace GraphQL\Language\AST;
 use ArrayAccess;
 use GraphQL\Utils\AST;
 use IteratorAggregate;
-use ReturnTypeWillChange;
 
 /**
  * @template T of Node

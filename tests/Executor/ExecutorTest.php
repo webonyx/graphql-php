@@ -20,7 +20,6 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use ReturnTypeWillChange;
 
 use function Safe\json_encode;
 
