@@ -66,9 +66,12 @@ class InputObjectCircularRefs
                     } else {
                         $cycleIndex = $this->fieldPathIndexByTypeName[$fieldType->name];
                         $cyclePath = \array_slice($this->fieldPath, $cycleIndex);
-                        $fieldNames = \array_map(
-                            static fn (InputObjectField $field): string => $field->name,
-                            $cyclePath
+                        $fieldNames = implode(
+                            '.',
+                            \array_map(
+                                static fn (InputObjectField $field): string => $field->name,
+                                $cyclePath
+                            )
                         );
                         $fieldNodes = \array_map(
                             static fn (InputObjectField $field): ?InputValueDefinitionNode => $field->astNode,
@@ -76,8 +79,7 @@ class InputObjectCircularRefs
                         );
 
                         $this->schemaValidationContext->reportError(
-                            'Cannot reference Input Object "' . $fieldType->name . '" within itself '
-                            . 'through a series of non-null fields: "' . \implode('.', $fieldNames) . '".',
+                            "Cannot reference Input Object \"{$fieldType->name}\" within itself through a series of non-null fields: \"{$fieldNames}\".",
                             $fieldNodes
                         );
                     }

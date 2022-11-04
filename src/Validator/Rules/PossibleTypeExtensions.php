@@ -56,7 +56,7 @@ class PossibleTypeExtensions extends ValidationRule
                     $kindStr = self::extensionKindToTypeName($node->kind);
                     $context->reportError(
                         new Error(
-                            'Cannot extend non-' . $kindStr . ' type "' . $typeName . '".',
+                            "Cannot extend non-{$kindStr} type \"{$typeName}\".",
                             $defNode !== null
                                 ? [$defNode, $node]
                                 : $node,
@@ -77,7 +77,7 @@ class PossibleTypeExtensions extends ValidationRule
                     : '';
                 $context->reportError(
                     new Error(
-                        'Cannot extend type "' . $typeName . '" because it is not defined.' . $didYouMean,
+                        "Cannot extend type \"{$typeName}\" because it is not defined.{$didYouMean}",
                         $node->name,
                     ),
                 );

@@ -63,7 +63,7 @@ class UniqueArgumentDefinitionNames extends ValidationRule
             if (\count($argNodes) > 1) {
                 $context->reportError(
                     new Error(
-                        'Argument "' . $parentName . '(' . $argName . ':)" can only be defined once.',
+                        "Argument \"{$parentName}({$argName}:)\" can only be defined once.",
                         $argNodes,
                     ),
                 );
