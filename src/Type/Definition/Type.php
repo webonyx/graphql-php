@@ -2,21 +2,15 @@
 
 namespace GraphQL\Type\Definition;
 
-use function array_merge;
-
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
-
-use function implode;
-
-use JsonSerializable;
 use ReturnTypeWillChange;
 
 /**
  * Registry of standard GraphQL types and base class for all other types.
  */
-abstract class Type implements JsonSerializable
+abstract class Type implements \JsonSerializable
 {
     public const INT = 'Int';
     public const FLOAT = 'Float';
@@ -108,7 +102,7 @@ abstract class Type implements JsonSerializable
     {
         static $builtInTypes;
 
-        return $builtInTypes ??= array_merge(
+        return $builtInTypes ??= \array_merge(
             Introspection::getTypes(),
             self::getStandardTypes()
         );
@@ -144,7 +138,7 @@ abstract class Type implements JsonSerializable
             }
 
             if (! in_array($type->name, self::STANDARD_TYPE_NAMES, true)) {
-                $standardTypeNames = implode(', ', self::STANDARD_TYPE_NAMES);
+                $standardTypeNames = \implode(', ', self::STANDARD_TYPE_NAMES);
                 $notStandardTypeName = Utils::printSafe($type->name);
                 throw new InvariantViolation("Expecting one of the following names for a standard type: {$standardTypeNames}; got {$notStandardTypeName}");
             }

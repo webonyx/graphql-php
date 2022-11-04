@@ -3,16 +3,13 @@
 namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\BlockString;
-
-use function implode;
-
 use PHPUnit\Framework\TestCase;
 
 class BlockStringTest extends TestCase
 {
     private static function joinLines(string ...$args): string
     {
-        return implode("\n", $args);
+        return \implode("\n", $args);
     }
 
     // describe('dedentBlockStringValue')

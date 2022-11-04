@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Server;
 
-use Closure;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
@@ -13,7 +12,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\Rules\UniqueEnumValueNames;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 
 /**
  * @phpstan-import-type ErrorsHandler from ExecutionResult
@@ -57,7 +55,7 @@ final class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $context = new stdClass();
+        $context = new \stdClass();
         $config->setContext($context);
         self::assertSame($context, $config->getContext());
     }
@@ -66,7 +64,7 @@ final class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $context = new stdClass();
+        $context = new \stdClass();
         $config->setRootValue($context);
         self::assertSame($context, $config->getRootValue());
     }
@@ -80,7 +78,7 @@ final class ServerConfigTest extends TestCase
         $config->setErrorFormatter($callable);
         self::assertSame($callable, $config->getErrorFormatter());
 
-        $closure = Closure::fromCallable($callable);
+        $closure = \Closure::fromCallable($callable);
         $config->setErrorFormatter($closure);
         self::assertSame($closure, $config->getErrorFormatter());
     }
@@ -102,7 +100,7 @@ final class ServerConfigTest extends TestCase
         $config->setErrorsHandler($callable);
         self::assertSame($callable, $config->getErrorsHandler());
 
-        $closure = Closure::fromCallable($callable);
+        $closure = \Closure::fromCallable($callable);
         $config->setErrorsHandler($closure);
         self::assertSame($closure, $config->getErrorsHandler());
     }
@@ -170,7 +168,7 @@ final class ServerConfigTest extends TestCase
         $config->setPersistedQueryLoader($callable);
         self::assertSame($callable, $config->getPersistedQueryLoader());
 
-        $closure = Closure::fromCallable($callable);
+        $closure = \Closure::fromCallable($callable);
         $config->setPersistedQueryLoader($closure);
         self::assertSame($closure, $config->getPersistedQueryLoader());
     }
@@ -197,8 +195,8 @@ final class ServerConfigTest extends TestCase
             'schema' => new Schema([
                 'query' => new ObjectType(['name' => 't', 'fields' => ['a' => Type::string()]]),
             ]),
-            'context' => new stdClass(),
-            'rootValue' => new stdClass(),
+            'context' => new \stdClass(),
+            'rootValue' => new \stdClass(),
             'errorFormatter' => static function (): void {
             },
             'promiseAdapter' => new SyncPromiseAdapter(),
@@ -239,7 +237,7 @@ final class ServerConfigTest extends TestCase
     public function testInvalidValidationRules(): void
     {
         $config = ServerConfig::create();
-        $rules = new stdClass();
+        $rules = new \stdClass();
 
         $this->expectExceptionObject(new InvariantViolation(
             'Server config expects array of validation rules or callable returning such array, but got instance of stdClass'

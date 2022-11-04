@@ -2,8 +2,6 @@
 
 namespace GraphQL\Type\Definition;
 
-use function array_key_exists;
-
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 
@@ -153,6 +151,6 @@ class Directive
 
     public static function isSpecifiedDirective(Directive $directive): bool
     {
-        return array_key_exists($directive->name, self::getInternalDirectives());
+        return \array_key_exists($directive->name, self::getInternalDirectives());
     }
 }

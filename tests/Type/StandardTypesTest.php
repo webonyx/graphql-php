@@ -8,7 +8,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 
 class StandardTypesTest extends TestCase
 {
@@ -103,7 +102,7 @@ class StandardTypesTest extends TestCase
             [null, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got null'],
             [5, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got 5'],
             ['', 'Expecting instance of GraphQL\Type\Definition\ScalarType, got (empty string)'],
-            [new stdClass(), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got instance of stdClass'],
+            [new \stdClass(), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got instance of stdClass'],
             [[], 'Expecting instance of GraphQL\Type\Definition\ScalarType, got []'],
             [new ObjectType(['name' => 'ID', 'fields' => []]), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got ID'],
             [$this->createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: Int, Float, String, Boolean, ID; got "NonStandardName"'],

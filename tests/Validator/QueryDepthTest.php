@@ -4,9 +4,6 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\QueryDepth;
 
-use function sprintf;
-use function str_replace;
-
 final class QueryDepthTest extends QuerySecurityTestCase
 {
     /**
@@ -37,10 +34,10 @@ final class QueryDepthTest extends QuerySecurityTestCase
                 ? $human
                 : $dog;
 
-            $part = sprintf($part, ($isOdd ? ' owner ' : '') . $template);
+            $part = \sprintf($part, ($isOdd ? ' owner ' : '') . $template);
         }
 
-        return str_replace('%s', '', $part);
+        return \str_replace('%s', '', $part);
     }
 
     /**

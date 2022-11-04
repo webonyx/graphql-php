@@ -82,7 +82,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Fixed
 
-- Avoid QueryPlan crash when multiple $fieldNodes are present
+- Avoid `QueryPlan` crash when multiple `$fieldNodes` are present
+- Allow instantiating multiple `QueryPlan` with different options
 - Clarify error when attempting to coerce anything but `array` or `stdClass` to an input object
 - Allow directives on variable definitions
 - Handle `null` parent of list in `ValuesOfCorrectType::getVisitor`

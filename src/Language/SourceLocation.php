@@ -2,10 +2,9 @@
 
 namespace GraphQL\Language;
 
-use JsonSerializable;
 use ReturnTypeWillChange;
 
-class SourceLocation implements JsonSerializable
+class SourceLocation implements \JsonSerializable
 {
     public int $line;
 

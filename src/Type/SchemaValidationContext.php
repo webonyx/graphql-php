@@ -49,11 +49,6 @@ use GraphQL\Type\Validation\InputObjectCircularRefs;
 use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\Utils;
 
-use function in_array;
-use function is_array;
-use function is_object;
-use function property_exists;
-
 class SchemaValidationContext
 {
     /** @var array<int, Error> */
@@ -93,7 +88,7 @@ class SchemaValidationContext
      */
     public function reportError(string $message, $nodes = null): void
     {
-        $nodes = array_filter(is_array($nodes) ? $nodes : [$nodes]);
+        $nodes = \array_filter(\is_array($nodes) ? $nodes : [$nodes]);
         $this->addError(new Error($message, $nodes));
     }
 
@@ -124,7 +119,7 @@ class SchemaValidationContext
             if (! $directive instanceof Directive) {
                 $notDirective = Utils::printSafe($directive);
                 // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
-                $nodes = is_object($directive) && property_exists($directive, 'astNode')
+                $nodes = \is_object($directive) && \property_exists($directive, 'astNode')
                     ? $directive->astNode
                     : null;
 
@@ -174,7 +169,7 @@ class SchemaValidationContext
         }
 
         foreach ($directiveDefinitions as $directiveName => $directiveList) {
-            if (count($directiveList) > 1) {
+            if (\count($directiveList) > 1) {
                 $nodes = [];
                 foreach ($directiveList as $dir) {
                     if (isset($dir->astNode)) {
@@ -314,7 +309,7 @@ class SchemaValidationContext
         }
 
         foreach ($potentiallyDuplicateDirectives as $directiveName => $directiveList) {
-            if (count($directiveList) > 1) {
+            if (\count($directiveList) > 1) {
                 $this->reportError("Non-repeatable directive @{$directiveName} used more than once at the same location.", $directiveList);
             }
         }
@@ -338,7 +333,7 @@ class SchemaValidationContext
             $this->validateName($field);
 
             $fieldNodes = $this->getAllFieldNodes($type, $fieldName);
-            if (count($fieldNodes) > 1) {
+            if (\count($fieldNodes) > 1) {
                 $this->reportError("Field {$type->name}.{$fieldName} can only be defined once.", $fieldNodes);
                 continue;
             }
@@ -414,7 +409,7 @@ class SchemaValidationContext
         }
 
         return $astNode !== null
-            ? array_merge([$astNode], $extensionNodes)
+            ? \array_merge([$astNode], $extensionNodes)
             : $extensionNodes;
     }
 
@@ -426,7 +421,7 @@ class SchemaValidationContext
     private function getAllFieldNodes(Type $type, string $fieldName): array
     {
         $allNodes = $type->astNode !== null
-            ? array_merge([$type->astNode], $type->extensionASTNodes)
+            ? \array_merge([$type->astNode], $type->extensionASTNodes)
             : $type->extensionASTNodes;
 
         $matchingFieldNodes = [];
@@ -593,7 +588,7 @@ class SchemaValidationContext
     private function getAllImplementsInterfaceNodes(ImplementingType $type, NamedType $shouldBeInterface): array
     {
         $allNodes = $type->astNode !== null
-            ? array_merge([$type->astNode], $type->extensionASTNodes)
+            ? \array_merge([$type->astNode], $type->extensionASTNodes)
             : $type->extensionASTNodes;
 
         $shouldBeInterfaceName = $shouldBeInterface->name;
@@ -624,7 +619,7 @@ class SchemaValidationContext
             if ($typeField === null) {
                 $this->reportError(
                     "Interface field {$iface->name}.{$fieldName} expected but {$type->name} does not provide it.",
-                    array_merge(
+                    \array_merge(
                         [$this->getFieldNode($iface, $fieldName)],
                         $this->getAllNodes($type)
                     )
@@ -698,12 +693,12 @@ class SchemaValidationContext
     {
         $typeInterfaces = $type->getInterfaces();
         foreach ($iface->getInterfaces() as $transitive) {
-            if (! in_array($transitive, $typeInterfaces, true)) {
+            if (! \in_array($transitive, $typeInterfaces, true)) {
                 $this->reportError(
                     $transitive === $type
                         ? "Type {$type->name} cannot implement {$iface->name} because it would create a circular reference."
                         : "Type {$type->name} must implement {$transitive->name} because it is implemented by {$iface->name}.",
-                    array_merge(
+                    \array_merge(
                         $this->getAllImplementsInterfaceNodes($iface, $transitive),
                         $this->getAllImplementsInterfaceNodes($type, $iface)
                     )
@@ -754,7 +749,7 @@ class SchemaValidationContext
     private function getUnionMemberTypeNodes(UnionType $union, string $typeName): array
     {
         $allNodes = $union->astNode !== null
-            ? array_merge([$union->astNode], $union->extensionASTNodes)
+            ? \array_merge([$union->astNode], $union->extensionASTNodes)
             : $union->extensionASTNodes;
 
         $types = [];

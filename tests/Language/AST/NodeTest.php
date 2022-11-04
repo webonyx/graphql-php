@@ -7,9 +7,6 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
-
-use function json_decode;
-
 use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
@@ -64,7 +61,7 @@ class NodeTest extends TestCase
         ]);
 
         self::assertJsonStringEqualsJsonString($json, json_encode($node));
-        self::assertEquals($node, AST::fromArray(json_decode($json, true)));
+        self::assertEquals($node, AST::fromArray(\json_decode($json, true)));
     }
 
     public function testToString(): void

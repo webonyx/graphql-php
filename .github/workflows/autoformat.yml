@@ -1,4 +1,5 @@
-name: "Autoformat"
+name: Autoformat
+
 on:
   push:
     branches:
@@ -18,7 +19,7 @@ jobs:
           extensions: mbstring
           php-version: 7.4
 
-      - run: composer install --no-interaction --no-progress --no-suggest
+      - uses: ramsey/composer-install@v2
 
       - run: composer normalize
 
@@ -28,10 +29,14 @@ jobs:
 
   prettier:
     runs-on: ubuntu-latest
+    needs:
+      - generate-class-reference
     steps:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
+
+      - run: git pull
 
       - uses: creyD/prettier_action@v4.2
         with:
@@ -54,12 +59,31 @@ jobs:
           extensions: mbstring
           php-version: 7.4
 
-      - run: composer install --no-interaction --no-progress --no-suggest
+      - uses: ramsey/composer-install@v2
 
       - run: vendor/bin/php-cs-fixer fix
-
-      - run: git pull
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Apply php-cs-fixer changes
+
+  generate-class-reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+          extensions: mbstring
+          php-version: 8.1
+
+      - uses: ramsey/composer-install@v2
+
+      - run: composer docs
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Update class reference

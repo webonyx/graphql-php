@@ -2,11 +2,6 @@
 
 namespace GraphQL\Type;
 
-use function array_filter;
-use function array_key_exists;
-use function array_merge;
-
-use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
@@ -61,7 +56,7 @@ class Introspection
      */
     public static function getIntrospectionQuery(array $options = []): string
     {
-        $optionsWithDefaults = array_merge([
+        $optionsWithDefaults = \array_merge([
             'descriptions' => true,
             'directiveIsRepeatable' => false,
         ], $options);
@@ -186,7 +181,7 @@ GRAPHQL;
      */
     public static function fromSchema(Schema $schema, array $options = []): array
     {
-        $optionsWithDefaults = array_merge(['directiveIsRepeatable' => true], $options);
+        $optionsWithDefaults = \array_merge(['directiveIsRepeatable' => true], $options);
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -207,7 +202,7 @@ GRAPHQL;
      */
     public static function isIntrospectionType(NamedType $type): bool
     {
-        return array_key_exists($type->name, self::getTypes());
+        return \array_key_exists($type->name, self::getTypes());
     }
 
     /**
@@ -304,7 +299,7 @@ GRAPHQL;
                                 return TypeKind::UNION;
                             default:
                                 $safeType = Utils::printSafe($type);
-                                throw new Exception("Unknown kind of type: {$safeType}");
+                                throw new \Exception("Unknown kind of type: {$safeType}");
                         }
                     },
                 ],
@@ -333,7 +328,7 @@ GRAPHQL;
                             $fields = $type->getFields();
 
                             if (! ($args['includeDeprecated'] ?? false)) {
-                                $fields = array_filter(
+                                $fields = \array_filter(
                                     $fields,
                                     static fn (FieldDefinition $field): bool => $field->deprecationReason === null
                                         || $field->deprecationReason === ''
@@ -371,7 +366,7 @@ GRAPHQL;
                             $values = $type->getValues();
 
                             if (! ($args['includeDeprecated'] ?? false)) {
-                                return array_filter(
+                                return \array_filter(
                                     $values,
                                     static function (EnumValueDefinition $value): bool {
                                         return $value->deprecationReason === null

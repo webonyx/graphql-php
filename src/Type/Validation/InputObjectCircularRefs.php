@@ -2,18 +2,11 @@
 
 namespace GraphQL\Type\Validation;
 
-use function array_map;
-use function array_pop;
-use function array_slice;
-use function count;
-
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\SchemaValidationContext;
-
-use function implode;
 
 class InputObjectCircularRefs
 {
@@ -54,7 +47,7 @@ class InputObjectCircularRefs
         }
 
         $this->visitedTypes[$inputObj->name] = true;
-        $this->fieldPathIndexByTypeName[$inputObj->name] = count($this->fieldPath);
+        $this->fieldPathIndexByTypeName[$inputObj->name] = \count($this->fieldPath);
 
         $fieldMap = $inputObj->getFields();
         foreach ($fieldMap as $field) {
@@ -72,26 +65,26 @@ class InputObjectCircularRefs
                         $this->validate($fieldType);
                     } else {
                         $cycleIndex = $this->fieldPathIndexByTypeName[$fieldType->name];
-                        $cyclePath = array_slice($this->fieldPath, $cycleIndex);
-                        $fieldNames = array_map(
+                        $cyclePath = \array_slice($this->fieldPath, $cycleIndex);
+                        $fieldNames = \array_map(
                             static fn (InputObjectField $field): string => $field->name,
                             $cyclePath
                         );
-                        $fieldNodes = array_map(
+                        $fieldNodes = \array_map(
                             static fn (InputObjectField $field): ?InputValueDefinitionNode => $field->astNode,
                             $cyclePath
                         );
 
                         $this->schemaValidationContext->reportError(
                             'Cannot reference Input Object "' . $fieldType->name . '" within itself '
-                            . 'through a series of non-null fields: "' . implode('.', $fieldNames) . '".',
+                            . 'through a series of non-null fields: "' . \implode('.', $fieldNames) . '".',
                             $fieldNodes
                         );
                     }
                 }
             }
 
-            array_pop($this->fieldPath);
+            \array_pop($this->fieldPath);
         }
 
         unset($this->fieldPathIndexByTypeName[$inputObj->name]);

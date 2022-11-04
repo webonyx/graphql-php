@@ -42,10 +42,6 @@ use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 
-use function is_array;
-
-use Throwable;
-
 /**
  * @see FieldDefinition, InputObjectField
  *
@@ -204,6 +200,8 @@ class ASTDefinitionBuilder
      * It is legal to access a type from the map of already-built types that doesn't exist in the map.
      * Since we build types lazily, and we don't have a such map of built types,
      * this method provides a way to build a type that may not exist in the SDL definitions and returns null instead.
+     *
+     * @return (Type&NamedType)|null
      */
     public function maybeBuildType(string $name): ?Type
     {
@@ -235,7 +233,7 @@ class ASTDefinitionBuilder
                         $this->typeDefinitionsMap[$typeName],
                         $this->typeDefinitionsMap
                     );
-                } catch (Throwable $e) {
+                } catch (\Throwable $e) {
                     $class = static::class;
                     throw new Error(
                         "Type config decorator passed to {$class} threw an error when building {$typeName} type: {$e->getMessage()}",
@@ -248,7 +246,7 @@ class ASTDefinitionBuilder
                 }
 
                 // @phpstan-ignore-next-line should not happen, but function types are not enforced by PHP
-                if (! is_array($config) || isset($config[0])) {
+                if (! \is_array($config) || isset($config[0])) {
                     $class = static::class;
                     $notArray = Utils::printSafe($config);
                     throw new Error("Type config decorator passed to {$class} is expected to return an array, but got {$notArray}");

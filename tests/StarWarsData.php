@@ -2,8 +2,6 @@
 
 namespace GraphQL\Tests;
 
-use function array_map;
-
 class StarWarsData
 {
     /**
@@ -146,7 +144,7 @@ class StarWarsData
      */
     public static function getFriends(array $character): array
     {
-        return array_map([self::class, 'getCharacter'], $character['friends']);
+        return \array_map([self::class, 'getCharacter'], $character['friends']);
     }
 
     /**

@@ -2,10 +2,6 @@
 
 namespace GraphQL\Examples\Blog\Type\Scalar;
 
-use const FILTER_VALIDATE_EMAIL;
-
-use function filter_var;
-
 use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\Node;
@@ -58,6 +54,6 @@ class EmailType extends ScalarType
      */
     private function isEmail($value): bool
     {
-        return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
+        return \filter_var($value, \FILTER_VALIDATE_EMAIL) !== false;
     }
 }

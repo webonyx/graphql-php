@@ -8,9 +8,6 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
-use function is_callable;
-use function is_iterable;
-
 /**
  * @phpstan-import-type ResolveType from AbstractType
  *
@@ -90,11 +87,11 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
             $this->types = [];
 
             $types = $this->config['types'] ?? null;
-            if (is_callable($types)) {
+            if (\is_callable($types)) {
                 $types = $types();
             }
 
-            if (! is_iterable($types)) {
+            if (! \is_iterable($types)) {
                 throw new InvariantViolation("Must provide iterable of types or a callable which returns such an iterable for Union {$this->name}.");
             }
 
@@ -122,7 +119,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     {
         Utils::assertValidName($this->name);
 
-        if (isset($this->config['resolveType']) && ! is_callable($this->config['resolveType'])) {
+        if (isset($this->config['resolveType']) && ! \is_callable($this->config['resolveType'])) {
             $notCallable = Utils::printSafe($this->config['resolveType']);
             throw new InvariantViolation("{$this->name} must provide \"resolveType\" as a callable, but got: {$notCallable}");
         }

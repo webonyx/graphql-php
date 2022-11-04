@@ -6,9 +6,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Utils\Utils;
-
-use function is_array;
-
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -47,7 +44,7 @@ class StandardServer
      */
     public function __construct($config)
     {
-        if (is_array($config)) {
+        if (\is_array($config)) {
             $config = ServerConfig::create($config);
         }
 
@@ -103,7 +100,7 @@ class StandardServer
             $parsedBody = $this->helper->parseHttpRequest();
         }
 
-        if (is_array($parsedBody)) {
+        if (\is_array($parsedBody)) {
             return $this->helper->executeBatch($this->config, $parsedBody);
         }
 

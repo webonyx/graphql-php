@@ -11,9 +11,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\Rules\ValidationRule;
 
-use function is_array;
-use function is_callable;
-
 /**
  * Server configuration class.
  * Could be passed directly to server constructor. List of options accepted by **create** method is
@@ -213,7 +210,7 @@ class ServerConfig
     public function setValidationRules($validationRules): self
     {
         // @phpstan-ignore-next-line necessary until we can use proper union types
-        if (! is_array($validationRules) && ! is_callable($validationRules) && $validationRules !== null) {
+        if (! \is_array($validationRules) && ! \is_callable($validationRules) && $validationRules !== null) {
             $invalidValidationRules = Utils::printSafe($validationRules);
             throw new InvariantViolation("Server config expects array of validation rules or callable returning such array, but got {$invalidValidationRules}");
         }

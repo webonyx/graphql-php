@@ -2,7 +2,6 @@
 
 namespace GraphQL\Examples\Blog\Type;
 
-use Exception;
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\Story;
@@ -58,7 +57,7 @@ class QueryType extends ObjectType
                 'fieldWithException' => [
                     'type' => Types::string(),
                     'resolve' => static function (): void {
-                        throw new Exception('Exception message thrown in field resolver');
+                        throw new \Exception('Exception message thrown in field resolver');
                     },
                 ],
                 'hello' => Type::string(),

@@ -2,7 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use Closure;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
@@ -15,16 +14,7 @@ use GraphQL\Utils\Utils;
  * Implements the "Evaluating requests" section of the GraphQL specification.
  *
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
- *
- * @see https://github.com/vimeo/psalm/issues/6928
- *
- * @psalm-type FieldResolver callable(mixed, array, mixed, ResolveInfo): mixed
- *
  * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
- *
- * @see https://github.com/vimeo/psalm/issues/6928, https://github.com/vimeo/psalm/issues/7527
- *
- * @psalm-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array, ?string, callable): ExecutorImplementation
  */
 class Executor
 {
@@ -186,7 +176,7 @@ class Executor
     {
         $property = Utils::extractKey($objectLikeValue, $info->fieldName);
 
-        return $property instanceof Closure
+        return $property instanceof \Closure
             ? $property($objectLikeValue, $args, $contextValue, $info)
             : $property;
     }

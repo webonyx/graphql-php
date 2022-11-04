@@ -8,11 +8,6 @@ use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
-use function is_array;
-use function is_callable;
-use function is_iterable;
-use function is_string;
-
 /**
  * @see Executor
  *
@@ -118,19 +113,19 @@ class FieldDefinition
      */
     public static function defineFieldMap(Type $parentType, $fields): array
     {
-        if (is_callable($fields)) {
+        if (\is_callable($fields)) {
             $fields = $fields();
         }
 
-        if (! is_iterable($fields)) {
+        if (! \is_iterable($fields)) {
             throw new InvariantViolation("{$parentType->name} fields must be an iterable or a callable which returns such an iterable.");
         }
 
         $map = [];
         foreach ($fields as $maybeName => $field) {
-            if (is_array($field)) {
+            if (\is_array($field)) {
                 if (! isset($field['name'])) {
-                    if (! is_string($maybeName)) {
+                    if (! \is_string($maybeName)) {
                         throw new InvariantViolation("{$parentType->name} fields must be an associative array with field names as keys or a function which returns such an array.");
                     }
 
@@ -141,8 +136,8 @@ class FieldDefinition
                 $fieldDef = new self($field);
             } elseif ($field instanceof self) {
                 $fieldDef = $field;
-            } elseif (is_callable($field)) {
-                if (! is_string($maybeName)) {
+            } elseif (\is_callable($field)) {
+                if (! \is_string($maybeName)) {
                     throw new InvariantViolation("{$parentType->name} lazy fields must be an associative array with field names as keys.");
                 }
 
@@ -212,7 +207,7 @@ class FieldDefinition
             throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}");
         }
 
-        if ($this->resolveFn !== null && ! is_callable($this->resolveFn)) {
+        if ($this->resolveFn !== null && ! \is_callable($this->resolveFn)) {
             $safeResolveFn = Utils::printSafe($this->resolveFn);
             throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}");
         }

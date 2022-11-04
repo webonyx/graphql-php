@@ -2,21 +2,13 @@
 
 namespace GraphQL\Benchmarks\Utils;
 
-use function array_merge;
-use function array_rand;
-
-use Exception;
-
-use function explode;
-
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-
-use function ucfirst;
+use GraphQL\Type\SchemaConfig;
 
 class SchemaGenerator
 {
@@ -38,14 +30,15 @@ class SchemaGenerator
      */
     public function __construct(array $config)
     {
-        $this->config = array_merge($this->config, $config);
+        $this->config = \array_merge($this->config, $config);
     }
 
     public function buildSchema(): Schema
     {
-        return new Schema([
-            'query' => $this->buildQueryType(),
-        ]);
+        return new Schema(
+            (new SchemaConfig())
+            ->setQuery($this->buildQueryType())
+        );
     }
 
     public function buildQueryType(): ObjectType
@@ -58,7 +51,7 @@ class SchemaGenerator
 
     public function loadType(string $name): ObjectType
     {
-        $tokens = explode('_', $name);
+        $tokens = \explode('_', $name);
         $nestingLevel = (int) $tokens[1];
 
         return $this->createType($nestingLevel, $name);
@@ -67,7 +60,7 @@ class SchemaGenerator
     protected function createType(int $nestingLevel, ?string $typeName = null): ObjectType
     {
         if ($this->typeIndex > $this->config['totalTypes']) {
-            throw new Exception("Cannot create new type: there are already {$this->typeIndex} types which exceeds allowed number of {$this->config['totalTypes']} types total");
+            throw new \Exception("Cannot create new type: there are already {$this->typeIndex} types which exceeds allowed number of {$this->config['totalTypes']} types total");
         }
 
         ++$this->typeIndex;
@@ -94,7 +87,7 @@ class SchemaGenerator
             $fieldType = Type::string();
             $fieldName = 'leafField' . $fieldIndex;
         } elseif ($this->typeIndex >= $this->config['totalTypes']) {
-            $fieldType = $this->objectTypes[array_rand($this->objectTypes)];
+            $fieldType = $this->objectTypes[\array_rand($this->objectTypes)];
             $fieldName = 'randomTypeField' . $fieldIndex;
         } else {
             $fieldType = $this->createType($nestingLevel);
@@ -121,7 +114,7 @@ class SchemaGenerator
 
         for ($index = 0; $index < $this->config['listFieldsPerType']; ++$index) {
             [$type, $name] = $this->getFieldTypeAndName($nestingLevel, $index);
-            $name = 'listOf' . ucfirst($name);
+            $name = 'listOf' . \ucfirst($name);
 
             $fields[] = [
                 'name' => $name,

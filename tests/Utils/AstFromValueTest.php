@@ -19,12 +19,10 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
-use stdClass;
-use Throwable;
 
 class AstFromValueTest extends TestCase
 {
-    private stdClass $complexValue;
+    private \stdClass $complexValue;
 
     /**
      * @see it('converts boolean values to ASTs')
@@ -55,14 +53,14 @@ class AstFromValueTest extends TestCase
     {
         // GraphQL spec does not allow coercing non-integer values to Int to avoid
         // accidental data loss.
-        $this->expectException(Throwable::class);
+        $this->expectException(\Throwable::class);
         $this->expectExceptionMessage('Int cannot represent non-integer value: 123.5');
         AST::astFromValue(123.5, Type::int());
     }
 
     public function testConvertsIntValuesToASTsCannotRepresentNon32bitsInteger(): void
     {
-        $this->expectException(Throwable::class);
+        $this->expectException(\Throwable::class);
         $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: 1.0E+40');
         AST::astFromValue(
             1e40,
@@ -162,7 +160,7 @@ class AstFromValueTest extends TestCase
         ]);
     }
 
-    private function complexValue(): stdClass
+    private function complexValue(): \stdClass
     {
         return $this->complexValue ??= (object) ['someArbitrary' => 'complexValue'];
     }

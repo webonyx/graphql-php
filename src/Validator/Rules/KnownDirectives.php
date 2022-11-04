@@ -2,12 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function count;
-
-use Exception;
-
-use function get_class;
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -43,8 +37,6 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
-
-use function in_array;
 
 /**
  * @phpstan-import-type VisitorArray from Visitor
@@ -114,7 +106,7 @@ class KnownDirectives extends ValidationRule
 
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if ($candidateLocation === '' || in_array($candidateLocation, $locations, true)) {
+                if ($candidateLocation === '' || \in_array($candidateLocation, $locations, true)) {
                     return;
                 }
 
@@ -138,7 +130,7 @@ class KnownDirectives extends ValidationRule
      */
     protected function getDirectiveLocationForASTPath(array $ancestors): string
     {
-        $appliedTo = $ancestors[count($ancestors) - 1];
+        $appliedTo = $ancestors[\count($ancestors) - 1];
 
         switch (true) {
             case $appliedTo instanceof OperationDefinitionNode:
@@ -187,14 +179,14 @@ class KnownDirectives extends ValidationRule
             case $appliedTo instanceof InputObjectTypeExtensionNode:
                 return DirectiveLocation::INPUT_OBJECT;
             case $appliedTo instanceof InputValueDefinitionNode:
-                $parentNode = $ancestors[count($ancestors) - 3];
+                $parentNode = $ancestors[\count($ancestors) - 3];
 
                 return $parentNode instanceof InputObjectTypeDefinitionNode
                     ? DirectiveLocation::INPUT_FIELD_DEFINITION
                     : DirectiveLocation::ARGUMENT_DEFINITION;
             default:
-                $unknownLocation = get_class($appliedTo);
-                throw new Exception("Unknown directive location: {$unknownLocation}.");
+                $unknownLocation = \get_class($appliedTo);
+                throw new \Exception("Unknown directive location: {$unknownLocation}.");
         }
     }
 

@@ -20,7 +20,6 @@ use GraphQL\Language\Token;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Utils\Utils;
 
-use function is_array;
 use function Safe\file_get_contents;
 
 class ParserTest extends TestCaseBase
@@ -90,11 +89,11 @@ fragment MissingOn Type
             self::assertEquals($expectedMessage, $e->getMessage());
             self::assertEquals($stringRepresentation, (string) $e);
 
-            if (is_array($expectedPositions)) {
+            if (\is_array($expectedPositions)) {
                 self::assertEquals($expectedPositions, $e->getPositions());
             }
 
-            if (is_array($expectedLocations)) {
+            if (\is_array($expectedLocations)) {
                 self::assertEquals($expectedLocations, $e->getLocations());
             }
         }

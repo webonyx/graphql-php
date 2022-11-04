@@ -2,9 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use function array_key_exists;
-use function count;
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -78,7 +75,7 @@ class Values
                     [$varDefNode->type]
                 );
             } else {
-                $hasValue = array_key_exists($varName, $rawVariableValues);
+                $hasValue = \array_key_exists($varName, $rawVariableValues);
                 $value = $hasValue
                     ? $rawVariableValues[$varName]
                     : Utils::undefined();
@@ -133,7 +130,7 @@ class Values
             }
         }
 
-        if (count($errors) > 0) {
+        if (\count($errors) > 0) {
             return [$errors, null];
         }
 
@@ -179,7 +176,7 @@ class Values
      */
     public static function getArgumentValues($def, Node $node, ?array $variableValues = null): array
     {
-        if (count($def->args) === 0) {
+        if (\count($def->args) === 0) {
             return [];
         }
 
@@ -214,7 +211,7 @@ class Values
 
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
-                $hasValue = $variableValues !== null && array_key_exists($variableName, $variableValues);
+                $hasValue = $variableValues !== null && \array_key_exists($variableName, $variableValues);
                 $isNull = $hasValue && $variableValues[$variableName] === null;
             } else {
                 $hasValue = $argumentValueNode !== null;

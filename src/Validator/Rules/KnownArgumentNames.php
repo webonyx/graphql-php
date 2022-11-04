@@ -2,9 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function array_map;
-use function count;
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NodeKind;
@@ -49,7 +46,7 @@ class KnownArgumentNames extends ValidationRule
                         $parentType->name,
                         Utils::suggestionList(
                             $node->name->value,
-                            array_map(
+                            \array_map(
                                 static fn (Argument $arg): string => $arg->name,
                                 $fieldDef->args
                             )
@@ -68,7 +65,7 @@ class KnownArgumentNames extends ValidationRule
     {
         $message = "Unknown argument \"{$argName}\" on field \"{$fieldName}\" of type \"{$typeName}\".";
 
-        if (count($suggestedArgs) > 0) {
+        if (\count($suggestedArgs) > 0) {
             $suggestions = Utils::quotedOrList($suggestedArgs);
             $message .= " Did you mean {$suggestions}?";
         }

@@ -2,19 +2,12 @@
 
 namespace GraphQL\Type\Definition;
 
-use function floor;
-
 use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
-
-use function is_bool;
-use function is_float;
-use function is_int;
-use function is_numeric;
 
 class IntType extends ScalarType
 {
@@ -35,15 +28,15 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     public function serialize($value): int
     {
         // Fast path for 90+% of cases:
-        if (is_int($value) && $value <= self::MAX_INT && $value >= self::MIN_INT) {
+        if (\is_int($value) && $value <= self::MAX_INT && $value >= self::MIN_INT) {
             return $value;
         }
 
-        $float = is_numeric($value) || is_bool($value)
+        $float = \is_numeric($value) || \is_bool($value)
             ? (float) $value
             : null;
 
-        if ($float === null || floor($float) !== $float) {
+        if ($float === null || \floor($float) !== $float) {
             $notInt = Utils::printSafe($value);
             throw new SerializationError("Int cannot represent non-integer value: {$notInt}");
         }
@@ -58,8 +51,8 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
     public function parseValue($value): int
     {
-        $isInt = is_int($value)
-            || (is_float($value) && floor($value) === $value);
+        $isInt = \is_int($value)
+            || (\is_float($value) && \floor($value) === $value);
 
         if (! $isInt) {
             $notInt = Utils::printSafeJson($value);

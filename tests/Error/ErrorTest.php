@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Error;
 
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\AST\NullValueNode;
@@ -19,7 +18,7 @@ class ErrorTest extends TestCase
      */
     public function testUsesTheStackOfAnOriginalError(): void
     {
-        $prev = new Exception('Original');
+        $prev = new \Exception('Original');
         $err = new Error('msg', null, null, [], null, $prev);
 
         self::assertSame($err->getPrevious(), $prev);

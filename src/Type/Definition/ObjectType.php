@@ -9,8 +9,6 @@ use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
 
-use function is_callable;
-
 /**
  * Object Type Definition.
  *
@@ -141,7 +139,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     {
         Utils::assertValidName($this->name);
 
-        if (isset($this->config['isTypeOf']) && ! is_callable($this->config['isTypeOf'])) {
+        if (isset($this->config['isTypeOf']) && ! \is_callable($this->config['isTypeOf'])) {
             $notCallable = Utils::printSafe($this->config['isTypeOf']);
             throw new InvariantViolation("{$this->name} must provide \"isTypeOf\" as a callable, but got: {$notCallable}");
         }

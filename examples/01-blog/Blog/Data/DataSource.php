@@ -2,16 +2,6 @@
 
 namespace GraphQL\Examples\Blog\Data;
 
-use function array_filter;
-use function array_keys;
-use function array_map;
-use function array_search;
-use function array_slice;
-use function array_values;
-use function count;
-use function in_array;
-use function rand;
-
 /**
  * This is just a simple in-memory data holder for the sake of example.
  * Data layer for real app may use Doctrine or query the database directly (e.g. in CQRS style).
@@ -131,12 +121,12 @@ class DataSource
 
     public static function findLastStoryFor(int $authorId): ?Story
     {
-        $storiesFound = array_filter(
+        $storiesFound = \array_filter(
             self::$stories,
             static fn (Story $story): bool => $story->authorId === $authorId
         );
 
-        return $storiesFound[count($storiesFound) - 1] ?? null;
+        return $storiesFound[\count($storiesFound) - 1] ?? null;
     }
 
     /**
@@ -145,19 +135,19 @@ class DataSource
     public static function findLikes(int $storyId, int $limit): array
     {
         $likes = self::$storyLikes[$storyId] ?? [];
-        $users = array_map(
+        $users = \array_map(
             static fn (int $userId) => self::$users[$userId],
             $likes
         );
 
-        return array_slice($users, 0, $limit);
+        return \array_slice($users, 0, $limit);
     }
 
     public static function isLikedBy(int $storyId, int $userId): bool
     {
         $subscribers = self::$storyLikes[$storyId] ?? [];
 
-        return in_array($userId, $subscribers, true);
+        return \in_array($userId, $subscribers, true);
     }
 
     public static function getUserPhoto(int $userId, string $size): Image
@@ -166,14 +156,14 @@ class DataSource
             'id' => $userId,
             'type' => Image::TYPE_USERPIC,
             'size' => $size,
-            'width' => rand(100, 200),
-            'height' => rand(100, 200),
+            'width' => \rand(100, 200),
+            'height' => \rand(100, 200),
         ]);
     }
 
     public static function findLatestStory(): ?Story
     {
-        return self::$stories[count(self::$stories) - 1] ?? null;
+        return self::$stories[\count(self::$stories) - 1] ?? null;
     }
 
     /**
@@ -182,10 +172,10 @@ class DataSource
     public static function findStories(int $limit, ?int $afterId = null): array
     {
         $start = $afterId !== null
-            ? (int) array_search($afterId, array_keys(self::$stories), true) + 1
+            ? (int) \array_search($afterId, \array_keys(self::$stories), true) + 1
             : 0;
 
-        return array_slice(array_values(self::$stories), $start, $limit);
+        return \array_slice(\array_values(self::$stories), $start, $limit);
     }
 
     /**
@@ -196,11 +186,11 @@ class DataSource
         $storyComments = self::$storyComments[$storyId] ?? [];
 
         $start = isset($afterId)
-            ? (int) array_search($afterId, $storyComments, true) + 1
+            ? (int) \array_search($afterId, $storyComments, true) + 1
             : 0;
-        $storyComments = array_slice($storyComments, $start, $limit);
+        $storyComments = \array_slice($storyComments, $start, $limit);
 
-        return array_map(
+        return \array_map(
             static fn (int $commentId): Comment => self::$comments[$commentId],
             $storyComments
         );
@@ -214,11 +204,11 @@ class DataSource
         $commentReplies = self::$commentReplies[$commentId] ?? [];
 
         $start = isset($afterId)
-            ? (int) array_search($afterId, $commentReplies, true) + 1
+            ? (int) \array_search($afterId, $commentReplies, true) + 1
             : 0;
-        $commentReplies = array_slice($commentReplies, $start, $limit);
+        $commentReplies = \array_slice($commentReplies, $start, $limit);
 
-        return array_map(
+        return \array_map(
             static fn (int $replyId): Comment => self::$comments[$replyId],
             $commentReplies
         );
@@ -227,14 +217,14 @@ class DataSource
     public static function countComments(int $storyId): int
     {
         return isset(self::$storyComments[$storyId])
-            ? count(self::$storyComments[$storyId])
+            ? \count(self::$storyComments[$storyId])
             : 0;
     }
 
     public static function countReplies(int $commentId): int
     {
         return isset(self::$commentReplies[$commentId])
-            ? count(self::$commentReplies[$commentId])
+            ? \count(self::$commentReplies[$commentId])
             : 0;
     }
 

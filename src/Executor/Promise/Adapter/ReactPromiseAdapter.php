@@ -13,8 +13,6 @@ use React\Promise\PromiseInterface as ReactPromiseInterface;
 use function React\Promise\reject;
 use function React\Promise\resolve;
 
-use Throwable;
-
 class ReactPromiseAdapter implements PromiseAdapter
 {
     public function isThenable($value): bool
@@ -49,7 +47,7 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    public function createRejected(Throwable $reason): Promise
+    public function createRejected(\Throwable $reason): Promise
     {
         $promise = reject($reason);
 

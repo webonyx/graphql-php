@@ -2,13 +2,6 @@
 
 namespace GraphQL\Utils;
 
-use function array_key_exists;
-
-use ArrayAccess;
-
-use function count;
-
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
@@ -43,16 +36,6 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
-
-use function is_array;
-use function is_bool;
-use function is_float;
-use function is_int;
-use function is_object;
-use function is_string;
-use function property_exists;
-
-use Throwable;
 
 /**
  * Various utilities dealing with AST.
@@ -109,8 +92,8 @@ class AST
                 continue;
             }
 
-            if (is_array($value)) {
-                if (isset($value[0]) || count($value) === 0) {
+            if (\is_array($value)) {
+                if (isset($value[0]) || \count($value) === 0) {
                     $value = new NodeList($value);
                 } else {
                     $value = self::fromArray($value);
@@ -201,9 +184,9 @@ class AST
         // Populate the fields of the input object by creating ASTs from each value
         // in the PHP object according to the fields in the input type.
         if ($type instanceof InputObjectType) {
-            $isArray = is_array($value);
-            $isArrayLike = $isArray || $value instanceof ArrayAccess;
-            if (! $isArrayLike && ! is_object($value)) {
+            $isArray = \is_array($value);
+            $isArrayLike = $isArray || $value instanceof \ArrayAccess;
+            if (! $isArrayLike && ! \is_object($value)) {
                 return null;
             }
 
@@ -221,11 +204,11 @@ class AST
                 if ($fieldValue !== null) {
                     $fieldExists = true;
                 } elseif ($isArray) {
-                    $fieldExists = array_key_exists($fieldName, $value);
+                    $fieldExists = \array_key_exists($fieldName, $value);
                 } elseif ($isArrayLike) {
                     $fieldExists = $value->offsetExists($fieldName);
                 } else {
-                    $fieldExists = property_exists($value, $fieldName);
+                    $fieldExists = \property_exists($value, $fieldName);
                 }
 
                 if (! $fieldExists) {
@@ -254,15 +237,15 @@ class AST
         $serialized = $type->serialize($value);
 
         // Others serialize based on their corresponding PHP scalar types.
-        if (is_bool($serialized)) {
+        if (\is_bool($serialized)) {
             return new BooleanValueNode(['value' => $serialized]);
         }
 
-        if (is_int($serialized)) {
+        if (\is_int($serialized)) {
             return new IntValueNode(['value' => (string) $serialized]);
         }
 
-        if (is_float($serialized)) {
+        if (\is_float($serialized)) {
             // int cast with == used for performance reasons
             if ((int) $serialized == $serialized) {
                 return new IntValueNode(['value' => (string) $serialized]);
@@ -271,7 +254,7 @@ class AST
             return new FloatValueNode(['value' => (string) $serialized]);
         }
 
-        if (is_string($serialized)) {
+        if (\is_string($serialized)) {
             // Enum types use Enum literals.
             if ($type instanceof EnumType) {
                 return new EnumValueNode(['value' => $serialized]);
@@ -314,7 +297,7 @@ class AST
      * @param (ValueNode&Node)|null $valueNode
      * @param array<string, mixed>|null $variables
      *
-     * @throws Exception
+     * @throws \Exception
      *
      * @return mixed
      *
@@ -347,7 +330,7 @@ class AST
         if ($valueNode instanceof VariableNode) {
             $variableName = $valueNode->name->value;
 
-            if ($variables === null || ! array_key_exists($variableName, $variables)) {
+            if ($variables === null || ! \array_key_exists($variableName, $variables)) {
                 // No valid return value.
                 return $undefined;
             }
@@ -446,7 +429,7 @@ class AST
         if ($type instanceof EnumType) {
             try {
                 return $type->parseLiteral($valueNode, $variables);
-            } catch (Throwable $error) {
+            } catch (\Throwable $error) {
                 return $undefined;
             }
         }
@@ -458,7 +441,7 @@ class AST
         // no value is returned.
         try {
             return $type->parseLiteral($valueNode, $variables);
-        } catch (Throwable $error) {
+        } catch (\Throwable $error) {
             return $undefined;
         }
     }
@@ -473,7 +456,7 @@ class AST
     private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
     {
         return $valueNode instanceof VariableNode
-            && ($variables === null || ! array_key_exists($valueNode->name->value, $variables));
+            && ($variables === null || ! \array_key_exists($valueNode->name->value, $variables));
     }
 
     /**
@@ -494,7 +477,7 @@ class AST
      *
      * @param array<string, mixed>|null $variables
      *
-     * @throws Exception
+     * @throws \Exception
      *
      * @return mixed
      *
@@ -550,7 +533,7 @@ class AST
      * @param callable(string): ?Type $typeLoader
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      *
-     * @throws Exception
+     * @throws \Exception
      *
      * @api
      */

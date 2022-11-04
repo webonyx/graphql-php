@@ -11,8 +11,6 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
-use stdClass;
-use Throwable;
 
 /**
  * @phpstan-type CoercedValue array{errors: null, value: mixed}
@@ -59,7 +57,7 @@ class Value
             // the original error.
             try {
                 return self::ofValue($type->parseValue($value));
-            } catch (Throwable $error) {
+            } catch (\Throwable $error) {
                 if ($error instanceof Error) {
                     return self::ofErrors([
                         CoercionError::make($error->getMessage(), $path, $value, $error),
@@ -108,7 +106,7 @@ class Value
 
         assert($type instanceof InputObjectType, 'we handled all other cases at this point');
 
-        if ($value instanceof stdClass) {
+        if ($value instanceof \stdClass) {
             // Cast objects to associative array before checking the fields.
             // Note that the coerced value will be an array.
             $value = (array) $value;

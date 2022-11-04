@@ -10,12 +10,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
 
-use function is_bool;
-use function is_finite;
-use function is_float;
-use function is_int;
-use function is_numeric;
-
 class FloatType extends ScalarType
 {
     public string $name = Type::FLOAT;
@@ -27,11 +21,11 @@ values as specified by
 
     public function serialize($value): float
     {
-        $float = is_numeric($value) || is_bool($value)
+        $float = \is_numeric($value) || \is_bool($value)
             ? (float) $value
             : null;
 
-        if ($float === null || ! is_finite($float)) {
+        if ($float === null || ! \is_finite($float)) {
             $notFloat = Utils::printSafe($value);
             throw new SerializationError("Float cannot represent non numeric value: {$notFloat}");
         }
@@ -41,11 +35,11 @@ values as specified by
 
     public function parseValue($value): float
     {
-        $float = is_float($value) || is_int($value)
+        $float = \is_float($value) || \is_int($value)
             ? (float) $value
             : null;
 
-        if ($float === null || ! is_finite($float)) {
+        if ($float === null || ! \is_finite($float)) {
             $notFloat = Utils::printSafeJson($value);
             throw new Error("Float cannot represent non numeric value: {$notFloat}");
         }
