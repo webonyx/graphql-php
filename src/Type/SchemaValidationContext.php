@@ -846,8 +846,6 @@ class SchemaValidationContext
         }
 
         $name = $namedType->name;
-
-        // TODO does this really ensure every usage of the type is unique?
         if ($namedType !== $typeLoader($name)) {
             throw new InvariantViolation(static::duplicateType($this->schema, $path, $name));
         }
