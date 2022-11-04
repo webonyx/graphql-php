@@ -834,12 +834,21 @@ class SchemaValidationContext
 
     private function validateTypeIsSingleton(Type $type, string $path): void
     {
+        $typeLoader = $this->schema->getConfig()->typeLoader;
+        if ($typeLoader === null) {
+            return;
+        }
+
         $namedType = Type::getNamedType($type);
-        assert($namedType instanceof Type, 'because getNamedType() was called with non-null type');
+        assert($namedType instanceof Type && $namedType instanceof NamedType, 'because getNamedType() was called with non-null type');
+        if ($namedType->isBuiltInType()) {
+            return;
+        }
+
         $name = $namedType->name;
 
         // TODO does this really ensure every usage of the type is unique?
-        if ($namedType !== $this->schema->getType($name)) {
+        if ($namedType !== $typeLoader($name)) {
             throw new InvariantViolation(static::duplicateType($this->schema, $path, $name));
         }
     }

@@ -61,7 +61,7 @@ final class LazyValidationTest extends TestCaseBase
         ]);
 
         $this->expectExceptionObject(new InvariantViolation(
-            'Type loader returns different instance for Test than field/argument definitions. Make sure you always return the same instance for the same type name.'
+            'Found duplicate type in schema at Query.test: Test. Ensure the type loader returns the same instance. See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.'
         ));
         $schema->assertValid();
     }
