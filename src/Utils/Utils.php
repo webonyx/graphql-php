@@ -202,14 +202,14 @@ class Utils
     {
         if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
             return new Error(
-                'Name "' . $name . '" must not begin with "__", which is reserved by GraphQL introspection.',
+                "Name \"{$name}\" must not begin with \"__\", which is reserved by GraphQL introspection.",
                 $node
             );
         }
 
         if (\preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name) !== 1) {
             return new Error(
-                'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "' . $name . '" does not.',
+                "Names must match /^[_a-zA-Z][_a-zA-Z0-9]*\$/ but \"{$name}\" does not.",
                 $node
             );
         }

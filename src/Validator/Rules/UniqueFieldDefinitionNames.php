@@ -57,14 +57,14 @@ class UniqueFieldDefinitionNames extends ValidationRule
                 if (self::hasField($existingType, $fieldName)) {
                     $context->reportError(
                         new Error(
-                            'Field "' . $typeName . '.' . $fieldName . '" already exists in the schema. It cannot also be defined in this type extension.',
+                            "Field \"{$typeName}.{$fieldName}\" already exists in the schema. It cannot also be defined in this type extension.",
                             $fieldDef->name,
                         ),
                     );
                 } elseif (isset($fieldNames[$fieldName])) {
                     $context->reportError(
                         new Error(
-                            'Field "' . $typeName . '.' . $fieldName . '" can only be defined once.',
+                            "Field \"{$typeName}.{$fieldName}\" can only be defined once.",
                             [$fieldNames[$fieldName], $fieldDef->name],
                         ),
                     );

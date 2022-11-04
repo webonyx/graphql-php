@@ -96,9 +96,10 @@ class KnownTypeNames extends ValidationRule
      */
     public static function unknownTypeMessage(string $type, array $suggestedTypes): string
     {
-        $message = 'Unknown type "' . $type . '".';
+        $message = "Unknown type \"{$type}\".";
         if (\count($suggestedTypes) > 0) {
-            $message .= ' Did you mean ' . Utils::quotedOrList($suggestedTypes) . '?';
+            $suggestionList = Utils::quotedOrList($suggestedTypes);
+            $message .= " Did you mean {$suggestionList}?";
         }
 
         return $message;

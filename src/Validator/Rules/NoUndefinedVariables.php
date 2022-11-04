@@ -54,7 +54,7 @@ class NoUndefinedVariables extends ValidationRule
     public static function undefinedVarMessage(string $varName, ?string $opName): string
     {
         return $opName === null
-            ? 'Variable "$' . $varName . '" is not defined by operation "' . $opName . '".'
-            : 'Variable "$' . $varName . '" is not defined.';
+            ? "Variable \"\${$varName}\" is not defined by operation \"{$opName}\"."
+            : "Variable \"\${$varName}\" is not defined.";
     }
 }

@@ -29,7 +29,7 @@ class UniqueTypeNames extends ValidationRule
             if ($schema !== null && $schema->getType($typeName) !== null) {
                 $context->reportError(
                     new Error(
-                        'Type "' . $typeName . '" already exists in the schema. It cannot also be defined in this type definition.',
+                        "Type \"{$typeName}\" already exists in the schema. It cannot also be defined in this type definition.",
                         $node->name,
                     ),
                 );
@@ -40,7 +40,7 @@ class UniqueTypeNames extends ValidationRule
             if (\array_key_exists($typeName, $knownTypeNames)) {
                 $context->reportError(
                     new Error(
-                        'There can be only one type named "' . $typeName . '".',
+                        "There can be only one type named \"{$typeName}\".",
                         [
                             $knownTypeNames[$typeName],
                             $node->name,

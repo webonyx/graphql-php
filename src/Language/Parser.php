@@ -384,7 +384,7 @@ class Parser
             throw new SyntaxError(
                 $this->lexer->source,
                 $token->start,
-                'Expected "' . $value . '", found ' . $token->getDescription()
+                "Expected \"{$value}\", found {$token->getDescription()}"
             );
         }
 

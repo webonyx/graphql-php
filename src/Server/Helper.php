@@ -120,7 +120,7 @@ class Helper
             return OperationParams::create($bodyParams);
         }
 
-        throw new RequestError('HTTP Method "' . $method . '" is not supported');
+        throw new RequestError("HTTP Method \"{$method}\" is not supported");
     }
 
     /**
