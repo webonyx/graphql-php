@@ -1,4 +1,5 @@
-name: "Autoformat"
+name: Autoformat
+
 on:
   push:
     branches:
@@ -18,7 +19,7 @@ jobs:
           extensions: mbstring
           php-version: 7.4
 
-      - run: composer install --no-interaction --no-progress --no-suggest
+      - uses: ramsey/composer-install@v2
 
       - run: composer normalize
 
@@ -54,7 +55,7 @@ jobs:
           extensions: mbstring
           php-version: 7.4
 
-      - run: composer install --no-interaction --no-progress --no-suggest
+      - uses: ramsey/composer-install@v2
 
       - run: vendor/bin/php-cs-fixer fix
 
