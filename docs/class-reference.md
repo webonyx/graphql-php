@@ -512,15 +512,15 @@ Usage example:
 @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
 @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
 @phpstan-type SchemaConfigOptions array{
-query?: ObjectType|null,
-mutation?: ObjectType|null,
-subscription?: ObjectType|null,
-types?: Types|null,
-directives?: array<Directive>|null,
-typeLoader?: TypeLoader|null,
-assumeValid?: bool|null,
-astNode?: SchemaDefinitionNode|null,
-extensionASTNodes?: array<SchemaExtensionNode>|null,
+  query?: ObjectType|null,
+  mutation?: ObjectType|null,
+  subscription?: ObjectType|null,
+  types?: Types|null,
+  directives?: array<Directive>|null,
+  typeLoader?: TypeLoader|null,
+  assumeValid?: bool|null,
+  astNode?: SchemaDefinitionNode|null,
+  extensionASTNodes?: array<SchemaExtensionNode>|null,
 }
 
 ### GraphQL\Type\SchemaConfig Methods
@@ -827,46 +827,46 @@ function validate(): array
 Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
 
 @phpstan-type ParserOptions array{
-noLocation?: bool,
-allowLegacySDLEmptyFields?: bool,
-allowLegacySDLImplementsInterfaces?: bool,
-experimentalFragmentVariables?: bool
+  noLocation?: bool,
+  allowLegacySDLEmptyFields?: bool,
+  allowLegacySDLImplementsInterfaces?: bool,
+  experimentalFragmentVariables?: bool
 }
 
 noLocation:
-(By default, the parser creates AST nodes that know the location
-in the source that they correspond to. This configuration flag
-disables that behavior for performance or testing.)
+  (By default, the parser creates AST nodes that know the location
+  in the source that they correspond to. This configuration flag
+  disables that behavior for performance or testing.)
 
 allowLegacySDLEmptyFields:
-If enabled, the parser will parse empty fields sets in the Schema
-Definition Language. Otherwise, the parser will follow the current
-specification.
+  If enabled, the parser will parse empty fields sets in the Schema
+  Definition Language. Otherwise, the parser will follow the current
+  specification.
 
-This option is provided to ease adoption of the final SDL specification
-and will be removed in a future major release.
+  This option is provided to ease adoption of the final SDL specification
+  and will be removed in a future major release.
 
 allowLegacySDLImplementsInterfaces:
-If enabled, the parser will parse implemented interfaces with no `&`
-character between each interface. Otherwise, the parser will follow the
-current specification.
+  If enabled, the parser will parse implemented interfaces with no `&`
+  character between each interface. Otherwise, the parser will follow the
+  current specification.
 
-This option is provided to ease adoption of the final SDL specification
-and will be removed in a future major release.
+  This option is provided to ease adoption of the final SDL specification
+  and will be removed in a future major release.
 
 experimentalFragmentVariables:
-(If enabled, the parser will understand and parse variable definitions
-contained in a fragment definition. They'll be represented in the
-`variableDefinitions` field of the FragmentDefinitionNode.
+  (If enabled, the parser will understand and parse variable definitions
+  contained in a fragment definition. They'll be represented in the
+  `variableDefinitions` field of the FragmentDefinitionNode.
 
-The syntax is identical to normal, query-defined variables. For example:
+  The syntax is identical to normal, query-defined variables. For example:
 
     fragment A($var: Boolean = false) on T  {
       ...
     }
 
-Note: this feature is experimental and may change or be removed in the
-future.)
+  Note: this feature is experimental and may change or be removed in the
+  future.)
 Those magic functions allow partial parsing:
 
 @method static NameNode name(Source|string $source, bool[] $options = [])
@@ -1067,51 +1067,51 @@ visitor API:
 
 1. Named visitors triggered when entering a node a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => function ($node) {
-   // enter the "Kind" node
-   }
-   ]);
+        // enter the "Kind" node
+      }
+    ]);
 
 2. Named visitors that trigger upon entering and leaving a node of
    a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'Kind' => [
         'enter' => function ($node) {
-   // enter the "Kind" node
-   }
-   'leave' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+        'leave' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
 3. Generic visitors that trigger upon entering and leaving any node.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => function ($node) {
-   // enter any node
-   },
-   'leave' => function ($node) {
-   // leave any node
-   }
-   ]);
+        // enter any node
+      },
+      'leave' => function ($node) {
+        // leave any node
+      }
+    ]);
 
 4. Parallel visitors for entering and leaving nodes of a specific kind.
 
-   Visitor::visit($ast, [
+    Visitor::visit($ast, [
       'enter' => [
         'Kind' => function($node) {
-   // enter the "Kind" node
-   }
-   },
-   'leave' => [
-   'Kind' => function ($node) {
-   // leave the "Kind" node
-   }
-   ]
-   ]);
+          // enter the "Kind" node
+        }
+      },
+      'leave' => [
+        'Kind' => function ($node) {
+          // leave the "Kind" node
+        }
+      ]
+    ]);
 
 @phpstan-type VisitorArray array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
 
@@ -1333,16 +1333,16 @@ serializable array using `toArray()`.
 @see Throwable
 
 @phpstan-type SerializableError array{
-message: string,
-locations?: array<int, array{line: int, column: int}>,
-path?: array<int, int|string>,
-extensions?: array<string, mixed>
+  message: string,
+  locations?: array<int, array{line: int, column: int}>,
+  path?: array<int, int|string>,
+  extensions?: array<string, mixed>
 }
 @phpstan-type SerializableErrors array<int, SerializableError>
 @phpstan-type SerializableResult array{
-data?: array<string, mixed>,
-errors?: SerializableErrors,
-extensions?: array<string, mixed>
+    data?: array<string, mixed>,
+    errors?: SerializableErrors,
+    extensions?: array<string, mixed>
 }
 @phpstan-type ErrorFormatter callable(Throwable): SerializableError
 @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
@@ -2280,21 +2280,21 @@ See [schema definition language docs](schema-definition-language.md) for details
 @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
 
 @phpstan-type BuildSchemaOptions array{
-assumeValid?: bool,
-assumeValidSDL?: bool
+  assumeValid?: bool,
+  assumeValidSDL?: bool
 }
 
 - assumeValid:
-  When building a schema from a GraphQL service's introspection result, it
-  might be safe to assume the schema is valid. Set to true to assume the
-  produced schema is valid.
+    When building a schema from a GraphQL service's introspection result, it
+    might be safe to assume the schema is valid. Set to true to assume the
+    produced schema is valid.
 
-  Default: false
+    Default: false
 
 - assumeValidSDL:
-  Set to true to assume the SDL is valid.
+    Set to true to assume the SDL is valid.
 
-  Default: false
+    Default: false
 
 ### GraphQL\Utils\BuildSchema Methods
 
@@ -2348,7 +2348,7 @@ Various utilities dealing with AST.
 
 ### GraphQL\Utils\AST Methods
 
-````php
+```php
 /**
  * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
  *
@@ -2375,7 +2375,7 @@ Various utilities dealing with AST.
  * @api
  */
 static function fromArray(array $node): GraphQL\Language\AST\Node
-````
+```
 
 ```php
 /**
@@ -2548,3 +2548,4 @@ static function doPrint(GraphQL\Type\Schema $schema, array $options = []): strin
  */
 static function printIntrospectionSchema(GraphQL\Type\Schema $schema, array $options = []): string
 ```
+
