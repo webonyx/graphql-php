@@ -195,7 +195,7 @@ class Schema
     }
 
     /**
-     * @phpstan-param OperationType $operation
+     * Returns root type by operation name.
      */
     public function getOperationType(string $operation): ?ObjectType
     {
