@@ -840,13 +840,16 @@ class SchemaValidationContext
 
         // TODO does this really ensure every usage of the type is unique?
         if ($namedType !== $this->schema->getType($name)) {
-            $hint = $this->schema->getConfig()->typeLoader !== null
-                ? 'Ensure the type loader returns the same instance. '
-                : '';
-
-            throw new InvariantViolation(
-                "Found duplicate type in schema at {$path}: {$name}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry."
-            );
+            throw new InvariantViolation($this->duplicateType($this->schema, $path, $name));
         }
+    }
+
+    public static function duplicateType(Schema $schema, string $path, string $name): string
+    {
+        $hint = $schema->getConfig()->typeLoader !== null
+            ? 'Ensure the type loader returns the same instance. '
+            : '';
+
+        return "Found duplicate type in schema at {$path}: {$name}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.";
     }
 }

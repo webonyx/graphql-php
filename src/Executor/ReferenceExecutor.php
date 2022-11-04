@@ -2,6 +2,7 @@
 
 namespace GraphQL\Executor;
 
+use GraphQL\Type\SchemaValidationContext;
 use function array_reduce;
 
 use ArrayObject;
@@ -852,11 +853,7 @@ class ReferenceExecutor implements ExecutorImplementation
         assert(
             $returnType === $this->exeContext->schema->getType($returnType->name),
             new LazyException(function () use ($info, $returnType): string {
-                $hint = $this->exeContext->schema->getConfig()->typeLoader !== null
-                    ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
-                    : '';
-
-                return "Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.";
+                return SchemaValidationContext::duplicateType($this->exeContext->schema, "{$info->parentType}.{$info->fieldName}", $returnType->name);
             })
         );
 

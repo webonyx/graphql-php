@@ -182,7 +182,7 @@ final class ExecutorLazySchemaTest extends TestCase
         $error = $result->errors[0] ?? null;
         self::assertInstanceOf(Error::class, $error);
         self::assertEquals(
-            'Found duplicate type in schema: Test. Ensure the type loader returns the same instance as defined in Query.test. See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.',
+            'Found duplicate type in schema at Query.test: Test. Ensure the type loader returns the same instance. See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.',
             $error->getMessage()
         );
     }
