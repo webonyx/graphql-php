@@ -840,7 +840,7 @@ class SchemaValidationContext
 
         // TODO does this really ensure every usage of the type is unique?
         if ($namedType !== $this->schema->getType($name)) {
-            throw new InvariantViolation($this->duplicateType($this->schema, $path, $name));
+            throw new InvariantViolation(static::duplicateType($this->schema, $path, $name));
         }
     }
 
