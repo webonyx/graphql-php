@@ -111,11 +111,6 @@ class ResolveInfo
     public array $variableValues = [];
 
     /**
-     * Lazily initialized.
-     */
-    private QueryPlan $queryPlan;
-
-    /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<int, string|int> $path
      *
@@ -207,18 +202,14 @@ class ResolveInfo
      */
     public function lookAhead(array $options = []): QueryPlan
     {
-        if (! isset($this->queryPlan)) {
-            $this->queryPlan = new QueryPlan(
-                $this->parentType,
-                $this->schema,
-                $this->fieldNodes,
-                $this->variableValues,
-                $this->fragments,
-                $options
-            );
-        }
-
-        return $this->queryPlan;
+        return new QueryPlan(
+            $this->parentType,
+            $this->schema,
+            $this->fieldNodes,
+            $this->variableValues,
+            $this->fragments,
+            $options
+        );
     }
 
     /**
