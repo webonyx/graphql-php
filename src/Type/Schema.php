@@ -127,7 +127,7 @@ class Schema
                 $typeName = $type->name;
                 assert(
                     ! isset($this->resolvedTypes[$typeName]) || $type === $this->resolvedTypes[$typeName],
-                    new InvariantViolation("Schema must contain unique named types but contains multiple types named \"$type\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry)."),
+                    "Schema must contain unique named types but contains multiple types named \"$type\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).",
                 );
 
                 $this->resolvedTypes[$typeName] = $type;

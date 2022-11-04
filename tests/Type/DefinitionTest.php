@@ -1843,7 +1843,6 @@ final class DefinitionTest extends TestCaseBase
             'types' => [$FirstBadObject, $SecondBadObject],
         ]);
 
-        $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessageMatches('/Schema must contain unique named types but contains multiple types named "BadObject"/');
         $schema->assertValid();
     }

@@ -38,7 +38,6 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaValidationContext;
 use GraphQL\Utils\AST;
-use GraphQL\Utils\LazyException;
 use GraphQL\Utils\Utils;
 use SplObjectStorage;
 
@@ -852,9 +851,7 @@ class ReferenceExecutor implements ExecutorImplementation
         // instance than `resolveType` or $field->getType() or $arg->getType()
         assert(
             $returnType === $this->exeContext->schema->getType($returnType->name),
-            new LazyException(function () use ($info, $returnType): string {
-                return SchemaValidationContext::duplicateType($this->exeContext->schema, "{$info->parentType}.{$info->fieldName}", $returnType->name);
-            })
+            SchemaValidationContext::duplicateType($this->exeContext->schema, "{$info->parentType}.{$info->fieldName}", $returnType->name)
         );
 
         if ($returnType instanceof LeafType) {
