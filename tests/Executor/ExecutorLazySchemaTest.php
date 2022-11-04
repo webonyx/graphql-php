@@ -3,7 +3,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Error\DebugFlag;
-use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Error;
 use GraphQL\Error\Warning;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
@@ -20,7 +20,6 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use PHPUnit\Framework\Error\Error;
 use PHPUnit\Framework\TestCase;
 
 final class ExecutorLazySchemaTest extends TestCase
@@ -132,11 +131,11 @@ final class ExecutorLazySchemaTest extends TestCase
         Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = Executor::execute($schema, Parser::parse($query));
         self::assertCount(1, $result->errors);
-        self::assertInstanceOf(Error::class, $result->errors[0]->getPrevious());
-
+        $error = $result->errors[0] ?? null;
+        self::assertInstanceOf(Error::class, $error);
         self::assertSame(
             'GraphQL Interface Type `Pet` returned `null` from its `resolveType` function for value: instance of GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly. Make sure your `resolveType` function always returns a valid implementation or throws.',
-            $result->errors[0]->getMessage()
+            $error->getMessage()
         );
     }
 
@@ -180,13 +179,11 @@ final class ExecutorLazySchemaTest extends TestCase
         $result = Executor::execute($schema, Parser::parse($query), ['test' => ['test' => 'value']]);
         self::assertEquals(['Test', 'Test'], $calls);
 
+        $error = $result->errors[0] ?? null;
+        self::assertInstanceOf(Error::class, $error);
         self::assertEquals(
             'Found duplicate type in schema: Test. Ensure the type loader returns the same instance as defined in Query.test. See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.',
-            $result->errors[0]->getMessage()
-        );
-        self::assertInstanceOf(
-            InvariantViolation::class,
-            $result->errors[0]->getPrevious()
+            $error->getMessage()
         );
     }
 

@@ -140,7 +140,7 @@ class ExecutionResult implements \JsonSerializable
     /**
      * @phpstan-return SerializableResult
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function jsonSerialize(): array
     {
         return $this->toArray();

@@ -1345,6 +1345,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $runtimeType = \is_string($runtimeTypeOrName)
             ? $this->exeContext->schema->getType($runtimeTypeOrName)
             : $runtimeTypeOrName;
+
         if (! $runtimeType instanceof ObjectType) {
             $safeResult = Utils::printSafe($result);
             $notObjectType = Utils::printSafe($runtimeType);
