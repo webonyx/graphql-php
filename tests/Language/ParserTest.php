@@ -196,8 +196,8 @@ fragment MissingOn Type
 
         $char = Utils::chr(0x0A0A);
         $query = <<<HEREDOC
-        # This comment has a $char multi-byte character.
-        { field(arg: "Has a $char multi-byte character.") }
+        # This comment has a {$char} multi-byte character.
+        { field(arg: "Has a {$char} multi-byte character.") }
 HEREDOC;
 
         $result = Parser::parse($query, ['noLocation' => true]);
@@ -258,15 +258,15 @@ HEREDOC;
             // Expected not to throw:
             $result = Parser::parse(
                 <<<GRAPHQL
-query $keyword {
-... $fragmentName
-... on $keyword { field }
+query {$keyword} {
+... {$fragmentName}
+... on {$keyword} { field }
 }
-fragment $fragmentName on Type {
-$keyword($keyword: \$$keyword) @$keyword($keyword: $keyword)
+fragment {$fragmentName} on Type {
+{$keyword}({$keyword}: \${$keyword}) @{$keyword}({$keyword}: {$keyword})
 }
-fragment $fragmentName on Type {
-  $keyword($keyword: \$$keyword) @$keyword($keyword: $keyword)	
+fragment {$fragmentName} on Type {
+  {$keyword}({$keyword}: \${$keyword}) @{$keyword}({$keyword}: {$keyword})	
 }
 GRAPHQL
             );
