@@ -126,11 +126,6 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Variable property access on object\\.$#"
-			count: 1
-			path: src/Utils/Utils.php
-
-		-
 			message: "#^Method GraphQL\\\\Validator\\\\Rules\\\\KnownDirectives\\:\\:getDirectiveLocationForASTPath\\(\\) has parameter \\$ancestors with generic class GraphQL\\\\Language\\\\AST\\\\NodeList but does not specify its types\\: T$#"
 			count: 1
 			path: src/Validator/Rules/KnownDirectives.php
@@ -144,11 +139,6 @@ parameters:
 			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\}\\> does not accept array\\<int, mixed\\>\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
-
-		-
-			message: "#^Instanceof between mixed and GraphQL\\\\Language\\\\AST\\\\NodeList will always evaluate to false\\.$#"
-			count: 1
-			path: tests/Language/VisitorTest.php
 
 		-
 			message: "#^Method GraphQL\\\\Tests\\\\Language\\\\VisitorTest\\:\\:getNodeByPath\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"

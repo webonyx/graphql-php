@@ -2,8 +2,6 @@
 
 namespace GraphQL\Tests\Language;
 
-use function array_map;
-use function count;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Lexer;
@@ -11,7 +9,6 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Language\Token;
 use GraphQL\Utils\Utils;
-use function json_decode;
 use PHPUnit\Framework\TestCase;
 
 final class LexerTest extends TestCase
@@ -273,7 +270,7 @@ final class LexerTest extends TestCase
             (array) $this->lexOne('"unicode яуц"')
         );
 
-        $unicode = json_decode('"\u1234\u5678\u90AB\uCDEF"');
+        $unicode = \json_decode('"\u1234\u5678\u90AB\uCDEF"');
         self::assertArraySubset(
             [
                 'kind' => Token::STRING,
@@ -472,7 +469,7 @@ final class LexerTest extends TestCase
             ['"""', 'Unterminated string.', $this->loc(1, 4)],
             ['"""no end quote', 'Unterminated string.', $this->loc(1, 16)],
             [
-                '"""contains unescaped ' . json_decode('"\u0007"') . ' control char"""',
+                '"""contains unescaped ' . \json_decode('"\u0007"') . ' control char"""',
                 'Invalid character within String: "\\u0007"',
                 $this->loc(
                     1,
@@ -480,7 +477,7 @@ final class LexerTest extends TestCase
                 ),
             ],
             [
-                '"""null-byte is not ' . json_decode('"\u0000"') . ' end of file"""',
+                '"""null-byte is not ' . \json_decode('"\u0000"') . ' end of file"""',
                 'Invalid character within String: "\\u0000"',
                 $this->loc(
                     1,
@@ -666,8 +663,8 @@ final class LexerTest extends TestCase
         return [
             ['..', 'Cannot parse the unexpected character ".".', $this->loc(1, 1)],
             ['?', 'Cannot parse the unexpected character "?".', $this->loc(1, 1)],
-            [json_decode('"\u203B"'), 'Cannot parse the unexpected character "\\u203b".', $this->loc(1, 1)],
-            [json_decode('"\u200b"'), 'Cannot parse the unexpected character "\\u200b".', $this->loc(1, 1)],
+            [\json_decode('"\u203B"'), 'Cannot parse the unexpected character "\\u203b".', $this->loc(1, 1)],
+            [\json_decode('"\u200b"'), 'Cannot parse the unexpected character "\\u200b".', $this->loc(1, 1)],
         ];
     }
 
@@ -728,9 +725,9 @@ final class LexerTest extends TestCase
 
         $tokens = [];
         for ($tok = $startToken; $tok; $tok = $tok->next) {
-            if (count($tokens) > 0) {
+            if (\count($tokens) > 0) {
                 // Tokens are double-linked, prev should point to last seen token.
-                self::assertSame($tokens[count($tokens) - 1], $tok->prev);
+                self::assertSame($tokens[\count($tokens) - 1], $tok->prev);
             }
 
             $tokens[] = $tok;
@@ -745,7 +742,7 @@ final class LexerTest extends TestCase
                 '}',
                 '<EOF>',
             ],
-            array_map(
+            \array_map(
                 static fn (Token $tok): string => $tok->kind,
                 $tokens
             )

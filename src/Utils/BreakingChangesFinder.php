@@ -2,10 +2,6 @@
 
 namespace GraphQL\Utils;
 
-use function array_flip;
-use function array_key_exists;
-use function array_keys;
-use function array_merge;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -20,7 +16,6 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use TypeError;
 
 /**
  * Utility for finding breaking/dangerous changes between two schemas.
@@ -63,7 +58,7 @@ class BreakingChangesFinder
      */
     public static function findBreakingChanges(Schema $oldSchema, Schema $newSchema): array
     {
-        return array_merge(
+        return \array_merge(
             self::findRemovedTypes($oldSchema, $newSchema),
             self::findTypesThatChangedKind($oldSchema, $newSchema),
             self::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema),
@@ -93,7 +88,7 @@ class BreakingChangesFinder
         $newTypeMap = $newSchema->getTypeMap();
 
         $breakingChanges = [];
-        foreach (array_keys($oldTypeMap) as $typeName) {
+        foreach (\array_keys($oldTypeMap) as $typeName) {
             if (! isset($newTypeMap[$typeName])) {
                 $breakingChanges[] = [
                     'type' => self::BREAKING_CHANGE_TYPE_REMOVED,
@@ -173,7 +168,7 @@ class BreakingChangesFinder
             return 'an Input type';
         }
 
-        throw new TypeError('unknown type ' . $type->name);
+        throw new \TypeError('Unknown type: ' . $type->name);
     }
 
     /**
@@ -278,7 +273,7 @@ class BreakingChangesFinder
 
             $oldTypeFieldsDef = $oldType->getFields();
             $newTypeFieldsDef = $newType->getFields();
-            foreach (array_keys($oldTypeFieldsDef) as $fieldName) {
+            foreach (\array_keys($oldTypeFieldsDef) as $fieldName) {
                 if (! isset($newTypeFieldsDef[$fieldName])) {
                     $breakingChanges[] = [
                         'type' => self::BREAKING_CHANGE_FIELD_REMOVED,
@@ -771,9 +766,9 @@ class BreakingChangesFinder
     public static function findRemovedLocationsForDirective(Directive $oldDirective, Directive $newDirective): array
     {
         $removedLocations = [];
-        $newLocationSet = array_flip($newDirective->locations);
+        $newLocationSet = \array_flip($newDirective->locations);
         foreach ($oldDirective->locations as $oldLocation) {
-            if (! array_key_exists($oldLocation, $newLocationSet)) {
+            if (! \array_key_exists($oldLocation, $newLocationSet)) {
                 $removedLocations[] = $oldLocation;
             }
         }
@@ -789,7 +784,7 @@ class BreakingChangesFinder
      */
     public static function findDangerousChanges(Schema $oldSchema, Schema $newSchema): array
     {
-        return array_merge(
+        return \array_merge(
             self::findArgChanges($oldSchema, $newSchema)['dangerousChanges'],
             self::findValuesAddedToEnums($oldSchema, $newSchema),
             self::findInterfacesAddedToObjectTypes($oldSchema, $newSchema),

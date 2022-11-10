@@ -15,16 +15,18 @@ use GraphQL\Examples\Blog\Types;
 use GraphQL\Server\StandardServer;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
 
 // Initialize our fake data source
 DataSource::init();
 
 // See docs on schema options:
 // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
-$schema = new Schema([
-    'query' => new QueryType(),
-    'typeLoader' => static fn (string $name): Type => Types::byTypeName($name),
-]);
+$schema = new Schema(
+    (new SchemaConfig())
+    ->setQuery(new QueryType())
+    ->setTypeLoader([Types::class, 'byTypename'])
+);
 
 // Prepare context that will be available in all field resolvers (as 3rd argument):
 $appContext = new AppContext();

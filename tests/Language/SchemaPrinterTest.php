@@ -8,6 +8,7 @@ use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use PHPUnit\Framework\TestCase;
+
 use function Safe\file_get_contents;
 use function Safe\json_encode;
 
@@ -63,9 +64,13 @@ of the `Foo` type.
 """
 type Foo implements Bar & Baz & Two {
   one: Type
-  """This is a description of the `two` field."""
+  """
+  This is a description of the `two` field.
+  """
   two(
-    """This is a description of the `argument` argument."""
+    """
+    This is a description of the `argument` argument.
+    """
     argument: InputType!
   ): Type
   three(argument: InputType, other: String): Int

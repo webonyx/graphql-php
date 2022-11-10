@@ -2,8 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use function array_key_exists;
-use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -42,7 +40,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
-use function sprintf;
 
 /**
  * @see ArgumentNode - force IDE import
@@ -78,7 +75,7 @@ class Values
                     [$varDefNode->type]
                 );
             } else {
-                $hasValue = array_key_exists($varName, $rawVariableValues);
+                $hasValue = \array_key_exists($varName, $rawVariableValues);
                 $value = $hasValue
                     ? $rawVariableValues[$varName]
                     : Utils::undefined();
@@ -90,16 +87,11 @@ class Values
                 } elseif ((! $hasValue || $value === null) && ($varType instanceof NonNull)) {
                     // If no value or a nullish value was provided to a variable with a
                     // non-null type (required), produce an error.
-                    $errors[] = new Error(
-                        sprintf(
-                            $hasValue
-                                ? 'Variable "$%s" of non-null type "%s" must not be null.'
-                                : 'Variable "$%s" of required type "%s" was not provided.',
-                            $varName,
-                            Utils::printSafe($varType)
-                        ),
-                        [$varDefNode]
-                    );
+                    $safeVarType = Utils::printSafe($varType);
+                    $message = $hasValue
+                        ? "Variable \"\${$varName}\" of non-null type \"{$safeVarType}\" must not be null."
+                        : "Variable \"\${$varName}\" of required type \"{$safeVarType}\" was not provided.";
+                    $errors[] = new Error($message, [$varDefNode]);
                 } elseif ($hasValue) {
                     if ($value === null) {
                         // If the explicit value `null` was provided, an entry in the coerced
@@ -108,21 +100,26 @@ class Values
                     } else {
                         // Otherwise, a non-null value was provided, coerce it to the expected
                         // type or report an error if coercion fails.
-                        $coerced = Value::coerceValue($value, $varType, $varDefNode);
+                        $coerced = Value::coerceInputValue($value, $varType);
 
                         $coercionErrors = $coerced['errors'];
                         if ($coercionErrors !== null) {
-                            foreach ($coercionErrors as $error) {
-                                $invalidValue = Utils::printSafeJson($value);
+                            foreach ($coercionErrors as $coercionError) {
+                                $invalidValue = $coercionError->printInvalidValue();
+
+                                $inputPath = $coercionError->printInputPath();
+                                $pathMessage = $inputPath !== null
+                                    ? " at \"{$varName}{$inputPath}\""
+                                    : '';
 
                                 $errors[] = new Error(
-                                    "Variable \"\${$varName}\" got invalid value {$invalidValue}; {$error->getMessage()}",
-                                    $error->getNodes(),
-                                    $error->getSource(),
-                                    $error->getPositions(),
-                                    $error->getPath(),
-                                    $error->getPrevious(),
-                                    $error->getExtensions()
+                                    "Variable \"\${$varName}\" got invalid value {$invalidValue}{$pathMessage}; {$coercionError->getMessage()}",
+                                    $varDefNode,
+                                    $coercionError->getSource(),
+                                    $coercionError->getPositions(),
+                                    $coercionError->getPath(),
+                                    $coercionError,
+                                    $coercionError->getExtensions()
                                 );
                             }
                         } else {
@@ -133,7 +130,7 @@ class Values
             }
         }
 
-        if (count($errors) > 0) {
+        if (\count($errors) > 0) {
             return [$errors, null];
         }
 
@@ -179,7 +176,7 @@ class Values
      */
     public static function getArgumentValues($def, Node $node, ?array $variableValues = null): array
     {
-        if (count($def->args) === 0) {
+        if (\count($def->args) === 0) {
             return [];
         }
 
@@ -214,7 +211,7 @@ class Values
 
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
-                $hasValue = $variableValues !== null && array_key_exists($variableName, $variableValues);
+                $hasValue = $variableValues !== null && \array_key_exists($variableName, $variableValues);
                 $isNull = $hasValue && $variableValues[$variableName] === null;
             } else {
                 $hasValue = $argumentValueNode !== null;
@@ -228,28 +225,24 @@ class Values
             } elseif ((! $hasValue || $isNull) && ($argType instanceof NonNull)) {
                 // If no argument or a null value was provided to an argument with a
                 // non-null type (required), produce a field error.
+                $safeArgType = Utils::printSafe($argType);
+
                 if ($isNull) {
                     throw new Error(
-                        'Argument "' . $name . '" of non-null type '
-                        . '"' . Utils::printSafe($argType) . '" must not be null.',
+                        "Argument \"{$name}\" of non-null type \"{$safeArgType}\" must not be null.",
                         $referenceNode
                     );
                 }
 
                 if ($argumentValueNode instanceof VariableNode) {
-                    $variableName = $argumentValueNode->name->value;
-
                     throw new Error(
-                        'Argument "' . $name . '" of required type "' . Utils::printSafe($argType) . '" was '
-                        . 'provided the variable "$' . $variableName . '" which was not provided '
-                        . 'a runtime value.',
+                        "Argument \"{$name}\" of required type \"{$safeArgType}\" was provided the variable \"\${$argumentValueNode->name->value}\" which was not provided a runtime value.",
                         [$argumentValueNode]
                     );
                 }
 
                 throw new Error(
-                    'Argument "' . $name . '" of required type '
-                    . '"' . Utils::printSafe($argType) . '" was not provided.',
+                    "Argument \"{$name}\" of required type \"{$safeArgType}\" was not provided.",
                     $referenceNode
                 );
             } elseif ($hasValue) {

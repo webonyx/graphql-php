@@ -2,15 +2,8 @@
 
 namespace GraphQL\Type\Definition;
 
-use function array_diff_key;
-use function array_filter;
-use function array_intersect_key;
-use function array_key_exists;
-use function array_keys;
 use function array_merge;
-use function array_unique;
-use function array_values;
-use function count;
+
 use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\FieldNode;
@@ -20,9 +13,6 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
-use function in_array;
-use function is_array;
-use function is_numeric;
 
 /**
  * @phpstan-type QueryPlanOptions array{
@@ -75,7 +65,7 @@ class QueryPlan
      */
     public function getReferencedTypes(): array
     {
-        return array_keys($this->types);
+        return \array_keys($this->types);
     }
 
     public function hasType(string $type): bool
@@ -88,13 +78,13 @@ class QueryPlan
      */
     public function getReferencedFields(): array
     {
-        return array_values(array_unique(array_merge(...array_values($this->types))));
+        return \array_values(\array_unique(\array_merge(...\array_values($this->types))));
     }
 
     public function hasField(string $field): bool
     {
-        return count(
-            array_filter(
+        return \count(
+            \array_filter(
                 $this->getReferencedFields(),
                 static fn (string $referencedField): bool => $field === $referencedField
             )
@@ -128,9 +118,9 @@ class QueryPlan
 
             $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type, $implementors);
 
-            $this->types[$type->name] = array_unique(array_merge(
-                array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                array_keys($subfields)
+            $this->types[$type->name] = \array_unique(\array_merge(
+                \array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
+                \array_keys($subfields)
             ));
 
             $queryPlan = $this->arrayMergeDeep(
@@ -226,9 +216,9 @@ class QueryPlan
         $subfields = [];
         if ($type instanceof ObjectType || $type instanceof AbstractType) {
             $subfields = $this->analyzeSelectionSet($selectionSet, $type, $implementors);
-            $this->types[$type->name] = array_unique(array_merge(
-                array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                array_keys($subfields)
+            $this->types[$type->name] = \array_unique(\array_merge(
+                \array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
+                \array_keys($subfields)
             ));
         }
 
@@ -251,13 +241,13 @@ class QueryPlan
                 'type' => $type,
                 'fields' => $this->arrayMergeDeep(
                     $implementors[$type->name]['fields'] ?? [],
-                    array_diff_key($subfields, $fields)
+                    \array_diff_key($subfields, $fields)
                 ),
             ];
 
             $fields = $this->arrayMergeDeep(
                 $fields,
-                array_intersect_key($subfields, $fields)
+                \array_intersect_key($subfields, $fields)
             );
         } else {
             $fields = $this->arrayMergeDeep(
@@ -285,11 +275,11 @@ class QueryPlan
         $merged = $array1;
 
         foreach ($array2 as $key => &$value) {
-            if (is_numeric($key)) {
-                if (! in_array($value, $merged, true)) {
+            if (\is_numeric($key)) {
+                if (! \in_array($value, $merged, true)) {
                     $merged[] = $value;
                 }
-            } elseif (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+            } elseif (\is_array($value) && isset($merged[$key]) && \is_array($merged[$key])) {
                 $merged[$key] = $this->arrayMergeDeep($merged[$key], $value);
             } else {
                 $merged[$key] = $value;

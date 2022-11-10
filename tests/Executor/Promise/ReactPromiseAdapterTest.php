@@ -2,17 +2,18 @@
 
 namespace GraphQL\Tests\Executor\Promise;
 
-use Exception;
 use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use PHPUnit\Framework\TestCase;
 use React\Promise\Deferred;
 use React\Promise\FulfilledPromise;
 use React\Promise\Promise;
 use React\Promise\Promise as ReactPromise;
+
 use function React\Promise\reject;
+
 use React\Promise\RejectedPromise;
+
 use function React\Promise\resolve;
-use stdClass;
 
 /**
  * @group ReactPromise
@@ -36,7 +37,7 @@ class ReactPromiseAdapterTest extends TestCase
         self::assertFalse($reactAdapter->isThenable('test'));
         self::assertFalse($reactAdapter->isThenable(''));
         self::assertFalse($reactAdapter->isThenable([]));
-        self::assertFalse($reactAdapter->isThenable(new stdClass()));
+        self::assertFalse($reactAdapter->isThenable(new \stdClass()));
     }
 
     public function testConvertsReactPromisesToGraphQlOnes(): void
@@ -105,7 +106,7 @@ class ReactPromiseAdapterTest extends TestCase
     public function testCreateRejected(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
-        $rejectedPromise = $reactAdapter->createRejected(new Exception('I am a bad promise'));
+        $rejectedPromise = $reactAdapter->createRejected(new \Exception('I am a bad promise'));
 
         self::assertInstanceOf(RejectedPromise::class, $rejectedPromise->adoptedPromise);
 

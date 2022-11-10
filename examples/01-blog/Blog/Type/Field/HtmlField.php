@@ -4,9 +4,6 @@ namespace GraphQL\Examples\Blog\Type\Field;
 
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
 use GraphQL\Examples\Blog\Types;
-use function mb_substr;
-use function nl2br;
-use function strip_tags;
 
 class HtmlField
 {
@@ -29,10 +26,10 @@ class HtmlField
             ],
             'resolve' => static function ($object, $args) use ($objectKey) {
                 $html = $object->{$objectKey};
-                $text = strip_tags($html);
+                $text = \strip_tags($html);
 
                 if (isset($args['maxLength'])) {
-                    $safeText = mb_substr($text, 0, $args['maxLength']);
+                    $safeText = \mb_substr($text, 0, $args['maxLength']);
                 } else {
                     $safeText = $text;
                 }
@@ -41,10 +38,10 @@ class HtmlField
                     case ContentFormatType::FORMAT_HTML:
                         if ($safeText !== $text) {
                             // Text was truncated, so just show what's safe:
-                            return nl2br($safeText);
+                            return \nl2br($safeText);
                         }
 
-                            return $html;
+                        return $html;
 
                     case ContentFormatType::FORMAT_TEXT:
                     default:

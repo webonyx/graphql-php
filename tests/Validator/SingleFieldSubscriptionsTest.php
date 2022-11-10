@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Validator;
 
-use function array_map;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\SingleFieldSubscription;
@@ -186,7 +185,7 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
     {
         return ErrorHelper::create(
             SingleFieldSubscription::multipleFieldsInOperation($operationName),
-            array_map(static function (array $location): SourceLocation {
+            \array_map(static function (array $location): SourceLocation {
                 [$line, $column] = $location;
 
                 return new SourceLocation($line, $column);

@@ -2,7 +2,6 @@
 
 namespace GraphQL\Type;
 
-use function count;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\Directive;
@@ -26,8 +25,19 @@ use GraphQL\Type\Definition\Type;
  *
  * @see Type, NamedType
  *
- * @phpstan-type TypeLoader callable(string $typeName):((Type&NamedType)|null)
- * @phpstan-type Types array<Type&NamedType>|callable():array<Type&NamedType>
+ * @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
+ * @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
+ * @phpstan-type SchemaConfigOptions array{
+ *   query?: ObjectType|null,
+ *   mutation?: ObjectType|null,
+ *   subscription?: ObjectType|null,
+ *   types?: Types|null,
+ *   directives?: array<Directive>|null,
+ *   typeLoader?: TypeLoader|null,
+ *   assumeValid?: bool|null,
+ *   astNode?: SchemaDefinitionNode|null,
+ *   extensionASTNodes?: array<SchemaExtensionNode>|null,
+ * }
  */
 class SchemaConfig
 {
@@ -38,7 +48,8 @@ class SchemaConfig
     public ?ObjectType $subscription = null;
 
     /**
-     * @var array|callable
+     * @var iterable|callable
+     *
      * @phpstan-var Types
      */
     public $types = [];
@@ -48,6 +59,7 @@ class SchemaConfig
 
     /**
      * @var callable|null
+     *
      * @phpstan-var TypeLoader|null
      */
     public $typeLoader = null;
@@ -63,7 +75,7 @@ class SchemaConfig
      * Converts an array of options to instance of SchemaConfig
      * (or just returns empty config when array is not passed).
      *
-     * @param array<string, mixed> $options
+     * @phpstan-param SchemaConfigOptions $options
      *
      * @api
      */
@@ -71,7 +83,7 @@ class SchemaConfig
     {
         $config = new static();
 
-        if (count($options) > 0) {
+        if (\count($options) > 0) {
             if (isset($options['query'])) {
                 $config->setQuery($options['query']);
             }
@@ -168,6 +180,7 @@ class SchemaConfig
 
     /**
      * @return array|callable
+     *
      * @phpstan-return Types
      *
      * @api
@@ -179,6 +192,7 @@ class SchemaConfig
 
     /**
      * @param array|callable $types
+     *
      * @phpstan-param Types $types
      *
      * @api
@@ -214,6 +228,7 @@ class SchemaConfig
 
     /**
      * @return callable|null $typeLoader
+     *
      * @phpstan-return TypeLoader|null $typeLoader
      *
      * @api
@@ -252,7 +267,7 @@ class SchemaConfig
         return $this->astNode;
     }
 
-    public function setAstNode(SchemaDefinitionNode $astNode): self
+    public function setAstNode(?SchemaDefinitionNode $astNode): self
     {
         $this->astNode = $astNode;
 

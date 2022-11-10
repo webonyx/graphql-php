@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Validator;
 
-use function array_merge;
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Directive;
@@ -26,7 +25,7 @@ class QuerySecuritySchema
     {
         return self::$schema ??= new Schema([
             'query' => static::buildQueryRootType(),
-            'directives' => array_merge(GraphQL::getStandardDirectives(), [static::buildFooDirective()]),
+            'directives' => \array_merge(GraphQL::getStandardDirectives(), [static::buildFooDirective()]),
         ]);
     }
 

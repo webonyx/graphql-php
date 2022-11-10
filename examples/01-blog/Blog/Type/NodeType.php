@@ -2,7 +2,6 @@
 
 namespace GraphQL\Examples\Blog\Type;
 
-use Exception;
 use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
@@ -43,6 +42,7 @@ class NodeType extends InterfaceType
             return Types::story();
         }
 
-        throw new Exception('Unknown type: ' . Utils::printSafe($object));
+        $notNode = Utils::printSafe($object);
+        throw new \Exception("Unknown type: {$notNode}");
     }
 }

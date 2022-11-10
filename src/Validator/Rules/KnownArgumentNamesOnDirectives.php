@@ -2,7 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function array_map;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -15,7 +14,6 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
-use function in_array;
 
 /**
  * Known argument names on directives.
@@ -64,7 +62,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
             : Directive::getInternalDirectives();
 
         foreach ($definedDirectives as $directive) {
-            $directiveArgs[$directive->name] = array_map(
+            $directiveArgs[$directive->name] = \array_map(
                 static fn (Argument $arg): string => $arg->name,
                 $directive->args
             );
@@ -93,7 +91,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
                 foreach ($directiveNode->arguments as $argNode) {
                     $argName = $argNode->name->value;
-                    if (! in_array($argName, $knownArgs, true)) {
+                    if (! \in_array($argName, $knownArgs, true)) {
                         $suggestions = Utils::suggestionList($argName, $knownArgs);
                         $context->reportError(new Error(
                             static::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),

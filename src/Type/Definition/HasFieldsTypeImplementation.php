@@ -2,7 +2,6 @@
 
 namespace GraphQL\Type\Definition;
 
-use function array_keys;
 use GraphQL\Error\InvariantViolation;
 
 /**
@@ -78,6 +77,6 @@ trait HasFieldsTypeImplementation
     {
         $this->initializeFields();
 
-        return array_keys($this->fields);
+        return \array_keys($this->fields);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace GraphQL\Examples\Blog\Type;
 
-use Exception;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Data\Story;
@@ -11,8 +10,6 @@ use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
-use function method_exists;
-use function ucfirst;
 
 class UserType extends ObjectType
 {
@@ -41,7 +38,7 @@ class UserType extends ObjectType
                 'fieldWithError' => [
                     'type' => Types::string(),
                     'resolve' => static function (): void {
-                        throw new Exception('This is error field');
+                        throw new \Exception('This is error field');
                     },
                 ],
             ],
@@ -49,8 +46,8 @@ class UserType extends ObjectType
             'resolveField' => function ($user, $args, $context, ResolveInfo $info) {
                 $fieldName = $info->fieldName;
 
-                $method = 'resolve' . ucfirst($fieldName);
-                if (method_exists($this, $method)) {
+                $method = 'resolve' . \ucfirst($fieldName);
+                if (\method_exists($this, $method)) {
                     return $this->{$method}($user, $args, $context, $info);
                 }
 

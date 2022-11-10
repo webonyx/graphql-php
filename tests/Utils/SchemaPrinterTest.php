@@ -175,7 +175,7 @@ final class SchemaPrinterTest extends TestCase
         self::assertPrintedSchemaEquals(
             <<<GRAPHQL
             type Query {
-              singleField: Int$expectedDeprecationDirective
+              singleField: Int{$expectedDeprecationDirective}
             }
 
             GRAPHQL,
@@ -262,10 +262,10 @@ final class SchemaPrinterTest extends TestCase
             type Foo {
               one: String
 
-              """This is two"""
+              "This is two"
               two: String
 
-              """This is three"""
+              "This is three"
               three: String
 
               four: String
@@ -488,16 +488,16 @@ final class SchemaPrinterTest extends TestCase
             <<<'GRAPHQL'
             type Query {
               singleField(
-                """This is the first argument"""
+                "This is the first argument"
                 argOne: Int
 
-                """This is the second argument"""
+                "This is the second argument"
                 argTwo: String
 
                 argThree: Boolean
                 argFour: Boolean
 
-                """This is the fifth argument"""
+                "This is the fifth argument"
                 argFive: String
               ): String
             }
@@ -902,7 +902,7 @@ final class SchemaPrinterTest extends TestCase
             <<<'GRAPHQL'
             directive @simpleDirective on FIELD
 
-            """Complex Directive"""
+            "Complex Directive"
             directive @complexDirective(stringArg: String, intArg: Int = -1) repeatable on FIELD | QUERY
 
             GRAPHQL,
@@ -923,7 +923,7 @@ final class SchemaPrinterTest extends TestCase
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
             type Query {
-              """"""
+              ""
               singleField: String
             }
 
@@ -945,7 +945,7 @@ final class SchemaPrinterTest extends TestCase
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
             type Query {
-              """This field is awesome"""
+              "This field is awesome"
               singleField: String
             }
 
@@ -967,7 +967,7 @@ final class SchemaPrinterTest extends TestCase
       Directs the executor to include this field or fragment only when the `if` argument is true.
       """
       directive @include(
-        """Included when true."""
+        "Included when true."
         if: Boolean!
       ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
@@ -975,11 +975,11 @@ final class SchemaPrinterTest extends TestCase
       Directs the executor to skip this field or fragment when the `if` argument is true.
       """
       directive @skip(
-        """Skipped when true."""
+        "Skipped when true."
         if: Boolean!
       ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-      """Marks an element of a GraphQL schema as no longer supported."""
+      "Marks an element of a GraphQL schema as no longer supported."
       directive @deprecated(
         """
         Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).
@@ -991,10 +991,10 @@ final class SchemaPrinterTest extends TestCase
       A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.
       """
       type __Schema {
-        """A list of all types supported by this server."""
+        "A list of all types supported by this server."
         types: [__Type!]!
 
-        """The type that query operations will be rooted at."""
+        "The type that query operations will be rooted at."
         queryType: __Type!
 
         """
@@ -1007,7 +1007,7 @@ final class SchemaPrinterTest extends TestCase
         """
         subscriptionType: __Type
 
-        """A list of all directives supported by this server."""
+        "A list of all directives supported by this server."
         directives: [__Directive!]!
       }
 
@@ -1028,9 +1028,9 @@ final class SchemaPrinterTest extends TestCase
         ofType: __Type
       }
 
-      """An enum describing what kind of type a given `__Type` is."""
+      "An enum describing what kind of type a given `__Type` is."
       enum __TypeKind {
-        """Indicates this type is a scalar."""
+        "Indicates this type is a scalar."
         SCALAR
 
         """
@@ -1043,10 +1043,10 @@ final class SchemaPrinterTest extends TestCase
         """
         INTERFACE
 
-        """Indicates this type is a union. `possibleTypes` is a valid field."""
+        "Indicates this type is a union. `possibleTypes` is a valid field."
         UNION
 
-        """Indicates this type is an enum. `enumValues` is a valid field."""
+        "Indicates this type is an enum. `enumValues` is a valid field."
         ENUM
 
         """
@@ -1054,10 +1054,10 @@ final class SchemaPrinterTest extends TestCase
         """
         INPUT_OBJECT
 
-        """Indicates this type is a list. `ofType` is a valid field."""
+        "Indicates this type is a list. `ofType` is a valid field."
         LIST
 
-        """Indicates this type is a non-null. `ofType` is a valid field."""
+        "Indicates this type is a non-null. `ofType` is a valid field."
         NON_NULL
       }
 
@@ -1114,61 +1114,61 @@ final class SchemaPrinterTest extends TestCase
       A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.
       """
       enum __DirectiveLocation {
-        """Location adjacent to a query operation."""
+        "Location adjacent to a query operation."
         QUERY
 
-        """Location adjacent to a mutation operation."""
+        "Location adjacent to a mutation operation."
         MUTATION
 
-        """Location adjacent to a subscription operation."""
+        "Location adjacent to a subscription operation."
         SUBSCRIPTION
 
-        """Location adjacent to a field."""
+        "Location adjacent to a field."
         FIELD
 
-        """Location adjacent to a fragment definition."""
+        "Location adjacent to a fragment definition."
         FRAGMENT_DEFINITION
 
-        """Location adjacent to a fragment spread."""
+        "Location adjacent to a fragment spread."
         FRAGMENT_SPREAD
 
-        """Location adjacent to an inline fragment."""
+        "Location adjacent to an inline fragment."
         INLINE_FRAGMENT
 
-        """Location adjacent to a variable definition."""
+        "Location adjacent to a variable definition."
         VARIABLE_DEFINITION
 
-        """Location adjacent to a schema definition."""
+        "Location adjacent to a schema definition."
         SCHEMA
 
-        """Location adjacent to a scalar definition."""
+        "Location adjacent to a scalar definition."
         SCALAR
 
-        """Location adjacent to an object type definition."""
+        "Location adjacent to an object type definition."
         OBJECT
 
-        """Location adjacent to a field definition."""
+        "Location adjacent to a field definition."
         FIELD_DEFINITION
 
-        """Location adjacent to an argument definition."""
+        "Location adjacent to an argument definition."
         ARGUMENT_DEFINITION
 
-        """Location adjacent to an interface definition."""
+        "Location adjacent to an interface definition."
         INTERFACE
 
-        """Location adjacent to a union definition."""
+        "Location adjacent to a union definition."
         UNION
 
-        """Location adjacent to an enum definition."""
+        "Location adjacent to an enum definition."
         ENUM
 
-        """Location adjacent to an enum value definition."""
+        "Location adjacent to an enum value definition."
         ENUM_VALUE
 
-        """Location adjacent to an input object type definition."""
+        "Location adjacent to an input object type definition."
         INPUT_OBJECT
 
-        """Location adjacent to an input object field definition."""
+        "Location adjacent to an input object field definition."
         INPUT_FIELD_DEFINITION
       }
 

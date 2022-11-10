@@ -2,15 +2,8 @@
 
 namespace GraphQL\Language;
 
-use function chr;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Utils\Utils;
-use function hexdec;
-use function mb_convert_encoding;
-use function ord;
-use function pack;
-use function preg_match;
-use function substr;
 
 /**
  * A Lexer is a stateful stream generator in that every time
@@ -171,7 +164,7 @@ class Lexer
                 return new Token(Token::PIPE, $position, $position + 1, $line, $col, $prev);
             case self::TOKEN_BRACE_R:
                 return new Token(Token::BRACE_R, $position, $position + 1, $line, $col, $prev);
-            // A-Z
+                // A-Z
             case 65:
             case 66:
             case 67:
@@ -198,9 +191,9 @@ class Lexer
             case 88:
             case 89:
             case 90:
-            // _
+                // _
             case 95:
-            // a-z
+                // a-z
             case 97:
             case 98:
             case 99:
@@ -229,9 +222,9 @@ class Lexer
             case 122:
                 return $this->moveStringCursor(-1, -1 * $bytes)
                     ->readName($line, $col, $prev);
-            // -
+                // -
             case 45:
-            // 0-9
+                // 0-9
             case 48:
             case 49:
             case 50:
@@ -244,7 +237,7 @@ class Lexer
             case 57:
                 return $this->moveStringCursor(-1, -1 * $bytes)
                     ->readNumber($line, $col, $prev);
-            // "
+                // "
             case 34:
                 [, $nextCode] = $this->readChar();
                 [, $nextNextCode] = $this->moveStringCursor(1, 1)
@@ -469,7 +462,7 @@ class Lexer
                         $value .= '\\';
                         break;
                     case 98:
-                        $value .= chr(8);
+                        $value .= \chr(8);
                         break; // \b (backspace)
                     case 102:
                         $value .= "\f";
@@ -486,7 +479,7 @@ class Lexer
                     case 117:
                         $position = $this->position;
                         [$hex] = $this->readChars(4, true);
-                        if (preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
+                        if (\preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
                             throw new SyntaxError(
                                 $this->source,
                                 $position - 1,
@@ -494,14 +487,14 @@ class Lexer
                             );
                         }
 
-                        $code = hexdec($hex);
+                        $code = \hexdec($hex);
                         assert(is_int($code), 'Since only a single char is read');
 
                         // UTF-16 surrogate pair detection and handling.
                         $highOrderByte = $code >> 8;
                         if ($highOrderByte >= 0xD8 && $highOrderByte <= 0xDF) {
                             [$utf16Continuation] = $this->readChars(6, true);
-                            if (preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation) !== 1) {
+                            if (\preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation) !== 1) {
                                 throw new SyntaxError(
                                     $this->source,
                                     $this->position - 5,
@@ -509,8 +502,8 @@ class Lexer
                                 );
                             }
 
-                            $surrogatePairHex = $hex . substr($utf16Continuation, 2, 4);
-                            $value .= mb_convert_encoding(pack('H*', $surrogatePairHex), 'UTF-8', 'UTF-16');
+                            $surrogatePairHex = $hex . \substr($utf16Continuation, 2, 4);
+                            $value .= \mb_convert_encoding(\pack('H*', $surrogatePairHex), 'UTF-8', 'UTF-16');
                             break;
                         }
 
@@ -518,7 +511,7 @@ class Lexer
 
                         $value .= Utils::chr($code);
                         break;
-                    // null means EOF, will delegate to general handling of unterminated strings
+                        // null means EOF, will delegate to general handling of unterminated strings
                     case null:
                         continue 2;
                     default:
@@ -722,7 +715,7 @@ class Lexer
         $positionOffset = 0;
 
         if (isset($this->source->body[$byteStreamPosition])) {
-            $ord = ord($this->source->body[$byteStreamPosition]);
+            $ord = \ord($this->source->body[$byteStreamPosition]);
 
             if ($ord < 128) {
                 $bytes = 1;

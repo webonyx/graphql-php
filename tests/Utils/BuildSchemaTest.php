@@ -2,8 +2,6 @@
 
 namespace GraphQL\Tests\Utils;
 
-use function array_keys;
-use Closure;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
@@ -226,49 +224,49 @@ final class BuildSchemaTest extends TestCaseBase
      */
     public function testSupportsDescriptions(): void
     {
-        /* TODO add schema description - see https://github.com/webonyx/graphql-php/issues/1158
+        /* TODO add schema description - see https://github.com/webonyx/graphql-php/issues/1027
             """Do you agree that this is the most creative schema ever?"""
             schema {
               query: Query
             }
         */
         $sdl = <<<GRAPHQL
-            """This is a directive"""
+            "This is a directive"
             directive @foo(
-              """It has an argument"""
+              "It has an argument"
               arg: Int
             ) on FIELD
             
-            """Who knows what inside this scalar?"""
+            "Who knows what inside this scalar?"
             scalar MysteryScalar
             
-            """This is a input object type"""
+            "This is a input object type"
             input FooInput {
-              """It has a field"""
+              "It has a field"
               field: Int
             }
             
-            """This is a interface type"""
+            "This is a interface type"
             interface Energy {
-              """It also has a field"""
+              "It also has a field"
               str: String
             }
             
-            """There is nothing inside!"""
+            "There is nothing inside!"
             union BlackHole
 
-            """With an enum"""
+            "With an enum"
             enum Color {
               RED
             
-              """Not a creative color"""
+              "Not a creative color"
               GREEN
               BLUE
             }
             
-            """What a great type"""
+            "What a great type"
             type Query {
-              """And a field to boot"""
+              "And a field to boot"
               str: String
             }
             
@@ -923,7 +921,7 @@ final class BuildSchemaTest extends TestCaseBase
             GRAPHQL;
 
         $schema = BuildSchema::build("
-            ${scalarSDL}
+            {$scalarSDL}
             directive @foo on SCALAR
             directive @bar on SCALAR
         ");
@@ -960,7 +958,7 @@ final class BuildSchemaTest extends TestCaseBase
             GRAPHQL;
 
         $schema = BuildSchema::build("
-            ${objectSDL}
+            {$objectSDL}
             interface Foo
             interface Bar
             interface Baz
@@ -1033,7 +1031,7 @@ final class BuildSchemaTest extends TestCaseBase
             GRAPHQL;
 
         $schema = BuildSchema::build("
-            ${unionSDL}
+            {$unionSDL}
             type FirstType
             type SecondType
             type ThirdType
@@ -1439,11 +1437,11 @@ final class BuildSchemaTest extends TestCaseBase
         [$defaultConfig, $node, $allNodesMap] = $calls[0]; // type Query
         self::assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
         self::assertSame('Query', $defaultConfig['name']);
-        self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
-        self::assertInstanceOf(Closure::class, $defaultConfig['interfaces']);
+        self::assertInstanceOf(\Closure::class, $defaultConfig['fields']);
+        self::assertInstanceOf(\Closure::class, $defaultConfig['interfaces']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertCount(6, $defaultConfig);
-        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], \array_keys($allNodesMap));
 
         $query = $schema->getType('Query');
         self::assertInstanceOf(ObjectType::class, $query);
@@ -1465,7 +1463,7 @@ final class BuildSchemaTest extends TestCaseBase
             $defaultConfig['values']
         );
         self::assertCount(5, $defaultConfig); // 3 + astNode + extensionASTNodes
-        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], \array_keys($allNodesMap));
 
         $color = $schema->getType('Color');
         self::assertInstanceOf(EnumType::class, $color);
@@ -1474,11 +1472,11 @@ final class BuildSchemaTest extends TestCaseBase
         [$defaultConfig, $node, $allNodesMap] = $calls[2]; // interface Hello
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
         self::assertSame('Hello', $defaultConfig['name']);
-        self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
+        self::assertInstanceOf(\Closure::class, $defaultConfig['fields']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertArrayHasKey('interfaces', $defaultConfig);
         self::assertCount(6, $defaultConfig);
-        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], \array_keys($allNodesMap));
 
         $hello = $schema->getType('Hello');
         self::assertInstanceOf(InterfaceType::class, $hello);

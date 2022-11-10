@@ -10,8 +10,6 @@ use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
-use function method_exists;
-use function ucfirst;
 
 class CommentType extends ObjectType
 {
@@ -41,8 +39,8 @@ class CommentType extends ObjectType
             'resolveField' => function (Comment $comment, array $args, $context, ResolveInfo $info) {
                 $fieldName = $info->fieldName;
 
-                $method = 'resolve' . ucfirst($fieldName);
-                if (method_exists($this, $method)) {
+                $method = 'resolve' . \ucfirst($fieldName);
+                if (\method_exists($this, $method)) {
                     return $this->{$method}($comment, $args, $context, $info);
                 }
 

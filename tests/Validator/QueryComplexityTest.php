@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Validator;
 
-use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
@@ -195,7 +194,7 @@ final class QueryComplexityTest extends QuerySecurityTestCase
             [$otherRule, $this->getRule(1)]
         );
 
-        self::assertEquals(1, count($errors));
+        self::assertEquals(1, \count($errors));
         self::assertSame($reportedError, $errors[0]);
     }
 

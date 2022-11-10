@@ -2,10 +2,7 @@
 
 namespace GraphQL\Language;
 
-use JsonSerializable;
-use ReturnTypeWillChange;
-
-class SourceLocation implements JsonSerializable
+class SourceLocation implements \JsonSerializable
 {
     public int $line;
 
@@ -39,7 +36,7 @@ class SourceLocation implements JsonSerializable
     /**
      * @return array{line: int, column: int}
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function jsonSerialize(): array
     {
         return $this->toArray();

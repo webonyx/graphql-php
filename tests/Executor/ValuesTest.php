@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Executor;
 
-use function count;
 use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\NamedTypeNode;
@@ -14,7 +13,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use function var_export;
 
 class ValuesTest extends TestCase
 {
@@ -38,7 +36,7 @@ class ValuesTest extends TestCase
         self::assertEquals(
             $variables,
             $this->runTestCase($variables)[1],
-            'Output variables did not match input variables' . "\n" . var_export($variables, true) . "\n"
+            'Output variables did not match input variables' . "\n" . \var_export($variables, true) . "\n"
         );
     }
 
@@ -150,7 +148,7 @@ class ValuesTest extends TestCase
     {
         $result = $this->runTestCase($variables);
         self::assertNotNull($result[0]);
-        self::assertGreaterThan(0, count($result[0]));
+        self::assertGreaterThan(0, \count($result[0]));
     }
 
     public function testFloatForIDVariableThrowsError(): void

@@ -75,12 +75,12 @@ function renderClass(ReflectionClass $class, array $options): string
     if ($options['constants'] ?? false) {
         $constants = [];
         foreach ($class->getConstants(/* TODO enable with PHP 8: ReflectionClassConstant::IS_PUBLIC */) as $name => $value) {
-            $constants[] = "const $name = " . VarExporter::export($value) . ';';
+            $constants[] = "const {$name} = " . VarExporter::export($value) . ';';
         }
 
         if (count($constants) > 0) {
             $constants = "```php\n" . implode("\n", $constants) . "\n```";
-            $content .= "### $className Constants\n\n$constants\n\n";
+            $content .= "### {$className} Constants\n\n{$constants}\n\n";
         }
     }
 
@@ -94,7 +94,7 @@ function renderClass(ReflectionClass $class, array $options): string
 
         if (count($props) > 0) {
             $props = "```php\n" . implode("\n\n", $props) . "\n```";
-            $content .= "### $className Props\n\n$props\n\n";
+            $content .= "### {$className} Props\n\n{$props}\n\n";
         }
     }
 
@@ -108,7 +108,7 @@ function renderClass(ReflectionClass $class, array $options): string
 
         if (count($methods) > 0) {
             $methods = implode("\n\n", $methods);
-            $content .= "### $className Methods\n\n{$methods}\n\n";
+            $content .= "### {$className} Methods\n\n{$methods}\n\n";
         }
     }
 
@@ -117,7 +117,7 @@ function renderClass(ReflectionClass $class, array $options): string
     
     {$classDocs}
     
-    $content
+    {$content}
     TEMPLATE;
 }
 
@@ -145,12 +145,12 @@ function renderMethod(ReflectionMethod $method): string
     }
 
     $returnType = $method->getReturnType();
-    $def = "function {$method->getName()}($argsStr)";
+    $def = "function {$method->getName()}({$argsStr})";
     $def = $method->isStatic()
-        ? "static $def"
+        ? "static {$def}"
         : $def;
     $def = $returnType instanceof ReflectionType
-        ? "$def: $returnType"
+        ? "{$def}: {$returnType}"
         : $def;
     $docBlock = PhpDoc::unpad($method->getDocComment());
 

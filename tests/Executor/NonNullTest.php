@@ -2,9 +2,7 @@
 
 namespace GraphQL\Tests\Executor;
 
-use function count;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\UserError;
@@ -15,22 +13,22 @@ use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use function is_string;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+
 use function Safe\json_encode;
 
 class NonNullTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    public Exception $syncError;
+    public \Exception $syncError;
 
-    public Exception $syncNonNullError;
+    public \Exception $syncNonNullError;
 
-    public Exception $promiseError;
+    public \Exception $promiseError;
 
-    public Exception $promiseNonNullError;
+    public \Exception $promiseNonNullError;
 
     /** @var array<string, callable(): mixed> */
     public array $throwingData;
@@ -122,7 +120,7 @@ class NonNullTest extends TestCase
                                 'type' => Type::nonNull(Type::string()),
                             ],
                         ],
-                        'resolve' => static fn ($value, array $args): ?string => is_string($args['cannotBeNull'])
+                        'resolve' => static fn ($value, array $args): ?string => \is_string($args['cannotBeNull'])
                             ? "Passed: {$args['cannotBeNull']}"
                             : null,
                     ],
@@ -370,7 +368,7 @@ class NonNullTest extends TestCase
         self::assertEquals($expectedData, $result['data']);
 
         self::assertArrayHasKey('errors', $result);
-        self::assertCount(count($expectedErrors), $result['errors']);
+        self::assertCount(\count($expectedErrors), $result['errors']);
         foreach ($expectedErrors as $expectedError) {
             $found = false;
             foreach ($result['errors'] as $error) {

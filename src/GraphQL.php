@@ -2,7 +2,6 @@
 
 namespace GraphQL;
 
-use function count;
 use GraphQL\Error\Error;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
@@ -128,7 +127,7 @@ class GraphQL
                 ? $source
                 : Parser::parse(new Source($source, 'GraphQL'));
 
-            if ($validationRules === null || count($validationRules) === 0) {
+            if ($validationRules === null || \count($validationRules) === 0) {
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
                 assert($queryComplexity instanceof QueryComplexity, 'should not register a different rule for QueryComplexity');
 
@@ -143,7 +142,7 @@ class GraphQL
 
             $validationErrors = DocumentValidator::validate($schema, $documentNode, $validationRules);
 
-            if (count($validationErrors) > 0) {
+            if (\count($validationErrors) > 0) {
                 return $promiseAdapter->createFulfilled(
                     new ExecutionResult(null, $validationErrors)
                 );

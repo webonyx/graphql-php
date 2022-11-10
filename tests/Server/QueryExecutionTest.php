@@ -2,9 +2,7 @@
 
 namespace GraphQL\Tests\Server;
 
-use function count;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use Exception;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -18,7 +16,6 @@ use GraphQL\Server\ServerConfig;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
-use stdClass;
 
 class QueryExecutionTest extends ServerTestCase
 {
@@ -119,6 +116,10 @@ class QueryExecutionTest extends ServerTestCase
 
         $result = $this->executeQuery($query)->toArray();
         self::assertArraySubset($expected, $result);
+
+        self::assertEquals(38, $result['errors'][0]['extensions']['line'] ?? null);
+
+        self::assertStringContainsString('tests/Server/ServerTestCase.php', $result['errors'][0]['extensions']['file'] ?? '');
     }
 
     public function testRethrowUnsafeExceptions(): void
@@ -136,7 +137,7 @@ class QueryExecutionTest extends ServerTestCase
     public function testPassesRootValueAndContext(): void
     {
         $rootValue = 'myRootValue';
-        $context = new stdClass();
+        $context = new \stdClass();
 
         $this->config
             ->setContext($context)
@@ -344,7 +345,7 @@ class QueryExecutionTest extends ServerTestCase
         $result = (new Helper())->executeBatch($this->config, $batch);
 
         self::assertIsArray($result);
-        self::assertCount(count($qs), $result);
+        self::assertCount(\count($qs), $result);
 
         return $result;
     }
@@ -400,8 +401,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->config->setPersistedQueryLoader(static fn (): array => ['err' => 'err']);
 
         $this->expectExceptionObject(new InvariantViolation(
-            'Persisted query loader must return query string or instance of GraphQL\Language\AST\DocumentNode '
-            . 'but got: {"err":"err"}'
+            'Persisted query loader must return query string or instance of GraphQL\Language\AST\DocumentNode but got: {"err":"err"}'
         ));
         $this->executePersistedQuery('some-id');
     }
@@ -461,7 +461,7 @@ class QueryExecutionTest extends ServerTestCase
             'data' => ['f1' => 'f1'],
         ];
         $this->config->setPersistedQueryLoader(static function (): array {
-            throw new Exception('Should not be called since a query is also passed');
+            throw new \Exception('Should not be called since a query is also passed');
         });
 
         $this->assertQueryResultEquals($expected, $query, [], 'some-id');
@@ -470,7 +470,7 @@ class QueryExecutionTest extends ServerTestCase
     public function testProhibitsUnexpectedValidationRules(): void
     {
         // @phpstan-ignore-next-line purposefully wrong
-        $this->config->setValidationRules(static fn (): stdClass => new stdClass());
+        $this->config->setValidationRules(static fn (): \stdClass => new \stdClass());
 
         $this->expectExceptionObject(new InvariantViolation(
             'Expecting validation rules to be array or callable returning array, but got: instance of stdClass'

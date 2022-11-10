@@ -2,10 +2,9 @@
 
 namespace GraphQL\Server;
 
-use Exception;
 use GraphQL\Error\ClientAware;
 
-class RequestError extends Exception implements ClientAware
+class RequestError extends \Exception implements ClientAware
 {
     public function isClientSafe(): bool
     {

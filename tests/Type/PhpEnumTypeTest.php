@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Type;
 
-use Exception;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\SerializationError;
 use GraphQL\GraphQL;
@@ -34,9 +33,9 @@ final class PhpEnumTypeTest extends TestCaseBase
         $enumType = new PhpEnumType(PhpEnum::class);
         self::assertSame(
             <<<'GRAPHQL'
-"""foo"""
+"foo"
 enum PhpEnum {
-  """bar"""
+  "bar"
   A
   B @deprecated
   C @deprecated(reason: "baz")
@@ -51,9 +50,9 @@ GRAPHQL,
         $enumType = new PhpEnumType(DocBlockPhpEnum::class);
         self::assertSame(
             <<<'GRAPHQL'
-"""foo"""
+"foo"
 enum DocBlockPhpEnum {
-  """preferred"""
+  "preferred"
   A
 
   """
@@ -69,19 +68,19 @@ GRAPHQL,
 
     public function testMultipleDescriptionsDisallowed(): void
     {
-        self::expectExceptionObject(new Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));
+        self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));
         new PhpEnumType(MultipleDescriptionsPhpEnum::class);
     }
 
     public function testMultipleDescriptionsDisallowedOnCase(): void
     {
-        self::expectExceptionObject(new Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));
+        self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));
         new PhpEnumType(MultipleDescriptionsCasePhpEnum::class);
     }
 
     public function testMultipleDeprecationsDisallowed(): void
     {
-        self::expectExceptionObject(new Exception(PhpEnumType::MULTIPLE_DEPRECATIONS_DISALLOWED));
+        self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DEPRECATIONS_DISALLOWED));
         new PhpEnumType(MultipleDeprecationsPhpEnum::class);
     }
 
@@ -137,7 +136,7 @@ GRAPHQL,
 
         $result = GraphQL::executeQuery($schema, '{ foo }');
 
-        self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: A, expected instance of GraphQL\\Tests\\Type\\PhpEnumType\\PhpEnum.'));
+        self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: "A", expected instance of GraphQL\\Tests\\Type\\PhpEnumType\\PhpEnum.'));
         $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS);
     }
 }

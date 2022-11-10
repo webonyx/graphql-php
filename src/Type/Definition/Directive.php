@@ -2,12 +2,12 @@
 
 namespace GraphQL\Type\Definition;
 
-use function array_key_exists;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 
 /**
  * @phpstan-import-type ArgumentListConfig from Argument
+ *
  * @phpstan-type DirectiveConfig array{
  *   name: string,
  *   description?: string|null,
@@ -50,12 +50,14 @@ class Directive
 
     /**
      * @var array<string, mixed>
+     *
      * @phpstan-var DirectiveConfig
      */
     public array $config;
 
     /**
      * @param array<string, mixed> $config
+     *
      * @phpstan-param DirectiveConfig $config
      */
     public function __construct(array $config)
@@ -149,6 +151,6 @@ class Directive
 
     public static function isSpecifiedDirective(Directive $directive): bool
     {
-        return array_key_exists($directive->name, self::getInternalDirectives());
+        return \array_key_exists($directive->name, self::getInternalDirectives());
     }
 }

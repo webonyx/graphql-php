@@ -2,9 +2,6 @@
 
 namespace GraphQL\Tests\Type;
 
-use function array_map;
-use function array_merge;
-use Closure;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
@@ -18,6 +15,7 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ObjectType;
@@ -28,10 +26,8 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
-use TypeError;
-use function ucfirst;
 
-class ValidationTest extends TestCaseBase
+final class ValidationTest extends TestCaseBase
 {
     public ScalarType $SomeScalarType;
 
@@ -147,20 +143,20 @@ class ValidationTest extends TestCaseBase
      */
     private function withModifiers(array $types): array
     {
-        return array_merge(
+        return \array_merge(
             $types,
-            array_map(
+            \array_map(
                 static fn (Type $type): ListOfType => Type::listOf($type),
                 $types
             ),
-            array_map(
+            \array_map(
                 static function (Type $type): NonNull {
                     /** @var Type&NullableType $type */
                     return Type::nonNull($type);
                 },
                 $types
             ),
-            array_map(
+            \array_map(
                 static fn (Type $type): NonNull => Type::nonNull(Type::listOf($type)),
                 $types
             )
@@ -194,7 +190,7 @@ class ValidationTest extends TestCaseBase
     }
 
     /**
-     * @param array<int, Closure(): Type> $closures
+     * @param array<int, \Closure(): Type> $closures
      */
     private function assertEachCallableThrows(array $closures, string $expectedError): void
     {
@@ -343,7 +339,7 @@ class ValidationTest extends TestCaseBase
      */
     private function formatLocations(Error $error): array
     {
-        return array_map(
+        return \array_map(
             static fn (SourceLocation $loc): array => [
                 'line' => $loc->line,
                 'column' => $loc->column,
@@ -359,7 +355,7 @@ class ValidationTest extends TestCaseBase
      */
     private function formatErrors(array $errors, bool $withLocation = true): array
     {
-        return array_map(
+        return \array_map(
             fn (Error $error): array => $withLocation
                 ? [
                     'message' => $error->getMessage(),
@@ -399,7 +395,7 @@ class ValidationTest extends TestCaseBase
         $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
 
         BuildSchema::build('
-      input ' . ucfirst($rootType) . ' {
+      input ' . \ucfirst($rootType) . ' {
         test: String
       }
         ');
@@ -462,8 +458,8 @@ class ValidationTest extends TestCaseBase
 
     private function expectRootTypeMustBeObjectTypeNotInputType(string $rootType): void
     {
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessageMatches('/.*GraphQL\\\\Type\\\\SchemaConfig::set' . ucfirst($rootType) . '.*GraphQL\\\\Type\\\\Definition\\\\ObjectType.*GraphQL\\\\Type\\\\Definition\\\\InputObjectType given.*/');
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessageMatches('/.*GraphQL\\\\Type\\\\SchemaConfig::set' . \ucfirst($rootType) . '.*GraphQL\\\\Type\\\\Definition\\\\ObjectType.*GraphQL\\\\Type\\\\Definition\\\\InputObjectType given.*/');
     }
 
     /**
@@ -471,6 +467,7 @@ class ValidationTest extends TestCaseBase
      */
     public function testRejectsASchemaWhoseDirectivesAreIncorrectlyTyped(): void
     {
+        // @phpstan-ignore-next-line intentionally wrong
         $schema = new Schema([
             'query' => $this->SomeObjectType,
             'directives' => ['somedirective'],
@@ -478,7 +475,7 @@ class ValidationTest extends TestCaseBase
 
         $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [['message' => 'Expected directive but got: somedirective.']]
+            [['message' => 'Expected directive but got: "somedirective".']]
         );
     }
 
@@ -550,6 +547,8 @@ class ValidationTest extends TestCaseBase
 
     /**
      * DESCRIBE: Type System: Fields args must be properly named.
+     *
+     * @param Type&NamedType $type
      */
     private function schemaWithFieldType(Type $type): Schema
     {
@@ -822,12 +821,12 @@ class ValidationTest extends TestCaseBase
                     'types' => [$memberType],
                 ])
             );
+            $notOutputType = Utils::printSafe($memberType);
             $this->assertMatchesValidationMessage(
                 $badSchema->validate(),
                 [
                     [
-                        'message' => 'Union type BadUnion can only include Object types, '
-                        . 'it cannot include ' . Utils::printSafe($memberType) . '.',
+                        'message' => "Union type BadUnion can only include Object types, it cannot include {$notOutputType}.",
                     ],
                 ]
             );
@@ -1181,12 +1180,12 @@ class ValidationTest extends TestCaseBase
     {
         foreach ($this->notOutputTypes as $type) {
             $schema = $this->schemaWithObjectFieldOfType($type);
-
+            $notOutputType = Utils::printSafe($type);
             $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [
                     [
-                        'message' => 'The type of BadObject.badField must be Output Type but got: ' . Utils::printSafe($type) . '.',
+                        'message' => "The type of BadObject.badField must be Output Type but got: {$notOutputType}.",
                     ],
                 ]
             );
@@ -1504,12 +1503,12 @@ class ValidationTest extends TestCaseBase
     {
         foreach ($this->notOutputTypes as $type) {
             $schema = $this->schemaWithInterfaceFieldOfType($type);
-
+            $notOutputType = Utils::printSafe($type);
             $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [
-                    ['message' => 'The type of BadImplementing.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
-                    ['message' => 'The type of BadInterface.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
+                    ['message' => "The type of BadImplementing.badField must be Output Type but got: {$notOutputType}."],
+                    ['message' => "The type of BadInterface.badField must be Output Type but got: {$notOutputType}."],
                 ]
             );
         }
@@ -1619,10 +1618,11 @@ class ValidationTest extends TestCaseBase
     {
         foreach ($this->notInputTypes as $type) {
             $schema = $this->schemaWithArgOfType($type);
+            $notInputType = Utils::printSafe($type);
             $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [
-                    ['message' => 'The type of BadObject.badField(badArg:) must be Input Type but got: ' . Utils::printSafe($type) . '.'],
+                    ['message' => "The type of BadObject.badField(badArg:) must be Input Type but got: {$notInputType}."],
                 ]
             );
         }
@@ -1699,11 +1699,12 @@ class ValidationTest extends TestCaseBase
     {
         foreach ($this->notInputTypes as $type) {
             $schema = $this->schemaWithInputFieldOfType($type);
+            $notInputType = Utils::printSafe($type);
             $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [
                     [
-                        'message' => 'The type of BadInputObject.badField must be Input Type but got: ' . Utils::printSafe($type) . '.',
+                        'message' => "The type of BadInputObject.badField must be Input Type but got: {$notInputType}.",
                     ],
                 ]
             );
@@ -2867,8 +2868,11 @@ class ValidationTest extends TestCaseBase
             }
         };
 
+        $query = $typeLoader('Query');
+        assert($query instanceof ObjectType);
+
         $schema = new Schema([
-            'query' => $typeLoader('Query'),
+            'query' => $query,
             'typeLoader' => $typeLoader,
         ]);
         $this->expectException(InvariantViolation::class);

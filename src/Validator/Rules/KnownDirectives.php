@@ -2,9 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function count;
-use Exception;
-use function get_class;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -40,7 +37,6 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
-use function in_array;
 
 /**
  * @phpstan-import-type VisitorArray from Visitor
@@ -110,7 +106,7 @@ class KnownDirectives extends ValidationRule
 
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if ($candidateLocation === '' || in_array($candidateLocation, $locations, true)) {
+                if ($candidateLocation === '' || \in_array($candidateLocation, $locations, true)) {
                     return;
                 }
 
@@ -134,80 +130,64 @@ class KnownDirectives extends ValidationRule
      */
     protected function getDirectiveLocationForASTPath(array $ancestors): string
     {
-        $appliedTo = $ancestors[count($ancestors) - 1];
+        $appliedTo = $ancestors[\count($ancestors) - 1];
 
         switch (true) {
             case $appliedTo instanceof OperationDefinitionNode:
                 switch ($appliedTo->operation) {
                     case 'query':
                         return DirectiveLocation::QUERY;
-
                     case 'mutation':
                         return DirectiveLocation::MUTATION;
-
                     case 'subscription':
                         return DirectiveLocation::SUBSCRIPTION;
                 }
-
-                break;
+                // no break, since all possible cases were handled
             case $appliedTo instanceof FieldNode:
                 return DirectiveLocation::FIELD;
-
             case $appliedTo instanceof FragmentSpreadNode:
                 return DirectiveLocation::FRAGMENT_SPREAD;
-
             case $appliedTo instanceof InlineFragmentNode:
                 return DirectiveLocation::INLINE_FRAGMENT;
-
             case $appliedTo instanceof FragmentDefinitionNode:
                 return DirectiveLocation::FRAGMENT_DEFINITION;
-
             case $appliedTo instanceof VariableDefinitionNode:
                 return DirectiveLocation::VARIABLE_DEFINITION;
-
             case $appliedTo instanceof SchemaDefinitionNode:
             case $appliedTo instanceof SchemaExtensionNode:
                 return DirectiveLocation::SCHEMA;
-
             case $appliedTo instanceof ScalarTypeDefinitionNode:
             case $appliedTo instanceof ScalarTypeExtensionNode:
                 return DirectiveLocation::SCALAR;
-
             case $appliedTo instanceof ObjectTypeDefinitionNode:
             case $appliedTo instanceof ObjectTypeExtensionNode:
                 return DirectiveLocation::OBJECT;
-
             case $appliedTo instanceof FieldDefinitionNode:
                 return DirectiveLocation::FIELD_DEFINITION;
-
             case $appliedTo instanceof InterfaceTypeDefinitionNode:
             case $appliedTo instanceof InterfaceTypeExtensionNode:
                 return DirectiveLocation::IFACE;
-
             case $appliedTo instanceof UnionTypeDefinitionNode:
             case $appliedTo instanceof UnionTypeExtensionNode:
                 return DirectiveLocation::UNION;
-
             case $appliedTo instanceof EnumTypeDefinitionNode:
             case $appliedTo instanceof EnumTypeExtensionNode:
                 return DirectiveLocation::ENUM;
-
             case $appliedTo instanceof EnumValueDefinitionNode:
                 return DirectiveLocation::ENUM_VALUE;
-
             case $appliedTo instanceof InputObjectTypeDefinitionNode:
             case $appliedTo instanceof InputObjectTypeExtensionNode:
                 return DirectiveLocation::INPUT_OBJECT;
-
             case $appliedTo instanceof InputValueDefinitionNode:
-                $parentNode = $ancestors[count($ancestors) - 3];
+                $parentNode = $ancestors[\count($ancestors) - 3];
 
                 return $parentNode instanceof InputObjectTypeDefinitionNode
                     ? DirectiveLocation::INPUT_FIELD_DEFINITION
                     : DirectiveLocation::ARGUMENT_DEFINITION;
+            default:
+                $unknownLocation = \get_class($appliedTo);
+                throw new \Exception("Unknown directive location: {$unknownLocation}.");
         }
-
-        throw new Exception('Unknown directive location: ' . get_class($appliedTo));
     }
 
     public static function misplacedDirectiveMessage(string $directiveName, string $location): string

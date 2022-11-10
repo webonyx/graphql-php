@@ -158,7 +158,14 @@ Registry of standard GraphQL types and base class for all other types.
 /**
  * @api
  */
-static function id(): GraphQL\Type\Definition\ScalarType
+static function int(): GraphQL\Type\Definition\ScalarType
+```
+
+```php
+/**
+ * @api
+ */
+static function float(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
@@ -179,14 +186,7 @@ static function boolean(): GraphQL\Type\Definition\ScalarType
 /**
  * @api
  */
-static function int(): GraphQL\Type\Definition\ScalarType
-```
-
-```php
-/**
- * @api
- */
-static function float(): GraphQL\Type\Definition\ScalarType
+static function id(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
@@ -281,6 +281,7 @@ Structure containing information useful for field resolution process.
 Passed as 4th argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
 
 @phpstan-import-type QueryPlanOptions from QueryPlan
+
 @phpstan-type Path array<int, string|int>
 
 ### GraphQL\Type\Definition\ResolveInfo Props
@@ -312,7 +313,7 @@ public $returnType;
  *
  * @api
  *
- * @var ArrayObject<int, FieldNode>
+ * @var \ArrayObject<int, FieldNode>
  */
 public $fieldNodes;
 
@@ -329,6 +330,7 @@ public $parentType;
  * @api
  *
  * @var array<int, string|int>
+ *
  * @phpstan-var Path
  */
 public $path;
@@ -507,8 +509,19 @@ Usage example:
 
 @see Type, NamedType
 
-@phpstan-type TypeLoader callable(string $typeName):((Type&NamedType)|null)
-@phpstan-type Types array<Type&NamedType>|callable():array<Type&NamedType>
+@phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
+@phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
+@phpstan-type SchemaConfigOptions array{
+query?: ObjectType|null,
+mutation?: ObjectType|null,
+subscription?: ObjectType|null,
+types?: Types|null,
+directives?: array<Directive>|null,
+typeLoader?: TypeLoader|null,
+assumeValid?: bool|null,
+astNode?: SchemaDefinitionNode|null,
+extensionASTNodes?: array<SchemaExtensionNode>|null,
+}
 
 ### GraphQL\Type\SchemaConfig Methods
 
@@ -517,7 +530,7 @@ Usage example:
  * Converts an array of options to instance of SchemaConfig
  * (or just returns empty config when array is not passed).
  *
- * @param array<string, mixed> $options
+ * @phpstan-param SchemaConfigOptions $options
  *
  * @api
  */
@@ -569,6 +582,7 @@ function setSubscription(?GraphQL\Type\Definition\ObjectType $subscription): sel
 ```php
 /**
  * @return array|callable
+ *
  * @phpstan-return Types
  *
  * @api
@@ -579,6 +593,7 @@ function getTypes()
 ```php
 /**
  * @param array|callable $types
+ *
  * @phpstan-param Types $types
  *
  * @api
@@ -607,6 +622,7 @@ function setDirectives(?array $directives): self
 ```php
 /**
  * @return callable|null $typeLoader
+ *
  * @phpstan-return TypeLoader|null $typeLoader
  *
  * @api
@@ -644,11 +660,16 @@ Or using Schema Config instance:
 
     $schema = new GraphQL\Type\Schema($config);
 
+@phpstan-import-type SchemaConfigOptions from SchemaConfig
+@phpstan-import-type OperationType from OperationDefinitionNode
+
 ### GraphQL\Type\Schema Methods
 
 ```php
 /**
  * @param SchemaConfig|array<string, mixed> $config
+ *
+ * @phpstan-param SchemaConfig|SchemaConfigOptions $config
  *
  * @api
  */
@@ -924,6 +945,7 @@ Those magic functions allow partial parsing:
  * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
  *
  * @param Source|string $source
+ *
  * @phpstan-param ParserOptions       $options
  *
  * @throws SyntaxError
@@ -945,6 +967,7 @@ static function parse($source, array $options = []): GraphQL\Language\AST\Docume
  * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
  *
  * @param Source|string $source
+ *
  * @phpstan-param ParserOptions $options
  *
  * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode
@@ -966,6 +989,7 @@ static function parseValue($source, array $options = [])
  * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
  *
  * @param Source|string $source
+ *
  * @phpstan-param ParserOptions       $options
  *
  * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
@@ -1103,7 +1127,7 @@ visitor API:
  * @param VisitorArray $visitor
  * @param array<string, mixed>|null $keyMap
  *
- * @throws Exception
+ * @throws \Exception
  *
  * @return Node|mixed
  *
@@ -1240,13 +1264,7 @@ const CLASS_MAP = [
 Implements the "Evaluating requests" section of the GraphQL specification.
 
 @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
-
-@see https://github.com/vimeo/psalm/issues/6928
-@psalm-type FieldResolver callable(mixed, array, mixed, ResolveInfo): mixed
 @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
-
-@see https://github.com/vimeo/psalm/issues/6928, https://github.com/vimeo/psalm/issues/7527
-@psalm-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array, ?string, callable): ExecutorImplementation
 
 ### GraphQL\Executor\Executor Methods
 
@@ -1260,6 +1278,7 @@ Implements the "Evaluating requests" section of the GraphQL specification.
  * @param mixed                     $rootValue
  * @param mixed                     $contextValue
  * @param array<string, mixed>|null $variableValues
+ *
  * @phpstan-param FieldResolver|null $fieldResolver
  *
  * @api
@@ -1285,6 +1304,7 @@ static function execute(
  * @param mixed                     $rootValue
  * @param mixed                     $contextValue
  * @param array<string, mixed>|null $variableValues
+ *
  * @phpstan-param FieldResolver|null $fieldResolver
  *
  * @api
@@ -1326,9 +1346,6 @@ extensions?: array<string, mixed>
 }
 @phpstan-type ErrorFormatter callable(Throwable): SerializableError
 @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
-
-@see https://github.com/vimeo/psalm/issues/6928
-@psalm-type ErrorsHandler callable(Error[], ErrorFormatter): SerializableErrors
 
 ### GraphQL\Executor\ExecutionResult Props
 
@@ -1646,9 +1663,6 @@ Also, it is possible to override warning handler (which is **trigger_error()** b
 
 @phpstan-type WarningHandler callable(string $errorMessage, int $warningId, ?int $messageLevel): void
 
-@see https://github.com/vimeo/psalm/issues/7527
-@psalm-type WarningHandler callable(string, int, int|null): void
-
 ### GraphQL\Error\Warning Constants
 
 ```php
@@ -1824,19 +1838,6 @@ See [dedicated section in docs](executing-queries.md#using-server) for details.
 
 ```php
 /**
- * Converts and exception to error and sends spec-compliant HTTP 500 error.
- * Useful when an exception is thrown somewhere outside of server execution context
- * (e.g. during schema instantiation).
- *
- * @api
- */
-static function send500Error(Throwable $error, int $debug = 'GraphQL\\Error\\DebugFlag::NONE'): void
-```
-
-```php
-/**
- * Creates new instance of a standard GraphQL HTTP server.
- *
  * @param ServerConfig|array<string, mixed> $config
  *
  * @api
@@ -1848,12 +1849,12 @@ function __construct($config)
 /**
  * Parses HTTP request, executes and emits response (using standard PHP `header` function and `echo`).
  *
- * By default (when $parsedBody is not set) it uses PHP globals to parse a request.
+ * When $parsedBody is not set, it uses PHP globals to parse a request.
  * It is possible to implement request parsing elsewhere (e.g. using framework Request instance)
  * and then pass it to the server.
  *
- * See `executeRequest()` if you prefer to emit response yourself
- * (e.g. using Response object of some framework)
+ * See `executeRequest()` if you prefer to emit the response yourself
+ * (e.g. using the Response object of some framework).
  *
  * @param OperationParams|array<OperationParams> $parsedBody
  *
@@ -1864,18 +1865,16 @@ function handleRequest($parsedBody = null): void
 
 ```php
 /**
- * Executes GraphQL operation and returns execution result
+ * Executes a GraphQL operation and returns an execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter).
  *
- * By default (when $parsedBody is not set) it uses PHP globals to parse a request.
+ * When $parsedBody is not set, it uses PHP globals to parse a request.
  * It is possible to implement request parsing elsewhere (e.g. using framework Request instance)
  * and then pass it to the server.
  *
  * PSR-7 compatible method executePsrRequest() does exactly this.
  *
  * @param OperationParams|array<OperationParams> $parsedBody
- *
- * @throws InvariantViolation
  *
  * @return ExecutionResult|array<int, ExecutionResult>|Promise
  *
@@ -1914,16 +1913,6 @@ function processPsrRequest(
 function executePsrRequest(Psr\Http\Message\RequestInterface $request)
 ```
 
-```php
-/**
- * Returns an instance of Server helper, which contains most of the actual logic for
- * parsing / validating / executing request (which could be re-used by other server implementations).
- *
- * @api
- */
-function getHelper(): GraphQL\Server\Helper
-```
-
 ## GraphQL\Server\ServerConfig
 
 Server configuration class.
@@ -1943,6 +1932,7 @@ Usage example:
 @phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
 @phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
 @phpstan-type ValidationRulesOption array<ValidationRule>|null|callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>
+
 @phpstan-import-type ErrorsHandler from ExecutionResult
 @phpstan-import-type ErrorFormatter from ExecutionResult
 
@@ -1979,6 +1969,7 @@ function setContext($context): self
 ```php
 /**
  * @param mixed|callable $rootValue
+ *
  * @phpstan-param mixed|RootValueResolver $rootValue
  *
  * @api
@@ -2009,6 +2000,7 @@ function setErrorsHandler(callable $handler): self
  * Set validation rules for this server.
  *
  * @param array<ValidationRule>|callable|null $validationRules
+ *
  * @phpstan-param ValidationRulesOption $validationRules
  *
  * @api
@@ -2286,6 +2278,7 @@ Build instance of @see \GraphQL\Type\Schema out of schema language definition (s
 See [schema definition language docs](schema-definition-language.md) for details.
 
 @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+
 @phpstan-type BuildSchemaOptions array{
 assumeValid?: bool,
 assumeValidSDL?: bool
@@ -2311,9 +2304,11 @@ assumeValidSDL?: bool
  * document.
  *
  * @param DocumentNode|Source|string $source
+ *
  * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
  *
  * @param array<string, bool> $options
+ *
  * @phpstan-param BuildSchemaOptions $options
  *
  * @api
@@ -2333,6 +2328,7 @@ static function build($source, ?callable $typeConfigDecorator = null, array $opt
  * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
  *
  * @param array<string, bool> $options
+ *
  * @phpstan-param BuildSchemaOptions $options
  *
  * @throws Error
@@ -2444,7 +2440,7 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type): ?
  * @param (ValueNode&Node)|null $valueNode
  * @param array<string, mixed>|null $variables
  *
- * @throws Exception
+ * @throws \Exception
  *
  * @return mixed
  *
@@ -2476,7 +2472,7 @@ static function valueFromAST(
  *
  * @param array<string, mixed>|null $variables
  *
- * @throws Exception
+ * @throws \Exception
  *
  * @return mixed
  *
@@ -2492,7 +2488,7 @@ static function valueFromASTUntyped(GraphQL\Language\AST\Node $valueNode, ?array
  * @param callable(string): ?Type $typeLoader
  * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
  *
- * @throws Exception
+ * @throws \Exception
  *
  * @api
  */
@@ -2534,6 +2530,7 @@ Prints the contents of a Schema in schema definition language.
 ```php
 /**
  * @param array<string, bool> $options
+ *
  * @phpstan-param Options $options
  *
  * @api
@@ -2544,6 +2541,7 @@ static function doPrint(GraphQL\Type\Schema $schema, array $options = []): strin
 ```php
 /**
  * @param array<string, bool> $options
+ *
  * @phpstan-param Options $options
  *
  * @api

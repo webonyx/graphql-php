@@ -5,7 +5,6 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 
 class MixedStoreTest extends TestCase
 {
@@ -41,7 +40,7 @@ class MixedStoreTest extends TestCase
             '1',
             'a',
             [],
-            new stdClass(),
+            new \stdClass(),
             static function (): void {
             },
             $mixedStore,
@@ -76,8 +75,9 @@ class MixedStoreTest extends TestCase
      */
     private function assertProvidesArrayAccess($key, $value): void
     {
-        $err = 'Failed assertion that MixedStore provides array access for key '
-            . Utils::printSafe($key) . ' with value ' . Utils::printSafe($value);
+        $safeKey = Utils::printSafe($key);
+        $safeValue = Utils::printSafe($value);
+        $err = "Failed assertion that MixedStore provides array access for key {$safeKey} with value {$safeValue}";
 
         self::assertFalse(isset($this->mixedStore[$key]), $err);
         $this->mixedStore[$key] = $value;
@@ -129,7 +129,7 @@ class MixedStoreTest extends TestCase
             $this->assertAcceptsKeyValue([], $value);
             $this->assertAcceptsKeyValue([null], $value);
             $this->assertAcceptsKeyValue([[]], $value);
-            $this->assertAcceptsKeyValue([new stdClass()], $value);
+            $this->assertAcceptsKeyValue([new \stdClass()], $value);
             $this->assertAcceptsKeyValue(['a', 'b'], $value);
             $this->assertAcceptsKeyValue(['a' => 'b'], $value);
         }
@@ -138,7 +138,7 @@ class MixedStoreTest extends TestCase
     public function testAcceptsObjectKeys(): void
     {
         foreach ($this->possibleValues() as $value) {
-            $this->assertAcceptsKeyValue(new stdClass(), $value);
+            $this->assertAcceptsKeyValue(new \stdClass(), $value);
             $this->assertAcceptsKeyValue(new MixedStore(), $value);
             $this->assertAcceptsKeyValue(
                 static function (): void {

@@ -84,7 +84,7 @@ class Token
         return $this->kind
             . ($this->value === null
                 ? ''
-                : ' "' . $this->value . '"');
+                : " \"{$this->value}\"");
     }
 
     /**

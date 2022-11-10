@@ -2,7 +2,6 @@
 
 namespace GraphQL\Utils;
 
-use function array_map;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -15,6 +14,7 @@ use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
 use GraphQL\Validator\DocumentValidator;
 
 /**
@@ -23,6 +23,7 @@ use GraphQL\Validator\DocumentValidator;
  * See [schema definition language docs](schema-definition-language.md) for details.
  *
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+ *
  * @phpstan-type BuildSchemaOptions array{
  *   assumeValid?: bool,
  *   assumeValidSDL?: bool
@@ -46,18 +47,21 @@ class BuildSchema
 
     /**
      * @var callable|null
+     *
      * @phpstan-var TypeConfigDecorator|null
      */
     private $typeConfigDecorator;
 
     /**
      * @var array<string, bool>
+     *
      * @phpstan-var BuildSchemaOptions
      */
     private array $options;
 
     /**
      * @param array<string, bool> $options
+     *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      * @phpstan-param BuildSchemaOptions $options
      */
@@ -76,9 +80,11 @@ class BuildSchema
      * document.
      *
      * @param DocumentNode|Source|string $source
+     *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      *
      * @param array<string, bool> $options
+     *
      * @phpstan-param BuildSchemaOptions $options
      *
      * @api
@@ -106,6 +112,7 @@ class BuildSchema
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      *
      * @param array<string, bool> $options
+     *
      * @phpstan-param BuildSchemaOptions $options
      *
      * @throws Error
@@ -168,13 +175,14 @@ class BuildSchema
         $definitionBuilder = new ASTDefinitionBuilder(
             $typeDefinitionsMap,
             $typeExtensionsMap,
+            // @phpstan-ignore-next-line TODO add union type when available
             static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
             $this->typeConfigDecorator
         );
 
-        $directives = array_map(
+        $directives = \array_map(
             [$definitionBuilder, 'buildDirective'],
             $directiveDefs
         );
@@ -198,25 +206,28 @@ class BuildSchema
         // Note: While this could make early assertions to get the correctly
         // typed values below, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
-
-        return new Schema([
-            'query' => isset($operationTypes['query'])
+        return new Schema(
+            (new SchemaConfig())
+            // @phpstan-ignore-next-line
+            ->setQuery(isset($operationTypes['query'])
                 ? $definitionBuilder->maybeBuildType($operationTypes['query'])
-                : null,
-            'mutation' => isset($operationTypes['mutation'])
+                : null)
+            // @phpstan-ignore-next-line
+            ->setMutation(isset($operationTypes['mutation'])
                 ? $definitionBuilder->maybeBuildType($operationTypes['mutation'])
-                : null,
-            'subscription' => isset($operationTypes['subscription'])
+                : null)
+            // @phpstan-ignore-next-line
+            ->setSubscription(isset($operationTypes['subscription'])
                 ? $definitionBuilder->maybeBuildType($operationTypes['subscription'])
-                : null,
-            'typeLoader' => static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name),
-            'directives' => $directives,
-            'astNode' => $schemaDef,
-            'types' => fn (): array => array_map(
+                : null)
+            ->setTypeLoader(static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name))
+            ->setDirectives($directives)
+            ->setAstNode($schemaDef)
+            ->setTypes(fn (): array => \array_map(
                 static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value),
                 $typeDefinitionsMap,
-            ),
-        ]);
+            ))
+        );
     }
 
     /**

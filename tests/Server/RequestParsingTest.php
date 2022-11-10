@@ -6,13 +6,12 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\RequestError;
-use function http_build_query;
-use InvalidArgumentException;
 use Nyholm\Psr7\Request;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\Uri;
 use PHPUnit\Framework\TestCase;
+
 use function Safe\json_encode;
 
 class RequestParsingTest extends TestCase
@@ -131,7 +130,7 @@ class RequestParsingTest extends TestCase
                 'POST',
                 '',
                 ['Content-Type' => 'application/x-www-form-urlencoded'],
-                http_build_query($postValue)
+                \http_build_query($postValue)
             )
         );
     }
@@ -147,7 +146,7 @@ class RequestParsingTest extends TestCase
             'POST',
             '',
             ['Content-Type' => 'application/x-www-form-urlencoded'],
-            $parsed ? null : http_build_query($postValue),
+            $parsed ? null : \http_build_query($postValue),
         );
 
         if ($parsed) {
@@ -203,7 +202,7 @@ class RequestParsingTest extends TestCase
     private function parsePsrGetRequest(array $getValue)
     {
         return (new Helper())->parsePsrRequest(
-            new Request('GET', (new Uri())->withQuery(http_build_query($getValue)))
+            new Request('GET', (new Uri())->withQuery(\http_build_query($getValue)))
         );
     }
 
@@ -258,7 +257,7 @@ class RequestParsingTest extends TestCase
                 'POST',
                 '',
                 ['Content-Type' => 'multipart/form-data; boundary=----FormBoundary'],
-                http_build_query($postValue)
+                \http_build_query($postValue)
             )
         );
     }
@@ -475,7 +474,7 @@ class RequestParsingTest extends TestCase
 
     public function testFailsWithMissingContentTypePsr(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->parsePsrRequest(null, 'test');
     }
 

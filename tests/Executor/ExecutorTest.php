@@ -2,10 +2,7 @@
 
 namespace GraphQL\Tests\Executor;
 
-use ArrayAccess;
-use function count;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
@@ -23,9 +20,8 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use ReturnTypeWillChange;
+
 use function Safe\json_encode;
-use stdClass;
 
 class ExecutorTest extends TestCase
 {
@@ -941,7 +937,7 @@ class ExecutorTest extends TestCase
             $result->data
         );
 
-        self::assertEquals(1, count($result->errors));
+        self::assertEquals(1, \count($result->errors));
         self::assertEquals(
             [
                 'message' => 'Expected value of type "SpecialType" but got: instance of GraphQL\Tests\Executor\TestClasses\NotSpecial.',
@@ -1142,8 +1138,8 @@ class ExecutorTest extends TestCase
                     'ab' => [
                         ['id' => '1'],
                         ['id' => '2'],
-                        new stdClass(),
-                        new stdClass(),
+                        new \stdClass(),
+                        new \stdClass(),
                     ],
                 ],
             ],
@@ -1198,11 +1194,11 @@ class ExecutorTest extends TestCase
                     ],
                     'arrayAccess' => [
                         'type' => $ArrayAccess,
-                        'resolve' => static fn (): ArrayAccess => new class() implements ArrayAccess {
+                        'resolve' => static fn (): \ArrayAccess => new class() implements \ArrayAccess {
                             /**
                              * @param mixed $offset
                              */
-                            #[ReturnTypeWillChange]
+                            #[\ReturnTypeWillChange]
                             public function offsetExists($offset): bool
                             {
                                 switch ($offset) {
@@ -1217,7 +1213,7 @@ class ExecutorTest extends TestCase
                             /**
                              * @param mixed $offset
                              */
-                            #[ReturnTypeWillChange]
+                            #[\ReturnTypeWillChange]
                             public function offsetGet($offset): ?int
                             {
                                 switch ($offset) {
@@ -1228,7 +1224,7 @@ class ExecutorTest extends TestCase
                                         return null;
 
                                     default:
-                                        throw new Exception('unsetThrow');
+                                        throw new \Exception('unsetThrow');
                                 }
                             }
 
@@ -1236,7 +1232,7 @@ class ExecutorTest extends TestCase
                              * @param mixed $offset
                              * @param mixed $value
                              */
-                            #[ReturnTypeWillChange]
+                            #[\ReturnTypeWillChange]
                             public function offsetSet($offset, $value): void
                             {
                             }
@@ -1244,7 +1240,7 @@ class ExecutorTest extends TestCase
                             /**
                              * @param mixed $offset
                              */
-                            #[ReturnTypeWillChange]
+                            #[\ReturnTypeWillChange]
                             public function offsetUnset($offset): void
                             {
                             }
@@ -1252,7 +1248,7 @@ class ExecutorTest extends TestCase
                     ],
                     'objectField' => [
                         'type' => $ObjectField,
-                        'resolve' => static fn (): stdClass => new class() extends stdClass {
+                        'resolve' => static fn (): \stdClass => new class() extends \stdClass {
                             public ?int $set = 1;
 
                             public ?int $unset;
@@ -1277,12 +1273,10 @@ class ExecutorTest extends TestCase
                                 switch ($name) {
                                     case 'set':
                                         return 1;
-
                                     case 'unsetNull':
                                         return null;
-
                                     default:
-                                        throw new Exception('unsetThrow');
+                                        throw new \Exception('unsetThrow');
                                 }
                             }
                         },

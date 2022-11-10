@@ -19,7 +19,7 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Language\Token;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Utils\Utils;
-use function is_array;
+
 use function Safe\file_get_contents;
 
 class ParserTest extends TestCaseBase
@@ -89,11 +89,11 @@ fragment MissingOn Type
             self::assertEquals($expectedMessage, $e->getMessage());
             self::assertEquals($stringRepresentation, (string) $e);
 
-            if (is_array($expectedPositions)) {
+            if (\is_array($expectedPositions)) {
                 self::assertEquals($expectedPositions, $e->getPositions());
             }
 
-            if (is_array($expectedLocations)) {
+            if (\is_array($expectedLocations)) {
                 self::assertEquals($expectedLocations, $e->getLocations());
             }
         }
@@ -196,8 +196,8 @@ fragment MissingOn Type
 
         $char = Utils::chr(0x0A0A);
         $query = <<<HEREDOC
-        # This comment has a $char multi-byte character.
-        { field(arg: "Has a $char multi-byte character.") }
+        # This comment has a {$char} multi-byte character.
+        { field(arg: "Has a {$char} multi-byte character.") }
 HEREDOC;
 
         $result = Parser::parse($query, ['noLocation' => true]);
@@ -258,15 +258,15 @@ HEREDOC;
             // Expected not to throw:
             $result = Parser::parse(
                 <<<GRAPHQL
-query $keyword {
-... $fragmentName
-... on $keyword { field }
+query {$keyword} {
+... {$fragmentName}
+... on {$keyword} { field }
 }
-fragment $fragmentName on Type {
-$keyword($keyword: \$$keyword) @$keyword($keyword: $keyword)
+fragment {$fragmentName} on Type {
+{$keyword}({$keyword}: \${$keyword}) @{$keyword}({$keyword}: {$keyword})
 }
-fragment $fragmentName on Type {
-  $keyword($keyword: \$$keyword) @$keyword($keyword: $keyword)	
+fragment {$fragmentName} on Type {
+  {$keyword}({$keyword}: \${$keyword}) @{$keyword}({$keyword}: {$keyword})	
 }
 GRAPHQL
             );

@@ -2,8 +2,6 @@
 
 namespace GraphQL\Validator;
 
-use function array_merge;
-use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Visitor;
@@ -50,7 +48,6 @@ use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
-use function implode;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -103,7 +100,7 @@ class DocumentValidator
     ): array {
         $rules ??= static::allRules();
 
-        if (count($rules) === 0) {
+        if (\count($rules) === 0) {
             return [];
         }
 
@@ -137,7 +134,7 @@ class DocumentValidator
     public static function allRules(): array
     {
         if (! self::$initRules) {
-            self::$rules = array_merge(
+            self::$rules = \array_merge(
                 static::defaultRules(),
                 self::securityRules(),
                 self::$rules
@@ -271,7 +268,7 @@ class DocumentValidator
     ): array {
         $rules ??= self::sdlRules();
 
-        if (count($rules) === 0) {
+        if (\count($rules) === 0) {
             return [];
         }
 
@@ -293,7 +290,7 @@ class DocumentValidator
     public static function assertValidSDL(DocumentNode $documentAST): void
     {
         $errors = self::validateSDL($documentAST);
-        if (count($errors) > 0) {
+        if (\count($errors) > 0) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }
@@ -301,7 +298,7 @@ class DocumentValidator
     public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema): void
     {
         $errors = self::validateSDL($documentAST, $schema);
-        if (count($errors) > 0) {
+        if (\count($errors) > 0) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }
@@ -316,6 +313,6 @@ class DocumentValidator
             $messages[] = $error->getMessage();
         }
 
-        return implode("\n\n", $messages);
+        return \implode("\n\n", $messages);
     }
 }

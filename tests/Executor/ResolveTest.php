@@ -8,8 +8,8 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+
 use function Safe\json_encode;
-use function uniqid;
 
 /**
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
@@ -52,7 +52,7 @@ class ResolveTest extends TestCase
     public function testDefaultFunctionCallsClosures(): void
     {
         $schema = $this->buildSchema(['type' => Type::string()]);
-        $_secret = 'secretValue' . uniqid();
+        $_secret = 'secretValue' . \uniqid();
 
         $source = [
             'test' => static fn (): string => $_secret,

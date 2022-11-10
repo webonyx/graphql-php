@@ -36,7 +36,7 @@ query echo ($msg: MsgInput) {
         $schema = BuildSchema::build($schemaStr);
         $result = GraphQL::executeQuery($schema, $query, null, null, $variables);
 
-        $expectedError = 'Variable "$msg" got invalid value ["my message"]; Field "0" is not defined by type MsgInput.';
+        $expectedError = 'Variable "$msg" got invalid value ["my message"]; Field "0" is not defined by type "MsgInput".';
         self::assertCount(1, $result->errors);
         self::assertEquals($expectedError, $result->errors[0]->getMessage());
     }

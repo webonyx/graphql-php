@@ -2,7 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function array_pop;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
@@ -49,7 +48,7 @@ class UniqueInputFieldNames extends ValidationRule
                     $this->knownNames = [];
                 },
                 'leave' => function (): void {
-                    $knownNames = array_pop($this->knownNameStack);
+                    $knownNames = \array_pop($this->knownNameStack);
                     assert(is_array($knownNames), 'should not happen if the visitor works correctly');
 
                     $this->knownNames = $knownNames;

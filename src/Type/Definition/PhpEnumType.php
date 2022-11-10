@@ -2,14 +2,9 @@
 
 namespace GraphQL\Type\Definition;
 
-use Exception;
 use GraphQL\Error\SerializationError;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
-use ReflectionClass;
-use ReflectionClassConstant;
-use ReflectionEnum;
-use UnitEnum;
 
 /**
  * @phpstan-import-type PartialEnumValueConfig from EnumType
@@ -20,17 +15,17 @@ class PhpEnumType extends EnumType
     public const MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
 
     /**
-     * @var class-string<UnitEnum>
+     * @var class-string<\UnitEnum>
      */
     protected string $enumClass;
 
     /**
-     * @param class-string<UnitEnum> $enum
+     * @param class-string<\UnitEnum> $enum
      */
     public function __construct(string $enum)
     {
         $this->enumClass = $enum;
-        $reflection = new ReflectionEnum($enum);
+        $reflection = new \ReflectionEnum($enum);
 
         /**
          * @var array<string, PartialEnumValueConfig> $enumDefinitions
@@ -55,7 +50,6 @@ class PhpEnumType extends EnumType
     {
         if (! is_a($value, $this->enumClass)) {
             $notEnum = Utils::printSafe($value);
-
             throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$this->enumClass}.");
         }
 
@@ -72,7 +66,7 @@ class PhpEnumType extends EnumType
         return end($parts);
     }
 
-    protected function description(ReflectionClassConstant|ReflectionClass $reflection): ?string
+    protected function description(\ReflectionClassConstant|\ReflectionClass $reflection): ?string
     {
         $attributes = $reflection->getAttributes(Description::class);
 
@@ -81,7 +75,7 @@ class PhpEnumType extends EnumType
         }
 
         if (count($attributes) > 1) {
-            throw new Exception(self::MULTIPLE_DESCRIPTIONS_DISALLOWED);
+            throw new \Exception(self::MULTIPLE_DESCRIPTIONS_DISALLOWED);
         }
 
         $comment = $reflection->getDocComment();
@@ -90,7 +84,7 @@ class PhpEnumType extends EnumType
         return PhpDoc::unwrap($unpadded);
     }
 
-    protected function deprecationReason(ReflectionClassConstant $reflection): ?string
+    protected function deprecationReason(\ReflectionClassConstant $reflection): ?string
     {
         $attributes = $reflection->getAttributes(Deprecated::class);
 
@@ -99,7 +93,7 @@ class PhpEnumType extends EnumType
         }
 
         if (count($attributes) > 1) {
-            throw new Exception(self::MULTIPLE_DEPRECATIONS_DISALLOWED);
+            throw new \Exception(self::MULTIPLE_DEPRECATIONS_DISALLOWED);
         }
 
         return null;

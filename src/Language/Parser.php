@@ -2,7 +2,6 @@
 
 namespace GraphQL\Language;
 
-use function count;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
@@ -180,6 +179,7 @@ class Parser
      * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions       $options
      *
      * @throws SyntaxError
@@ -202,6 +202,7 @@ class Parser
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
      *
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions $options
      *
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode
@@ -229,6 +230,7 @@ class Parser
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
      *
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions       $options
      *
      * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
@@ -303,6 +305,7 @@ class Parser
 
     /**
      * @param Source|string $source
+     *
      * @phpstan-param ParserOptions        $options
      */
     public function __construct($source, array $options = [])
@@ -381,7 +384,7 @@ class Parser
             throw new SyntaxError(
                 $this->lexer->source,
                 $token->start,
-                'Expected "' . $value . '", found ' . $token->getDescription()
+                "Expected \"{$value}\", found {$token->getDescription()}"
             );
         }
 
@@ -498,7 +501,7 @@ class Parser
                 case 'fragment':
                     return $this->parseExecutableDefinition();
 
-                // Note: The schema definition language is an experimental addition.
+                    // Note: The schema definition language is an experimental addition.
                 case 'schema':
                 case 'scalar':
                 case 'type':
@@ -867,12 +870,12 @@ class Parser
                         'loc' => $this->loc($token),
                     ]);
                 }
-                    $this->lexer->advance();
+                $this->lexer->advance();
 
-                    return new EnumValueNode([
-                        'value' => $token->value,
-                        'loc' => $this->loc($token),
-                    ]);
+                return new EnumValueNode([
+                    'value' => $token->value,
+                    'loc' => $this->loc($token),
+                ]);
 
             case Token::DOLLAR:
                 if (! $isConst) {
@@ -1440,7 +1443,7 @@ class Parser
                 Token::BRACE_R
             )
             : new NodeList([]);
-        if (count($directives) === 0 && count($operationTypes) === 0) {
+        if (\count($directives) === 0 && \count($operationTypes) === 0) {
             $this->unexpected();
         }
 
@@ -1458,7 +1461,7 @@ class Parser
         $this->expectKeyword('scalar');
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
-        if (count($directives) === 0) {
+        if (\count($directives) === 0) {
             throw $this->unexpected();
         }
 
@@ -1480,9 +1483,9 @@ class Parser
         $fields = $this->parseFieldsDefinition();
 
         if (
-            count($interfaces) === 0
-            && count($directives) === 0
-            && count($fields) === 0
+            \count($interfaces) === 0
+            && \count($directives) === 0
+            && \count($fields) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1506,9 +1509,9 @@ class Parser
         $directives = $this->parseDirectives(true);
         $fields = $this->parseFieldsDefinition();
         if (
-            count($interfaces) === 0
-            && count($directives) === 0
-            && count($fields) === 0
+            \count($interfaces) === 0
+            && \count($directives) === 0
+            && \count($fields) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1535,7 +1538,7 @@ class Parser
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
         $types = $this->parseUnionMemberTypes();
-        if (count($directives) === 0 && count($types) === 0) {
+        if (\count($directives) === 0 && \count($types) === 0) {
             throw $this->unexpected();
         }
 
@@ -1556,8 +1559,8 @@ class Parser
         $directives = $this->parseDirectives(true);
         $values = $this->parseEnumValuesDefinition();
         if (
-            count($directives) === 0
-            && count($values) === 0
+            \count($directives) === 0
+            && \count($values) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1579,8 +1582,8 @@ class Parser
         $directives = $this->parseDirectives(true);
         $fields = $this->parseInputFieldsDefinition();
         if (
-            count($directives) === 0
-            && count($fields) === 0
+            \count($directives) === 0
+            && \count($fields) === 0
         ) {
             throw $this->unexpected();
         }

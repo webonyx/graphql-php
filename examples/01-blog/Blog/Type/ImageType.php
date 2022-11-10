@@ -2,14 +2,12 @@
 
 namespace GraphQL\Examples\Blog\Type;
 
-use Exception;
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
-use UnexpectedValueException;
 
 class ImageType extends ObjectType
 {
@@ -31,13 +29,13 @@ class ImageType extends ObjectType
                 'fieldWithError' => [
                     'type' => Types::string(),
                     'resolve' => static function (): void {
-                        throw new Exception('Field with exception');
+                        throw new \Exception('Field with exception');
                     },
                 ],
                 'nonNullFieldWithError' => [
                     'type' => new NonNull(Types::string()),
                     'resolve' => static function (): void {
-                        throw new Exception('Non-null field with exception');
+                        throw new \Exception('Non-null field with exception');
                     },
                 ],
             ],
@@ -51,10 +49,10 @@ class ImageType extends ObjectType
     {
         switch ($value->type) {
             case Image::TYPE_USERPIC:
-                $path = '/images/user/' . $value->id . '-' . $value->size . '.jpg';
+                $path = "/images/user/{$value->id}-{$value->size}.jpg";
                 break;
             default:
-                throw new UnexpectedValueException('Unexpected image type: ' . $value->type);
+                throw new \UnexpectedValueException("Unexpected image type: {$value->type}");
         }
 
         return $context->rootUrl . $path;

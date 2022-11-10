@@ -2,13 +2,10 @@
 
 namespace GraphQL\Tests\Type;
 
-use function acos;
 use GraphQL\Error\SerializationError;
 use GraphQL\Tests\Type\TestClasses\ObjectIdStub;
 use GraphQL\Type\Definition\Type;
-use function log;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 
 class ScalarSerializationTest extends TestCase
 {
@@ -40,14 +37,14 @@ class ScalarSerializationTest extends TestCase
             [0.1, 'Int cannot represent non-integer value: 0.1'],
             [1.1, 'Int cannot represent non-integer value: 1.1'],
             [-1.1, 'Int cannot represent non-integer value: -1.1'],
-            ['-1.1', 'Int cannot represent non-integer value: -1.1'],
+            ['-1.1', 'Int cannot represent non-integer value: "-1.1"'],
             [9876504321, 'Int cannot represent non 32-bit signed integer value: 9876504321'],
             [-9876504321, 'Int cannot represent non 32-bit signed integer value: -9876504321'],
             [1e100, 'Int cannot represent non 32-bit signed integer value: 1.0E+100'],
             [-1e100, 'Int cannot represent non 32-bit signed integer value: -1.0E+100'],
-            [log(0), 'Int cannot represent non 32-bit signed integer value: -INF'],
-            [acos(8), 'Int cannot represent non-integer value: NAN'],
-            ['one', 'Int cannot represent non-integer value: one'],
+            [\log(0), 'Int cannot represent non 32-bit signed integer value: -INF'],
+            [\acos(8), 'Int cannot represent non-integer value: NAN'],
+            ['one', 'Int cannot represent non-integer value: "one"'],
             ['', 'Int cannot represent non-integer value: (empty string)'],
             [[5], 'Int cannot represent non-integer value: [5]'],
         ];
@@ -94,10 +91,10 @@ class ScalarSerializationTest extends TestCase
     public function badFloatValues(): iterable
     {
         return [
-            ['one', 'Float cannot represent non numeric value: one'],
+            ['one', 'Float cannot represent non numeric value: "one"'],
             ['', 'Float cannot represent non numeric value: (empty string)'],
-            [log(0), 'Float cannot represent non numeric value: -INF'],
-            [acos(8), 'Float cannot represent non numeric value: NAN'],
+            [\log(0), 'Float cannot represent non numeric value: -INF'],
+            [\acos(8), 'Float cannot represent non numeric value: NAN'],
             [[5], 'Float cannot represent non numeric value: [5]'],
         ];
     }
@@ -143,7 +140,7 @@ class ScalarSerializationTest extends TestCase
     {
         return [
             [[1], 'String cannot represent value: [1]'],
-            [new stdClass(), 'String cannot represent value: instance of stdClass'],
+            [new \stdClass(), 'String cannot represent value: instance of stdClass'],
         ];
     }
 
@@ -202,7 +199,7 @@ class ScalarSerializationTest extends TestCase
     public function badIDValues(): iterable
     {
         return [
-            [new stdClass(), 'ID cannot represent a non-string and non-integer value: instance of stdClass'],
+            [new \stdClass(), 'ID cannot represent a non-string and non-integer value: instance of stdClass'],
             [true, 'ID cannot represent a non-string and non-integer value: true'],
             [false, 'ID cannot represent a non-string and non-integer value: false'],
             [-1.1, 'ID cannot represent a non-string and non-integer value: -1.1'],

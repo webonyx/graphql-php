@@ -8,7 +8,6 @@ use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Utils\AST;
-use function is_callable;
 
 /**
  * @phpstan-type InputCustomScalarConfig array{
@@ -39,6 +38,7 @@ class CustomScalarType extends ScalarType
 
     /**
      * @param array<string, mixed> $config
+     *
      * @phpstan-param CustomScalarConfig $config
      */
     public function __construct(array $config)
@@ -77,12 +77,8 @@ class CustomScalarType extends ScalarType
     {
         parent::assertValid();
 
-        if (isset($this->config['serialize']) && ! is_callable($this->config['serialize'])) {
-            throw new InvariantViolation(
-                "{$this->name} must provide \"serialize\" function. If this custom Scalar "
-                . 'is also used as an input type, ensure "parseValue" and "parseLiteral" '
-                . 'functions are also provided.'
-            );
+        if (isset($this->config['serialize']) && ! \is_callable($this->config['serialize'])) {
+            throw new InvariantViolation("{$this->name} must provide \"serialize\" function. If this custom Scalar is also used as an input type, ensure \"parseValue\" and \"parseLiteral\" functions are also provided.");
         }
 
         $parseValue = $this->config['parseValue'] ?? null;
@@ -91,10 +87,8 @@ class CustomScalarType extends ScalarType
             return;
         }
 
-        if (! is_callable($parseValue) || ! is_callable($parseLiteral)) {
-            throw new InvariantViolation(
-                "{$this->name} must provide both \"parseValue\" and \"parseLiteral\" functions."
-            );
+        if (! \is_callable($parseValue) || ! \is_callable($parseLiteral)) {
+            throw new InvariantViolation("{$this->name} must provide both \"parseValue\" and \"parseLiteral\" functions.");
         }
     }
 }

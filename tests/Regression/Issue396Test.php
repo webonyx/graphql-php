@@ -10,7 +10,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use function stristr;
 
 /**
  * @see https://github.com/webonyx/graphql-php/issues/396
@@ -30,15 +29,15 @@ class Issue396Test extends TestCase
             'types' => [$a, $b, $c],
             'resolveType' => static function ($result, $value, ResolveInfo $info) use ($a, $b, $c, &$log): ?Type {
                 $log[] = [$result, $info->path];
-                if (stristr($result['name'], 'A') !== false) {
+                if (\stristr($result['name'], 'A') !== false) {
                     return $a;
                 }
 
-                if (stristr($result['name'], 'B') !== false) {
+                if (\stristr($result['name'], 'B') !== false) {
                     return $b;
                 }
 
-                if (stristr($result['name'], 'C') !== false) {
+                if (\stristr($result['name'], 'C') !== false) {
                     return $c;
                 }
 
@@ -99,15 +98,15 @@ class Issue396Test extends TestCase
             ],
             'resolveType' => static function ($result, $value, ResolveInfo $info) use (&$a, &$b, &$c, &$log): ?ObjectType {
                 $log[] = [$result, $info->path];
-                if (stristr($result['name'], 'A') !== false) {
+                if (\stristr($result['name'], 'A') !== false) {
                     return $a;
                 }
 
-                if (stristr($result['name'], 'B') !== false) {
+                if (\stristr($result['name'], 'B') !== false) {
                     return $b;
                 }
 
-                if (stristr($result['name'], 'C') !== false) {
+                if (\stristr($result['name'], 'C') !== false) {
                     return $c;
                 }
 

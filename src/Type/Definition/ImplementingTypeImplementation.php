@@ -4,8 +4,6 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Schema;
-use function is_callable;
-use function is_iterable;
 
 /**
  * @see ImplementingType
@@ -55,7 +53,7 @@ trait ImplementingTypeImplementation
         }
 
         $interfaces = $this->config['interfaces'];
-        if (is_callable($interfaces)) {
+        if (\is_callable($interfaces)) {
             $interfaces = $interfaces();
         }
 
@@ -74,15 +72,13 @@ trait ImplementingTypeImplementation
         }
 
         $interfaces = $this->config['interfaces'];
-        if (is_callable($interfaces)) {
+        if (\is_callable($interfaces)) {
             $interfaces = $interfaces();
         }
 
         // @phpstan-ignore-next-line should not happen if used correctly
-        if (! is_iterable($interfaces)) {
-            throw new InvariantViolation(
-                "{$this->name} interfaces must be an iterable or a callable which returns an iterable."
-            );
+        if (! \is_iterable($interfaces)) {
+            throw new InvariantViolation("{$this->name} interfaces must be an iterable or a callable which returns an iterable.");
         }
     }
 }

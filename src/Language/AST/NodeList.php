@@ -2,27 +2,21 @@
 
 namespace GraphQL\Language\AST;
 
-use function array_merge;
-use function array_splice;
 use ArrayAccess;
-use function count;
-use Countable;
 use GraphQL\Utils\AST;
-use function is_array;
-use function iterator_to_array;
 use IteratorAggregate;
-use ReturnTypeWillChange;
-use Traversable;
 
 /**
  * @template T of Node
+ *
  * @phpstan-implements ArrayAccess<array-key, T>
  * @phpstan-implements IteratorAggregate<array-key, T>
  */
-class NodeList implements ArrayAccess, IteratorAggregate, Countable
+class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * @var array<Node|array>
+     *
      * @phpstan-var array<T|array<string, mixed>>
      */
     private $nodes;
@@ -31,6 +25,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      * @template TT of Node
      *
      * @param array<Node|array<string, mixed>> $nodes
+     *
      * @phpstan-param array<TT|array<string, mixed>> $nodes
      *
      * @phpstan-return self<TT>
@@ -42,6 +37,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * @param array<Node|array> $nodes
+     *
      * @phpstan-param array<T|array<string, mixed>> $nodes
      */
     public function __construct(array $nodes)
@@ -52,7 +48,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * @param int|string $offset
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {
         return isset($this->nodes[$offset]);
@@ -63,12 +59,12 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      *
      * @phpstan-return T
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset): Node
     {
         $item = $this->nodes[$offset];
 
-        if (is_array($item)) {
+        if (\is_array($item)) {
             // @phpstan-ignore-next-line not really possible to express the correctness of this in PHP
             return $this->nodes[$offset] = AST::fromArray($item);
         }
@@ -79,12 +75,13 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * @param int|string|null           $offset
      * @param Node|array<string, mixed> $value
+     *
      * @phpstan-param T|array<string, mixed> $value
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             /** @phpstan-var T $value */
             $value = AST::fromArray($value);
         }
@@ -102,7 +99,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * @param int|string $offset
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {
         unset($this->nodes[$offset]);
@@ -116,7 +113,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
         return new NodeList(
-            array_splice($this->nodes, $offset, $length, $replacement)
+            \array_splice($this->nodes, $offset, $length, $replacement)
         );
     }
 
@@ -127,14 +124,14 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      */
     public function merge(iterable $list): NodeList
     {
-        if (! is_array($list)) {
-            $list = iterator_to_array($list);
+        if (! \is_array($list)) {
+            $list = \iterator_to_array($list);
         }
 
-        return new NodeList(array_merge($this->nodes, $list));
+        return new NodeList(\array_merge($this->nodes, $list));
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
         foreach ($this->nodes as $key => $_) {
             yield $key => $this->offsetGet($key);
@@ -143,7 +140,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 
     public function count(): int
     {
-        return count($this->nodes);
+        return \count($this->nodes);
     }
 
     /**

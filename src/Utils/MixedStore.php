@@ -2,18 +2,7 @@
 
 namespace GraphQL\Utils;
 
-use function array_key_exists;
-use function array_search;
-use function array_splice;
 use ArrayAccess;
-use InvalidArgumentException;
-use function is_array;
-use function is_float;
-use function is_int;
-use function is_object;
-use function is_string;
-use ReturnTypeWillChange;
-use SplObjectStorage;
 
 /**
  * Similar to PHP array, but allows any type of data to act as key (including arrays, objects, scalars).
@@ -21,9 +10,10 @@ use SplObjectStorage;
  * When storing array as key, access and modification is O(N). Avoid if possible.
  *
  * @template TValue of mixed
+ *
  * @implements ArrayAccess<mixed, TValue>
  */
-class MixedStore implements ArrayAccess
+class MixedStore implements \ArrayAccess
 {
     /** @var array<TValue> */
     private array $standardStore = [];
@@ -31,8 +21,8 @@ class MixedStore implements ArrayAccess
     /** @var array<TValue> */
     private array $floatStore = [];
 
-    /** @var SplObjectStorage<object, TValue> */
-    private SplObjectStorage $objectStore;
+    /** @var \SplObjectStorage<object, TValue> */
+    private \SplObjectStorage $objectStore;
 
     /** @var array<int, array<mixed>> */
     private array $arrayKeys = [];
@@ -63,13 +53,13 @@ class MixedStore implements ArrayAccess
 
     public function __construct()
     {
-        $this->objectStore = new SplObjectStorage();
+        $this->objectStore = new \SplObjectStorage();
     }
 
     /**
      * @param mixed $offset
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {
         if ($offset === false) {
@@ -80,19 +70,19 @@ class MixedStore implements ArrayAccess
             return $this->trueValueIsSet;
         }
 
-        if (is_int($offset) || is_string($offset)) {
-            return array_key_exists($offset, $this->standardStore);
+        if (\is_int($offset) || \is_string($offset)) {
+            return \array_key_exists($offset, $this->standardStore);
         }
 
-        if (is_float($offset)) {
-            return array_key_exists((string) $offset, $this->floatStore);
+        if (\is_float($offset)) {
+            return \array_key_exists((string) $offset, $this->floatStore);
         }
 
-        if (is_object($offset)) {
+        if (\is_object($offset)) {
             return $this->objectStore->offsetExists($offset);
         }
 
-        if (is_array($offset)) {
+        if (\is_array($offset)) {
             foreach ($this->arrayKeys as $index => $entry) {
                 if ($entry === $offset) {
                     $this->lastArrayKey = $offset;
@@ -115,7 +105,7 @@ class MixedStore implements ArrayAccess
      *
      * @return TValue|null
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         if ($offset === true) {
@@ -126,19 +116,19 @@ class MixedStore implements ArrayAccess
             return $this->falseValue;
         }
 
-        if (is_int($offset) || is_string($offset)) {
+        if (\is_int($offset) || \is_string($offset)) {
             return $this->standardStore[$offset];
         }
 
-        if (is_float($offset)) {
+        if (\is_float($offset)) {
             return $this->floatStore[(string) $offset];
         }
 
-        if (is_object($offset)) {
+        if (\is_object($offset)) {
             return $this->objectStore->offsetGet($offset);
         }
 
-        if (is_array($offset)) {
+        if (\is_array($offset)) {
             // offsetGet is often called directly after offsetExists, so optimize to avoid second loop:
             if ($this->lastArrayKey === $offset) {
                 return $this->lastArrayValue;
@@ -162,7 +152,7 @@ class MixedStore implements ArrayAccess
      * @param mixed  $offset
      * @param TValue $value
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
     {
         if ($offset === false) {
@@ -171,27 +161,28 @@ class MixedStore implements ArrayAccess
         } elseif ($offset === true) {
             $this->trueValue = $value;
             $this->trueValueIsSet = true;
-        } elseif (is_int($offset) || is_string($offset)) {
+        } elseif (\is_int($offset) || \is_string($offset)) {
             $this->standardStore[$offset] = $value;
-        } elseif (is_float($offset)) {
+        } elseif (\is_float($offset)) {
             $this->floatStore[(string) $offset] = $value;
-        } elseif (is_object($offset)) {
+        } elseif (\is_object($offset)) {
             $this->objectStore[$offset] = $value;
-        } elseif (is_array($offset)) {
+        } elseif (\is_array($offset)) {
             $this->arrayKeys[] = $offset;
             $this->arrayValues[] = $value;
         } elseif ($offset === null) {
             $this->nullValue = $value;
             $this->nullValueIsSet = true;
         } else {
-            throw new InvalidArgumentException('Unexpected offset type: ' . Utils::printSafe($offset));
+            $unexpectedOffset = Utils::printSafe($offset);
+            throw new \InvalidArgumentException("Unexpected offset type: {$unexpectedOffset}");
         }
     }
 
     /**
      * @param mixed $offset
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {
         if ($offset === true) {
@@ -200,18 +191,18 @@ class MixedStore implements ArrayAccess
         } elseif ($offset === false) {
             $this->falseValue = null;
             $this->falseValueIsSet = false;
-        } elseif (is_int($offset) || is_string($offset)) {
+        } elseif (\is_int($offset) || \is_string($offset)) {
             unset($this->standardStore[$offset]);
-        } elseif (is_float($offset)) {
+        } elseif (\is_float($offset)) {
             unset($this->floatStore[(string) $offset]);
-        } elseif (is_object($offset)) {
+        } elseif (\is_object($offset)) {
             $this->objectStore->offsetUnset($offset);
-        } elseif (is_array($offset)) {
-            $index = array_search($offset, $this->arrayKeys, true);
+        } elseif (\is_array($offset)) {
+            $index = \array_search($offset, $this->arrayKeys, true);
 
             if ($index !== false) {
-                array_splice($this->arrayKeys, $index, 1);
-                array_splice($this->arrayValues, $index, 1);
+                \array_splice($this->arrayKeys, $index, 1);
+                \array_splice($this->arrayValues, $index, 1);
             }
         } elseif ($offset === null) {
             $this->nullValue = null;

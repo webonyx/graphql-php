@@ -2,11 +2,7 @@
 
 namespace GraphQL\Language\AST;
 
-use function count;
-use function get_object_vars;
 use GraphQL\Utils\Utils;
-use function json_encode;
-use JsonSerializable;
 
 /**
  * type Node = NameNode
@@ -32,7 +28,7 @@ use JsonSerializable;
  * | ListTypeNode
  * | NonNullTypeNode.
  */
-abstract class Node implements JsonSerializable
+abstract class Node implements \JsonSerializable
 {
     public ?Location $loc = null;
 
@@ -43,7 +39,7 @@ abstract class Node implements JsonSerializable
      */
     public function __construct(array $vars)
     {
-        if (count($vars) === 0) {
+        if (\count($vars) === 0) {
             return;
         }
 
@@ -72,7 +68,7 @@ abstract class Node implements JsonSerializable
     {
         if ($value instanceof self) {
             $cloned = clone $value;
-            foreach (get_object_vars($cloned) as $prop => $propValue) {
+            foreach (\get_object_vars($cloned) as $prop => $propValue) {
                 $cloned->{$prop} = static::cloneValue($propValue);
             }
 
@@ -88,7 +84,7 @@ abstract class Node implements JsonSerializable
 
     public function __toString(): string
     {
-        return json_encode($this, JSON_THROW_ON_ERROR);
+        return \json_encode($this, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -118,7 +114,7 @@ abstract class Node implements JsonSerializable
     {
         $result = [];
 
-        foreach (get_object_vars($node) as $prop => $propValue) {
+        foreach (\get_object_vars($node) as $prop => $propValue) {
             if ($propValue === null) {
                 continue;
             }

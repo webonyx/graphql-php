@@ -9,10 +9,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Printer;
 use GraphQL\Utils\Utils;
-use function is_int;
-use function is_object;
-use function is_string;
-use function method_exists;
 
 class IDType extends ScalarType
 {
@@ -27,9 +23,9 @@ When expected as an input type, any string (such as `"4"`) or integer
 
     public function serialize($value): string
     {
-        $canCast = is_string($value)
-            || is_int($value)
-            || (is_object($value) && method_exists($value, '__toString'));
+        $canCast = \is_string($value)
+            || \is_int($value)
+            || (\is_object($value) && \method_exists($value, '__toString'));
 
         if (! $canCast) {
             $notID = Utils::printSafe($value);
@@ -41,11 +37,11 @@ When expected as an input type, any string (such as `"4"`) or integer
 
     public function parseValue($value): string
     {
-        if (is_string($value) || is_int($value)) {
+        if (\is_string($value) || \is_int($value)) {
             return (string) $value;
         }
 
-        $notID = Utils::printSafe($value);
+        $notID = Utils::printSafeJson($value);
         throw new Error("ID cannot represent a non-string and non-integer value: {$notID}");
     }
 

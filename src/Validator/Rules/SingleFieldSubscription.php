@@ -2,7 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
@@ -22,8 +21,8 @@ class SingleFieldSubscription extends ValidationRule
                 if ($node->operation === 'subscription') {
                     $selections = $node->selectionSet->selections;
 
-                    if (count($selections) > 1) {
-                        $offendingSelections = $selections->splice(1, count($selections));
+                    if (\count($selections) > 1) {
+                        $offendingSelections = $selections->splice(1, \count($selections));
 
                         $context->reportError(new Error(
                             static::multipleFieldsInOperation($node->name->value ?? null),

@@ -3,18 +3,15 @@
 namespace GraphQL\Tests\Executor\Promise;
 
 use function Amp\call;
+
 use Amp\Deferred;
 use Amp\Delayed;
 use Amp\Failure;
 use Amp\LazyPromise;
 use Amp\Promise;
 use Amp\Success;
-use Exception;
-use Generator;
 use GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter;
 use PHPUnit\Framework\TestCase;
-use stdClass;
-use Throwable;
 
 /**
  * @group AmpPromise
@@ -26,12 +23,12 @@ final class AmpPromiseAdapterTest extends TestCase
         $ampAdapter = new AmpPromiseAdapter();
 
         self::assertTrue(
-            $ampAdapter->isThenable(call(static function (): Generator {
+            $ampAdapter->isThenable(call(static function (): \Generator {
                 yield from [];
             }))
         );
         self::assertTrue($ampAdapter->isThenable(new Success()));
-        self::assertTrue($ampAdapter->isThenable(new Failure(new Exception())));
+        self::assertTrue($ampAdapter->isThenable(new Failure(new \Exception())));
         self::assertTrue($ampAdapter->isThenable(new Delayed(0)));
         self::assertTrue(
             $ampAdapter->isThenable(new LazyPromise(static function (): void {
@@ -44,7 +41,7 @@ final class AmpPromiseAdapterTest extends TestCase
         self::assertFalse($ampAdapter->isThenable('test'));
         self::assertFalse($ampAdapter->isThenable(''));
         self::assertFalse($ampAdapter->isThenable([]));
-        self::assertFalse($ampAdapter->isThenable(new stdClass()));
+        self::assertFalse($ampAdapter->isThenable(new \stdClass()));
     }
 
     public function testConvertsReactPromisesToGraphQlOnes(): void
@@ -113,7 +110,7 @@ final class AmpPromiseAdapterTest extends TestCase
     public function testCreateRejected(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
-        $rejectedPromise = $ampAdapter->createRejected(new Exception('I am a bad promise'));
+        $rejectedPromise = $ampAdapter->createRejected(new \Exception('I am a bad promise'));
 
         self::assertInstanceOf(Failure::class, $rejectedPromise->adoptedPromise);
 
@@ -126,7 +123,7 @@ final class AmpPromiseAdapterTest extends TestCase
             }
         );
 
-        self::assertInstanceOf(Throwable::class, $exception);
+        self::assertInstanceOf(\Throwable::class, $exception);
         self::assertEquals('I am a bad promise', $exception->getMessage());
     }
 

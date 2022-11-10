@@ -2,8 +2,6 @@
 
 namespace GraphQL\Type\Definition;
 
-use function array_merge_recursive;
-use ArrayObject;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -18,6 +16,7 @@ use GraphQL\Type\Schema;
  * Passed as 4th argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
  *
  * @phpstan-import-type QueryPlanOptions from QueryPlan
+ *
  * @phpstan-type Path array<int, string|int>
  */
 class ResolveInfo
@@ -48,9 +47,9 @@ class ResolveInfo
      *
      * @api
      *
-     * @var ArrayObject<int, FieldNode>
+     * @var \ArrayObject<int, FieldNode>
      */
-    public ArrayObject $fieldNodes;
+    public \ArrayObject $fieldNodes;
 
     /**
      * Parent type of the field being resolved.
@@ -65,6 +64,7 @@ class ResolveInfo
      * @api
      *
      * @var array<int, string|int>
+     *
      * @phpstan-var Path
      */
     public array $path;
@@ -111,13 +111,9 @@ class ResolveInfo
     public array $variableValues = [];
 
     /**
-     * Lazily initialized.
-     */
-    private QueryPlan $queryPlan;
-
-    /**
-     * @param ArrayObject<int, FieldNode> $fieldNodes
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<int, string|int> $path
+     *
      * @phpstan-param Path $path
      *
      * @param array<string, FragmentDefinitionNode> $fragments
@@ -126,7 +122,7 @@ class ResolveInfo
      */
     public function __construct(
         FieldDefinition $fieldDefinition,
-        ArrayObject $fieldNodes,
+        \ArrayObject $fieldNodes,
         ObjectType $parentType,
         array $path,
         Schema $schema,
@@ -191,7 +187,7 @@ class ResolveInfo
 
         foreach ($this->fieldNodes as $fieldNode) {
             if (isset($fieldNode->selectionSet)) {
-                $fields = array_merge_recursive(
+                $fields = \array_merge_recursive(
                     $fields,
                     $this->foldSelectionSet($fieldNode->selectionSet, $depth)
                 );
@@ -206,18 +202,14 @@ class ResolveInfo
      */
     public function lookAhead(array $options = []): QueryPlan
     {
-        if (! isset($this->queryPlan)) {
-            $this->queryPlan = new QueryPlan(
-                $this->parentType,
-                $this->schema,
-                $this->fieldNodes,
-                $this->variableValues,
-                $this->fragments,
-                $options
-            );
-        }
-
-        return $this->queryPlan;
+        return new QueryPlan(
+            $this->parentType,
+            $this->schema,
+            $this->fieldNodes,
+            $this->variableValues,
+            $this->fragments,
+            $options
+        );
     }
 
     /**
@@ -237,13 +229,13 @@ class ResolveInfo
                 $spreadName = $selectionNode->name->value;
                 if (isset($this->fragments[$spreadName])) {
                     $fragment = $this->fragments[$spreadName];
-                    $fields = array_merge_recursive(
+                    $fields = \array_merge_recursive(
                         $this->foldSelectionSet($fragment->selectionSet, $descend),
                         $fields
                     );
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
-                $fields = array_merge_recursive(
+                $fields = \array_merge_recursive(
                     $this->foldSelectionSet($selectionNode->selectionSet, $descend),
                     $fields
                 );

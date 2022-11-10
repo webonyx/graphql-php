@@ -15,6 +15,7 @@ use GraphQL\Server\StandardServer;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
 
 $queryType = new ObjectType([
     'name' => 'Query',
@@ -45,10 +46,11 @@ $mutationType = new ObjectType([
 
 // See docs on schema options:
 // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
-$schema = new Schema([
-    'query' => $queryType,
-    'mutation' => $mutationType,
-]);
+$schema = new Schema(
+    (new SchemaConfig())
+    ->setQuery($queryType)
+    ->setMutation($mutationType)
+);
 
 $rootValue = ['prefix' => 'You said: '];
 

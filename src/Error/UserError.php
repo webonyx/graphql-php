@@ -2,12 +2,10 @@
 
 namespace GraphQL\Error;
 
-use RuntimeException;
-
 /**
  * Caused by GraphQL clients and can safely be displayed.
  */
-class UserError extends RuntimeException implements ClientAware
+class UserError extends \RuntimeException implements ClientAware
 {
     public function isClientSafe(): bool
     {

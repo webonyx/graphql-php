@@ -2,8 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function array_keys;
-use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NodeKind;
@@ -15,7 +13,6 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
-use function in_array;
 
 /**
  * Known type names.
@@ -50,14 +47,14 @@ class KnownTypeNames extends ValidationRule
             }
         }
 
-        $standardTypeNames = array_keys(Type::getAllBuiltInTypes());
+        $standardTypeNames = \array_keys(Type::builtInTypes());
 
         return [
             NodeKind::NAMED_TYPE => static function (NamedTypeNode $node, $_1, $parent, $_2, $ancestors) use ($context, $definedTypes, $standardTypeNames): void {
                 $typeName = $node->name->value;
                 $schema = $context->getSchema();
 
-                if (in_array($typeName, $definedTypes, true)) {
+                if (\in_array($typeName, $definedTypes, true)) {
                     return;
                 }
 
@@ -67,7 +64,7 @@ class KnownTypeNames extends ValidationRule
 
                 $definitionNode = $ancestors[2] ?? $parent;
                 $isSDL = $definitionNode instanceof TypeSystemDefinitionNode || $definitionNode instanceof TypeSystemExtensionNode;
-                if ($isSDL && in_array($typeName, $standardTypeNames, true)) {
+                if ($isSDL && \in_array($typeName, $standardTypeNames, true)) {
                     return;
                 }
 
@@ -75,7 +72,7 @@ class KnownTypeNames extends ValidationRule
                     ? $schema->getTypeMap()
                     : [];
                 $typeNames = [
-                    ...array_keys($existingTypesMap),
+                    ...\array_keys($existingTypesMap),
                     ...$definedTypes,
                 ];
                 $context->reportError(new Error(
@@ -99,9 +96,10 @@ class KnownTypeNames extends ValidationRule
      */
     public static function unknownTypeMessage(string $type, array $suggestedTypes): string
     {
-        $message = 'Unknown type "' . $type . '".';
-        if (count($suggestedTypes) > 0) {
-            $message .= ' Did you mean ' . Utils::quotedOrList($suggestedTypes) . '?';
+        $message = "Unknown type \"{$type}\".";
+        if (\count($suggestedTypes) > 0) {
+            $suggestionList = Utils::quotedOrList($suggestedTypes);
+            $message .= " Did you mean {$suggestionList}?";
         }
 
         return $message;

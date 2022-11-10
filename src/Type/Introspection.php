@@ -2,11 +2,6 @@
 
 namespace GraphQL\Type;
 
-use function array_filter;
-use function array_key_exists;
-use function array_merge;
-use function array_values;
-use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
@@ -61,7 +56,7 @@ class Introspection
      */
     public static function getIntrospectionQuery(array $options = []): string
     {
-        $optionsWithDefaults = array_merge([
+        $optionsWithDefaults = \array_merge([
             'descriptions' => true,
             'directiveIsRepeatable' => false,
         ], $options);
@@ -186,7 +181,7 @@ GRAPHQL;
      */
     public static function fromSchema(Schema $schema, array $options = []): array
     {
-        $optionsWithDefaults = array_merge(['directiveIsRepeatable' => true], $options);
+        $optionsWithDefaults = \array_merge(['directiveIsRepeatable' => true], $options);
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -195,8 +190,8 @@ GRAPHQL;
 
         $data = $result->data;
         if ($data === null) {
-            $serialized = json_encode($result, JSON_THROW_ON_ERROR);
-            throw new InvariantViolation("Introspection query returned no data: {$serialized}");
+            $noDataResult = json_encode($result, JSON_THROW_ON_ERROR);
+            throw new InvariantViolation("Introspection query returned no data: {$noDataResult}");
         }
 
         return $data;
@@ -207,7 +202,7 @@ GRAPHQL;
      */
     public static function isIntrospectionType(NamedType $type): bool
     {
-        return array_key_exists($type->name, self::getTypes());
+        return \array_key_exists($type->name, self::getTypes());
     }
 
     /**
@@ -288,30 +283,23 @@ GRAPHQL;
                         switch (true) {
                             case $type instanceof ListOfType:
                                 return TypeKind::LIST;
-
                             case $type instanceof NonNull:
                                 return TypeKind::NON_NULL;
-
                             case $type instanceof ScalarType:
                                 return TypeKind::SCALAR;
-
                             case $type instanceof ObjectType:
                                 return TypeKind::OBJECT;
-
                             case $type instanceof EnumType:
                                 return TypeKind::ENUM;
-
                             case $type instanceof InputObjectType:
                                 return TypeKind::INPUT_OBJECT;
-
                             case $type instanceof InterfaceType:
                                 return TypeKind::INTERFACE;
-
                             case $type instanceof UnionType:
                                 return TypeKind::UNION;
-
                             default:
-                                throw new Exception('Unknown kind of type: ' . Utils::printSafe($type));
+                                $safeType = Utils::printSafe($type);
+                                throw new \Exception("Unknown kind of type: {$safeType}");
                         }
                     },
                 ],
@@ -340,14 +328,14 @@ GRAPHQL;
                             $fields = $type->getFields();
 
                             if (! ($args['includeDeprecated'] ?? false)) {
-                                $fields = array_filter(
+                                $fields = \array_filter(
                                     $fields,
                                     static fn (FieldDefinition $field): bool => $field->deprecationReason === null
                                         || $field->deprecationReason === ''
                                 );
                             }
 
-                            return array_values($fields);
+                            return $fields;
                         }
 
                         return null;
@@ -378,7 +366,7 @@ GRAPHQL;
                             $values = $type->getValues();
 
                             if (! ($args['includeDeprecated'] ?? false)) {
-                                return array_filter(
+                                return \array_filter(
                                     $values,
                                     static function (EnumValueDefinition $value): bool {
                                         return $value->deprecationReason === null
@@ -396,7 +384,7 @@ GRAPHQL;
                 'inputFields' => [
                     'type' => Type::listOf(Type::nonNull(self::_inputValue())),
                     'resolve' => static fn ($type): ?array => $type instanceof InputObjectType
-                        ? array_values($type->getFields())
+                        ? $type->getFields()
                         : null,
                 ],
                 'ofType' => [

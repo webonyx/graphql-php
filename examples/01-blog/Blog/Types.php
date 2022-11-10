@@ -2,10 +2,6 @@
 
 namespace GraphQL\Examples\Blog;
 
-use Closure;
-use function count;
-use Exception;
-use function explode;
 use GraphQL\Examples\Blog\Type\CommentType;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
 use GraphQL\Examples\Blog\Type\Enum\ImageSizeType;
@@ -17,12 +13,9 @@ use GraphQL\Examples\Blog\Type\Scalar\UrlType;
 use GraphQL\Examples\Blog\Type\SearchResultType;
 use GraphQL\Examples\Blog\Type\StoryType;
 use GraphQL\Examples\Blog\Type\UserType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
-use function lcfirst;
-use function method_exists;
-use function preg_replace;
-use function strtolower;
 
 /**
  * Acts as a registry and factory for your types.
@@ -32,7 +25,7 @@ use function strtolower;
  */
 final class Types
 {
-    /** @var array<string, Type> */
+    /** @var array<string, Type&NamedType> */
     private static array $types = [];
 
     public static function user(): callable
@@ -91,26 +84,26 @@ final class Types
     }
 
     /**
-     * @param class-string<Type> $classname
+     * @param class-string<Type&NamedType> $classname
      *
-     * @return Closure(): Type
+     * @return \Closure(): Type
      */
-    private static function get(string $classname): Closure
+    private static function get(string $classname): \Closure
     {
         return static fn () => self::byClassName($classname);
     }
 
     /**
-     * @param class-string<Type> $classname
+     * @param class-string<Type&NamedType> $classname
      */
     private static function byClassName(string $classname): Type
     {
-        $parts = explode('\\', $classname);
+        $parts = \explode('\\', $classname);
 
-        $withoutTypePrefix = preg_replace('~Type$~', '', $parts[count($parts) - 1]);
+        $withoutTypePrefix = \preg_replace('~Type$~', '', $parts[\count($parts) - 1]);
         assert(is_string($withoutTypePrefix), 'regex is statically known to be correct');
 
-        $cacheName = strtolower($withoutTypePrefix);
+        $cacheName = \strtolower($withoutTypePrefix);
 
         if (! isset(self::$types[$cacheName])) {
             return self::$types[$cacheName] = new $classname();
@@ -119,22 +112,25 @@ final class Types
         return self::$types[$cacheName];
     }
 
+    /**
+     * @return Type&NamedType
+     */
     public static function byTypeName(string $shortName): Type
     {
-        $cacheName = strtolower($shortName);
+        $cacheName = \strtolower($shortName);
         $type = null;
 
         if (isset(self::$types[$cacheName])) {
             return self::$types[$cacheName];
         }
 
-        $method = lcfirst($shortName);
-        if (method_exists(self::class, $method)) {
+        $method = \lcfirst($shortName);
+        if (\method_exists(self::class, $method)) {
             $type = self::{$method}();
         }
 
         if (! $type) {
-            throw new Exception('Unknown graphql type: ' . $shortName);
+            throw new \Exception("Unknown graphql type: {$shortName}");
         }
 
         return $type;

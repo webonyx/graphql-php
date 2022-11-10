@@ -2,7 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function count;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
@@ -61,10 +60,10 @@ class UniqueArgumentDefinitionNames extends ValidationRule
         }
 
         foreach ($seenArgs as $argName => $argNodes) {
-            if (count($argNodes) > 1) {
+            if (\count($argNodes) > 1) {
                 $context->reportError(
                     new Error(
-                        'Argument "' . $parentName . '(' . $argName . ':)" can only be defined once.',
+                        "Argument \"{$parentName}({$argName}:)\" can only be defined once.",
                         $argNodes,
                     ),
                 );

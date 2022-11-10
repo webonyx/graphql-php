@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Validator;
 
-use function array_map;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
@@ -11,7 +10,6 @@ use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QuerySecurityRule;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -21,7 +19,7 @@ abstract class QuerySecurityTestCase extends TestCase
 {
     public function testMaxQueryDepthMustBeGreaterOrEqualTo0(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('argument must be greater or equal to 0.');
 
         $this->getRule(-1);
@@ -60,7 +58,7 @@ abstract class QuerySecurityTestCase extends TestCase
             [$this->getRule($max)]
         );
 
-        self::assertEquals($expectedErrors, array_map([FormattedError::class, 'createFromException'], $errors), $queryString);
+        self::assertEquals($expectedErrors, \array_map([FormattedError::class, 'createFromException'], $errors), $queryString);
 
         return $errors;
     }

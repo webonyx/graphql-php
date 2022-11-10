@@ -2,22 +2,20 @@
 
 namespace GraphQL\Examples\Blog\Type\Scalar;
 
-use const FILTER_VALIDATE_URL;
-use function filter_var;
 use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
-use function is_string;
 
 class UrlType extends ScalarType
 {
     public function serialize($value): string
     {
         if (! $this->isUrl($value)) {
-            throw new SerializationError('Cannot represent value as URL: ' . Utils::printSafe($value));
+            $notUrl = Utils::printSafe($value);
+            throw new SerializationError("Cannot represent value as URL: {$notUrl}");
         }
 
         return $value;
@@ -26,7 +24,8 @@ class UrlType extends ScalarType
     public function parseValue($value): string
     {
         if (! $this->isUrl($value)) {
-            throw new Error('Cannot represent value as URL: ' . Utils::printSafe($value));
+            $notUrl = Utils::printSafeJson($value);
+            throw new Error("Cannot represent value as URL: {$notUrl}");
         }
 
         return $value;
@@ -36,7 +35,7 @@ class UrlType extends ScalarType
     {
         // Throwing GraphQL\Error\Error to benefit from GraphQL error location in query
         if (! ($valueNode instanceof StringValueNode)) {
-            throw new Error('Query error: Can only parse strings got: ' . $valueNode->kind, [$valueNode]);
+            throw new Error("Query error: Can only parse strings got: {$valueNode->kind}", [$valueNode]);
         }
 
         $value = $valueNode->value;
@@ -54,7 +53,7 @@ class UrlType extends ScalarType
      */
     private function isUrl($value): bool
     {
-        return is_string($value)
-            && filter_var($value, FILTER_VALIDATE_URL) !== false;
+        return \is_string($value)
+            && \filter_var($value, \FILTER_VALIDATE_URL) !== false;
     }
 }

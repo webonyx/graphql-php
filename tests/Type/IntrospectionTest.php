@@ -16,6 +16,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use PHPUnit\Framework\TestCase;
+
 use function Safe\json_encode;
 
 class IntrospectionTest extends TestCase
@@ -1459,7 +1460,7 @@ class IntrospectionTest extends TestCase
         $source = Introspection::getIntrospectionQuery(['directiveIsRepeatable' => true]);
 
         $calledForFields = [];
-        $fieldResolver = static function ($value, array $_1, $_2, ResolveInfo $info) use (&$calledForFields) {
+        $fieldResolver = static function ($value, array $args, $context, ResolveInfo $info) use (&$calledForFields) {
             $calledForFields["{$info->parentType->name}::{$info->fieldName}"] = true;
 
             return $value;

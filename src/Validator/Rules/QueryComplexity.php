@@ -2,9 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use function array_map;
-use ArrayObject;
-use function count;
 use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\FieldNode;
@@ -21,7 +18,6 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\QueryValidationContext;
-use function implode;
 
 /**
  * @phpstan-import-type ASTAndDefs from QuerySecurityRule
@@ -37,7 +33,7 @@ class QueryComplexity extends QuerySecurityRule
     protected NodeList $variableDefs;
 
     /** @phpstan-var ASTAndDefs */
-    protected ArrayObject $fieldNodeAndDefs;
+    protected \ArrayObject $fieldNodeAndDefs;
 
     protected QueryValidationContext $context;
 
@@ -50,7 +46,7 @@ class QueryComplexity extends QuerySecurityRule
     {
         $this->context = $context;
         $this->variableDefs = new NodeList([]);
-        $this->fieldNodeAndDefs = new ArrayObject();
+        $this->fieldNodeAndDefs = new \ArrayObject();
 
         return $this->invokeIfNeeded(
             $context,
@@ -73,7 +69,7 @@ class QueryComplexity extends QuerySecurityRule
                     'leave' => function (OperationDefinitionNode $operationDefinition) use ($context): void {
                         $errors = $context->getErrors();
 
-                        if (count($errors) > 0) {
+                        if (\count($errors) > 0) {
                             return;
                         }
 
@@ -164,10 +160,10 @@ class QueryComplexity extends QuerySecurityRule
                 $this->variableDefs,
                 $this->getRawVariableValues()
             );
-            if ($errors !== null && count($errors) > 0) {
-                throw new Error(implode(
+            if ($errors !== null && \count($errors) > 0) {
+                throw new Error(\implode(
                     "\n\n",
-                    array_map(
+                    \array_map(
                         static fn (Error $error): string => $error->getMessage(),
                         $errors
                     )
@@ -234,10 +230,10 @@ class QueryComplexity extends QuerySecurityRule
                 $rawVariableValues
             );
 
-            if (is_array($errors) && count($errors) > 0) {
-                throw new Error(implode(
+            if (is_array($errors) && \count($errors) > 0) {
+                throw new Error(\implode(
                     "\n\n",
-                    array_map(
+                    \array_map(
                         static fn ($error) => $error->getMessage(),
                         $errors
                     )
@@ -248,6 +244,11 @@ class QueryComplexity extends QuerySecurityRule
         }
 
         return $args;
+    }
+
+    public function getMaxQueryComplexity(): int
+    {
+        return $this->maxQueryComplexity;
     }
 
     /**

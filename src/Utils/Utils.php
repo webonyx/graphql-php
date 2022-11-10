@@ -2,42 +2,20 @@
 
 namespace GraphQL\Utils;
 
-use function array_keys;
-use function array_map;
-use function array_reduce;
-use function array_slice;
-use function count;
-use function dechex;
-use function get_class;
-use function gettype;
 use GraphQL\Error\Error;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
-use function is_array;
-use function is_object;
-use function is_scalar;
-use function is_string;
-use function json_encode;
-use function mb_convert_encoding;
-use function mb_strlen;
-use function mb_substr;
-use function method_exists;
+
 use function ord;
-use function pack;
-use function preg_match;
-use function property_exists;
-use function range;
-use stdClass;
-use function unpack;
 
 class Utils
 {
-    public static function undefined(): stdClass
+    public static function undefined(): \stdClass
     {
         static $undefined;
 
-        return $undefined ??= new stdClass();
+        return $undefined ??= new \stdClass();
     }
 
     /**
@@ -46,8 +24,8 @@ class Utils
     public static function assign(object $obj, array $vars): object
     {
         foreach ($vars as $key => $value) {
-            if (! property_exists($obj, $key)) {
-                $cls = get_class($obj);
+            if (! \property_exists($obj, $key)) {
+                $cls = \get_class($obj);
                 Warning::warn(
                     "Trying to set non-existing property '{$key}' on class '{$cls}'",
                     Warning::WARNING_ASSIGN
@@ -61,16 +39,18 @@ class Utils
     }
 
     /**
+     * Print a value that came from JSON for debugging purposes.
+     *
      * @param mixed $var
      */
     public static function printSafeJson($var): string
     {
-        if ($var instanceof stdClass) {
-            return json_encode($var, JSON_THROW_ON_ERROR);
+        if ($var instanceof \stdClass) {
+            return \json_encode($var, JSON_THROW_ON_ERROR);
         }
 
-        if (is_array($var)) {
-            return json_encode($var, JSON_THROW_ON_ERROR);
+        if (\is_array($var)) {
+            return \json_encode($var, JSON_THROW_ON_ERROR);
         }
 
         if ($var === '') {
@@ -89,19 +69,21 @@ class Utils
             return 'true';
         }
 
-        if (is_string($var)) {
+        if (\is_string($var)) {
             return "\"{$var}\"";
         }
 
-        if (is_scalar($var)) {
+        if (\is_scalar($var)) {
             return (string) $var;
         }
 
-        return gettype($var);
+        return \gettype($var);
     }
 
     /**
-     * @param Type|mixed $var
+     * Print a value that came from PHP for debugging purposes.
+     *
+     * @param mixed $var
      */
     public static function printSafe($var): string
     {
@@ -109,16 +91,16 @@ class Utils
             return $var->toString();
         }
 
-        if (is_object($var)) {
-            if (method_exists($var, '__toString')) {
+        if (\is_object($var)) {
+            if (\method_exists($var, '__toString')) {
                 return (string) $var;
             }
 
-            return 'instance of ' . get_class($var);
+            return 'instance of ' . \get_class($var);
         }
 
-        if (is_array($var)) {
-            return json_encode($var, JSON_THROW_ON_ERROR);
+        if (\is_array($var)) {
+            return \json_encode($var, JSON_THROW_ON_ERROR);
         }
 
         if ($var === '') {
@@ -137,15 +119,15 @@ class Utils
             return 'true';
         }
 
-        if (is_string($var)) {
-            return $var;
+        if (\is_string($var)) {
+            return "\"{$var}\"";
         }
 
-        if (is_scalar($var)) {
+        if (\is_scalar($var)) {
             return (string) $var;
         }
 
-        return gettype($var);
+        return \gettype($var);
     }
 
     /**
@@ -154,10 +136,10 @@ class Utils
     public static function chr(int $ord, string $encoding = 'UTF-8'): string
     {
         if ($encoding === 'UCS-4BE') {
-            return pack('N', $ord);
+            return \pack('N', $ord);
         }
 
-        return mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
+        return \mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
     }
 
     /**
@@ -166,15 +148,15 @@ class Utils
     public static function ord(string $char, string $encoding = 'UTF-8'): int
     {
         if (! isset($char[1])) {
-            return ord($char);
+            return \ord($char);
         }
 
         if ($encoding !== 'UCS-4BE') {
-            $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
+            $char = \mb_convert_encoding($char, 'UCS-4BE', $encoding);
         }
 
         // @phpstan-ignore-next-line format string is statically known to be correct
-        return unpack('N', $char)[1];
+        return \unpack('N', $char)[1];
     }
 
     /**
@@ -182,7 +164,7 @@ class Utils
      */
     public static function charCodeAt(string $string, int $position): int
     {
-        $char = mb_substr($string, $position, 1, 'UTF-8');
+        $char = \mb_substr($string, $position, 1, 'UTF-8');
 
         return self::ord($char);
     }
@@ -195,9 +177,9 @@ class Utils
 
         return $code < 0x007F
             // Trust JSON for ASCII
-            ? json_encode(self::chr($code), JSON_THROW_ON_ERROR)
+            ? \json_encode(self::chr($code), JSON_THROW_ON_ERROR)
             // Otherwise, print the escaped form
-            : '"\\u' . dechex($code) . '"';
+            : '"\\u' . \dechex($code) . '"';
     }
 
     /**
@@ -220,14 +202,14 @@ class Utils
     {
         if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
             return new Error(
-                'Name "' . $name . '" must not begin with "__", which is reserved by GraphQL introspection.',
+                "Name \"{$name}\" must not begin with \"__\", which is reserved by GraphQL introspection.",
                 $node
             );
         }
 
-        if (preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name) !== 1) {
+        if (\preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name) !== 1) {
             return new Error(
-                'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "' . $name . '" does not.',
+                "Names must match /^[_a-zA-Z][_a-zA-Z0-9]*\$/ but \"{$name}\" does not.",
                 $node
             );
         }
@@ -240,7 +222,7 @@ class Utils
      */
     public static function quotedOrList(array $items): string
     {
-        $quoted = array_map(
+        $quoted = \array_map(
             static fn (string $item): string => "\"{$item}\"",
             $items
         );
@@ -253,20 +235,20 @@ class Utils
      */
     public static function orList(array $items): string
     {
-        if (count($items) === 0) {
+        if (\count($items) === 0) {
             return '';
         }
 
-        $selected = array_slice($items, 0, 5);
-        $selectedLength = count($selected);
+        $selected = \array_slice($items, 0, 5);
+        $selectedLength = \count($selected);
         $firstSelected = $selected[0];
 
         if ($selectedLength === 1) {
             return $firstSelected;
         }
 
-        return array_reduce(
-            range(1, $selectedLength - 1),
+        return \array_reduce(
+            \range(1, $selectedLength - 1),
             static function ($list, $index) use ($selected, $selectedLength): string {
                 return $list
                     . ($selectedLength > 2 ? ', ' : ' ')
@@ -290,7 +272,7 @@ class Utils
         /** @var array<string, int> $optionsByDistance */
         $optionsByDistance = [];
         $lexicalDistance = new LexicalDistance($input);
-        $threshold = mb_strlen($input) * 0.4 + 1;
+        $threshold = \mb_strlen($input) * 0.4 + 1;
         foreach ($options as $option) {
             $distance = $lexicalDistance->measure($option, $threshold);
 
@@ -305,6 +287,26 @@ class Utils
             return $distanceDiff !== 0 ? $distanceDiff : \strnatcmp($a, $b);
         });
 
-        return array_map('strval', array_keys($optionsByDistance));
+        return \array_map('strval', \array_keys($optionsByDistance));
+    }
+
+    /**
+     * Try to extract the value for a key from an object like value.
+     *
+     * @param mixed $objectLikeValue
+     *
+     * @return mixed
+     */
+    public static function extractKey($objectLikeValue, string $key)
+    {
+        if (\is_array($objectLikeValue) || $objectLikeValue instanceof \ArrayAccess) {
+            return $objectLikeValue[$key] ?? null;
+        }
+
+        if (\is_object($objectLikeValue)) {
+            return $objectLikeValue->{$key} ?? null;
+        }
+
+        return null;
     }
 }

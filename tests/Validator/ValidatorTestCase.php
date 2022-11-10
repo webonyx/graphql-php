@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Validator;
 
-use function array_map;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
@@ -437,7 +436,7 @@ abstract class ValidatorTestCase extends TestCase
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules);
 
         self::assertNotEmpty($errors, 'GraphQL should not validate');
-        self::assertEquals($expectedErrors, array_map([FormattedError::class, 'createFromException'], $errors));
+        self::assertEquals($expectedErrors, \array_map([FormattedError::class, 'createFromException'], $errors));
 
         return $errors;
     }
@@ -484,7 +483,7 @@ abstract class ValidatorTestCase extends TestCase
         $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
         self::assertEquals(
             $errors,
-            array_map([FormattedError::class, 'createFromException'], $actualErrors)
+            \array_map([FormattedError::class, 'createFromException'], $actualErrors)
         );
     }
 

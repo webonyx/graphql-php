@@ -2,9 +2,6 @@
 
 namespace GraphQL\Tests;
 
-use function array_intersect_key;
-use function array_map;
-use Exception;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NonNull;
@@ -170,9 +167,9 @@ class StarWarsSchema
                         $fieldSelection = $info->getFieldSelection();
                         $fieldSelection['id'] = true;
 
-                        return array_map(
+                        return \array_map(
                             static function ($friend) use ($fieldSelection): array {
-                                return array_intersect_key($friend, $fieldSelection);
+                                return \array_intersect_key($friend, $fieldSelection);
                             },
                             StarWarsData::getFriends($human)
                         );
@@ -191,7 +188,7 @@ class StarWarsSchema
                     'description' => 'Where are they from and how they came to be who they are.',
                     'resolve' => static function (): void {
                         // This is to demonstrate error reporting
-                        throw new Exception('secretBackstory is secret.');
+                        throw new \Exception('secretBackstory is secret.');
                     },
                 ],
             ],
@@ -237,7 +234,7 @@ class StarWarsSchema
                     'description' => 'Construction date and the name of the designer.',
                     'resolve' => static function (): void {
                         // This is to demonstrate error reporting
-                        throw new Exception('secretBackstory is secret.');
+                        throw new \Exception('secretBackstory is secret.');
                     },
                 ],
                 'primaryFunction' => [

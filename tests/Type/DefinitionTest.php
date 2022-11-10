@@ -2,13 +2,9 @@
 
 namespace GraphQL\Tests\Type;
 
-use function count;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use Generator;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Executor\Executor;
-use GraphQL\Language\Parser;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
@@ -16,22 +12,18 @@ use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
-use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
-use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ScalarType;
-use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use RuntimeException;
+
 use function Safe\json_encode;
-use stdClass;
 
 final class DefinitionTest extends TestCaseBase
 {
@@ -295,7 +287,7 @@ final class DefinitionTest extends TestCaseBase
 
         $actual = $EnumTypeWithNullishValue->getValues();
 
-        self::assertEquals(count($expected), count($actual));
+        self::assertEquals(\count($expected), \count($actual));
         self::assertArraySubset($expected[0], (array) $actual[0]);
         self::assertArraySubset($expected[1], (array) $actual[1]);
     }
@@ -729,7 +721,7 @@ final class DefinitionTest extends TestCaseBase
 
         self::assertSame($inputObject, $schema->getType('InputObject'));
         self::assertTrue($called);
-        self::assertEquals(count($inputObject->getFields()), 2);
+        self::assertEquals(\count($inputObject->getFields()), 2);
         self::assertSame($inputObject->getField('nested')->getType(), $inputObject);
 
         $input = $someMutation->getField('mutateSomething')->getArg('input');
@@ -763,7 +755,7 @@ final class DefinitionTest extends TestCaseBase
 
         self::assertSame($interface, $schema->getType('SomeInterface'));
         self::assertTrue($called);
-        self::assertEquals(count($interface->getFields()), 2);
+        self::assertEquals(\count($interface->getFields()), 2);
         self::assertSame($interface->getField('nested')->getType(), $interface);
         self::assertSame($interface->getField('value')->getType(), Type::string());
     }
@@ -835,6 +827,18 @@ final class DefinitionTest extends TestCaseBase
                 'f' => [
                     'type' => Type::string(),
                 ],
+            ],
+        ]);
+        $objType->assertValid();
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
+    }
+
+    public function testAcceptsAnObjectTypeWithShorthandNotationForFields(): void
+    {
+        $objType = new ObjectType([
+            'name' => 'SomeObject',
+            'fields' => [
+                'f' => Type::string(),
             ],
         ]);
         $objType->assertValid();
@@ -949,7 +953,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $objType = new ObjectType([
             'name' => 'SomeObject',
-            'interfaces' => new stdClass(),
+            'interfaces' => new \stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
 
@@ -967,7 +971,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $objType = new ObjectType([
             'name' => 'SomeObject',
-            'interfaces' => static fn (): stdClass => new stdClass(),
+            'interfaces' => static fn (): \stdClass => new \stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
         $this->expectException(InvariantViolation::class);
@@ -1096,7 +1100,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $objType = new InterfaceType([
             'name' => 'AnotherInterface',
-            'interfaces' => new stdClass(),
+            'interfaces' => new \stdClass(),
             'fields' => [],
         ]);
 
@@ -1114,7 +1118,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $objType = new ObjectType([
             'name' => 'AnotherInterface',
-            'interfaces' => static fn (): stdClass => new stdClass(),
+            'interfaces' => static fn (): \stdClass => new \stdClass(),
             'fields' => [],
         ]);
         $this->expectException(InvariantViolation::class);
@@ -1124,6 +1128,9 @@ final class DefinitionTest extends TestCaseBase
         $objType->assertValid();
     }
 
+    /**
+     * @param Type&NamedType $type
+     */
     private function schemaWithFieldType(Type $type): Schema
     {
         $schema = new Schema([
@@ -1188,7 +1195,7 @@ final class DefinitionTest extends TestCaseBase
         // @phpstan-ignore-next-line intentionally wrong
         $type = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => new stdClass(),
+            'resolveType' => new \stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
 
@@ -1257,7 +1264,7 @@ final class DefinitionTest extends TestCaseBase
             // @phpstan-ignore-next-line intentionally wrong
             new UnionType([
                 'name' => 'SomeUnion',
-                'resolveType' => new stdClass(),
+                'resolveType' => new \stdClass(),
                 'types' => [$this->objectWithIsTypeOf],
             ])
         );
@@ -1285,16 +1292,14 @@ final class DefinitionTest extends TestCaseBase
     public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType(): void
     {
         $this->expectExceptionObject(new InvariantViolation(
-            'SomeScalar must provide "serialize" function. If this custom Scalar '
-            . 'is also used as an input type, ensure "parseValue" and "parseLiteral" '
-            . 'functions are also provided.'
+            'SomeScalar must provide "serialize" function. If this custom Scalar is also used as an input type, ensure "parseValue" and "parseLiteral" functions are also provided.'
         ));
 
         $this->schemaWithFieldType(
             // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
-                'serialize' => new stdClass(),
+                'serialize' => new \stdClass(),
             ])
         );
     }
@@ -1373,8 +1378,8 @@ final class DefinitionTest extends TestCaseBase
                 'name' => 'SomeScalar',
                 'serialize' => static function (): void {
                 },
-                'parseValue' => new stdClass(),
-                'parseLiteral' => new stdClass(),
+                'parseValue' => new \stdClass(),
+                'parseLiteral' => new \stdClass(),
             ])
         );
     }
@@ -1409,7 +1414,7 @@ final class DefinitionTest extends TestCaseBase
             // @phpstan-ignore-next-line intentionally wrong
             new ObjectType([
                 'name' => 'AnotherObject',
-                'isTypeOf' => new stdClass(),
+                'isTypeOf' => new \stdClass(),
                 'fields' => ['f' => ['type' => Type::string()]],
             ])
         );
@@ -1677,7 +1682,7 @@ final class DefinitionTest extends TestCaseBase
             'fields' => [
                 'f' => [
                     'type' => Type::string(),
-                    'resolve' => new stdClass(),
+                    'resolve' => new \stdClass(),
                 ],
             ],
         ]);
@@ -1733,11 +1738,10 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
-        new Schema(
-            [
-                'query' => $QueryType,
-                'types' => [new stdClass()], ]
-        );
+        new Schema([
+            'query' => $QueryType,
+            'types' => [new \stdClass()],
+        ]);
     }
 
     /**
@@ -1766,8 +1770,7 @@ final class DefinitionTest extends TestCaseBase
         $schema = new Schema(['query' => $QueryType]);
 
         $this->expectExceptionObject(new InvariantViolation(
-            'Schema must contain unique named types but contains multiple types named "SameName" '
-            . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
+            'Schema must contain unique named types but contains multiple types named "SameName" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         ));
         $schema->assertValid();
     }
@@ -1804,13 +1807,12 @@ final class DefinitionTest extends TestCaseBase
         $schema = new Schema(['query' => $QueryType]);
 
         $this->expectExceptionObject(new InvariantViolation(
-            'Schema must contain unique named types but contains multiple types named "SameName" '
-            . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
+            'Schema must contain unique named types but contains multiple types named "SameName" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         ));
         $schema->assertValid();
     }
 
-    public function testRejectsASchemaWhichHaveSameNamedObjectsImplementingAnInterface(): void
+    public function testRejectsASchemaWithSameNamedObjectsImplementingAnInterface(): void
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
@@ -1836,180 +1838,12 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'Schema must contain unique named types but contains multiple types named "BadObject" '
-            . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
-        );
         $schema = new Schema([
             'query' => $QueryType,
             'types' => [$FirstBadObject, $SecondBadObject],
         ]);
+
+        $this->expectExceptionMessageMatches('/Schema must contain unique named types but contains multiple types named "BadObject"/');
         $schema->assertValid();
-    }
-
-    public function testAllowsTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsArray(): void
-    {
-        $objType = new ObjectType([
-            'name' => 'SomeObject',
-            'fields' => [
-                'f' => static fn (): array => [
-                    'type' => Type::string(),
-                ],
-            ],
-        ]);
-
-        $objType->assertValid();
-
-        self::assertSame(Type::string(), $objType->getField('f')->getType());
-    }
-
-    public function testAllowsTypeWhichDefinesItFieldsAsClosureReturningFieldDefinitionAsObject(): void
-    {
-        $objType = new ObjectType([
-            'name' => 'SomeObject',
-            'fields' => [
-                'f' => static fn (): FieldDefinition => new FieldDefinition([
-                    'name' => 'f',
-                    'type' => Type::string(),
-                ]),
-            ],
-        ]);
-        $objType->assertValid();
-
-        self::assertSame(Type::string(), $objType->getField('f')->getType());
-    }
-
-    public function testAllowsTypeWhichDefinesItFieldsAsInvokableClassReturningFieldDefinitionAsArray(): void
-    {
-        $objType = new ObjectType([
-            'name' => 'SomeObject',
-            'fields' => [
-                'f' => new class() {
-                    /**
-                     * @return array{type: ScalarType}
-                     */
-                    public function __invoke(): array
-                    {
-                        return ['type' => Type::string()];
-                    }
-                },
-            ],
-        ]);
-        $objType->assertValid();
-
-        self::assertSame(Type::string(), $objType->getField('f')->getType());
-    }
-
-    public function testLazyFieldNotExecutedIfNotAccessed(): void
-    {
-        $resolvedCount = 0;
-        $fieldCallback = static function () use (&$resolvedCount): array {
-            ++$resolvedCount;
-
-            return ['type' => Type::string()];
-        };
-
-        $objType = new ObjectType([
-            'name' => 'SomeObject',
-            'fields' => [
-                'f' => $fieldCallback,
-                'b' => static function (): void {
-                    throw new RuntimeException('Would not expect this to be called!');
-                },
-            ],
-        ]);
-
-        self::assertSame(Type::string(), $objType->getField('f')->getType());
-        self::assertSame(1, $resolvedCount);
-    }
-
-    public function testLazyFieldNotExecutedIfNotAccessedInQuery(): void
-    {
-        $resolvedCount = 0;
-        $lazyField = static function () use (&$resolvedCount): array {
-            ++$resolvedCount;
-
-            return ['type' => Type::string()];
-        };
-
-        $query = new ObjectType([
-            'name' => 'Query',
-            'fields' => [
-                'f' => $lazyField,
-                'b' => static function (): void {
-                    throw new RuntimeException('Would not expect this to be called!');
-                },
-            ],
-        ]);
-
-        $schema = new Schema(['query' => $query]);
-        $result = Executor::execute($schema, Parser::parse('{ f }'));
-
-        self::assertSame(['f' => null], $result->data);
-        self::assertSame(1, $resolvedCount);
-    }
-
-    public function testLazyFieldsAreResolvedWhenValidatingType(): void
-    {
-        $resolvedCount = 0;
-        $fieldCallback = static function () use (&$resolvedCount): array {
-            ++$resolvedCount;
-
-            return ['type' => Type::string()];
-        };
-
-        $objType = new ObjectType([
-            'name' => 'SomeObject',
-            'fields' => [
-                'f' => $fieldCallback,
-                'o' => $fieldCallback,
-            ],
-        ]);
-        $objType->assertValid();
-
-        self::assertSame(Type::string(), $objType->getField('f')->getType());
-        self::assertSame(2, $resolvedCount);
-    }
-
-    public function testThrowsWhenLazyFieldDefinitionHasNoKeysForFieldNames(): void
-    {
-        $objType = new ObjectType([
-            'name' => 'SomeObject',
-            'fields' => [
-                static fn (): array => [
-                    'type' => Type::string(),
-                ],
-            ],
-        ]);
-
-        $this->expectExceptionObject(new InvariantViolation(
-            'SomeObject lazy fields must be an associative array with field names as keys.'
-        ));
-
-        $objType->assertValid();
-    }
-
-    public function testReturningFieldsUsingYield(): void
-    {
-        $type = new ObjectType([
-            'name' => 'Query',
-            'fields' => static function (): Generator {
-                yield 'url' => ['type' => Type::string()];
-                yield 'width' => ['type' => Type::int()];
-            },
-        ]);
-
-        $blogSchema = new Schema(['query' => $type]);
-
-        self::assertSame($blogSchema->getQueryType(), $type);
-
-        $field = $type->getField('url');
-        self::assertSame($field->name, 'url');
-        self::assertInstanceOf(StringType::class, $field->getType());
-
-        $field = $type->getField('width');
-        self::assertSame($field->name, 'width');
-        self::assertInstanceOf(IntType::class, $field->getType());
     }
 }
