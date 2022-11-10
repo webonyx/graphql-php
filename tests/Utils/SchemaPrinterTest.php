@@ -175,7 +175,7 @@ final class SchemaPrinterTest extends TestCase
         self::assertPrintedSchemaEquals(
             <<<GRAPHQL
             type Query {
-              singleField: Int$expectedDeprecationDirective
+              singleField: Int{$expectedDeprecationDirective}
             }
 
             GRAPHQL,

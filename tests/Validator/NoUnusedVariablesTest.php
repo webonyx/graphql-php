@@ -304,4 +304,27 @@ class NoUnusedVariablesTest extends ValidatorTestCase
             ]
         );
     }
+
+    /**
+     * The reference implementation does not test this.
+     */
+    public function testVariableUsedByDirectives(): void
+    {
+        $this->expectPassesRule(
+            new NoUnusedVariables(),
+            '
+      query Field($a: Boolean) {
+        field @skip(if: $a)
+      }
+      query FragmentSpread($a: Boolean) {
+        ...Frag @skip(if: $a)
+      }
+      query InlineFragment($a: Boolean) {
+        ... on Type @skip(if: $a) {
+          field
+        }
+      }
+        ',
+        );
+    }
 }
