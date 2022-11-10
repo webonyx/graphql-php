@@ -401,8 +401,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->config->setPersistedQueryLoader(static fn (): array => ['err' => 'err']);
 
         $this->expectExceptionObject(new InvariantViolation(
-            'Persisted query loader must return query string or instance of GraphQL\Language\AST\DocumentNode '
-            . 'but got: {"err":"err"}'
+            'Persisted query loader must return query string or instance of GraphQL\Language\AST\DocumentNode but got: {"err":"err"}'
         ));
         $this->executePersistedQuery('some-id');
     }

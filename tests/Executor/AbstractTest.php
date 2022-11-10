@@ -637,24 +637,12 @@ class AbstractTest extends TestCase
 
         $result = GraphQL::executeQuery($schema, '{ foo { bar } }');
 
-        $expected = [
-            'data' => ['foo' => null],
-            'errors' => [
-                [
-                    'message' => 'Internal server error',
-                    'locations' => [['line' => 1, 'column' => 3]],
-                    'path' => ['foo'],
-                    'extensions' => [
-                        'debugMessage' => 'Schema does not contain type "FooObject". '
-                            . 'This can happen when an object type is only referenced indirectly through '
-                            . 'abstract types and never directly through fields.'
-                            . 'List the type in the option "types" during schema construction, '
-                            . 'see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options.',
-                    ],
-                ],
-            ],
-        ];
-        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
+        $error = $result->errors[0] ?? null;
+        self::assertInstanceOf(Error::class, $error);
+        self::assertStringContainsString(
+            'Schema does not contain type "FooObject". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields.List the type in the option "types" during schema construction, see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options.',
+            $error->getMessage(),
+        );
     }
 
     public function testResolveTypeAllowsResolvingWithTypeName(): void
@@ -784,11 +772,8 @@ class AbstractTest extends TestCase
         $error = $result->errors[0] ?? null;
 
         self::assertInstanceOf(Error::class, $error);
-        self::assertEquals(
-            'Schema must contain unique named types but contains multiple types named "Test". '
-            . 'Make sure that `resolveType` function of abstract type "Node" returns the same type instance '
-            . 'as referenced anywhere else within the schema '
-            . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
+        self::assertStringContainsString(
+            'Schema must contain unique named types but contains multiple types named "Test". Make sure that `resolveType` function of abstract type "Node" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
             $error->getMessage()
         );
     }

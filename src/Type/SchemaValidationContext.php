@@ -3,6 +3,7 @@
 namespace GraphQL\Type;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
@@ -343,6 +344,8 @@ class SchemaValidationContext
                 );
             }
 
+            $this->validateTypeIsSingleton($fieldType, "{$type->name}.{$fieldName}");
+
             $argNames = [];
             foreach ($field->args as $arg) {
                 $argName = $arg->name;
@@ -369,6 +372,8 @@ class SchemaValidationContext
                         $this->getFieldArgTypeNode($type, $fieldName, $argName)
                     );
                 }
+
+                $this->validateTypeIsSingleton($argType, $argPath);
 
                 if (isset($arg->astNode->directives)) {
                     $this->validateDirectivesAtLocation($arg->astNode->directives, DirectiveLocation::ARGUMENT_DEFINITION);
@@ -825,5 +830,33 @@ class SchemaValidationContext
                 );
             }
         }
+    }
+
+    private function validateTypeIsSingleton(Type $type, string $path): void
+    {
+        $typeLoader = $this->schema->getConfig()->typeLoader;
+        if ($typeLoader === null) {
+            return;
+        }
+
+        $namedType = Type::getNamedType($type);
+        assert($namedType !== null, 'because getNamedType() was called with non-null type');
+        if ($namedType->isBuiltInType()) {
+            return;
+        }
+
+        $name = $namedType->name;
+        if ($namedType !== $typeLoader($name)) {
+            throw new InvariantViolation(static::duplicateType($this->schema, $path, $name));
+        }
+    }
+
+    public static function duplicateType(Schema $schema, string $path, string $name): string
+    {
+        $hint = $schema->getConfig()->typeLoader !== null
+            ? 'Ensure the type loader returns the same instance. '
+            : '';
+
+        return "Found duplicate type in schema at {$path}: {$name}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.";
     }
 }

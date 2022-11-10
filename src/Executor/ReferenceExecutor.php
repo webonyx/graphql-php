@@ -36,6 +36,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaValidationContext;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use SplObjectStorage;
@@ -848,14 +849,10 @@ class ReferenceExecutor implements ExecutorImplementation
 
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
-        $schema = $this->exeContext->schema;
-        if ($returnType !== $schema->getType($returnType->name)) {
-            $hint = $schema->getConfig()->typeLoader !== null
-                ? "Ensure the type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}. "
-                : '';
-
-            throw new InvariantViolation("Found duplicate type in schema: {$returnType}. {$hint}See https://webonyx.github.io/graphql-php/type-definitions/#type-registry.");
-        }
+        assert(
+            $returnType === $this->exeContext->schema->getType($returnType->name),
+            SchemaValidationContext::duplicateType($this->exeContext->schema, "{$info->parentType}.{$info->fieldName}", $returnType->name)
+        );
 
         if ($returnType instanceof LeafType) {
             return $this->completeLeafValue($returnType, $result);
@@ -1356,13 +1353,15 @@ class ReferenceExecutor implements ExecutorImplementation
             throw new InvariantViolation("Runtime Object type \"{$runtimeType}\" is not a possible type for \"{$returnType}\".");
         }
 
-        if ($this->exeContext->schema->getType($runtimeType->name) === null) {
-            throw new InvariantViolation("Schema does not contain type \"{$runtimeType}\". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields.List the type in the option \"types\" during schema construction, see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options.");
-        }
+        assert(
+            $this->exeContext->schema->getType($runtimeType->name) !== null,
+            "Schema does not contain type \"{$runtimeType}\". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields.List the type in the option \"types\" during schema construction, see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options."
+        );
 
-        if ($runtimeType !== $this->exeContext->schema->getType($runtimeType->name)) {
-            throw new InvariantViolation("Schema must contain unique named types but contains multiple types named \"{$runtimeType}\". Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).");
-        }
+        assert(
+            $runtimeType === $this->exeContext->schema->getType($runtimeType->name),
+            "Schema must contain unique named types but contains multiple types named \"{$runtimeType}\". Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry)."
+        );
 
         return $runtimeType;
     }

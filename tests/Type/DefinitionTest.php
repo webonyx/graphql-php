@@ -1292,9 +1292,7 @@ final class DefinitionTest extends TestCaseBase
     public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType(): void
     {
         $this->expectExceptionObject(new InvariantViolation(
-            'SomeScalar must provide "serialize" function. If this custom Scalar '
-            . 'is also used as an input type, ensure "parseValue" and "parseLiteral" '
-            . 'functions are also provided.'
+            'SomeScalar must provide "serialize" function. If this custom Scalar is also used as an input type, ensure "parseValue" and "parseLiteral" functions are also provided.'
         ));
 
         $this->schemaWithFieldType(
@@ -1772,8 +1770,7 @@ final class DefinitionTest extends TestCaseBase
         $schema = new Schema(['query' => $QueryType]);
 
         $this->expectExceptionObject(new InvariantViolation(
-            'Schema must contain unique named types but contains multiple types named "SameName" '
-            . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
+            'Schema must contain unique named types but contains multiple types named "SameName" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         ));
         $schema->assertValid();
     }
@@ -1810,13 +1807,12 @@ final class DefinitionTest extends TestCaseBase
         $schema = new Schema(['query' => $QueryType]);
 
         $this->expectExceptionObject(new InvariantViolation(
-            'Schema must contain unique named types but contains multiple types named "SameName" '
-            . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
+            'Schema must contain unique named types but contains multiple types named "SameName" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         ));
         $schema->assertValid();
     }
 
-    public function testRejectsASchemaWhichHaveSameNamedObjectsImplementingAnInterface(): void
+    public function testRejectsASchemaWithSameNamedObjectsImplementingAnInterface(): void
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
@@ -1842,15 +1838,12 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'Schema must contain unique named types but contains multiple types named "BadObject" '
-            . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
-        );
         $schema = new Schema([
             'query' => $QueryType,
             'types' => [$FirstBadObject, $SecondBadObject],
         ]);
+
+        $this->expectExceptionMessageMatches('/Schema must contain unique named types but contains multiple types named "BadObject"/');
         $schema->assertValid();
     }
 }

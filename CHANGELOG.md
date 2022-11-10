@@ -51,6 +51,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Sync input value coercion with `graphql-js` reference implementation
 - Store rules exclusively by class name in `DocumentValidator`
 - Reorder standard types as described in the GraphQL specification
+- Improve runtime performance by moving checks for duplicate/mismatching type instances to `assert()` or schema validation
 
 ### Added
 
