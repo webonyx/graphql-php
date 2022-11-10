@@ -36,7 +36,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           coverage: pcov
-          ini-values: zend.assertions=1
+          ini-values: zend.assertions=1, assert.exception=1
 
       - name: Install dependencies with Composer
         uses: ramsey/composer-install@v2
