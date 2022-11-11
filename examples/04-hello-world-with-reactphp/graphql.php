@@ -1,5 +1,5 @@
-<?php declare(strict_types=1);
-
+<?php
+declare(strict_types=1);
 // Run local test server
 // php graphql.php
 
@@ -53,7 +53,7 @@ $mutationType = new ObjectType([
         ],
     ],
 ]);
- // See docs on schema options:
+// See docs on schema options:
 // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
 $schema = new Schema([
     'query' => $queryType,
