@@ -33,6 +33,10 @@ parameters:
             path: src/Utils/Utils.php
             count: 2
 
+        # PHP 8.2 no longer believes @property works without magic methods,
+        # but all implementors of NamedType actually have those properties.
+        - "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$name~"
+
         # PHPStan does not play nicely with markTestSkipped()
         - message: "~Unreachable statement - code above always terminates~"
           path: tests
