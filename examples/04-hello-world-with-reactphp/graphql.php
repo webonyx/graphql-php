@@ -11,7 +11,6 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use GraphQL\Error\DebugFlag;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use GraphQL\GraphQL;
