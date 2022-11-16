@@ -5,6 +5,7 @@ namespace GraphQL\Language\AST;
 /**
  * @phpstan-type OperationType 'query'|'mutation'|'subscription'
  */
+#[\AllowDynamicProperties]
 class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, HasSelectionSet
 {
     public string $kind = NodeKind::OPERATION_DEFINITION;

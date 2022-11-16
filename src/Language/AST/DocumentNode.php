@@ -2,6 +2,7 @@
 
 namespace GraphQL\Language\AST;
 
+#[\AllowDynamicProperties]
 class DocumentNode extends Node
 {
     public string $kind = NodeKind::DOCUMENT;
