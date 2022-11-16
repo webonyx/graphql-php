@@ -18,6 +18,9 @@ parameters:
         - tests/Type/PhpEnumTypeTest.php
         - tests/Type/PhpEnumType
 
+    # As long as we support PHP versions at once, there will be some dead spots
+    reportUnmatchedIgnoredErrors: false
+
     ignoreErrors:
         # Since this is a library that is supposed to be flexible, we don't
         # want to lock down every possible extension point.
