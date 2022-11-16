@@ -124,6 +124,7 @@ class Schema
                 $type = self::resolveType($typeOrLazyType);
                 assert($type instanceof NamedType);
 
+                /** @var string $typeName Necessary assertion for PHPStan + PHP 8.2 */
                 $typeName = $type->name;
                 assert(
                     ! isset($this->resolvedTypes[$typeName]) || $type === $this->resolvedTypes[$typeName],

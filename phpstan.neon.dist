@@ -38,6 +38,18 @@ parameters:
         -
             message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$name~"
             reportUnmatched: false
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$description~"
+            reportUnmatched: false
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$astNode~"
+            reportUnmatched: false
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Language\\\\AST\\\\TypeDefinitionNode.*::\\$name~"
+            reportUnmatched: false
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Language\\\\AST\\\\TypeExtensionNode.*::\\$name~"
+            reportUnmatched: false
 
         # PHPStan does not play nicely with markTestSkipped()
         - message: "~Unreachable statement - code above always terminates~"
