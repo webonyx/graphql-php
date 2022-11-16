@@ -33,10 +33,31 @@ parameters:
             path: src/Utils/Utils.php
             count: 2
 
-        # Those come from graphql-php\tests\Language\VisitorTest.php
-        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didEnter~"
-        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
-        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
+        # In PHP 8.2, PHPStan no longer believes @property works without magic methods,
+        # but all implementors of the interfaces actually have those properties.
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$name~"
+            reportUnmatched: false
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$description~"
+            reportUnmatched: false
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$astNode~"
+            reportUnmatched: false
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$extensionASTNodes~"
+            reportUnmatched: false
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Language\\\\AST\\\\TypeDefinitionNode.*::\\$name~"
+            reportUnmatched: false
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Language\\\\AST\\\\TypeExtensionNode.*::\\$name~"
+            reportUnmatched: false
+
+        # In PHP 8.2, PHPStan seems to not allow dynamic checks for properties on classes, even when they are not final.
+        -
+            message: "~Call to function property_exists\\(\\) with .* will always evaluate to false\\.~"
+            reportUnmatched: false
 
         # PHPStan does not play nicely with markTestSkipped()
         - message: "~Unreachable statement - code above always terminates~"

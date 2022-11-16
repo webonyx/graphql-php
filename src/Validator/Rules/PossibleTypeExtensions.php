@@ -33,7 +33,9 @@ class PossibleTypeExtensions extends ValidationRule
         $definedTypes = [];
         foreach ($context->getDocument()->definitions as $def) {
             if ($def instanceof TypeDefinitionNode) {
-                $definedTypes[$def->name->value] = $def;
+                /** @var string $name Necessary assertion for PHPStan + PHP 8.2 */
+                $name = $def->name->value;
+                $definedTypes[$name] = $def;
             }
         }
 

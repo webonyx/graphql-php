@@ -299,10 +299,10 @@ abstract class ValidatorTestCase extends TestCase
             'name' => 'Invalid',
             'serialize' => static fn ($value) => $value,
             'parseLiteral' => static function (Node $node): void {
-                throw new UserError("Invalid scalar is always invalid: {$node->value}");
+                throw new UserError("Invalid scalar is always invalid: {$node->kind}");
             },
-            'parseValue' => static function ($node): void {
-                throw new UserError("Invalid scalar is always invalid: {$node}");
+            'parseValue' => static function ($value): void {
+                throw new UserError("Invalid scalar is always invalid: {$value}");
             },
         ]);
 

@@ -60,7 +60,7 @@ class UniqueDirectivesPerLocation extends ValidationRule
 
         return [
             'enter' => static function (Node $node) use ($uniqueDirectiveMap, $context): void {
-                if (! isset($node->directives)) {
+                if (! property_exists($node, 'directives')) {
                     return;
                 }
 

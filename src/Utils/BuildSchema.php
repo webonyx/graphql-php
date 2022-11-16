@@ -153,10 +153,14 @@ class BuildSchema
                     $schemaDef = $definition;
                     break;
                 case $definition instanceof TypeDefinitionNode:
-                    $typeDefinitionsMap[$definition->name->value] = $definition;
+                    /** @var string $name Necessary assertion for PHPStan + PHP 8.2 */
+                    $name = $definition->name->value;
+                    $typeDefinitionsMap[$name] = $definition;
                     break;
                 case $definition instanceof TypeExtensionNode:
-                    $typeExtensionsMap[$definition->name->value][] = $definition;
+                    /** @var string $name Necessary assertion for PHPStan + PHP 8.2 */
+                    $name = $definition->name->value;
+                    $typeExtensionsMap[$name][] = $definition;
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
                     $directiveDefs[] = $definition;

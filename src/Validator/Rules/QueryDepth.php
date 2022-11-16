@@ -4,6 +4,7 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
@@ -43,9 +44,12 @@ class QueryDepth extends QuerySecurityRule
         );
     }
 
+    /**
+     * @param OperationDefinitionNode|FieldNode|InlineFragmentNode|FragmentDefinitionNode $node
+     */
     protected function fieldDepth(Node $node, int $depth = 0, int $maxDepth = 0): int
     {
-        if (isset($node->selectionSet) && $node->selectionSet instanceof SelectionSetNode) {
+        if ($node->selectionSet instanceof SelectionSetNode) {
             foreach ($node->selectionSet->selections as $childNode) {
                 $maxDepth = $this->nodeDepth($childNode, $depth, $maxDepth);
             }
