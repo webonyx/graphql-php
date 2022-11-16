@@ -18,9 +18,6 @@ parameters:
         - tests/Type/PhpEnumTypeTest.php
         - tests/Type/PhpEnumType
 
-    # As long as we support PHP versions at once, there will be some dead spots
-    reportUnmatchedIgnoredErrors: false
-
     ignoreErrors:
         # Since this is a library that is supposed to be flexible, we don't
         # want to lock down every possible extension point.
@@ -38,7 +35,9 @@ parameters:
 
         # PHP 8.2 no longer believes @property works without magic methods,
         # but all implementors of NamedType actually have those properties.
-        - "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$name~"
+        -
+            message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$name~"
+            reportUnmatched: false
 
         # PHPStan does not play nicely with markTestSkipped()
         - message: "~Unreachable statement - code above always terminates~"
