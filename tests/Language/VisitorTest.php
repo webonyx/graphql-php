@@ -176,32 +176,26 @@ final class VisitorTest extends ValidatorTestCase
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
 
-        /** @var SelectionSetNode|null $selectionSet */
-        $selectionSet = null;
+        $directive1 = Parser::directive('@x');
+        $directive2 = Parser::directive('@y');
 
         $editedAst = Visitor::visit(
             $ast,
             [
                 NodeKind::OPERATION_DEFINITION => [
-                    'enter' => function (OperationDefinitionNode $node) use (&$selectionSet, $ast): OperationDefinitionNode {
+                    'enter' => function (OperationDefinitionNode $node) use ($ast, $directive1): OperationDefinitionNode {
                         $this->checkVisitorFnArgs($ast, \func_get_args());
 
-                        $selectionSet = $node->selectionSet;
-
                         $newNode = clone $node;
-                        $newNode->selectionSet = new SelectionSetNode(['selections' => new NodeList([])]);
-                        $newNode->didEnter = true;
+                        $newNode->directives = new NodeList([$directive1]);
 
                         return $newNode;
                     },
-                    'leave' => function (OperationDefinitionNode $node) use (&$selectionSet, $ast): OperationDefinitionNode {
+                    'leave' => function (OperationDefinitionNode $node) use ($ast, $directive2): OperationDefinitionNode {
                         $this->checkVisitorFnArgs($ast, \func_get_args(), true);
 
-                        self::assertInstanceOf(SelectionSetNode::class, $selectionSet);
-
                         $newNode = clone $node;
-                        $newNode->selectionSet = $selectionSet;
-                        $newNode->didLeave = true;
+                        $newNode->directives = $node->directives->merge([$directive2]);
 
                         return $newNode;
                     },
@@ -211,10 +205,10 @@ final class VisitorTest extends ValidatorTestCase
 
         self::assertNotEquals($ast, $editedAst);
 
-        /** @var DocumentNode $expected */
         $expected = $ast->cloneDeep();
-        $expected->definitions[0]->didEnter = true;
-        $expected->definitions[0]->didLeave = true;
+        $operationNode = $expected->definitions[0];
+        assert($operationNode instanceof OperationDefinitionNode);
+        $operationNode->directives = new NodeList([$directive1, $directive2]);
 
         self::assertEquals($expected, $editedAst);
     }
@@ -222,24 +216,26 @@ final class VisitorTest extends ValidatorTestCase
     public function testAllowsEditingRootNodeOnEnterAndLeave(): void
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
-        $definitions = $ast->definitions;
+
+        $definition1 = Parser::operationDefinition('{ x }');
+        $definition2 = Parser::operationDefinition('{ x }');
 
         $editedAst = Visitor::visit(
             $ast,
             [
                 NodeKind::DOCUMENT => [
-                    'enter' => function (DocumentNode $node) use ($ast): DocumentNode {
+                    'enter' => function (DocumentNode $node) use ($ast, $definition1): DocumentNode {
                         $this->checkVisitorFnArgs($ast, \func_get_args());
-                        $tmp = clone $node;
-                        $tmp->definitions = new NodeList([]);
-                        $tmp->didEnter = true;
 
-                        return $tmp;
+                        $newNode = clone $node;
+                        $newNode->definitions = $node->definitions->merge([$definition1]);
+
+                        return $newNode;
                     },
-                    'leave' => function (DocumentNode $node) use ($definitions, $ast): void {
+                    'leave' => function (DocumentNode $node) use ($ast, $definition2): void {
                         $this->checkVisitorFnArgs($ast, \func_get_args(), true);
-                        $node->definitions = $definitions;
-                        $node->didLeave = true;
+
+                        $node->definitions = $node->definitions->merge([$definition2]);
                     },
                 ],
             ]
@@ -247,11 +243,10 @@ final class VisitorTest extends ValidatorTestCase
 
         self::assertNotEquals($ast, $editedAst);
 
-        $tmp = $ast->cloneDeep();
-        $tmp->didEnter = true;
-        $tmp->didLeave = true;
+        $expected = $ast->cloneDeep();
+        $expected->definitions = $ast->definitions->merge([$definition1, $definition2]);
 
-        self::assertEquals($tmp, $editedAst);
+        self::assertEquals($expected, $editedAst);
     }
 
     public function testAllowsForEditingOnEnter(): void
