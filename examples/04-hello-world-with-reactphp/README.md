@@ -1,14 +1,14 @@
-## Hello World Example With Reactphp
+## Hello World Example With ReactPHP
 
 This is a basic example using [ReactPHP](https://reactphp.org).
 
-### Install reactphp
+### Dependencies
 
-run the command under the project root directory
+When you want to use this in your project, you need to install the
+following dependencies:
 
 ```
-composer require react/promise
-composer require react/http
+composer require react/promise react/http
 ```
 
 ### Run locally

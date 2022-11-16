@@ -1,13 +1,13 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
+
 // Run local test server
 // php graphql.php
 
 // Try query
-// curl -d '{"query": "query { echo(message: \"Hello World\") }" }' -H "Content-Type: application/json" http://localhost:8010
+// curl -d '{"query": "query { echo(message: \"Hello World\") }" }' -H "Content-Type: application/json" http://localhost:8080
 
 // Try mutation
-// curl -d '{"query": "mutation { sum(x: 2, y: 2) }" }' -H "Content-Type: application/json" http://localhost:8010
+// curl -d '{"query": "mutation { sum(x: 2, y: 2) }" }' -H "Content-Type: application/json" http://localhost:8080
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -61,27 +61,27 @@ $schema = new Schema([
     'query' => $queryType,
     'mutation' => $mutationType,
 ]);
+
 $react = new ReactPromiseAdapter();
 $server = new HttpServer(function (ServerRequestInterface $request) use ($schema, $react) {
-    $rawInput = (string) $request->getBody();
+    $rawInput = $request->getBody()->__toString();
+
     $input = json_decode($rawInput, true);
     $query = $input['query'];
     $variableValues = $input['variables'] ?? null;
+
     $rootValue = ['prefix' => 'You said: '];
-    $promise = GraphQL::promiseToExecute($react, $schema, $query, $rootValue, null, $variableValues);
 
-    return $promise->then(function (ExecutionResult $result) {
-        $output = json_encode($result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
-
-        return new Response(
+    return GraphQL::promiseToExecute($react, $schema, $query, $rootValue, null, $variableValues)
+        ->then(fn (ExecutionResult $result): Response => new Response(
             200,
             [
-                'Content-Type' => 'text/json',
+                'Content-Type' => 'application/json',
             ],
-            ($output !== false) ? $output : ''
-        );
-    });
+            json_encode($result->toArray(), JSON_THROW_ON_ERROR)
+        ));
 });
-$socket = new SocketServer('127.0.0.1:8010');
+
+$socket = new SocketServer('127.0.0.1:8080');
 $server->listen($socket);
 echo 'Listening on ' . str_replace('tcp:', 'http:', $socket->getAddress() ?? '') . PHP_EOL;
