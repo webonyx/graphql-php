@@ -33,8 +33,8 @@ parameters:
             path: src/Utils/Utils.php
             count: 2
 
-        # PHP 8.2 no longer believes @property works without magic methods,
-        # but all implementors of NamedType actually have those properties.
+        # In PHP 8.2, PHPStan no longer believes @property works without magic methods,
+        # but all implementors of the interfaces actually have those properties.
         -
             message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$name~"
             reportUnmatched: false
@@ -53,8 +53,10 @@ parameters:
         -
             message: "~Access to an undefined property .*GraphQL\\\\Language\\\\AST\\\\TypeExtensionNode.*::\\$name~"
             reportUnmatched: false
+
+        # In PHP 8.2, PHPStan seems to not allow dynamic checks for properties on classes, even when they are not final.
         -
-            message: "~Call to function property_exists\\(\\) with GraphQL\\\\Language\\\\AST\\\\Node&GraphQL\\\\Language\\\\AST\\\\ValueNode and 'value' will always evaluate to false\\.~"
+            message: "~Call to function property_exists\\(\\) with .* will always evaluate to false\\.~"
             reportUnmatched: false
 
         # PHPStan does not play nicely with markTestSkipped()
