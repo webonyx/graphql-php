@@ -45,10 +45,16 @@ parameters:
             message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$astNode~"
             reportUnmatched: false
         -
+            message: "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$extensionASTNodes~"
+            reportUnmatched: false
+        -
             message: "~Access to an undefined property .*GraphQL\\\\Language\\\\AST\\\\TypeDefinitionNode.*::\\$name~"
             reportUnmatched: false
         -
             message: "~Access to an undefined property .*GraphQL\\\\Language\\\\AST\\\\TypeExtensionNode.*::\\$name~"
+            reportUnmatched: false
+        -
+            message: "~Call to function property_exists\\(\\) with GraphQL\\\\Language\\\\AST\\\\Node&GraphQL\\\\Language\\\\AST\\\\ValueNode and 'value' will always evaluate to false\\.~"
             reportUnmatched: false
 
         # PHPStan does not play nicely with markTestSkipped()

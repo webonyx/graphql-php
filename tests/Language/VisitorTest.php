@@ -362,7 +362,7 @@ final class VisitorTest extends ValidatorTestCase
             [
                 'enter' => function (Node $node) use (&$visited, $ast): ?VisitorOperation {
                     $this->checkVisitorFnArgs($ast, \func_get_args());
-                    $visited[] = ['enter', $node->kind, $node->value ?? null];
+                    $visited[] = ['enter', $node->kind, property_exists($node, 'value') ? $node->value : null];
                     if ($node instanceof FieldNode && $node->name->value === 'b') {
                         return Visitor::skipNode();
                     }
@@ -371,7 +371,7 @@ final class VisitorTest extends ValidatorTestCase
                 },
                 'leave' => function (Node $node) use (&$visited, $ast): void {
                     $this->checkVisitorFnArgs($ast, \func_get_args());
-                    $visited[] = ['leave', $node->kind, $node->value ?? null];
+                    $visited[] = ['leave', $node->kind, property_exists($node, 'value') ? $node->value : null];
                 },
             ]
         );
@@ -407,7 +407,7 @@ final class VisitorTest extends ValidatorTestCase
             [
                 'enter' => function (Node $node) use (&$visited, $ast): ?VisitorOperation {
                     $this->checkVisitorFnArgs($ast, \func_get_args());
-                    $visited[] = ['enter', $node->kind, $node->value ?? null];
+                    $visited[] = ['enter', $node->kind, property_exists($node, 'value') ? $node->value : null];
                     if ($node instanceof NameNode && $node->value === 'x') {
                         return Visitor::stop();
                     }
@@ -416,7 +416,7 @@ final class VisitorTest extends ValidatorTestCase
                 },
                 'leave' => function (Node $node) use (&$visited, $ast): void {
                     $this->checkVisitorFnArgs($ast, \func_get_args());
-                    $visited[] = ['leave', $node->kind, $node->value ?? null];
+                    $visited[] = ['leave', $node->kind, property_exists($node, 'value') ? $node->value : null];
                 },
             ]
         );
