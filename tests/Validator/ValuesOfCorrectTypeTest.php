@@ -1390,7 +1390,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         }
         ',
             [
-                $this->badValueWithMessage('Expected value of type "Invalid", found 123; Invalid scalar is always invalid: 123', 3, 27),
+                $this->badValueWithMessage('Expected value of type "Invalid", found 123; Invalid scalar is always invalid: IntValue', 3, 27),
             ]
         );
     }

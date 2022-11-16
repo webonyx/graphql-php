@@ -33,11 +33,6 @@ parameters:
             path: src/Utils/Utils.php
             count: 2
 
-        # Those come from graphql-php\tests\Language\VisitorTest.php
-        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didEnter~"
-        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
-        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
-
         # PHPStan does not play nicely with markTestSkipped()
         - message: "~Unreachable statement - code above always terminates~"
           path: tests
