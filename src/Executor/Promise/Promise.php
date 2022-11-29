@@ -9,6 +9,7 @@ use React\Promise\PromiseInterface as ReactPromise;
 
 /**
  * Convenience wrapper for promises represented by Promise Adapter.
+ *
  * @template T
  */
 class Promise
@@ -34,8 +35,10 @@ class Promise
     /**
      * @template TFulfilled of mixed
      * @template TRejected of mixed
+     *
      * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
      * @param (callable(mixed): (Promise<TRejected>|TRejected))|null $onRejected
+     *
      * @return Promise<(
      *   $onFulfilled is not null
      *     ? ($onRejected is not null ? TFulfilled|TRejected : TFulfilled)
