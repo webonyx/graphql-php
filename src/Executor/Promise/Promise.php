@@ -33,8 +33,8 @@ class Promise
     }
 
     /**
-     * @template TFulfilled of mixed
-     * @template TRejected of mixed
+     * @template TFulfilled
+     * @template TRejected
      *
      * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
      * @param (callable(mixed): (Promise<TRejected>|TRejected))|null $onRejected
