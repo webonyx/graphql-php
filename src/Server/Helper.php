@@ -197,7 +197,7 @@ class Helper
      *
      * @param array<OperationParams> $operations
      *
-     * @return array<int, ExecutionResult>|Promise
+     * @return array<ExecutionResult>|Promise<array<ExecutionResult>>
      *
      * @api
      */
@@ -220,6 +220,9 @@ class Helper
         return $result;
     }
 
+    /**
+     * @return Promise<ExecutionResult>
+     */
     protected function promiseToExecuteOperation(
         PromiseAdapter $promiseAdapter,
         ServerConfig $config,
@@ -392,7 +395,7 @@ class Helper
     /**
      * Send response using standard PHP `header()` and `echo`.
      *
-     * @param Promise<ExecutionResult|array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
+     * @param Promise<ExecutionResult>|Promise<array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
      *
      * @api
      */
@@ -516,9 +519,9 @@ class Helper
     /**
      * Converts query execution result to PSR-7 response.
      *
-     * @param Promise<ExecutionResult|array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
+     * @param Promise<ExecutionResult>|Promise<array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
      *
-     * @return Promise<ExecutionResult>|ResponseInterface
+     * @return Promise<ResponseInterface>|ResponseInterface
      *
      * @api
      */

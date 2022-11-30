@@ -103,7 +103,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      *
      * @param iterable<Promise<V>|V> $promisesOrValues
      *
-     * @return Promise<TODO>
+     * @return Promise<V[]>
      */
     public function all(iterable $promisesOrValues): Promise
     {

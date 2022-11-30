@@ -282,7 +282,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed $rootValue
      *
-     * @return Promise<array<mixed>|\stdClass|null>|array<mixed>|\stdClass|null
+     * @return Promise<array<mixed>>|Promise<\stdClass>|Promise<null>|array<mixed>|\stdClass|null
      */
     protected function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
@@ -523,7 +523,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @phpstan-param Fields $fields
      *
-     * @return Promise<array<mixed>|\stdClass>|array<mixed>|\stdClass
+     * @return Promise<array<mixed>>|Promise<\stdClass>|array<mixed>|\stdClass
      */
     protected function executeFieldsSerially(ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
     {
@@ -716,7 +716,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed                       $result
      *
-     * @return Promise<array<mixed>|\stdClass|null>|array<mixed>|\stdClass|null
+     * @return Promise<array<mixed>>|Promise<\stdClass>|Promise<null>|array<mixed>|\stdClass|null
      */
     protected function completeValueCatchingError(
         Type $returnType,
@@ -947,7 +947,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws \Exception
      *
-     * @return Promise<array<mixed>|\stdClass>|array<mixed>|\stdClass
+     * @return Promise<array<mixed>>|Promise<\stdClass>|array<mixed>|\stdClass
      */
     protected function completeListValue(
         ListOfType $returnType,
@@ -1014,7 +1014,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws Error
      *
-     * @return Promise<array<mixed>|\stdClass>|array<mixed>|\stdClass
+     * @return Promise<array<mixed>>|Promise<\stdClass>|array<mixed>|\stdClass
      */
     protected function completeAbstractValue(
         AbstractType $returnType,
@@ -1078,7 +1078,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed|null $contextValue
      * @param AbstractType&Type $abstractType
      *
-     * @return Promise<Type|string|null>|Type|string|null
+     * @return Promise<Type>|Promise<string>|Promise<null>|Type|string|null
      */
     protected function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
     {
@@ -1137,7 +1137,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws Error
      *
-     * @return Promise<array<mixed>|\stdClass>|array<mixed>|\stdClass
+     * @return Promise<array<mixed>>|Promise<\stdClass>|array<mixed>|\stdClass
      */
     protected function completeObjectValue(
         ObjectType $returnType,
@@ -1210,7 +1210,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws Error
      *
-     * @return Promise<array<mixed>|\stdClass>|array<mixed>|\stdClass
+     * @return Promise<array<mixed>>|Promise<\stdClass>|array<mixed>|\stdClass
      */
     protected function collectAndExecuteSubfields(
         ObjectType $returnType,
@@ -1265,7 +1265,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @phpstan-param Fields $fields
      *
-     * @return Promise<\stdClass|array<mixed>>|\stdClass|array<mixed>
+     * @return Promise<array<mixed>>|Promise<\stdClass>|\stdClass|array<mixed>
      */
     protected function executeFields(ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
     {
@@ -1320,6 +1320,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * associative array where all Promises were resolved.
      *
      * @param array<string, Promise<mixed>|mixed> $assoc
+     * @return Promise<array<string, mixed>>
      */
     protected function promiseForAssocArray(array $assoc): Promise
     {
