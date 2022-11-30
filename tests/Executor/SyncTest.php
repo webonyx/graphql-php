@@ -77,6 +77,7 @@ class SyncTest extends TestCase
 
     /**
      * @param mixed $rootValue
+     * @return Promise<ExecutionResult>
      */
     private function execute(Schema $schema, DocumentNode $doc, $rootValue = null): Promise
     {
@@ -85,6 +86,7 @@ class SyncTest extends TestCase
 
     /**
      * @param array<string, mixed> $expectedFinalArray
+     * @param Promise<ExecutionResult> $actualResult
      */
     private static function assertSync(array $expectedFinalArray, Promise $actualResult): void
     {
@@ -145,6 +147,7 @@ class SyncTest extends TestCase
 
     /**
      * @param array<string, mixed> $expectedFinalArray
+     * @param Promise<ExecutionResult> $actualResult
      */
     private function assertAsync(array $expectedFinalArray, Promise $actualResult): void
     {
@@ -183,6 +186,7 @@ class SyncTest extends TestCase
 
     /**
      * @param mixed $rootValue
+     * @return Promise<ExecutionResult>
      */
     private function graphqlSync(Schema $schema, string $doc, $rootValue = null): Promise
     {
