@@ -90,7 +90,7 @@ class StandardServer
      *
      * @param OperationParams|array<OperationParams> $parsedBody
      *
-     * @return ExecutionResult|array<int, ExecutionResult>|Promise
+     * @return ExecutionResult|array<int, ExecutionResult>|Promise<ExecutionResult|array<int, ExecutionResult>>
      *
      * @api
      */
@@ -113,7 +113,7 @@ class StandardServer
      * See `executePsrRequest()` if you prefer to create response yourself
      * (e.g. using specific JsonResponse instance of some framework).
      *
-     * @return ResponseInterface|Promise
+     * @return ResponseInterface|Promise<ExecutionResult>
      *
      * @api
      */
@@ -131,7 +131,7 @@ class StandardServer
      * Executes GraphQL operation and returns execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter).
      *
-     * @return ExecutionResult|array<int, ExecutionResult>|Promise
+     * @return ExecutionResult|array<int, ExecutionResult>|Promise<ExecutionResult|array<int, ExecutionResult>>
      *
      * @api
      */

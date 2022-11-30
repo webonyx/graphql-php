@@ -108,6 +108,7 @@ class GraphQL
      * @param mixed                      $context
      * @param array<string, mixed>|null  $variableValues
      * @param array<ValidationRule>|null $validationRules
+     * @return Promise<ExecutionResult>
      *
      * @api
      */

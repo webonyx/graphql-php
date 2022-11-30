@@ -175,7 +175,7 @@ class Helper
      * Executes GraphQL operation with given server configuration and returns execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter).
      *
-     * @return ExecutionResult|Promise
+     * @return ExecutionResult|Promise<ExecutionResult>
      *
      * @api
      */
@@ -392,7 +392,7 @@ class Helper
     /**
      * Send response using standard PHP `header()` and `echo`.
      *
-     * @param Promise|ExecutionResult|array<ExecutionResult> $result
+     * @param Promise<ExecutionResult|array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
      *
      * @api
      */
@@ -516,9 +516,9 @@ class Helper
     /**
      * Converts query execution result to PSR-7 response.
      *
-     * @param Promise|ExecutionResult|array<ExecutionResult> $result
+     * @param Promise<ExecutionResult|array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
      *
-     * @return Promise|ResponseInterface
+     * @return Promise<ExecutionResult>|ResponseInterface
      *
      * @api
      */
