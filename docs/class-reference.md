@@ -1502,8 +1502,8 @@ function then(
  * Creates a Promise from the given resolver callable.
  *
  * @template V
- *
- * @param callable(callable $resolve, callable $reject): void $resolver
+ * @param callable(callable(V): void $resolve, callable(\Throwable): void $reject): void $resolver
+ * @return Promise<V>
  *
  * @api
  */
@@ -1545,7 +1545,7 @@ function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
  *
  * @param iterable<Promise<V>|V> $promisesOrValues
  *
- * @return Promise<TODO>
+ * @return Promise<V[]>
  *
  * @api
  */
@@ -1903,7 +1903,7 @@ function handleRequest($parsedBody = null): void
  *
  * @param OperationParams|array<OperationParams> $parsedBody
  *
- * @return ExecutionResult|array<int, ExecutionResult>|Promise<ExecutionResult|array<int, ExecutionResult>>
+ * @return ExecutionResult|array<ExecutionResult>|Promise<ExecutionResult>|Promise<array<ExecutionResult>>
  *
  * @api
  */
@@ -1917,7 +1917,7 @@ function executeRequest($parsedBody = null)
  * See `executePsrRequest()` if you prefer to create response yourself
  * (e.g. using specific JsonResponse instance of some framework).
  *
- * @return ResponseInterface|Promise<ExecutionResult>
+ * @return ResponseInterface|Promise<ResponseInterface>
  *
  * @api
  */
@@ -1933,7 +1933,7 @@ function processPsrRequest(
  * Executes GraphQL operation and returns execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter).
  *
- * @return ExecutionResult|array<int, ExecutionResult>|Promise<ExecutionResult|array<int, ExecutionResult>>
+ * @return ExecutionResult|array<ExecutionResult>|Promise<ExecutionResult>|Promise<array<ExecutionResult>>
  *
  * @api
  */
@@ -2159,7 +2159,7 @@ function executeOperation(GraphQL\Server\ServerConfig $config, GraphQL\Server\Op
  *
  * @param array<OperationParams> $operations
  *
- * @return array<int, ExecutionResult>|Promise
+ * @return array<ExecutionResult>|Promise<array<ExecutionResult>>
  *
  * @api
  */
@@ -2170,7 +2170,7 @@ function executeBatch(GraphQL\Server\ServerConfig $config, array $operations)
 /**
  * Send response using standard PHP `header()` and `echo`.
  *
- * @param Promise<ExecutionResult|array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
+ * @param Promise<ExecutionResult>|Promise<array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
  *
  * @api
  */
@@ -2194,9 +2194,9 @@ function parsePsrRequest(Psr\Http\Message\RequestInterface $request)
 /**
  * Converts query execution result to PSR-7 response.
  *
- * @param Promise<ExecutionResult|array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
+ * @param Promise<ExecutionResult>|Promise<array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
  *
- * @return Promise<ExecutionResult>|ResponseInterface
+ * @return Promise<ResponseInterface>|ResponseInterface
  *
  * @api
  */
