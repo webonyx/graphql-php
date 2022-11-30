@@ -75,6 +75,7 @@ static function executeQuery(
  * @param mixed                      $context
  * @param array<string, mixed>|null  $variableValues
  * @param array<ValidationRule>|null $validationRules
+ * @return Promise<ExecutionResult>
  *
  * @api
  */
@@ -1476,14 +1477,17 @@ function convertThenable($thenable): GraphQL\Executor\Promise\Promise
  * @template T
  * @template TFulfilled of mixed
  * @template TRejected of mixed
+ *
  * @param Promise<T> $promise
  * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
  * @param (callable(mixed): (Promise<TRejected>|TRejected))|null $onRejected
+ *
  * @return Promise<(
  *   $onFulfilled is not null
  *     ? ($onRejected is not null ? TFulfilled|TRejected : TFulfilled)
  *     : ($onRejected is not null ? TRejected : T)
  * )>
+ *
  * @api
  */
 function then(
@@ -1498,6 +1502,7 @@ function then(
  * Creates a Promise from the given resolver callable.
  *
  * @template V
+ *
  * @param callable(callable $resolve, callable $reject): void $resolver
  *
  * @api
@@ -1510,7 +1515,9 @@ function create(callable $resolver): GraphQL\Executor\Promise\Promise
  * Creates a fulfilled Promise for a value if the value is not a promise.
  *
  * @template V
+ *
  * @param V $value
+ *
  * @return Promise<V>
  *
  * @api
@@ -1535,7 +1542,9 @@ function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
  * items in the iterable are fulfilled.
  *
  * @template V
+ *
  * @param iterable<Promise<V>|V> $promisesOrValues
+ *
  * @return Promise<TODO>
  *
  * @api
@@ -1894,7 +1903,7 @@ function handleRequest($parsedBody = null): void
  *
  * @param OperationParams|array<OperationParams> $parsedBody
  *
- * @return ExecutionResult|array<int, ExecutionResult>|Promise
+ * @return ExecutionResult|array<int, ExecutionResult>|Promise<ExecutionResult|array<int, ExecutionResult>>
  *
  * @api
  */
@@ -1908,7 +1917,7 @@ function executeRequest($parsedBody = null)
  * See `executePsrRequest()` if you prefer to create response yourself
  * (e.g. using specific JsonResponse instance of some framework).
  *
- * @return ResponseInterface|Promise
+ * @return ResponseInterface|Promise<ExecutionResult>
  *
  * @api
  */
@@ -1924,7 +1933,7 @@ function processPsrRequest(
  * Executes GraphQL operation and returns execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter).
  *
- * @return ExecutionResult|array<int, ExecutionResult>|Promise
+ * @return ExecutionResult|array<int, ExecutionResult>|Promise<ExecutionResult|array<int, ExecutionResult>>
  *
  * @api
  */
@@ -2136,7 +2145,7 @@ function validateOperationParams(GraphQL\Server\OperationParams $params): array
  * Executes GraphQL operation with given server configuration and returns execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter).
  *
- * @return ExecutionResult|Promise
+ * @return ExecutionResult|Promise<ExecutionResult>
  *
  * @api
  */
@@ -2161,7 +2170,7 @@ function executeBatch(GraphQL\Server\ServerConfig $config, array $operations)
 /**
  * Send response using standard PHP `header()` and `echo`.
  *
- * @param Promise|ExecutionResult|array<ExecutionResult> $result
+ * @param Promise<ExecutionResult|array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
  *
  * @api
  */
@@ -2185,9 +2194,9 @@ function parsePsrRequest(Psr\Http\Message\RequestInterface $request)
 /**
  * Converts query execution result to PSR-7 response.
  *
- * @param Promise|ExecutionResult|array<ExecutionResult> $result
+ * @param Promise<ExecutionResult|array<ExecutionResult>>|ExecutionResult|array<ExecutionResult> $result
  *
- * @return Promise|ResponseInterface
+ * @return Promise<ExecutionResult>|ResponseInterface
  *
  * @api
  */
