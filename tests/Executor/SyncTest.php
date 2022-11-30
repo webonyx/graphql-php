@@ -77,6 +77,7 @@ class SyncTest extends TestCase
 
     /**
      * @param mixed $rootValue
+     *
      * @return Promise<ExecutionResult>
      */
     private function execute(Schema $schema, DocumentNode $doc, $rootValue = null): Promise
@@ -186,6 +187,7 @@ class SyncTest extends TestCase
 
     /**
      * @param mixed $rootValue
+     *
      * @return Promise<ExecutionResult>
      */
     private function graphqlSync(Schema $schema, string $doc, $rootValue = null): Promise
