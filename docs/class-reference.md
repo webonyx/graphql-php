@@ -1305,6 +1305,8 @@ static function execute(
  * @param mixed                     $contextValue
  * @param array<string, mixed>|null $variableValues
  *
+ * @return Promise<ExecutionResult>
+ *
  * @phpstan-param FieldResolver|null $fieldResolver
  *
  * @api
@@ -1471,6 +1473,17 @@ function convertThenable($thenable): GraphQL\Executor\Promise\Promise
  * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described
  * in Promises/A+ specs. Then returns new wrapped instance of GraphQL\Executor\Promise\Promise.
  *
+ * @template T
+ * @template TFulfilled of mixed
+ * @template TRejected of mixed
+ * @param Promise<T> $promise
+ * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
+ * @param (callable(mixed): (Promise<TRejected>|TRejected))|null $onRejected
+ * @return Promise<(
+ *   $onFulfilled is not null
+ *     ? ($onRejected is not null ? TFulfilled|TRejected : TFulfilled)
+ *     : ($onRejected is not null ? TRejected : T)
+ * )>
  * @api
  */
 function then(
@@ -1484,6 +1497,7 @@ function then(
 /**
  * Creates a Promise from the given resolver callable.
  *
+ * @template V
  * @param callable(callable $resolve, callable $reject): void $resolver
  *
  * @api
@@ -1495,7 +1509,9 @@ function create(callable $resolver): GraphQL\Executor\Promise\Promise
 /**
  * Creates a fulfilled Promise for a value if the value is not a promise.
  *
- * @param mixed $value
+ * @template V
+ * @param V $value
+ * @return Promise<V>
  *
  * @api
  */
@@ -1518,7 +1534,9 @@ function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
  * Given an iterable of promises (or values), returns a promise that is fulfilled when all the
  * items in the iterable are fulfilled.
  *
- * @param iterable<Promise|mixed> $promisesOrValues
+ * @template V
+ * @param iterable<Promise<V>|V> $promisesOrValues
+ * @return Promise<TODO>
  *
  * @api
  */
