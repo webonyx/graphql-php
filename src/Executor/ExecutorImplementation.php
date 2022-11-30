@@ -8,6 +8,7 @@ interface ExecutorImplementation
 {
     /**
      * Returns promise of {@link ExecutionResult}. Promise should always resolve, never reject.
+     * @return Promise<ExecutionResult>
      */
     public function doExecute(): Promise;
 }

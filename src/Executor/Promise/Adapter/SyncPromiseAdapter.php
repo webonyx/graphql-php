@@ -31,6 +31,19 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($thenable, $this);
     }
 
+    /**
+     * @template V
+     * @template TFulfilled of mixed
+     * @template TRejected of mixed
+     * @param Promise<V> $promise
+     * @param (callable(V): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
+     * @param (callable(mixed): (Promise<TRejected>|TRejected))|null $onRejected
+     * @return Promise<(
+     *   $onFulfilled is not null
+     *     ? ($onRejected is not null ? TFulfilled|TRejected : TFulfilled)
+     *     : ($onRejected is not null ? TRejected : T)
+     * )>
+     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $adoptedPromise = $promise->adoptedPromise;
@@ -55,6 +68,11 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
+    /**
+     * @template V
+     * @param V $value
+     * @return Promise<V>
+     */
     public function createFulfilled($value = null): Promise
     {
         $promise = new SyncPromise();
@@ -62,6 +80,11 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->resolve($value), $this);
     }
 
+    /**
+     * @template V of \Throwable
+     * @param V $reason
+     * @return Promise<V>
+     */
     public function createRejected(\Throwable $reason): Promise
     {
         $promise = new SyncPromise();
@@ -69,6 +92,11 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->reject($reason), $this);
     }
 
+    /**
+     * @template V
+     * @param iterable<Promise<V>|V> $promisesOrValues
+     * @return Promise<TODO>
+     */
     public function all(iterable $promisesOrValues): Promise
     {
         \assert(
@@ -113,7 +141,10 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * Synchronously wait when promise completes.
      *
-     * @return mixed
+     * @template V
+     * @param Promise<V> $promise
+     * @return V
+     * @throws InvariantViolation
      */
     public function wait(Promise $promise)
     {
@@ -144,6 +175,8 @@ class SyncPromiseAdapter implements PromiseAdapter
 
     /**
      * Execute just before starting to run promise completion.
+     * @template V
+     * @param Promise<V> $promise
      */
     protected function beforeWait(Promise $promise): void
     {
@@ -151,6 +184,8 @@ class SyncPromiseAdapter implements PromiseAdapter
 
     /**
      * Execute while running promise completion.
+     * @template V
+     * @param Promise<V> $promise
      */
     protected function onWait(Promise $promise): void
     {
