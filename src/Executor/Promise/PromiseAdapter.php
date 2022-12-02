@@ -51,7 +51,9 @@ interface PromiseAdapter
      * Creates a Promise from the given resolver callable.
      *
      * @template V
+     *
      * @param callable(callable(V): void $resolve, callable(\Throwable): void $reject): void $resolver
+     *
      * @return Promise<V>
      *
      * @api

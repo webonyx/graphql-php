@@ -108,7 +108,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if (\is_array($exeContext)) {
             return new class($promiseAdapter->createFulfilled(new ExecutionResult(null, $exeContext))) implements ExecutorImplementation {
                 /**
-                 * @var Promise<ExecutionResult> $result
+                 * @var Promise<ExecutionResult>
                  */
                 private Promise $result;
 
@@ -314,6 +314,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param mixed $error
+     *
      * @return Promise<null>
      */
     public function onError($error): ?Promise
@@ -892,7 +893,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * otherwise returns null.
      *
      * @template T
+     *
      * @param T $value
+     *
      * @return Promise<T>|null
      */
     protected function getPromise($value): ?Promise
@@ -1320,6 +1323,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * associative array where all Promises were resolved.
      *
      * @param array<string, Promise<mixed>|mixed> $assoc
+     *
      * @return Promise<array<string, mixed>>
      */
     protected function promiseForAssocArray(array $assoc): Promise
