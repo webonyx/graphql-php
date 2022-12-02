@@ -32,12 +32,12 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @template V
+     * @template T
      * @template TFulfilled of mixed
      * @template TRejected of mixed
      *
-     * @param Promise<V> $promise
-     * @param (callable(V): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
+     * @param Promise<T> $promise
+     * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
      * @param (callable(mixed): (Promise<TRejected>|TRejected))|null $onRejected
      *
      * @return Promise<(
