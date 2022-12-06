@@ -183,4 +183,15 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             $field->assertValid($this);
         }
     }
+
+    public function astNode(): ?InputObjectTypeDefinitionNode
+    {
+        return $this->astNode;
+    }
+
+    /** @return array<int, InputObjectTypeExtensionNode> */
+    public function extensionASTNodes(): array
+    {
+        return $this->extensionASTNodes;
+    }
 }

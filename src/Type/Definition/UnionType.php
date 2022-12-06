@@ -124,4 +124,15 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
             throw new InvariantViolation("{$this->name} must provide \"resolveType\" as a callable, but got: {$notCallable}");
         }
     }
+
+    public function astNode(): ?UnionTypeDefinitionNode
+    {
+        return $this->astNode;
+    }
+
+    /** @return array<int, UnionTypeExtensionNode> */
+    public function extensionASTNodes(): array
+    {
+        return $this->extensionASTNodes;
+    }
 }

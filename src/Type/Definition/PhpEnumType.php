@@ -34,7 +34,7 @@ class PhpEnumType extends EnumType
         foreach ($reflection->getCases() as $case) {
             $enumDefinitions[$case->name] = [
                 'value' => $case->getValue(),
-                'description' => $this->description($case),
+                'description' => $this->extractDescription($case),
                 'deprecationReason' => $this->deprecationReason($case),
             ];
         }
@@ -42,7 +42,7 @@ class PhpEnumType extends EnumType
         parent::__construct([
             'name' => $this->baseName($enum),
             'values' => $enumDefinitions,
-            'description' => $this->description($reflection),
+            'description' => $this->extractDescription($reflection),
         ]);
     }
 
@@ -66,7 +66,7 @@ class PhpEnumType extends EnumType
         return end($parts);
     }
 
-    protected function description(\ReflectionClassConstant|\ReflectionClass $reflection): ?string
+    protected function extractDescription(\ReflectionClassConstant|\ReflectionClass $reflection): ?string
     {
         $attributes = $reflection->getAttributes(Description::class);
 

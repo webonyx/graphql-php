@@ -226,4 +226,15 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             ? null
             : ' Did you mean the enum value ' . Utils::quotedOrList($suggestions) . '?';
     }
+
+    public function astNode(): ?EnumTypeDefinitionNode
+    {
+        return $this->astNode;
+    }
+
+    /** @return array<int, EnumTypeExtensionNode> */
+    public function extensionASTNodes(): array
+    {
+        return $this->extensionASTNodes;
+    }
 }
