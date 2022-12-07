@@ -817,6 +817,62 @@ final class DefinitionTest extends TestCaseBase
     }
 
     /**
+     * @dataProvider providerPropertyAccessMethodsGiveCorrectValues
+     */
+    public function testPropertyAccessMethodsGiveCorrectValues(NamedType $type): void
+    {
+        self::assertSame($type->name, $type->name());
+        self::assertSame($type->description, $type->description());
+        self::assertSame($type->astNode, $type->astNode());
+        self::assertSame($type->extensionASTNodes, $type->extensionASTNodes());
+    }
+
+    /**
+     * @return \Generator<array-key, array{NamedType}>
+     */
+    public function providerPropertyAccessMethodsGiveCorrectValues(): \Generator
+    {
+        $description = 'To the quartered rhubarb add lobster, lettuce, eggs sauce and bitter strudel.';
+
+        yield [new EnumType([
+            'name' => 'EnumType',
+            'description' => $description,
+            'values' => [
+                'A' => ['value' => 1],
+            ],
+        ])];
+
+        yield [new InputObjectType([
+            'name' => 'InputObjectType',
+            'description' => $description,
+            'fields' => ['a' => Type::string()],
+        ])];
+
+        yield [new InterfaceType([
+            'name' => 'InterfaceType',
+            'description' => $description,
+            'fields' => ['a' => Type::string()],
+        ])];
+
+        yield [new ObjectType([
+            'name' => 'ObjectType',
+            'description' => $description,
+            'fields' => ['a' => Type::string()],
+        ])];
+
+        yield [new CustomScalarType([
+            'name' => 'ScalarType',
+            'description' => $description,
+        ])];
+
+        yield [new UnionType([
+            'name' => 'InterfaceType',
+            'description' => $description,
+            'types' => [],
+        ])];
+    }
+
+    /**
      * @see it('accepts an Object type with a field function')
      */
     public function testAcceptsAnObjectTypeWithAFieldFunction(): void

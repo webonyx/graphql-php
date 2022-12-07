@@ -32,4 +32,14 @@ interface NamedType
      * Is this type a built-in type?
      */
     public function isBuiltInType(): bool;
+
+    public function name(): string;
+
+    public function description(): ?string;
+
+    /** @return (Node&TypeDefinitionNode)|null */
+    public function astNode(): ?Node;
+
+    /** @return array<int, Node&TypeExtensionNode> */
+    public function extensionASTNodes(): array;
 }

@@ -87,4 +87,15 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
         $this->assertValidInterfaces();
     }
+
+    public function astNode(): ?InterfaceTypeDefinitionNode
+    {
+        return $this->astNode;
+    }
+
+    /** @return array<int, InterfaceTypeExtensionNode> */
+    public function extensionASTNodes(): array
+    {
+        return $this->extensionASTNodes;
+    }
 }
