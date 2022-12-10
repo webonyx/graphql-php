@@ -104,12 +104,10 @@ class SchemaExtender
             } elseif ($def instanceof SchemaExtensionNode) {
                 $schemaExtensions[] = $def;
             } elseif ($def instanceof TypeDefinitionNode) {
-                /** @var string $name Necessary assertion for PHPStan + PHP 8.2 */
-                $name = $def->name->value;
+                $name = $def->getName()->value;
                 $typeDefinitionMap[$name] = $def;
             } elseif ($def instanceof TypeExtensionNode) {
-                /** @var string $name Necessary assertion for PHPStan + PHP 8.2 */
-                $name = $def->name->value;
+                $name = $def->getName()->value;
                 $this->typeExtensionsMap[$name][] = $def;
             } elseif ($def instanceof DirectiveDefinitionNode) {
                 $directiveDefinitions[] = $def;

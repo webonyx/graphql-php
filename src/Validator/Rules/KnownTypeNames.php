@@ -43,7 +43,7 @@ class KnownTypeNames extends ValidationRule
         $definedTypes = [];
         foreach ($context->getDocument()->definitions as $def) {
             if ($def instanceof TypeDefinitionNode) {
-                $definedTypes[] = $def->name->value;
+                $definedTypes[] = $def->getName()->value;
             }
         }
 

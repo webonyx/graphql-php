@@ -15,4 +15,9 @@ class InputObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
     public NodeList $fields;
 
     public ?StringValueNode $description = null;
+
+    public function getName(): NameNode
+    {
+        return $this->name;
+    }
 }

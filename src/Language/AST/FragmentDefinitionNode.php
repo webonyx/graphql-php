@@ -24,4 +24,9 @@ class FragmentDefinitionNode extends Node implements ExecutableDefinitionNode, H
     public NodeList $directives;
 
     public SelectionSetNode $selectionSet;
+
+    public function getSelectionSet(): SelectionSetNode
+    {
+        return $this->selectionSet;
+    }
 }

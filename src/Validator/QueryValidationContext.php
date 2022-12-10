@@ -200,8 +200,7 @@ class QueryValidationContext implements ValidationContext
         if ($spreads === null) {
             $spreads = [];
 
-            /** @var array<int, SelectionSetNode> $setsToVisit */
-            $setsToVisit = [$node->selectionSet];
+            $setsToVisit = [$node->getSelectionSet()];
             while (\count($setsToVisit) > 0) {
                 $set = \array_pop($setsToVisit);
 

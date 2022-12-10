@@ -35,7 +35,7 @@ class ExecutableDefinitions extends ValidationRule
                                 $definition instanceof TypeDefinitionNode || $definition instanceof TypeExtensionNode,
                                 'only other option'
                             );
-                            $defName = "\"{$definition->name->value}\"";
+                            $defName = "\"{$definition->getName()->value}\"";
                         }
 
                         $context->reportError(new Error(

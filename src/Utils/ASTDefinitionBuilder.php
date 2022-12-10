@@ -188,11 +188,17 @@ class ASTDefinitionBuilder
      */
     public function buildType($ref): Type
     {
-        if (is_string($ref)) {
-            return $this->internalBuildType($ref);
+        $type = null;
+
+        if ($ref instanceof TypeDefinitionNode) {
+            $type = $this->internalBuildType($ref->getName()->value, $ref);
+        } elseif ($ref instanceof NamedTypeNode) {
+            $type = $this->internalBuildType($ref->name->value, $ref);
+        } else {
+            $type = $this->internalBuildType($ref);
         }
 
-        return $this->internalBuildType($ref->name->value, $ref);
+        return $type;
     }
 
     /**
