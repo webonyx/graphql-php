@@ -10,4 +10,9 @@ class ScalarTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var NodeList<DirectiveNode> */
     public NodeList $directives;
+
+    public function getName(): NameNode
+    {
+        return $this->name;
+    }
 }

@@ -153,13 +153,11 @@ class BuildSchema
                     $schemaDef = $definition;
                     break;
                 case $definition instanceof TypeDefinitionNode:
-                    /** @var string $name Necessary assertion for PHPStan + PHP 8.2 */
-                    $name = $definition->name->value;
+                    $name = $definition->getName()->value;
                     $typeDefinitionsMap[$name] = $definition;
                     break;
                 case $definition instanceof TypeExtensionNode:
-                    /** @var string $name Necessary assertion for PHPStan + PHP 8.2 */
-                    $name = $definition->name->value;
+                    $name = $definition->getName()->value;
                     $typeExtensionsMap[$name][] = $definition;
                     break;
                 case $definition instanceof DirectiveDefinitionNode:
@@ -228,7 +226,7 @@ class BuildSchema
             ->setDirectives($directives)
             ->setAstNode($schemaDef)
             ->setTypes(fn (): array => \array_map(
-                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->name->value),
+                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->getName()->value),
                 $typeDefinitionsMap,
             ))
         );

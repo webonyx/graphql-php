@@ -23,4 +23,9 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
     public NodeList $directives;
 
     public SelectionSetNode $selectionSet;
+
+    public function getSelectionSet(): SelectionSetNode
+    {
+        return $this->selectionSet;
+    }
 }

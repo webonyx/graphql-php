@@ -9,9 +9,8 @@ namespace GraphQL\Language\AST;
  * | UnionTypeDefinitionNode
  * | EnumTypeDefinitionNode
  * | InputObjectTypeDefinitionNode.
- *
- * @property NameNode $name
  */
 interface TypeDefinitionNode extends TypeSystemDefinitionNode
 {
+    public function getName(): NameNode;
 }

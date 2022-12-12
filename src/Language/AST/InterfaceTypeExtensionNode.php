@@ -16,4 +16,9 @@ class InterfaceTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var NodeList<FieldDefinitionNode> */
     public NodeList $fields;
+
+    public function getName(): NameNode
+    {
+        return $this->name;
+    }
 }
