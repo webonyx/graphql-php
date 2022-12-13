@@ -29,6 +29,7 @@ use function array_key_exists;
 use function array_map;
 use function array_merge;
 use function json_encode;
+use function sprintf;
 
 class BuildClientSchema
 {
@@ -187,7 +188,7 @@ class BuildClientSchema
     {
         if (! isset($this->typeMap[$typeName])) {
             throw new InvariantViolation(
-                "Invalid or incomplete schema, unknown type: ${typeName}. Ensure that a full introspection query is used in order to build a client schema."
+                sprintf('Invalid or incomplete schema, unknown type: %s. Ensure that a full introspection query is used in order to build a client schema.', $typeName)
             );
         }
 
