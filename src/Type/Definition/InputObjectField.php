@@ -13,6 +13,7 @@ use GraphQL\Utils\Utils;
 use function array_key_exists;
 use function sprintf;
 
+#[\AllowDynamicProperties]
 class InputObjectField
 {
     /** @var string */
