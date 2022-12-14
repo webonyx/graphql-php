@@ -13,6 +13,9 @@ class Root
         $this->numberHolder = new NumberHolder($originalNumber);
     }
 
+    /**
+     * @return Deferred<NumberHolder>
+     */
     public function promiseToChangeTheNumber(float $newNumber): Deferred
     {
         return new Deferred(fn (): NumberHolder => $this->immediatelyChangeTheNumber($newNumber));
@@ -30,6 +33,9 @@ class Root
         throw new \Exception('Cannot change the number');
     }
 
+    /**
+     * @return Deferred<void>
+     */
     public function promiseAndFailToChangeTheNumber(): Deferred
     {
         return new Deferred(function (): void {

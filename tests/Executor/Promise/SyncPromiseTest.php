@@ -138,6 +138,8 @@ class SyncPromiseTest extends TestCaseBase
     }
 
     /**
+     * @template V
+     * @param SyncPromise<V> $promise
      * @param mixed $expectedNextValue
      */
     private static function assertValidPromise(

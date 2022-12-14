@@ -1131,7 +1131,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws Error
      *
-     * @return Promise<array<mixed>>|Promise<\stdClass>|array<mixed>|\stdClass
+     * @return Promise<array<string, mixed>>|array<string, mixed>|\stdClass
      */
     protected function completeObjectValue(
         ObjectType $returnType,
@@ -1204,7 +1204,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws Error
      *
-     * @return Promise<array<mixed>>|Promise<\stdClass>|array<mixed>|\stdClass
+     * @return Promise<array<string, mixed>>|array<string, mixed>|\stdClass
      */
     protected function collectAndExecuteSubfields(
         ObjectType $returnType,
@@ -1259,7 +1259,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @phpstan-param Fields $fields
      *
-     * @return Promise<array<mixed>>|Promise<\stdClass>|\stdClass|array<mixed>
+     * @return Promise<array<string, mixed>>|\stdClass|array<string, mixed>
      */
     protected function executeFields(ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
     {

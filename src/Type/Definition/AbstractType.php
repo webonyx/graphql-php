@@ -5,7 +5,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Deferred;
 
 /**
- * @phpstan-type ResolveTypeReturn ObjectType|string|callable(): (ObjectType|string|null)|Deferred|null
+ * @phpstan-type ResolveTypeReturn ObjectType|string|callable(): ObjectType|string|null|Deferred<ObjectType|string|null>
  * @phpstan-type ResolveType callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): ResolveTypeReturn
  */
 interface AbstractType
@@ -16,7 +16,7 @@ interface AbstractType
      * @param mixed $objectValue The resolved value for the object type
      * @param mixed $context The context that was passed to GraphQL::execute()
      *
-     * @return ObjectType|string|callable|Deferred|null
+     * @return ObjectType|string|callable|null|Deferred<ObjectType|string|null>
      *
      * @phpstan-return ResolveTypeReturn
      */

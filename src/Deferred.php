@@ -5,23 +5,18 @@ namespace GraphQL;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 
 /**
- * @phpstan-import-type Executor from SyncPromise
+ * @template V
+ * @extends SyncPromise<V>
  */
 class Deferred extends SyncPromise
 {
     /**
-     * @param Executor $executor
+     * @template T
+     * @param callable(): T $executor
+     * @return self<T>
      */
     public static function create(callable $executor): self
     {
         return new self($executor);
-    }
-
-    /**
-     * @param Executor $executor
-     */
-    public function __construct(callable $executor)
-    {
-        parent::__construct($executor);
     }
 }

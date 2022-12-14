@@ -14,7 +14,7 @@ use React\Promise\PromiseInterface as ReactPromise;
  */
 class Promise
 {
-    /** @var SyncPromise|ReactPromise|AmpPromise<mixed> */
+    /** @var SyncPromise<T>|ReactPromise|AmpPromise<mixed> */
     public $adoptedPromise;
 
     private PromiseAdapter $adapter;
