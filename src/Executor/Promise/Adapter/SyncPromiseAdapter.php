@@ -84,13 +84,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->resolve($value), $this);
     }
 
-    /**
-     * @template V of \Throwable
-     *
-     * @param V $reason
-     *
-     * @return Promise<V>
-     */
     public function createRejected(\Throwable $reason): Promise
     {
         $promise = new SyncPromise();
@@ -98,20 +91,8 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->reject($reason), $this);
     }
 
-    /**
-     * @template V
-     *
-     * @param iterable<Promise<V>|V> $promisesOrValues
-     *
-     * @return Promise<V[]>
-     */
-    public function all(iterable $promisesOrValues): Promise
+    public function all(array $promisesOrValues): Promise
     {
-        \assert(
-            \is_array($promisesOrValues),
-            'SyncPromiseAdapter::all(): Argument #1 ($promisesOrValues) must be of type array'
-        );
-
         $all = new SyncPromise();
 
         $total = \count($promisesOrValues);

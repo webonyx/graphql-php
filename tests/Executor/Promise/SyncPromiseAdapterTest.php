@@ -74,6 +74,8 @@ class SyncPromiseAdapterTest extends TestCase
     }
 
     /**
+     * @template T
+     * @param Promise<T> $promise
      * @param mixed $expectedNextValue
      */
     private static function assertValidPromise(Promise $promise, ?string $expectedNextReason, $expectedNextValue, string $expectedNextState): void

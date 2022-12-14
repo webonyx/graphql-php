@@ -240,36 +240,27 @@ class ReferenceExecutor implements ExecutorImplementation
         // be executed. An execution which encounters errors will still result in a
         // resolved Promise.
         $data = $this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue);
-        $result = $this->buildResponse($data);
+
+        if ($data instanceof Promise) {
+            $data = $data->then(fn ($resolved) => $this->buildResponse($resolved));
+        }
 
         // Note: we deviate here from the reference implementation a bit by always returning promise
         // But for the "sync" case it is always fulfilled
 
-        $promise = $this->getPromise($result);
+        $promise = $this->getPromise($data);
         if ($promise !== null) {
-            return $promise;
+            return $promise->then(fn ($resolved) => $this->buildResponse($resolved));
         }
 
-        return $this->exeContext->promiseAdapter->createFulfilled($result);
+        return $this->exeContext->promiseAdapter->createFulfilled($data);
     }
 
     /**
      * @param mixed $data
-     *
-     * @return ExecutionResult|Promise<ExecutionResult>
      */
-    protected function buildResponse($data)
+    protected function buildResponse($data): ExecutionResult
     {
-        if ($data instanceof Promise) {
-            return $data->then(fn ($resolved) => $this->buildResponse($resolved));
-        }
-
-        $promiseAdapter = $this->exeContext->promiseAdapter;
-        if ($promiseAdapter->isThenable($data)) {
-            return $promiseAdapter->convertThenable($data)
-                ->then(fn ($resolved) => $this->buildResponse($resolved));
-        }
-
         if ($data !== null) {
             $data = (array) $data;
         }
@@ -1081,7 +1072,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed|null $contextValue
      * @param AbstractType&Type $abstractType
      *
-     * @return Promise<Type>|Promise<string>|Promise<null>|Type|string|null
+     * @return Promise<Type|string|null>|Type|string|null
      */
     protected function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
     {

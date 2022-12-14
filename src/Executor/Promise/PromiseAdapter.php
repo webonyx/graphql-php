@@ -2,6 +2,8 @@
 
 namespace GraphQL\Executor\Promise;
 
+use Throwable;
+
 /**
  * Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php)).
  */
@@ -19,7 +21,9 @@ interface PromiseAdapter
     /**
      * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance.
      *
-     * @param mixed $thenable
+     * @template T
+     * @param T $thenable
+     * @return Promise<T>
      *
      * @api
      */
@@ -35,7 +39,7 @@ interface PromiseAdapter
      *
      * @param Promise<T> $promise
      * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
-     * @param (callable(mixed): (Promise<TRejected>|TRejected))|null $onRejected
+     * @param (callable(Throwable): (Promise<TRejected>|TRejected))|null $onRejected
      *
      * @return Promise<(
      *   $onFulfilled is not null
@@ -52,7 +56,7 @@ interface PromiseAdapter
      *
      * @template V
      *
-     * @param callable(callable(V): void $resolve, callable(\Throwable): void $reject): void $resolver
+     * @param callable(callable(V): void $resolve, callable(Throwable): void $reject): void $resolver
      *
      * @return Promise<V>
      *
@@ -78,9 +82,11 @@ interface PromiseAdapter
      *
      * If the provided reason is a promise, then it is returned as-is.
      *
+     * @return Promise<null>
+     *
      * @api
      */
-    public function createRejected(\Throwable $reason): Promise;
+    public function createRejected(Throwable $reason): Promise;
 
     /**
      * Given an iterable of promises (or values), returns a promise that is fulfilled when all the
@@ -88,11 +94,11 @@ interface PromiseAdapter
      *
      * @template V
      *
-     * @param iterable<Promise<V>|V> $promisesOrValues
+     * @param array<V> $promisesOrValues
      *
      * @return Promise<array<V>>
      *
      * @api
      */
-    public function all(iterable $promisesOrValues): Promise;
+    public function all(array $promisesOrValues): Promise;
 }

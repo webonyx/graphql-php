@@ -77,13 +77,8 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    public function all(iterable $promisesOrValues): Promise
+    public function all(array $promisesOrValues): Promise
     {
-        \assert(
-            \is_array($promisesOrValues),
-            'AmpPromiseAdapter::all(): Argument #1 ($promisesOrValues) must be of type array'
-        );
-
         /** @var array<AmpPromise<mixed>> $promises */
         $promises = [];
         foreach ($promisesOrValues as $key => $item) {

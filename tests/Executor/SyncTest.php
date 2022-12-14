@@ -159,7 +159,6 @@ class SyncTest extends TestCase
         self::assertEquals(SyncPromise::PENDING, $adoptedPromise->state, $message);
 
         $resolvedResult = $this->promiseAdapter->wait($actualResult);
-        self::assertInstanceOf(ExecutionResult::class, $resolvedResult);
         self::assertArraySubset($expectedFinalArray, $resolvedResult->toArray());
     }
 
