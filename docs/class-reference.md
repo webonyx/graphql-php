@@ -75,6 +75,7 @@ static function executeQuery(
  * @param mixed                      $context
  * @param array<string, mixed>|null  $variableValues
  * @param array<ValidationRule>|null $validationRules
+ *
  * @return Promise<ExecutionResult>
  *
  * @api
@@ -1502,7 +1503,9 @@ function then(
  * Creates a Promise from the given resolver callable.
  *
  * @template V
+ *
  * @param callable(callable(V): void $resolve, callable(\Throwable): void $reject): void $resolver
+ *
  * @return Promise<V>
  *
  * @api
@@ -1545,7 +1548,7 @@ function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
  *
  * @param iterable<Promise<V>|V> $promisesOrValues
  *
- * @return Promise<V[]>
+ * @return Promise<array<V>>
  *
  * @api
  */
