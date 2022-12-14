@@ -1463,7 +1463,9 @@ function isThenable($value): bool
 /**
  * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance.
  *
- * @param mixed $thenable
+ * @template T
+ * @param T $thenable
+ * @return Promise<T>
  *
  * @api
  */
@@ -1481,7 +1483,7 @@ function convertThenable($thenable): GraphQL\Executor\Promise\Promise
  *
  * @param Promise<T> $promise
  * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
- * @param (callable(mixed): (Promise<TRejected>|TRejected))|null $onRejected
+ * @param (callable(Throwable): (Promise<TRejected>|TRejected))|null $onRejected
  *
  * @return Promise<(
  *   $onFulfilled is not null
@@ -1504,7 +1506,7 @@ function then(
  *
  * @template V
  *
- * @param callable(callable(V): void $resolve, callable(\Throwable): void $reject): void $resolver
+ * @param callable(callable(V): void $resolve, callable(Throwable): void $reject): void $resolver
  *
  * @return Promise<V>
  *
@@ -1534,6 +1536,8 @@ function createFulfilled($value = null): GraphQL\Executor\Promise\Promise
  *
  * If the provided reason is a promise, then it is returned as-is.
  *
+ * @return Promise<null>
+ *
  * @api
  */
 function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
@@ -1546,13 +1550,13 @@ function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
  *
  * @template V
  *
- * @param iterable<Promise<V>|V> $promisesOrValues
+ * @param array<V> $promisesOrValues
  *
  * @return Promise<array<V>>
  *
  * @api
  */
-function all(iterable $promisesOrValues): GraphQL\Executor\Promise\Promise
+function all(array $promisesOrValues): GraphQL\Executor\Promise\Promise
 ```
 
 ## GraphQL\Validator\DocumentValidator
