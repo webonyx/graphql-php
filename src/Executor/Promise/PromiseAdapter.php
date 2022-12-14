@@ -90,7 +90,7 @@ interface PromiseAdapter
      *
      * @param iterable<Promise<V>|V> $promisesOrValues
      *
-     * @return Promise<V[]>
+     * @return Promise<array<V>>
      *
      * @api
      */
