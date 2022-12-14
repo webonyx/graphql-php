@@ -273,7 +273,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed $rootValue
      *
-     * @return Promise<array<mixed>>|Promise<\stdClass>|Promise<null>|array<mixed>|\stdClass|null
+     * @return Promise<array<string, mixed>>|Promise<null>|array<string, mixed>|\stdClass|null
      */
     protected function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
@@ -708,7 +708,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed                       $result
      *
-     * @return Promise<array<mixed>>|Promise<\stdClass>|Promise<null>|array<mixed>|\stdClass|null
+     * @return Promise<array<string, mixed>>|Promise<null>|array<string, mixed>|\stdClass|null
      */
     protected function completeValueCatchingError(
         Type $returnType,
@@ -887,7 +887,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param T $value
      *
-     * @return Promise<T>|null
+     * @return (T === null || T instanceof Promise ? T : (Promise<T>|null))
      */
     protected function getPromise($value): ?Promise
     {
@@ -941,7 +941,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws \Exception
      *
-     * @return Promise<array<mixed>>|Promise<\stdClass>|array<mixed>|\stdClass
+     * @return Promise<array<int, mixed>>|array<int, mixed>|\stdClass
      */
     protected function completeListValue(
         ListOfType $returnType,
@@ -1008,7 +1008,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws Error
      *
-     * @return Promise<array<mixed>>|Promise<\stdClass>|array<mixed>|\stdClass
+     * @return Promise<array<string, mixed>>|array<string, mixed>|\stdClass
      */
     protected function completeAbstractValue(
         AbstractType $returnType,
