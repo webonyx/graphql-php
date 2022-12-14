@@ -187,9 +187,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * Execute just before starting to run promise completion.
      *
-     * @template V
-     *
-     * @param Promise<V> $promise
+     * @param Promise<mixed> $promise
      */
     protected function beforeWait(Promise $promise): void
     {
