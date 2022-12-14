@@ -16,7 +16,7 @@ interface AbstractType
      * @param mixed $objectValue The resolved value for the object type
      * @param mixed $context The context that was passed to GraphQL::execute()
      *
-     * @return ObjectType|string|callable|null|Deferred<ObjectType|string|null>
+     * @return ObjectType|string|callable|Deferred<ObjectType|string|null>|null
      *
      * @phpstan-return ResolveTypeReturn
      */

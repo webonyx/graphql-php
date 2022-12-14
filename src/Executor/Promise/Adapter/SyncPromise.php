@@ -18,6 +18,7 @@ use Throwable;
  * at least one $executor to start the promise chain.
  *
  * @template V
+ *
  * @phpstan-type Executor callable(): V
  */
 class SyncPromise
@@ -65,6 +66,7 @@ class SyncPromise
 
     /**
      * @param mixed $value
+     *
      * @return self<V>
      */
     public function resolve($value): self
@@ -108,8 +110,10 @@ class SyncPromise
     /**
      * @template VFulfilled
      * @template VRejected
+     *
      * @param (callable(V): VFulfilled)|null $onFulfilled
      * @param (callable(Throwable): VRejected)|null $onRejected
+     *
      * @return self<(
      *   $onFulfilled is not null
      *     ? ($onRejected is not null ? VFulfilled|VRejected : VFulfilled)
@@ -170,8 +174,9 @@ class SyncPromise
     }
 
     /**
-     * @return self<null>
      * @throws \Exception
+     *
+     * @return self<null>
      */
     public function reject(\Throwable $reason): self
     {
@@ -197,7 +202,7 @@ class SyncPromise
     public static function runQueue(): void
     {
         $q = self::getQueue();
-        while (!$q->isEmpty()) {
+        while (! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();
         }
@@ -215,6 +220,7 @@ class SyncPromise
 
     /**
      * @param callable(\Throwable): mixed $onRejected
+     *
      * @return self<null>
      */
     public function catch(callable $onRejected): self
