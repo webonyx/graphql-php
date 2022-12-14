@@ -31,21 +31,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($thenable, $this);
     }
 
-    /**
-     * @template T
-     * @template TFulfilled of mixed
-     * @template TRejected of mixed
-     *
-     * @param Promise<T> $promise
-     * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
-     * @param (callable(mixed): (Promise<TRejected>|TRejected))|null $onRejected
-     *
-     * @return Promise<(
-     *   $onFulfilled is not null
-     *     ? ($onRejected is not null ? TFulfilled|TRejected : TFulfilled)
-     *     : ($onRejected is not null ? TRejected : T)
-     * )>
-     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $adoptedPromise = $promise->adoptedPromise;
@@ -70,13 +55,6 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /**
-     * @template V
-     *
-     * @param V $value
-     *
-     * @return Promise<V>
-     */
     public function createFulfilled($value = null): Promise
     {
         $promise = new SyncPromise();
