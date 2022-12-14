@@ -1464,7 +1464,9 @@ function isThenable($value): bool
  * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance.
  *
  * @template T
+ *
  * @param T $thenable
+ *
  * @return Promise<T>
  *
  * @api
