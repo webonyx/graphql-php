@@ -1334,8 +1334,6 @@ Represents both - result of successful execution and of a failed one
 Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
 serializable array using `toArray()`.
 
-@see Throwable
-
 @phpstan-type SerializableError array{
 message: string,
 locations?: array<int, array{line: int, column: int}>,
@@ -1348,7 +1346,7 @@ data?: array<string, mixed>,
 errors?: SerializableErrors,
 extensions?: array<string, mixed>
 }
-@phpstan-type ErrorFormatter callable(Throwable): SerializableError
+@phpstan-type ErrorFormatter callable(\Throwable): SerializableError
 @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
 
 ### GraphQL\Executor\ExecutionResult Props
@@ -1476,8 +1474,8 @@ function convertThenable($thenable): GraphQL\Executor\Promise\Promise
 
 ```php
 /**
- * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described
- * in Promises/A+ specs. Then returns new wrapped instance of GraphQL\Executor\Promise\Promise.
+ * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described in Promises/A+ specs.
+ * Then returns new wrapped instance of @see \GraphQL\Executor\Promise\Promise.
  *
  * @template T
  * @template TFulfilled of mixed
@@ -1485,7 +1483,7 @@ function convertThenable($thenable): GraphQL\Executor\Promise\Promise
  *
  * @param Promise<T> $promise
  * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
- * @param (callable(Throwable): (Promise<TRejected>|TRejected))|null $onRejected
+ * @param (callable(\Throwable): (Promise<TRejected>|TRejected))|null $onRejected
  *
  * @return Promise<(
  *   $onFulfilled is not null
@@ -1508,7 +1506,7 @@ function then(
  *
  * @template V
  *
- * @param callable(callable(V): void $resolve, callable(Throwable): void $reject): void $resolver
+ * @param callable(callable(V): void $resolve, callable(\Throwable): void $reject): void $resolver
  *
  * @return Promise<V>
  *
@@ -1552,13 +1550,13 @@ function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
  *
  * @template V
  *
- * @param array<V> $promisesOrValues
+ * @param iterable<V> $promisesOrValues
  *
  * @return Promise<array<V>>
  *
  * @api
  */
-function all(array $promisesOrValues): GraphQL\Executor\Promise\Promise
+function all(iterable $promisesOrValues): GraphQL\Executor\Promise\Promise
 ```
 
 ## GraphQL\Validator\DocumentValidator
