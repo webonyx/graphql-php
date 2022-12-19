@@ -32,8 +32,8 @@ interface PromiseAdapter
     public function convertThenable($thenable): Promise;
 
     /**
-     * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described
-     * in Promises/A+ specs. Then returns new wrapped instance of GraphQL\Executor\Promise\Promise.
+     * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described in Promises/A+ specs.
+     * Then returns new wrapped instance of @see \GraphQL\Executor\Promise\Promise.
      *
      * @template T
      * @template TFulfilled of mixed
