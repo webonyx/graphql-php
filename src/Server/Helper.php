@@ -204,8 +204,8 @@ class Helper
     public function executeBatch(ServerConfig $config, array $operations)
     {
         $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getPromiseAdapter();
-        $result = [];
 
+        $result = [];
         foreach ($operations as $operation) {
             $result[] = $this->promiseToExecuteOperation($promiseAdapter, $config, $operation, true);
         }
