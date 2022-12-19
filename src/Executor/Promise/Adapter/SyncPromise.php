@@ -3,7 +3,6 @@
 namespace GraphQL\Executor\Promise\Adapter;
 
 use GraphQL\Error\InvariantViolation;
-use Throwable;
 
 /**
  * Simplistic (yet full-featured) implementation of Promises A+ spec for regular PHP `sync` mode
@@ -39,7 +38,7 @@ class SyncPromise
      *     array{
      *         self<V>,
      *         (callable(mixed): mixed)|null,
-     *         (callable(Throwable): mixed)|null
+     *         (callable(\Throwable): mixed)|null
      *     }
      * >
      */
@@ -187,7 +186,7 @@ class SyncPromise
      * @template VRejected
      *
      * @param (callable(V): VFulfilled)|null $onFulfilled
-     * @param (callable(Throwable): VRejected)|null $onRejected
+     * @param (callable(\Throwable): VRejected)|null $onRejected
      *
      * @return self<(
      *   $onFulfilled is not null

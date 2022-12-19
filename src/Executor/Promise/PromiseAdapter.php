@@ -2,8 +2,6 @@
 
 namespace GraphQL\Executor\Promise;
 
-use Throwable;
-
 /**
  * Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php)).
  */
@@ -41,7 +39,7 @@ interface PromiseAdapter
      *
      * @param Promise<T> $promise
      * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
-     * @param (callable(Throwable): (Promise<TRejected>|TRejected))|null $onRejected
+     * @param (callable(\Throwable): (Promise<TRejected>|TRejected))|null $onRejected
      *
      * @return Promise<(
      *   $onFulfilled is not null
@@ -58,7 +56,7 @@ interface PromiseAdapter
      *
      * @template V
      *
-     * @param callable(callable(V): void $resolve, callable(Throwable): void $reject): void $resolver
+     * @param callable(callable(V): void $resolve, callable(\Throwable): void $reject): void $resolver
      *
      * @return Promise<V>
      *
