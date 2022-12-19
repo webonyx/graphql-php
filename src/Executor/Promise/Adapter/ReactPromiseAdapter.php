@@ -54,7 +54,7 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    public function all(array $promisesOrValues): Promise
+    public function all(iterable $promisesOrValues): Promise
     {
         foreach ($promisesOrValues as &$promiseOrValue) {
             if ($promiseOrValue instanceof Promise) {
@@ -62,9 +62,12 @@ class ReactPromiseAdapter implements PromiseAdapter
             }
         }
 
-        $promise = all($promisesOrValues)->then(static fn ($values): array => array_map(
+        $promisesOrValuesArray = is_array($promisesOrValues)
+            ? $promisesOrValues
+            : iterator_to_array($promisesOrValues);
+        $promise = all($promisesOrValuesArray)->then(static fn ($values): array => array_map(
             static fn ($key) => $values[$key],
-            array_keys($promisesOrValues),
+            array_keys($promisesOrValuesArray),
         ));
 
         return new Promise($promise, $this);

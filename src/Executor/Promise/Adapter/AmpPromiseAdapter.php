@@ -77,7 +77,7 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    public function all(array $promisesOrValues): Promise
+    public function all(iterable $promisesOrValues): Promise
     {
         /** @var array<AmpPromise<mixed>> $promises */
         $promises = [];
@@ -93,18 +93,21 @@ class AmpPromiseAdapter implements PromiseAdapter
 
         $deferred = new Deferred();
 
-        $onResolve = static function (?\Throwable $reason, ?array $values) use ($promisesOrValues, $deferred): void {
+        all($promises)->onResolve(static function (?\Throwable $reason, ?array $values) use ($promisesOrValues, $deferred): void {
             if ($reason === null) {
                 \assert(\is_array($values), 'Either $reason or $values must be passed');
-                $deferred->resolve(\array_replace($promisesOrValues, $values));
+
+                $promisesOrValuesArray = is_array($promisesOrValues)
+                    ? $promisesOrValues
+                    : iterator_to_array($promisesOrValues);
+                $resolvedValues = \array_replace($promisesOrValuesArray, $values);
+                $deferred->resolve($resolvedValues);
 
                 return;
             }
 
             $deferred->fail($reason);
-        };
-
-        all($promises)->onResolve($onResolve);
+        });
 
         return new Promise($deferred->promise(), $this);
     }

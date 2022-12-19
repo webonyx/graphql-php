@@ -96,11 +96,11 @@ interface PromiseAdapter
      *
      * @template V
      *
-     * @param array<V> $promisesOrValues
+     * @param iterable<V> $promisesOrValues
      *
      * @return Promise<array<V>>
      *
      * @api
      */
-    public function all(array $promisesOrValues): Promise;
+    public function all(iterable $promisesOrValues): Promise;
 }
