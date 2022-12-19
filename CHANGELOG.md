@@ -100,6 +100,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Avoid calling `FormattedError::addDebugEntries()` twice when using default error formatting
 - Avoid calling defined functions named like lazily loaded types
 - Show actual error in debug entries
+- Deal with `iterable` in implementations of `PromiseAdapter::all()`
 
 ### Removed
 

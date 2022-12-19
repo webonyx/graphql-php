@@ -79,7 +79,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         $count = 0;
         $result = [];
 
-        $resolveAllWhenFinished = function () use ($count, $total, $all, $result): void {
+        $resolveAllWhenFinished = function () use (&$count, &$total, $all, &$result): void {
             if ($count === $total) {
                 $all->resolve($result);
             }
