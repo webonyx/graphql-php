@@ -71,29 +71,28 @@ class SyncPromiseAdapter implements PromiseAdapter
 
     public function all(iterable $promisesOrValues): Promise
     {
-        \assert(
-            \is_array($promisesOrValues),
-            'SyncPromiseAdapter::all(): Argument #1 ($promisesOrValues) must be of type array'
-        );
-
         $all = new SyncPromise();
 
-        $total = \count($promisesOrValues);
+        $total = \is_array($promisesOrValues)
+            ? \count($promisesOrValues)
+            : \iterator_count($promisesOrValues);
         $count = 0;
         $result = [];
+
+        $resolveAllWhenFinished = function () use (&$count, &$total, $all, &$result): void {
+            if ($count === $total) {
+                $all->resolve($result);
+            }
+        };
 
         foreach ($promisesOrValues as $index => $promiseOrValue) {
             if ($promiseOrValue instanceof Promise) {
                 $result[$index] = null;
                 $promiseOrValue->then(
-                    static function ($value) use ($index, &$count, $total, &$result, $all): void {
+                    static function ($value) use (&$result, $index, &$count, &$resolveAllWhenFinished): void {
                         $result[$index] = $value;
                         ++$count;
-                        if ($count < $total) {
-                            return;
-                        }
-
-                        $all->resolve($result);
+                        $resolveAllWhenFinished();
                     },
                     [$all, 'reject']
                 );
@@ -103,9 +102,7 @@ class SyncPromiseAdapter implements PromiseAdapter
             }
         }
 
-        if ($count === $total) {
-            $all->resolve($result);
-        }
+        $resolveAllWhenFinished();
 
         return new Promise($all, $this);
     }

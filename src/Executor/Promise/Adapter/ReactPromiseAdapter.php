@@ -56,20 +56,18 @@ class ReactPromiseAdapter implements PromiseAdapter
 
     public function all(iterable $promisesOrValues): Promise
     {
-        assert(
-            is_array($promisesOrValues),
-            'ReactPromiseAdapter::all(): Argument #1 ($promisesOrValues) must be of type array'
-        );
-
         foreach ($promisesOrValues as &$promiseOrValue) {
             if ($promiseOrValue instanceof Promise) {
                 $promiseOrValue = $promiseOrValue->adoptedPromise;
             }
         }
 
-        $promise = all($promisesOrValues)->then(static fn ($values): array => array_map(
+        $promisesOrValuesArray = is_array($promisesOrValues)
+            ? $promisesOrValues
+            : iterator_to_array($promisesOrValues);
+        $promise = all($promisesOrValuesArray)->then(static fn ($values): array => array_map(
             static fn ($key) => $values[$key],
-            array_keys($promisesOrValues),
+            array_keys($promisesOrValuesArray),
         ));
 
         return new Promise($promise, $this);
