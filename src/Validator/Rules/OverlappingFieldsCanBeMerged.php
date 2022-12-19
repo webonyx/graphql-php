@@ -22,7 +22,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\PairSet;
 use GraphQL\Validator\QueryValidationContext;
-use SplObjectStorage;
 
 /**
  * ReasonOrReasons is recursive, but PHPStan does not support that.
@@ -46,7 +45,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * selection set. Selection sets may be asked for this information multiple
      * times, so this improves the performance of this validator.
      *
-     * @phpstan-var SplObjectStorage<SelectionSetNode, array{FieldMap, array<int, string>}>
+     * @phpstan-var \SplObjectStorage<SelectionSetNode, array{FieldMap, array<int, string>}>
      */
     protected \SplObjectStorage $cachedFieldsAndFragmentNames;
 

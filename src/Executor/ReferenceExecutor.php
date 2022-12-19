@@ -2,12 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use function array_reduce;
-
-use ArrayObject;
-
-use function gettype;
-
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
@@ -39,13 +33,12 @@ use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaValidationContext;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
-use SplObjectStorage;
 
 /**
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type Path from ResolveInfo
  *
- * @phpstan-type Fields ArrayObject<string, ArrayObject<int, FieldNode>>
+ * @phpstan-type Fields \ArrayObject<string, \ArrayObject<int, FieldNode>>
  */
 class ReferenceExecutor implements ExecutorImplementation
 {
@@ -54,13 +47,13 @@ class ReferenceExecutor implements ExecutorImplementation
     protected ExecutionContext $exeContext;
 
     /**
-     * @var SplObjectStorage<
+     * @var \SplObjectStorage<
      *     ObjectType,
-     *     SplObjectStorage<
-     *         ArrayObject<int, FieldNode>,
-     *         ArrayObject<
+     *     \SplObjectStorage<
+     *         \ArrayObject<int, FieldNode>,
+     *         \ArrayObject<
      *             string,
-     *             ArrayObject<int, FieldNode>
+     *             \ArrayObject<int, FieldNode>
      *         >
      *     >
      * >

@@ -2,8 +2,6 @@
 
 namespace GraphQL\Error;
 
-use function trigger_error;
-
 /**
  * Encapsulates warnings produced by the library.
  *

@@ -2,8 +2,6 @@
 
 namespace GraphQL\Type\Definition;
 
-use function array_merge;
-
 use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\FieldNode;

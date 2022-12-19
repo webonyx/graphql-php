@@ -2,12 +2,9 @@
 
 namespace GraphQL\Executor;
 
-use function array_map;
-
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
-use Throwable;
 
 /**
  * Returned after [query execution](executing-queries.md).
@@ -16,8 +13,6 @@ use Throwable;
  *
  * Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
  * serializable array using `toArray()`.
- *
- * @see Throwable
  *
  * @phpstan-type SerializableError array{
  *   message: string,
@@ -31,7 +26,7 @@ use Throwable;
  *     errors?: SerializableErrors,
  *     extensions?: array<string, mixed>
  * }
- * @phpstan-type ErrorFormatter callable(Throwable): SerializableError
+ * @phpstan-type ErrorFormatter callable(\Throwable): SerializableError
  * @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
  */
 class ExecutionResult implements \JsonSerializable

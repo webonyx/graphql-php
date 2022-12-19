@@ -15,9 +15,6 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
-
-use function header;
-
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
