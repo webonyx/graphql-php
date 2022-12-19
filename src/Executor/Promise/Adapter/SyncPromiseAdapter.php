@@ -157,9 +157,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * Execute while running promise completion.
      *
-     * @template V
-     *
-     * @param Promise<V> $promise
+     * @param Promise<mixed> $promise
      */
     protected function onWait(Promise $promise): void
     {
