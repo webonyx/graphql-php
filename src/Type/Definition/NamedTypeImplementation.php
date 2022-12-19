@@ -44,4 +44,14 @@ trait NamedTypeImplementation
     {
         return \array_key_exists($this->name, Type::builtInTypes());
     }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    public function description(): ?string
+    {
+        return $this->description;
+    }
 }

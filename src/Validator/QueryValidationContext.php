@@ -12,7 +12,6 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Argument;
@@ -200,8 +199,7 @@ class QueryValidationContext implements ValidationContext
         if ($spreads === null) {
             $spreads = [];
 
-            /** @var array<int, SelectionSetNode> $setsToVisit */
-            $setsToVisit = [$node->selectionSet];
+            $setsToVisit = [$node->getSelectionSet()];
             while (\count($setsToVisit) > 0) {
                 $set = \array_pop($setsToVisit);
 

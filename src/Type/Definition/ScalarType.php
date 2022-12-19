@@ -60,4 +60,15 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     {
         Utils::assertValidName($this->name);
     }
+
+    public function astNode(): ?ScalarTypeDefinitionNode
+    {
+        return $this->astNode;
+    }
+
+    /** @return array<int, ScalarTypeExtensionNode> */
+    public function extensionASTNodes(): array
+    {
+        return $this->extensionASTNodes;
+    }
 }

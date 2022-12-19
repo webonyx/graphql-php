@@ -15,4 +15,9 @@ class UnionTypeDefinitionNode extends Node implements TypeDefinitionNode
     public NodeList $types;
 
     public ?StringValueNode $description = null;
+
+    public function getName(): NameNode
+    {
+        return $this->name;
+    }
 }

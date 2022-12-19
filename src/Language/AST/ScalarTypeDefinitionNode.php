@@ -12,4 +12,9 @@ class ScalarTypeDefinitionNode extends Node implements TypeDefinitionNode
     public NodeList $directives;
 
     public ?StringValueNode $description = null;
+
+    public function getName(): NameNode
+    {
+        return $this->name;
+    }
 }

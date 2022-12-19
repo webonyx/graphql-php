@@ -150,4 +150,15 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
         $this->assertValidInterfaces();
     }
+
+    public function astNode(): ?ObjectTypeDefinitionNode
+    {
+        return $this->astNode;
+    }
+
+    /** @return array<int, ObjectTypeExtensionNode> */
+    public function extensionASTNodes(): array
+    {
+        return $this->extensionASTNodes;
+    }
 }

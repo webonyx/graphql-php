@@ -13,4 +13,9 @@ class InputObjectTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var NodeList<InputValueDefinitionNode> */
     public NodeList $fields;
+
+    public function getName(): NameNode
+    {
+        return $this->name;
+    }
 }
