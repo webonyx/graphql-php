@@ -2,8 +2,6 @@
 
 namespace GraphQL\Utils;
 
-use ArrayAccess;
-
 /**
  * Similar to PHP array, but allows any type of data to act as key (including arrays, objects, scalars).
  *
@@ -11,7 +9,7 @@ use ArrayAccess;
  *
  * @template TValue of mixed
  *
- * @implements ArrayAccess<mixed, TValue>
+ * @implements \ArrayAccess<mixed, TValue>
  */
 class MixedStore implements \ArrayAccess
 {

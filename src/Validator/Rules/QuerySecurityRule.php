@@ -2,7 +2,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-use ArrayObject;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -21,7 +20,7 @@ use GraphQL\Validator\QueryValidationContext;
  *
  * @phpstan-import-type VisitorArray from Visitor
  *
- * @phpstan-type ASTAndDefs ArrayObject<string, ArrayObject<int, array{FieldNode, FieldDefinition|null}>>
+ * @phpstan-type ASTAndDefs \ArrayObject<string, \ArrayObject<int, array{FieldNode, FieldDefinition|null}>>
  */
 abstract class QuerySecurityRule extends ValidationRule
 {

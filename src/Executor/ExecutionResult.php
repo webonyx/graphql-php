@@ -2,8 +2,6 @@
 
 namespace GraphQL\Executor;
 
-use function array_map;
-
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;

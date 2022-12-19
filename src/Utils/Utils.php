@@ -7,8 +7,6 @@ use GraphQL\Error\Warning;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
 
-use function ord;
-
 class Utils
 {
     public static function undefined(): \stdClass

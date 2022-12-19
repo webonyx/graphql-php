@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Executor\Promise;
 
-use Exception;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Tests\TestCaseBase;
 
@@ -188,7 +187,7 @@ class SyncPromiseTest extends TestCaseBase
     }
 
     /**
-     * @return iterable<array{Exception, ?callable, ?string, ?string, string}>
+     * @return iterable<array{\Exception, ?callable, ?string, ?string, string}>
      */
     public function rejectedPromiseData(): iterable
     {

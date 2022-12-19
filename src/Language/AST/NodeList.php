@@ -2,15 +2,13 @@
 
 namespace GraphQL\Language\AST;
 
-use ArrayAccess;
 use GraphQL\Utils\AST;
-use IteratorAggregate;
 
 /**
  * @template T of Node
  *
- * @phpstan-implements ArrayAccess<array-key, T>
- * @phpstan-implements IteratorAggregate<array-key, T>
+ * @phpstan-implements \ArrayAccess<array-key, T>
+ * @phpstan-implements \IteratorAggregate<array-key, T>
  */
 class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 {
