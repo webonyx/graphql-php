@@ -18,18 +18,16 @@ use function React\Promise\resolve;
 /**
  * @group ReactPromise
  */
-class ReactPromiseAdapterTest extends TestCase
+final class ReactPromiseAdapterTest extends TestCase
 {
     public function testIsThenableReturnsTrueWhenAReactPromiseIsGiven(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
 
-        self::assertTrue(
-            $reactAdapter->isThenable(new ReactPromise(static function (): void {
-            }))
-        );
+        self::assertTrue($reactAdapter->isThenable(new ReactPromise(static fn () => null)));
         self::assertTrue($reactAdapter->isThenable(resolve()));
         self::assertTrue($reactAdapter->isThenable(reject()));
+        self::assertFalse($reactAdapter->isThenable(static fn () => null));
         self::assertFalse($reactAdapter->isThenable(false));
         self::assertFalse($reactAdapter->isThenable(true));
         self::assertFalse($reactAdapter->isThenable(1));
@@ -57,7 +55,6 @@ class ReactPromiseAdapterTest extends TestCase
         $promise = $reactAdapter->convertThenable($reactPromise);
 
         $result = null;
-
         $resultPromise = $reactAdapter->then(
             $promise,
             static function ($value) use (&$result): void {
@@ -79,7 +76,6 @@ class ReactPromiseAdapterTest extends TestCase
         self::assertInstanceOf(Promise::class, $resolvedPromise->adoptedPromise);
 
         $result = null;
-
         $resolvedPromise->then(static function ($value) use (&$result): void {
             $result = $value;
         });
@@ -95,7 +91,6 @@ class ReactPromiseAdapterTest extends TestCase
         self::assertInstanceOf(FulfilledPromise::class, $fulfilledPromise->adoptedPromise);
 
         $result = null;
-
         $fulfilledPromise->then(static function ($value) use (&$result): void {
             $result = $value;
         });
@@ -111,7 +106,6 @@ class ReactPromiseAdapterTest extends TestCase
         self::assertInstanceOf(RejectedPromise::class, $rejectedPromise->adoptedPromise);
 
         $exception = null;
-
         $rejectedPromise->then(
             null,
             static function ($error) use (&$exception): void {
@@ -119,7 +113,7 @@ class ReactPromiseAdapterTest extends TestCase
             }
         );
 
-        self::assertInstanceOf('\Exception', $exception);
+        self::assertInstanceOf(\Exception::class, $exception);
         self::assertEquals('I am a bad promise', $exception->getMessage());
     }
 
@@ -133,7 +127,6 @@ class ReactPromiseAdapterTest extends TestCase
         self::assertInstanceOf(FulfilledPromise::class, $allPromise->adoptedPromise);
 
         $result = null;
-
         $allPromise->then(static function ($values) use (&$result): void {
             $result = $values;
         });
@@ -146,8 +139,8 @@ class ReactPromiseAdapterTest extends TestCase
         $reactAdapter = new ReactPromiseAdapter();
         $deferred = new Deferred();
         $promises = [resolve(1), $deferred->promise(), resolve(3)];
-        $result = null;
 
+        $result = null;
         $reactAdapter->all($promises)->then(static function ($values) use (&$result): void {
             $result = $values;
         });
