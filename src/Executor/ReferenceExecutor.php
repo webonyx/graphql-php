@@ -275,7 +275,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed $rootValue
      *
-     * @return array<mixed>|Promise<null|mixed>|\stdClass|null
+     * @return array<mixed>|Promise<mixed|null>|\stdClass|null
      */
     protected function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
@@ -680,7 +680,7 @@ class ReferenceExecutor implements ExecutorImplementation
         FieldDefinition $fieldDef,
         FieldNode $fieldNode,
         callable $resolveFn,
-                        $rootValue,
+        $rootValue,
         ResolveInfo $info
     ) {
         try {
@@ -886,6 +886,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * otherwise returns null.
      *
      * @param mixed $value
+     *
      * @return Promise<mixed>
      */
     protected function getPromise($value): ?Promise
@@ -1185,7 +1186,7 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
-                   $result,
+        $result,
         \ArrayObject $fieldNodes
     ): Error {
         $safeResult = Utils::printSafe($result);
