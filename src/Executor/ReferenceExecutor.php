@@ -233,27 +233,36 @@ class ReferenceExecutor implements ExecutorImplementation
         // be executed. An execution which encounters errors will still result in a
         // resolved Promise.
         $data = $this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue);
-
-        if ($data instanceof Promise) {
-            $data = $data->then(fn ($resolved) => $this->buildResponse($resolved));
-        }
+        $result = $this->buildResponse($data);
 
         // Note: we deviate here from the reference implementation a bit by always returning promise
         // But for the "sync" case it is always fulfilled
 
-        $promise = $this->getPromise($data);
+        $promise = $this->getPromise($result);
         if ($promise !== null) {
-            return $promise->then(fn ($resolved) => $this->buildResponse($resolved));
+            return $promise;
         }
 
-        return $this->exeContext->promiseAdapter->createFulfilled($data);
+        return $this->exeContext->promiseAdapter->createFulfilled($result);
     }
 
     /**
      * @param mixed $data
+     *
+     * @return ExecutionResult|Promise<ExecutionResult>
      */
-    protected function buildResponse($data): ExecutionResult
+    protected function buildResponse($data)
     {
+        if ($data instanceof Promise) {
+            return $data->then(fn ($resolved) => $this->buildResponse($resolved));
+        }
+
+        $promiseAdapter = $this->exeContext->promiseAdapter;
+        if ($promiseAdapter->isThenable($data)) {
+            return $promiseAdapter->convertThenable($data)
+                ->then(fn ($resolved) => $this->buildResponse($resolved));
+        }
+
         if ($data !== null) {
             $data = (array) $data;
         }
@@ -266,7 +275,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed $rootValue
      *
-     * @return Promise<array<string, mixed>>|Promise<null>|array<string, mixed>|\stdClass|null
+     * @return array<mixed>|Promise<null|mixed>|\stdClass|null
      */
     protected function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
@@ -299,7 +308,7 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * @param mixed $error
      *
-     * @return Promise<null>
+     * @return Promise<null>|null
      */
     public function onError($error): ?Promise
     {
@@ -508,7 +517,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @phpstan-param Fields $fields
      *
-     * @return Promise<array<mixed>>|Promise<\stdClass>|array<mixed>|\stdClass
+     * @return array<string, mixed>|Promise<array<string, mixed>>|\stdClass
      */
     protected function executeFieldsSerially(ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
     {
@@ -671,7 +680,7 @@ class ReferenceExecutor implements ExecutorImplementation
         FieldDefinition $fieldDef,
         FieldNode $fieldNode,
         callable $resolveFn,
-        $rootValue,
+                        $rootValue,
         ResolveInfo $info
     ) {
         try {
@@ -701,7 +710,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed                       $result
      *
-     * @return Promise<array<string, mixed>>|Promise<null>|array<string, mixed>|\stdClass|null
+     * @return array<string, mixed>|Promise<array<string, mixed>>|\stdClass|null
      */
     protected function completeValueCatchingError(
         Type $returnType,
@@ -791,7 +800,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @throws Error
      * @throws \Throwable
      *
-     * @return array<mixed>|mixed|Promise|null
+     * @return array<mixed>|mixed|Promise<mixed|array<mixed>>|null
      */
     protected function completeValue(
         Type $returnType,
@@ -876,11 +885,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * Only returns the value if it acts like a Promise, i.e. has a "then" function,
      * otherwise returns null.
      *
-     * @template T
-     *
-     * @param T $value
-     *
-     * @return (T === null || T instanceof Promise ? T : (Promise<T>|null))
+     * @param mixed $value
+     * @return Promise<mixed>
      */
     protected function getPromise($value): ?Promise
     {
@@ -934,7 +940,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws \Exception
      *
-     * @return Promise<array<int, mixed>>|array<int, mixed>|\stdClass
+     * @return array<mixed>|Promise<array<mixed>>|\stdClass
      */
     protected function completeListValue(
         ListOfType $returnType,
@@ -1001,7 +1007,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws Error
      *
-     * @return Promise<array<string, mixed>>|array<string, mixed>|\stdClass
+     * @return array<string, mixed>|Promise<array<string, mixed>>|\stdClass
      */
     protected function completeAbstractValue(
         AbstractType $returnType,
@@ -1124,7 +1130,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws Error
      *
-     * @return Promise<array<string, mixed>>|array<string, mixed>|\stdClass
+     * @return array<string, mixed>|Promise<array<string, mixed>>|\stdClass
      */
     protected function completeObjectValue(
         ObjectType $returnType,
@@ -1179,7 +1185,7 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
-        $result,
+                   $result,
         \ArrayObject $fieldNodes
     ): Error {
         $safeResult = Utils::printSafe($result);
@@ -1197,7 +1203,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws Error
      *
-     * @return Promise<array<string, mixed>>|array<string, mixed>|\stdClass
+     * @return array<string, mixed>|Promise<array<string, mixed>>|\stdClass
      */
     protected function collectAndExecuteSubfields(
         ObjectType $returnType,
