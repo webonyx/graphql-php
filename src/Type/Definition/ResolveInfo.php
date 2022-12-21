@@ -99,7 +99,7 @@ class ResolveInfo
      *
      * @api
      */
-    public ?OperationDefinitionNode $operation;
+    public OperationDefinitionNode $operation;
 
     /**
      * Array of variables passed to query execution.
@@ -128,7 +128,7 @@ class ResolveInfo
         Schema $schema,
         array $fragments,
         $rootValue,
-        ?OperationDefinitionNode $operation,
+        OperationDefinitionNode $operation,
         array $variableValues
     ) {
         $this->fieldDefinition = $fieldDefinition;
