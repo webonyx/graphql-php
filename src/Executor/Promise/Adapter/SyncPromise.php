@@ -16,8 +16,6 @@ use GraphQL\Error\InvariantViolation;
  * at least one $executor to start the promise chain.
  *
  * @template V
- *
- * @phpstan-type Executor callable(): V
  */
 class SyncPromise
 {
@@ -54,7 +52,7 @@ class SyncPromise
     }
 
     /**
-     * @param Executor|null $executor
+     * @param (callable(): V)|null $executor
      */
     public function __construct(?callable $executor = null)
     {

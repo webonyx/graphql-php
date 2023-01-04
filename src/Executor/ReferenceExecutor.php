@@ -885,9 +885,10 @@ class ReferenceExecutor implements ExecutorImplementation
      * Only returns the value if it acts like a Promise, i.e. has a "then" function,
      * otherwise returns null.
      *
-     * @param mixed $value
+     * @template V
+     * @param V $value
      *
-     * @return Promise<mixed>
+     * @return Promise<V>|null
      */
     protected function getPromise($value): ?Promise
     {

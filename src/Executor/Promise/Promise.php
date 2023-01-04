@@ -3,7 +3,6 @@
 namespace GraphQL\Executor\Promise;
 
 use Amp\Promise as AmpPromise;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use React\Promise\PromiseInterface as ReactPromise;
 
@@ -14,20 +13,16 @@ use React\Promise\PromiseInterface as ReactPromise;
  */
 class Promise
 {
-    /** @var SyncPromise<T>|ReactPromise|AmpPromise<mixed> */
+    /** @var SyncPromise<T>|ReactPromise|AmpPromise<T> */
     public $adoptedPromise;
 
     private PromiseAdapter $adapter;
 
     /**
-     * @param mixed $adoptedPromise
+     * @param SyncPromise<T>|ReactPromise|AmpPromise<T> $adoptedPromise
      */
     public function __construct($adoptedPromise, PromiseAdapter $adapter)
     {
-        if ($adoptedPromise instanceof self) {
-            throw new InvariantViolation('Expecting promise from adapted system, got ' . self::class);
-        }
-
         $this->adoptedPromise = $adoptedPromise;
         $this->adapter = $adapter;
     }
