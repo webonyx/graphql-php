@@ -886,6 +886,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * otherwise returns null.
      *
      * @template V
+     *
      * @param V $value
      *
      * @return Promise<V>|null
