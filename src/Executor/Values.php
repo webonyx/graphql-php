@@ -192,7 +192,7 @@ class Values
             return [];
         }
 
-        $argumentNodes    = $node->arguments;
+        $argumentNodes    = $node->arguments ?? [];
         $argumentValueMap = [];
         foreach ($argumentNodes as $argumentNode) {
             $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;
