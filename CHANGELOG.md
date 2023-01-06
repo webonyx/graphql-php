@@ -2,6 +2,11 @@
 
 #### Unreleased
 
+#### 14.11.9
+
+Fixed:
+- Accept AST where field arguments are not given
+
 #### 14.11.8
 
 Fixed:
