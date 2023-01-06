@@ -183,8 +183,11 @@ class Values
         /** @var array<string, ArgumentNodeValue> $argumentValueMap */
         $argumentValueMap = [];
 
-        foreach ($node->arguments as $argumentNode) {
-            $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;
+        // Might not be defined when an AST from JS is used
+        if (isset($node->arguments)) {
+            foreach ($node->arguments as $argumentNode) {
+                $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;
+            }
         }
 
         return static::getArgumentValuesForMap($def, $argumentValueMap, $variableValues, $node);
