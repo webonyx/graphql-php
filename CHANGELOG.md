@@ -9,6 +9,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.0.0
+
 ### Changed
 
 - PHP version required: 7.4+
@@ -147,67 +149,73 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
 - Remove alias `GraphQL\Utils\FindBreakingChanges`, use `GraphQL\Utils\BreakingChangesFinder`
 
-## 14.11.8
+## v14.11.9
+
+### Fixed
+
+- Accept AST where field arguments are not given
+
+## v14.11.8
 
 ### Fixed
 
 - Correct the broken 14.11.7 release - see https://github.com/webonyx/graphql-php/issues/1221
 
-## 14.11.7
+## v14.11.7
 
 ### Fixed
 
 - Fix PHP 8.2 deprecation of "static" in callables
 
-## 14.11.6
+## v14.11.6
 
 ### Fixed
 
 - Fix validation of modified sparse ASTs
 
-## 14.11.5
+## v14.11.5
 
 ### Fixed
 
 - Fix `extend()` to preserve `repeatable` (#931)
 
-## 14.11.4
+## v14.11.4
 
 ### Fixed
 
 - Fix repeatable directive validation for AST
 
-## 14.11.3
+## v14.11.3
 
 ### Fixed
 
 - Fix compatibility of more methods with native return type in PHP 8.1
 
-## 14.11.2
+## v14.11.2
 
 ### Fixed
 
 - Support non-JSON `ServerRequestInterface`
 
-## 14.11.1
+## v14.11.1
 
 ### Fixed
 
 - Fix compatibility of methods with native return type in PHP 8.1
 
-## 14.11.0
+## v14.11.0
 
 ### Added
 
 - Allow field definitions to be defined as any `iterable`, not just `array`
 
-## 14.10.0
+## v14.10.0
 
 ### Added
 
 - Make `IntType` constants `MAX_INT` and `MIN_INT` public
 
-## 14.9.0
+## v14.9.0
 
 ### Added
 
