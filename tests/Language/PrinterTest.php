@@ -167,17 +167,32 @@ class PrinterTest extends TestCaseBase
         $printed = Printer::doPrint($ast);
 
         $expected = <<<'EOT'
-query queryName($foo: ComplexType, $site: Site = MOBILE) {
+query queryName($foo: ComplexType, $site: Site = MOBILE) @onQuery {
   whoever123is: node(id: [123, 456]) {
     id
-    ... on User @defer {
+    ... on User @onInlineFragment {
       field2 {
         id
         alias: field1(first: 10, after: $foo) @include(if: $foo) {
           id
-          ...frag
+          ...frag @onFragmentSpread
         }
       }
+      
+      field3
+      field4
+      requiredField5: field5
+      requiredSelectionSet(first: 10) @directive {
+        field
+      }
+
+      unsetListItemsRequiredList: listField
+      requiredListItemsUnsetList: listField
+      requiredListItemsRequiredList: listField
+      unsetListItemsOptionalList: listField
+      optionalListItemsUnsetList: listField
+      optionalListItemsOptionalList: listField
+      multidimensionalList: listField
     }
     ... @skip(unless: $foo) {
       id
@@ -188,15 +203,18 @@ query queryName($foo: ComplexType, $site: Site = MOBILE) {
   }
 }
 
-mutation likeStory {
-  like(story: 123) @defer {
+mutation likeStory @onMutation {
+  like(story: 123) @onField {
     story {
-      id
+      id @onField
     }
   }
 }
 
-subscription StoryLikeSubscription($input: StoryLikeSubscribeInput) {
+subscription StoryLikeSubscription(
+  $input: StoryLikeSubscribeInput @onVariableDefinition
+)
+  @onSubscription {
   storyLikeSubscribe(input: $input) {
     story {
       likers {
@@ -209,15 +227,26 @@ subscription StoryLikeSubscription($input: StoryLikeSubscribeInput) {
   }
 }
 
-fragment frag on Friend {
-  foo(size: $size, bar: $b, obj: {key: "value", block: """
-    block string uses \"""
-  """})
+fragment frag on Friend @onFragmentDefinition {
+  foo(
+    size: $size
+    bar: $b
+    obj: {
+      key: "value"
+      block: """
+      block string uses \"""
+      """
+    }
+  )
 }
 
 {
-  unnamed(truthy: true, falsey: false, nullish: null)
+  unnamed(truthy: true, falsy: false, nullish: null)
   query
+}
+
+query {
+  __typename
 }
 
 EOT;
