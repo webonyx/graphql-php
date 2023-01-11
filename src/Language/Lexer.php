@@ -483,7 +483,7 @@ class Lexer
                             throw new SyntaxError(
                                 $this->source,
                                 $position - 1,
-                                'Invalid character escape sequence: \\u' . $hex
+                                "Invalid character escape sequence: \\u{$hex}"
                             );
                         }
 
@@ -515,10 +515,11 @@ class Lexer
                     case null:
                         continue 2;
                     default:
+                        $chr = Utils::chr($code);
                         throw new SyntaxError(
                             $this->source,
                             $this->position - 1,
-                            'Invalid character escape sequence: \\' . Utils::chr($code)
+                            "Invalid character escape sequence: \\{$chr}"
                         );
                 }
 
@@ -571,7 +572,7 @@ class Lexer
                         $line,
                         $col,
                         $prev,
-                        BlockString::dedentValue($value)
+                        BlockString::dedentBlockStringLines($value)
                     );
                 }
 

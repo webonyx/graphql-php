@@ -38,9 +38,9 @@ final class SchemaPrinterTest extends TestCase
     }
 
     /**
-     * @see it('prints kitchen sink without altering ast')
+     * @see it('prints kitchen sink without altering ast', () => {
      */
-    public function testPrintsKitchenSink(): void
+    public function testPrintsKitchenSinkWithoutAlteringAST(): void
     {
         $ast = Parser::parse(file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql'), ['noLocation' => true]);
 
@@ -64,19 +64,15 @@ of the `Foo` type.
 """
 type Foo implements Bar & Baz & Two {
   one: Type
-  """
-  This is a description of the `two` field.
-  """
+  """This is a description of the `two` field."""
   two(
-    """
-    This is a description of the `argument` argument.
-    """
+    """This is a description of the `argument` argument."""
     argument: InputType!
   ): Type
   three(argument: InputType, other: String): Int
   four(argument: String = "string"): String
   five(argument: [String] = ["string", "string"]): String
-  six(argument: InputType = {key: "value"}): Type
+  six(argument: InputType = { key: "value" }): Type
   seven(argument: Int = null): Type
 }
 

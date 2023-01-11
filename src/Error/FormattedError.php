@@ -6,6 +6,7 @@ use GraphQL\Executor\ExecutionResult;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\Utils;
 
 /**
  * This class is used for [default error formatting](error-handling.md).
@@ -82,17 +83,15 @@ class FormattedError
         $nextLineNum = (string) ($contextLine + 1);
         $padLen = \strlen($nextLineNum);
 
-        $lines = \preg_split('/\r\n|[\n\r]/', $source->body);
-        \assert(\is_array($lines), 'given the regex is valid');
-
-        $lines[0] = self::whitespace($source->locationOffset->column - 1) . $lines[0];
+        $lines = Utils::splitLines($source->body);
+        $lines[0] = self::spaces($source->locationOffset->column - 1) . $lines[0];
 
         $outputLines = [
             "{$source->name} ({$contextLine}:{$contextColumn})",
-            $line >= 2 ? (self::lpad($padLen, $prevLineNum) . ': ' . $lines[$line - 2]) : null,
-            self::lpad($padLen, $lineNum) . ': ' . $lines[$line - 1],
-            self::whitespace(2 + $padLen + $contextColumn - 1) . '^',
-            $line < \count($lines) ? self::lpad($padLen, $nextLineNum) . ': ' . $lines[$line] : null,
+            $line >= 2 ? (self::leftPad($padLen, $prevLineNum) . ': ' . $lines[$line - 2]) : null,
+            self::leftPad($padLen, $lineNum) . ': ' . $lines[$line - 1],
+            self::spaces(2 + $padLen + $contextColumn - 1) . '^',
+            $line < \count($lines) ? self::leftPad($padLen, $nextLineNum) . ': ' . $lines[$line] : null,
         ];
 
         return \implode("\n", \array_filter($outputLines));
@@ -105,14 +104,14 @@ class FormattedError
             : 0;
     }
 
-    private static function whitespace(int $len): string
+    private static function spaces(int $length): string
     {
-        return \str_repeat(' ', $len);
+        return \str_repeat(' ', $length);
     }
 
-    private static function lpad(int $len, string $str): string
+    private static function leftPad(int $length, string $str): string
     {
-        return self::whitespace($len - \mb_strlen($str)) . $str;
+        return self::spaces($length - \mb_strlen($str)) . $str;
     }
 
     /**

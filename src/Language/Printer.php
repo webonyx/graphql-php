@@ -190,13 +190,26 @@ class Printer
                 );
 
             case $node instanceof FieldNode:
+                $prefix = $this->wrap('', $node->alias->value ?? null, ': ') . $this->p($node->name);
+
+                $argsLine = $prefix . $this->wrap(
+                    '(',
+                    $this->printList($node->arguments, ', '),
+                    ')'
+                );
+                if (strlen($argsLine) > 80) {
+                    $argsLine = $prefix . $this->wrap(
+                        "(\n",
+                        $this->indent(
+                            $this->printList($node->arguments, "\n")
+                        ),
+                        "\n)"
+                    );
+                }
+
                 return $this->join(
                     [
-                        $this->wrap('', $node->alias->value ?? null, ': ') . $this->p($node->name) . $this->wrap(
-                            '(',
-                            $this->printList($node->arguments, ', '),
-                            ')'
-                        ),
+                        $argsLine,
                         $this->printList($node->directives, ' '),
                         $this->p($node->selectionSet),
                     ],
@@ -343,7 +356,7 @@ class Printer
                 );
 
             case $node instanceof ObjectValueNode:
-                return '{' . $this->printList($node->fields, ', ') . '}';
+                return "{ {$this->printList($node->fields, ', ')} }";
 
             case $node instanceof OperationDefinitionNode:
                 $op = $node->operation;
@@ -354,7 +367,7 @@ class Printer
 
                 // Anonymous queries with no directives or variable definitions can use
                 // the query short form.
-                return (\strlen($name) === 0) && (\strlen($directives) === 0) && $varDefs === '' && $op === 'query'
+                return $name === '' && $directives === '' && $varDefs === '' && $op === 'query'
                     ? $selectionSet
                     : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
 
@@ -403,7 +416,7 @@ class Printer
 
             case $node instanceof StringValueNode:
                 if ($node->block) {
-                    return BlockString::print($node->value, $isDescription ? '' : '  ', true);
+                    return BlockString::print($node->value);
                 }
 
                 return \json_encode($node->value, JSON_THROW_ON_ERROR);
@@ -416,8 +429,8 @@ class Printer
                         'union',
                         $this->p($node->name),
                         $this->printList($node->directives, ' '),
-                        \strlen($typesStr) > 0
-                            ? '= ' . $typesStr
+                        $typesStr !== ''
+                            ? "= {$typesStr}"
                             : '',
                     ],
                     ' '
@@ -431,8 +444,8 @@ class Printer
                         'extend union',
                         $this->p($node->name),
                         $this->printList($node->directives, ' '),
-                        \strlen($typesStr) > 0
-                            ? '= ' . $typesStr
+                        $typesStr !== ''
+                            ? "= {$typesStr}"
                             : '',
                     ],
                     ' '
