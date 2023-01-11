@@ -12,7 +12,7 @@ class BlockString
      *
      * This implements the GraphQL spec's BlockStringValue() static algorithm.
      */
-    public static function dedentValue(string $rawString): string
+    public static function dedentBlockStringLines(string $rawString): string
     {
         $lines = Utils::splitLines($rawString);
 

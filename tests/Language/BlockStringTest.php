@@ -12,51 +12,202 @@ final class BlockStringTest extends TestCase
         return \implode("\n", $args);
     }
 
-    // describe('dedentBlockStringValue')
+    /**
+     * @see describe('dedentBlockStringLines', () => {
+     * @see it('handles empty string', () => {
+     */
+    public function testHandlesEmptyString(): void
+    {
+        self::assertSame(
+            '',
+            BlockString::dedentBlockStringLines('')
+        );
+    }
+
+    /**
+     * @see it('does not dedent first line', () => {
+     */
+    public function testDoesNotDedentFirstLine(): void
+    {
+        self::assertSame(
+            '  a',
+            BlockString::dedentBlockStringLines('  a')
+        );
+        self::assertSame(
+            <<<'GRAPHQL'
+             a
+            b
+            GRAPHQL,
+            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+             a
+              b
+            GRAPHQL
+            )
+        );
+    }
+
+    /**
+     * @see it('removes minimal indentation length', () => {
+     */
+    public function testRemovesMinimalIndentationLength(): void
+    {
+        self::assertSame(
+            <<<'GRAPHQL'
+            a
+             b
+            GRAPHQL,
+            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            
+             a
+              b
+            GRAPHQL
+            )
+        );
+        self::assertSame(
+            <<<'GRAPHQL'
+             a
+            b
+            GRAPHQL,
+            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            
+              a
+             b
+            GRAPHQL
+            )
+        );
+        self::assertSame(
+            <<<'GRAPHQL'
+              a
+             b
+            c
+            GRAPHQL,
+            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            
+              a
+             b
+            c
+            GRAPHQL
+            )
+        );
+    }
+
+    /**
+     * @see it('dedent both tab and space as single character', () => {
+     */
+    public function testDedentBothTabAndSpaceAsSingleCharacter(): void
+    {
+        self::assertSame(
+            <<<GRAPHQL
+            a
+                     b
+            GRAPHQL,
+            BlockString::dedentBlockStringLines("\n\ta\n          b")
+        );
+        self::assertSame(
+            <<<GRAPHQL
+            a
+                    b
+            GRAPHQL,
+            BlockString::dedentBlockStringLines("\n\t a\n          b")
+        );
+        self::assertSame(
+            <<<GRAPHQL
+            a
+                   b
+            GRAPHQL,
+            BlockString::dedentBlockStringLines("\n \t a\n          b")
+        );
+    }
+
+
+    /**
+     * @see it('dedent do not take empty lines into account', () => {
+     */
+    public function testDedentDoNotTakeEmptyLinesIntoAccount(): void
+    {
+        self::assertSame(
+            <<<'GRAPHQL'
+            a
+            
+            b
+            GRAPHQL,
+            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            a
+            
+             b
+            GRAPHQL
+            )
+        );
+        self::assertSame(
+            <<<'GRAPHQL'
+            a
+            
+            b
+            GRAPHQL,
+            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            a
+            
+              b
+            GRAPHQL
+            )
+        );
+    }
 
     /**
      * @see it('removes uniform indentation from a string')
      */
     public function testRemovesUniformIndentationFromAString(): void
     {
-        $rawValue = self::joinLines(
-            '',
-            '    Hello,',
-            '      World!',
-            '',
-            '    Yours,',
-            '      GraphQL.',
-        );
         self::assertSame(
-            self::joinLines('Hello,', '  World!', '', 'Yours,', '  GraphQL.'),
-            BlockString::dedentValue($rawValue)
+            <<<'GRAPHQL'
+            Hello,
+              World!
+            
+            Yours,
+              GraphQL.
+            GRAPHQL,
+            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            
+                Hello,
+                  World!
+            
+                Yours,
+                  GraphQL.
+            GRAPHQL
+            )
         );
     }
 
     /**
-     * @see it('removes empty leading and trailing lines')
+     * @see it('removes empty leading and trailing lines', () => {
      */
     public function testRemovesEmptyLeadingAndTrailingLines(): void
     {
-        $rawValue = self::joinLines(
-            '',
-            '',
-            '    Hello,',
-            '      World!',
-            '',
-            '    Yours,',
-            '      GraphQL.',
-            '',
-            '',
-        );
         self::assertSame(
-            self::joinLines('Hello,', '  World!', '', 'Yours,', '  GraphQL.'),
-            BlockString::dedentValue($rawValue)
+            <<<'GRAPHQL'
+            Hello,
+              World!
+            
+            Yours,
+              GraphQL.
+            GRAPHQL,
+            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            
+            
+                Hello,
+                  World!
+            
+                Yours,
+                  GraphQL.
+            
+            
+            GRAPHQL
+            )
         );
     }
 
     /**
-     * @see it('removes blank leading and trailing lines')
+     * @see it('removes blank leading and trailing lines', () => {
      */
     public function testRemovesBlankLeadingAndTrailingLines(): void
     {
@@ -73,25 +224,33 @@ final class BlockStringTest extends TestCase
         );
         self::assertSame(
             self::joinLines('Hello,', '  World!', '', 'Yours,', '  GraphQL.'),
-            BlockString::dedentValue($rawValue)
+            BlockString::dedentBlockStringLines($rawValue)
         );
     }
 
     /**
-     * @see it('retains indentation from first line')
+     * @see it('retains indentation from first line', () => {
      */
     public function testRetainsIndentationFromFirstLine(): void
     {
-        $rawValue = self::joinLines(
-            '    Hello,',
-            '      World!',
-            '',
-            '    Yours,',
-            '      GraphQL.',
-        );
         self::assertSame(
-            self::joinLines('    Hello,', '  World!', '', 'Yours,', '  GraphQL.'),
-            BlockString::dedentValue($rawValue)
+            <<<'GRAPHQL'
+                Hello,
+              World!
+            
+            Yours,
+              GraphQL.
+            GRAPHQL,
+            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+                Hello,
+                  World!
+            
+                Yours,
+                  GraphQL.
+              
+                
+            GRAPHQL
+            )
         );
     }
 
@@ -117,7 +276,7 @@ final class BlockStringTest extends TestCase
                 'Yours,     ',
                 '  GraphQL. ',
             ),
-            BlockString::dedentValue($rawValue)
+            BlockString::dedentBlockStringLines($rawValue)
         );
     }
 
