@@ -157,9 +157,9 @@ class PrinterTest extends TestCaseBase
     }
 
     /**
-     * @see it('prints kitchen sink')
+     * @see it('prints kitchen sink without altering ast', () => {
      */
-    public function testPrintsKitchenSink(): void
+    public function testPrintsKitchenSinkWithoutAlteringAST(): void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $ast = Parser::parse($kitchenSink);

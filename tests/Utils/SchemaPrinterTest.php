@@ -472,6 +472,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
+    // TODO it('Prints schema with description', () => {
+    // TODO it('Omits schema of common names', () => {
+
     public function testSplitsArgsWithDescriptionsAcrossMultipleLines(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -933,6 +936,28 @@ final class SchemaPrinterTest extends TestCase
     }
 
     /**
+     * @see it('Prints a description with only whitespace', () => {
+     */
+    public function testPrintsADescriptionWithOnlyWhitespace(): void
+    {
+        $schema = $this->buildSingleFieldSchema([
+            'type' => Type::string(),
+            'description' => ' ',
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            type Query {
+              " "
+              singleField: String
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
+    /**
      * @see it('One-line prints a short description')
      */
     public function testOneLinePrintsAShortDescription(): void
@@ -954,6 +979,25 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
+    public function testEscapesOneLineDescription(): void
+    {
+        $schema = $this->buildSingleFieldSchema([
+            'type' => Type::string(),
+            'description' => 'foo\bar',
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            type Query {
+              "foo\\bar"
+              singleField: String
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
     /**
      * @see it('Print Introspection Schema')
      */
@@ -963,17 +1007,13 @@ final class SchemaPrinterTest extends TestCase
         $output = SchemaPrinter::printIntrospectionSchema($schema);
 
         $expected = <<<'GRAPHQL'
-      """
-      Directs the executor to include this field or fragment only when the `if` argument is true.
-      """
+      "Directs the executor to include this field or fragment only when the `if` argument is true."
       directive @include(
         "Included when true."
         if: Boolean!
       ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-      """
-      Directs the executor to skip this field or fragment when the `if` argument is true.
-      """
+      "Directs the executor to skip this field or fragment when the `if` argument is true."
       directive @skip(
         "Skipped when true."
         if: Boolean!
@@ -981,15 +1021,11 @@ final class SchemaPrinterTest extends TestCase
 
       "Marks an element of a GraphQL schema as no longer supported."
       directive @deprecated(
-        """
-        Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).
-        """
+        "Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https:\/\/commonmark.org\/)."
         reason: String = "No longer supported"
       ) on FIELD_DEFINITION | ENUM_VALUE
 
-      """
-      A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.
-      """
+      "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
       type __Schema {
         "A list of all types supported by this server."
         types: [__Type!]!
@@ -997,14 +1033,10 @@ final class SchemaPrinterTest extends TestCase
         "The type that query operations will be rooted at."
         queryType: __Type!
 
-        """
-        If this server supports mutation, the type that mutation operations will be rooted at.
-        """
+        "If this server supports mutation, the type that mutation operations will be rooted at."
         mutationType: __Type
 
-        """
-        If this server support subscription, the type that subscription operations will be rooted at.
-        """
+        "If this server support subscription, the type that subscription operations will be rooted at."
         subscriptionType: __Type
 
         "A list of all directives supported by this server."
@@ -1033,14 +1065,10 @@ final class SchemaPrinterTest extends TestCase
         "Indicates this type is a scalar."
         SCALAR
 
-        """
-        Indicates this type is an object. `fields` and `interfaces` are valid fields.
-        """
+        "Indicates this type is an object. `fields` and `interfaces` are valid fields."
         OBJECT
 
-        """
-        Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.
-        """
+        "Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields."
         INTERFACE
 
         "Indicates this type is a union. `possibleTypes` is a valid field."
@@ -1049,9 +1077,7 @@ final class SchemaPrinterTest extends TestCase
         "Indicates this type is an enum. `enumValues` is a valid field."
         ENUM
 
-        """
-        Indicates this type is an input object. `inputFields` is a valid field.
-        """
+        "Indicates this type is an input object. `inputFields` is a valid field."
         INPUT_OBJECT
 
         "Indicates this type is a list. `ofType` is a valid field."
@@ -1061,9 +1087,7 @@ final class SchemaPrinterTest extends TestCase
         NON_NULL
       }
 
-      """
-      Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.
-      """
+      "Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type."
       type __Field {
         name: String!
         description: String
@@ -1073,23 +1097,17 @@ final class SchemaPrinterTest extends TestCase
         deprecationReason: String
       }
 
-      """
-      Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.
-      """
+      "Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value."
       type __InputValue {
         name: String!
         description: String
         type: __Type!
 
-        """
-        A GraphQL-formatted string representing the default value for this input value.
-        """
+        "A GraphQL-formatted string representing the default value for this input value."
         defaultValue: String
       }
 
-      """
-      One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.
-      """
+      "One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string."
       type __EnumValue {
         name: String!
         description: String
@@ -1110,9 +1128,7 @@ final class SchemaPrinterTest extends TestCase
         args: [__InputValue!]!
       }
 
-      """
-      A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.
-      """
+      "A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies."
       enum __DirectiveLocation {
         "Location adjacent to a query operation."
         QUERY

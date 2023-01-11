@@ -211,27 +211,20 @@ class SchemaPrinter
             return '';
         }
 
-        $preferMultipleLines = \mb_strlen($description) > 70;
-        $blockString = BlockString::print($description, '', $preferMultipleLines);
         $prefix = $indentation !== '' && ! $firstInBlock
-            ? "\n" . $indentation
+            ? "\n{$indentation}"
             : $indentation;
 
-        return $prefix . \str_replace("\n", "\n" . $indentation, $blockString) . "\n";
-    }
-
-    protected static function printDescriptionWithComments(string $description, string $indentation, bool $firstInBlock): string
-    {
-        $comment = $indentation !== '' && ! $firstInBlock ? "\n" : '';
-        foreach (\explode("\n", $description) as $line) {
-            if ($line === '') {
-                $comment .= $indentation . "#\n";
-            } else {
-                $comment .= $indentation . '# ' . $line . "\n";
-            }
+        if (count(Utils::splitLines($description)) === 1) {
+            $description = \json_encode($description, JSON_THROW_ON_ERROR);
+        } else {
+            $description = BlockString::print($description);
+            $description = $indentation !== ''
+                ? \str_replace("\n", "\n{$indentation}", $description)
+                : $description;
         }
 
-        return $comment;
+        return "{$prefix}{$description}\n";
     }
 
     /**
