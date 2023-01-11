@@ -58,7 +58,8 @@ final class PrinterTest extends TestCaseBase
     {
         $queryAstShorthanded = Parser::parse('query { id, name }');
 
-        self::assertSame(<<<'GRAPHQL'
+        self::assertSame(
+            <<<'GRAPHQL'
       {
         id
         name
@@ -69,7 +70,8 @@ final class PrinterTest extends TestCaseBase
         );
 
         $mutationAst = Parser::parse('mutation { id, name }');
-        self::assertSame(<<<'GRAPHQL'
+        self::assertSame(
+            <<<'GRAPHQL'
       mutation {
         id
         name
@@ -82,7 +84,8 @@ final class PrinterTest extends TestCaseBase
         $queryAstWithArtifacts = Parser::parse(
             'query ($foo: TestType) @testDirective { id, name }'
         );
-        self::assertSame(<<<'GRAPHQL'
+        self::assertSame(
+            <<<'GRAPHQL'
       query ($foo: TestType) @testDirective {
         id
         name
@@ -95,7 +98,8 @@ final class PrinterTest extends TestCaseBase
         $mutationAstWithArtifacts = Parser::parse(
             'mutation ($foo: TestType) @testDirective { id, name }'
         );
-        self::assertSame(<<<'GRAPHQL'
+        self::assertSame(
+            <<<'GRAPHQL'
       mutation ($foo: TestType) @testDirective {
         id
         name
@@ -130,7 +134,8 @@ final class PrinterTest extends TestCaseBase
         $queryAstWithVariableDirective = Parser::parse(
             'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) { id }'
         );
-        self::assertSame(<<<'GRAPHQL'
+        self::assertSame(
+            <<<'GRAPHQL'
       query ($foo: TestType = { a: 123 } @testDirective(if: true) @test) {
         id
       }
@@ -148,7 +153,8 @@ final class PrinterTest extends TestCaseBase
         $queryASTWithMultipleArguments = Parser::parse(
             '{trip(wheelchair:false arriveBy:false){dateTime}}',
         );
-        self::assertSame(<<<'GRAPHQL'
+        self::assertSame(
+            <<<'GRAPHQL'
       {
         trip(wheelchair: false, arriveBy: false) {
           dateTime
@@ -168,7 +174,8 @@ final class PrinterTest extends TestCaseBase
         $queryASTWithMultipleArguments = Parser::parse(
             '{trip(wheelchair:false arriveBy:false includePlannedCancellations:true transitDistanceReluctance:2000){dateTime}}',
         );
-        self::assertSame(<<<'GRAPHQL'
+        self::assertSame(
+            <<<'GRAPHQL'
       {
         trip(
           wheelchair: false
@@ -225,7 +232,6 @@ fragment Foo($a: ComplexType, $b: Boolean = false) on TestType {
 }
 
 GRAPHQL
-
         );
     }
 

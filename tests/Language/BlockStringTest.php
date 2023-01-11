@@ -38,7 +38,8 @@ final class BlockStringTest extends TestCase
              a
             b
             GRAPHQL,
-            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            BlockString::dedentBlockStringLines(
+                <<<'GRAPHQL'
              a
               b
             GRAPHQL
@@ -56,7 +57,8 @@ final class BlockStringTest extends TestCase
             a
              b
             GRAPHQL,
-            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            BlockString::dedentBlockStringLines(
+                <<<'GRAPHQL'
             
              a
               b
@@ -68,7 +70,8 @@ final class BlockStringTest extends TestCase
              a
             b
             GRAPHQL,
-            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            BlockString::dedentBlockStringLines(
+                <<<'GRAPHQL'
             
               a
              b
@@ -81,7 +84,8 @@ final class BlockStringTest extends TestCase
              b
             c
             GRAPHQL,
-            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            BlockString::dedentBlockStringLines(
+                <<<'GRAPHQL'
             
               a
              b
@@ -119,7 +123,6 @@ final class BlockStringTest extends TestCase
         );
     }
 
-
     /**
      * @see it('dedent do not take empty lines into account', () => {
      */
@@ -131,7 +134,8 @@ final class BlockStringTest extends TestCase
             
             b
             GRAPHQL,
-            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            BlockString::dedentBlockStringLines(
+                <<<'GRAPHQL'
             a
             
              b
@@ -144,7 +148,8 @@ final class BlockStringTest extends TestCase
             
             b
             GRAPHQL,
-            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            BlockString::dedentBlockStringLines(
+                <<<'GRAPHQL'
             a
             
               b
@@ -166,7 +171,8 @@ final class BlockStringTest extends TestCase
             Yours,
               GraphQL.
             GRAPHQL,
-            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            BlockString::dedentBlockStringLines(
+                <<<'GRAPHQL'
             
                 Hello,
                   World!
@@ -191,7 +197,8 @@ final class BlockStringTest extends TestCase
             Yours,
               GraphQL.
             GRAPHQL,
-            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            BlockString::dedentBlockStringLines(
+                <<<'GRAPHQL'
             
             
                 Hello,
@@ -241,7 +248,8 @@ final class BlockStringTest extends TestCase
             Yours,
               GraphQL.
             GRAPHQL,
-            BlockString::dedentBlockStringLines(<<<'GRAPHQL'
+            BlockString::dedentBlockStringLines(
+                <<<'GRAPHQL'
                 Hello,
                   World!
             
@@ -337,7 +345,8 @@ final class BlockStringTest extends TestCase
     public function testDoNotEscapeCharacters(): void
     {
         $str = "\" \\ / \u{8} \f \n \r \t"; // \u{8} === \b
-        self::assertSame(<<<EOF
+        self::assertSame(
+            <<<EOF
             """
             {$str}
             """
@@ -361,7 +370,8 @@ final class BlockStringTest extends TestCase
     public function testByDefaultPrintBlockStringsEndingWithTripleQuotationAsMultiLine(): void
     {
         $str = 'triple quotation """';
-        self::assertSame(<<<EOF
+        self::assertSame(
+            <<<EOF
             """
             triple quotation \\"""
             """
@@ -385,7 +395,8 @@ final class BlockStringTest extends TestCase
     public function testCorrectlyPrintsSingleLineWithLeadingSpaceAndQuotation(): void
     {
         $str = '    space-led value "quoted string"';
-        self::assertSame(<<<'EOF'
+        self::assertSame(
+            <<<'EOF'
             """    space-led value "quoted string"
             """
             EOF,
@@ -399,7 +410,8 @@ final class BlockStringTest extends TestCase
     public function testCorrectlyPrintsSingleLineWithTrailingBackslash(): void
     {
         $str = 'backslash \\';
-        self::assertSame(<<<EOF
+        self::assertSame(
+            <<<EOF
             """
             backslash \\
             """
@@ -417,7 +429,8 @@ final class BlockStringTest extends TestCase
         no indent
          with indent
         EOF;
-        self::assertSame(<<<EOF
+        self::assertSame(
+            <<<EOF
             """
             no indent
              with indent

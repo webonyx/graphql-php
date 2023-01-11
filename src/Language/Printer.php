@@ -200,10 +200,10 @@ class Printer
                 if (strlen($argsLine) > 80) {
                     $argsLine = $prefix . $this->wrap(
                         "(\n",
-                            $this->indent(
-                                $this->printList($node->arguments, "\n")
-                            ),
-                            "\n)"
+                        $this->indent(
+                            $this->printList($node->arguments, "\n")
+                        ),
+                        "\n)"
                     );
                 }
 
