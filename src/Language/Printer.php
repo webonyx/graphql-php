@@ -356,7 +356,7 @@ class Printer
                 );
 
             case $node instanceof ObjectValueNode:
-                return '{' . $this->printList($node->fields, ', ') . '}';
+                return "{ {$this->printList($node->fields, ', ')} }";
 
             case $node instanceof OperationDefinitionNode:
                 $op = $node->operation;
