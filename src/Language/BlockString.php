@@ -99,7 +99,8 @@ class BlockString
      * trailing blank line. However, if a block string starts with whitespace and is
      * a single-line, adding a leading blank line would strip that whitespace.
      */
-    public static function print(string $value): string {
+    public static function print(string $value): string
+    {
         $escapedValue = str_replace('"""', '\\"""', $value);
 
         // Expand a block string's raw value into independent lines.
@@ -137,7 +138,7 @@ class BlockString
 
         // Format a multi-line block quote to account for leading space.
         $skipLeadingNewLine = $isSingleLine && \preg_match('/^\s/', $value) === 1;
-        if (($printAsMultipleLines && !$skipLeadingNewLine) || $forceLeadingNewLine) {
+        if (($printAsMultipleLines && ! $skipLeadingNewLine) || $forceLeadingNewLine) {
             $result .= "\n";
         }
 
