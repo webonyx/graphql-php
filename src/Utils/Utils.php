@@ -307,4 +307,17 @@ class Utils
 
         return null;
     }
+
+    /**
+     * Split a string that has either Unix, Windows or Mac style newlines into lines.
+     *
+     * @return list<string>
+     */
+    public static function splitLines(string $value): array
+    {
+        $lines = \preg_split("/\r\n|\r|\n/", $value);
+        assert(is_array($lines), 'given the regex is valid');
+
+        return $lines;
+    }
 }

@@ -24,79 +24,6 @@ use function Safe\file_get_contents;
 final class VisitorTest extends ValidatorTestCase
 {
     /**
-     * @see it('validates path argument')
-     */
-    public function testValidatesPathArgument(): void
-    {
-        $visited = [];
-
-        $ast = Parser::parse('{ a }', ['noLocation' => true]);
-
-        Visitor::visit(
-            $ast,
-            [
-                'enter' => function ($node, $key, $parent, $path) use ($ast, &$visited): void {
-                    $this->checkVisitorFnArgs($ast, \func_get_args());
-                    $visited[] = ['enter', $path];
-                },
-                'leave' => function ($node, $key, $parent, $path) use ($ast, &$visited): void {
-                    $this->checkVisitorFnArgs($ast, \func_get_args());
-                    $visited[] = ['leave', $path];
-                },
-            ]
-        );
-
-        $expected = [
-            ['enter', []],
-            ['enter', ['definitions', 0]],
-            ['enter', ['definitions', 0, 'selectionSet']],
-            ['enter', ['definitions', 0, 'selectionSet', 'selections', 0]],
-            ['enter', ['definitions', 0, 'selectionSet', 'selections', 0, 'name']],
-            ['leave', ['definitions', 0, 'selectionSet', 'selections', 0, 'name']],
-            ['leave', ['definitions', 0, 'selectionSet', 'selections', 0]],
-            ['leave', ['definitions', 0, 'selectionSet']],
-            ['leave', ['definitions', 0]],
-            ['leave', []],
-        ];
-
-        self::assertEquals($expected, $visited);
-    }
-
-    /**
-     * @see it('validates ancestors argument')
-     */
-    public function testValidatesAncestorsArgument(): void
-    {
-        $ast = Parser::parse('{ a }', ['noLocation' => true]);
-        $visitedNodes = [];
-
-        Visitor::visit($ast, [
-            'enter' => static function ($node, $key, $parent, $path, $ancestors) use (&$visitedNodes): void {
-                $inArray = \is_numeric($key);
-                if ($inArray) {
-                    $visitedNodes[] = $parent;
-                }
-
-                $visitedNodes[] = $node;
-
-                $expectedAncestors = \array_slice($visitedNodes, 0, -2);
-                self::assertEquals($expectedAncestors, $ancestors);
-            },
-            'leave' => static function ($node, $key, $parent, $path, $ancestors) use (&$visitedNodes): void {
-                $expectedAncestors = \array_slice($visitedNodes, 0, -2);
-                self::assertEquals($expectedAncestors, $ancestors);
-
-                $inArray = \is_numeric($key);
-                if ($inArray) {
-                    \array_pop($visitedNodes);
-                }
-
-                \array_pop($visitedNodes);
-            },
-        ]);
-    }
-
-    /**
      * @param array<int, mixed> $args
      */
     private function checkVisitorFnArgs(DocumentNode $ast, array $args, bool $isEdited = false): void
@@ -172,7 +99,93 @@ final class VisitorTest extends ValidatorTestCase
         return $result;
     }
 
-    public function testAllowsEditingNodeOnEnterAndOnLeave(): void
+    /**
+     * @see it('handles empty visitor', () => {
+     */
+    public function testHandlesEmptyVisitor(): void
+    {
+        $ast = Parser::parse('{ a }', ['noLocation' => true]);
+        Visitor::visit($ast, []);
+        $this->expectNotToPerformAssertions();
+    }
+
+    /**
+     * @see it('validates path argument')
+     */
+    public function testValidatesPathArgument(): void
+    {
+        $visited = [];
+
+        $ast = Parser::parse('{ a }', ['noLocation' => true]);
+
+        Visitor::visit(
+            $ast,
+            [
+                'enter' => function ($node, $key, $parent, $path) use ($ast, &$visited): void {
+                    $this->checkVisitorFnArgs($ast, \func_get_args());
+                    $visited[] = ['enter', $path];
+                },
+                'leave' => function ($node, $key, $parent, $path) use ($ast, &$visited): void {
+                    $this->checkVisitorFnArgs($ast, \func_get_args());
+                    $visited[] = ['leave', $path];
+                },
+            ]
+        );
+
+        $expected = [
+            ['enter', []],
+            ['enter', ['definitions', 0]],
+            ['enter', ['definitions', 0, 'selectionSet']],
+            ['enter', ['definitions', 0, 'selectionSet', 'selections', 0]],
+            ['enter', ['definitions', 0, 'selectionSet', 'selections', 0, 'name']],
+            ['leave', ['definitions', 0, 'selectionSet', 'selections', 0, 'name']],
+            ['leave', ['definitions', 0, 'selectionSet', 'selections', 0]],
+            ['leave', ['definitions', 0, 'selectionSet']],
+            ['leave', ['definitions', 0]],
+            ['leave', []],
+        ];
+
+        self::assertEquals($expected, $visited);
+    }
+
+    /**
+     * @see it('validates ancestors argument')
+     */
+    public function testValidatesAncestorsArgument(): void
+    {
+        $ast = Parser::parse('{ a }', ['noLocation' => true]);
+        $visitedNodes = [];
+
+        Visitor::visit($ast, [
+            'enter' => static function ($node, $key, $parent, $path, $ancestors) use (&$visitedNodes): void {
+                $inArray = \is_numeric($key);
+                if ($inArray) {
+                    $visitedNodes[] = $parent;
+                }
+
+                $visitedNodes[] = $node;
+
+                $expectedAncestors = \array_slice($visitedNodes, 0, -2);
+                self::assertEquals($expectedAncestors, $ancestors);
+            },
+            'leave' => static function ($node, $key, $parent, $path, $ancestors) use (&$visitedNodes): void {
+                $expectedAncestors = \array_slice($visitedNodes, 0, -2);
+                self::assertEquals($expectedAncestors, $ancestors);
+
+                $inArray = \is_numeric($key);
+                if ($inArray) {
+                    \array_pop($visitedNodes);
+                }
+
+                \array_pop($visitedNodes);
+            },
+        ]);
+    }
+
+    /**
+     * @see it('allows editing a node both on enter and on leave', () => {
+     */
+    public function testAllowsEditingANodeBothOnEnterAndOnLeave(): void
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
 
