@@ -28,7 +28,10 @@ class StoryType extends ObjectType
                     'type' => new ListOfType(Types::mention()),
                     'resolve' => static fn (Story $story): array => DataSource::findStoryMentions($story->id),
                 ],
-                'totalCommentCount' => ['type' => Types::int(), 'resolve' => static fn (Story $story): int => DataSource::countComments($story->id)],
+                'totalCommentCount' => [
+                    'type' => Types::int(),
+                    'resolve' => static fn (Story $story): int => DataSource::countComments($story->id),
+                ],
                 'comments' => [
                     'type' => new ListOfType(Types::comment()),
                     'args' => [
