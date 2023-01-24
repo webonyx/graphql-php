@@ -48,7 +48,7 @@ class CommentType extends ObjectType
                             'defaultValue' => 5,
                         ],
                     ],
-                    'resolve' => function (Comment $comment, array $args) {
+                    'resolve' => function (Comment $comment, array $args): array {
                         $args += ['after' => null];
 
                         return DataSource::findReplies($comment->id, $args['limit'], $args['after']);
