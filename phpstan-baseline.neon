@@ -99,9 +99,3 @@ parameters:
 			message: "#^Method GraphQL\\\\Tests\\\\Language\\\\VisitorTest\\:\\:getNodeByPath\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
 			count: 1
 			path: tests/Language/VisitorTest.php
-
-		-
-			message: "#^Property GraphQL\\\\Tests\\\\Type\\\\SchemaTest\\:\\:\\$implementingType is never read, only written\\.$#"
-			count: 1
-			path: tests/Type/SchemaTest.php
-
