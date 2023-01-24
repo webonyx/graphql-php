@@ -20,13 +20,10 @@ class CommentType extends ObjectType
                 'id' => Types::id(),
                 'author' => [
                     'type' => Types::user(),
-                    'resolve' => function (Comment $comment): ?User {
-                        if ($comment->isAnonymous) {
-                            return null;
-                        }
-
-                        return DataSource::findUser($comment->authorId);
-                    },
+                    'resolve' => static fn (Comment $comment): ?User =>
+						$comment->isAnonymous
+							? null
+							: DataSource::findUser($comment->authorId)
                 ],
                 'parent' => [
                     'type' => Types::comment(),
