@@ -26,16 +26,6 @@ parameters:
 			path: examples/01-blog/Blog/Type/StoryType.php
 
 		-
-			message: "#^Variable method call on \\$this\\(GraphQL\\\\Examples\\\\Blog\\\\Type\\\\UserType\\)\\.$#"
-			count: 1
-			path: examples/01-blog/Blog/Type/UserType.php
-
-		-
-			message: "#^Variable property access on mixed\\.$#"
-			count: 1
-			path: examples/01-blog/Blog/Type/UserType.php
-
-		-
 			message: "#^Variable static method call on GraphQL\\\\Examples\\\\Blog\\\\Types\\.$#"
 			count: 1
 			path: examples/01-blog/Blog/Types.php
