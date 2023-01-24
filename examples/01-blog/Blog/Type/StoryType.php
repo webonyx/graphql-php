@@ -20,7 +20,10 @@ class StoryType extends ObjectType
             'name' => 'Story',
             'fields' => static fn (): array => [
                 'id' => Types::id(),
-                'author' => ['type' => Types::user(), 'resolve' => static fn (Story $story): ?User => DataSource::findUser($story->authorId)],
+                'author' => [
+                    'type' => Types::user(),
+                    'resolve' => static fn (Story $story): ?User => DataSource::findUser($story->authorId),
+                ],
                 'mentions' => [
                     'type' => new ListOfType(Types::mention()),
                     'resolve' => static fn (Story $story): array => DataSource::findStoryMentions($story->id),
@@ -57,7 +60,10 @@ class StoryType extends ObjectType
                     ],
                     'resolve' => static fn (Story $story): array => DataSource::findLikes($story->id, 10),
                 ],
-                'likedBy' => ['type' => new ListOfType(Types::user()), 'resolve' => static fn (Story $story) => DataSource::findLikes($story->id, 10)],
+                'likedBy' => [
+                    'type' => new ListOfType(Types::user()),
+                    'resolve' => static fn (Story $story) => DataSource::findLikes($story->id, 10),
+                ],
                 'affordances' => [
                     'type' => new ListOfType(Types::storyAffordances()),
                     'resolve' => function (Story $story, array $args, AppContext $context): array {
@@ -71,8 +77,7 @@ class StoryType extends ObjectType
                             $affordances[] = StoryAffordancesType::DELETE;
                         }
 
-                        $isLiked = DataSource::isLikedBy($story->id, $context->viewer->id);
-                        $affordances[] = $isLiked
+                        $affordances[] = DataSource::isLikedBy($story->id, $context->viewer->id)
                             ? StoryAffordancesType::UNLIKE
                             : StoryAffordancesType::LIKE;
 
