@@ -48,8 +48,7 @@ class CommentType extends ObjectType
                 ],
                 'totalReplyCount' => [
                     'type' => Types::int(),
-                    'resolve' => static fn (Comment $comment): int =>
-                        DataSource::countReplies($comment->id)
+                    'resolve' => static fn (Comment $comment): int => DataSource::countReplies($comment->id),
                 ],
 
                 'body' => HtmlField::build([
