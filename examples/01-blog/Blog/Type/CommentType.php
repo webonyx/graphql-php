@@ -31,7 +31,7 @@ class CommentType extends ObjectType
 						? DataSource::findComment($comment->parentId)
 						: null
                 ],
-                'isAnonymous' => ['type' => Types::boolean(), 'resolve' => static fn (Comment $comment): bool => $comment->isAnonymous],
+                'isAnonymous' => Types::boolean(),
                 'replies' => [
                     'type' => new ListOfType(Types::comment()),
                     'args' => [
