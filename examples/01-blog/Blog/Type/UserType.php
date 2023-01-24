@@ -18,10 +18,7 @@ class UserType extends ObjectType
             'name' => 'User',
             'description' => 'Our blog authors',
             'fields' => static fn (): array => [
-                'id' => [
-                    'type' => Types::id(),
-                    'resolve' => static fn (User $user): int => $user->id,
-                ],
+                'id' => Types::id(),
                 'email' => [
                     'type' => Types::email(),
                     'resolve' => static fn (User $user): string => $user->email,
