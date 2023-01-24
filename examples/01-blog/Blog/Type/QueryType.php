@@ -2,7 +2,6 @@
 
 namespace GraphQL\Examples\Blog\Type;
 
-use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
@@ -10,7 +9,6 @@ use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 
 class QueryType extends ObjectType
@@ -26,6 +24,7 @@ class QueryType extends ObjectType
                     'args' => [
                         'id' => new NonNull(Types::id()),
                     ],
+                    'resolve' => static fn ($rootValue, array $args): ?User => DataSource::findUser((int) $args['id']),
                 ],
                 'viewer' => [
                     'type' => Types::user(),
@@ -45,14 +44,22 @@ class QueryType extends ObjectType
                             'defaultValue' => 10,
                         ],
                     ],
+                    'resolve' => static fn ($rootValue, $args): array => DataSource::findStories(
+                        $args['limit'],
+                        isset($args['after'])
+                            ? (int) $args['after']
+                            : null
+                    ),
                 ],
                 'lastStoryPosted' => [
                     'type' => Types::story(),
                     'description' => 'Returns last story posted for this blog',
+                    'resolve' => static fn (): ?Story => DataSource::findLatestStory(),
                 ],
                 'deprecatedField' => [
                     'type' => Types::string(),
                     'deprecationReason' => 'This field is deprecated!',
+                    'resolve' => static fn (): string => 'You can request deprecated field, but it is not displayed in auto-generated documentation by default.',
                 ],
                 'fieldWithException' => [
                     'type' => Types::string(),
@@ -60,58 +67,11 @@ class QueryType extends ObjectType
                         throw new \Exception('Exception message thrown in field resolver');
                     },
                 ],
-                'hello' => Type::string(),
+                'hello' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (): string => 'Your graphql-php endpoint is ready! Use a GraphQL client to explore the schema.',
+                ],
             ],
-            'resolveField' => fn ($rootValue, array $args, $context, ResolveInfo $info) => $this->{$info->fieldName}($rootValue, $args, $context, $info),
         ]);
-    }
-
-    /**
-     * @param null              $rootValue
-     * @param array{id: string} $args
-     */
-    public function user($rootValue, array $args): ?User
-    {
-        return DataSource::findUser((int) $args['id']);
-    }
-
-    /**
-     * @param null         $rootValue
-     * @param array<never> $args
-     */
-    public function viewer($rootValue, array $args, AppContext $context): User
-    {
-        return $context->viewer;
-    }
-
-    /**
-     * @param null                              $rootValue
-     * @param array{limit: int, after?: string} $args
-     *
-     * @return array<int, Story>
-     */
-    public function stories($rootValue, array $args): array
-    {
-        return DataSource::findStories(
-            $args['limit'],
-            isset($args['after'])
-                ? (int) $args['after']
-                : null
-        );
-    }
-
-    public function lastStoryPosted(): ?Story
-    {
-        return DataSource::findLatestStory();
-    }
-
-    public function hello(): string
-    {
-        return 'Your graphql-php endpoint is ready! Use a GraphQL client to explore the schema.';
-    }
-
-    public function deprecatedField(): string
-    {
-        return 'You can request deprecated field, but it is not displayed in auto-generated documentation by default.';
     }
 }

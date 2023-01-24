@@ -9,7 +9,6 @@ use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ResolveInfo;
 
 class UserType extends ObjectType
 {
@@ -27,14 +26,14 @@ class UserType extends ObjectType
                     'args' => [
                         'size' => new NonNull(Types::imageSize()),
                     ],
+                    'resolve' => static fn (User $user, array $args): Image => DataSource::getUserPhoto($user->id, $args['size']),
                 ],
-                'firstName' => [
-                    'type' => Types::string(),
+                'firstName' => Types::string(),
+                'lastName' => Types::string(),
+                'lastStoryPosted' => [
+                    'type' => Types::story(),
+                    'resolve' => static fn (User $user): ?Story => DataSource::findLastStoryFor($user->id),
                 ],
-                'lastName' => [
-                    'type' => Types::string(),
-                ],
-                'lastStoryPosted' => Types::story(),
                 'fieldWithError' => [
                     'type' => Types::string(),
                     'resolve' => static function (): void {
@@ -43,29 +42,6 @@ class UserType extends ObjectType
                 ],
             ],
             'interfaces' => [Types::node()],
-            'resolveField' => function ($user, $args, $context, ResolveInfo $info) {
-                $fieldName = $info->fieldName;
-
-                $method = 'resolve' . \ucfirst($fieldName);
-                if (\method_exists($this, $method)) {
-                    return $this->{$method}($user, $args, $context, $info);
-                }
-
-                return $user->{$fieldName};
-            },
         ]);
-    }
-
-    /**
-     * @param array{size: string} $args
-     */
-    public function resolvePhoto(User $user, array $args): Image
-    {
-        return DataSource::getUserPhoto($user->id, $args['size']);
-    }
-
-    public function resolveLastStoryPosted(User $user): ?Story
-    {
-        return DataSource::findLastStoryFor($user->id);
     }
 }
