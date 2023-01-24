@@ -28,8 +28,8 @@ class HtmlField
                 ],
                 'maxLength' => Types::int(),
             ],
-            'resolve' => static function ($value, $args) use ($config) {
-                $html = $config['resolve']($value, $args);
+            'resolve' => static function ($rootValue, array $args) use ($config): ?string {
+                $html = $config['resolve']($rootValue, $args);
                 $text = \strip_tags($html);
 
                 if (isset($args['maxLength'])) {
