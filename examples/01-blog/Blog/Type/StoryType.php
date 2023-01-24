@@ -18,7 +18,7 @@ class StoryType extends ObjectType
         parent::__construct([
             'name' => 'Story',
             'fields' => static fn (): array => [
-                'id' => ['type' => Types::id(), 'resolve' => static fn (Story $story): int => $story->id],
+                'id' => Types::id(),
                 'author' => ['type' => Types::user(), 'resolve' => static fn (Story $story): ?User => DataSource::findUser($story->authorId)],
                 'mentions' => [
                     'type' => new ListOfType(Types::mention()),
