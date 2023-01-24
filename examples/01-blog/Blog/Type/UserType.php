@@ -6,9 +6,12 @@ use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
-use GraphQL\Examples\Blog\Types;
+use GraphQL\Examples\Blog\Type\Enum\ImageSizeType;
+use GraphQL\Examples\Blog\Type\Scalar\EmailType;
+use GraphQL\Examples\Blog\TypeRegistry;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 
 class UserType extends ObjectType
 {
@@ -18,30 +21,30 @@ class UserType extends ObjectType
             'name' => 'User',
             'description' => 'Our blog authors',
             'fields' => static fn (): array => [
-                'id' => Types::id(),
-                'email' => Types::email(),
+                'id' => Type::id(),
+                'email' => TypeRegistry::type(EmailType::class),
                 'photo' => [
-                    'type' => Types::image(),
+                    'type' => TypeRegistry::type(ImageType::class),
                     'description' => 'User photo URL',
                     'args' => [
-                        'size' => new NonNull(Types::imageSize()),
+                        'size' => new NonNull(TypeRegistry::type(ImageSizeType::class)),
                     ],
                     'resolve' => static fn (User $user, array $args): Image => DataSource::getUserPhoto($user->id, $args['size']),
                 ],
-                'firstName' => Types::string(),
-                'lastName' => Types::string(),
+                'firstName' => Type::string(),
+                'lastName' => Type::string(),
                 'lastStoryPosted' => [
-                    'type' => Types::story(),
+                    'type' => TypeRegistry::type(StoryType::class),
                     'resolve' => static fn (User $user): ?Story => DataSource::findLastStoryFor($user->id),
                 ],
                 'fieldWithError' => [
-                    'type' => Types::string(),
+                    'type' => Type::string(),
                     'resolve' => static function (): void {
                         throw new \Exception('This is error field');
                     },
                 ],
             ],
-            'interfaces' => [Types::node()],
+            'interfaces' => [TypeRegistry::type(NodeType::class)],
         ]);
     }
 }

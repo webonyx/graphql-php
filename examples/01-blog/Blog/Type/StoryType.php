@@ -8,9 +8,10 @@ use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Type\Enum\StoryAffordancesType;
 use GraphQL\Examples\Blog\Type\Field\HtmlField;
-use GraphQL\Examples\Blog\Types;
+use GraphQL\Examples\Blog\TypeRegistry;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 
 class StoryType extends ObjectType
 {
@@ -19,28 +20,28 @@ class StoryType extends ObjectType
         parent::__construct([
             'name' => 'Story',
             'fields' => static fn (): array => [
-                'id' => Types::id(),
+                'id' => Type::id(),
                 'author' => [
-                    'type' => Types::user(),
+                    'type' => TypeRegistry::type(UserType::class),
                     'resolve' => static fn (Story $story): ?User => DataSource::findUser($story->authorId),
                 ],
                 'mentions' => [
-                    'type' => new ListOfType(Types::mention()),
+                    'type' => new ListOfType(TypeRegistry::type(SearchResultType::class)),
                     'resolve' => static fn (Story $story): array => DataSource::findStoryMentions($story->id),
                 ],
                 'totalCommentCount' => [
-                    'type' => Types::int(),
+                    'type' => Type::int(),
                     'resolve' => static fn (Story $story): int => DataSource::countComments($story->id),
                 ],
                 'comments' => [
-                    'type' => new ListOfType(Types::comment()),
+                    'type' => new ListOfType(TypeRegistry::type(CommentType::class)),
                     'args' => [
                         'after' => [
-                            'type' => Types::id(),
+                            'type' => Type::id(),
                             'description' => 'Load all comments listed after given comment ID',
                         ],
                         'limit' => [
-                            'type' => Types::int(),
+                            'type' => Type::int(),
                             'defaultValue' => 5,
                         ],
                     ],
@@ -53,10 +54,10 @@ class StoryType extends ObjectType
                     ),
                 ],
                 'likes' => [
-                    'type' => new ListOfType(Types::user()),
+                    'type' => new ListOfType(TypeRegistry::type(UserType::class)),
                     'args' => [
                         'limit' => [
-                            'type' => Types::int(),
+                            'type' => Type::int(),
                             'description' => 'Limit the number of recent likes returned',
                             'defaultValue' => 5,
                         ],
@@ -64,11 +65,11 @@ class StoryType extends ObjectType
                     'resolve' => static fn (Story $story): array => DataSource::findLikes($story->id, 10),
                 ],
                 'likedBy' => [
-                    'type' => new ListOfType(Types::user()),
+                    'type' => new ListOfType(TypeRegistry::type(UserType::class)),
                     'resolve' => static fn (Story $story) => DataSource::findLikes($story->id, 10),
                 ],
                 'affordances' => [
-                    'type' => new ListOfType(Types::storyAffordances()),
+                    'type' => new ListOfType(TypeRegistry::type(StoryAffordancesType::class)),
                     'resolve' => function (Story $story, array $args, AppContext $context): array {
                         /** @var array<int, string> $affordances */
                         $affordances = [];
@@ -88,14 +89,14 @@ class StoryType extends ObjectType
                     },
                 ],
                 'hasViewerLiked' => [
-                    'type' => Types::boolean(),
+                    'type' => Type::boolean(),
                     'resolve' => static fn (Story $story, array $args, AppContext $context): bool => DataSource::isLikedBy($story->id, $context->viewer->id),
                 ],
                 'body' => HtmlField::build([
                     'resolve' => static fn (Story $story): string => $story->body,
                 ]),
             ],
-            'interfaces' => [Types::node()],
+            'interfaces' => [TypeRegistry::type(NodeType::class)],
         ]);
     }
 }

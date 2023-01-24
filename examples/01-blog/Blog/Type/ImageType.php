@@ -4,10 +4,13 @@ namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\Image;
-use GraphQL\Examples\Blog\Types;
+use GraphQL\Examples\Blog\Type\Enum\ImageSizeType;
+use GraphQL\Examples\Blog\Type\Scalar\UrlType;
+use GraphQL\Examples\Blog\TypeRegistry;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Type\Definition\Type;
 
 class ImageType extends ObjectType
 {
@@ -16,24 +19,24 @@ class ImageType extends ObjectType
         parent::__construct([
             'name' => 'Image',
             'fields' => [
-                'id' => Types::id(),
-                'size' => Types::imageSize(),
-                'width' => Types::int(),
-                'height' => Types::int(),
+                'id' => Type::id(),
+                'size' => TypeRegistry::type(ImageSizeType::class),
+                'width' => Type::int(),
+                'height' => Type::int(),
                 'url' => [
-                    'type' => Types::url(),
+                    'type' => TypeRegistry::type(UrlType::class),
                     'resolve' => [$this, 'resolveUrl'],
                 ],
 
                 // Just for the sake of example
                 'fieldWithError' => [
-                    'type' => Types::string(),
+                    'type' => Type::string(),
                     'resolve' => static function (): void {
                         throw new \Exception('Field with exception');
                     },
                 ],
                 'nonNullFieldWithError' => [
-                    'type' => new NonNull(Types::string()),
+                    'type' => new NonNull(Type::string()),
                     'resolve' => static function (): void {
                         throw new \Exception('Non-null field with exception');
                     },
