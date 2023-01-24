@@ -9,7 +9,6 @@ use GraphQL\Examples\Blog\Type\Field\HtmlField;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ResolveInfo;
 
 class CommentType extends ObjectType
 {
@@ -39,7 +38,7 @@ class CommentType extends ObjectType
                         return null;
                     },
                 ],
-                'isAnonymous' => ['type' => Types::boolean(), 'resolve' => static fn(Comment $comment): bool => $comment->isAnonymous],
+                'isAnonymous' => ['type' => Types::boolean(), 'resolve' => static fn (Comment $comment): bool => $comment->isAnonymous],
                 'replies' => [
                     'type' => new ListOfType(Types::comment()),
                     'args' => [
@@ -63,7 +62,7 @@ class CommentType extends ObjectType
                 ],
 
                 'body' => HtmlField::build('body'),
-            ]
+            ],
         ]);
     }
 }
