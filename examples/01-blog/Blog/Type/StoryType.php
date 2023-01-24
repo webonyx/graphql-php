@@ -72,11 +72,9 @@ class StoryType extends ObjectType
                         }
 
                         $isLiked = DataSource::isLikedBy($story->id, $context->viewer->id);
-                        if ($isLiked) {
-                            $affordances[] = StoryAffordancesType::UNLIKE;
-                        } else {
-                            $affordances[] = StoryAffordancesType::LIKE;
-                        }
+                        $affordances[] = $isLiked
+                            ? StoryAffordancesType::UNLIKE
+                            : StoryAffordancesType::LIKE;
 
                         return $affordances;
                     },
