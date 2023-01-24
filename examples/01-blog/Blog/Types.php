@@ -118,22 +118,24 @@ final class Types
     public static function byTypeName(string $shortName): Type
     {
         $cacheName = \strtolower($shortName);
-        $type = null;
 
         if (isset(self::$types[$cacheName])) {
             return self::$types[$cacheName];
         }
 
         $method = \lcfirst($shortName);
-        if (\method_exists(self::class, $method)) {
-            $type = self::{$method}();
+        switch ($method) {
+            case 'boolean':
+                return self::boolean();
+            case 'float':
+                return self::float();
+            case 'id':
+                return self::id();
+            case 'int':
+                return self::int();
         }
 
-        if (! $type) {
-            throw new \Exception("Unknown graphql type: {$shortName}");
-        }
-
-        return $type;
+        throw new \Exception("Unknown graphql type: {$shortName}");
     }
 
     public static function boolean(): ScalarType
