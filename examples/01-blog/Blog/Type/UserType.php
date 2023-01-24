@@ -28,14 +28,8 @@ class UserType extends ObjectType
                     ],
                     'resolve' => static fn (User $user, array $args): Image => DataSource::getUserPhoto($user->id, $args['size']),
                 ],
-                'firstName' => [
-                    'type' => Types::string(),
-                    'resolve' => static fn (User $user): string => $user->firstName,
-                ],
-                'lastName' => [
-                    'type' => Types::string(),
-                    'resolve' => static fn (User $user): string => $user->lastName,
-                ],
+                'firstName' => Types::string(),
+                'lastName' => Types::string(),
                 'lastStoryPosted' => [
                     'type' => Types::story(),
                     'resolve' => static fn (User $user): ?Story => DataSource::findLastStoryFor($user->id),
