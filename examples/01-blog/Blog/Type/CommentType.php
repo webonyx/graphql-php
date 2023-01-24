@@ -19,8 +19,26 @@ class CommentType extends ObjectType
             'name' => 'Comment',
             'fields' => static fn (): array => [
                 'id' => Types::id(),
-                'author' => Types::user(),
-                'parent' => Types::comment(),
+                'author' => [
+                    'type' => Types::user(),
+                    'resolve' => function (Comment $comment): ?User {
+                        if ($comment->isAnonymous) {
+                            return null;
+                        }
+
+                        return DataSource::findUser($comment->authorId);
+                    },
+                ],
+                'parent' => [
+                    'type' => Types::comment(),
+                    'resolve' => function (Comment $comment): ?Comment {
+                        if ($comment->parentId !== null) {
+                            return DataSource::findComment($comment->parentId);
+                        }
+
+                        return null;
+                    },
+                ],
                 'isAnonymous' => Types::boolean(),
                 'replies' => [
                     'type' => new ListOfType(Types::comment()),
@@ -31,56 +49,24 @@ class CommentType extends ObjectType
                             'defaultValue' => 5,
                         ],
                     ],
+                    'resolve' => function (Comment $comment, array $args) {
+                        $args += ['after' => null];
+
+                        return DataSource::findReplies($comment->id, $args['limit'], $args['after']);
+                    },
                 ],
-                'totalReplyCount' => Types::int(),
+                'totalReplyCount' => [
+                    'type' => Types::int(),
+                    'resolve' => function (Comment $comment): int {
+                        return DataSource::countReplies($comment->id);
+                    },
+                ],
 
                 'body' => HtmlField::build('body'),
             ],
             'resolveField' => function (Comment $comment, array $args, $context, ResolveInfo $info) {
-                $fieldName = $info->fieldName;
-
-                $method = 'resolve' . \ucfirst($fieldName);
-                if (\method_exists($this, $method)) {
-                    return $this->{$method}($comment, $args, $context, $info);
-                }
-
-                return $comment->{$fieldName};
+                return $comment->{$info->fieldName};
             },
         ]);
-    }
-
-    public function resolveAuthor(Comment $comment): ?User
-    {
-        if ($comment->isAnonymous) {
-            return null;
-        }
-
-        return DataSource::findUser($comment->authorId);
-    }
-
-    public function resolveParent(Comment $comment): ?Comment
-    {
-        if ($comment->parentId !== null) {
-            return DataSource::findComment($comment->parentId);
-        }
-
-        return null;
-    }
-
-    /**
-     * @param array{limit: int, after?: int} $args
-     *
-     * @return array<int, Comment>
-     */
-    public function resolveReplies(Comment $comment, array $args): array
-    {
-        $args += ['after' => null];
-
-        return DataSource::findReplies($comment->id, $args['limit'], $args['after']);
-    }
-
-    public function resolveTotalReplyCount(Comment $comment): int
-    {
-        return DataSource::countReplies($comment->id);
     }
 }
