@@ -16,6 +16,8 @@ class HtmlField
      */
     public static function build(array $config): array
     {
+        $resolver = $config['resolve'];
+
         // Demonstrates how to organize re-usable fields
         // Usual example: when the same field with same args shows up in different types
         // (for example when it is a part of some interface)
@@ -28,8 +30,8 @@ class HtmlField
                 ],
                 'maxLength' => Types::int(),
             ],
-            'resolve' => static function ($rootValue, array $args) use ($config): ?string {
-                $html = $config['resolve']($rootValue, $args);
+            'resolve' => static function ($rootValue, array $args) use ($resolver): ?string {
+                $html = $resolver($rootValue, $args);
                 $text = \strip_tags($html);
 
                 if (isset($args['maxLength'])) {
