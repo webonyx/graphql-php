@@ -8,9 +8,13 @@ use GraphQL\Examples\Blog\Types;
 class HtmlField
 {
     /**
-     * @return array<string, mixed>
+     * @param array{
+     * 	resolve: callable
+     * } $config
+     *
+     * @return array<mixed>
      */
-    public static function build(string $objectKey): array
+    public static function build(array $config): array
     {
         // Demonstrates how to organize re-usable fields
         // Usual example: when the same field with same args shows up in different types
@@ -24,8 +28,8 @@ class HtmlField
                 ],
                 'maxLength' => Types::int(),
             ],
-            'resolve' => static function ($object, $args) use ($objectKey) {
-                $html = $object->{$objectKey};
+            'resolve' => static function ($value, $args) use ($config) {
+                $html = $config['resolve']($value, $args);
                 $text = \strip_tags($html);
 
                 if (isset($args['maxLength'])) {

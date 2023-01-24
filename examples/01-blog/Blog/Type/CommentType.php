@@ -61,7 +61,9 @@ class CommentType extends ObjectType
                     },
                 ],
 
-                'body' => HtmlField::build('body'),
+                'body' => HtmlField::build([
+                    'resolve' => static fn (Comment $comment): string => $comment->body,
+                ]),
             ],
         ]);
     }

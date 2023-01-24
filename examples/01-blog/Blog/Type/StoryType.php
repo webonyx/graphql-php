@@ -84,7 +84,9 @@ class StoryType extends ObjectType
                     'type' => Types::boolean(),
                     'resolve' => static fn (Story $story, array $args, AppContext $context): bool => DataSource::isLikedBy($story->id, $context->viewer->id),
                 ],
-                'body' => HtmlField::build('body'),
+                'body' => HtmlField::build([
+                    'resolve' => static fn (Story $story): string => $story->body,
+                ]),
             ],
             'interfaces' => [Types::node()],
         ]);
