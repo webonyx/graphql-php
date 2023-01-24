@@ -6,6 +6,7 @@ use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
+use GraphQL\Examples\Blog\Type\Enum\StoryAffordancesType;
 use GraphQL\Examples\Blog\Type\Field\HtmlField;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ListOfType;
@@ -65,16 +66,16 @@ class StoryType extends ObjectType
 
                         $isViewer = $context->viewer === DataSource::findUser($story->authorId);
                         if ($isViewer) {
-                            $affordances[] = Enum\StoryAffordancesType::EDIT;
-                            $affordances[] = Enum\StoryAffordancesType::EDIT;
-                            $affordances[] = Enum\StoryAffordancesType::DELETE;
+                            $affordances[] = StoryAffordancesType::EDIT;
+                            $affordances[] = StoryAffordancesType::EDIT;
+                            $affordances[] = StoryAffordancesType::DELETE;
                         }
 
                         $isLiked = DataSource::isLikedBy($story->id, $context->viewer->id);
                         if ($isLiked) {
-                            $affordances[] = Enum\StoryAffordancesType::UNLIKE;
+                            $affordances[] = StoryAffordancesType::UNLIKE;
                         } else {
-                            $affordances[] = Enum\StoryAffordancesType::LIKE;
+                            $affordances[] = StoryAffordancesType::LIKE;
                         }
 
                         return $affordances;
