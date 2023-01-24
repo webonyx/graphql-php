@@ -1,11 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Variable property access on GraphQL\\\\Examples\\\\Blog\\\\Data\\\\Comment\\.$#"
-			count: 1
-			path: examples/01-blog/Blog/Type/CommentType.php
-
-		-
 			message: "#^Variable property access on mixed\\.$#"
 			count: 1
 			path: examples/01-blog/Blog/Type/Field/HtmlField.php

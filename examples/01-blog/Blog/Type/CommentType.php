@@ -39,7 +39,7 @@ class CommentType extends ObjectType
                         return null;
                     },
                 ],
-                'isAnonymous' => Types::boolean(),
+                'isAnonymous' => ['type' => Types::boolean(), 'resolve' => static fn(Comment $comment): bool => $comment->isAnonymous],
                 'replies' => [
                     'type' => new ListOfType(Types::comment()),
                     'args' => [
@@ -63,10 +63,7 @@ class CommentType extends ObjectType
                 ],
 
                 'body' => HtmlField::build('body'),
-            ],
-            'resolveField' => function (Comment $comment, array $args, $context, ResolveInfo $info) {
-                return $comment->{$info->fieldName};
-            },
+            ]
         ]);
     }
 }
