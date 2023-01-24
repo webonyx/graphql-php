@@ -83,7 +83,7 @@ final class VisitorTest extends ValidatorTestCase
     /**
      * @param array<string|int> $path
      *
-     * @return Node|NodeList
+     * @return Node|NodeList<SelectionNode&Node>
      */
     private function getNodeByPath(DocumentNode $ast, array $path): object
     {
