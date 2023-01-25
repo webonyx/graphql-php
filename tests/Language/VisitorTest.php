@@ -68,8 +68,8 @@ final class VisitorTest extends ValidatorTestCase
         if ($parent instanceof NodeList) {
             self::assertEquals($node, $parent[$key]);
         } else {
-            $vars = get_object_vars($parent);
-            self::assertEquals($node, $vars[$key]);
+			/** @phpstan-ignore-next-line */
+            self::assertEquals($node, $parent->{$key});
         }
 
         self::assertEquals($node, $this->getNodeByPath($ast, $path));
@@ -93,8 +93,8 @@ final class VisitorTest extends ValidatorTestCase
             if ($result instanceof NodeList) {
                 $result = $result[$key];
             } else {
-                $vars = get_object_vars($result);
-                $result = $vars[$key];
+				/** @phpstan-ignore-next-line */
+                $result = $result->{$key};
             }
         }
 
