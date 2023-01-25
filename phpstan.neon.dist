@@ -62,6 +62,8 @@ parameters:
         # PHPStan does not play nicely with markTestSkipped()
         - message: "~Unreachable statement - code above always terminates~"
           path: tests
+        - message: "#^Property GraphQL\\\\Tests\\\\Type\\\\SchemaTest\\:\\:\\$implementingType is never read, only written\\.$#"
+          path: tests
 
 includes:
     - phpstan-baseline.neon
