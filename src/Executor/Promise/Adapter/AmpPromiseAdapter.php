@@ -4,13 +4,12 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use Amp\Deferred;
 use Amp\Failure;
-
-use function Amp\Promise\all;
-
 use Amp\Promise as AmpPromise;
 use Amp\Success;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
+
+use function Amp\Promise\all;
 
 class AmpPromiseAdapter implements PromiseAdapter
 {

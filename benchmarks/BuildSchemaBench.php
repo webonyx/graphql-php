@@ -6,9 +6,13 @@ use GraphQL\Utils\BuildSchema;
 
 /**
  * @BeforeMethods({"makeSchemaString"})
+ *
  * @OutputTimeUnit("milliseconds", precision=3)
+ *
  * @Warmup(2)
+ *
  * @Revs(10)
+ *
  * @Iterations(2)
  */
 class BuildSchemaBench
