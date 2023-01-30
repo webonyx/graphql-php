@@ -1,0 +1,8 @@
+parameters:
+    ignoreErrors:
+        # In PHP 8.2, PHPStan no longer believes @property works without magic methods,
+        # but all implementors of the interfaces actually have those properties.
+        - "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$name~"
+        - "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$description~"
+        - "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$astNode~"
+        - "~Access to an undefined property .*GraphQL\\\\Type\\\\Definition\\\\NamedType.*::\\$extensionASTNodes~"
