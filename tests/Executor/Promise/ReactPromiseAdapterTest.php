@@ -8,11 +8,9 @@ use React\Promise\Deferred;
 use React\Promise\FulfilledPromise;
 use React\Promise\Promise;
 use React\Promise\Promise as ReactPromise;
-
-use function React\Promise\reject;
-
 use React\Promise\RejectedPromise;
 
+use function React\Promise\reject;
 use function React\Promise\resolve;
 
 /**

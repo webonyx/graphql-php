@@ -11,9 +11,13 @@ use GraphQL\Type\SchemaConfig;
 
 /**
  * @BeforeMethods({"setUp"})
+ *
  * @OutputTimeUnit("milliseconds", precision=3)
+ *
  * @Warmup(1)
+ *
  * @Revs(5)
+ *
  * @Iterations(1)
  */
 class HugeSchemaBench

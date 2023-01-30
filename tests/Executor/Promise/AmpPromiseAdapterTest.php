@@ -2,8 +2,6 @@
 
 namespace GraphQL\Tests\Executor\Promise;
 
-use function Amp\call;
-
 use Amp\Deferred;
 use Amp\Delayed;
 use Amp\Failure;
@@ -12,6 +10,8 @@ use Amp\Promise;
 use Amp\Success;
 use GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter;
 use PHPUnit\Framework\TestCase;
+
+use function Amp\call;
 
 /**
  * @group AmpPromise

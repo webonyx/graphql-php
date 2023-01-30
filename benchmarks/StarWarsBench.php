@@ -8,9 +8,13 @@ use GraphQL\Type\Introspection;
 
 /**
  * @BeforeMethods({"setIntroQuery"})
+ *
  * @OutputTimeUnit("milliseconds", precision=3)
+ *
  * @Warmup(2)
+ *
  * @Revs(10)
+ *
  * @Iterations(2)
  */
 class StarWarsBench
