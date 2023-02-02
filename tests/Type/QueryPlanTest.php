@@ -943,12 +943,12 @@ final class QueryPlanTest extends TestCase
         $result = GraphQL::executeQuery($schema, $query)->toArray();
 
         self::assertTrue($hasCalled);
-        self::assertEquals($expectedResult, $result);
-        self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
-        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
-        self::assertEquals($expectedItemSubFields, $queryPlan->subFields('Item'));
-        self::assertEquals($expectedBuildingSubFields, $queryPlan->subFields('Building'));
+        self::assertSame($expectedResult, $result);
+        self::assertSame($expectedQueryPlan, $queryPlan->queryPlan());
+        self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertSame($expectedItemSubFields, $queryPlan->subFields('Item'));
+        self::assertSame($expectedBuildingSubFields, $queryPlan->subFields('Building'));
     }
 
     public function testQueryPlanForMultipleFieldNodes(): void
