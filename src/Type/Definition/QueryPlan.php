@@ -152,13 +152,13 @@ class QueryPlan
         $implementors = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
-                assert($parentType instanceof HasFieldsType, 'ensured by query validation');
-
                 $fieldName = $selectionNode->name->value;
 
                 if ($fieldName === Introspection::TYPE_NAME_FIELD_NAME) {
                     continue;
                 }
+
+                assert($parentType instanceof HasFieldsType, 'ensured by query validation and the check above which excludes union types');
 
                 $type = $parentType->getField($fieldName);
                 $selectionType = $type->getType();
