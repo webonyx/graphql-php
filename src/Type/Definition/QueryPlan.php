@@ -128,7 +128,7 @@ class QueryPlan
             $type = Type::getNamedType(
                 $parentType->getField($fieldNode->name->value)->getType()
             );
-            assert($type instanceof Type);
+            assert($type instanceof Type, 'known because schema validation');
 
             $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type, $implementors);
             $queryPlan = $this->arrayMergeDeep($queryPlan, $subfields);
