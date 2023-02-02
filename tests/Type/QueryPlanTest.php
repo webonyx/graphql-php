@@ -273,12 +273,12 @@ final class QueryPlanTest extends TestCase
         $schema = new Schema(['query' => $blogQuery]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
-        self::assertEquals(['data' => ['article' => null]], $result);
+        self::assertSame(['data' => ['article' => null]], $result);
         self::assertInstanceOf(QueryPlan::class, $queryPlan);
         self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
-        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
-        self::assertEquals(['url', 'width', 'height'], $queryPlan->subFields('Image'));
+        self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertSame(['url', 'width', 'height'], $queryPlan->subFields('Image'));
 
         self::assertTrue($queryPlan->hasField('url'));
         self::assertFalse($queryPlan->hasField('test'));
@@ -430,9 +430,9 @@ final class QueryPlanTest extends TestCase
 
         self::assertTrue($hasCalled);
         self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
-        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
-        self::assertEquals(['woofs'], $queryPlan->subFields('Dog'));
+        self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertSame(['woofs'], $queryPlan->subFields('Dog'));
 
         self::assertTrue($queryPlan->hasField('name'));
         self::assertFalse($queryPlan->hasField('test'));
@@ -719,11 +719,11 @@ final class QueryPlanTest extends TestCase
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertTrue($hasCalled);
-        self::assertEquals(['data' => ['article' => null]], $result);
+        self::assertSame(['data' => ['article' => null]], $result);
         self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
-        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
-        self::assertEquals(['url', 'width', 'height'], $queryPlan->subFields('Image'));
+        self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertSame(['url', 'width', 'height'], $queryPlan->subFields('Image'));
 
         self::assertTrue($queryPlan->hasField('url'));
         self::assertFalse($queryPlan->hasField('test'));
@@ -945,7 +945,7 @@ final class QueryPlanTest extends TestCase
         self::assertTrue($hasCalled);
         self::assertSame($expectedResult, $result);
         self::assertSame($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
         self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
         self::assertSame($expectedItemSubFields, $queryPlan->subFields('Item'));
         self::assertSame($expectedBuildingSubFields, $queryPlan->subFields('Building'));
