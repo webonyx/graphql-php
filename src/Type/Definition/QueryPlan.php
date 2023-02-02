@@ -207,6 +207,10 @@ class QueryPlan
         }
 
         $parentTypeName = $parentType->name();
+
+        // TODO evaluate if this line is really necessary - it causes abstract types to appear
+        // in getReferencedTypes() even if they do not have any fields directly referencing them.
+        $this->typeToFields[$parentTypeName] ??= [];
         foreach ($fields as $fieldName => $_) {
             $this->typeToFields[$parentTypeName][$fieldName] = true;
         }
