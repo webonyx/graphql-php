@@ -388,25 +388,15 @@ final class QueryPlanTest extends TestCase
             'name',
         ];
 
-        /** @var QueryPlan $queryPlan */
+        /** @var QueryPlan|null $queryPlan */
         $queryPlan = null;
-        $hasCalled = false;
 
         $petsQuery = new ObjectType([
             'name' => 'Query',
             'fields' => [
                 'pets' => [
                     'type' => Type::listOf($petType),
-                    'resolve' => static function (
-                        $value,
-                        $args,
-                        $context,
-                        ResolveInfo $info
-                    ) use (
-                        &$hasCalled,
-                        &$queryPlan
-                    ): array {
-                        $hasCalled = true;
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$queryPlan): array {
                         $queryPlan = $info->lookAhead();
 
                         return [];
@@ -428,7 +418,7 @@ final class QueryPlanTest extends TestCase
         ]);
         GraphQL::executeQuery($schema, $query)->toArray();
 
-        self::assertTrue($hasCalled);
+        self::assertInstanceOf(QueryPlan::class, $queryPlan);
         self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
         self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
         self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
@@ -439,6 +429,61 @@ final class QueryPlanTest extends TestCase
 
         self::assertTrue($queryPlan->hasType('Dog'));
         self::assertFalse($queryPlan->hasType('Test'));
+    }
+
+    public function testQueryPlanTypenameOnUnion(): void
+    {
+        $dogType = new ObjectType([
+            'name' => 'Dog',
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Dog,
+            'fields' => static fn (): array => [
+                'name' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $petType = new UnionType([
+            'name' => 'Pet',
+            'types' => [$dogType],
+        ]);
+
+        /** @var QueryPlan|null $queryPlan */
+        $queryPlan = null;
+        $petsQuery = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'pets' => [
+                    'type' => Type::listOf($petType),
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$queryPlan): array {
+                        $queryPlan = $info->lookAhead();
+
+                        return [];
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $petsQuery]);
+        GraphQL::executeQuery($schema, /** @lang GraphQL */ '
+        {
+          pets {
+            __typename
+          }
+        }
+        ');
+
+        self::assertInstanceOf(QueryPlan::class, $queryPlan);
+        self::assertSame([], $queryPlan->queryPlan());
+        self::assertSame(['Pet'], $queryPlan->getReferencedTypes());
+        self::assertSame([], $queryPlan->getReferencedFields());
+        self::assertSame([], $queryPlan->subFields('Dog'));
+
+        // TODO really? maybe change in next major version
+        self::assertFalse($queryPlan->hasField('__typename'));
+        self::assertFalse($queryPlan->hasField('non-existent'));
+
+        self::assertTrue($queryPlan->hasType('Pet'));
+        self::assertFalse($queryPlan->hasType('Dog'));
+        self::assertFalse($queryPlan->hasType('Non-Existent'));
     }
 
     public function testMergedFragmentsQueryPlan(): void
