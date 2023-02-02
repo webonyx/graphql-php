@@ -76,7 +76,7 @@ class QueryPlan
     }
 
     /**
-     * TODO return array<string, true>
+     * TODO return array<string, true>.
      *
      * @return array<int, string>
      */
@@ -104,7 +104,7 @@ class QueryPlan
     }
 
     /**
-     * TODO return array<string, true>
+     * TODO return array<string, true>.
      *
      * @return array<int, string>
      */
