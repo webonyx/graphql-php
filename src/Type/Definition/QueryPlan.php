@@ -14,13 +14,17 @@ use GraphQL\Type\Schema;
 
 /**
  * @phpstan-type QueryPlanOptions array{
- *   groupImplementorFields?: bool
+ *   groupImplementorFields?: bool,
  * }
  */
 class QueryPlan
 {
-    /** @var array<string, array<int, string>> */
-    private array $types = [];
+    /**
+     * Map from type names to a list of fields referenced of that type.
+     *
+     * @var array<string, array<string, true>>
+     */
+    private array $typeToFields = [];
 
     private Schema $schema;
 
@@ -63,38 +67,50 @@ class QueryPlan
      */
     public function getReferencedTypes(): array
     {
-        return \array_keys($this->types);
+        return \array_keys($this->typeToFields);
     }
 
     public function hasType(string $type): bool
     {
-        return isset($this->types[$type]);
+        return isset($this->typeToFields[$type]);
     }
 
     /**
+     * TODO return array<string, true>.
+     *
      * @return array<int, string>
      */
     public function getReferencedFields(): array
     {
-        return \array_values(\array_unique(\array_merge(...\array_values($this->types))));
+        $allFields = [];
+        foreach ($this->typeToFields as $fields) {
+            foreach ($fields as $field => $_) {
+                $allFields[$field] = true;
+            }
+        }
+
+        return array_keys($allFields);
     }
 
     public function hasField(string $field): bool
     {
-        return \count(
-            \array_filter(
-                $this->getReferencedFields(),
-                static fn (string $referencedField): bool => $field === $referencedField
-            )
-        ) > 0;
+        foreach ($this->typeToFields as $fields) {
+            if (array_key_exists($field, $fields)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
+     * TODO return array<string, true>.
+     *
      * @return array<int, string>
      */
     public function subFields(string $typename): array
     {
-        return $this->types[$typename] ?? [];
+        return array_keys($this->typeToFields[$typename] ?? []);
     }
 
     /**
@@ -112,19 +128,10 @@ class QueryPlan
             $type = Type::getNamedType(
                 $parentType->getField($fieldNode->name->value)->getType()
             );
-            assert($type instanceof ObjectType || $type instanceof InterfaceType, 'proven because it must be a type with fields and was unwrapped');
+            assert($type instanceof Type, 'known because schema validation');
 
             $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type, $implementors);
-
-            $this->types[$type->name] = \array_unique(\array_merge(
-                \array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                \array_keys($subfields)
-            ));
-
-            $queryPlan = $this->arrayMergeDeep(
-                $queryPlan,
-                $subfields
-            );
+            $queryPlan = $this->arrayMergeDeep($queryPlan, $subfields);
         }
 
         if ($this->groupImplementorFields) {
@@ -199,6 +206,15 @@ class QueryPlan
             }
         }
 
+        $parentTypeName = $parentType->name();
+
+        // TODO evaluate if this line is really necessary - it causes abstract types to appear
+        // in getReferencedTypes() even if they do not have any fields directly referencing them.
+        $this->typeToFields[$parentTypeName] ??= [];
+        foreach ($fields as $fieldName => $_) {
+            $this->typeToFields[$parentTypeName][$fieldName] = true;
+        }
+
         return $fields;
     }
 
@@ -211,16 +227,9 @@ class QueryPlan
     {
         $type = Type::getNamedType($type);
 
-        $subfields = [];
-        if ($type instanceof ObjectType || $type instanceof AbstractType) {
-            $subfields = $this->analyzeSelectionSet($selectionSet, $type, $implementors);
-            $this->types[$type->name] = \array_unique(\array_merge(
-                \array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                \array_keys($subfields)
-            ));
-        }
-
-        return $subfields;
+        return $type instanceof ObjectType || $type instanceof AbstractType
+            ? $this->analyzeSelectionSet($selectionSet, $type, $implementors)
+            : [];
     }
 
     /**
@@ -248,18 +257,15 @@ class QueryPlan
                 \array_intersect_key($subfields, $fields)
             );
         } else {
-            $fields = $this->arrayMergeDeep(
-                $subfields,
-                $fields
-            );
+            $fields = $this->arrayMergeDeep($subfields, $fields);
         }
 
         return $fields;
     }
 
     /**
-     * similar to array_merge_recursive this merges nested arrays, but handles non array values differently
-     * while array_merge_recursive tries to merge non array values, in this implementation they will be overwritten.
+     * Merges nested arrays, but handles non array values differently from array_merge_recursive.
+     * While array_merge_recursive tries to merge non-array values, in this implementation they will be overwritten.
      *
      * @see https://stackoverflow.com/a/25712428
      *
@@ -270,20 +276,18 @@ class QueryPlan
      */
     private function arrayMergeDeep(array $array1, array $array2): array
     {
-        $merged = $array1;
-
         foreach ($array2 as $key => &$value) {
             if (\is_numeric($key)) {
-                if (! \in_array($value, $merged, true)) {
-                    $merged[] = $value;
+                if (! \in_array($value, $array1, true)) {
+                    $array1[] = $value;
                 }
-            } elseif (\is_array($value) && isset($merged[$key]) && \is_array($merged[$key])) {
-                $merged[$key] = $this->arrayMergeDeep($merged[$key], $value);
+            } elseif (\is_array($value) && isset($array1[$key]) && \is_array($array1[$key])) {
+                $array1[$key] = $this->arrayMergeDeep($array1[$key], $value);
             } else {
-                $merged[$key] = $value;
+                $array1[$key] = $value;
             }
         }
 
-        return $merged;
+        return $array1;
     }
 }
