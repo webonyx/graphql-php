@@ -84,7 +84,7 @@ use GraphQL\GraphQL;
 use GraphQL\Validator\Rules\DisableIntrospection;
 use GraphQL\Validator\DocumentValidator;
 
-DocumentValidator::addRule(new DisableIntrospection());
+DocumentValidator::addRule(new DisableIntrospection(true));
 
 GraphQL::executeQuery(/*...*/);
 ```
