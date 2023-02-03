@@ -24,7 +24,7 @@
     "phpstan/phpstan": "1.9.14",
     "phpstan/phpstan-phpunit": "1.3.3",
     "phpstan/phpstan-strict-rules": "1.4.5",
-    "phpunit/phpunit": "^9.5",
+    "phpunit/phpunit": "^10",
     "psr/http-message": "^1",
     "react/http": "^1.6",
     "react/promise": "^2.9",
