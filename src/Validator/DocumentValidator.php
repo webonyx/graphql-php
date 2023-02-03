@@ -181,18 +181,16 @@ class DocumentValidator
     }
 
     /**
+     * @deprecated just add rules via @see DocumentValidator::addRule()
+     *
      * @return array<class-string<QuerySecurityRule>, QuerySecurityRule>
      */
     public static function securityRules(): array
     {
-        // This way of defining rules is deprecated
-        // When custom security rule is required - it should be just added via DocumentValidator::addRule();
-        // TODO: deprecate this
-
         return self::$securityRules ??= [
-            DisableIntrospection::class => new DisableIntrospection(DisableIntrospection::DISABLED), // DEFAULT DISABLED
-            QueryDepth::class => new QueryDepth(QueryDepth::DISABLED), // default disabled
-            QueryComplexity::class => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
+            DisableIntrospection::class => new DisableIntrospection(DisableIntrospection::DISABLED),
+            QueryDepth::class => new QueryDepth(QueryDepth::DISABLED),
+            QueryComplexity::class => new QueryComplexity(QueryComplexity::DISABLED),
         ];
     }
 
