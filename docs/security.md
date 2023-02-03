@@ -8,14 +8,14 @@ query is the sum of all field scores. For example, the complexity of introspecti
 
 If this score exceeds a threshold, a query is not executed and an error is returned instead.
 
-Complexity analysis is disabled by default. To enabled it, add validation rule:
+Complexity analysis is disabled by default. You may enable it by setting a maximum query complexity:
 
 ```php
 use GraphQL\GraphQL;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\DocumentValidator;
 
-$rule = new QueryComplexity($maxQueryComplexity = 100);
+$rule = new QueryComplexity(100);
 DocumentValidator::addRule($rule);
 
 GraphQL::executeQuery(/*...*/);
@@ -51,14 +51,14 @@ $type = new ObjectType([
 This is a PHP port of [Limiting Query Depth](https://sangria-graphql.github.io/learn/#limiting-query-depth) in Sangria implementation.
 For example, max depth of the introspection query is **7**.
 
-It is disabled by default. To enable it, add following validation rule:
+It is disabled by default. You may enable it by setting a maximum query depth:
 
 ```php
 use GraphQL\GraphQL;
 use GraphQL\Validator\Rules\QueryDepth;
 use GraphQL\Validator\DocumentValidator;
 
-$rule = new QueryDepth($maxDepth = 10);
+$rule = new QueryDepth(10);
 DocumentValidator::addRule($rule);
 
 GraphQL::executeQuery(/*...*/);
@@ -84,7 +84,8 @@ use GraphQL\GraphQL;
 use GraphQL\Validator\Rules\DisableIntrospection;
 use GraphQL\Validator\DocumentValidator;
 
-DocumentValidator::addRule(new DisableIntrospection());
+$rule = new DisableIntrospection(DisableIntrospection::ENABLED);
+DocumentValidator::addRule($rule);
 
 GraphQL::executeQuery(/*...*/);
 ```
