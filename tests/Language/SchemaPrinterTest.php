@@ -187,6 +187,6 @@ GRAPHQL
     {
         $schemaSDL = \Safe\file_get_contents(__DIR__ . '/../viralSchema.graphql');
         $schema = BuildSchema::build($schemaSDL);
-        $this->assertSame($schemaSDL, SchemaPrinter::doPrint($schema));
+        self::assertSame($schemaSDL, SchemaPrinter::doPrint($schema));
     }
 }

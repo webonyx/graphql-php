@@ -1394,12 +1394,12 @@ final class BuildSchemaTest extends TestCaseBase
         $schema = BuildSchema::build(\Safe\file_get_contents(__DIR__ . '/../viralSchema.graphql'));
 
         $queryType = $schema->getQueryType();
-        $this->assertNotNull($queryType);
-        $this->assertSame('Query', $queryType->name);
+        self::assertNotNull($queryType);
+        self::assertSame('Query', $queryType->name);
 
-        $this->assertNotNull($schema->getType('Virus'));
-        $this->assertNotNull($schema->getType('Mutation'));
-        $this->assertNull($schema->getMutationType());
+        self::assertNotNull($schema->getType('Virus'));
+        self::assertNotNull($schema->getType('Mutation'));
+        self::assertNull($schema->getMutationType());
     }
 
     /**
