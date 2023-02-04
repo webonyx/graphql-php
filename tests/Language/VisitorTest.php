@@ -52,7 +52,7 @@ final class VisitorTest extends ValidatorTestCase
             self::assertTrue(isset($parent[$key]));
         } else {
             self::assertIsString($key);
-            self::assertObjectHasAttribute($key, $parent);
+            self::assertTrue(property_exists($parent, $key));
         }
 
         self::assertIsArray($path);
