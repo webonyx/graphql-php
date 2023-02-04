@@ -185,9 +185,9 @@ class SchemaPrinter
 
         // Special case for when there are no operation types
         if (
-            $queryOperationType === null &&
-            $mutationOperationType === null &&
-            $subscriptionOperationType === null
+            $queryOperationType === null
+            && $mutationOperationType === null
+            && $subscriptionOperationType === null
         ) {
             return true;
         }
@@ -196,11 +196,11 @@ class SchemaPrinter
         $mutationType = $schema->getType('Mutation');
         $subscriptionType = $schema->getType('Subscription');
 
-        return (
-            $queryOperationType === $queryType &&
-            $mutationOperationType === $mutationType &&
-            $subscriptionOperationType === $subscriptionType
-        );
+        return
+            $queryOperationType === $queryType
+            && $mutationOperationType === $mutationType
+            && $subscriptionOperationType === $subscriptionType
+        ;
     }
 
     /**

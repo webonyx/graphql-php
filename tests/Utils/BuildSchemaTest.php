@@ -1387,7 +1387,7 @@ final class BuildSchemaTest extends TestCaseBase
     }
 
     /**
-     * it('correctly processes viral schema', () => {
+     * it('correctly processes viral schema', () => {.
      */
     public function testCorrectlyProcessesViralSchema(): void
     {

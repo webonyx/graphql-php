@@ -181,7 +181,7 @@ GRAPHQL
     }
 
     /**
-     * it('prints viral schema correctly', () => {
+     * it('prints viral schema correctly', () => {.
      */
     public function testPrintsViralSchemaCorrectly(): void
     {
