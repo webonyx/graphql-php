@@ -7,6 +7,8 @@ use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use GraphQL\Utils\BuildSchema;
+use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 
 use function Safe\file_get_contents;
@@ -176,5 +178,15 @@ GRAPHQL
             ,
             $printed
         );
+    }
+
+    /**
+     * it('prints viral schema correctly', () => {
+     */
+    public function testPrintsViralSchemaCorrectly(): void
+    {
+        $schemaSDL = \Safe\file_get_contents(__DIR__ . '/../viralSchema.graphql');
+        $schema = BuildSchema::build($schemaSDL);
+        $this->assertSame($schemaSDL, SchemaPrinter::doPrint($schema));
     }
 }

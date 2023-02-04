@@ -179,19 +179,28 @@ class SchemaPrinter
      */
     protected static function isSchemaOfCommonNames(Schema $schema): bool
     {
-        $queryType = $schema->getQueryType();
-        if ($queryType !== null && $queryType->name !== 'Query') {
-            return false;
+        $queryOperationType = $schema->getQueryType();
+        $mutationOperationType = $schema->getMutationType();
+        $subscriptionOperationType = $schema->getSubscriptionType();
+
+        // Special case for when there are no operation types
+        if (
+            $queryOperationType === null &&
+            $mutationOperationType === null &&
+            $subscriptionOperationType === null
+        ) {
+            return true;
         }
 
-        $mutationType = $schema->getMutationType();
-        if ($mutationType !== null && $mutationType->name !== 'Mutation') {
-            return false;
-        }
+        $queryType = $schema->getType('Query');
+        $mutationType = $schema->getType('Mutation');
+        $subscriptionType = $schema->getType('Subscription');
 
-        $subscriptionType = $schema->getSubscriptionType();
-
-        return $subscriptionType === null || $subscriptionType->name === 'Subscription';
+        return (
+            $queryOperationType === $queryType &&
+            $mutationOperationType === $mutationType &&
+            $subscriptionOperationType === $subscriptionType
+        );
     }
 
     /**
