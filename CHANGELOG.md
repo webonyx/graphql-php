@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.1.0
+
+### Added
+
+- Add additional sorting options to `SchemaPrinter`
+
 ## v15.0.3
 
 ### Fixed
