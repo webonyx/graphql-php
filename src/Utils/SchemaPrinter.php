@@ -27,7 +27,15 @@ use GraphQL\Type\Schema;
 /**
  * Prints the contents of a Schema in schema definition language.
  *
- * @phpstan-type Options array{sortTypes?: bool}
+ * All sorting options sort alphabetically. If not given or `false`, the original schema definition order will be used.
+ *
+ * @phpstan-type Options array{
+ *   sortArguments?: bool,
+ *   sortEnumValues?: bool,
+ *   sortFields?: bool,
+ *   sortInputFields?: bool,
+ *   sortTypes?: bool,
+ * }
  */
 class SchemaPrinter
 {
@@ -239,6 +247,10 @@ class SchemaPrinter
             return '';
         }
 
+        if (isset($options['sortArguments']) && $options['sortArguments'] === true) {
+            usort($args, static fn (Argument $left, Argument $right): int => $left->name <=> $right->name);
+        }
+
         $allArgsWithoutDescription = true;
         foreach ($args as $arg) {
             $description = $arg->description;
@@ -340,7 +352,13 @@ class SchemaPrinter
         $fields = [];
         $firstInBlock = true;
         $previousHasDescription = false;
-        foreach ($type->getFields() as $f) {
+        $fieldDefinitions = $type->getFields();
+
+        if (isset($options['sortFields']) && $options['sortFields'] === true) {
+            ksort($fieldDefinitions);
+        }
+
+        foreach ($fieldDefinitions as $f) {
             $hasDescription = $f->description !== null;
             if ($previousHasDescription && ! $hasDescription) {
                 $fields[] = '';
@@ -434,7 +452,13 @@ class SchemaPrinter
     {
         $values = [];
         $firstInBlock = true;
-        foreach ($type->getValues() as $value) {
+        $valueDefinitions = $type->getValues();
+
+        if (isset($options['sortEnumValues']) && $options['sortEnumValues'] === true) {
+            usort($valueDefinitions, static fn (EnumValueDefinition $left, EnumValueDefinition $right): int => $left->name <=> $right->name);
+        }
+
+        foreach ($valueDefinitions as $value) {
             $values[] = static::printDescription($options, $value, '  ', $firstInBlock)
                 . '  '
                 . $value->name
@@ -456,8 +480,13 @@ class SchemaPrinter
     {
         $fields = [];
         $firstInBlock = true;
+        $fieldDefinitions = $type->getFields();
 
-        foreach ($type->getFields() as $field) {
+        if (isset($options['sortInputFields']) && $options['sortInputFields'] === true) {
+            ksort($fieldDefinitions);
+        }
+
+        foreach ($fieldDefinitions as $field) {
             $fields[] = static::printDescription($options, $field, '  ', $firstInBlock)
                 . '  '
                 . static::printInputValue($field);

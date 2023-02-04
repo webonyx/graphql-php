@@ -1224,4 +1224,170 @@ final class SchemaPrinterTest extends TestCase
             ['sortTypes' => true]
         );
     }
+
+    /**
+     * Additional functionality not present in the reference implementation.
+     */
+    public function testPrintSchemaWithSortedFields(): void
+    {
+        $schema = new Schema([
+            'types' => [
+                new InputObjectType(['name' => 'InputObject', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+                new InterfaceType(['name' => 'FooInterface', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+                new ObjectType(['name' => 'Abc', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+            ],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            input InputObject {
+              foo: String
+              bar: String
+            }
+            
+            interface FooInterface {
+              bar: String
+              foo: String
+            }
+            
+            type Abc {
+              bar: String
+              foo: String
+            }
+
+            GRAPHQL,
+            $schema,
+            ['sortFields' => true]
+        );
+    }
+
+    /**
+     * Additional functionality not present in the reference implementation.
+     */
+    public function testPrintSchemaWithSortedInputFields(): void
+    {
+        $schema = new Schema([
+            'types' => [
+                new InputObjectType(['name' => 'InputObject', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+                new InterfaceType(['name' => 'FooInterface', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+                new ObjectType(['name' => 'Abc', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+            ],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            input InputObject {
+              bar: String
+              foo: String
+            }
+            
+            interface FooInterface {
+              foo: String
+              bar: String
+            }
+            
+            type Abc {
+              foo: String
+              bar: String
+            }
+
+            GRAPHQL,
+            $schema,
+            ['sortInputFields' => true]
+        );
+    }
+
+    /**
+     * Additional functionality not present in the reference implementation.
+     */
+    public function testPrintSchemaWithSortedEnumValues(): void
+    {
+        $schema = new Schema([
+            'types' => [
+                new EnumType([
+                    'name' => 'RGB',
+                    'values' => [
+                        'RED' => [],
+                        'GREEN' => [],
+                        'BLUE' => [],
+                    ],
+                ]),
+            ],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            enum RGB {
+              BLUE
+              GREEN
+              RED
+            }
+
+            GRAPHQL,
+            $schema,
+            ['sortEnumValues' => true]
+        );
+    }
+
+    /**
+     * Additional functionality not present in the reference implementation.
+     */
+    public function testPrintSchemaWithSortedArguments(): void
+    {
+        $schema = new Schema([
+            'types' => [
+                new InterfaceType(['name' => 'FooInterface', 'fields' => [
+                    'myField' => [
+                        'type' => Type::string(),
+                        'args' => [
+                            'foo' => ['type' => Type::int()],
+                            'bar' => ['type' => Type::int()],
+                        ],
+                    ],
+                ]]),
+                new ObjectType(['name' => 'Abc', 'fields' => [
+                    'myField' => [
+                        'type' => Type::string(),
+                        'args' => [
+                            'foo' => ['type' => Type::int()],
+                            'bar' => ['type' => Type::int()],
+                        ],
+                    ],
+                ]]),
+            ],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            interface FooInterface {
+              myField(bar: Int, foo: Int): String
+            }
+            
+            type Abc {
+              myField(bar: Int, foo: Int): String
+            }
+
+            GRAPHQL,
+            $schema,
+            ['sortArguments' => true]
+        );
+    }
 }
