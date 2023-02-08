@@ -147,7 +147,7 @@ $result = GraphQL::executeQuery(/*args*/)->toArray($debug);
 ```
 
 If you only want to re-throw Exceptions that are not marked as safe through the `ClientAware` interface, use
-the flag `Debug::RETHROW_UNSAFE_EXCEPTIONS`.
+the flag `DebugFlag::RETHROW_UNSAFE_EXCEPTIONS`.
 
 ## Custom Error Handling and Formatting
 
