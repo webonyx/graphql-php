@@ -157,7 +157,7 @@ class SchemaPrinter
                 . ($queryType !== null ? "  query: {$queryType->name}\n" : '')
                 . ($mutationType !== null ? "  mutation: {$mutationType->name}\n" : '')
                 . ($subscriptionType !== null ? "  subscription: {$subscriptionType->name}\n" : '')
-                . "}";
+                . '}';
         }
 
         return null;
