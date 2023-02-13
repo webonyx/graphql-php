@@ -1387,6 +1387,22 @@ final class BuildSchemaTest extends TestCaseBase
     }
 
     /**
+     * it('correctly processes viral schema', () => {.
+     */
+    public function testCorrectlyProcessesViralSchema(): void
+    {
+        $schema = BuildSchema::build(\Safe\file_get_contents(__DIR__ . '/../viralSchema.graphql'));
+
+        $queryType = $schema->getQueryType();
+        self::assertNotNull($queryType);
+        self::assertSame('Query', $queryType->name);
+        self::assertNotNull($schema->getType('Virus'));
+        self::assertNotNull($schema->getType('Mutation'));
+        // Though the viral schema has a 'Mutation' type, it is not used for the 'mutation' operation.
+        self::assertNull($schema->getMutationType());
+    }
+
+    /**
      * @see https://github.com/webonyx/graphql-php/issues/997
      */
     public function testBuiltSchemaReturnsNullForNonexistentType(): void

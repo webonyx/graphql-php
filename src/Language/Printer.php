@@ -77,9 +77,7 @@ class Printer
         return $instance->printAST($ast);
     }
 
-    protected function __construct()
-    {
-    }
+    protected function __construct() {}
 
     /**
      * Recursively traverse an AST depth-first and produce a pretty string.
