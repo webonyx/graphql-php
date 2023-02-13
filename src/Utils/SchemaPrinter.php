@@ -166,7 +166,7 @@ class SchemaPrinter
     /**
      * GraphQL schema define root types for each type of operation. These types are
      * the same as any other type and can be named in any manner, however there is
-     * a common naming convention:
+     * a common naming convention:.
      *
      * ```graphql
      *   schema {
