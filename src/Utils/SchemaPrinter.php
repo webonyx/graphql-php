@@ -137,70 +137,58 @@ class SchemaPrinter
         return \implode("\n\n", \array_filter($elements)) . "\n";
     }
 
-    protected static function printSchemaDefinition(Schema $schema): string
+    protected static function printSchemaDefinition(Schema $schema): ?string
     {
-        if (static::isSchemaOfCommonNames($schema)) {
-            return '';
-        }
-
-        $operationTypes = [];
-
         $queryType = $schema->getQueryType();
-        if ($queryType !== null) {
-            $operationTypes[] = "  query: {$queryType->name}";
-        }
-
         $mutationType = $schema->getMutationType();
-        if ($mutationType !== null) {
-            $operationTypes[] = "  mutation: {$mutationType->name}";
-        }
-
         $subscriptionType = $schema->getSubscriptionType();
-        if ($subscriptionType !== null) {
-            $operationTypes[] = "  subscription: {$subscriptionType->name}";
+
+        // Special case: When a schema has no root operation types, no valid schema
+        // definition can be printed.
+        if ($queryType === null && $mutationType === null && $subscriptionType === null) {
+            return null;
         }
 
-        $typesString = \implode("\n", $operationTypes);
+        // TODO add condition for schema.description
+        // Only print a schema definition if there is a description or if it should
+        // not be omitted because of having default type names.
+        if (! self::hasDefaultRootOperationTypes($schema)) {
+            return "schema {\n"
+                . ($queryType !== null ? "  query: {$queryType->name}\n" : '')
+                . ($mutationType !== null ? "  mutation: {$mutationType->name}\n" : '')
+                . ($subscriptionType !== null ? "  subscription: {$subscriptionType->name}\n" : '')
+                . "\n}";
+        }
 
-        return "schema {\n{$typesString}\n}";
+        return null;
     }
 
     /**
      * GraphQL schema define root types for each type of operation. These types are
      * the same as any other type and can be named in any manner, however there is
-     * a common naming convention:.
+     * a common naming convention:
      *
+     * ```graphql
      *   schema {
      *     query: Query
      *     mutation: Mutation
+     *     subscription: Subscription
      *   }
+     * ```
      *
      * When using this naming convention, the schema description can be omitted.
+     * When using this naming convention, the schema description can be omitted so
+     * long as these names are only used for operation types.
+     *
+     * Note however that if any of these default names are used elsewhere in the
+     * schema but not as a root operation type, the schema definition must still
+     * be printed to avoid ambiguity.
      */
-    protected static function isSchemaOfCommonNames(Schema $schema): bool
+    protected static function hasDefaultRootOperationTypes(Schema $schema): bool
     {
-        $queryOperationType = $schema->getQueryType();
-        $mutationOperationType = $schema->getMutationType();
-        $subscriptionOperationType = $schema->getSubscriptionType();
-
-        // Special case for when there are no operation types
-        if (
-            $queryOperationType === null
-            && $mutationOperationType === null
-            && $subscriptionOperationType === null
-        ) {
-            return true;
-        }
-
-        $queryType = $schema->getType('Query');
-        $mutationType = $schema->getType('Mutation');
-        $subscriptionType = $schema->getType('Subscription');
-
-        return
-            $queryOperationType === $queryType
-            && $mutationOperationType === $mutationType
-            && $subscriptionOperationType === $subscriptionType
-        ;
+        return $schema->getQueryType() === $schema->getType('Query')
+            && $schema->getMutationType() === $schema->getType('Mutation')
+            && $schema->getSubscriptionType() === $schema->getType('Subscription');
     }
 
     /**

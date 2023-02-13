@@ -1396,9 +1396,9 @@ final class BuildSchemaTest extends TestCaseBase
         $queryType = $schema->getQueryType();
         self::assertNotNull($queryType);
         self::assertSame('Query', $queryType->name);
-
         self::assertNotNull($schema->getType('Virus'));
         self::assertNotNull($schema->getType('Mutation'));
+        // Though the viral schema has a 'Mutation' type, it is not used for the 'mutation' operation.
         self::assertNull($schema->getMutationType());
     }
 
