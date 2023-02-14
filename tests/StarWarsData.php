@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests;
 
-class StarWarsData
+final class StarWarsData
 {
     /**
      * @return array<string, mixed>

@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\NoFragmentCycles;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class NoFragmentCyclesTest extends ValidatorTestCase
+final class NoFragmentCyclesTest extends ValidatorTestCase
 {
     // Validate: No circular fragment spreads
 

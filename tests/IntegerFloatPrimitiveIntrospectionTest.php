@@ -8,7 +8,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class IntegerFloatPrimitiveIntrospectionTest extends TestCase
+final class IntegerFloatPrimitiveIntrospectionTest extends TestCase
 {
     public static function build(): Schema
     {

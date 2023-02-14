@@ -24,7 +24,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Execute: Handles execution of abstract types.
  */
-class AbstractTest extends TestCase
+final class AbstractTest extends TestCase
 {
     use ArraySubsetAsserts;
 

@@ -5,7 +5,7 @@ namespace GraphQL\Tests\Executor\Promise;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Tests\TestCaseBase;
 
-class SyncPromiseTest extends TestCaseBase
+final class SyncPromiseTest extends TestCaseBase
 {
     /**
      * @return iterable<array{

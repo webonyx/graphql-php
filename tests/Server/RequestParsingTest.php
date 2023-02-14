@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
-class RequestParsingTest extends TestCase
+final class RequestParsingTest extends TestCase
 {
     public function testParsesGraphqlRequest(): void
     {

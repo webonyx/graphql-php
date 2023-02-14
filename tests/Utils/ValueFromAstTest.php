@@ -10,7 +10,7 @@ use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
-class ValueFromAstTest extends TestCase
+final class ValueFromAstTest extends TestCase
 {
     private InputObjectType $inputObj;
 

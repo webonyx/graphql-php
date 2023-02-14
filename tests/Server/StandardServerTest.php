@@ -14,7 +14,7 @@ use Psr\Http\Message\RequestInterface;
 
 use function Safe\json_encode;
 
-class StandardServerTest extends ServerTestCase
+final class StandardServerTest extends ServerTestCase
 {
     use ArraySubsetAsserts;
 

@@ -14,7 +14,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BreakingChangesFinder;
 use PHPUnit\Framework\TestCase;
 
-class BreakingChangesFinderTest extends TestCase
+final class BreakingChangesFinderTest extends TestCase
 {
     private ObjectType $queryType;
 

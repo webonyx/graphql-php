@@ -7,7 +7,7 @@ use GraphQL\Tests\Type\TestClasses\ObjectIdStub;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 
-class ScalarSerializationTest extends TestCase
+final class ScalarSerializationTest extends TestCase
 {
     // Type System: Scalar coercion
 

@@ -22,7 +22,7 @@ use GraphQL\Utils\Utils;
 
 use function Safe\file_get_contents;
 
-class ParserTest extends TestCaseBase
+final class ParserTest extends TestCaseBase
 {
     /**
      * @return array<int, array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}>

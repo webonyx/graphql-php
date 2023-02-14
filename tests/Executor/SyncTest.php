@@ -19,7 +19,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
 
-class SyncTest extends TestCase
+final class SyncTest extends TestCase
 {
     use ArraySubsetAsserts;
 

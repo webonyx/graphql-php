@@ -12,7 +12,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class SchemaTest extends TestCase
+final class SchemaTest extends TestCase
 {
     private InterfaceType $interfaceType;
 

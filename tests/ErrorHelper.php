@@ -10,7 +10,7 @@ use GraphQL\Language\SourceLocation;
  *     locations?: array<int, array{line: int, column: int}>
  * }
  */
-class ErrorHelper
+final class ErrorHelper
 {
     /**
      * @param array<SourceLocation> $locations

@@ -6,7 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
-class AssertValidNameTest extends TestCase
+final class AssertValidNameTest extends TestCase
 {
     // Describe: assertValidName()
 

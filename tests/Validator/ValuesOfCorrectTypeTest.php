@@ -13,7 +13,7 @@ use GraphQL\Validator\Rules\ValuesOfCorrectType;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class ValuesOfCorrectTypeTest extends ValidatorTestCase
+final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 {
     /**
      * @see it('Good int value')

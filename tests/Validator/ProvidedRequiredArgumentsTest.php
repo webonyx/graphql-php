@@ -11,7 +11,7 @@ use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class ProvidedRequiredArgumentsTest extends ValidatorTestCase
+final class ProvidedRequiredArgumentsTest extends ValidatorTestCase
 {
     // Validate: Provided required arguments
 

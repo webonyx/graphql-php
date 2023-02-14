@@ -9,7 +9,7 @@ use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use PHPUnit\Framework\TestCase;
 
-class SyncPromiseAdapterTest extends TestCase
+final class SyncPromiseAdapterTest extends TestCase
 {
     private SyncPromiseAdapter $promises;
 

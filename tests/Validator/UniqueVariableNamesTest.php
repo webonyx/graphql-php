@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\UniqueVariableNames;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class UniqueVariableNamesTest extends ValidatorTestCase
+final class UniqueVariableNamesTest extends ValidatorTestCase
 {
     // Validate: Unique variable names
 

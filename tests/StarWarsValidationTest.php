@@ -7,7 +7,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
 
-class StarWarsValidationTest extends TestCase
+final class StarWarsValidationTest extends TestCase
 {
     // Star Wars Validation Tests
     // Basic Queries

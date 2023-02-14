@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\KnownFragmentNames;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class KnownFragmentNamesTest extends ValidatorTestCase
+final class KnownFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Known fragment names
 

@@ -5,7 +5,7 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
-class SuggestionListTest extends TestCase
+final class SuggestionListTest extends TestCase
 {
     /**
      * @see describe('suggestionList')

@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\ScalarLeafs;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class ScalarLeafsTest extends ValidatorTestCase
+final class ScalarLeafsTest extends ValidatorTestCase
 {
     // Validate: Scalar leafs
 

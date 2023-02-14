@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @phpstan-import-type LocationArray from Location
  */
-class SchemaParserTest extends TestCase
+final class SchemaParserTest extends TestCase
 {
     use ArraySubsetAsserts;
 

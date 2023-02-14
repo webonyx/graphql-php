@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Executor\TestClasses;
 
-class Special
+final class Special
 {
     /** @var string */
     public $value;

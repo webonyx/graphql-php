@@ -11,7 +11,7 @@ use GraphQL\Validator\Rules\LoneSchemaDefinition;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class LoneSchemaDefinitionTest extends ValidatorTestCase
+final class LoneSchemaDefinitionTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors

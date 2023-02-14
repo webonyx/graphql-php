@@ -54,7 +54,7 @@ use GraphQL\Type\Schema;
  *
  * We begin by setting up our schema.
  */
-class StarWarsSchema
+final class StarWarsSchema
 {
     public static function build(): Schema
     {

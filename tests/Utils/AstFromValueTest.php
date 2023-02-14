@@ -20,7 +20,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 
-class AstFromValueTest extends TestCase
+final class AstFromValueTest extends TestCase
 {
     private \stdClass $complexValue;
 

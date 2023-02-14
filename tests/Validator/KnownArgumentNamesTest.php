@@ -11,7 +11,7 @@ use GraphQL\Validator\Rules\KnownArgumentNamesOnDirectives;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class KnownArgumentNamesTest extends ValidatorTestCase
+final class KnownArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Known argument names:
 

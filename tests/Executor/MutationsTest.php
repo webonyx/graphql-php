@@ -14,7 +14,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class MutationsTest extends TestCase
+final class MutationsTest extends TestCase
 {
     use ArraySubsetAsserts;
 

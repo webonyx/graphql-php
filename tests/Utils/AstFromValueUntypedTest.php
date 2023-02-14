@@ -6,7 +6,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 
-class AstFromValueUntypedTest extends TestCase
+final class AstFromValueUntypedTest extends TestCase
 {
     // Describe: valueFromASTUntyped
 

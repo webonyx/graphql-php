@@ -5,7 +5,7 @@ namespace GraphQL\Tests\Validator;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownTypeNames;
 
-class KnownTypeNamesTest extends ValidatorTestCase
+final class KnownTypeNamesTest extends ValidatorTestCase
 {
     // Validate: Known type names
 

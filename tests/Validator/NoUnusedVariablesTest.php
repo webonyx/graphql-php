@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\NoUnusedVariables;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class NoUnusedVariablesTest extends ValidatorTestCase
+final class NoUnusedVariablesTest extends ValidatorTestCase
 {
     // Validate: No unused variables
 

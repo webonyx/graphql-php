@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
  * @see describe('Star Wars Introspection Tests', () => {
  * @see describe('Basic Introspection', () => {
  */
-class StarWarsIntrospectionTest extends TestCase
+final class StarWarsIntrospectionTest extends TestCase
 {
     /**
      * @see it('Allows querying the schema for types')

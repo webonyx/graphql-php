@@ -8,7 +8,7 @@ use GraphQL\Validator\Rules\UniqueEnumValueNames;
 /**
  * @see describe('Validate: Unique enum value names')
  */
-class UniqueEnumValueNamesTest extends ValidatorTestCase
+final class UniqueEnumValueNamesTest extends ValidatorTestCase
 {
     /**
      * @see it('no values')

@@ -5,7 +5,7 @@ namespace GraphQL\Tests\Language;
 use GraphQL\Language\Token;
 use PHPUnit\Framework\TestCase;
 
-class TokenTest extends TestCase
+final class TokenTest extends TestCase
 {
     public function testReturnTokenOnArray(): void
     {

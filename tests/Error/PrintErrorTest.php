@@ -10,7 +10,7 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use PHPUnit\Framework\TestCase;
 
-class PrintErrorTest extends TestCase
+final class PrintErrorTest extends TestCase
 {
     /**
      * @see it('prints an line numbers with correct padding')

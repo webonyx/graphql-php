@@ -5,7 +5,7 @@ namespace GraphQL\Tests;
 use GraphQL\GraphQL;
 use PHPUnit\Framework\TestCase;
 
-class StarWarsQueryTest extends TestCase
+final class StarWarsQueryTest extends TestCase
 {
     /**
      * @see it('Correctly identifies R2-D2 as the hero of the Star Wars Saga')

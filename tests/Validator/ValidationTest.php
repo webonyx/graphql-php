@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Validator;
 
-class ValidationTest extends ValidatorTestCase
+final class ValidationTest extends ValidatorTestCase
 {
     // Validate: Supports full validation
 

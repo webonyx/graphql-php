@@ -10,7 +10,7 @@ use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class UniqueDirectivesPerLocationTest extends ValidatorTestCase
+final class UniqueDirectivesPerLocationTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors

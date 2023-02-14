@@ -4,7 +4,7 @@ namespace GraphQL\Tests\Executor\TestClasses;
 
 use GraphQL\Deferred;
 
-class Root
+final class Root
 {
     public NumberHolder $numberHolder;
 

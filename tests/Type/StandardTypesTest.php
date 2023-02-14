@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 
-class StandardTypesTest extends TestCase
+final class StandardTypesTest extends TestCase
 {
     /** @var array<string, ScalarType> */
     private static array $originalStandardTypes;

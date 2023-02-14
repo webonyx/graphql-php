@@ -15,7 +15,7 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class EnumTypeTest extends TestCase
+final class EnumTypeTest extends TestCase
 {
     use ArraySubsetAsserts;
 

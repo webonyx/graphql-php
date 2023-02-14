@@ -11,7 +11,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\TypeInfo;
 use PHPUnit\Framework\TestCase;
 
-class ExtractTypesTest extends TestCase
+final class ExtractTypesTest extends TestCase
 {
     /** @var ObjectType */
     private $query;

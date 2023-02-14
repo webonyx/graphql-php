@@ -11,7 +11,7 @@ use GraphQL\Validator\Rules\KnownDirectives;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class KnownDirectivesTest extends ValidatorTestCase
+final class KnownDirectivesTest extends ValidatorTestCase
 {
     public Schema $schemaWithSDLDirectives;
 

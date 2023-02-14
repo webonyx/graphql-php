@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\NoUnusedFragments;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class NoUnusedFragmentsTest extends ValidatorTestCase
+final class NoUnusedFragmentsTest extends ValidatorTestCase
 {
     // Validate: No unused fragments
 

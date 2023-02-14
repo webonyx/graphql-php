@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\ExecutableDefinitions;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class ExecutableDefinitionsTest extends ValidatorTestCase
+final class ExecutableDefinitionsTest extends ValidatorTestCase
 {
     // Validate: Executable definitions
 

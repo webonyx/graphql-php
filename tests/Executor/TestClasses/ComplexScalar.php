@@ -9,7 +9,7 @@ use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
 
-class ComplexScalar extends ScalarType
+final class ComplexScalar extends ScalarType
 {
     public string $name = 'ComplexScalar';
 

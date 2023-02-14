@@ -6,7 +6,7 @@ use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
-class MixedStoreTest extends TestCase
+final class MixedStoreTest extends TestCase
 {
     /** @var MixedStore<mixed> */
     private MixedStore $mixedStore;

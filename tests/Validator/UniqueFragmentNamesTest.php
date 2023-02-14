@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\UniqueFragmentNames;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class UniqueFragmentNamesTest extends ValidatorTestCase
+final class UniqueFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique fragment names
 

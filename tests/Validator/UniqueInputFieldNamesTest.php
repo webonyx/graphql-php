@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\UniqueInputFieldNames;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class UniqueInputFieldNamesTest extends ValidatorTestCase
+final class UniqueInputFieldNamesTest extends ValidatorTestCase
 {
     // Validate: Unique input field names
 

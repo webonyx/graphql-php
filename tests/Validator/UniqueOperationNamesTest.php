@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\UniqueOperationNames;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class UniqueOperationNamesTest extends ValidatorTestCase
+final class UniqueOperationNamesTest extends ValidatorTestCase
 {
     // Validate: Unique operation names
 

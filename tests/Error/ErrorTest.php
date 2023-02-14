@@ -11,7 +11,7 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use PHPUnit\Framework\TestCase;
 
-class ErrorTest extends TestCase
+final class ErrorTest extends TestCase
 {
     /**
      * @see it('uses the stack of an original error')

@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class PossibleFragmentSpreadsTest extends ValidatorTestCase
+final class PossibleFragmentSpreadsTest extends ValidatorTestCase
 {
     // Validate: Possible fragment spreads
 

@@ -18,7 +18,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class UnionInterfaceTest extends TestCase
+final class UnionInterfaceTest extends TestCase
 {
     public Schema $schema;
 

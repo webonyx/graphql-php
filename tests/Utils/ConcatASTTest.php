@@ -7,7 +7,7 @@ use GraphQL\Language\Printer;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 
-class ConcatASTTest extends TestCase
+final class ConcatASTTest extends TestCase
 {
     /**
      * @see it('concatenates two ASTs together'

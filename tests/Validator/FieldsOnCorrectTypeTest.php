@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\FieldsOnCorrectType;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class FieldsOnCorrectTypeTest extends ValidatorTestCase
+final class FieldsOnCorrectTypeTest extends ValidatorTestCase
 {
     // Validate: Fields on correct type
 

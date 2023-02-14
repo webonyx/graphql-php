@@ -14,7 +14,7 @@ use function Safe\json_encode;
 /**
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  */
-class ResolveTest extends TestCase
+final class ResolveTest extends TestCase
 {
     // Execute: resolve function
 

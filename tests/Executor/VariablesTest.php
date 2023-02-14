@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
  * @phpstan-import-type UnnamedFieldDefinitionConfig from \GraphQL\Type\Definition\FieldDefinition
  * @phpstan-import-type UnnamedArgumentConfig from \GraphQL\Type\Definition\Argument
  */
-class VariablesTest extends TestCase
+final class VariablesTest extends TestCase
 {
     use ArraySubsetAsserts;
 

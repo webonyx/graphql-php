@@ -14,7 +14,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class ValuesTest extends TestCase
+final class ValuesTest extends TestCase
 {
     private static Schema $schema;
 

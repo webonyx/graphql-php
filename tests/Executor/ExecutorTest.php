@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
-class ExecutorTest extends TestCase
+final class ExecutorTest extends TestCase
 {
     use ArraySubsetAsserts;
 

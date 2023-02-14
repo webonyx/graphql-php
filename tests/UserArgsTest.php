@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class UserArgsTest extends TestCase
+final class UserArgsTest extends TestCase
 {
     public function testErrorForNonExistentScalarInputField(): void
     {

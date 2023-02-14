@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\UniqueArgumentNames;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class UniqueArgumentNamesTest extends ValidatorTestCase
+final class UniqueArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique argument names
 

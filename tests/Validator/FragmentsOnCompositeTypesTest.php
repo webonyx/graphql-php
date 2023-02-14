@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class FragmentsOnCompositeTypesTest extends ValidatorTestCase
+final class FragmentsOnCompositeTypesTest extends ValidatorTestCase
 {
     // Validate: Fragments on composite types
 

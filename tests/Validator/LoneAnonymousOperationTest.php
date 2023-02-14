@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\LoneAnonymousOperation;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class LoneAnonymousOperationTest extends ValidatorTestCase
+final class LoneAnonymousOperationTest extends ValidatorTestCase
 {
     // Validate: Anonymous operation must be alone
 

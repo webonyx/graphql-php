@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\DisableIntrospection;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class DisableIntrospectionTest extends ValidatorTestCase
+final class DisableIntrospectionTest extends ValidatorTestCase
 {
     public function testFailsIfQueryContainsSchema(): void
     {

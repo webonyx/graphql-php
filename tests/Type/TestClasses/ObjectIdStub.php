@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Type\TestClasses;
 
-class ObjectIdStub
+final class ObjectIdStub
 {
     /** @var int */
     private $id;

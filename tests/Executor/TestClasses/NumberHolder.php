@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Executor\TestClasses;
 
-class NumberHolder
+final class NumberHolder
 {
     /** @var float */
     public $theNumber;

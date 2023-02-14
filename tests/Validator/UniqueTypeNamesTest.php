@@ -6,7 +6,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\UniqueTypeNames;
 
-class UniqueTypeNamesTest extends ValidatorTestCase
+final class UniqueTypeNamesTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors

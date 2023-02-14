@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @see describe('Execute: handles directives'
  */
-class DirectivesTest extends TestCase
+final class DirectivesTest extends TestCase
 {
     private static Schema $schema;
 

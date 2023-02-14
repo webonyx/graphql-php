@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * DESCRIBE: Execute: Handles execution of abstract types with promises.
  */
-class AbstractPromiseTest extends TestCase
+final class AbstractPromiseTest extends TestCase
 {
     use ArraySubsetAsserts;
 

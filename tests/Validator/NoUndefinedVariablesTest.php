@@ -6,7 +6,7 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 
-class NoUndefinedVariablesTest extends ValidatorTestCase
+final class NoUndefinedVariablesTest extends ValidatorTestCase
 {
     // Validate: No undefined variables
 

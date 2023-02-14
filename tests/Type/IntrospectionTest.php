@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
-class IntrospectionTest extends TestCase
+final class IntrospectionTest extends TestCase
 {
     use ArraySubsetAsserts;
 

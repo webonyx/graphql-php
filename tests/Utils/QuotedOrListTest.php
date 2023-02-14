@@ -5,7 +5,7 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
-class QuotedOrListTest extends TestCase
+final class QuotedOrListTest extends TestCase
 {
     public function testEmpty(): void
     {

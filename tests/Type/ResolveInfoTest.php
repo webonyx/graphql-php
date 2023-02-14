@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class ResolveInfoTest extends TestCase
+final class ResolveInfoTest extends TestCase
 {
     public function testFieldSelection(): void
     {

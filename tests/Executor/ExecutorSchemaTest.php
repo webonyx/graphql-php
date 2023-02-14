@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * describe('Execute: Handles execution with a complex schema', () => {.
  */
-class ExecutorSchemaTest extends TestCase
+final class ExecutorSchemaTest extends TestCase
 {
     /**
      * @see it('executes using a schema')

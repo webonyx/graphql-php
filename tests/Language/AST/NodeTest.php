@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
-class NodeTest extends TestCase
+final class NodeTest extends TestCase
 {
     public function testCloneDeep(): void
     {

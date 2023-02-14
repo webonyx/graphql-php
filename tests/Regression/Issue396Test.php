@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @see https://github.com/webonyx/graphql-php/issues/396
  */
-class Issue396Test extends TestCase
+final class Issue396Test extends TestCase
 {
     public function testUnionResolveType(): void
     {

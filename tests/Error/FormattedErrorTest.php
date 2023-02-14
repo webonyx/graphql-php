@@ -7,7 +7,7 @@ use GraphQL\Language\AST\NodeList;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 
-class FormattedErrorTest extends TestCase
+final class FormattedErrorTest extends TestCase
 {
     /**
      * @param mixed $var

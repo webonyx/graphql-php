@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
-class NonNullTest extends TestCase
+final class NonNullTest extends TestCase
 {
     use ArraySubsetAsserts;
 

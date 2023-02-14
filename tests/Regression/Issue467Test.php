@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @see https://github.com/webonyx/graphql-php/issues/467
  */
-class Issue467Test extends TestCase
+final class Issue467Test extends TestCase
 {
     public function testInputObjectValidation(): void
     {

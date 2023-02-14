@@ -6,7 +6,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\UniqueOperationTypes;
 
-class UniqueOperationTypesTest extends ValidatorTestCase
+final class UniqueOperationTypesTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors

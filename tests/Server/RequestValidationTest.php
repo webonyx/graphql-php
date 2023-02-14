@@ -6,7 +6,7 @@ use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use PHPUnit\Framework\TestCase;
 
-class RequestValidationTest extends TestCase
+final class RequestValidationTest extends TestCase
 {
     public function testSimpleRequestShouldValidate(): void
     {

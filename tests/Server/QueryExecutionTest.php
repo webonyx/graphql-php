@@ -17,7 +17,7 @@ use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
 
-class QueryExecutionTest extends ServerTestCase
+final class QueryExecutionTest extends ServerTestCase
 {
     use ArraySubsetAsserts;
 

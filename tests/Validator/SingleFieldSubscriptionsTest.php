@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\SingleFieldSubscription;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class SingleFieldSubscriptionsTest extends ValidatorTestCase
+final class SingleFieldSubscriptionsTest extends ValidatorTestCase
 {
     /**
      * @see it('valid single field subscription')

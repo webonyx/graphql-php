@@ -6,7 +6,7 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 
-class VariablesAreInputTypesTest extends ValidatorTestCase
+final class VariablesAreInputTypesTest extends ValidatorTestCase
 {
     // Validate: Variables are input types
 

@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
-class DeferredFieldsTest extends TestCase
+final class DeferredFieldsTest extends TestCase
 {
     private ObjectType $userType;
 

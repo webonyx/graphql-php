@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @see describe('Execute: Handles list nullability', () => {
  */
-class ListsTest extends TestCase
+final class ListsTest extends TestCase
 {
     use ArraySubsetAsserts;
 
