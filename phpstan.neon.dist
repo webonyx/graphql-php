@@ -39,6 +39,9 @@ parameters:
         - message: "#^Property GraphQL\\\\Tests\\\\Type\\\\SchemaTest\\:\\:\\$implementingType is never read, only written\\.$#"
           path: tests
 
+        # Cannot satisfy input covariance
+        - '~(expects|should return) array<string, array<string, callable\(GraphQL\\Language\\AST\\Node\): GraphQL\\Language\\VisitorOperation\|void\|false\|null>\|\(callable\(GraphQL\\Language\\AST\\Node\): GraphQL\\Language\\VisitorOperation\|void\|false\|null\)>(,| but returns)?~'
+
 includes:
     - phpstan-baseline.neon
     - phpstan/include-by-php-version.php
