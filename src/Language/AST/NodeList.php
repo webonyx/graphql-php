@@ -7,93 +7,91 @@ use GraphQL\Utils\AST;
 /**
  * @template T of Node
  *
- * @phpstan-implements \ArrayAccess<array-key, T>
- * @phpstan-implements \IteratorAggregate<array-key, T>
+ * @phpstan-implements \IteratorAggregate<int, T>
  */
-class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
+class NodeList implements \IteratorAggregate, \Countable
 {
     /**
-     * @var array<Node|array>
+     * @var array<Node>
      *
-     * @phpstan-var array<T|array<string, mixed>>
+     * @phpstan-var list<T>
      */
-    private array $nodes;
+    private array $nodes = [];
 
     /**
-     * @param array<Node|array> $nodes
+     * @param iterable<Node|array> $nodes
      *
-     * @phpstan-param array<T|array<string, mixed>> $nodes
+     * @phpstan-param iterable<T|array<string, mixed>> $nodes
      */
-    public function __construct(array $nodes)
+    public function __construct(iterable $nodes)
     {
-        $this->nodes = $nodes;
+        foreach ($nodes as $node) {
+            $this->nodes[] = $this->process($node);
+        }
     }
 
-    /**
-     * @param int|string $offset
-     */
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset): bool
+    public function has(int $offset): bool
     {
         return isset($this->nodes[$offset]);
     }
 
     /**
-     * @param int|string $offset
-     *
      * @phpstan-return T
      */
-    #[\ReturnTypeWillChange]
-    public function offsetGet($offset): Node
+    public function get(int $offset): Node
     {
-        $item = $this->nodes[$offset];
-
-        if (\is_array($item)) {
-            // @phpstan-ignore-next-line not really possible to express the correctness of this in PHP
-            return $this->nodes[$offset] = AST::fromArray($item);
-        }
-
-        return $item;
+        return $this->nodes[$offset];
     }
 
     /**
-     * @param int|string|null           $offset
+     * @phpstan-param T $value
+     */
+    public function set(int $offset, Node $value): void
+    {
+        $this->nodes[$offset] = $value;
+
+        assert($this->nodes === \array_values($this->nodes));
+    }
+
+    /**
+     * @phpstan-param T $value
+     */
+    public function add(Node $value): void
+    {
+        $this->nodes[] = $value;
+    }
+
+    /**
      * @param Node|array<string, mixed> $value
      *
      * @phpstan-param T|array<string, mixed> $value
+     *
+     * @phpstan-return T
      */
-    #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value): void
+    private function process($value): Node
     {
         if (\is_array($value)) {
             /** @phpstan-var T $value */
             $value = AST::fromArray($value);
         }
 
-        // Happens when a Node is pushed via []=
-        if ($offset === null) {
-            $this->nodes[] = $value;
-
-            return;
-        }
-
-        $this->nodes[$offset] = $value;
+        return $value;
     }
 
-    /**
-     * @param int|string $offset
-     */
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($offset): void
+    public function remove(Node $node): void
     {
-        unset($this->nodes[$offset]);
+        $foundKey = \array_search($node, $this->nodes, true);
+        if ($foundKey === false) {
+            throw new \InvalidArgumentException('Node not found in NodeList');
+        }
+
+        unset($this->nodes[$foundKey]);
+        $this->nodes = \array_values($this->nodes);
     }
 
     public function getIterator(): \Traversable
     {
-        foreach ($this->nodes as $key => $_) {
-            yield $key => $this->offsetGet($key);
-        }
+        yield from $this->nodes;
     }
 
     public function count(): int
@@ -116,7 +114,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @phpstan-param iterable<array-key, T> $list
+     * @phpstan-param iterable<int, T> $list
      *
      * @phpstan-return NodeList<T>
      */
@@ -130,14 +128,6 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * Resets the keys of the stored nodes to contiguous numeric indexes.
-     */
-    public function reindex(): void
-    {
-        $this->nodes = array_values($this->nodes);
-    }
-
-    /**
      * Returns a clone of this instance and all its children, except Location $loc.
      *
      * @return static<T>
@@ -146,8 +136,8 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     {
         /** @var static<T> $cloned */
         $cloned = new static([]);
-        foreach ($this->getIterator() as $key => $node) {
-            $cloned[$key] = $node->cloneDeep();
+        foreach ($this->getIterator() as $node) {
+            $cloned->add($node->cloneDeep());
         }
 
         return $cloned;
