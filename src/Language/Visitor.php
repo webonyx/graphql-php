@@ -14,34 +14,28 @@ use GraphQL\Utils\TypeInfo;
  * the visitor's enter function at each node in the traversal, and calling the
  * leave function after visiting that node and all of its child nodes.
  *
- * By returning different values from the enter and leave functions, the
- * behavior of the visitor can be altered, including skipping over a sub-tree of
- * the AST (by returning false), editing the AST by returning a value or null
- * to remove the value, or to stop the whole traversal by returning BREAK.
+ * By returning different values from the `enter` and `leave` functions, the
+ * behavior of the visitor can be altered.
+ * - no return (`void`) or return `null`: no action
+ * - `Visitor::skipNode()`: skips over the subtree at the current node of the AST
+ * - `Visitor::stop()`: stop the Visitor completely
+ * - `Visitor::removeNode()`: remove the current node
+ * - return any other value: replace this node with the returned value
  *
  * When using `visit()` to edit an AST, the original AST will not be modified, and
  * a new version of the AST with the changes applied will be returned from the
  * visit function.
  *
- *     $editedAST = Visitor::visit($ast, [
+ *   $editedAST = Visitor::visit($ast, [
  *       'enter' => function ($node, $key, $parent, $path, $ancestors) {
- *         // return
- *         //   null: no action
- *         //   Visitor::skipNode(): skip visiting this node
- *         //   Visitor::stop(): stop visiting altogether
- *         //   Visitor::removeNode(): delete this node
- *         //   any value: replace this node with the returned value
+ *           // ...
  *       },
  *       'leave' => function ($node, $key, $parent, $path, $ancestors) {
- *         // return
- *         //   null: no action
- *         //   Visitor::stop(): stop visiting altogether
- *         //   Visitor::removeNode(): delete this node
- *         //   any value: replace this node with the returned value
+ *           // ...
  *       }
- *     ]);
+ *   ]);
  *
- * Alternatively to providing enter() and leave() functions, a visitor can
+ * Alternatively to providing `enter` and `leave` functions, a visitor can
  * instead provide functions named the same as the [kinds of AST nodes](class-reference.md#graphqllanguageastnodekind),
  * or enter/leave visitors at a named key, leading to four permutations of
  * visitor API:
@@ -352,7 +346,7 @@ class Visitor
     }
 
     /**
-     * Returns marker for skipping the current node.
+     * Returns marker for skipping the subtree at the current node.
      *
      * @api
      */
