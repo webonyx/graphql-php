@@ -17,21 +17,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @phpstan-var array<T|array<string, mixed>>
      */
-    private $nodes;
-
-    /**
-     * @template TT of Node
-     *
-     * @param array<Node|array<string, mixed>> $nodes
-     *
-     * @phpstan-param array<TT|array<string, mixed>> $nodes
-     *
-     * @phpstan-return self<TT>
-     */
-    public static function create(array $nodes): self
-    {
-        return new static($nodes);
-    }
+    private array $nodes;
 
     /**
      * @param array<Node|array> $nodes
@@ -103,10 +89,24 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
         unset($this->nodes[$offset]);
     }
 
+    public function getIterator(): \Traversable
+    {
+        foreach ($this->nodes as $key => $_) {
+            yield $key => $this->offsetGet($key);
+        }
+    }
+
+    public function count(): int
+    {
+        return \count($this->nodes);
+    }
+
     /**
+     * Remove a portion of the NodeList and replace it with something else.
+     *
      * @param T|array<T>|null $replacement
      *
-     * @phpstan-return NodeList<T>
+     * @phpstan-return NodeList<T> the NodeList with the extracted elements
      */
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
@@ -129,16 +129,12 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
         return new NodeList(\array_merge($this->nodes, $list));
     }
 
-    public function getIterator(): \Traversable
+    /**
+     * Resets the keys of the stored nodes to contiguous numeric indexes.
+     */
+    public function reindex(): void
     {
-        foreach ($this->nodes as $key => $_) {
-            yield $key => $this->offsetGet($key);
-        }
-    }
-
-    public function count(): int
-    {
-        return \count($this->nodes);
+        $this->nodes = array_values($this->nodes);
     }
 
     /**
