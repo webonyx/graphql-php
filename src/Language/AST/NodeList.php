@@ -102,7 +102,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * Remove a portion of tne NodeList and replace it with something else.
+     * Remove a portion of the NodeList and replace it with something else.
      *
      * @param T|array<T>|null $replacement
      *
