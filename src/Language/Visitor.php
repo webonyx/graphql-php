@@ -274,25 +274,22 @@ class Visitor
 
                 if ($visitFn !== null) {
                     $result = $visitFn($node, $key, $parent, $path, $ancestors);
-                    $editValue = null;
 
                     if ($result !== null) {
-                        if ($result instanceof VisitorOperation) {
-                            if ($result instanceof VisitorStop) {
-                                break;
-                            }
-
-                            if (! $isLeaving && $result instanceof VisitorSkipNode) {
-                                \array_pop($path);
-                                continue;
-                            }
-
-                            if ($result instanceof VisitorRemoveNode) {
-                                $editValue = null;
-                            }
-                        } else {
-                            $editValue = $result;
+                        if ($result instanceof VisitorStop) {
+                            break;
                         }
+
+                        if ($result instanceof VisitorSkipNode) {
+                            if (! $isLeaving) {
+                                \array_pop($path);
+                            }
+                            continue;
+                        }
+
+                        $editValue = $result instanceof VisitorRemoveNode
+                            ? null
+                            : $result;
 
                         $edits[] = [$key, $editValue];
                         if (! $isLeaving) {
