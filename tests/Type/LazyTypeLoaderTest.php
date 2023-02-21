@@ -9,10 +9,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-/**
- * @see TypeLoaderTest
- */
-final class LazyTypeLoaderTest extends TypeLoaderTest
+final class LazyTypeLoaderTest extends TypeLoaderTestCaseBase
 {
     /** @var callable(): InterfaceType */
     private $node;

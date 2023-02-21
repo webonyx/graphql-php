@@ -12,7 +12,7 @@ use GraphQL\Type\Schema;
 /**
  * @see LazyTypeLoaderTest
  */
-final class EagerTypeLoaderTest extends TypeLoaderTest
+final class EagerTypeLoaderTest extends TypeLoaderTestCaseBase
 {
     private InterfaceType $node;
 
