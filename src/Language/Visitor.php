@@ -6,6 +6,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\Utils;
 
 /**
  * Utility for efficient AST traversal and modification.
@@ -26,7 +27,7 @@ use GraphQL\Utils\TypeInfo;
  *     $editedAST = Visitor::visit($ast, [
  *       'enter' => function ($node, $key, $parent, $path, $ancestors) {
  *         // return
- *         //   null: no action
+ *         //   null: remove this node
  *         //   Visitor::skipNode(): skip visiting this node
  *         //   Visitor::stop(): stop visiting altogether
  *         //   Visitor::removeNode(): delete this node
@@ -225,9 +226,12 @@ class Visitor
                             ++$editOffset;
                         } else {
                             if ($node instanceof NodeList || \is_array($node)) {
-                                if ($editValue !== false) {
-                                    $node[$editKey] = $editValue;
+                                if (! $editValue instanceof Node) {
+                                    $notNode = Utils::printSafe($editValue);
+                                    throw new \Exception("Can only add Node to NodeList, got: {$notNode}.");
                                 }
+
+                                $node[$editKey] = $editValue;
                             } else {
                                 $node->{$editKey} = $editValue;
                             }
