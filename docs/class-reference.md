@@ -1108,7 +1108,8 @@ visitor API:
    ]
    ]);
 
-@phpstan-type VisitorArray array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
+@phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
+@phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
 
 ### GraphQL\Language\Visitor Methods
 
