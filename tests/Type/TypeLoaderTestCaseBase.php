@@ -10,7 +10,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-abstract class TypeLoaderTest extends TestCaseBase
+abstract class TypeLoaderTestCaseBase extends TestCaseBase
 {
     use ArraySubsetAsserts;
 
