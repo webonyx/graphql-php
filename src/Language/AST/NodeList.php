@@ -12,22 +12,20 @@ use GraphQL\Utils\AST;
 class NodeList implements \IteratorAggregate, \Countable
 {
     /**
-     * @var array<Node>
+     * @var list<Node|array<string, mixed>>
      *
-     * @phpstan-var list<T>
+     * @phpstan-var list<T|array<string, mixed>> $nodes
      */
-    private array $nodes = [];
+    protected array $nodes;
 
     /**
-     * @param iterable<Node|array> $nodes
+     * @param list<Node|array<string, mixed>> $nodes
      *
-     * @phpstan-param iterable<T|array<string, mixed>> $nodes
+     * @phpstan-param list<T|array<string, mixed>> $nodes
      */
-    public function __construct(iterable $nodes)
+    public function __construct(array $nodes)
     {
-        foreach ($nodes as $node) {
-            $this->nodes[] = $this->process($node);
-        }
+        $this->nodes = $nodes;
     }
 
     public function has(int $offset): bool
@@ -40,7 +38,12 @@ class NodeList implements \IteratorAggregate, \Countable
      */
     public function get(int $offset): Node
     {
-        return $this->nodes[$offset];
+        $node = $this->nodes[$offset];
+
+        // @phpstan-ignore-next-line not really possible to express the correctness of this in PHP
+        return \is_array($node)
+            ? ($this->nodes[$offset] = AST::fromArray($node))
+            : $node;
     }
 
     /**
@@ -61,37 +64,17 @@ class NodeList implements \IteratorAggregate, \Countable
         $this->nodes[] = $value;
     }
 
-    /**
-     * @param Node|array<string, mixed> $value
-     *
-     * @phpstan-param T|array<string, mixed> $value
-     *
-     * @phpstan-return T
-     */
-    private function process($value): Node
+    public function unset(int $offset): void
     {
-        if (\is_array($value)) {
-            /** @phpstan-var T $value */
-            $value = AST::fromArray($value);
-        }
-
-        return $value;
-    }
-
-    public function remove(Node $node): void
-    {
-        $foundKey = \array_search($node, $this->nodes, true);
-        if ($foundKey === false) {
-            throw new \InvalidArgumentException('Node not found in NodeList');
-        }
-
-        unset($this->nodes[$foundKey]);
+        unset($this->nodes[$offset]);
         $this->nodes = \array_values($this->nodes);
     }
 
     public function getIterator(): \Traversable
     {
-        yield from $this->nodes;
+        foreach ($this->nodes as $key => $_) {
+            yield $key => $this->get($key);
+        }
     }
 
     public function count(): int
@@ -102,15 +85,17 @@ class NodeList implements \IteratorAggregate, \Countable
     /**
      * Remove a portion of the NodeList and replace it with something else.
      *
-     * @param T|array<T>|null $replacement
+     * @param Node|array<Node>|null $replacement
+     * @phpstan-param T|array<T>|null $replacement
      *
      * @phpstan-return NodeList<T> the NodeList with the extracted elements
      */
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
-        return new NodeList(
-            \array_splice($this->nodes, $offset, $length, $replacement)
-        );
+        $spliced = \array_splice($this->nodes, $offset, $length, $replacement);
+
+        // @phpstan-ignore-next-line generic type mismatch
+        return new NodeList($spliced);
     }
 
     /**
@@ -124,7 +109,10 @@ class NodeList implements \IteratorAggregate, \Countable
             $list = \iterator_to_array($list);
         }
 
-        return new NodeList(\array_merge($this->nodes, $list));
+        $merged = \array_merge($this->nodes, $list);
+
+        // @phpstan-ignore-next-line generic type mismatch
+        return new NodeList($merged);
     }
 
     /**
