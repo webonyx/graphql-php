@@ -174,13 +174,13 @@ class Visitor
 
         /**
          * @var list<array{
-         *   inArray: bool,
+         *   inList: bool,
          *   index: int,
          *   keys: Node|NodeList|mixed,
          *   edits: array<int, array{mixed, mixed}>,
          * }> $stack */
         $stack = [];
-        $inArray = $root instanceof NodeList;
+        $inList = $root instanceof NodeList;
         $keys = [$root];
         $index = -1;
         $edits = [];
@@ -210,12 +210,12 @@ class Visitor
 
                     $editOffset = 0;
                     foreach ($edits as [$editKey, $editValue]) {
-                        if ($inArray) {
+                        if ($inList) {
                             $editKey -= $editOffset;
                         }
 
-                        if ($inArray && $editValue === null) {
-                            assert($node instanceof NodeList, 'Follows from $inArray');
+                        if ($inList && $editValue === null) {
+                            assert($node instanceof NodeList, 'Follows from $inList');
                             $node->splice($editKey, 1);
                             ++$editOffset;
                         } elseif ($node instanceof NodeList) {
@@ -236,23 +236,19 @@ class Visitor
                     'index' => $index,
                     'keys' => $keys,
                     'edits' => $edits,
-                    'inArray' => $inArray,
+                    'inList' => $inList,
                 ] = \array_pop($stack);
             } else {
-                $key = $parent !== null
-                    ? (
-                        $inArray
-                            ? $index
-                            : $keys[$index]
-                    )
-                    : null;
-                $node = $parent !== null
-                    ? (
-                        $parent instanceof NodeList
-                            ? $parent->get($key)
-                            : $parent->{$key}
-                    )
-                    : $newRoot;
+                if ($parent === null) {
+                    $node = $newRoot;
+                } else {
+                    $key = $inList
+                        ? $index
+                        : $keys[$index];
+                    $node = $parent instanceof NodeList
+                        ? $parent->get($key)
+                        : $parent->{$key};
+                }
                 if ($node === null) {
                     continue;
                 }
@@ -310,14 +306,14 @@ class Visitor
                 \array_pop($path);
             } else {
                 $stack[] = [
-                    'inArray' => $inArray,
+                    'inList' => $inList,
                     'index' => $index,
                     'keys' => $keys,
                     'edits' => $edits,
                 ];
-                $inArray = $node instanceof NodeList;
+                $inList = $node instanceof NodeList;
 
-                $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?? [];
+                $keys = ($inList ? $node : $visitorKeys[$node->kind]) ?? [];
                 $index = -1;
                 $edits = [];
                 if ($parent !== null) {

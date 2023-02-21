@@ -41,10 +41,11 @@ final class NodeListTest extends TestCase
 
     public function testThrowsOnInvalidArrays(): void
     {
-        $this->expectException(InvariantViolation::class);
-
         // @phpstan-ignore-next-line Wrong on purpose
-        new NodeList([['not a valid array representation of an AST node']]);
+        $nodeList = new NodeList([['not a valid array representation of an AST node']]);
+
+        $this->expectException(InvariantViolation::class);
+        iterator_to_array($nodeList);
     }
 
     public function testAddNodes(): void
@@ -60,13 +61,13 @@ final class NodeListTest extends TestCase
         self::assertCount(2, $nodeList);
     }
 
-    public function testRemoveDoesNotBreakList(): void
+    public function testUnsetDoesNotBreakList(): void
     {
         $foo = new NameNode(['value' => 'foo']);
         $bar = new NameNode(['value' => 'bar']);
 
         $nodeList = new NodeList([$foo, $bar]);
-        $nodeList->remove($foo);
+        $nodeList->unset(0);
 
         self::assertTrue($nodeList->has(0));
         self::assertSame($bar, $nodeList->get(0));
