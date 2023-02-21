@@ -429,7 +429,7 @@ final class BuildSchemaTest extends TestCaseBase
             
             GRAPHQL;
 
-        $definition = Parser::parse($sdl)->definitions[0];
+        $definition = Parser::parse($sdl)->definitions->get(0);
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $definition);
         self::assertCount(0, $definition->interfaces, 'The interfaces property must be an empty list.');
 

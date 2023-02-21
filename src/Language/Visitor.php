@@ -218,17 +218,15 @@ class Visitor
                             assert($node instanceof NodeList, 'Follows from $inArray');
                             $node->splice($editKey, 1);
                             ++$editOffset;
-                        } else {
-                            if ($node instanceof NodeList || \is_array($node)) {
-                                if (! $editValue instanceof Node) {
-                                    $notNode = Utils::printSafe($editValue);
-                                    throw new \Exception("Can only add Node to NodeList, got: {$notNode}.");
-                                }
-
-                                $node[$editKey] = $editValue;
-                            } else {
-                                $node->{$editKey} = $editValue;
+                        } elseif ($node instanceof NodeList) {
+                            if (! $editValue instanceof Node) {
+                                $notNode = Utils::printSafe($editValue);
+                                throw new \Exception("Can only add Node to NodeList, got: {$notNode}.");
                             }
+
+                            $node->set($editKey, $editValue);
+                        } else {
+                            $node->{$editKey} = $editValue;
                         }
                     }
                 }
@@ -250,8 +248,8 @@ class Visitor
                     : null;
                 $node = $parent !== null
                     ? (
-                        $parent instanceof NodeList || \is_array($parent)
-                            ? $parent[$key]
+                        $parent instanceof NodeList
+                            ? $parent->get($key)
                             : $parent->{$key}
                     )
                     : $newRoot;
@@ -265,7 +263,7 @@ class Visitor
             }
 
             $result = null;
-            if (! $node instanceof NodeList && ! \is_array($node)) {
+            if (! $node instanceof NodeList) {
                 if (! ($node instanceof Node)) {
                     throw new \Exception('Invalid AST Node: ' . \json_encode($node));
                 }
@@ -317,7 +315,7 @@ class Visitor
                     'keys' => $keys,
                     'edits' => $edits,
                 ];
-                $inArray = $node instanceof NodeList || \is_array($node);
+                $inArray = $node instanceof NodeList;
 
                 $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?? [];
                 $index = -1;
