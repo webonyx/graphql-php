@@ -86,6 +86,7 @@ class NodeList implements \IteratorAggregate, \Countable
      * Remove a portion of the NodeList and replace it with something else.
      *
      * @param Node|array<Node>|null $replacement
+     *
      * @phpstan-param T|array<T>|null $replacement
      *
      * @phpstan-return NodeList<T> the NodeList with the extracted elements
