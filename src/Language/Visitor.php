@@ -6,6 +6,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\Utils;
 
 /**
  * Utility for efficient AST traversal and modification.
@@ -88,7 +89,8 @@ use GraphQL\Utils\TypeInfo;
  *       ]
  *     ]);
  *
- * @phpstan-type VisitorArray array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
+ * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
+ * @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
  */
 class Visitor
 {
@@ -218,6 +220,11 @@ class Visitor
                             ++$editOffset;
                         } else {
                             if ($node instanceof NodeList || \is_array($node)) {
+                                if (! $editValue instanceof Node) {
+                                    $notNode = Utils::printSafe($editValue);
+                                    throw new \Exception("Can only add Node to NodeList, got: {$notNode}.");
+                                }
+
                                 $node[$editKey] = $editValue;
                             } else {
                                 $node->{$editKey} = $editValue;
@@ -267,25 +274,22 @@ class Visitor
 
                 if ($visitFn !== null) {
                     $result = $visitFn($node, $key, $parent, $path, $ancestors);
-                    $editValue = null;
 
                     if ($result !== null) {
-                        if ($result instanceof VisitorOperation) {
-                            if ($result instanceof VisitorStop) {
-                                break;
-                            }
-
-                            if (! $isLeaving && $result instanceof VisitorSkipNode) {
-                                \array_pop($path);
-                                continue;
-                            }
-
-                            if ($result instanceof VisitorRemoveNode) {
-                                $editValue = null;
-                            }
-                        } else {
-                            $editValue = $result;
+                        if ($result instanceof VisitorStop) {
+                            break;
                         }
+
+                        if ($result instanceof VisitorSkipNode) {
+                            if (! $isLeaving) {
+                                \array_pop($path);
+                            }
+                            continue;
+                        }
+
+                        $editValue = $result instanceof VisitorRemoveNode
+                            ? null
+                            : $result;
 
                         $edits[] = [$key, $editValue];
                         if (! $isLeaving) {

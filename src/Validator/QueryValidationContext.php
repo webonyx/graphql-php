@@ -129,11 +129,8 @@ class QueryValidationContext implements ValidationContext
                 Visitor::visitWithTypeInfo(
                     $typeInfo,
                     [
-                        NodeKind::VARIABLE_DEFINITION => static fn (): bool => false,
-                        NodeKind::VARIABLE => static function (VariableNode $variable) use (
-                            &$usages,
-                            $typeInfo
-                        ): void {
+                        NodeKind::VARIABLE_DEFINITION => static fn () => Visitor::skipNode(),
+                        NodeKind::VARIABLE => static function (VariableNode $variable) use (&$usages, $typeInfo): void {
                             $usages[] = [
                                 'node' => $variable,
                                 'type' => $typeInfo->getInputType(),

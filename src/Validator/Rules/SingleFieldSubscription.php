@@ -11,9 +11,6 @@ use GraphQL\Validator\QueryValidationContext;
 
 class SingleFieldSubscription extends ValidationRule
 {
-    /**
-     * @return array<string, callable>
-     */
     public function getVisitor(QueryValidationContext $context): array
     {
         return [
