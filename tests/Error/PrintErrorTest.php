@@ -63,8 +63,8 @@ Test (9:1)
         ));
 
         /** @var ObjectTypeDefinitionNode $objectDefinitionA */
-        $objectDefinitionA = $sourceA->definitions->get(0);
-        $fieldTypeA = $objectDefinitionA->fields->get(0)->type;
+        $objectDefinitionA = $sourceA->definitions[0];
+        $fieldTypeA = $objectDefinitionA->fields[0]->type;
 
         $sourceB = Parser::parse(new Source(
             'type Foo {
@@ -74,8 +74,8 @@ Test (9:1)
         ));
 
         /** @var ObjectTypeDefinitionNode $objectDefinitionB */
-        $objectDefinitionB = $sourceB->definitions->get(0);
-        $fieldTypeB = $objectDefinitionB->fields->get(0)->type;
+        $objectDefinitionB = $sourceB->definitions[0];
+        $fieldTypeB = $objectDefinitionB->fields[0]->type;
 
         $error = new Error(
             'Example error with two nodes',

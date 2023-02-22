@@ -61,7 +61,7 @@ class QueryComplexity extends QuerySecurityRule
                     );
                 },
                 NodeKind::VARIABLE_DEFINITION => function ($def): VisitorOperation {
-                    $this->variableDefs->add($def);
+                    $this->variableDefs[] = $def;
 
                     return Visitor::skipNode();
                 },

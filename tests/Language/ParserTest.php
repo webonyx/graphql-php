@@ -220,7 +220,7 @@ HEREDOC;
         ]);
 
         /** @var OperationDefinitionNode $operationDefinition */
-        $operationDefinition = $result->definitions->get(0);
+        $operationDefinition = $result->definitions[0];
         self::assertEquals($expected, $operationDefinition->selectionSet);
     }
 

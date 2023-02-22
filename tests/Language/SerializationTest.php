@@ -58,8 +58,8 @@ final class SerializationTest extends TestCase
 
                 foreach ($expectedValue as $index => $listNode) {
                     $tmpPath2 = $tmpPath;
-                    $tmpPath2[] = (string) $index;
-                    self::assertNodesAreEqual($listNode, $actualValue->get($index), $tmpPath2);
+                    $tmpPath2[] = $index;
+                    self::assertNodesAreEqual($listNode, $actualValue[$index], $tmpPath2);
                 }
             } elseif ($expectedValue instanceof Location) {
                 self::assertInstanceOf(Location::class, $actualValue, $err);

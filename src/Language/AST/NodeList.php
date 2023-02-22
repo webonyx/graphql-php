@@ -7,73 +7,92 @@ use GraphQL\Utils\AST;
 /**
  * @template T of Node
  *
- * @phpstan-implements \IteratorAggregate<int, T>
+ * @phpstan-implements \ArrayAccess<array-key, T>
+ * @phpstan-implements \IteratorAggregate<array-key, T>
  */
-class NodeList implements \IteratorAggregate, \Countable
+class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
-     * @var list<Node|array<string, mixed>>
+     * @var array<Node|array>
      *
-     * @phpstan-var list<T|array<string, mixed>> $nodes
+     * @phpstan-var array<T|array<string, mixed>>
      */
-    protected array $nodes;
+    private array $nodes;
 
     /**
-     * @param list<Node|array<string, mixed>> $nodes
+     * @param array<Node|array> $nodes
      *
-     * @phpstan-param list<T|array<string, mixed>> $nodes
+     * @phpstan-param array<T|array<string, mixed>> $nodes
      */
     public function __construct(array $nodes)
     {
         $this->nodes = $nodes;
     }
 
-    public function has(int $offset): bool
+    /**
+     * @param int|string $offset
+     */
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset): bool
     {
         return isset($this->nodes[$offset]);
     }
 
     /**
+     * @param int|string $offset
+     *
      * @phpstan-return T
      */
-    public function get(int $offset): Node
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset): Node
     {
-        $node = $this->nodes[$offset];
+        $item = $this->nodes[$offset];
 
-        // @phpstan-ignore-next-line not really possible to express the correctness of this in PHP
-        return \is_array($node)
-            ? ($this->nodes[$offset] = AST::fromArray($node))
-            : $node;
+        if (\is_array($item)) {
+            // @phpstan-ignore-next-line not really possible to express the correctness of this in PHP
+            return $this->nodes[$offset] = AST::fromArray($item);
+        }
+
+        return $item;
     }
 
     /**
-     * @phpstan-param T $value
+     * @param int|string|null           $offset
+     * @param Node|array<string, mixed> $value
+     *
+     * @phpstan-param T|array<string, mixed> $value
      */
-    public function set(int $offset, Node $value): void
+    #[\ReturnTypeWillChange]
+    public function offsetSet($offset, $value): void
     {
+        if (\is_array($value)) {
+            /** @phpstan-var T $value */
+            $value = AST::fromArray($value);
+        }
+
+        // Happens when a Node is pushed via []=
+        if ($offset === null) {
+            $this->nodes[] = $value;
+
+            return;
+        }
+
         $this->nodes[$offset] = $value;
-
-        assert($this->nodes === \array_values($this->nodes));
     }
 
     /**
-     * @phpstan-param T $value
+     * @param int|string $offset
      */
-    public function add(Node $value): void
-    {
-        $this->nodes[] = $value;
-    }
-
-    public function unset(int $offset): void
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($offset): void
     {
         unset($this->nodes[$offset]);
-        $this->nodes = \array_values($this->nodes);
     }
 
     public function getIterator(): \Traversable
     {
         foreach ($this->nodes as $key => $_) {
-            yield $key => $this->get($key);
+            yield $key => $this->offsetGet($key);
         }
     }
 
@@ -85,22 +104,19 @@ class NodeList implements \IteratorAggregate, \Countable
     /**
      * Remove a portion of the NodeList and replace it with something else.
      *
-     * @param Node|array<Node>|null $replacement
-     *
-     * @phpstan-param T|array<T>|null $replacement
+     * @param T|array<T>|null $replacement
      *
      * @phpstan-return NodeList<T> the NodeList with the extracted elements
      */
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
-        $spliced = \array_splice($this->nodes, $offset, $length, $replacement);
-
-        // @phpstan-ignore-next-line generic type mismatch
-        return new NodeList($spliced);
+        return new NodeList(
+            \array_splice($this->nodes, $offset, $length, $replacement)
+        );
     }
 
     /**
-     * @phpstan-param iterable<int, T> $list
+     * @phpstan-param iterable<array-key, T> $list
      *
      * @phpstan-return NodeList<T>
      */
@@ -110,10 +126,15 @@ class NodeList implements \IteratorAggregate, \Countable
             $list = \iterator_to_array($list);
         }
 
-        $merged = \array_merge($this->nodes, $list);
+        return new NodeList(\array_merge($this->nodes, $list));
+    }
 
-        // @phpstan-ignore-next-line generic type mismatch
-        return new NodeList($merged);
+    /**
+     * Resets the keys of the stored nodes to contiguous numeric indexes.
+     */
+    public function reindex(): void
+    {
+        $this->nodes = array_values($this->nodes);
     }
 
     /**
@@ -125,8 +146,8 @@ class NodeList implements \IteratorAggregate, \Countable
     {
         /** @var static<T> $cloned */
         $cloned = new static([]);
-        foreach ($this->getIterator() as $node) {
-            $cloned->add($node->cloneDeep());
+        foreach ($this->getIterator() as $key => $node) {
+            $cloned[$key] = $node->cloneDeep();
         }
 
         return $cloned;

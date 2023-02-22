@@ -49,7 +49,7 @@ final class VisitorTest extends ValidatorTestCase
 
         if ($parent instanceof NodeList) {
             self::assertIsInt($key);
-            self::assertTrue($parent->has($key));
+            self::assertTrue(isset($parent[$key]));
         } else {
             self::assertIsString($key);
             self::assertTrue(property_exists($parent, $key));
@@ -66,8 +66,7 @@ final class VisitorTest extends ValidatorTestCase
         }
 
         if ($parent instanceof NodeList) {
-            self::assertIsInt($key);
-            self::assertEquals($node, $parent->get($key));
+            self::assertEquals($node, $parent[$key]);
         } else {
             /** @phpstan-ignore-next-line */
             self::assertEquals($node, $parent->{$key});
@@ -92,8 +91,7 @@ final class VisitorTest extends ValidatorTestCase
 
         foreach ($path as $key) {
             if ($result instanceof NodeList) {
-                self::assertIsInt($key);
-                $result = $result->get($key);
+                $result = $result[$key];
             } else {
                 /** @phpstan-ignore-next-line */
                 $result = $result->{$key};
@@ -223,7 +221,7 @@ final class VisitorTest extends ValidatorTestCase
         self::assertNotEquals($ast, $editedAst);
 
         $expected = $ast->cloneDeep();
-        $operationNode = $expected->definitions->get(0);
+        $operationNode = $expected->definitions[0];
         assert($operationNode instanceof OperationDefinitionNode);
         $operationNode->directives = new NodeList([$directive1, $directive2]);
 

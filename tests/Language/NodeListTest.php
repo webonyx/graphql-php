@@ -13,9 +13,10 @@ final class NodeListTest extends TestCase
     {
         $nameNode = new NameNode(['value' => 'bar']);
 
-        $nodeList = new NodeList([$nameNode->toArray()]);
+        $key = 'foo';
+        $nodeList = new NodeList([$key => $nameNode->toArray()]);
 
-        self::assertEquals($nameNode, $nodeList->get(0));
+        self::assertEquals($nameNode, $nodeList[$key]);
     }
 
     public function testCloneDeep(): void
@@ -23,14 +24,14 @@ final class NodeListTest extends TestCase
         $nameNode = new NameNode(['value' => 'bar']);
 
         $nodeList = new NodeList([
-            $nameNode->toArray(),
-            $nameNode,
+            'array' => $nameNode->toArray(),
+            'instance' => $nameNode,
         ]);
 
         $cloned = $nodeList->cloneDeep();
 
-        self::assertNotSameButEquals($nodeList->get(0), $cloned->get(0));
-        self::assertNotSameButEquals($nodeList->get(1), $cloned->get(1));
+        self::assertNotSameButEquals($nodeList['array'], $cloned['array']);
+        self::assertNotSameButEquals($nodeList['instance'], $cloned['instance']);
     }
 
     private static function assertNotSameButEquals(object $node, object $clone): void
@@ -41,35 +42,42 @@ final class NodeListTest extends TestCase
 
     public function testThrowsOnInvalidArrays(): void
     {
-        // @phpstan-ignore-next-line Wrong on purpose
-        $nodeList = new NodeList([['not a valid array representation of an AST node']]);
+        $nodeList = new NodeList([]);
 
-        $this->expectException(InvariantViolation::class);
-        iterator_to_array($nodeList);
+        self::expectException(InvariantViolation::class);
+        // @phpstan-ignore-next-line Wrong on purpose
+        $nodeList[] = ['not a valid array representation of an AST node'];
     }
 
-    public function testAddNodes(): void
+    public function testPushNodes(): void
     {
         /** @var NodeList<NameNode> $nodeList */
         $nodeList = new NodeList([]);
         self::assertCount(0, $nodeList);
 
-        $nodeList->add(new NameNode(['value' => 'foo']));
+        $nodeList[] = new NameNode(['value' => 'foo']);
         self::assertCount(1, $nodeList);
 
-        $nodeList->add(new NameNode(['value' => 'bar']));
+        $nodeList[] = new NameNode(['value' => 'bar']);
         self::assertCount(2, $nodeList);
     }
 
-    public function testUnsetDoesNotBreakList(): void
+    public function testResetContiguousNumericIndexAfterUnset(): void
     {
         $foo = new NameNode(['value' => 'foo']);
         $bar = new NameNode(['value' => 'bar']);
 
         $nodeList = new NodeList([$foo, $bar]);
-        $nodeList->unset(0);
+        unset($nodeList[0]);
 
-        self::assertTrue($nodeList->has(0));
-        self::assertSame($bar, $nodeList->get(0));
+        self::assertArrayNotHasKey(0, $nodeList);
+        // @phpstan-ignore-next-line just wrong
+        self::assertArrayHasKey(1, $nodeList);
+
+        $nodeList->reindex();
+
+        // @phpstan-ignore-next-line just wrong
+        self::assertArrayHasKey(0, $nodeList);
+        self::assertSame($bar, $nodeList[0]);
     }
 }
