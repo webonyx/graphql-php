@@ -34,8 +34,8 @@ final class ErrorTest extends TestCase
     }');
         $ast = Parser::parse($source);
         /** @var OperationDefinitionNode $operationDefinition */
-        $operationDefinition = $ast->definitions[0];
-        $fieldNode = $operationDefinition->selectionSet->selections[0];
+        $operationDefinition = $ast->definitions->get(0);
+        $fieldNode = $operationDefinition->selectionSet->selections->get(0);
         $e = new Error('msg', [$fieldNode]);
 
         self::assertEquals([$fieldNode], $e->getNodes());
@@ -54,8 +54,8 @@ final class ErrorTest extends TestCase
     }');
         $ast = Parser::parse($source);
         /** @var OperationDefinitionNode $operationDefinition */
-        $operationDefinition = $ast->definitions[0];
-        $fieldNode = $operationDefinition->selectionSet->selections[0];
+        $operationDefinition = $ast->definitions->get(0);
+        $fieldNode = $operationDefinition->selectionSet->selections->get(0);
         $e = new Error('msg', $fieldNode); // Non-array value.
 
         self::assertEquals([$fieldNode], $e->getNodes());
@@ -73,7 +73,7 @@ final class ErrorTest extends TestCase
       field
     }');
         $ast = Parser::parse($source);
-        $operationNode = $ast->definitions[0];
+        $operationNode = $ast->definitions->get(0);
         $e = new Error('msg', [$operationNode]);
 
         self::assertEquals([$operationNode], $e->getNodes());
