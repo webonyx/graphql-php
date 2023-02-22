@@ -114,8 +114,8 @@ final class ErrorTest extends TestCase
     {
         $ast = Parser::parse('{ field }');
         /** @var OperationDefinitionNode $operationDefinition */
-        $operationDefinition = $ast->definitions->get(0);
-        $node = $operationDefinition->selectionSet->selections->get(0);
+        $operationDefinition = $ast->definitions[0];
+        $node = $operationDefinition->selectionSet->selections[0];
         $e = new Error('msg', [$node]);
 
         self::assertEquals(
