@@ -224,7 +224,7 @@ class Visitor
                                 throw new \Exception("Can only add Node to NodeList, got: {$notNode}.");
                             }
 
-                            $node[$editKey] = $editValue;
+                            $node->set($editKey, $editValue);
                         } else {
                             $node->{$editKey} = $editValue;
                         }
@@ -246,7 +246,7 @@ class Visitor
                         ? $index
                         : $keys[$index];
                     $node = $parent instanceof NodeList
-                        ? $parent[$key]
+                        ? $parent->get($key)
                         : $parent->{$key};
                 }
                 if ($node === null) {

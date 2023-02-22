@@ -18,7 +18,7 @@ final class AstGetOperationAstTest extends TestCase
         $doc = Parser::parse('{ field }');
         self::assertEquals(
             AST::getOperationAST($doc),
-            $doc->definitions->offsetGet(0)
+            $doc->definitions->get(0)
         );
     }
 
@@ -28,7 +28,7 @@ final class AstGetOperationAstTest extends TestCase
     public function testGetsAnOperationFromADcoumentWithNamedOpMutation(): void
     {
         $doc = Parser::parse('mutation Test { field }');
-        self::assertEquals(AST::getOperationAST($doc), $doc->definitions->offsetGet(0));
+        self::assertEquals(AST::getOperationAST($doc), $doc->definitions->get(0));
     }
 
     /**
@@ -37,7 +37,7 @@ final class AstGetOperationAstTest extends TestCase
     public function testGetsAnOperationFromADcoumentWithNamedOpSubscription(): void
     {
         $doc = Parser::parse('subscription Test { field }');
-        self::assertEquals(AST::getOperationAST($doc), $doc->definitions->offsetGet(0));
+        self::assertEquals(AST::getOperationAST($doc), $doc->definitions->get(0));
     }
 
     /**
@@ -99,8 +99,8 @@ final class AstGetOperationAstTest extends TestCase
           mutation TestM { field }
           subscription TestS { field }
         ');
-        self::assertEquals(AST::getOperationAST($doc, 'TestQ'), $doc->definitions->offsetGet(0));
-        self::assertEquals(AST::getOperationAST($doc, 'TestM'), $doc->definitions->offsetGet(1));
-        self::assertEquals(AST::getOperationAST($doc, 'TestS'), $doc->definitions->offsetGet(2));
+        self::assertEquals(AST::getOperationAST($doc, 'TestQ'), $doc->definitions->get(0));
+        self::assertEquals(AST::getOperationAST($doc, 'TestM'), $doc->definitions->get(1));
+        self::assertEquals(AST::getOperationAST($doc, 'TestS'), $doc->definitions->get(2));
     }
 }

@@ -257,11 +257,11 @@ final class ExecutorTest extends TestCase
         Executor::execute($schema, $ast, $rootValue, null, ['var' => '123']);
 
         /** @var OperationDefinitionNode $operationDefinition */
-        $operationDefinition = $ast->definitions[0];
+        $operationDefinition = $ast->definitions->get(0);
 
         self::assertEquals('test', $info->fieldName);
         self::assertCount(1, $info->fieldNodes);
-        self::assertSame($operationDefinition->selectionSet->selections[0], $info->fieldNodes[0]);
+        self::assertSame($operationDefinition->selectionSet->selections->get(0), $info->fieldNodes[0]);
         self::assertSame(Type::string(), $info->returnType);
         self::assertSame($schema->getQueryType(), $info->parentType);
         self::assertEquals(['result'], $info->path);
