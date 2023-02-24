@@ -204,12 +204,13 @@ class FieldDefinition
 
         if (! $type instanceof OutputType) {
             $safeType = Utils::printSafe($this->type);
-            throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}");
+            throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}.");
         }
 
+        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
         if ($this->resolveFn !== null && ! \is_callable($this->resolveFn)) {
             $safeResolveFn = Utils::printSafe($this->resolveFn);
-            throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}");
+            throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}.");
         }
 
         foreach ($this->args as $fieldArgument) {

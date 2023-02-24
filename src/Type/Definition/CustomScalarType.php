@@ -8,6 +8,7 @@ use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Utils\AST;
+use GraphQL\Utils\Utils;
 
 /**
  * @phpstan-type InputCustomScalarConfig array{
@@ -77,18 +78,39 @@ class CustomScalarType extends ScalarType
     {
         parent::assertValid();
 
-        if (isset($this->config['serialize']) && ! \is_callable($this->config['serialize'])) {
-            throw new InvariantViolation("{$this->name} must provide \"serialize\" function. If this custom Scalar is also used as an input type, ensure \"parseValue\" and \"parseLiteral\" functions are also provided.");
-        }
-
+        $serialize = $this->config['serialize'] ?? null;
         $parseValue = $this->config['parseValue'] ?? null;
         $parseLiteral = $this->config['parseLiteral'] ?? null;
-        if ($parseValue === null && $parseLiteral === null) {
-            return;
+
+        $hasSerialize = $serialize !== null;
+        $hasParseValue = $parseValue !== null;
+        $hasParseLiteral = $parseLiteral !== null;
+        $hasParse = $hasParseValue && $hasParseLiteral;
+
+        if ($hasParseValue !== $hasParseLiteral) {
+            throw new InvariantViolation("{$this->name} must provide both \"parseValue\" and \"parseLiteral\" functions to work as an input type.");
         }
 
-        if (! \is_callable($parseValue) || ! \is_callable($parseLiteral)) {
-            throw new InvariantViolation("{$this->name} must provide both \"parseValue\" and \"parseLiteral\" functions.");
+        if (! $hasSerialize && ! $hasParse) {
+            throw new InvariantViolation("{$this->name} must provide \"parseValue\" and \"parseLiteral\" functions, \"serialize\" function, or both.");
+        }
+
+        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
+        if ($hasSerialize && ! is_callable($serialize)) {
+            $notCallable = Utils::printSafe($serialize);
+            throw new InvariantViolation("{$this->name} must provide \"serialize\" as a callable if given, but got: {$notCallable}.");
+        }
+
+        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
+        if ($hasParseValue && ! is_callable($parseValue)) {
+            $notCallable = Utils::printSafe($parseValue);
+            throw new InvariantViolation("{$this->name} must provide \"parseValue\" as a callable if given, but got: {$notCallable}.");
+        }
+
+        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
+        if ($hasParseLiteral && ! is_callable($parseLiteral)) {
+            $notCallable = Utils::printSafe($parseLiteral);
+            throw new InvariantViolation("{$this->name} must provide \"parseLiteral\" as a callable if given, but got: {$notCallable}.");
         }
     }
 }
