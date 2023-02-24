@@ -1117,15 +1117,11 @@ visitor API:
 /**
  * Visit the AST (see class description for details).
  *
- * @template TNode of Node
- *
- * @param NodeList<TNode>|Node $root
+ * @param NodeList<Node>|Node $root
  * @param VisitorArray $visitor
  * @param array<string, mixed>|null $keyMap
  *
- * @throws \Exception
- *
- * @return Node|mixed
+ * @return mixed
  *
  * @api
  */
