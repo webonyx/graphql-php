@@ -1256,9 +1256,7 @@ final class DefinitionTest extends TestCaseBase
         ]);
 
         // Slightly deviating from the reference implementation in order to be idiomatic for PHP
-        $this->expectExceptionObject(new InvariantViolation(
-            'AnotherInterface must provide "resolveType" as a callable, but got: instance of stdClass'
-        ));
+        $this->expectExceptionObject(new InvariantViolation('AnotherInterface must provide "resolveType" as null or a callable, but got: instance of stdClass.'));
         $type->assertValid();
     }
 
@@ -1312,9 +1310,7 @@ final class DefinitionTest extends TestCaseBase
     public function testRejectsAnUnionTypeWithAnIncorrectTypeForResolveType(): void
     {
         // Slightly deviating from the reference implementation in order to be idiomatic for PHP
-        $this->expectExceptionObject(new InvariantViolation(
-            'SomeUnion must provide "resolveType" as a callable, but got: instance of stdClass'
-        ));
+        $this->expectExceptionObject(new InvariantViolation('SomeUnion must provide "resolveType" as null or a callable, but got: instance of stdClass.'));
 
         $this->schemaWithFieldType(
             // @phpstan-ignore-next-line intentionally wrong
@@ -1347,9 +1343,7 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType(): void
     {
-        $this->expectExceptionObject(new InvariantViolation(
-            'SomeScalar must provide "serialize" function. If this custom Scalar is also used as an input type, ensure "parseValue" and "parseLiteral" functions are also provided.'
-        ));
+        $this->expectExceptionObject(new InvariantViolation('SomeScalar must provide "serialize" as a callable if given, but got: instance of stdClass.'));
 
         $this->schemaWithFieldType(
             // @phpstan-ignore-next-line intentionally wrong
@@ -1384,9 +1378,7 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningParseValueButNotParseLiteral(): void
     {
-        $this->expectExceptionObject(new InvariantViolation(
-            'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
-        ));
+        $this->expectExceptionObject(new InvariantViolation('SomeScalar must provide both "parseValue" and "parseLiteral" functions to work as an input type.'));
 
         $this->schemaWithFieldType(
             new CustomScalarType([
@@ -1404,9 +1396,7 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningParseLiteralButNotParseValue(): void
     {
-        $this->expectExceptionObject(new InvariantViolation(
-            'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
-        ));
+        $this->expectExceptionObject(new InvariantViolation('SomeScalar must provide both "parseValue" and "parseLiteral" functions to work as an input type.'));
 
         $this->schemaWithFieldType(
             new CustomScalarType([
@@ -1424,9 +1414,7 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testRejectsAScalarTypeDefiningParseValueAndParseLiteralWithAnIncorrectType(): void
     {
-        $this->expectExceptionObject(new InvariantViolation(
-            'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
-        ));
+        $this->expectExceptionObject(new InvariantViolation('SomeScalar must provide "parseValue" as a callable if given, but got: instance of stdClass.'));
 
         $this->schemaWithFieldType(
             // @phpstan-ignore-next-line intentionally wrong
@@ -1462,9 +1450,7 @@ final class DefinitionTest extends TestCaseBase
     public function testRejectsAnObjectTypeWithAnIncorrectTypeForIsTypeOf(): void
     {
         // Slightly deviating from the reference implementation in order to be idiomatic for PHP
-        $this->expectExceptionObject(new InvariantViolation(
-            'AnotherObject must provide "isTypeOf" as a callable, but got: instance of stdClass'
-        ));
+        $this->expectExceptionObject(new InvariantViolation('AnotherObject must provide "isTypeOf" as null or a callable, but got: instance of stdClass.'));
 
         $this->schemaWithFieldType(
             // @phpstan-ignore-next-line intentionally wrong

@@ -7,6 +7,5 @@ class Deprecated
 {
     public function __construct(
         public string $reason = Directive::DEFAULT_DEPRECATION_REASON,
-    ) {
-    }
+    ) {}
 }

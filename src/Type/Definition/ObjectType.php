@@ -139,9 +139,11 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     {
         Utils::assertValidName($this->name);
 
-        if (isset($this->config['isTypeOf']) && ! \is_callable($this->config['isTypeOf'])) {
-            $notCallable = Utils::printSafe($this->config['isTypeOf']);
-            throw new InvariantViolation("{$this->name} must provide \"isTypeOf\" as a callable, but got: {$notCallable}");
+        $isTypeOf = $this->config['isTypeOf'] ?? null;
+        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
+        if (isset($isTypeOf) && ! \is_callable($isTypeOf)) {
+            $notCallable = Utils::printSafe($isTypeOf);
+            throw new InvariantViolation("{$this->name} must provide \"isTypeOf\" as null or a callable, but got: {$notCallable}.");
         }
 
         foreach ($this->getFields() as $field) {
