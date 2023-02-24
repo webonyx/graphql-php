@@ -156,15 +156,11 @@ class Visitor
     /**
      * Visit the AST (see class description for details).
      *
-     * @template TNode of Node
-     *
-     * @param NodeList<TNode>|Node $root
+     * @param NodeList<Node>|Node $root
      * @param VisitorArray $visitor
      * @param array<string, mixed>|null $keyMap
      *
-     * @throws \Exception
-     *
-     * @return Node|mixed
+     * @return mixed
      *
      * @api
      */
@@ -187,7 +183,6 @@ class Visitor
         $parent = null;
         $path = [];
         $ancestors = [];
-        $newRoot = $root;
 
         do {
             ++$index;
@@ -240,7 +235,7 @@ class Visitor
                 ] = \array_pop($stack);
             } else {
                 if ($parent === null) {
-                    $node = $newRoot;
+                    $node = $root;
                 } else {
                     $key = $inList
                         ? $index
@@ -248,12 +243,9 @@ class Visitor
                     $node = $parent instanceof NodeList
                         ? $parent[$key]
                         : $parent->{$key};
-                }
-                if ($node === null) {
-                    continue;
-                }
-
-                if ($parent !== null) {
+                    if ($node === null) {
+                        continue;
+                    }
                     $path[] = $key;
                 }
             }
@@ -264,7 +256,7 @@ class Visitor
                     throw new \Exception('Invalid AST Node: ' . \json_encode($node));
                 }
 
-                $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
+                $visitFn = self::extractVisitFn($visitor, $node->kind, $isLeaving);
 
                 if ($visitFn !== null) {
                     $result = $visitFn($node, $key, $parent, $path, $ancestors);
@@ -324,11 +316,9 @@ class Visitor
             }
         } while (\count($stack) > 0);
 
-        if (\count($edits) > 0) {
-            $newRoot = $edits[0][1];
-        }
-
-        return $newRoot;
+        return \count($edits) > 0
+            ? $edits[0][1]
+            : $root;
     }
 
     /**
@@ -368,6 +358,8 @@ class Visitor
     }
 
     /**
+     * Combines the given visitors to run in parallel.
+     *
      * @phpstan-param array<int, VisitorArray> $visitors
      *
      * @return VisitorArray
@@ -384,7 +376,7 @@ class Visitor
                         continue;
                     }
 
-                    $fn = self::getVisitFn(
+                    $fn = self::extractVisitFn(
                         $visitors[$i],
                         $node->kind,
                         false
@@ -412,7 +404,7 @@ class Visitor
             'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
                     if ($skipping[$i] === null) {
-                        $fn = self::getVisitFn(
+                        $fn = self::extractVisitFn(
                             $visitors[$i],
                             $node->kind,
                             true
@@ -440,8 +432,7 @@ class Visitor
     }
 
     /**
-     * Creates a new visitor instance which maintains a provided TypeInfo instance
-     * along with visiting visitor.
+     * Creates a new visitor that updates TypeInfo and delegates to the given visitor.
      *
      * @phpstan-param VisitorArray $visitor
      *
@@ -452,7 +443,7 @@ class Visitor
         return [
             'enter' => static function (Node $node) use ($typeInfo, $visitor) {
                 $typeInfo->enter($node);
-                $fn = self::getVisitFn($visitor, $node->kind, false);
+                $fn = self::extractVisitFn($visitor, $node->kind, false);
 
                 if ($fn === null) {
                     return null;
@@ -471,7 +462,7 @@ class Visitor
                 return $result;
             },
             'leave' => static function (Node $node) use ($typeInfo, $visitor) {
-                $fn = self::getVisitFn($visitor, $node->kind, true);
+                $fn = self::extractVisitFn($visitor, $node->kind, true);
                 $result = $fn !== null
                     ? $fn(...\func_get_args())
                     : null;
@@ -488,7 +479,7 @@ class Visitor
      *
      * @return callable(Node $node, string $key, Node|NodeList $parent, array<int, int|string $path, array<int, Node|NodeList> $ancestors): VisitorOperation|Node|null
      */
-    public static function getVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable
+    protected static function extractVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable
     {
         $kindVisitor = $visitor[$kind] ?? null;
 
