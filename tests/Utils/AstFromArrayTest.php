@@ -20,45 +20,45 @@ final class AstFromArrayTest extends TestCase
             'kind' => 'VariableDefinition',
             'directives' => [],
         ]);
-		assert($res instanceof  VariableDefinitionNode);
-		self::assertEquals($res->directives, new NodeList([]));
+        assert($res instanceof VariableDefinitionNode);
+        self::assertEquals($res->directives, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'OperationDefinition',
             'directives' => [],
         ]);
-		assert($res instanceof  OperationDefinitionNode);
-		self::assertEquals($res->directives, new NodeList([]));
+        assert($res instanceof OperationDefinitionNode);
+        self::assertEquals($res->directives, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'Field',
             'directives' => [],
             'arguments' => [],
         ]);
-		assert($res instanceof  FieldNode);
-		self::assertEquals($res->directives, new NodeList([]));
+        assert($res instanceof FieldNode);
+        self::assertEquals($res->directives, new NodeList([]));
         self::assertEquals($res->arguments, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'FragmentSpread',
             'directives' => [],
         ]);
-		assert($res instanceof  FragmentSpreadNode);
-		self::assertEquals($res->directives, new NodeList([]));
+        assert($res instanceof FragmentSpreadNode);
+        self::assertEquals($res->directives, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'FragmentDefinition',
             'directives' => [],
         ]);
-		assert($res instanceof  FragmentDefinitionNode);
-		self::assertEquals($res->directives, new NodeList([]));
+        assert($res instanceof FragmentDefinitionNode);
+        self::assertEquals($res->directives, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'InlineFragment',
             'directives' => [],
         ]);
-		assert($res instanceof  InlineFragmentNode);
-		self::assertEquals($res->directives, new NodeList([]));
+        assert($res instanceof InlineFragmentNode);
+        self::assertEquals($res->directives, new NodeList([]));
     }
 
     public function testVariableDefinitionArrayFromSparseArray(): void
@@ -66,38 +66,38 @@ final class AstFromArrayTest extends TestCase
         $res = AST::fromArray([
             'kind' => 'VariableDefinition',
         ]);
-		assert($res instanceof  VariableDefinitionNode);
+        assert($res instanceof VariableDefinitionNode);
         self::assertEquals($res->directives, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'OperationDefinition',
         ]);
-		assert($res instanceof  OperationDefinitionNode);
+        assert($res instanceof OperationDefinitionNode);
         self::assertEquals($res->directives, new NodeList([]));
 
-		$res = AST::fromArray([
-			'kind' => 'Field',
-		]);
-		assert($res instanceof  FieldNode);
-		self::assertEquals($res->directives, new NodeList([]));
+        $res = AST::fromArray([
+            'kind' => 'Field',
+        ]);
+        assert($res instanceof FieldNode);
+        self::assertEquals($res->directives, new NodeList([]));
         self::assertEquals($res->arguments, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'FragmentSpread',
         ]);
-		assert($res instanceof  FragmentSpreadNode);
+        assert($res instanceof FragmentSpreadNode);
         self::assertEquals($res->directives, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'FragmentDefinition',
         ]);
-		assert($res instanceof  FragmentDefinitionNode);
+        assert($res instanceof FragmentDefinitionNode);
         self::assertEquals($res->directives, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'InlineFragment',
         ]);
-		assert($res instanceof  InlineFragmentNode);
-		self::assertEquals($res->directives, new NodeList([]));
+        assert($res instanceof InlineFragmentNode);
+        self::assertEquals($res->directives, new NodeList([]));
     }
 }
