@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 final class AstFromArrayTest extends TestCase
 {
-    public function testVariableDefinitionArrayFromArray(): void
+    public function testFromArray(): void
     {
         $res = AST::fromArray([
             'kind' => 'VariableDefinition',
@@ -61,7 +61,7 @@ final class AstFromArrayTest extends TestCase
         self::assertEquals($res->directives, new NodeList([]));
     }
 
-    public function testVariableDefinitionArrayFromSparseArray(): void
+    public function testFromOptimizedArray(): void
     {
         $res = AST::fromArray([
             'kind' => 'VariableDefinition',
