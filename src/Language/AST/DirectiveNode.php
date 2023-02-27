@@ -14,6 +14,6 @@ class DirectiveNode extends Node
     public function __construct(array $vars)
     {
         parent::__construct($vars);
-        $this->arguments = $this->arguments ?? new NodeList([]);
+        $this->arguments ??= new NodeList([]);
     }
 }

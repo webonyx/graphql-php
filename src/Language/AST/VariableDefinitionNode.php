@@ -20,6 +20,6 @@ class VariableDefinitionNode extends Node implements DefinitionNode
     public function __construct(array $vars)
     {
         parent::__construct($vars);
-        $this->directives = $this->directives ?? new NodeList([]);
+        $this->directives ??= new NodeList([]);
     }
 }
