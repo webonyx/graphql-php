@@ -10,4 +10,10 @@ class FragmentSpreadNode extends Node implements SelectionNode
 
     /** @var NodeList<DirectiveNode> */
     public NodeList $directives;
+
+	public function __construct(array $vars)
+	{
+		parent::__construct($vars);
+		$this->directives = $this->directives ?? new NodeList([]);
+	}
 }

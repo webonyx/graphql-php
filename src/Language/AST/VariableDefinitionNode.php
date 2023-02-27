@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class VariableDefinitionNode extends Node implements DefinitionNode
 {
-    public string $kind = NodeKind::VARIABLE_DEFINITION;
+	public string $kind = NodeKind::VARIABLE_DEFINITION;
 
     public VariableNode $variable;
 
@@ -16,4 +16,10 @@ class VariableDefinitionNode extends Node implements DefinitionNode
 
     /** @var NodeList<DirectiveNode> */
     public NodeList $directives;
+
+	public function __construct(array $vars)
+	{
+		parent::__construct($vars);
+		$this->directives = $this->directives ?? new NodeList([]);
+	}
 }

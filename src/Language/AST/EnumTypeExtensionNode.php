@@ -14,6 +14,12 @@ class EnumTypeExtensionNode extends Node implements TypeExtensionNode
     /** @var NodeList<EnumValueDefinitionNode> */
     public NodeList $values;
 
+	public function __construct(array $vars)
+	{
+		parent::__construct($vars);
+		$this->directives = $this->directives ?? new NodeList([]);
+	}
+
     public function getName(): NameNode
     {
         return $this->name;
