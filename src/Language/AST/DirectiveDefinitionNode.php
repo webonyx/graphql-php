@@ -18,9 +18,9 @@ class DirectiveDefinitionNode extends Node implements TypeSystemDefinitionNode
     /** @var NodeList<NameNode> */
     public NodeList $locations;
 
-	public function __construct(array $vars)
-	{
-		parent::__construct($vars);
-		$this->arguments = $this->arguments ?? new NodeList([]);
-	}
+    public function __construct(array $vars)
+    {
+        parent::__construct($vars);
+        $this->arguments = $this->arguments ?? new NodeList([]);
+    }
 }

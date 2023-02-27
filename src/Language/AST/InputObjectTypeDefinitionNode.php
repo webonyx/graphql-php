@@ -21,9 +21,9 @@ class InputObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
         return $this->name;
     }
 
-	public function __construct(array $vars)
-	{
-		parent::__construct($vars);
-		$this->directives = $this->directives ?? new NodeList([]);
-	}
+    public function __construct(array $vars)
+    {
+        parent::__construct($vars);
+        $this->directives = $this->directives ?? new NodeList([]);
+    }
 }
