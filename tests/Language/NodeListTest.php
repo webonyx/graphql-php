@@ -66,18 +66,25 @@ final class NodeListTest extends TestCase
     {
         $foo = new NameNode(['value' => 'foo']);
         $bar = new NameNode(['value' => 'bar']);
+        $baz = new NameNode(['value' => 'baz']);
 
-        $nodeList = new NodeList([$foo, $bar]);
+        $nodeList = new NodeList([$foo, $bar, $baz]);
         unset($nodeList[0]);
 
         self::assertArrayNotHasKey(0, $nodeList);
-        // @phpstan-ignore-next-line just wrong
-        self::assertArrayHasKey(1, $nodeList);
+        self::assertSame($bar, $nodeList[1]);
+        self::assertSame($baz, $nodeList[2]);
 
         $nodeList->reindex();
 
-        // @phpstan-ignore-next-line just wrong
-        self::assertArrayHasKey(0, $nodeList);
         self::assertSame($bar, $nodeList[0]);
+        self::assertSame($baz, $nodeList[1]);
+
+        $nodeList->offsetUnset(0);
+        self::assertArrayNotHasKey(0, $nodeList);
+        self::assertSame($baz, $nodeList[1]);
+
+        $nodeList->reindex();
+        self::assertSame($baz, $nodeList[0]);
     }
 }
