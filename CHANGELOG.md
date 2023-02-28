@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.2.1
+
+### Fixed
+
+- Initialize `directives` and `arguments` in `Node` with empty `NodeList`
+
 ## v15.2.0
 
 ### Changed
