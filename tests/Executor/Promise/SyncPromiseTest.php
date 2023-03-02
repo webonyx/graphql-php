@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Executor\Promise;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Tests\TestCaseBase;
 
@@ -138,6 +139,8 @@ final class SyncPromiseTest extends TestCaseBase
 
     /**
      * @param mixed $expectedNextValue
+     *
+     * @throws InvariantViolation
      */
     private static function assertValidPromise(
         SyncPromise $promise,

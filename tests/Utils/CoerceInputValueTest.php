@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\CoercionError;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -297,6 +298,8 @@ final class CoerceInputValueTest extends TestCase
 
     /**
      * @param mixed $defaultValue Anything goes
+     *
+     * @throws InvariantViolation
      */
     private function makeTestInputObject($defaultValue): InputObjectType
     {

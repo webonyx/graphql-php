@@ -109,6 +109,9 @@ class FieldDefinition
      *
      * @phpstan-param FieldsConfig $fields
      *
+     * @throws \JsonException
+     * @throws InvariantViolation
+     *
      * @return array<string, self|UnresolvedFieldDefinition>
      */
     public static function defineFieldMap(Type $parentType, $fields): array
@@ -191,6 +194,7 @@ class FieldDefinition
     /**
      * @param Type&NamedType $parentType
      *
+     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function assertValid(Type $parentType): void

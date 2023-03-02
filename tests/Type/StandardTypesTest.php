@@ -94,6 +94,8 @@ final class StandardTypesTest extends TestCase
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return iterable<array{mixed, string}>
      */
     public function invalidStandardTypes(): iterable
@@ -122,6 +124,9 @@ final class StandardTypesTest extends TestCase
         Type::overrideStandardTypes([$notType]);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function createCustomScalarType(string $name): CustomScalarType
     {
         return new CustomScalarType([

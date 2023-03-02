@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
@@ -87,6 +88,8 @@ class VariablesInAllowedPosition extends ValidationRule
      *
      * @param ValueNode|null $varDefaultValue
      * @param mixed          $locationDefaultValue
+     *
+     * @throws InvariantViolation
      */
     protected function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
     {

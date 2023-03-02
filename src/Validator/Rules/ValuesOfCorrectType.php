@@ -140,6 +140,8 @@ class ValuesOfCorrectType extends ValidationRule
 
     /**
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
+     *
+     * @throws \JsonException
      */
     protected function isValidValueNode(QueryValidationContext $context, ValueNode $node): void
     {

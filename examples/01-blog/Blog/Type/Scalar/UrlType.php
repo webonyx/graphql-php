@@ -11,6 +11,10 @@ use GraphQL\Utils\Utils;
 
 class UrlType extends ScalarType
 {
+    /**
+     * @throws \JsonException
+     * @throws SerializationError
+     */
     public function serialize($value): string
     {
         if (! $this->isUrl($value)) {
@@ -21,6 +25,10 @@ class UrlType extends ScalarType
         return $value;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseValue($value): string
     {
         if (! $this->isUrl($value)) {

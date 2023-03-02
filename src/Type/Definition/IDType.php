@@ -21,6 +21,10 @@ response as a String; however, it is not intended to be human-readable.
 When expected as an input type, any string (such as `"4"`) or integer
 (such as `4`) input value will be accepted as an ID.';
 
+    /**
+     * @throws \JsonException
+     * @throws SerializationError
+     */
     public function serialize($value): string
     {
         $canCast = \is_string($value)
@@ -35,6 +39,10 @@ When expected as an input type, any string (such as `"4"`) or integer
         return (string) $value;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseValue($value): string
     {
         if (\is_string($value) || \is_int($value)) {

@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\Argument;
@@ -18,6 +19,9 @@ use GraphQL\Validator\QueryValidationContext;
  */
 class KnownArgumentNames extends ValidationRule
 {
+    /**
+     * @throws InvariantViolation
+     */
     public function getVisitor(QueryValidationContext $context): array
     {
         $knownArgumentNamesOnDirectives = new KnownArgumentNamesOnDirectives();

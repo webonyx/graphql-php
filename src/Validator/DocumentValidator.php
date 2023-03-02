@@ -88,6 +88,8 @@ class DocumentValidator
      *
      * @param array<ValidationRule>|null $rules
      *
+     * @throws \Exception
+     *
      * @return array<int, Error>
      *
      * @api
@@ -126,6 +128,8 @@ class DocumentValidator
 
     /**
      * Returns all global validation rules.
+     *
+     * @throws \InvalidArgumentException
      *
      * @return array<string, ValidationRule>
      *
@@ -183,6 +187,8 @@ class DocumentValidator
     /**
      * @deprecated just add rules via @see DocumentValidator::addRule()
      *
+     * @throws \InvalidArgumentException
+     *
      * @return array<class-string<QuerySecurityRule>, QuerySecurityRule>
      */
     public static function securityRules(): array
@@ -226,6 +232,8 @@ class DocumentValidator
      * @example DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
      *
      * @api
+     *
+     * @throws \InvalidArgumentException
      */
     public static function getRule(string $name): ?ValidationRule
     {
@@ -257,6 +265,8 @@ class DocumentValidator
      *
      * @param array<ValidationRule>|null $rules
      *
+     * @throws \Exception
+     *
      * @return array<int, Error>
      */
     public static function validateSDL(
@@ -285,6 +295,10 @@ class DocumentValidator
         return $context->getErrors();
     }
 
+    /**
+     * @throws \Exception
+     * @throws Error
+     */
     public static function assertValidSDL(DocumentNode $documentAST): void
     {
         $errors = self::validateSDL($documentAST);
@@ -293,6 +307,10 @@ class DocumentValidator
         }
     }
 
+    /**
+     * @throws \Exception
+     * @throws Error
+     */
     public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema): void
     {
         $errors = self::validateSDL($documentAST, $schema);

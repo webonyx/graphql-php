@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Executor;
 
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
@@ -217,6 +218,8 @@ final class ExecutorLazySchemaTest extends TestCase
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return (Type&NamedType)|null
      */
     public function loadType(string $name, bool $isExecutorCall = false): ?Type

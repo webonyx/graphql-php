@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\InterfaceType;
@@ -694,6 +695,9 @@ final class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function getSchema(): Schema
     {
         $SomeBox = new InterfaceType([

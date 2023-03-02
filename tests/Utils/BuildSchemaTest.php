@@ -5,6 +5,8 @@ namespace GraphQL\Tests\Utils;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SerializationError;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -44,6 +46,12 @@ final class BuildSchemaTest extends TestCaseBase
      * This function does a full cycle of going from a string with the contents of
      * the SDL, parsed in a schema AST, materializing that schema AST into an
      * in-memory GraphQLSchema, and then finally printing that object into the SDL.
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws Error
+     * @throws InvariantViolation
+     * @throws SerializationError
      */
     private static function assertCycle(string $sdl): void
     {

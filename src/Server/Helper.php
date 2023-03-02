@@ -40,6 +40,7 @@ class Helper
      *
      * For PSR-7 request parsing use `parsePsrRequest()` instead.
      *
+     * @throws \JsonException
      * @throws RequestError
      *
      * @return OperationParams|array<int, OperationParams>
@@ -124,6 +125,8 @@ class Helper
      * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
      * if params are invalid (or empty array when params are valid).
      *
+     * @throws \JsonException
+     *
      * @return array<int, RequestError>
      *
      * @api
@@ -172,6 +175,9 @@ class Helper
      * Executes GraphQL operation with given server configuration and returns execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter).
      *
+     * @throws \Exception
+     * @throws InvariantViolation
+     *
      * @return ExecutionResult|Promise
      *
      * @api
@@ -193,6 +199,9 @@ class Helper
      * (thus, effectively batching deferreds|promises of all queries at once).
      *
      * @param array<OperationParams> $operations
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      *
      * @return array<int, ExecutionResult>|Promise
      *
@@ -217,6 +226,10 @@ class Helper
         return $result;
     }
 
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
     protected function promiseToExecuteOperation(
         PromiseAdapter $promiseAdapter,
         ServerConfig $config,
@@ -413,6 +426,9 @@ class Helper
         echo \json_encode($jsonSerializable, JSON_UNESCAPED_UNICODE);
     }
 
+    /**
+     * @throws RequestError
+     */
     protected function readRawBody(): string
     {
         $body = \file_get_contents('php://input');
@@ -426,6 +442,7 @@ class Helper
     /**
      * Converts PSR-7 request to OperationParams or an array thereof.
      *
+     * @throws \JsonException
      * @throws RequestError
      *
      * @return OperationParams|array<OperationParams>
@@ -486,8 +503,6 @@ class Helper
     }
 
     /**
-     * @throws RequestError
-     *
      * @return array<mixed>
      */
     protected function decodeContent(string $rawBody): array
@@ -500,6 +515,7 @@ class Helper
     /**
      * @param mixed $bodyParams
      *
+     * @throws \JsonException
      * @throws RequestError
      */
     protected function assertJsonObjectOrArray($bodyParams): void
@@ -514,6 +530,10 @@ class Helper
      * Converts query execution result to PSR-7 response.
      *
      * @param Promise|ExecutionResult|array<ExecutionResult> $result
+     *
+     * @throws \InvalidArgumentException
+     * @throws \JsonException
+     * @throws \RuntimeException
      *
      * @return Promise|ResponseInterface
      *
@@ -532,6 +552,10 @@ class Helper
 
     /**
      * @param ExecutionResult|array<ExecutionResult> $result
+     *
+     * @throws \InvalidArgumentException
+     * @throws \JsonException
+     * @throws \RuntimeException
      */
     protected function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream): ResponseInterface
     {

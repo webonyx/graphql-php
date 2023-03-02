@@ -160,6 +160,8 @@ class Visitor
      * @param VisitorArray $visitor
      * @param array<string, mixed>|null $keyMap
      *
+     * @throws \Exception
+     *
      * @return mixed
      *
      * @api

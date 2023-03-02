@@ -19,6 +19,8 @@ class Promise
 
     /**
      * @param mixed $adoptedPromise
+     *
+     * @throws InvariantViolation
      */
     public function __construct($adoptedPromise, PromiseAdapter $adapter)
     {

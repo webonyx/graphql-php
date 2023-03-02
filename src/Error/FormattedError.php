@@ -170,6 +170,8 @@ class FormattedError
      * @param SerializableError $formattedError
      * @param int $debugFlag For available flags @see \GraphQL\Error\DebugFlag
      *
+     * @throws \Throwable
+     *
      * @return SerializableError
      */
     public static function addDebugEntries(array $formattedError, \Throwable $e, int $debugFlag): array

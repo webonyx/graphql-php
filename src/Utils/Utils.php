@@ -40,6 +40,8 @@ class Utils
      * Print a value that came from JSON for debugging purposes.
      *
      * @param mixed $var
+     *
+     * @throws \JsonException
      */
     public static function printSafeJson($var): string
     {
@@ -82,6 +84,8 @@ class Utils
      * Print a value that came from PHP for debugging purposes.
      *
      * @param mixed $var
+     *
+     * @throws \JsonException
      */
     public static function printSafe($var): string
     {
@@ -167,6 +171,9 @@ class Utils
         return self::ord($char);
     }
 
+    /**
+     * @throws \JsonException
+     */
     public static function printCharCode(?int $code): string
     {
         if ($code === null) {

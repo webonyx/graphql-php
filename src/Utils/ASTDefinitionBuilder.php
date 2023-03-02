@@ -3,6 +3,7 @@
 namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
@@ -83,6 +84,8 @@ class ASTDefinitionBuilder
      *
      * @phpstan-param ResolveType $resolveType
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     *
+     * @throws InvariantViolation
      */
     public function __construct(
         array $typeDefinitionsMap,
@@ -98,6 +101,9 @@ class ASTDefinitionBuilder
         $this->cache = Type::builtInTypes();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function buildDirective(DirectiveDefinitionNode $directiveNode): Directive
     {
         $locations = [];
@@ -117,6 +123,8 @@ class ASTDefinitionBuilder
 
     /**
      * @param NodeList<InputValueDefinitionNode> $values
+     *
+     * @throws \Exception
      *
      * @return array<string, UnnamedInputObjectFieldConfig>
      */
@@ -151,6 +159,8 @@ class ASTDefinitionBuilder
     /**
      * @param array<InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode> $nodes
      *
+     * @throws \Exception
+     *
      * @return array<string, UnnamedInputObjectFieldConfig>
      */
     private function makeInputFields(array $nodes): array
@@ -166,6 +176,11 @@ class ASTDefinitionBuilder
 
     /**
      * @param ListTypeNode|NonNullTypeNode|NamedTypeNode $typeNode
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws Error
+     * @throws InvariantViolation
      */
     private function buildWrappedType(TypeNode $typeNode): Type
     {
@@ -183,6 +198,11 @@ class ASTDefinitionBuilder
 
     /**
      * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws Error
+     * @throws InvariantViolation
      *
      * @return Type&NamedType
      */
@@ -204,6 +224,11 @@ class ASTDefinitionBuilder
      * Since we build types lazily, and we don't have a such map of built types,
      * this method provides a way to build a type that may not exist in the SDL definitions and returns null instead.
      *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws Error
+     * @throws InvariantViolation
+     *
      * @return (Type&NamedType)|null
      */
     public function maybeBuildType(string $name): ?Type
@@ -216,7 +241,10 @@ class ASTDefinitionBuilder
     /**
      * @param (Node&NamedTypeNode)|(Node&TypeDefinitionNode)|null $typeNode
      *
+     * @throws \Exception
+     * @throws \ReflectionException
      * @throws Error
+     * @throws InvariantViolation
      *
      * @return Type&NamedType
      */
@@ -267,7 +295,9 @@ class ASTDefinitionBuilder
     /**
      * @param TypeDefinitionNode&Node $def
      *
-     * @throws Error
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
      *
      * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
      */
@@ -296,6 +326,9 @@ class ASTDefinitionBuilder
         }
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function makeTypeDef(ObjectTypeDefinitionNode $def): ObjectType
     {
         $name = $def->name->value;
@@ -317,6 +350,8 @@ class ASTDefinitionBuilder
      * @param array<ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode> $nodes
      *
      * @phpstan-return array<string, UnnamedFieldDefinitionConfig>
+     *
+     * @throws \Exception
      */
     private function makeFieldDefMap(array $nodes): array
     {
@@ -331,6 +366,9 @@ class ASTDefinitionBuilder
     }
 
     /**
+     * @throws \Exception
+     * @throws Error
+     *
      * @return UnnamedFieldDefinitionConfig
      */
     public function buildField(FieldDefinitionNode $field): array
@@ -355,6 +393,10 @@ class ASTDefinitionBuilder
      * deprecation reason.
      *
      * @param EnumValueDefinitionNode|FieldDefinitionNode $node
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
      */
     private function getDeprecationReason(Node $node): ?string
     {
@@ -368,6 +410,10 @@ class ASTDefinitionBuilder
 
     /**
      * @param array<ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode> $nodes
+     *
+     * @throws \Exception
+     * @throws Error
+     * @throws InvariantViolation
      *
      * @return array<int, InterfaceType>
      */
@@ -388,6 +434,9 @@ class ASTDefinitionBuilder
         return $interfaces;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function makeInterfaceDef(InterfaceTypeDefinitionNode $def): InterfaceType
     {
         $name = $def->name->value;
@@ -405,6 +454,11 @@ class ASTDefinitionBuilder
         ]);
     }
 
+    /**
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
+     */
     private function makeEnumDef(EnumTypeDefinitionNode $def): EnumType
     {
         $name = $def->name->value;
@@ -431,6 +485,9 @@ class ASTDefinitionBuilder
         ]);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function makeUnionDef(UnionTypeDefinitionNode $def): UnionType
     {
         $name = $def->name->value;
@@ -459,6 +516,9 @@ class ASTDefinitionBuilder
         ]);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function makeScalarDef(ScalarTypeDefinitionNode $def): CustomScalarType
     {
         $name = $def->name->value;
@@ -474,6 +534,9 @@ class ASTDefinitionBuilder
         ]);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function makeInputObjectDef(InputObjectTypeDefinitionNode $def): InputObjectType
     {
         $name = $def->name->value;
@@ -529,6 +592,8 @@ class ASTDefinitionBuilder
     }
 
     /**
+     * @throws \Exception
+     *
      * @return InputObjectFieldConfig
      */
     public function buildInputField(InputValueDefinitionNode $value): array
@@ -551,6 +616,8 @@ class ASTDefinitionBuilder
     }
 
     /**
+     * @throws \Exception
+     *
      * @return array<string, mixed>
      */
     public function buildEnumValue(EnumValueDefinitionNode $value): array

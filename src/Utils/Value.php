@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\CoercionError;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
@@ -32,6 +33,8 @@ class Value
      * @phpstan-param InputPath|null $path
      *
      * @phpstan-return CoercedValue|CoercedErrors
+     *
+     * @throws InvariantViolation
      */
     public static function coerceInputValue($value, InputType $type, ?array $path = null): array
     {

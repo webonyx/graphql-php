@@ -56,6 +56,8 @@ class Values
      * @param NodeList<VariableDefinitionNode> $varDefNodes
      * @param array<string, mixed> $rawVariableValues
      *
+     * @throws \Exception
+     *
      * @return array{array<int, Error>, null}|array{null, array<string, mixed>}
      */
     public static function getVariableValues(Schema $schema, NodeList $varDefNodes, array $rawVariableValues): array
@@ -145,6 +147,9 @@ class Values
      * @param EnumTypeDefinitionNode|EnumTypeExtensionNode|EnumValueDefinitionNode|FieldDefinitionNode|FieldNode|FragmentDefinitionNode|FragmentSpreadNode|InlineFragmentNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode|InputValueDefinitionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|OperationDefinitionNode|ScalarTypeDefinitionNode|ScalarTypeExtensionNode|SchemaExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|VariableDefinitionNode $node
      * @param array<string, mixed>|null $variableValues
      *
+     * @throws \Exception
+     * @throws Error
+     *
      * @return array<string, mixed>|null
      */
     public static function getDirectiveValues(Directive $directiveDef, Node $node, ?array $variableValues = null): ?array
@@ -168,6 +173,7 @@ class Values
      * @param FieldNode|DirectiveNode $node
      * @param array<string, mixed>|null $variableValues
      *
+     * @throws \Exception
      * @throws Error
      *
      * @return array<string, mixed>
@@ -196,6 +202,7 @@ class Values
      * @param array<string, ArgumentNodeValue> $argumentValueMap
      * @param array<string, mixed>|null $variableValues
      *
+     * @throws \Exception
      * @throws Error
      *
      * @return array<string, mixed>

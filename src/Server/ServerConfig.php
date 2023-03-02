@@ -42,6 +42,8 @@ class ServerConfig
      * @param array<string, mixed> $config
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function create(array $config = []): self
     {

@@ -48,6 +48,8 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     private array $possibleTypeNames;
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-param UnionConfig $config
      */
     public function __construct(array $config)
@@ -60,6 +62,9 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         $this->config = $config;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function isPossibleType(Type $type): bool
     {
         if (! $type instanceof ObjectType) {
@@ -112,9 +117,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         return null;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
     public function assertValid(): void
     {
         Utils::assertValidName($this->name);

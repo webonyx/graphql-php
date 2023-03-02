@@ -1212,6 +1212,8 @@ final class ExecutorTest extends TestCase
 
                             /**
                              * @param mixed $offset
+                             *
+                             * @throws \Exception
                              */
                             #[\ReturnTypeWillChange]
                             public function offsetGet($offset): ?int
@@ -1268,6 +1270,9 @@ final class ExecutorTest extends TestCase
                                 }
                             }
 
+                            /**
+                             * @throws \Exception
+                             */
                             public function __get(string $name): ?int
                             {
                                 switch ($name) {

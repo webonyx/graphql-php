@@ -30,6 +30,8 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function int(): ScalarType
     {
@@ -38,6 +40,8 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function float(): ScalarType
     {
@@ -46,6 +50,8 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function string(): ScalarType
     {
@@ -54,6 +60,8 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function boolean(): ScalarType
     {
@@ -62,6 +70,8 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function id(): ScalarType
     {
@@ -95,6 +105,8 @@ abstract class Type implements \JsonSerializable
     /**
      * Returns all builtin in types including base scalar and introspection types.
      *
+     * @throws InvariantViolation
+     *
      * @return array<string, Type&NamedType>
      */
     public static function builtInTypes(): array
@@ -109,6 +121,8 @@ abstract class Type implements \JsonSerializable
 
     /**
      * Returns all builtin scalar types.
+     *
+     * @throws InvariantViolation
      *
      * @return array<string, ScalarType>
      */
@@ -125,6 +139,9 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @param array<ScalarType> $types
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
      */
     public static function overrideStandardTypes(array $types): void
     {

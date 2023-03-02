@@ -2,6 +2,7 @@
 
 namespace GraphQL\Examples\Blog;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Examples\Blog\Type\CommentType;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
 use GraphQL\Examples\Blog\Type\Enum\ImageSizeType;
@@ -113,6 +114,8 @@ final class Types
     }
 
     /**
+     * @throws \Exception
+     *
      * @return Type&NamedType
      */
     public static function byTypeName(string $shortName): Type
@@ -138,26 +141,41 @@ final class Types
         throw new \Exception("Unknown graphql type: {$shortName}");
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public static function boolean(): ScalarType
     {
         return Type::boolean();
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public static function float(): ScalarType
     {
         return Type::float();
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public static function id(): ScalarType
     {
         return Type::id();
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public static function int(): ScalarType
     {
         return Type::int();
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public static function string(): ScalarType
     {
         return Type::string();

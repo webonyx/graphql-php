@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
@@ -19,6 +20,10 @@ use PHPUnit\Framework\TestCase;
  */
 final class BuildClientSchemaTest extends TestCase
 {
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
     protected static function assertCycleIntrospection(string $sdl): void
     {
         $options = ['directiveIsRepeatable' => true];
@@ -33,6 +38,8 @@ final class BuildClientSchemaTest extends TestCase
     }
 
     /**
+     * @throws \Exception
+     *
      * @return array<string, array<mixed>>
      */
     protected static function introspectionFromSDL(string $sdl): array
@@ -42,6 +49,11 @@ final class BuildClientSchemaTest extends TestCase
         return Introspection::fromSchema($schema);
     }
 
+    /**
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws InvariantViolation
+     */
     protected static function clientSchemaFromSDL(string $sdl): Schema
     {
         $introspection = self::introspectionFromSDL($sdl);
@@ -604,6 +616,8 @@ SDL;
 
     /**
      * Construct a default dummy schema that is used in the following tests.
+     *
+     * @throws \Exception
      */
     protected static function dummySchema(): Schema
     {

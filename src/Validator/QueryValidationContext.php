@@ -93,6 +93,8 @@ class QueryValidationContext implements ValidationContext
 
     /**
      * @phpstan-return array<int, VariableUsage>
+     *
+     * @throws \Exception
      */
     public function getRecursiveVariableUsages(OperationDefinitionNode $operation): array
     {
@@ -118,6 +120,8 @@ class QueryValidationContext implements ValidationContext
      * @param HasSelectionSet&Node $node
      *
      * @phpstan-return array<int, VariableUsage>
+     *
+     * @throws \Exception
      */
     private function getVariableUsages(HasSelectionSet $node): array
     {

@@ -34,6 +34,8 @@ final class KnownDirectivesTest extends ValidatorTestCase
 
     /**
      * @param array<int, array<string, mixed>> $errors
+     *
+     * @throws \Exception
      */
     private function expectSDLErrors(string $sdlString, ?Schema $schema = null, array $errors = []): void
     {

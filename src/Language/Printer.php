@@ -81,12 +81,17 @@ class Printer
 
     /**
      * Recursively traverse an AST depth-first and produce a pretty string.
+     *
+     * @throws \JsonException
      */
     public function printAST(Node $node): string
     {
         return $this->p($node);
     }
 
+    /**
+     * @throws \JsonException
+     */
     protected function p(?Node $node, bool $isDescription = false): string
     {
         if ($node === null) {
@@ -467,6 +472,8 @@ class Printer
      * @template TNode of Node
      *
      * @param NodeList<TNode> $list
+     *
+     * @throws \JsonException
      */
     protected function printList(NodeList $list, string $separator = ''): string
     {
@@ -484,6 +491,8 @@ class Printer
      * @template TNode of Node
      *
      * @param NodeList<TNode> $list
+     *
+     * @throws \JsonException
      */
     protected function printListBlock(NodeList $list): string
     {
@@ -499,6 +508,9 @@ class Printer
         return "{\n" . $this->indent($this->join($parts, "\n")) . "\n}";
     }
 
+    /**
+     * @throws \JsonException
+     */
     protected function addDescription(?StringValueNode $description, string $body): string
     {
         return $this->join([$this->p($description, true), $body], "\n");

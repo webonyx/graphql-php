@@ -44,6 +44,8 @@ final class QueryExecutionTest extends ServerTestCase
     /**
      * @param array<string, mixed>      $expected
      * @param array<string, mixed>|null $variables
+     *
+     * @throws \Exception
      */
     private function assertQueryResultEquals(array $expected, string $query, ?array $variables = null, ?string $queryId = null): ExecutionResult
     {
@@ -55,6 +57,8 @@ final class QueryExecutionTest extends ServerTestCase
 
     /**
      * @param array<string, mixed>|null $variables
+     *
+     * @throws \Exception
      */
     private function executeQuery(string $query, ?array $variables = null, bool $readonly = false, ?string $queryId = null): ExecutionResult
     {
@@ -117,7 +121,7 @@ final class QueryExecutionTest extends ServerTestCase
         $result = $this->executeQuery($query)->toArray();
         self::assertArraySubset($expected, $result);
 
-        self::assertSame(38, $result['errors'][0]['extensions']['line'] ?? null);
+        self::assertSame(42, $result['errors'][0]['extensions']['line'] ?? null);
 
         self::assertStringContainsString('tests/Server/ServerTestCase.php', $result['errors'][0]['extensions']['file'] ?? '');
     }
@@ -290,6 +294,8 @@ final class QueryExecutionTest extends ServerTestCase
 
     /**
      * @param array<string, mixed>|null $variables
+     *
+     * @throws \Exception
      */
     private function executePersistedQuery(string $queryId, ?array $variables = null): ExecutionResult
     {
@@ -332,6 +338,8 @@ final class QueryExecutionTest extends ServerTestCase
 
     /**
      * @param array<array<string, mixed>> $qs
+     *
+     * @throws \Exception
      *
      * @return array<int, ExecutionResult>
      */

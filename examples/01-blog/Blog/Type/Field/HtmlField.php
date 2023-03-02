@@ -2,6 +2,7 @@
 
 namespace GraphQL\Examples\Blog\Type\Field;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
 use GraphQL\Examples\Blog\Types;
 
@@ -11,6 +12,8 @@ class HtmlField
      * @param array{
      * 	resolve: callable
      * } $config
+     *
+     * @throws InvariantViolation
      *
      * @return array<mixed>
      */

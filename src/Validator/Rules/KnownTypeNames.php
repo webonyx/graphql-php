@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\TypeDefinitionNode;
@@ -24,11 +25,17 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownTypeNames extends ValidationRule
 {
+    /**
+     * @throws InvariantViolation
+     */
     public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
@@ -36,6 +43,8 @@ class KnownTypeNames extends ValidationRule
 
     /**
      * @phpstan-return VisitorArray
+     *
+     * @throws InvariantViolation
      */
     public function getASTVisitor(ValidationContext $context): array
     {

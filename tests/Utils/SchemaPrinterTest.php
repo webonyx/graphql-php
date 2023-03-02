@@ -2,6 +2,8 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -25,6 +27,11 @@ final class SchemaPrinterTest extends TestCase
 {
     /**
      * @param Options $options
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws InvariantViolation
+     * @throws SerializationError
      */
     private static function assertPrintedSchemaEquals(string $expected, Schema $schema, array $options = []): void
     {
@@ -36,7 +43,11 @@ final class SchemaPrinterTest extends TestCase
         self::assertSame($expected, $printedSchema);
     }
 
-    /** @param array<string, mixed> $fieldConfig */
+    /**
+     * @param array<string, mixed> $fieldConfig
+     *
+     * @throws InvariantViolation
+     */
     private function buildSingleFieldSchema(array $fieldConfig): Schema
     {
         $query = new ObjectType([

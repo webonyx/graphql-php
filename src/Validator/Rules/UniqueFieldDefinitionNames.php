@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
@@ -86,6 +87,10 @@ class UniqueFieldDefinitionNames extends ValidationRule
         ];
     }
 
+    /**
+     * @throws \JsonException
+     * @throws InvariantViolation
+     */
     private static function hasField(?NamedType $type, string $fieldName): bool
     {
         if ($type instanceof ObjectType || $type instanceof InterfaceType || $type instanceof InputObjectType) {

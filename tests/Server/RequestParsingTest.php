@@ -32,6 +32,9 @@ final class RequestParsingTest extends TestCase
     }
 
     /**
+     * @throws \JsonException
+     * @throws RequestError
+     *
      * @return OperationParams|array<int, OperationParams>
      */
     private function parseRawRequest(?string $contentType, string $content, string $method = 'POST')
@@ -43,6 +46,10 @@ final class RequestParsingTest extends TestCase
     }
 
     /**
+     * @throws \InvalidArgumentException
+     * @throws \JsonException
+     * @throws RequestError
+     *
      * @return OperationParams|array<int, OperationParams>
      */
     private function parsePsrRequest(?string $contentType, string $content, string $method = 'POST')
@@ -105,6 +112,9 @@ final class RequestParsingTest extends TestCase
     /**
      * @param array<string, mixed> $postValue
      *
+     * @throws \JsonException
+     * @throws RequestError
+     *
      * @return OperationParams|array<int, OperationParams>
      */
     private function parseRawFormUrlencodedRequest(array $postValue)
@@ -120,6 +130,9 @@ final class RequestParsingTest extends TestCase
 
     /**
      * @param array<string, mixed> $postValue
+     *
+     * @throws \JsonException
+     * @throws RequestError
      *
      * @return OperationParams|array<int, OperationParams>
      */
@@ -137,6 +150,10 @@ final class RequestParsingTest extends TestCase
 
     /**
      * @param array<string, mixed> $postValue
+     *
+     * @throws \InvalidArgumentException
+     * @throws \JsonException
+     * @throws RequestError
      *
      * @return OperationParams|array<int, OperationParams>
      */
@@ -182,6 +199,9 @@ final class RequestParsingTest extends TestCase
     /**
      * @param array<string, mixed> $getValue
      *
+     * @throws \JsonException
+     * @throws RequestError
+     *
      * @return OperationParams|array<int, OperationParams>
      */
     private function parseRawGetRequest(array $getValue)
@@ -196,6 +216,10 @@ final class RequestParsingTest extends TestCase
 
     /**
      * @param array<string, mixed> $getValue
+     *
+     * @throws \InvalidArgumentException
+     * @throws \JsonException
+     * @throws RequestError
      *
      * @return OperationParams|array<int, OperationParams>
      */
@@ -232,6 +256,9 @@ final class RequestParsingTest extends TestCase
     /**
      * @param array<string, mixed> $postValue
      *
+     * @throws \JsonException
+     * @throws RequestError
+     *
      * @return OperationParams|array<int, OperationParams>
      */
     private function parseRawMultipartFormDataRequest(array $postValue)
@@ -247,6 +274,9 @@ final class RequestParsingTest extends TestCase
 
     /**
      * @param array<string, mixed> $postValue
+     *
+     * @throws \JsonException
+     * @throws RequestError
      *
      * @return OperationParams|array<int, OperationParams>
      */

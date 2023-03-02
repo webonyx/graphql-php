@@ -948,8 +948,6 @@ Those magic functions allow partial parsing:
  *
  * @phpstan-param ParserOptions       $options
  *
- * @throws SyntaxError
- *
  * @api
  */
 static function parse($source, array $options = []): GraphQL\Language\AST\DocumentNode
@@ -2320,8 +2318,6 @@ static function build($source, ?callable $typeConfigDecorator = null, array $opt
  * @param array<string, bool> $options
  *
  * @phpstan-param BuildSchemaOptions $options
- *
- * @throws Error
  *
  * @api
  */

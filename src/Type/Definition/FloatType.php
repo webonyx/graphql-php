@@ -19,6 +19,10 @@ class FloatType extends ScalarType
 values as specified by
 [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point). ';
 
+    /**
+     * @throws \JsonException
+     * @throws SerializationError
+     */
     public function serialize($value): float
     {
         $float = \is_numeric($value) || \is_bool($value)
@@ -33,6 +37,10 @@ values as specified by
         return $float;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseValue($value): float
     {
         $float = \is_float($value) || \is_int($value)

@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Executor;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Deferred;
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
@@ -50,6 +51,9 @@ final class ListsTest extends TestCase
     /**
      * @param mixed                $testData
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     private function checkHandlesNullableLists($testData, array $expected): void
     {
@@ -61,6 +65,10 @@ final class ListsTest extends TestCase
      * @param Type&OutputType $testType
      * @param mixed $testData
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws InvariantViolation
      */
     private function check(Type $testType, $testData, array $expected, int $debug = DebugFlag::NONE): void
     {
@@ -217,6 +225,9 @@ final class ListsTest extends TestCase
     /**
      * @param mixed                $testData
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     private function checkHandlesNonNullableLists($testData, array $expected, int $debug = DebugFlag::NONE): void
     {
@@ -356,6 +367,9 @@ final class ListsTest extends TestCase
     /**
      * @param mixed                $testData
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     private function checkHandlesListOfNonNulls($testData, array $expected, int $debug = DebugFlag::NONE): void
     {
@@ -504,6 +518,9 @@ final class ListsTest extends TestCase
     /**
      * @param mixed                $testData
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     public function checkHandlesNonNullListOfNonNulls($testData, array $expected, int $debug = DebugFlag::NONE): void
     {

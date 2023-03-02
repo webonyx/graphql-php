@@ -2,6 +2,7 @@
 
 namespace GraphQL\Utils;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -54,6 +55,10 @@ class BreakingChangesFinder
      * Given two schemas, returns an Array containing descriptions of all the types
      * of breaking changes covered by the other functions down below.
      *
+     * @throws \JsonException
+     * @throws \TypeError
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findBreakingChanges(Schema $oldSchema, Schema $newSchema): array
@@ -77,6 +82,8 @@ class BreakingChangesFinder
     /**
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to removing an entire type.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, Change>
      */
@@ -103,6 +110,9 @@ class BreakingChangesFinder
     /**
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to changing the type of a type.
+     *
+     * @throws \TypeError
+     * @throws InvariantViolation
      *
      * @return array<int, Change>
      */
@@ -141,6 +151,8 @@ class BreakingChangesFinder
 
     /**
      * @param Type&NamedType $type
+     *
+     * @throws \TypeError
      */
     private static function typeKindName(NamedType $type): string
     {
@@ -172,6 +184,9 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws \JsonException
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findFieldsThatChangedTypeOnObjectOrInterfaceTypes(
@@ -254,6 +269,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return Changes
      */
     public static function findFieldsThatChangedTypeOnInputObjectTypes(
@@ -330,6 +347,9 @@ class BreakingChangesFinder
         ];
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private static function isChangeSafeForInputObjectFieldOrFieldArg(
         Type $oldType,
         Type $newType
@@ -370,6 +390,8 @@ class BreakingChangesFinder
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to removing types from a union type.
      *
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findTypesRemovedFromUnions(
@@ -407,6 +429,8 @@ class BreakingChangesFinder
     /**
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to removing values from an enum type.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, Change>
      */
@@ -447,6 +471,9 @@ class BreakingChangesFinder
      * breaking or dangerous changes in the newSchema related to arguments
      * (such as removal or change of type of an argument, or a change in an
      * argument's default value).
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
      *
      * @return Changes
      */
@@ -550,6 +577,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findInterfacesRemovedFromObjectTypes(
@@ -589,6 +618,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findRemovedDirectives(Schema $oldSchema, Schema $newSchema): array
@@ -609,6 +640,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<string, Directive>
      */
     private static function getDirectiveMapForSchema(Schema $schema): array
@@ -622,6 +655,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findRemovedDirectiveArgs(Schema $oldSchema, Schema $newSchema): array
@@ -680,6 +715,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findAddedNonNullDirectiveArgs(Schema $oldSchema, Schema $newSchema): array
@@ -727,6 +764,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findRemovedDirectiveLocations(Schema $oldSchema, Schema $newSchema): array
@@ -775,6 +814,9 @@ class BreakingChangesFinder
      * Given two schemas, returns an Array containing descriptions of all the types
      * of potentially dangerous changes covered by the other functions down below.
      *
+     * @throws \JsonException
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findDangerousChanges(Schema $oldSchema, Schema $newSchema): array
@@ -791,6 +833,8 @@ class BreakingChangesFinder
     /**
      * Given two schemas, returns an Array containing descriptions of any dangerous
      * changes in the newSchema related to adding values to an enum type.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, Change>
      */
@@ -827,6 +871,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findInterfacesAddedToObjectTypes(
@@ -871,6 +917,8 @@ class BreakingChangesFinder
     /**
      * Given two schemas, returns an Array containing descriptions of any dangerous
      * changes in the newSchema related to adding types to a union type.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, Change>
      */

@@ -21,6 +21,10 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 2, 3);
     }
 
+    /**
+     * @throws \Exception
+     * @throws \GraphQL\Error\SyntaxError
+     */
     private function assertDocumentValidators(string $query, int $queryComplexity, int $startComplexity): void
     {
         for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
@@ -85,6 +89,9 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 3, 4);
     }
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     protected function getRule(int $max = 0): QueryComplexity
     {
         self::$rule ??= new QueryComplexity($max);

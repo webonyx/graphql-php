@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -37,6 +38,9 @@ class QueryComplexity extends QuerySecurityRule
 
     protected QueryValidationContext $context;
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     public function __construct(int $maxQueryComplexity)
     {
         $this->setMaxQueryComplexity($maxQueryComplexity);
@@ -91,6 +95,9 @@ class QueryComplexity extends QuerySecurityRule
         );
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function fieldComplexity(SelectionSetNode $selectionSet): int
     {
         $complexity = 0;
@@ -102,6 +109,9 @@ class QueryComplexity extends QuerySecurityRule
         return $complexity;
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function nodeComplexity(SelectionNode $node): int
     {
         switch (true) {
@@ -148,6 +158,11 @@ class QueryComplexity extends QuerySecurityRule
         return null;
     }
 
+    /**
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
+     */
     protected function directiveExcludesField(FieldNode $node): bool
     {
         foreach ($node->directives as $directiveNode) {
@@ -213,6 +228,9 @@ class QueryComplexity extends QuerySecurityRule
     }
 
     /**
+     * @throws \Exception
+     * @throws Error
+     *
      * @return array<string, mixed>
      */
     protected function buildFieldArguments(FieldNode $node): array
@@ -253,6 +271,8 @@ class QueryComplexity extends QuerySecurityRule
 
     /**
      * Set max query complexity. If equal to 0 no check is done. Must be greater or equal to 0.
+     *
+     * @throws \InvalidArgumentException
      */
     public function setMaxQueryComplexity(int $maxQueryComplexity): void
     {
