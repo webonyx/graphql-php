@@ -37,6 +37,8 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     public array $config;
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-param InterfaceConfig $config
      */
     public function __construct(array $config)

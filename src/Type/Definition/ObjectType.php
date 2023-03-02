@@ -84,6 +84,8 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     public array $config;
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-param ObjectConfig $config
      */
     public function __construct(array $config)

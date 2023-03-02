@@ -18,6 +18,9 @@ trait NamedTypeImplementation
         return $this->name;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     protected function inferName(): string
     {
         if (isset($this->name)) {
