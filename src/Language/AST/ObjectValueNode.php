@@ -2,7 +2,7 @@
 
 namespace GraphQL\Language\AST;
 
-class ObjectValueNode extends Node implements ValueNode
+class ObjectValueNode extends Node implements ValueNode, ConstValueNode
 {
     public string $kind = NodeKind::OBJECT;
 

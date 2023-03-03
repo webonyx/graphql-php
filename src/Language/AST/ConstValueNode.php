@@ -3,17 +3,16 @@
 namespace GraphQL\Language\AST;
 
 /**
-export type ValueNode =
-| VariableNode
+export type ConstValueNode =
 | IntValueNode
 | FloatValueNode
 | StringValueNode
 | BooleanValueNode
 | NullValueNode
 | EnumValueNode
-| ListValueNode
-| ObjectValueNode;
+| ConstListValueNode
+| ConstObjectValueNode;
  */
-interface ValueNode
+interface ConstValueNode
 {
 }
