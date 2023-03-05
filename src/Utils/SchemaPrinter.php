@@ -186,9 +186,12 @@ class SchemaPrinter
      */
     protected static function hasDefaultRootOperationTypes(Schema $schema): bool
     {
+        $mutationType = $schema->getMutationType();
+        $subscriptionType = $schema->getSubscriptionType();
+
         return $schema->getQueryType() === $schema->getType('Query')
-            && $schema->getMutationType() === $schema->getType('Mutation')
-            && $schema->getSubscriptionType() === $schema->getType('Subscription');
+            && ($mutationType !== null && $mutationType === $schema->getType('Mutation'))
+            && ($subscriptionType !== null && $subscriptionType === $schema->getType('Subscription'));
     }
 
     /**

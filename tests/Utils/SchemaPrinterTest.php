@@ -66,6 +66,28 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
+    public function testPrintSchemaShouldNotInvokeTypeLoader(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'fields' => [
+                    'examplesCustom' => [
+                        'name' => 'examplesCustom',
+                        'type' => Type::boolean(),
+                    ],
+                ],
+                'name' => 'Query',
+            ]),
+            'typeLoader' => function ($name) {
+                throw new \RuntimeException("Not expected to resolve '{$name}'");
+            },
+        ]);
+
+        SchemaPrinter::doPrint($schema);
+    }
+
     /**
      * @see it('Prints [String] Field')
      */
