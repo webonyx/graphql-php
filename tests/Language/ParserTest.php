@@ -372,17 +372,17 @@ GRAPHQL
                                 'arguments' => [
                                     [
                                         'kind' => NodeKind::ARGUMENT,
-                                        'name' => [
-                                            'kind' => NodeKind::NAME,
-                                            'loc' => $loc(9, 11),
-                                            'value' => 'id',
-                                        ],
+                                        'loc' => $loc(9, 14),
                                         'value' => [
                                             'kind' => NodeKind::INT,
                                             'loc' => $loc(13, 14),
                                             'value' => '4',
                                         ],
-                                        'loc' => $loc(9, 14),
+                                        'name' => [
+                                            'kind' => NodeKind::NAME,
+                                            'loc' => $loc(9, 11),
+                                            'value' => 'id',
+                                        ],
                                     ],
                                 ],
                                 'directives' => [],
@@ -393,7 +393,7 @@ GRAPHQL
                                         [
                                             'kind' => NodeKind::FIELD,
                                             'loc' => $loc(22, 24),
-                                            // 'alias'        => undefined,
+                                            // 'alias' => undefined,
                                             'name' => [
                                                 'kind' => NodeKind::NAME,
                                                 'loc' => $loc(22, 24),
@@ -406,7 +406,7 @@ GRAPHQL
                                         [
                                             'kind' => NodeKind::FIELD,
                                             'loc' => $loc(30, 34),
-                                            // 'alias'        => undefined,
+                                            // 'alias' => undefined,
                                             'name' => [
                                                 'kind' => NodeKind::NAME,
                                                 'loc' => $loc(30, 34),
@@ -537,7 +537,7 @@ GRAPHQL
         $location = $result->loc;
 
         self::assertInstanceOf(Location::class, $location);
-        self::assertSame(['start' => 0, 'end' => '6'], $location->toArray());
+        self::assertSame(['start' => 0, 'end' => 6], $location->toArray());
     }
 
     /**

@@ -79,13 +79,13 @@ final class MixedStoreTest extends TestCase
         $safeValue = Utils::printSafe($value);
         $err = "Failed assertion that MixedStore provides array access for key {$safeKey} with value {$safeValue}";
 
-        self::assertArrayNotHasKey($key, $this->mixedStore, $err);
+        self::assertFalse(isset($this->mixedStore[$key]), $err);
         $this->mixedStore[$key] = $value;
-        self::assertArrayHasKey($key, $this->mixedStore, $err);
+        self::assertTrue(isset($this->mixedStore[$key]), $err);
         self::assertEquals((bool) $value, (bool) $this->mixedStore[$key], $err);
         self::assertSame($value, $this->mixedStore[$key], $err);
         unset($this->mixedStore[$key]);
-        self::assertArrayNotHasKey($key, $this->mixedStore, $err);
+        self::assertFalse(isset($this->mixedStore[$key]), $err);
     }
 
     public function testAcceptsBoolKeys(): void

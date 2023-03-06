@@ -149,7 +149,7 @@ final class QueryExecutionTest extends ServerTestCase
         }
         ';
 
-        self::assertObjectNotHasAttribute('testedRootValue', $context);
+        self::assertFalse(property_exists($context, 'testedRootValue'));
         $this->executeQuery($query);
         self::assertSame($rootValue, $context->testedRootValue);
     }

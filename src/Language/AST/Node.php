@@ -32,9 +32,9 @@ use GraphQL\Utils\Utils;
  */
 abstract class Node implements \JsonSerializable
 {
-    public ?Location $loc = null;
-
     public string $kind;
+
+    public ?Location $loc = null;
 
     /**
      * @param array<string, mixed> $vars

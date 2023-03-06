@@ -214,15 +214,15 @@ final class ExecutorTest extends TestCase
             'data' => [
                 'a' => 'Apple',
                 'b' => 'Banana',
-                'c' => 'Cherry',
                 'deep' => [
                     'b' => 'Banana',
-                    'c' => 'Cherry',
                     'deeper' => [
                         'b' => 'Banana',
                         'c' => 'Cherry',
                     ],
+                    'c' => 'Cherry',
                 ],
+                'c' => 'Cherry',
             ],
         ];
 
