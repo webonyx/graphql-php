@@ -209,22 +209,22 @@ final class SyncPromiseAdapterTest extends TestCase
 
         // Having single promise queue means that we won't stop in wait
         // until all pending promises are resolved
-        self::assertEquals(2, $result);
+        self::assertSame(2, $result);
 
         $p3AdoptedPromise = $p3->adoptedPromise;
         self::assertInstanceOf(SyncPromise::class, $p3AdoptedPromise);
-        self::assertEquals(SyncPromise::FULFILLED, $p3AdoptedPromise->state);
+        self::assertSame(SyncPromise::FULFILLED, $p3AdoptedPromise->state);
 
         $allAdoptedPromise = $all->adoptedPromise;
         self::assertInstanceOf(SyncPromise::class, $allAdoptedPromise);
-        self::assertEquals(SyncPromise::FULFILLED, $allAdoptedPromise->state);
+        self::assertSame(SyncPromise::FULFILLED, $allAdoptedPromise->state);
 
-        self::assertEquals([1, 2, 3, 4], $called);
+        self::assertSame([1, 2, 3, 4], $called);
 
         $expectedResult = [0, 1, 2, 3, 4];
         $result = $this->promises->wait($all);
-        self::assertEquals($expectedResult, $result);
-        self::assertEquals([1, 2, 3, 4], $called);
+        self::assertSame($expectedResult, $result);
+        self::assertSame([1, 2, 3, 4], $called);
         self::assertValidPromise($all, null, [0, 1, 2, 3, 4], SyncPromise::FULFILLED);
     }
 }

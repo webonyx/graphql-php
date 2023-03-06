@@ -284,7 +284,7 @@ final class DeferredFieldsTest extends TestCase
         ];
 
         $result = Executor::execute($schema, $query);
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         $expectedPaths = [
             ['topStories'],
@@ -371,7 +371,7 @@ final class DeferredFieldsTest extends TestCase
         ];
 
         $result = Executor::execute($schema, $query);
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         $expectedPaths = [
             ['categories'],
@@ -408,7 +408,7 @@ final class DeferredFieldsTest extends TestCase
         ];
         self::assertCount(\count($expectedPaths), $this->paths);
         foreach ($expectedPaths as $expectedPath) {
-            self::assertTrue(\in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
+            self::assertContains($expectedPath, $this->paths, 'Missing path: ' . json_encode($expectedPath));
         }
     }
 
@@ -522,7 +522,7 @@ final class DeferredFieldsTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         $expectedPaths = [
             ['nest'],
@@ -560,7 +560,7 @@ final class DeferredFieldsTest extends TestCase
 
         self::assertCount(\count($expectedPaths), $this->paths);
         foreach ($expectedPaths as $expectedPath) {
-            self::assertTrue(\in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
+            self::assertContains($expectedPath, $this->paths, 'Missing path: ' . json_encode($expectedPath));
         }
     }
 
@@ -605,7 +605,7 @@ final class DeferredFieldsTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         $expectedPaths = [
             ['categories'],
@@ -643,7 +643,7 @@ final class DeferredFieldsTest extends TestCase
             ['categories', 2, 'topStory', 'author', 'name'],
             ['categories', 2, 'topStoryAuthor', 'name'],
         ];
-        self::assertEquals($expectedPaths, $this->paths);
+        self::assertSame($expectedPaths, $this->paths);
     }
 
     /**

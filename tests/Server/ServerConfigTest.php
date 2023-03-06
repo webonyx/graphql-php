@@ -183,10 +183,10 @@ final class ServerConfigTest extends TestCase
         $config = ServerConfig::create();
 
         $config->setDebugFlag(DebugFlag::INCLUDE_DEBUG_MESSAGE);
-        self::assertEquals(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
+        self::assertSame(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
 
         $config->setDebugFlag(DebugFlag::NONE);
-        self::assertEquals(DebugFlag::NONE, $config->getDebugFlag());
+        self::assertSame(DebugFlag::NONE, $config->getDebugFlag());
     }
 
     public function testAcceptsArray(): void

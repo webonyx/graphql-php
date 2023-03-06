@@ -797,7 +797,7 @@ final class NonNullTest extends TestCase
         );
 
         $expected = ['data' => ['withNonNullArg' => 'Passed: literal value']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -818,7 +818,7 @@ final class NonNullTest extends TestCase
         );
 
         $expected = ['data' => ['withNonNullArg' => 'Passed: variable value']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -839,7 +839,7 @@ final class NonNullTest extends TestCase
         );
 
         $expected = ['data' => ['withNonNullArg' => 'Passed: default value']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**

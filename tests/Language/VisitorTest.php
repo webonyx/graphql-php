@@ -41,15 +41,15 @@ final class VisitorTest extends ValidatorTestCase
             }
 
             self::assertEquals(null, $parent);
-            self::assertEquals([], $path);
-            self::assertEquals([], $ancestors);
+            self::assertSame([], $path);
+            self::assertSame([], $ancestors);
 
             return;
         }
 
         if ($parent instanceof NodeList) {
             self::assertIsInt($key);
-            self::assertTrue(isset($parent[$key]));
+            self::assertArrayHasKey($key, $parent);
         } else {
             self::assertIsString($key);
             self::assertTrue(property_exists($parent, $key));
@@ -145,7 +145,7 @@ final class VisitorTest extends ValidatorTestCase
             ['leave', []],
         ];
 
-        self::assertEquals($expected, $visited);
+        self::assertSame($expected, $visited);
     }
 
     /**
@@ -1634,14 +1634,14 @@ final class VisitorTest extends ValidatorTestCase
             )
         );
 
-        self::assertEquals(
+        self::assertSame(
             Printer::doPrint(Parser::parse(
                 '{ human(id: 4) { name, pets }, alien }'
             )),
             Printer::doPrint($ast)
         );
 
-        self::assertEquals(
+        self::assertSame(
             Printer::doPrint(Parser::parse(
                 '{ human(id: 4) { name, pets { __typename } }, alien { __typename } }'
             )),

@@ -15,7 +15,7 @@ final class UtilsTest extends TestCase
         $result = Utils::chr($input);
 
         self::assertTrue(\mb_check_encoding($result, 'UTF-8'));
-        self::assertEquals($expected, $result);
+        self::assertSame($expected, $result);
     }
 
     /**

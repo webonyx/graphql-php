@@ -112,7 +112,7 @@ final class ReactPromiseAdapterTest extends TestCase
         );
 
         self::assertInstanceOf(\Exception::class, $exception);
-        self::assertEquals('I am a bad promise', $exception->getMessage());
+        self::assertSame('I am a bad promise', $exception->getMessage());
     }
 
     public function testAll(): void

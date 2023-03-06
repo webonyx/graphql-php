@@ -86,8 +86,8 @@ fragment MissingOn Type
             Parser::parse($str);
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
-            self::assertEquals($expectedMessage, $e->getMessage());
-            self::assertEquals($stringRepresentation, (string) $e);
+            self::assertSame($expectedMessage, $e->getMessage());
+            self::assertSame($stringRepresentation, (string) $e);
 
             if (\is_array($expectedPositions)) {
                 self::assertEquals($expectedPositions, $e->getPositions());
@@ -108,7 +108,7 @@ fragment MissingOn Type
             Parser::parse(new Source('query', 'MyQuery.graphql'));
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            self::assertEquals(
+            self::assertSame(
                 "Syntax Error: Expected {, found <EOF>\n\nMyQuery.graphql (1:6)\n1: query\n        ^\n",
                 (string) $error
             );
@@ -425,7 +425,7 @@ GRAPHQL
             ],
         ];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -498,7 +498,7 @@ GRAPHQL
             ],
         ];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -537,7 +537,7 @@ GRAPHQL
         $location = $result->loc;
 
         self::assertInstanceOf(Location::class, $location);
-        self::assertEquals(['start' => 0, 'end' => '6'], $location->toArray());
+        self::assertSame(['start' => 0, 'end' => '6'], $location->toArray());
     }
 
     /**
@@ -568,11 +568,11 @@ GRAPHQL
 
         $startToken = $location->startToken;
         self::assertInstanceOf(Token::class, $startToken);
-        self::assertEquals('<SOF>', $startToken->kind);
+        self::assertSame('<SOF>', $startToken->kind);
 
         $endToken = $location->endToken;
         self::assertInstanceOf(Token::class, $endToken);
-        self::assertEquals('<EOF>', $endToken->kind);
+        self::assertSame('<EOF>', $endToken->kind);
     }
 
     /**
@@ -580,7 +580,7 @@ GRAPHQL
      */
     public function testParsesNullValues(): void
     {
-        self::assertEquals(
+        self::assertSame(
             [
                 'kind' => NodeKind::NULL,
                 'loc' => ['start' => 0, 'end' => 4],
@@ -621,7 +621,7 @@ GRAPHQL
      */
     public function testParsesWellKnownTypes(): void
     {
-        self::assertEquals(
+        self::assertSame(
             [
                 'kind' => NodeKind::NAMED_TYPE,
                 'loc' => ['start' => 0, 'end' => 6],
@@ -640,7 +640,7 @@ GRAPHQL
      */
     public function testParsesCustomTypes(): void
     {
-        self::assertEquals(
+        self::assertSame(
             [
                 'kind' => NodeKind::NAMED_TYPE,
                 'loc' => ['start' => 0, 'end' => 6],
@@ -659,7 +659,7 @@ GRAPHQL
      */
     public function testParsesListTypes(): void
     {
-        self::assertEquals(
+        self::assertSame(
             [
                 'kind' => NodeKind::LIST_TYPE,
                 'loc' => ['start' => 0, 'end' => 8],
@@ -682,7 +682,7 @@ GRAPHQL
      */
     public function testParsesNonNullTypes(): void
     {
-        self::assertEquals(
+        self::assertSame(
             [
                 'kind' => NodeKind::NON_NULL_TYPE,
                 'loc' => ['start' => 0, 'end' => 7],
@@ -705,7 +705,7 @@ GRAPHQL
      */
     public function testParsesNestedTypes(): void
     {
-        self::assertEquals(
+        self::assertSame(
             [
                 'kind' => NodeKind::LIST_TYPE,
                 'loc' => ['start' => 0, 'end' => 9],

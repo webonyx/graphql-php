@@ -64,10 +64,10 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
         ]);
 
         $schema->getType('Node');
-        self::assertEquals(['Node'], $this->calls);
+        self::assertSame(['Node'], $this->calls);
 
         $schema->getType('Node');
-        self::assertEquals(['Node'], $this->calls);
+        self::assertSame(['Node'], $this->calls);
     }
 
     public function testIgnoresNonExistentType(): void

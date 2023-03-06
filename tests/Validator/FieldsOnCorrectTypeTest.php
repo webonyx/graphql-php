@@ -16,7 +16,7 @@ final class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Object field selection')
      */
-    public function testObjectFieldSelection(): void
+    public function estObjectFieldSelection(): void
     {
         $this->expectPassesRule(
             new FieldsOnCorrectType(),
@@ -345,7 +345,7 @@ final class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testWorksWithNoSuggestions(): void
     {
-        self::assertEquals(
+        self::assertSame(
             'Cannot query field "f" on type "T".',
             FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], [])
         );
@@ -358,7 +358,7 @@ final class FieldsOnCorrectTypeTest extends ValidatorTestCase
     {
         $expected = 'Cannot query field "f" on type "T". Did you mean to use an inline fragment on "A" or "B"?';
 
-        self::assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], []));
+        self::assertSame($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], []));
     }
 
     /**
@@ -368,7 +368,7 @@ final class FieldsOnCorrectTypeTest extends ValidatorTestCase
     {
         $expected = 'Cannot query field "f" on type "T". Did you mean "z" or "y"?';
 
-        self::assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], ['z', 'y']));
+        self::assertSame($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], ['z', 'y']));
     }
 
     /**
@@ -378,7 +378,7 @@ final class FieldsOnCorrectTypeTest extends ValidatorTestCase
     {
         $expected = 'Cannot query field "f" on type "T". Did you mean to use an inline fragment on "A" or "B"?';
 
-        self::assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], ['z', 'y']));
+        self::assertSame($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], ['z', 'y']));
     }
 
     /**
@@ -389,7 +389,7 @@ final class FieldsOnCorrectTypeTest extends ValidatorTestCase
         $expected = 'Cannot query field "f" on type "T". '
             . 'Did you mean to use an inline fragment on "A", "B", "C", "D", or "E"?';
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             FieldsOnCorrectType::undefinedFieldMessage(
                 'f',
@@ -407,7 +407,7 @@ final class FieldsOnCorrectTypeTest extends ValidatorTestCase
     {
         $expected = 'Cannot query field "f" on type "T". Did you mean "z", "y", "x", "w", or "v"?';
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             FieldsOnCorrectType::undefinedFieldMessage(
                 'f',

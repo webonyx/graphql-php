@@ -28,7 +28,7 @@ final class ConcatASTTest extends TestCase
         $astB = Parser::parse($sourceB);
         $astC = AST::concatAST([$astA, $astB]);
 
-        self::assertEquals(
+        self::assertSame(
             <<<'GRAPHQL'
               {
                 a

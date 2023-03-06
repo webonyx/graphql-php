@@ -226,7 +226,7 @@ final class ExecutorTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, Executor::execute($schema, $ast)->toArray());
+        self::assertSame($expected, Executor::execute($schema, $ast)->toArray());
     }
 
     /**
@@ -259,16 +259,16 @@ final class ExecutorTest extends TestCase
         /** @var OperationDefinitionNode $operationDefinition */
         $operationDefinition = $ast->definitions[0];
 
-        self::assertEquals('test', $info->fieldName);
+        self::assertSame('test', $info->fieldName);
         self::assertCount(1, $info->fieldNodes);
         self::assertSame($operationDefinition->selectionSet->selections[0], $info->fieldNodes[0]);
         self::assertSame(Type::string(), $info->returnType);
         self::assertSame($schema->getQueryType(), $info->parentType);
-        self::assertEquals(['result'], $info->path);
+        self::assertSame(['result'], $info->path);
         self::assertSame($schema, $info->schema);
         self::assertSame($rootValue, $info->rootValue);
         self::assertEquals($operationDefinition, $info->operation);
-        self::assertEquals(['var' => '123'], $info->variableValues);
+        self::assertSame(['var' => '123'], $info->variableValues);
     }
 
     /**
@@ -291,7 +291,7 @@ final class ExecutorTest extends TestCase
                     'a' => [
                         'type' => Type::string(),
                         'resolve' => static function ($root) use (&$gotHere): void {
-                            self::assertEquals('thing', $root['contextThing']);
+                            self::assertSame('thing', $root['contextThing']);
                             $gotHere = true;
                         },
                     ],
@@ -328,8 +328,8 @@ final class ExecutorTest extends TestCase
                         ],
                         'type' => Type::string(),
                         'resolve' => static function ($_, array $args) use (&$gotHere): void {
-                            self::assertEquals(123, $args['numArg']);
-                            self::assertEquals('foo', $args['stringArg']);
+                            self::assertSame(123, $args['numArg']);
+                            self::assertSame('foo', $args['stringArg']);
                             $gotHere = true;
                         },
                     ],
@@ -542,7 +542,7 @@ final class ExecutorTest extends TestCase
 
         $ex = Executor::execute($schema, $ast, $data);
 
-        self::assertEquals(['data' => ['a' => 'b']], $ex->toArray());
+        self::assertSame(['data' => ['a' => 'b']], $ex->toArray());
     }
 
     /**
@@ -563,7 +563,7 @@ final class ExecutorTest extends TestCase
         ]);
 
         $ex = Executor::execute($schema, $ast, $data);
-        self::assertEquals(['data' => ['a' => 'b']], $ex->toArray());
+        self::assertSame(['data' => ['a' => 'b']], $ex->toArray());
     }
 
     /**
@@ -584,7 +584,7 @@ final class ExecutorTest extends TestCase
         ]);
 
         $result = Executor::execute($schema, $ast, $data, null, null, 'OtherExample');
-        self::assertEquals(['data' => ['second' => 'b']], $result->toArray());
+        self::assertSame(['data' => ['second' => 'b']], $result->toArray());
     }
 
     /**
@@ -700,7 +700,7 @@ final class ExecutorTest extends TestCase
         ]);
 
         $queryResult = Executor::execute($schema, $ast, $data, null, [], 'Q');
-        self::assertEquals(['data' => ['a' => 'b']], $queryResult->toArray());
+        self::assertSame(['data' => ['a' => 'b']], $queryResult->toArray());
     }
 
     /**
@@ -726,7 +726,7 @@ final class ExecutorTest extends TestCase
             ]),
         ]);
         $mutationResult = Executor::execute($schema, $ast, $data, null, [], 'M');
-        self::assertEquals(['data' => ['c' => 'd']], $mutationResult->toArray());
+        self::assertSame(['data' => ['c' => 'd']], $mutationResult->toArray());
     }
 
     /**
@@ -753,7 +753,7 @@ final class ExecutorTest extends TestCase
         ]);
 
         $subscriptionResult = Executor::execute($schema, $ast, $data, null, [], 'S');
-        self::assertEquals(['data' => ['a' => 'b']], $subscriptionResult->toArray());
+        self::assertSame(['data' => ['a' => 'b']], $subscriptionResult->toArray());
     }
 
     public function testCorrectFieldOrderingDespiteExecutionOrder(): void
@@ -801,7 +801,7 @@ final class ExecutorTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, Executor::execute($schema, $ast, $data)->toArray());
+        self::assertSame($expected, Executor::execute($schema, $ast, $data)->toArray());
     }
 
     /**
@@ -833,7 +833,7 @@ final class ExecutorTest extends TestCase
         ]);
 
         $queryResult = Executor::execute($schema, $ast, $data, null, [], 'Q');
-        self::assertEquals(['data' => ['a' => 'b']], $queryResult->toArray());
+        self::assertSame(['data' => ['a' => 'b']], $queryResult->toArray());
     }
 
     /**
@@ -860,7 +860,7 @@ final class ExecutorTest extends TestCase
             ]),
         ]);
         $mutationResult = Executor::execute($schema, $ast);
-        self::assertEquals(['data' => []], $mutationResult->toArray());
+        self::assertSame(['data' => []], $mutationResult->toArray());
     }
 
     /**
@@ -893,7 +893,7 @@ final class ExecutorTest extends TestCase
             'data' => ['field' => '{"a":true,"c":false,"e":0}'],
         ];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -937,8 +937,8 @@ final class ExecutorTest extends TestCase
             $result->data
         );
 
-        self::assertEquals(1, \count($result->errors));
-        self::assertEquals(
+        self::assertCount(1, $result->errors);
+        self::assertSame(
             [
                 'message' => 'Expected value of type "SpecialType" but got: instance of GraphQL\Tests\Executor\TestClasses\NotSpecial.',
                 'locations' => [['line' => 1, 'column' => 3]],
@@ -1009,7 +1009,7 @@ final class ExecutorTest extends TestCase
             'data' => ['foo' => 'foo'],
         ];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     public function testSubstitutesArgumentWithDefaultValue(): void
@@ -1061,7 +1061,7 @@ final class ExecutorTest extends TestCase
             'data' => ['field' => '{"a":1,"b":null,"c":0,"d":false,"e":"0","f":"some-string","h":{"a":1,"b":"test"},"i":1}'],
         ];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**

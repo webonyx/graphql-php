@@ -1038,7 +1038,7 @@ final class IntrospectionTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
     /**
@@ -1149,7 +1149,7 @@ final class IntrospectionTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
     /**
@@ -1272,7 +1272,7 @@ final class IntrospectionTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
     /**
@@ -1364,7 +1364,7 @@ final class IntrospectionTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
     /**
@@ -1433,7 +1433,7 @@ final class IntrospectionTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
     /**

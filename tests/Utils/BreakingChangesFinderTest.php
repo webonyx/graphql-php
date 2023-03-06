@@ -65,12 +65,12 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findRemovedTypes($oldSchema, $newSchema)
         );
 
-        self::assertEquals([], BreakingChangesFinder::findRemovedTypes($oldSchema, $oldSchema));
+        self::assertSame([], BreakingChangesFinder::findRemovedTypes($oldSchema, $oldSchema));
     }
 
     /**
@@ -114,7 +114,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findTypesThatChangedKind($oldSchema, $newSchema)
         );
@@ -299,7 +299,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedFieldChanges,
             BreakingChangesFinder::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema)
         );
@@ -466,7 +466,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedFieldChanges,
             BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes(
                 $oldSchema,
@@ -517,7 +517,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes(
                 $oldSchema,
@@ -583,7 +583,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findTypesRemovedFromUnions($oldSchema, $newSchema)
         );
@@ -628,7 +628,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findValuesRemovedFromEnums($oldSchema, $newSchema)
         );
@@ -713,7 +713,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedChanges,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
         );
@@ -837,7 +837,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedChanges,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
         );
@@ -888,7 +888,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
         );
@@ -948,7 +948,7 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        self::assertEquals([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+        self::assertSame([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -988,7 +988,7 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        self::assertEquals([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+        self::assertSame([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -1032,7 +1032,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
         );
@@ -1080,7 +1080,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
         );
@@ -1348,7 +1348,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedBreakingChanges,
             BreakingChangesFinder::findBreakingChanges($oldSchema, $newSchema)
         );
@@ -1444,7 +1444,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedBreakingChanges,
             BreakingChangesFinder::findRemovedDirectiveArgs($oldSchema, $newSchema)
         );
@@ -1486,7 +1486,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedBreakingChanges,
             BreakingChangesFinder::findAddedNonNullDirectiveArgs($oldSchema, $newSchema)
         );
@@ -1507,7 +1507,7 @@ final class BreakingChangesFinderTest extends TestCase
             'locations' => [DirectiveLocation::FIELD_DEFINITION],
         ]);
 
-        self::assertEquals(
+        self::assertSame(
             [DirectiveLocation::QUERY],
             BreakingChangesFinder::findRemovedLocationsForDirective($d1, $d2)
         );
@@ -1546,7 +1546,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedBreakingChanges,
             BreakingChangesFinder::findRemovedDirectiveLocations($oldSchema, $newSchema)
         );
@@ -1607,7 +1607,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['dangerousChanges']
         );
@@ -1651,7 +1651,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findValuesAddedToEnums($oldSchema, $newSchema)
         );
@@ -1700,7 +1700,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findInterfacesAddedToObjectTypes($oldSchema, $newSchema)
         );
@@ -1751,7 +1751,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findInterfacesAddedToObjectTypes($oldSchema, $newSchema)
         );
@@ -1809,7 +1809,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findTypesAddedToUnions($oldSchema, $newSchema)
         );
@@ -1857,7 +1857,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedFieldChanges,
             BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes(
                 $oldSchema,
@@ -1999,7 +1999,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedDangerousChanges,
             BreakingChangesFinder::findDangerousChanges($oldSchema, $newSchema)
         );
@@ -2058,7 +2058,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expectedFieldChanges,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['dangerousChanges']
         );

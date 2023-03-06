@@ -199,7 +199,7 @@ final class ValidationTest extends TestCaseBase
                 $factory();
                 self::fail('Expected exception not thrown for entry ' . $index);
             } catch (InvariantViolation $e) {
-                self::assertEquals($expectedError, $e->getMessage(), 'Error in callable #' . $index);
+                self::assertSame($expectedError, $e->getMessage(), 'Error in callable #' . $index);
             }
         }
     }
@@ -218,7 +218,7 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
 
         $schemaWithDef = BuildSchema::build('
       schema {
@@ -228,7 +228,7 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
     ');
-        self::assertEquals([], $schemaWithDef->validate());
+        self::assertSame([], $schemaWithDef->validate());
     }
 
     /**
@@ -245,7 +245,7 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
 
         $schema = BuildSchema::build('
       schema {
@@ -261,7 +261,7 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -278,7 +278,7 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
 
         $schema = BuildSchema::build('
       schema {
@@ -294,7 +294,7 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -494,7 +494,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -618,7 +618,7 @@ final class ValidationTest extends TestCaseBase
                 ],
             ],
         ]));
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -668,7 +668,7 @@ final class ValidationTest extends TestCaseBase
         | TypeB
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     // DESCRIBE: Type System: Input Objects must have fields
@@ -848,7 +848,7 @@ final class ValidationTest extends TestCaseBase
         field: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -906,7 +906,7 @@ final class ValidationTest extends TestCaseBase
         intermediateSelf: AnotherInputObject
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -1145,7 +1145,7 @@ final class ValidationTest extends TestCaseBase
     {
         foreach ($this->outputTypes as $type) {
             $schema = $this->schemaWithObjectFieldOfType($type);
-            self::assertEquals([], $schema->validate());
+            self::assertSame([], $schema->validate());
         }
     }
 
@@ -1463,7 +1463,7 @@ final class ValidationTest extends TestCaseBase
     {
         foreach ($this->outputTypes as $type) {
             $schema = $this->schemaWithInterfaceFieldOfType($type);
-            self::assertEquals([], $schema->validate());
+            self::assertSame([], $schema->validate());
         }
     }
 
@@ -1579,7 +1579,7 @@ final class ValidationTest extends TestCaseBase
     {
         foreach ($this->inputTypes as $type) {
             $schema = $this->schemaWithArgOfType($type);
-            self::assertEquals([], $schema->validate());
+            self::assertSame([], $schema->validate());
         }
     }
 
@@ -1659,7 +1659,7 @@ final class ValidationTest extends TestCaseBase
     {
         foreach ($this->inputTypes as $type) {
             $schema = $this->schemaWithInputFieldOfType($type);
-            self::assertEquals([], $schema->validate());
+            self::assertSame([], $schema->validate());
         }
     }
 
@@ -1758,7 +1758,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals(
+        self::assertSame(
             [],
             $schema->validate()
         );
@@ -1784,7 +1784,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals(
+        self::assertSame(
             [],
             $schema->validate()
         );
@@ -1809,7 +1809,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals(
+        self::assertSame(
             [],
             $schema->validate()
         );
@@ -1927,7 +1927,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -1955,7 +1955,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -2111,7 +2111,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -2195,7 +2195,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -2281,7 +2281,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -2304,7 +2304,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -2326,7 +2326,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -2441,7 +2441,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -2468,7 +2468,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -2623,7 +2623,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -2707,7 +2707,7 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**
@@ -2914,7 +2914,7 @@ final class ValidationTest extends TestCaseBase
           }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     /**

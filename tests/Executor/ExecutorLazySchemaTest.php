@@ -175,9 +175,9 @@ final class ExecutorLazySchemaTest extends TestCase
             }
         ';
 
-        self::assertEquals([], $calls);
+        self::assertSame([], $calls);
         $result = Executor::execute($schema, Parser::parse($query), ['test' => ['test' => 'value']]);
-        self::assertEquals(['Test', 'Test'], $calls);
+        self::assertSame(['Test', 'Test'], $calls);
 
         $error = $result->errors[0] ?? null;
         self::assertInstanceOf(Error::class, $error);
@@ -212,8 +212,8 @@ final class ExecutorLazySchemaTest extends TestCase
             'SomeObject',
             'SomeObject.fields',
         ];
-        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
-        self::assertEquals($expectedExecutorCalls, $this->calls);
+        self::assertSame($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
+        self::assertSame($expectedExecutorCalls, $this->calls);
     }
 
     /**
@@ -366,7 +366,7 @@ final class ExecutorLazySchemaTest extends TestCase
             $rootValue
         );
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => $rootValue],
             $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
@@ -378,7 +378,7 @@ final class ExecutorLazySchemaTest extends TestCase
             ],
             $this->loadedTypes
         );
-        self::assertEquals(
+        self::assertSame(
             [
                 'Query.fields',
                 'SomeObject',
@@ -426,7 +426,7 @@ final class ExecutorLazySchemaTest extends TestCase
             'SomeScalar' => true,
         ];
 
-        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
+        self::assertSame($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
         self::assertEquals($expectedLoadedTypes, $this->loadedTypes);
 
         $expectedCalls = [
@@ -439,7 +439,7 @@ final class ExecutorLazySchemaTest extends TestCase
             'DeeperObject',
             'SomeScalar',
         ];
-        self::assertEquals($expectedCalls, $this->calls);
+        self::assertSame($expectedCalls, $this->calls);
     }
 
     public function testSchemaWithConcreteTypeWithPhpFunctionName(): void
