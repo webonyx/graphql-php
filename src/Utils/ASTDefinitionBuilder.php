@@ -190,11 +190,12 @@ class ASTDefinitionBuilder
     {
         if ($ref instanceof TypeDefinitionNode) {
             return $this->internalBuildType($ref->getName()->value, $ref);
-        } elseif ($ref instanceof NamedTypeNode) {
-            return $this->internalBuildType($ref->name->value, $ref);
-        } else {
-            return $this->internalBuildType($ref);
         }
+        if ($ref instanceof NamedTypeNode) {
+            return $this->internalBuildType($ref->name->value, $ref);
+        }
+
+        return $this->internalBuildType($ref);
     }
 
     /**
