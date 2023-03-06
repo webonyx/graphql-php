@@ -217,7 +217,6 @@ class TypeInfo
                 break;
 
             case $node instanceof OperationDefinitionNode:
-                $type = null;
                 if ($node->operation === 'query') {
                     $type = $schema->getQueryType();
                 } elseif ($node->operation === 'mutation') {
@@ -227,7 +226,9 @@ class TypeInfo
                     $type = $schema->getSubscriptionType();
                 }
 
-                $this->typeStack[] = Type::isOutputType($type) ? $type : null;
+                $this->typeStack[] = Type::isOutputType($type)
+                    ? $type
+                    : null;
                 break;
 
             case $node instanceof InlineFragmentNode:

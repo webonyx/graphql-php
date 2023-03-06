@@ -92,28 +92,28 @@ class ServerConfig
     private ?Schema $schema = null;
 
     /** @var mixed|callable(self, OperationParams, DocumentNode): mixed|null */
-    private $context = null;
+    private $context;
 
     /**
      * @var mixed|callable
      *
      * @phpstan-var mixed|RootValueResolver
      */
-    private $rootValue = null;
+    private $rootValue;
 
     /**
      * @var callable|null
      *
      * @phpstan-var ErrorFormatter|null
      */
-    private $errorFormatter = null;
+    private $errorFormatter;
 
     /**
      * @var callable|null
      *
      * @phpstan-var ErrorsHandler|null
      */
-    private $errorsHandler = null;
+    private $errorsHandler;
 
     private int $debugFlag = DebugFlag::NONE;
 
@@ -124,10 +124,10 @@ class ServerConfig
      *
      * @phpstan-var ValidationRulesOption
      */
-    private $validationRules = null;
+    private $validationRules;
 
     /** @var callable|null */
-    private $fieldResolver = null;
+    private $fieldResolver;
 
     private ?PromiseAdapter $promiseAdapter = null;
 
@@ -136,7 +136,7 @@ class ServerConfig
      *
      * @phpstan-var PersistedQueryLoader|null
      */
-    private $persistedQueryLoader = null;
+    private $persistedQueryLoader;
 
     /**
      * @api

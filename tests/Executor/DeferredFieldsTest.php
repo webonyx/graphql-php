@@ -359,7 +359,6 @@ final class DeferredFieldsTest extends TestCase
         $author1 = ['name' => 'John', 'bestFriend' => ['name' => 'Dirk']];
         $author2 = ['name' => 'Jane', 'bestFriend' => ['name' => 'Joe']];
         $author3 = ['name' => 'Joe', 'bestFriend' => ['name' => 'Jane']];
-        $author4 = ['name' => 'Dirk', 'bestFriend' => ['name' => 'John']];
 
         $expected = [
             'data' => [
@@ -591,7 +590,6 @@ final class DeferredFieldsTest extends TestCase
         $author1 = ['name' => 'John'/* , 'bestFriend' => ['name' => 'Dirk'] */];
         $author2 = ['name' => 'Jane'/* , 'bestFriend' => ['name' => 'Joe'] */];
         $author3 = ['name' => 'Joe'/* , 'bestFriend' => ['name' => 'Jane'] */];
-        $author4 = ['name' => 'Dirk'/* , 'bestFriend' => ['name' => 'John'] */];
 
         $story1 = ['title' => 'Story #8', 'author' => $author1];
         $story2 = ['title' => 'Story #3', 'author' => $author3];

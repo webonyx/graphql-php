@@ -62,7 +62,7 @@ class SchemaConfig
      *
      * @phpstan-var TypeLoader|null
      */
-    public $typeLoader = null;
+    public $typeLoader;
 
     public bool $assumeValid = false;
 

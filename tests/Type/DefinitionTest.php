@@ -573,7 +573,7 @@ final class DefinitionTest extends TestCaseBase
             [Type::string(), true],
         ];
 
-        foreach ($expected as $index => $entry) {
+        foreach ($expected as $entry) {
             self::assertSame(
                 $entry[1],
                 Type::isInputType($entry[0]),
@@ -606,7 +606,7 @@ final class DefinitionTest extends TestCaseBase
             [Type::string(), true],
         ];
 
-        foreach ($expected as $index => $entry) {
+        foreach ($expected as $entry) {
             self::assertSame(
                 $entry[1],
                 Type::isOutputType($entry[0]),

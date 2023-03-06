@@ -337,7 +337,6 @@ final class ResolveInfoTest extends TestCase
         ];
 
         $hasCalled = false;
-        $actualDefaultSelection = null;
         $actualDeepSelection = null;
 
         $blogQuery = new ObjectType([

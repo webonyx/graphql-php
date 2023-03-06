@@ -286,19 +286,13 @@ class Schema
      */
     private function loadType(string $typeName): ?Type
     {
-        $typeLoader = $this->config->typeLoader;
-        if ($typeLoader === null) {
+        if (! isset($this->config->typeLoader)) {
             return $this->getTypeMap()[$typeName] ?? null;
         }
 
-        $type = $typeLoader($typeName);
+        $type = ($this->config->typeLoader)($typeName);
         if ($type === null) {
             return null;
-        }
-
-        // @phpstan-ignore-next-line not strictly enforceable unless PHP gets function types
-        if (! $type instanceof Type) {
-            throw new InvariantViolation(self::typeLoaderNotType($type));
         }
 
         if ($typeName !== $type->name) {
