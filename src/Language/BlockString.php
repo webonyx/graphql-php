@@ -4,6 +4,9 @@ namespace GraphQL\Language;
 
 use GraphQL\Utils\Utils;
 
+/**
+ * @see \GraphQL\Tests\Language\BlockStringTest
+ */
 class BlockString
 {
     /**

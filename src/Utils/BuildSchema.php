@@ -40,6 +40,8 @@ use GraphQL\Validator\DocumentValidator;
  *     Set to true to assume the SDL is valid.
  *
  *     Default: false
+ *
+ * @see \GraphQL\Tests\Utils\BuildSchemaTest
  */
 class BuildSchema
 {

@@ -30,6 +30,8 @@ use Psr\Http\Message\StreamInterface;
  *     $server->handleRequest();
  *
  * See [dedicated section in docs](executing-queries.md#using-server) for details.
+ *
+ * @see \GraphQL\Tests\Server\StandardServerTest
  */
 class StandardServer
 {
