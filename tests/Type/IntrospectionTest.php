@@ -1350,8 +1350,7 @@ final class IntrospectionTest extends TestCase
                         ],
                         [
                             'name' => 'mutationType',
-                            'description' => 'If this server supports mutation, the type that '
-                                . 'mutation operations will be rooted at.',
+                            'description' => 'If this server supports mutation, the type that mutation operations will be rooted at.',
                         ],
                         [
                             'name' => 'subscriptionType',
@@ -1402,38 +1401,31 @@ final class IntrospectionTest extends TestCase
                             'name' => 'SCALAR',
                         ],
                         [
-                            'description' => 'Indicates this type is an object. '
-                                . '`fields` and `interfaces` are valid fields.',
+                            'description' => 'Indicates this type is an object. `fields` and `interfaces` are valid fields.',
                             'name' => 'OBJECT',
                         ],
                         [
-                            'description' => 'Indicates this type is an interface. '
-                                . '`fields`, `interfaces`, and `possibleTypes` are valid fields.',
+                            'description' => 'Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.',
                             'name' => 'INTERFACE',
                         ],
                         [
-                            'description' => 'Indicates this type is a union. '
-                                . '`possibleTypes` is a valid field.',
+                            'description' => 'Indicates this type is a union. `possibleTypes` is a valid field.',
                             'name' => 'UNION',
                         ],
                         [
-                            'description' => 'Indicates this type is an enum. '
-                                . '`enumValues` is a valid field.',
+                            'description' => 'Indicates this type is an enum. `enumValues` is a valid field.',
                             'name' => 'ENUM',
                         ],
                         [
-                            'description' => 'Indicates this type is an input object. '
-                                . '`inputFields` is a valid field.',
+                            'description' => 'Indicates this type is an input object. `inputFields` is a valid field.',
                             'name' => 'INPUT_OBJECT',
                         ],
                         [
-                            'description' => 'Indicates this type is a list. '
-                                . '`ofType` is a valid field.',
+                            'description' => 'Indicates this type is a list. `ofType` is a valid field.',
                             'name' => 'LIST',
                         ],
                         [
-                            'description' => 'Indicates this type is a non-null. '
-                                . '`ofType` is a valid field.',
+                            'description' => 'Indicates this type is a non-null. `ofType` is a valid field.',
                             'name' => 'NON_NULL',
                         ],
                     ],

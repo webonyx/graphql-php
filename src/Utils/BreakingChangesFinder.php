@@ -185,8 +185,8 @@ class BreakingChangesFinder
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
-                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                ! $oldType instanceof ObjectType && ! $oldType instanceof InterfaceType
+                || ! $newType instanceof ObjectType && ! $newType instanceof InterfaceType
                 || ! ($newType instanceof $oldType)
             ) {
                 continue;
@@ -288,17 +288,12 @@ class BreakingChangesFinder
                         $newFieldType
                     );
                     if (! $isSafe) {
-                        if ($oldFieldType instanceof NamedType) {
-                            $oldFieldTypeString = $oldFieldType->name;
-                        } else {
-                            $oldFieldTypeString = $oldFieldType;
-                        }
-
-                        if ($newFieldType instanceof NamedType) {
-                            $newFieldTypeString = $newFieldType->name;
-                        } else {
-                            $newFieldTypeString = $newFieldType;
-                        }
+                        $oldFieldTypeString = $oldFieldType instanceof NamedType
+                            ? $oldFieldType->name
+                            : $oldFieldType;
+                        $newFieldTypeString = $newFieldType instanceof NamedType
+                            ? $newFieldType->name
+                            : $newFieldType;
 
                         $breakingChanges[] = [
                             'type' => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
@@ -468,8 +463,8 @@ class BreakingChangesFinder
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
-                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                ! $oldType instanceof ObjectType && ! $oldType instanceof InterfaceType
+                || ! $newType instanceof ObjectType && ! $newType instanceof InterfaceType
                 || ! ($newType instanceof $oldType)
             ) {
                 continue;
@@ -845,8 +840,8 @@ class BreakingChangesFinder
         foreach ($newTypeMap as $typeName => $newType) {
             $oldType = $oldTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
-                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                ! $oldType instanceof ObjectType && ! $oldType instanceof InterfaceType
+                || ! $newType instanceof ObjectType && ! $newType instanceof InterfaceType
             ) {
                 continue;
             }

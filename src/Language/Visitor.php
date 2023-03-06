@@ -189,7 +189,7 @@ class Visitor
             $isLeaving = $index === \count($keys);
             $key = null;
             $node = null;
-            $isEdited = $isLeaving && \count($edits) > 0;
+            $isEdited = $isLeaving && $edits !== [];
 
             if ($isLeaving) {
                 $key = $ancestors === []
@@ -197,7 +197,6 @@ class Visitor
                     : $path[\count($path) - 1];
                 $node = $parent;
                 $parent = \array_pop($ancestors);
-
                 if ($isEdited) {
                     if ($node instanceof Node || $node instanceof NodeList) {
                         $node = $node->cloneDeep();
@@ -225,7 +224,6 @@ class Visitor
                         }
                     }
                 }
-
                 // @phpstan-ignore-next-line the stack is guaranteed to be non-empty at this point
                 [
                     'index' => $index,
@@ -233,21 +231,19 @@ class Visitor
                     'edits' => $edits,
                     'inList' => $inList,
                 ] = \array_pop($stack);
+            } elseif ($parent === null) {
+                $node = $root;
             } else {
-                if ($parent === null) {
-                    $node = $root;
-                } else {
-                    $key = $inList
-                        ? $index
-                        : $keys[$index];
-                    $node = $parent instanceof NodeList
-                        ? $parent[$key]
-                        : $parent->{$key};
-                    if ($node === null) {
-                        continue;
-                    }
-                    $path[] = $key;
+                $key = $inList
+                    ? $index
+                    : $keys[$index];
+                $node = $parent instanceof NodeList
+                    ? $parent[$key]
+                    : $parent->{$key};
+                if ($node === null) {
+                    continue;
                 }
+                $path[] = $key;
             }
 
             $result = null;
@@ -314,11 +310,11 @@ class Visitor
 
                 $parent = $node;
             }
-        } while (\count($stack) > 0);
+        } while ($stack !== []);
 
-        return \count($edits) > 0
-            ? $edits[0][1]
-            : $root;
+        return $edits === []
+            ? $root
+            : $edits[0][1];
     }
 
     /**

@@ -6,8 +6,15 @@ help: ## Displays this list of targets with descriptions
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: fix
-fix: vendor
-	composer fix
+fix: rector php-cs-fixer ## Automatic code fixes
+
+.PHONY: rector
+rector: vendor ## Automatic code fixes with Rector
+	composer rector
+
+.PHONY: php-cs-fixer
+php-cs-fixer: vendor ## Fix code style
+	composer php-cs-fixer
 
 .PHONY: stan
 stan: ## Runs static analysis with phpstan

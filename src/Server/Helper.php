@@ -234,7 +234,7 @@ class Helper
 
             $errors = $this->validateOperationParams($op);
 
-            if (\count($errors) > 0) {
+            if ($errors !== []) {
                 $locatedErrors = \array_map(
                     [Error::class, 'createLocatedError'],
                     $errors

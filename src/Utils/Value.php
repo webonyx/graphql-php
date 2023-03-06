@@ -154,9 +154,9 @@ class Value
                 array_keys($fields)
             );
             $message = "Field \"{$fieldName}\" is not defined by type \"{$type->name}\"."
-                . (count($suggestions) > 0
-                    ? ' Did you mean ' . Utils::quotedOrList($suggestions) . '?'
-                    : '');
+                . ($suggestions === []
+                    ? ''
+                    : ' Did you mean ' . Utils::quotedOrList($suggestions) . '?');
 
             $errors = self::add(
                 $errors,

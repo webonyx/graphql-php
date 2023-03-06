@@ -964,8 +964,7 @@ final class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'Variable "$input" expected value of type "TestType!" which cannot '
-                        . 'be used as an input type.',
+                    'message' => 'Variable "$input" expected value of type "TestType!" which cannot be used as an input type.',
                     'locations' => [['line' => 2, 'column' => 25]],
                 ],
             ],
@@ -989,8 +988,7 @@ final class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'Variable "$input" expected value of type "UnknownType!" which '
-                        . 'cannot be used as an input type.',
+                    'message' => 'Variable "$input" expected value of type "UnknownType!" which cannot be used as an input type.',
                     'locations' => [['line' => 2, 'column' => 25]],
                 ],
             ],

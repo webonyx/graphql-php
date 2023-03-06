@@ -115,10 +115,10 @@ class SchemaExtender
         }
 
         if (
-            \count($this->typeExtensionsMap) === 0
-            && \count($typeDefinitionMap) === 0
-            && \count($directiveDefinitions) === 0
-            && \count($schemaExtensions) === 0
+            $this->typeExtensionsMap === []
+            && $typeDefinitionMap === []
+            && $directiveDefinitions === []
+            && $schemaExtensions === []
             && $schemaDef === null
         ) {
             return $schema;
@@ -583,7 +583,7 @@ class SchemaExtender
             $schema->getDirectives()
         );
 
-        if (\count($directives) === 0) {
+        if ($directives === []) {
             throw new InvariantViolation('Schema must have default directives.');
         }
 

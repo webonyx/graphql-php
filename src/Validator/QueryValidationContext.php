@@ -158,7 +158,7 @@ class QueryValidationContext implements ValidationContext
             $fragments = [];
             $collectedNames = [];
             $nodesToVisit = [$operation];
-            while (\count($nodesToVisit) > 0) {
+            while ($nodesToVisit !== []) {
                 $node = \array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 foreach ($spreads as $spread) {
@@ -197,7 +197,7 @@ class QueryValidationContext implements ValidationContext
             $spreads = [];
 
             $setsToVisit = [$node->getSelectionSet()];
-            while (\count($setsToVisit) > 0) {
+            while ($setsToVisit !== []) {
                 $set = \array_pop($setsToVisit);
 
                 foreach ($set->selections as $selection) {

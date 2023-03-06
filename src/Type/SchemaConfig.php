@@ -83,7 +83,7 @@ class SchemaConfig
     {
         $config = new static();
 
-        if (\count($options) > 0) {
+        if ($options !== []) {
             if (isset($options['query'])) {
                 $config->setQuery($options['query']);
             }

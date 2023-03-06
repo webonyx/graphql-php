@@ -130,11 +130,9 @@ class Values
             }
         }
 
-        if (\count($errors) > 0) {
-            return [$errors, null];
-        }
-
-        return [null, $coercedValues];
+        return $errors === []
+            ? [null, $coercedValues]
+            : [$errors, null];
     }
 
     /**
@@ -176,7 +174,7 @@ class Values
      */
     public static function getArgumentValues($def, Node $node, ?array $variableValues = null): array
     {
-        if (\count($def->args) === 0) {
+        if ($def->args === []) {
             return [];
         }
 

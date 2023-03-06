@@ -100,7 +100,7 @@ class DocumentValidator
     ): array {
         $rules ??= static::allRules();
 
-        if (\count($rules) === 0) {
+        if ($rules === []) {
             return [];
         }
 
@@ -266,7 +266,7 @@ class DocumentValidator
     ): array {
         $rules ??= self::sdlRules();
 
-        if (\count($rules) === 0) {
+        if ($rules === []) {
             return [];
         }
 
@@ -288,7 +288,7 @@ class DocumentValidator
     public static function assertValidSDL(DocumentNode $documentAST): void
     {
         $errors = self::validateSDL($documentAST);
-        if (\count($errors) > 0) {
+        if ($errors !== []) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }
@@ -296,7 +296,7 @@ class DocumentValidator
     public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema): void
     {
         $errors = self::validateSDL($documentAST, $schema);
-        if (\count($errors) > 0) {
+        if ($errors !== []) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }

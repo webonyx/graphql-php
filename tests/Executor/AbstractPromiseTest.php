@@ -475,7 +475,7 @@ final class AbstractPromiseTest extends TestCase
         $PetType = new InterfaceType([
             'name' => 'Pet',
             'resolveType' => static fn ($obj): Deferred => new Deferred(
-                static function () use ($obj) {
+                static function () use ($obj): ?string {
                     if ($obj instanceof Dog) {
                         return 'Dog';
                     }

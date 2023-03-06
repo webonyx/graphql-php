@@ -21,7 +21,7 @@ final class ErrorHelper
     {
         $formatted = ['message' => $error];
 
-        if (\count($locations) > 0) {
+        if ($locations !== []) {
             $formatted['locations'] = \array_map(
                 static fn (SourceLocation $loc): array => $loc->toArray(),
                 $locations
