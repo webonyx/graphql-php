@@ -10,6 +10,7 @@ use Rector\Set\ValueObject\SetList;
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->sets([
         SetList::CODE_QUALITY,
+        SetList::DEAD_CODE,
     ]);
     $rectorConfig->skip([
         CallableThisArrayToAnonymousFunctionRector::class, // Callable in array form is shorter and more efficient
