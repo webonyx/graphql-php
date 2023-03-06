@@ -120,7 +120,7 @@ class SchemaPrinter
         $directives = \array_filter($schema->getDirectives(), $directiveFilter);
         $types = \array_filter($schema->getTypeMap(), $typeFilter);
 
-        if (isset($options['sortTypes']) && $options['sortTypes'] === true) {
+        if (isset($options['sortTypes']) && $options['sortTypes']) {
             ksort($types);
         }
 
@@ -240,11 +240,11 @@ class SchemaPrinter
      */
     protected static function printArgs(array $options, array $args, string $indentation = ''): string
     {
-        if (\count($args) === 0) {
+        if ($args === []) {
             return '';
         }
 
-        if (isset($options['sortArguments']) && $options['sortArguments'] === true) {
+        if (isset($options['sortArguments']) && $options['sortArguments']) {
             usort($args, static fn (Argument $left, Argument $right): int => $left->name <=> $right->name);
         }
 
@@ -351,7 +351,7 @@ class SchemaPrinter
         $previousHasDescription = false;
         $fieldDefinitions = $type->getFields();
 
-        if (isset($options['sortFields']) && $options['sortFields'] === true) {
+        if (isset($options['sortFields']) && $options['sortFields']) {
             ksort($fieldDefinitions);
         }
 
@@ -401,7 +401,7 @@ class SchemaPrinter
     {
         $interfaces = $type->getInterfaces();
 
-        return \count($interfaces) > 0
+        return $interfaces !== []
         ? ' implements ' . \implode(
             ' & ',
             \array_map(
@@ -433,7 +433,7 @@ class SchemaPrinter
     protected static function printUnion(UnionType $type, array $options): string
     {
         $types = $type->getTypes();
-        $types = \count($types) > 0
+        $types = $types !== []
             ? ' = ' . \implode(' | ', $types)
             : '';
 
@@ -451,7 +451,7 @@ class SchemaPrinter
         $firstInBlock = true;
         $valueDefinitions = $type->getValues();
 
-        if (isset($options['sortEnumValues']) && $options['sortEnumValues'] === true) {
+        if (isset($options['sortEnumValues']) && $options['sortEnumValues']) {
             usort($valueDefinitions, static fn (EnumValueDefinition $left, EnumValueDefinition $right): int => $left->name <=> $right->name);
         }
 
@@ -479,7 +479,7 @@ class SchemaPrinter
         $firstInBlock = true;
         $fieldDefinitions = $type->getFields();
 
-        if (isset($options['sortInputFields']) && $options['sortInputFields'] === true) {
+        if (isset($options['sortInputFields']) && $options['sortInputFields']) {
             ksort($fieldDefinitions);
         }
 
@@ -500,7 +500,7 @@ class SchemaPrinter
      */
     protected static function printBlock(array $items): string
     {
-        return \count($items) > 0
+        return $items !== []
             ? " {\n" . \implode("\n", $items) . "\n}"
             : '';
     }

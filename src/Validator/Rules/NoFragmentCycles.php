@@ -54,7 +54,7 @@ class NoFragmentCycles extends ValidationRule
 
         $spreadNodes = $context->getFragmentSpreads($fragment);
 
-        if (\count($spreadNodes) === 0) {
+        if ($spreadNodes === []) {
             return;
         }
 
@@ -94,7 +94,7 @@ class NoFragmentCycles extends ValidationRule
      */
     public static function cycleErrorMessage(string $fragName, array $spreadNames = []): string
     {
-        $via = \count($spreadNames) > 0
+        $via = $spreadNames !== []
             ? ' via ' . \implode(', ', $spreadNames)
             : '';
 

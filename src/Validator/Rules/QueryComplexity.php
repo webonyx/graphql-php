@@ -69,7 +69,7 @@ class QueryComplexity extends QuerySecurityRule
                     'leave' => function (OperationDefinitionNode $operationDefinition) use ($context): void {
                         $errors = $context->getErrors();
 
-                        if (\count($errors) > 0) {
+                        if ($errors !== []) {
                             return;
                         }
 
@@ -115,7 +115,7 @@ class QueryComplexity extends QuerySecurityRule
                     : 0;
 
                 $fieldDef = $this->fieldDefinition($node);
-                if ($fieldDef instanceof FieldDefinition && isset($fieldDef->complexityFn)) {
+                if ($fieldDef instanceof FieldDefinition && $fieldDef->complexityFn !== null) {
                     $fieldArguments = $this->buildFieldArguments($node);
 
                     return ($fieldDef->complexityFn)($childrenComplexity, $fieldArguments);
@@ -160,7 +160,7 @@ class QueryComplexity extends QuerySecurityRule
                 $this->variableDefs,
                 $this->getRawVariableValues()
             );
-            if ($errors !== null && \count($errors) > 0) {
+            if ($errors !== null && $errors !== []) {
                 throw new Error(\implode(
                     "\n\n",
                     \array_map(
@@ -230,7 +230,7 @@ class QueryComplexity extends QuerySecurityRule
                 $rawVariableValues
             );
 
-            if (is_array($errors) && \count($errors) > 0) {
+            if (is_array($errors) && $errors !== []) {
                 throw new Error(\implode(
                     "\n\n",
                     \array_map(

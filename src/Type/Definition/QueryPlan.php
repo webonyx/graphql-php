@@ -84,7 +84,7 @@ class QueryPlan
     {
         $allFields = [];
         foreach ($this->typeToFields as $fields) {
-            foreach ($fields as $field => $_) {
+            foreach (array_keys($fields) as $field) {
                 $allFields[$field] = true;
             }
         }
@@ -211,7 +211,7 @@ class QueryPlan
         // TODO evaluate if this line is really necessary - it causes abstract types to appear
         // in getReferencedTypes() even if they do not have any fields directly referencing them.
         $this->typeToFields[$parentTypeName] ??= [];
-        foreach ($fields as $fieldName => $_) {
+        foreach (array_keys($fields) as $fieldName) {
             $this->typeToFields[$parentTypeName][$fieldName] = true;
         }
 

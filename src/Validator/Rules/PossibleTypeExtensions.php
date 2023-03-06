@@ -73,7 +73,7 @@ class PossibleTypeExtensions extends ValidationRule
                     ...array_keys($existingTypesMap),
                 ];
                 $suggestedTypes = Utils::suggestionList($typeName, $allTypeNames);
-                $didYouMean = \count($suggestedTypes) > 0
+                $didYouMean = $suggestedTypes !== []
                     ? ' Did you mean ' . Utils::quotedOrList($suggestedTypes) . '?'
                     : '';
                 $context->reportError(

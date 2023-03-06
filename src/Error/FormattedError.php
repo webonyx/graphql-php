@@ -42,7 +42,7 @@ class FormattedError
         $printedLocations = [];
 
         $nodes = $error->nodes;
-        if (isset($nodes) && \count($nodes) > 0) {
+        if (isset($nodes) && $nodes !== []) {
             foreach ($nodes as $node) {
                 $location = $node->loc;
                 if (isset($location)) {
@@ -55,14 +55,14 @@ class FormattedError
                     }
                 }
             }
-        } elseif ($error->getSource() !== null && \count($error->getLocations()) !== 0) {
+        } elseif ($error->getSource() !== null && $error->getLocations() !== []) {
             $source = $error->getSource();
             foreach ($error->getLocations() as $location) {
                 $printedLocations[] = self::highlightSourceAtLocation($source, $location);
             }
         }
 
-        return \count($printedLocations) === 0
+        return $printedLocations === []
             ? $error->getMessage()
             : \implode("\n\n", \array_merge([$error->getMessage()], $printedLocations)) . "\n";
     }
@@ -141,7 +141,7 @@ class FormattedError
                 static fn (SourceLocation $loc): array => $loc->toSerializableArray(),
                 $exception->getLocations()
             );
-            if (\count($locations) > 0) {
+            if ($locations !== []) {
                 $formattedError['locations'] = $locations;
             }
 
@@ -152,7 +152,7 @@ class FormattedError
 
         if ($exception instanceof ProvidesExtensions) {
             $extensions = $exception->getExtensions();
-            if (\is_array($extensions) && \count($extensions) > 0) {
+            if (\is_array($extensions) && $extensions !== []) {
                 $formattedError['extensions'] = $extensions;
             }
         }

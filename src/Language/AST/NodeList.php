@@ -91,7 +91,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 
     public function getIterator(): \Traversable
     {
-        foreach ($this->nodes as $key => $_) {
+        foreach (array_keys($this->nodes) as $key) {
             yield $key => $this->offsetGet($key);
         }
     }

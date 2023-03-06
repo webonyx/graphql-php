@@ -157,7 +157,7 @@ class ExecutionResult implements \JsonSerializable
     {
         $result = [];
 
-        if (\count($this->errors) > 0) {
+        if ($this->errors !== []) {
             $errorsHandler = $this->errorsHandler
                 ?? static fn (array $errors, callable $formatter): array => \array_map($formatter, $errors);
 
@@ -176,7 +176,7 @@ class ExecutionResult implements \JsonSerializable
             $result['data'] = $this->data;
         }
 
-        if ($this->extensions !== null && \count($this->extensions) > 0) {
+        if ($this->extensions !== null && $this->extensions !== []) {
             $result['extensions'] = $this->extensions;
         }
 

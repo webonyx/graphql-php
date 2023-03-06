@@ -52,12 +52,12 @@ class Lexer
     /**
      * The (1-indexed) line containing the current token.
      */
-    public int $line;
+    public int $line = 1;
 
     /**
      * The character offset at which the current line begins.
      */
-    public int $lineStart;
+    public int $lineStart = 0;
 
     /**
      * Current cursor position for UTF8 encoding of the source.
@@ -80,8 +80,6 @@ class Lexer
         $this->options = $options;
         $this->lastToken = $startOfFileToken;
         $this->token = $startOfFileToken;
-        $this->line = 1;
-        $this->lineStart = 0;
         $this->position = $this->byteStreamPosition = 0;
     }
 

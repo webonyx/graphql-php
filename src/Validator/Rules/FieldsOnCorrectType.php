@@ -80,9 +80,9 @@ class FieldsOnCorrectType extends ValidationRule
 
                     // This interface type defines this field.
                     $interfaceUsageCount[$possibleInterface->name]
-                        = ! isset($interfaceUsageCount[$possibleInterface->name])
-                            ? 0
-                            : $interfaceUsageCount[$possibleInterface->name] + 1;
+                        = isset($interfaceUsageCount[$possibleInterface->name])
+                            ? $interfaceUsageCount[$possibleInterface->name] + 1
+                            : 0;
                 }
             }
 

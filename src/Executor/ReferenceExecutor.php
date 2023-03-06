@@ -197,7 +197,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
         }
 
-        if (\count($errors) > 0) {
+        if ($errors !== []) {
             return $errors;
         }
 
@@ -1095,7 +1095,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
         }
 
-        if (\count($promisedIsTypeOfResults) > 0) {
+        if ($promisedIsTypeOfResults !== []) {
             return $this->exeContext->promiseAdapter
                 ->all($promisedIsTypeOfResults)
                 ->then(static function ($isTypeOfResults) use ($possibleTypes): ?ObjectType {

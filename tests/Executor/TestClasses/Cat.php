@@ -11,20 +11,17 @@ final class Cat
     public $meows;
 
     /** @var Cat|null */
-    public $mother;
+    public $mother = null;
 
     /** @var Cat|null */
-    public $father;
+    public $father = null;
 
     /** @var array<int, Cat> */
-    public $progeny;
+    public $progeny = [];
 
     public function __construct(string $name, bool $meows)
     {
         $this->name = $name;
         $this->meows = $meows;
-        $this->mother = null;
-        $this->father = null;
-        $this->progeny = [];
     }
 }

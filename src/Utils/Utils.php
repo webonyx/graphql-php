@@ -233,7 +233,7 @@ class Utils
      */
     public static function orList(array $items): string
     {
-        if (\count($items) === 0) {
+        if ($items === []) {
             return '';
         }
 

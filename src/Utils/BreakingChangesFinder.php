@@ -185,8 +185,8 @@ class BreakingChangesFinder
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
-                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                ! $oldType instanceof ObjectType && ! $oldType instanceof InterfaceType
+                || ! $newType instanceof ObjectType && ! $newType instanceof InterfaceType
                 || ! ($newType instanceof $oldType)
             ) {
                 continue;
@@ -194,7 +194,7 @@ class BreakingChangesFinder
 
             $oldTypeFieldsDef = $oldType->getFields();
             $newTypeFieldsDef = $newType->getFields();
-            foreach ($oldTypeFieldsDef as $fieldName => $fieldDefinition) {
+            foreach (array_keys($oldTypeFieldsDef) as $fieldName) {
                 // Check if the field is missing on the type in the new schema.
                 if (! isset($newTypeFieldsDef[$fieldName])) {
                     $breakingChanges[] = [
@@ -288,17 +288,9 @@ class BreakingChangesFinder
                         $newFieldType
                     );
                     if (! $isSafe) {
-                        if ($oldFieldType instanceof NamedType) {
-                            $oldFieldTypeString = $oldFieldType->name;
-                        } else {
-                            $oldFieldTypeString = $oldFieldType;
-                        }
+                        $oldFieldTypeString = $oldFieldType instanceof NamedType ? $oldFieldType->name : $oldFieldType;
 
-                        if ($newFieldType instanceof NamedType) {
-                            $newFieldTypeString = $newFieldType->name;
-                        } else {
-                            $newFieldTypeString = $newFieldType;
-                        }
+                        $newFieldTypeString = $newFieldType instanceof NamedType ? $newFieldType->name : $newFieldType;
 
                         $breakingChanges[] = [
                             'type' => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
@@ -468,8 +460,8 @@ class BreakingChangesFinder
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
-                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                ! $oldType instanceof ObjectType && ! $oldType instanceof InterfaceType
+                || ! $newType instanceof ObjectType && ! $newType instanceof InterfaceType
                 || ! ($newType instanceof $oldType)
             ) {
                 continue;
@@ -845,8 +837,8 @@ class BreakingChangesFinder
         foreach ($newTypeMap as $typeName => $newType) {
             $oldType = $oldTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
-                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                ! $oldType instanceof ObjectType && ! $oldType instanceof InterfaceType
+                || ! $newType instanceof ObjectType && ! $newType instanceof InterfaceType
             ) {
                 continue;
             }

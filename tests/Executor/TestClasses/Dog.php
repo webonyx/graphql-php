@@ -11,20 +11,17 @@ final class Dog
     public $woofs;
 
     /** @var Dog|null */
-    public $mother;
+    public $mother = null;
 
     /** @var Dog|null */
-    public $father;
+    public $father = null;
 
     /** @var array<int, Dog> */
-    public $progeny;
+    public $progeny = [];
 
     public function __construct(string $name, bool $woofs)
     {
         $this->name = $name;
         $this->woofs = $woofs;
-        $this->mother = null;
-        $this->father = null;
-        $this->progeny = [];
     }
 }

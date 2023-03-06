@@ -1635,8 +1635,7 @@ final class DefinitionTest extends TestCaseBase
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'SomeInputObject.f field has a resolve property, '
-            . 'but Input Types cannot define resolvers.'
+            'SomeInputObject.f field has a resolve property, but Input Types cannot define resolvers.'
         );
         $inputObjType->assertValid();
     }
@@ -1730,8 +1729,7 @@ final class DefinitionTest extends TestCaseBase
         ]);
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'SomeInputObject.f field has a resolve property, '
-            . 'but Input Types cannot define resolvers.'
+            'SomeInputObject.f field has a resolve property, but Input Types cannot define resolvers.'
         );
         $inputObjType->assertValid();
     }

@@ -144,7 +144,7 @@ class Value
         }
 
         // Ensure every provided field is defined.
-        foreach ($value as $fieldName => $field) {
+        foreach (array_keys($value) as $fieldName) {
             if (array_key_exists($fieldName, $fields)) {
                 continue;
             }
@@ -154,7 +154,7 @@ class Value
                 array_keys($fields)
             );
             $message = "Field \"{$fieldName}\" is not defined by type \"{$type->name}\"."
-                . (count($suggestions) > 0
+                . ($suggestions !== []
                     ? ' Did you mean ' . Utils::quotedOrList($suggestions) . '?'
                     : '');
 
