@@ -133,7 +133,6 @@ class Values
         return $errors === []
             ? [null, $coercedValues]
             : [$errors, null];
-
     }
 
     /**
