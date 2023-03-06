@@ -8,12 +8,20 @@ use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector;
 use Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector;
+use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\SetList;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->sets([
         SetList::CODE_QUALITY,
         SetList::DEAD_CODE,
+        PHPUnitSetList::PHPUNIT_90,
+        PHPUnitSetList::PHPUNIT_91,
+        PHPUnitSetList::PHPUNIT_CODE_QUALITY,
+        PHPUnitSetList::PHPUNIT_EXCEPTION,
+        PHPUnitSetList::PHPUNIT_SPECIFIC_METHOD,
+        PHPUnitSetList::PHPUNIT_YIELD_DATA_PROVIDER,
+        PHPUnitSetList::REMOVE_MOCKS,
     ]);
     $rectorConfig->skip([
         CallableThisArrayToAnonymousFunctionRector::class, // Callable in array form is shorter and more efficient
