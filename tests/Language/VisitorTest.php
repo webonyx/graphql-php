@@ -90,12 +90,10 @@ final class VisitorTest extends ValidatorTestCase
         $result = $ast;
 
         foreach ($path as $key) {
-            if ($result instanceof NodeList) {
-                $result = $result[$key];
-            } else {
-                /** @phpstan-ignore-next-line */
-                $result = $result->{$key};
-            }
+            $result = $result instanceof NodeList
+                ? $result[$key]
+                // @phpstan-ignore-next-line variable property access on mixed
+                : $result->{$key};
         }
 
         return $result;
