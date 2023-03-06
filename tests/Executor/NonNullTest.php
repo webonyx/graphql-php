@@ -785,7 +785,7 @@ final class NonNullTest extends TestCase
      * @see describe('Handles non-null argument')
      * @see it('succeeds when passed non-null literal value')
      */
-    public function succeedsWhenPassedNonNullLiteralValue(): void
+    public function testSucceedsWhenPassedNonNullLiteralValue(): void
     {
         $result = Executor::execute(
             $this->schemaWithNonNullArg,
@@ -803,7 +803,7 @@ final class NonNullTest extends TestCase
     /**
      * @see it('succeeds when passed non-null variable value')
      */
-    public function succeedsWhenPassedNonNullVariableValue(): void
+    public function testSucceedsWhenPassedNonNullVariableValue(): void
     {
         $result = Executor::execute(
             $this->schemaWithNonNullArg,
