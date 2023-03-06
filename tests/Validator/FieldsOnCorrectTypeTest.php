@@ -16,7 +16,7 @@ final class FieldsOnCorrectTypeTest extends ValidatorTestCase
     /**
      * @see it('Object field selection')
      */
-    public function estObjectFieldSelection(): void
+    public function testObjectFieldSelection(): void
     {
         $this->expectPassesRule(
             new FieldsOnCorrectType(),
