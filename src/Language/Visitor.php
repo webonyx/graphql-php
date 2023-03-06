@@ -312,9 +312,9 @@ class Visitor
             }
         } while ($stack !== []);
 
-        return $edits !== []
-            ? $edits[0][1]
-            : $root;
+        return $edits === []
+            ? $root
+            : $edits[0][1];
     }
 
     /**

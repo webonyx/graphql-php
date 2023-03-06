@@ -110,7 +110,7 @@ class SchemaPrinter
 
     /**
      * @param callable(Directive  $directive): bool $directiveFilter
-     * @param callable(Type       &NamedType   $type):      bool $typeFilter
+     * @param callable(Type&NamedType $type): bool $typeFilter
      * @param array<string, bool> $options
      *
      * @phpstan-param Options $options
@@ -401,15 +401,15 @@ class SchemaPrinter
     {
         $interfaces = $type->getInterfaces();
 
-        return $interfaces !== []
-        ? ' implements ' . \implode(
-            ' & ',
-            \array_map(
-                static fn (InterfaceType $interface): string => $interface->name,
-                $interfaces
-            )
-        )
-        : '';
+        return $interfaces === []
+            ? ''
+            : ' implements ' . \implode(
+                ' & ',
+                \array_map(
+                    static fn (InterfaceType $interface): string => $interface->name,
+                    $interfaces
+                )
+            );
     }
 
     /**
@@ -433,9 +433,9 @@ class SchemaPrinter
     protected static function printUnion(UnionType $type, array $options): string
     {
         $types = $type->getTypes();
-        $types = $types !== []
-            ? ' = ' . \implode(' | ', $types)
-            : '';
+        $types = $types === []
+            ? ''
+            : ' = ' . \implode(' | ', $types);
 
         return static::printDescription($options, $type) . 'union ' . $type->name . $types;
     }
@@ -500,8 +500,8 @@ class SchemaPrinter
      */
     protected static function printBlock(array $items): string
     {
-        return $items !== []
-            ? " {\n" . \implode("\n", $items) . "\n}"
-            : '';
+        return $items === []
+            ? ''
+            : " {\n" . \implode("\n", $items) . "\n}";
     }
 }

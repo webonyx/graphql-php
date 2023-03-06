@@ -194,7 +194,7 @@ class BreakingChangesFinder
 
             $oldTypeFieldsDef = $oldType->getFields();
             $newTypeFieldsDef = $newType->getFields();
-            foreach (array_keys($oldTypeFieldsDef) as $fieldName) {
+            foreach ($oldTypeFieldsDef as $fieldName => $fieldDefinition) {
                 // Check if the field is missing on the type in the new schema.
                 if (! isset($newTypeFieldsDef[$fieldName])) {
                     $breakingChanges[] = [
@@ -288,9 +288,12 @@ class BreakingChangesFinder
                         $newFieldType
                     );
                     if (! $isSafe) {
-                        $oldFieldTypeString = $oldFieldType instanceof NamedType ? $oldFieldType->name : $oldFieldType;
-
-                        $newFieldTypeString = $newFieldType instanceof NamedType ? $newFieldType->name : $newFieldType;
+                        $oldFieldTypeString = $oldFieldType instanceof NamedType
+                            ? $oldFieldType->name
+                            : $oldFieldType;
+                        $newFieldTypeString = $newFieldType instanceof NamedType
+                            ? $newFieldType->name
+                            : $newFieldType;
 
                         $breakingChanges[] = [
                             'type' => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,

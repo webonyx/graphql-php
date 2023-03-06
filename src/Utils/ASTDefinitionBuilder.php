@@ -232,7 +232,7 @@ class ASTDefinitionBuilder
         if (isset($this->typeDefinitionsMap[$typeName])) {
             $type = $this->makeSchemaDef($this->typeDefinitionsMap[$typeName]);
 
-            if ($this->typeConfigDecorator !== null) {
+            if (isset($this->typeConfigDecorator)) {
                 try {
                     $config = ($this->typeConfigDecorator)(
                         $type->config,

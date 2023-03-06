@@ -94,9 +94,9 @@ class NoFragmentCycles extends ValidationRule
      */
     public static function cycleErrorMessage(string $fragName, array $spreadNames = []): string
     {
-        $via = $spreadNames !== []
-            ? ' via ' . \implode(', ', $spreadNames)
-            : '';
+        $via = $spreadNames === []
+            ? ''
+            : ' via ' . \implode(', ', $spreadNames);
 
         return "Cannot spread fragment \"{$fragName}\" within itself{$via}.";
     }

@@ -34,7 +34,9 @@ class HtmlField
                 $html = $resolver($rootValue, $args);
                 $text = \strip_tags($html);
 
-                $safeText = isset($args['maxLength']) ? \mb_substr($text, 0, $args['maxLength']) : $text;
+                $safeText = isset($args['maxLength'])
+                    ? \mb_substr($text, 0, $args['maxLength'])
+                    : $text;
 
                 switch ($args['format']) {
                     case ContentFormatType::FORMAT_HTML:

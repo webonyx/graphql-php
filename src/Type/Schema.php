@@ -472,7 +472,7 @@ class Schema
             $type->assertValid();
 
             // Make sure type loader returns the same instance as registered in other places of schema
-            if ($this->config->typeLoader !== null && $this->loadType($name) !== $type) {
+            if (isset($this->config->typeLoader) && $this->loadType($name) !== $type) {
                 throw new InvariantViolation("Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name.");
             }
         }

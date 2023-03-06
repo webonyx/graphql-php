@@ -130,11 +130,10 @@ class Values
             }
         }
 
-        if ($errors !== []) {
-            return [$errors, null];
-        }
+        return $errors === []
+            ? [null, $coercedValues]
+            : [$errors, null];
 
-        return [null, $coercedValues];
     }
 
     /**
