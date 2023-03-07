@@ -106,7 +106,7 @@ final class ResolveTest extends TestCase
                 'aStr' => ['type' => Type::string()],
                 'aInt' => ['type' => Type::int()],
             ],
-            'resolve' => static fn (?string $source, array $args) => json_encode([$source, $args]),
+            'resolve' => static fn (?string $source, array $args) => json_encode([$source, $args], JSON_THROW_ON_ERROR),
         ]);
 
         self::assertSame(
