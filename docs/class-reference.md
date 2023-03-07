@@ -132,7 +132,6 @@ static function getStandardTypes(): array
  *
  * @api
  *
- * @throws \JsonException
  * @throws InvariantViolation
  */
 static function overrideStandardTypes(array $types): void
@@ -838,7 +837,6 @@ function getDirective(string $name): ?GraphQL\Type\Definition\Directive
  *
  * This operation requires a full schema scan. Do not use in production environment.
  *
- * @throws \JsonException
  * @throws Error
  * @throws InvariantViolation
  *
@@ -853,7 +851,6 @@ function assertValid(): void
  *
  * This operation requires a full schema scan. Do not use in production environment.
  *
- * @throws \JsonException
  * @throws InvariantViolation
  *
  * @return array<int, Error>
@@ -2145,7 +2142,6 @@ Contains functionality that could be re-used by various server implementations.
  *
  * For PSR-7 request parsing use `parsePsrRequest()` instead.
  *
- * @throws \JsonException
  * @throws RequestError
  *
  * @return OperationParams|array<int, OperationParams>
@@ -2178,8 +2174,6 @@ function parseRequestParams(string $method, array $bodyParams, array $queryParam
 /**
  * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
  * if params are invalid (or empty array when params are valid).
- *
- * @throws \JsonException
  *
  * @return array<int, RequestError>
  *
@@ -2227,6 +2221,8 @@ function executeBatch(GraphQL\Server\ServerConfig $config, array $operations)
  * @param Promise|ExecutionResult|array<ExecutionResult> $result
  *
  * @api
+ *
+ * @throws \JsonException
  */
 function sendResponse($result): void
 ```
@@ -2235,7 +2231,6 @@ function sendResponse($result): void
 /**
  * Converts PSR-7 request to OperationParams or an array thereof.
  *
- * @throws \JsonException
  * @throws RequestError
  *
  * @return OperationParams|array<OperationParams>
