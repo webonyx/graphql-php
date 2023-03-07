@@ -57,7 +57,7 @@ use GraphQL\Utils\Utils;
  *   resolveField?: FieldResolver|null,
  *   fields: (callable(): iterable<mixed>)|iterable<mixed>,
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
- *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
+ *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|null|Deferred<bool|null>))|null,
  *   astNode?: ObjectTypeDefinitionNode|null,
  *   extensionASTNodes?: array<int, ObjectTypeExtensionNode>|null
  * }
@@ -116,7 +116,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      * @param mixed $objectValue The resolved value for the object type
      * @param mixed $context     The context that was passed to GraphQL::execute()
      *
-     * @return bool|Deferred|null
+     * @return bool|Deferred<bool|null>|null
      */
     public function isTypeOf($objectValue, $context, ResolveInfo $info)
     {

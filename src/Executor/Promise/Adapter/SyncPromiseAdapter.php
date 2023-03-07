@@ -110,7 +110,13 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * Synchronously wait when promise completes.
      *
-     * @return mixed
+     * @template V
+     *
+     * @param Promise<V> $promise
+     *
+     * @throws InvariantViolation
+     *
+     * @return V
      */
     public function wait(Promise $promise)
     {
@@ -141,6 +147,8 @@ class SyncPromiseAdapter implements PromiseAdapter
 
     /**
      * Execute just before starting to run promise completion.
+     *
+     * @param Promise<mixed> $promise
      */
     protected function beforeWait(Promise $promise): void
     {
@@ -148,6 +156,8 @@ class SyncPromiseAdapter implements PromiseAdapter
 
     /**
      * Execute while running promise completion.
+     *
+     * @param Promise<mixed> $promise
      */
     protected function onWait(Promise $promise): void
     {

@@ -132,6 +132,8 @@ class Executor
      * @param mixed                     $contextValue
      * @param array<string, mixed>|null $variableValues
      *
+     * @return Promise<ExecutionResult>
+     *
      * @phpstan-param FieldResolver|null $fieldResolver
      *
      * @api

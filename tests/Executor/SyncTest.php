@@ -77,6 +77,8 @@ final class SyncTest extends TestCase
 
     /**
      * @param mixed $rootValue
+     *
+     * @return Promise<ExecutionResult>
      */
     private function execute(Schema $schema, DocumentNode $doc, $rootValue = null): Promise
     {
@@ -85,6 +87,7 @@ final class SyncTest extends TestCase
 
     /**
      * @param array<string, mixed> $expectedFinalArray
+     * @param Promise<ExecutionResult> $actualResult
      */
     private static function assertSync(array $expectedFinalArray, Promise $actualResult): void
     {
@@ -145,6 +148,7 @@ final class SyncTest extends TestCase
 
     /**
      * @param array<string, mixed> $expectedFinalArray
+     * @param Promise<ExecutionResult> $actualResult
      */
     private function assertAsync(array $expectedFinalArray, Promise $actualResult): void
     {
@@ -155,7 +159,6 @@ final class SyncTest extends TestCase
         self::assertSame(SyncPromise::PENDING, $adoptedPromise->state, $message);
 
         $resolvedResult = $this->promiseAdapter->wait($actualResult);
-        self::assertInstanceOf(ExecutionResult::class, $resolvedResult);
         self::assertArraySubset($expectedFinalArray, $resolvedResult->toArray());
     }
 
@@ -183,6 +186,8 @@ final class SyncTest extends TestCase
 
     /**
      * @param mixed $rootValue
+     *
+     * @return Promise<ExecutionResult>
      */
     private function graphqlSync(Schema $schema, string $doc, $rootValue = null): Promise
     {

@@ -15,7 +15,7 @@ use GraphQL\Error\InvariantViolation;
  * The whole point of Deferred is to ensure it never happens and that any resolver creates
  * at least one $executor to start the promise chain.
  *
- * @phpstan-type Executor callable(): mixed
+ * @template V
  */
 class SyncPromise
 {
@@ -34,7 +34,7 @@ class SyncPromise
      * @var array<
      *     int,
      *     array{
-     *         self,
+     *         self<V>,
      *         (callable(mixed): mixed)|null,
      *         (callable(\Throwable): mixed)|null
      *     }
@@ -52,7 +52,7 @@ class SyncPromise
     }
 
     /**
-     * @param Executor|null $executor
+     * @param (callable(): V)|null $executor
      */
     public function __construct(?callable $executor = null)
     {
@@ -71,6 +71,8 @@ class SyncPromise
 
     /**
      * @param mixed $value
+     *
+     * @return self<V>
      */
     public function resolve($value): self
     {
@@ -110,6 +112,9 @@ class SyncPromise
         return $this;
     }
 
+    /**
+     * @return self<null>
+     */
     public function reject(\Throwable $reason): self
     {
         switch ($this->state) {
@@ -175,8 +180,17 @@ class SyncPromise
     }
 
     /**
-     * @param (callable(mixed): mixed)|null $onFulfilled
-     * @param (callable(\Throwable): mixed)|null $onRejected
+     * @template VFulfilled
+     * @template VRejected
+     *
+     * @param (callable(V): VFulfilled)|null $onFulfilled
+     * @param (callable(\Throwable): VRejected)|null $onRejected
+     *
+     * @return self<(
+     *   $onFulfilled is not null
+     *     ? ($onRejected is not null ? VFulfilled|VRejected : VFulfilled)
+     *     : ($onRejected is not null ? VRejected : V)
+     * )>
      */
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
     {
@@ -200,6 +214,8 @@ class SyncPromise
 
     /**
      * @param callable(\Throwable): mixed $onRejected
+     *
+     * @return self<null>
      */
     public function catch(callable $onRejected): self
     {

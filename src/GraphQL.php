@@ -109,6 +109,8 @@ class GraphQL
      * @param array<string, mixed>|null  $variableValues
      * @param array<ValidationRule>|null $validationRules
      *
+     * @return Promise<ExecutionResult>
+     *
      * @api
      */
     public static function promiseToExecute(

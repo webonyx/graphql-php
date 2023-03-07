@@ -19,15 +19,33 @@ interface PromiseAdapter
     /**
      * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance.
      *
-     * @param mixed $thenable
+     * @template T
+     *
+     * @param T $thenable
+     *
+     * @return Promise<T>
      *
      * @api
      */
     public function convertThenable($thenable): Promise;
 
     /**
-     * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described
-     * in Promises/A+ specs. Then returns new wrapped instance of GraphQL\Executor\Promise\Promise.
+     * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described in Promises/A+ specs.
+     * Then returns new wrapped instance of @see \GraphQL\Executor\Promise\Promise.
+     *
+     * @template T
+     * @template TFulfilled of mixed
+     * @template TRejected of mixed
+     *
+     * @param Promise<T> $promise
+     * @param (callable(T): (Promise<TFulfilled>|TFulfilled))|null $onFulfilled
+     * @param (callable(\Throwable): (Promise<TRejected>|TRejected))|null $onRejected
+     *
+     * @return Promise<(
+     *   $onFulfilled is not null
+     *     ? ($onRejected is not null ? TFulfilled|TRejected : TFulfilled)
+     *     : ($onRejected is not null ? TRejected : T)
+     * )>
      *
      * @api
      */
@@ -36,7 +54,11 @@ interface PromiseAdapter
     /**
      * Creates a Promise from the given resolver callable.
      *
-     * @param callable(callable $resolve, callable $reject): void $resolver
+     * @template V
+     *
+     * @param callable(callable(V): void $resolve, callable(\Throwable): void $reject): void $resolver
+     *
+     * @return Promise<V>
      *
      * @api
      */
@@ -45,7 +67,11 @@ interface PromiseAdapter
     /**
      * Creates a fulfilled Promise for a value if the value is not a promise.
      *
-     * @param mixed $value
+     * @template V
+     *
+     * @param V $value
+     *
+     * @return Promise<V>
      *
      * @api
      */
@@ -56,6 +82,8 @@ interface PromiseAdapter
      *
      * If the provided reason is a promise, then it is returned as-is.
      *
+     * @return Promise<null>
+     *
      * @api
      */
     public function createRejected(\Throwable $reason): Promise;
@@ -64,7 +92,11 @@ interface PromiseAdapter
      * Given an iterable of promises (or values), returns a promise that is fulfilled when all the
      * items in the iterable are fulfilled.
      *
-     * @param iterable<Promise|mixed> $promisesOrValues
+     * @template V
+     *
+     * @param iterable<V> $promisesOrValues
+     *
+     * @return Promise<array<V>>
      *
      * @api
      */
