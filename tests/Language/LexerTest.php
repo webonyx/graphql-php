@@ -142,7 +142,7 @@ final class LexerTest extends TestCase
             $this->lexOne($str);
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            self::assertEquals(
+            self::assertSame(
                 'Syntax Error: Cannot parse the unexpected character "?".' . "\n"
                 . "\n"
                 . "GraphQL request (3:5)\n"
@@ -172,7 +172,7 @@ final class LexerTest extends TestCase
             $lexer->advance();
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            self::assertEquals(
+            self::assertSame(
                 'Syntax Error: Cannot parse the unexpected character "?".' . "\n"
                 . "\n"
                 . "foo.js (13:6)\n"
@@ -194,7 +194,7 @@ final class LexerTest extends TestCase
             $lexer->advance();
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            self::assertEquals(
+            self::assertSame(
                 'Syntax Error: Cannot parse the unexpected character "?".' . "\n"
                 . "\n"
                 . "foo.js (1:5)\n"
@@ -717,7 +717,7 @@ final class LexerTest extends TestCase
             $endToken = $lexer->advance();
             // Lexer advances over ignored comment tokens to make writing parsers
             // easier, but will include them in the linked list result.
-            self::assertNotEquals('Comment', $endToken->kind);
+            self::assertNotSame('Comment', $endToken->kind);
         } while ($endToken->kind !== '<EOF>');
 
         self::assertEquals(null, $startToken->prev);
@@ -733,7 +733,7 @@ final class LexerTest extends TestCase
             $tokens[] = $tok;
         }
 
-        self::assertEquals(
+        self::assertSame(
             [
                 '<SOF>',
                 '{',

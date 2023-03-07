@@ -38,7 +38,7 @@ final class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}'],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // properly parses single value to list:
         $result = $this->executeQuery('
@@ -48,7 +48,7 @@ final class VariablesTest extends TestCase
         ');
         $expected = ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         $result = $this->executeQuery(
             '
@@ -60,7 +60,7 @@ final class VariablesTest extends TestCase
         );
         $expected = ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // properly parses null value to null
         $result = $this->executeQuery('
@@ -70,7 +70,7 @@ final class VariablesTest extends TestCase
         ');
         $expected = ['data' => ['fieldWithObjectInput' => '{"a":null,"b":null,"c":"C","d":null}']];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // properly parses null value in list
         $result = $this->executeQuery('
@@ -80,7 +80,7 @@ final class VariablesTest extends TestCase
         ');
         $expected = ['data' => ['fieldWithObjectInput' => '{"b":["A",null,"C"],"c":"C"}']];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // does not use incorrect value
         $result = $this->executeQuery('
@@ -107,7 +107,7 @@ final class VariablesTest extends TestCase
           fieldWithObjectInput(input: {c: "foo", d: "SerializedValue"})
         }
         ');
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['fieldWithObjectInput' => '{"c":"foo","d":"DeserializedValue"}']],
             $result->toArray()
         );
@@ -226,7 +226,7 @@ final class VariablesTest extends TestCase
         $params = ['input' => ['a' => 'foo', 'b' => ['bar'], 'c' => 'baz']];
         $result = $this->executeQuery($doc, $params);
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']],
             $result->toArray()
         );
@@ -256,7 +256,7 @@ final class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithNullableStringInput' => 'null'],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // uses default value when not provided:
         $result = $this->executeQuery('
@@ -268,7 +268,7 @@ final class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}'],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // does not use default value when provided
         $result = $this->executeQuery(
@@ -281,7 +281,7 @@ final class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithNullableStringInput' => '"Variable value"'],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // uses explicit null value instead of default value
         $result = $this->executeQuery(
@@ -295,7 +295,7 @@ final class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithNullableStringInput' => 'null'],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // uses null default value when not provided
         $result = $this->executeQuery(
@@ -309,12 +309,12 @@ final class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithNullableStringInput' => 'null'],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // properly parses single value to list:
         $params = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']];
         $result = $this->executeQuery($doc, $params);
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']],
             $result->toArray()
         );
@@ -325,7 +325,7 @@ final class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithObjectInput' => '{"c":"foo","d":"DeserializedValue"}'],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // errors on null for nested non-null:
         $params = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => null]];
@@ -339,7 +339,7 @@ final class VariablesTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // errors on incorrect type:
         $params = ['input' => 'foo bar'];
@@ -352,7 +352,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // errors on omission of nested non-null:
         $params = ['input' => ['a' => 'foo', 'b' => 'bar']];
@@ -366,7 +366,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // errors on deep nested errors and with many errors
         $nestedDoc = '
@@ -389,7 +389,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // errors on addition of unknown input field
         $params = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => 'baz', 'extra' => 'dog']];
@@ -404,7 +404,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     public function testUsingStdClassVariables(): void
@@ -419,7 +419,7 @@ final class VariablesTest extends TestCase
         $params = ['input' => (object) ['na' => (object) ['a' => 'foo', 'b' => ['bar'], 'c' => 'baz'], 'nb' => 'test']];
         $result = $this->executeQuery($doc, $params);
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['fieldWithNestedInputObject' => '{"na":{"a":"foo","b":["bar"],"c":"baz"},"nb":"test"}']],
             $result->toArray()
         );
@@ -453,7 +453,7 @@ final class VariablesTest extends TestCase
                 'defaultValue' => '"DEFAULT_VALUE"',
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -467,7 +467,7 @@ final class VariablesTest extends TestCase
         }
         ');
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['fieldWithNonNullableEnumInput' => 'null']],
             $result->toArray()
         );
@@ -552,7 +552,7 @@ final class VariablesTest extends TestCase
         ';
         $result = $this->executeQuery($doc, ['value' => 'a']);
         $expected = ['data' => ['fieldWithNullableStringInput' => '"a"']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -566,7 +566,7 @@ final class VariablesTest extends TestCase
       }
         ');
         $expected = ['data' => ['fieldWithNullableStringInput' => '"a"']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -582,7 +582,7 @@ final class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithNonNullableStringInput' => '"default"'],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -604,7 +604,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -626,7 +626,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -641,7 +641,7 @@ final class VariablesTest extends TestCase
         ';
         $result = $this->executeQuery($doc, ['value' => 'a']);
         $expected = ['data' => ['fieldWithNonNullableStringInput' => '"a"']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -655,7 +655,7 @@ final class VariablesTest extends TestCase
       }
         ');
         $expected = ['data' => ['fieldWithNonNullableStringInput' => '"a"']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -706,7 +706,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -751,7 +751,7 @@ final class VariablesTest extends TestCase
         $result = $this->executeQuery($doc, ['input' => null]);
         $expected = ['data' => ['list' => 'null']];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -766,7 +766,7 @@ final class VariablesTest extends TestCase
         ';
         $result = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['list' => '["A"]']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -781,7 +781,7 @@ final class VariablesTest extends TestCase
         ';
         $result = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
         $expected = ['data' => ['list' => '["A",null,"B"]']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -803,7 +803,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -818,7 +818,7 @@ final class VariablesTest extends TestCase
         ';
         $result = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['nnList' => '["A"]']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -833,7 +833,7 @@ final class VariablesTest extends TestCase
         ';
         $result = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
         $expected = ['data' => ['nnList' => '["A",null,"B"]']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -848,7 +848,7 @@ final class VariablesTest extends TestCase
         ';
         $result = $this->executeQuery($doc, ['input' => null]);
         $expected = ['data' => ['listNN' => 'null']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -863,7 +863,7 @@ final class VariablesTest extends TestCase
         ';
         $result = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['listNN' => '["A"]']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -885,7 +885,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -907,7 +907,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -922,7 +922,7 @@ final class VariablesTest extends TestCase
         ';
         $result = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['nnListNN' => '["A"]']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     // Describe: Execute: Uses argument default values
@@ -946,7 +946,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -969,7 +969,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -993,7 +993,7 @@ final class VariablesTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -1005,7 +1005,7 @@ final class VariablesTest extends TestCase
         fieldWithDefaultArgumentValue
         }');
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['fieldWithDefaultArgumentValue' => '"Hello World"']],
             $result->toArray()
         );
@@ -1020,7 +1020,7 @@ final class VariablesTest extends TestCase
             fieldWithDefaultArgumentValue(input: $optional)
         }');
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['fieldWithDefaultArgumentValue' => '"Hello World"']],
             $result->toArray()
         );
@@ -1063,6 +1063,6 @@ final class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithNonNullableStringInputAndDefaultArgumentValue' => '"Hello World"'],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 }

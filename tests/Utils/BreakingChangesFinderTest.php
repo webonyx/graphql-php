@@ -58,19 +58,17 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$type2],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
-                'description' => 'Type1 was removed.',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
+                    'description' => 'Type1 was removed.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findRemovedTypes($oldSchema, $newSchema)
         );
 
-        self::assertEquals([], BreakingChangesFinder::findRemovedTypes($oldSchema, $oldSchema));
+        self::assertSame([], BreakingChangesFinder::findRemovedTypes($oldSchema, $oldSchema));
     }
 
     /**
@@ -114,7 +112,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             BreakingChangesFinder::findTypesThatChangedKind($oldSchema, $newSchema)
         );
@@ -244,63 +242,61 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType1],
         ]);
 
-        $expectedFieldChanges = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_REMOVED,
-                'description' => 'Type1.field2 was removed.',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_REMOVED,
+                    'description' => 'Type1.field2 was removed.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field3 changed type from String to Boolean.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field4 changed type from TypeA to TypeB.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field6 changed type from String to [String].',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field7 changed type from [String] to String.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field9 changed type from Int! to Int.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field10 changed type from [Int]! to [Int].',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field11 changed type from Int to [Int]!.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field13 changed type from [Int!] to [Int].',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field14 changed type from [Int] to [[Int]].',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field15 changed type from [[Int]] to [Int].',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field16 changed type from Int! to [Int]!.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'Type1.field18 changed type from [[Int!]!] to [[Int!]].',
+                ],
             ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field3 changed type from String to Boolean.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field4 changed type from TypeA to TypeB.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field6 changed type from String to [String].',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field7 changed type from [String] to String.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field9 changed type from Int! to Int.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field10 changed type from [Int]! to [Int].',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field11 changed type from Int to [Int]!.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field13 changed type from [Int!] to [Int].',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field14 changed type from [Int] to [[Int]].',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field15 changed type from [[Int]] to [Int].',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field16 changed type from Int! to [Int]!.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'Type1.field18 changed type from [[Int!]!] to [[Int!]].',
-            ],
-        ];
-
-        self::assertEquals(
-            $expectedFieldChanges,
             BreakingChangesFinder::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema)
         );
     }
@@ -419,55 +415,53 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newInputType],
         ]);
 
-        $expectedFieldChanges = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'InputType1.field1 changed type from String to Int.',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'InputType1.field1 changed type from String to Int.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_REMOVED,
+                    'description' => 'InputType1.field2 was removed.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'InputType1.field3 changed type from [String] to String.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'InputType1.field5 changed type from String to String!.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'InputType1.field6 changed type from [Int] to [Int]!.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'InputType1.field8 changed type from Int to [Int]!.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'InputType1.field9 changed type from [Int] to [Int!].',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'InputType1.field11 changed type from [Int] to [[Int]].',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'InputType1.field12 changed type from [[Int]] to [Int].',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'InputType1.field13 changed type from Int! to [Int]!.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'InputType1.field15 changed type from [[Int]!] to [[Int!]!].',
+                ],
             ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_REMOVED,
-                'description' => 'InputType1.field2 was removed.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'InputType1.field3 changed type from [String] to String.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'InputType1.field5 changed type from String to String!.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'InputType1.field6 changed type from [Int] to [Int]!.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'InputType1.field8 changed type from Int to [Int]!.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'InputType1.field9 changed type from [Int] to [Int!].',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'InputType1.field11 changed type from [Int] to [[Int]].',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'InputType1.field12 changed type from [[Int]] to [Int].',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'InputType1.field13 changed type from Int! to [Int]!.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'InputType1.field15 changed type from [[Int]!] to [[Int!]!].',
-            ],
-        ];
-
-        self::assertEquals(
-            $expectedFieldChanges,
             BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes(
                 $oldSchema,
                 $newSchema
@@ -510,15 +504,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newInputType],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED,
-                'description' => 'A required field requiredField on input type InputType1 was added.',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED,
+                    'description' => 'A required field requiredField on input type InputType1 was added.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes(
                 $oldSchema,
                 $newSchema
@@ -576,15 +568,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newUnionType],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
-                'description' => 'Type2 was removed from union type UnionType1.',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
+                    'description' => 'Type2 was removed from union type UnionType1.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findTypesRemovedFromUnions($oldSchema, $newSchema)
         );
     }
@@ -621,15 +611,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newEnumType],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
-                'description' => 'VALUE1 was removed from enum type EnumType1.',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
+                    'description' => 'VALUE1 was removed from enum type EnumType1.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findValuesRemovedFromEnums($oldSchema, $newSchema)
         );
     }
@@ -698,23 +686,21 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType, $newInterfaceType],
         ]);
 
-        $expectedChanges = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_REMOVED,
-                'description' => 'Type1.field1 arg name was removed',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_REMOVED,
+                    'description' => 'Type1.field1 arg name was removed',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_REMOVED,
+                    'description' => 'Interface1.field1 arg arg1 was removed',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_REMOVED,
+                    'description' => 'Interface1.field1 arg objectArg was removed',
+                ],
             ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_REMOVED,
-                'description' => 'Interface1.field1 arg arg1 was removed',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_REMOVED,
-                'description' => 'Interface1.field1 arg objectArg was removed',
-            ],
-        ];
-
-        self::assertEquals(
-            $expectedChanges,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
         );
     }
@@ -786,59 +772,57 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        $expectedChanges = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg1 has changed type from String to Int',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg1 has changed type from String to Int',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg2 has changed type from String to [String]',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg3 has changed type from [String] to String',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg4 has changed type from String to String!',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg5 has changed type from String! to Int',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg6 has changed type from String! to Int!',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg8 has changed type from Int to [Int]!',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg9 has changed type from [Int] to [Int!]',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg11 has changed type from [Int] to [[Int]]',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg12 has changed type from [[Int]] to [Int]',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg13 has changed type from Int! to [Int]!',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'Type1.field1 arg arg15 has changed type from [[Int]!] to [[Int!]!]',
+                ],
             ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg2 has changed type from String to [String]',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg3 has changed type from [String] to String',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg4 has changed type from String to String!',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg5 has changed type from String! to Int',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg6 has changed type from String! to Int!',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg8 has changed type from Int to [Int]!',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg9 has changed type from [Int] to [Int!]',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg11 has changed type from [Int] to [[Int]]',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg12 has changed type from [[Int]] to [Int]',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg13 has changed type from Int! to [Int]!',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'Type1.field1 arg arg15 has changed type from [[Int]!] to [[Int!]!]',
-            ],
-        ];
-
-        self::assertEquals(
-            $expectedChanges,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
         );
     }
@@ -881,15 +865,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_ARG_ADDED,
-                'description' => 'A required arg newRequiredArg on Type1.field1 was added',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_ARG_ADDED,
+                    'description' => 'A required arg newRequiredArg on Type1.field1 was added',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
         );
     }
@@ -948,7 +930,7 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        self::assertEquals([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+        self::assertSame([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -988,7 +970,7 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        self::assertEquals([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+        self::assertSame([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -1025,15 +1007,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
-                'description' => 'Type1 no longer implements interface Interface1.',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
+                    'description' => 'Type1 no longer implements interface Interface1.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
         );
     }
@@ -1073,15 +1053,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$interface1, $newInterface2],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
-                'description' => 'Interface2 no longer implements interface Interface1.',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
+                    'description' => 'Interface2 no longer implements interface Interface1.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
         );
     }
@@ -1289,67 +1267,65 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $expectedBreakingChanges = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
-                'description' => 'TypeThatGetsRemoved was removed.',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
+                    'description' => 'TypeThatGetsRemoved was removed.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
+                    'description' => 'TypeInUnion2 was removed.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
+                    'description' => 'Int was removed.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_CHANGED_KIND,
+                    'description' => 'TypeThatChangesType changed from an Object type to an Interface type.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_REMOVED,
+                    'description' => 'TypeThatHasBreakingFieldChanges.field1 was removed.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                    'description' => 'TypeThatHasBreakingFieldChanges.field2 changed type from String to Boolean.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
+                    'description' => 'TypeInUnion2 was removed from union type UnionTypeThatLosesAType.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
+                    'description' => 'VALUE0 was removed from enum type EnumTypeThatLosesAValue.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                    'description' => 'ArgThatChanges.field1 arg id has changed type from Int to String',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
+                    'description' => 'TypeThatLosesInterface1 no longer implements interface Interface1.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                    'description' => 'skip was removed',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
+                    'description' => 'arg1 was removed from DirectiveThatRemovesArg',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
+                    'description' => 'A required arg arg1 on directive NonNullDirectiveAdded was added',
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
+                    'description' => 'QUERY was removed from Directive Name',
+                ],
             ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
-                'description' => 'TypeInUnion2 was removed.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
-                'description' => 'Int was removed.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_CHANGED_KIND,
-                'description' => 'TypeThatChangesType changed from an Object type to an Interface type.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_REMOVED,
-                'description' => 'TypeThatHasBreakingFieldChanges.field1 was removed.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                'description' => 'TypeThatHasBreakingFieldChanges.field2 changed type from String to Boolean.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
-                'description' => 'TypeInUnion2 was removed from union type UnionTypeThatLosesAType.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
-                'description' => 'VALUE0 was removed from enum type EnumTypeThatLosesAValue.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                'description' => 'ArgThatChanges.field1 arg id has changed type from Int to String',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
-                'description' => 'TypeThatLosesInterface1 no longer implements interface Interface1.',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
-                'description' => 'skip was removed',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
-                'description' => 'arg1 was removed from DirectiveThatRemovesArg',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
-                'description' => 'A required arg arg1 on directive NonNullDirectiveAdded was added',
-            ],
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
-                'description' => 'QUERY was removed from Directive Name',
-            ],
-        ];
-
-        self::assertEquals(
-            $expectedBreakingChanges,
             BreakingChangesFinder::findBreakingChanges($oldSchema, $newSchema)
         );
     }
@@ -1369,15 +1345,13 @@ final class BreakingChangesFinderTest extends TestCase
 
         $includeDirective = Directive::includeDirective();
 
-        $expectedBreakingChanges = [
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
-                'description' => "{$includeDirective->name} was removed",
-            ],
-        ];
-
         self::assertEquals(
-            $expectedBreakingChanges,
+            [
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                    'description' => "{$includeDirective->name} was removed",
+                ],
+            ],
             BreakingChangesFinder::findRemovedDirectives($oldSchema, $newSchema)
         );
     }
@@ -1395,15 +1369,13 @@ final class BreakingChangesFinderTest extends TestCase
 
         $deprecatedDirective = Directive::deprecatedDirective();
 
-        $expectedBreakingChanges = [
-            [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
-                'description' => "{$deprecatedDirective->name} was removed",
-            ],
-        ];
-
         self::assertEquals(
-            $expectedBreakingChanges,
+            [
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                    'description' => "{$deprecatedDirective->name} was removed",
+                ],
+            ],
             BreakingChangesFinder::findRemovedDirectives($oldSchema, $newSchema)
         );
     }
@@ -1437,15 +1409,13 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $expectedBreakingChanges = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
-                'description' => 'arg1 was removed from DirectiveWithArg',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
+                    'description' => 'arg1 was removed from DirectiveWithArg',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expectedBreakingChanges,
             BreakingChangesFinder::findRemovedDirectiveArgs($oldSchema, $newSchema)
         );
     }
@@ -1479,15 +1449,13 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $expectedBreakingChanges = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
-                'description' => 'A required arg arg1 on directive DirectiveName was added',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
+                    'description' => 'A required arg arg1 on directive DirectiveName was added',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expectedBreakingChanges,
             BreakingChangesFinder::findAddedNonNullDirectiveArgs($oldSchema, $newSchema)
         );
     }
@@ -1507,7 +1475,7 @@ final class BreakingChangesFinderTest extends TestCase
             'locations' => [DirectiveLocation::FIELD_DEFINITION],
         ]);
 
-        self::assertEquals(
+        self::assertSame(
             [DirectiveLocation::QUERY],
             BreakingChangesFinder::findRemovedLocationsForDirective($d1, $d2)
         );
@@ -1539,15 +1507,13 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $expectedBreakingChanges = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
-                'description' => 'QUERY was removed from Directive Name',
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
+                    'description' => 'QUERY was removed from Directive Name',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expectedBreakingChanges,
             BreakingChangesFinder::findRemovedDirectiveLocations($oldSchema, $newSchema)
         );
     }
@@ -1600,15 +1566,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
-                'description' => 'Type1.field1 arg name has changed defaultValue',
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
+                    'description' => 'Type1.field1 arg name has changed defaultValue',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['dangerousChanges']
         );
     }
@@ -1644,15 +1608,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newEnumType],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
-                'description' => 'VALUE2 was added to enum type EnumType1.',
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
+                    'description' => 'VALUE2 was added to enum type EnumType1.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findValuesAddedToEnums($oldSchema, $newSchema)
         );
     }
@@ -1693,15 +1655,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
-                'description' => 'Interface1 added to interfaces implemented by Type1.',
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
+                    'description' => 'Interface1 added to interfaces implemented by Type1.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findInterfacesAddedToObjectTypes($oldSchema, $newSchema)
         );
     }
@@ -1744,15 +1704,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newInterface1],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
-                'description' => 'NewInterface added to interfaces implemented by Interface1.',
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
+                    'description' => 'NewInterface added to interfaces implemented by Interface1.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findInterfacesAddedToObjectTypes($oldSchema, $newSchema)
         );
     }
@@ -1802,15 +1760,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newUnionType],
         ]);
 
-        $expected = [
+        self::assertSame(
             [
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
-                'description' => 'Type2 was added to union type UnionType1.',
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
+                    'description' => 'Type2 was added to union type UnionType1.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expected,
             BreakingChangesFinder::findTypesAddedToUnions($oldSchema, $newSchema)
         );
     }
@@ -1850,15 +1806,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newInputType],
         ]);
 
-        $expectedFieldChanges = [
+        self::assertSame(
             [
-                'description' => 'An optional field field2 on input type InputType1 was added.',
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED,
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED,
+                    'description' => 'An optional field field2 on input type InputType1 was added.',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expectedFieldChanges,
             BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes(
                 $oldSchema,
                 $newSchema
@@ -1980,27 +1934,25 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $expectedDangerousChanges = [
+        self::assertSame(
             [
-                'description' => 'Type1.field1 arg name has changed defaultValue',
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
+                    'description' => 'Type1.field1 arg name has changed defaultValue',
+                ],
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
+                    'description' => 'VALUE2 was added to enum type EnumType1.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
+                    'description' => 'Interface1 added to interfaces implemented by TypeThatGainsInterface1.',
+                ],
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
+                    'description' => 'TypeInUnion2 was added to union type UnionTypeThatGainsAType.',
+                ],
             ],
-            [
-                'description' => 'VALUE2 was added to enum type EnumType1.',
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
-            ],
-            [
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
-                'description' => 'Interface1 added to interfaces implemented by TypeThatGainsInterface1.',
-            ],
-            [
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
-                'description' => 'TypeInUnion2 was added to union type UnionTypeThatGainsAType.',
-            ],
-        ];
-
-        self::assertEquals(
-            $expectedDangerousChanges,
             BreakingChangesFinder::findDangerousChanges($oldSchema, $newSchema)
         );
     }
@@ -2051,15 +2003,13 @@ final class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        $expectedFieldChanges = [
+        self::assertSame(
             [
-                'description' => 'An optional arg arg2 on Type1.field1 was added',
-                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED,
+                [
+                    'type' => BreakingChangesFinder::DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED,
+                    'description' => 'An optional arg arg2 on Type1.field1 was added',
+                ],
             ],
-        ];
-
-        self::assertEquals(
-            $expectedFieldChanges,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['dangerousChanges']
         );
     }

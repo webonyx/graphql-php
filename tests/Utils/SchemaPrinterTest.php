@@ -32,8 +32,8 @@ final class SchemaPrinterTest extends TestCase
         $builtSchema = BuildSchema::build($printedSchema);
         $cycledSchema = SchemaPrinter::doPrint($builtSchema, $options);
 
-        self::assertEquals($printedSchema, $cycledSchema);
-        self::assertEquals($expected, $printedSchema);
+        self::assertSame($printedSchema, $cycledSchema);
+        self::assertSame($expected, $printedSchema);
     }
 
     /** @param array<string, mixed> $fieldConfig */
@@ -1189,7 +1189,7 @@ final class SchemaPrinterTest extends TestCase
       }
 
       GRAPHQL;
-        self::assertEquals($expected, $output);
+        self::assertSame($expected, $output);
     }
 
     /**

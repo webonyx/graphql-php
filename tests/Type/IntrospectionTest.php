@@ -1038,7 +1038,7 @@ final class IntrospectionTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
     /**
@@ -1149,7 +1149,7 @@ final class IntrospectionTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
     /**
@@ -1272,7 +1272,7 @@ final class IntrospectionTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
     /**
@@ -1364,7 +1364,7 @@ final class IntrospectionTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
     /**
@@ -1397,43 +1397,43 @@ final class IntrospectionTest extends TestCase
                     'description' => 'An enum describing what kind of type a given `__Type` is.',
                     'enumValues' => [
                         [
-                            'description' => 'Indicates this type is a scalar.',
                             'name' => 'SCALAR',
+                            'description' => 'Indicates this type is a scalar.',
                         ],
                         [
-                            'description' => 'Indicates this type is an object. `fields` and `interfaces` are valid fields.',
                             'name' => 'OBJECT',
+                            'description' => 'Indicates this type is an object. `fields` and `interfaces` are valid fields.',
                         ],
                         [
-                            'description' => 'Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.',
                             'name' => 'INTERFACE',
+                            'description' => 'Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.',
                         ],
                         [
-                            'description' => 'Indicates this type is a union. `possibleTypes` is a valid field.',
                             'name' => 'UNION',
+                            'description' => 'Indicates this type is a union. `possibleTypes` is a valid field.',
                         ],
                         [
-                            'description' => 'Indicates this type is an enum. `enumValues` is a valid field.',
                             'name' => 'ENUM',
+                            'description' => 'Indicates this type is an enum. `enumValues` is a valid field.',
                         ],
                         [
-                            'description' => 'Indicates this type is an input object. `inputFields` is a valid field.',
                             'name' => 'INPUT_OBJECT',
+                            'description' => 'Indicates this type is an input object. `inputFields` is a valid field.',
                         ],
                         [
-                            'description' => 'Indicates this type is a list. `ofType` is a valid field.',
                             'name' => 'LIST',
+                            'description' => 'Indicates this type is a list. `ofType` is a valid field.',
                         ],
                         [
-                            'description' => 'Indicates this type is a non-null. `ofType` is a valid field.',
                             'name' => 'NON_NULL',
+                            'description' => 'Indicates this type is a non-null. `ofType` is a valid field.',
                         ],
                     ],
                 ],
             ],
         ];
 
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
     /**

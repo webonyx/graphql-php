@@ -1071,7 +1071,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return $typename;
         }
 
-        if ($abstractType instanceof InterfaceType && $info->schema->getConfig()->typeLoader !== null) {
+        if ($abstractType instanceof InterfaceType && isset($info->schema->getConfig()->typeLoader)) {
             $safeValue = Utils::printSafe($value);
             Warning::warnOnce(
                 "GraphQL Interface Type `{$abstractType->name}` returned `null` from its `resolveType` function for value: {$safeValue}. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly. Make sure your `resolveType` function always returns a valid implementation or throws.",

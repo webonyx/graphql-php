@@ -834,8 +834,8 @@ class SchemaValidationContext
 
     private function validateTypeIsSingleton(Type $type, string $path): void
     {
-        $typeLoader = $this->schema->getConfig()->typeLoader;
-        if ($typeLoader === null) {
+        $schemaConfig = $this->schema->getConfig();
+        if (! isset($schemaConfig->typeLoader)) {
             return;
         }
 
@@ -846,14 +846,14 @@ class SchemaValidationContext
         }
 
         $name = $namedType->name;
-        if ($namedType !== $typeLoader($name)) {
+        if ($namedType !== ($schemaConfig->typeLoader)($name)) {
             throw new InvariantViolation(static::duplicateType($this->schema, $path, $name));
         }
     }
 
     public static function duplicateType(Schema $schema, string $path, string $name): string
     {
-        $hint = $schema->getConfig()->typeLoader !== null
+        $hint = isset($schema->getConfig()->typeLoader)
             ? 'Ensure the type loader returns the same instance. '
             : '';
 

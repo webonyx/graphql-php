@@ -66,14 +66,14 @@ class ExecutionResult implements \JsonSerializable
      *
      * @phpstan-var ErrorFormatter|null
      */
-    private $errorFormatter = null;
+    private $errorFormatter;
 
     /**
      * @var callable|null
      *
      * @phpstan-var ErrorsHandler|null
      */
-    private $errorsHandler = null;
+    private $errorsHandler;
 
     /**
      * @param array<string, mixed>|null $data

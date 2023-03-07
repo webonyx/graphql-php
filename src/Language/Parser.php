@@ -550,9 +550,6 @@ class Parser
 
     // Implements the parsing rules in the Operations section.
 
-    /**
-     * @return OperationDefinitionNode&Node
-     */
     private function parseOperationDefinition(): OperationDefinitionNode
     {
         $start = $this->lexer->token;

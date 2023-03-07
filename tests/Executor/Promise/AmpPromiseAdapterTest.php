@@ -124,7 +124,7 @@ final class AmpPromiseAdapterTest extends TestCase
         );
 
         self::assertInstanceOf(\Throwable::class, $exception);
-        self::assertEquals('I am a bad promise', $exception->getMessage());
+        self::assertSame('I am a bad promise', $exception->getMessage());
     }
 
     public function testAll(): void

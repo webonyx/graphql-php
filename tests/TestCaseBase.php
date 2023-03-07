@@ -26,4 +26,17 @@ abstract class TestCaseBase extends TestCase
         self::assertInstanceOf(Node::class, $node);
         self::assertSame($expected, Printer::doPrint($node));
     }
+
+    /**
+     * Just defined so that we can use Rector to prefer assertSame() over assertEquals() everywhere else.
+     *
+     * Array output may differ between tested PHP versions.
+     *
+     * @param array<mixed> $expected
+     * @param array<mixed> $actual
+     */
+    protected static function assertArrayEquals(array $expected, array $actual): void
+    {
+        self::assertEquals($expected, $actual);
+    }
 }

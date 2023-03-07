@@ -53,7 +53,7 @@ final class MutationsTest extends TestCase
                 'fifth' => ['theNumber' => 5],
             ],
         ];
-        self::assertEquals($expected, $mutationResult->toArray());
+        self::assertSame($expected, $mutationResult->toArray());
     }
 
     private function schema(): Schema

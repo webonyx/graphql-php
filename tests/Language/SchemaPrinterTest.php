@@ -28,7 +28,7 @@ final class SchemaPrinterTest extends TestCase
             'name' => new NameNode(['value' => 'foo']),
             'directives' => new NodeList([]),
         ]);
-        self::assertEquals('scalar foo', Printer::doPrint($ast));
+        self::assertSame('scalar foo', Printer::doPrint($ast));
     }
 
     /**

@@ -286,12 +286,11 @@ class Schema
      */
     private function loadType(string $typeName): ?Type
     {
-        $typeLoader = $this->config->typeLoader;
-        if ($typeLoader === null) {
+        if (! isset($this->config->typeLoader)) {
             return $this->getTypeMap()[$typeName] ?? null;
         }
 
-        $type = $typeLoader($typeName);
+        $type = ($this->config->typeLoader)($typeName);
         if ($type === null) {
             return null;
         }
