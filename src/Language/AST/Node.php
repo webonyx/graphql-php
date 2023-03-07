@@ -27,8 +27,6 @@ use GraphQL\Utils\Utils;
  * | DirectiveNode
  * | ListTypeNode
  * | NonNullTypeNode.
- *
- * @see \GraphQL\Tests\Language\AST\NodeTest
  */
 abstract class Node implements \JsonSerializable
 {

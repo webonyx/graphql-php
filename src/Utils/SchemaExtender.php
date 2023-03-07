@@ -41,8 +41,6 @@ use GraphQL\Validator\DocumentValidator;
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
  * @phpstan-import-type UnnamedArgumentConfig from Argument
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
- *
- * @see \GraphQL\Tests\Utils\SchemaExtenderTest
  */
 class SchemaExtender
 {

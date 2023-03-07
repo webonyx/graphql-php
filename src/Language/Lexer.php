@@ -15,8 +15,6 @@ use GraphQL\Utils\Utils;
  * Algorithm is O(N) both on memory and time.
  *
  * @phpstan-import-type ParserOptions from Parser
- *
- * @see \GraphQL\Tests\Language\LexerTest
  */
 class Lexer
 {

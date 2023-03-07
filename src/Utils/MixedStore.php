@@ -10,8 +10,6 @@ namespace GraphQL\Utils;
  * @template TValue of mixed
  *
  * @implements \ArrayAccess<mixed, TValue>
- *
- * @see \GraphQL\Tests\Utils\MixedStoreTest
  */
 class MixedStore implements \ArrayAccess
 {

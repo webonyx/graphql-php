@@ -24,8 +24,6 @@ use GraphQL\Validator\Rules\ValidationRule;
  * See [related documentation](executing-queries.md).
  *
  * @phpstan-import-type FieldResolver from Executor
- *
- * @see \GraphQL\Tests\GraphQLTest
  */
 class GraphQL
 {

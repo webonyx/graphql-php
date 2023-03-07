@@ -25,8 +25,6 @@ use GraphQL\Type\Schema;
  *     breakingChanges: array<int, Change>,
  *     dangerousChanges: array<int, Change>
  * }
- *
- * @see \GraphQL\Tests\Utils\BreakingChangesFinderTest
  */
 class BreakingChangesFinder
 {

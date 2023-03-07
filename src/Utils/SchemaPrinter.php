@@ -36,8 +36,6 @@ use GraphQL\Type\Schema;
  *   sortInputFields?: bool,
  *   sortTypes?: bool,
  * }
- *
- * @see \GraphQL\Tests\Utils\SchemaPrinterTest
  */
 class SchemaPrinter
 {

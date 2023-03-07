@@ -5,8 +5,6 @@ namespace GraphQL\Language;
 /**
  * Represents a range of characters represented by a lexical token
  * within a Source.
- *
- * @see \GraphQL\Tests\Language\TokenTest
  */
 class Token
 {

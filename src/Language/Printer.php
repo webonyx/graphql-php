@@ -59,8 +59,6 @@ use GraphQL\Language\AST\VariableNode;
  * $ast = GraphQL\Language\Parser::parse($query);
  * $printed = GraphQL\Language\Printer::doPrint($ast);
  * ```
- *
- * @see \GraphQL\Tests\Language\PrinterTest
  */
 class Printer
 {

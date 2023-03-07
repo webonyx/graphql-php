@@ -39,8 +39,6 @@ use GraphQL\Utils\Utils;
  * - directiveIsRepeatable
  *   Whether to include `isRepeatable` flag on directives.
  *   Default: false
- *
- * @see \GraphQL\Tests\Type\IntrospectionTest
  */
 class Introspection
 {

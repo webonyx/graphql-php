@@ -170,8 +170,6 @@ use GraphQL\Language\AST\VariableNode;
  * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
  * @method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
  * @method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
- *
- * @see \GraphQL\Tests\Language\ParserTest
  */
 class Parser
 {

@@ -39,8 +39,6 @@ use GraphQL\Type\TypeKind;
  *          produced schema is valid.
  *
  *          Default: false
- *
- * @see \GraphQL\Tests\Utils\BuildClientSchemaTest
  */
 class BuildClientSchema
 {

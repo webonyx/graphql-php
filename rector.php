@@ -8,6 +8,7 @@ use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector;
 use Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector;
+use Rector\PHPUnit\Rector\Class_\AddSeeTestAnnotationRector;
 use Rector\PHPUnit\Rector\MethodCall\AssertIssetToSpecificMethodRector;
 use Rector\PHPUnit\Rector\MethodCall\AssertPropertyExistsRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
@@ -26,6 +27,7 @@ return static function (RectorConfig $rectorConfig): void {
         PHPUnitSetList::REMOVE_MOCKS,
     ]);
     $rectorConfig->skip([
+        AddSeeTestAnnotationRector::class, // We do not bundle tests
         CallableThisArrayToAnonymousFunctionRector::class, // Callable in array form is shorter and more efficient
         IssetOnPropertyObjectToPropertyExistsRector::class, // isset() is nice when moving towards typed properties
         FlipTypeControlToUseExclusiveTypeRector::class, // Unnecessarily complex with PHPStan

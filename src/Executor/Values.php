@@ -45,8 +45,6 @@ use GraphQL\Utils\Value;
  * @see ArgumentNode - force IDE import
  *
  * @phpstan-import-type ArgumentNodeValue from ArgumentNode
- *
- * @see \GraphQL\Tests\Executor\ValuesTest
  */
 class Values
 {

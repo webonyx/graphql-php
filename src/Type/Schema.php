@@ -42,8 +42,6 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-import-type SchemaConfigOptions from SchemaConfig
  * @phpstan-import-type OperationType from OperationDefinitionNode
- *
- * @see \GraphQL\Tests\Type\SchemaTest
  */
 class Schema
 {
