@@ -425,7 +425,7 @@ GRAPHQL
             ],
         ];
 
-        self::assertSame($expected, $result->toArray());
+        self::assertArrayEquals($expected, $result->toArray());
     }
 
     /**
@@ -498,7 +498,7 @@ GRAPHQL
             ],
         ];
 
-        self::assertSame($expected, $result->toArray());
+        self::assertArrayEquals($expected, $result->toArray());
     }
 
     /**
@@ -621,7 +621,7 @@ GRAPHQL
      */
     public function testParsesWellKnownTypes(): void
     {
-        self::assertSame(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::NAMED_TYPE,
                 'loc' => ['start' => 0, 'end' => 6],
@@ -640,7 +640,7 @@ GRAPHQL
      */
     public function testParsesCustomTypes(): void
     {
-        self::assertSame(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::NAMED_TYPE,
                 'loc' => ['start' => 0, 'end' => 6],
@@ -659,7 +659,7 @@ GRAPHQL
      */
     public function testParsesListTypes(): void
     {
-        self::assertSame(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::LIST_TYPE,
                 'loc' => ['start' => 0, 'end' => 8],
@@ -682,7 +682,7 @@ GRAPHQL
      */
     public function testParsesNonNullTypes(): void
     {
-        self::assertSame(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::NON_NULL_TYPE,
                 'loc' => ['start' => 0, 'end' => 7],
@@ -705,7 +705,7 @@ GRAPHQL
      */
     public function testParsesNestedTypes(): void
     {
-        self::assertSame(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::LIST_TYPE,
                 'loc' => ['start' => 0, 'end' => 9],

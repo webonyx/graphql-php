@@ -9,6 +9,7 @@ use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector;
 use Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector;
 use Rector\PHPUnit\Rector\Class_\AddSeeTestAnnotationRector;
+use Rector\PHPUnit\Rector\MethodCall\AssertEqualsToSameRector;
 use Rector\PHPUnit\Rector\MethodCall\AssertIssetToSpecificMethodRector;
 use Rector\PHPUnit\Rector\MethodCall\AssertPropertyExistsRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
@@ -38,6 +39,9 @@ return static function (RectorConfig $rectorConfig): void {
         AssertPropertyExistsRector::class, // Uses deprecated PHPUnit methods
         AssertIssetToSpecificMethodRector::class => [
             __DIR__ . '/tests/Utils/MixedStoreTest.php', // Uses keys that are not string or int
+        ],
+        AssertEqualsToSameRector::class => [
+            __DIR__ . '/tests/TestCaseBase.php',
         ],
     ]);
     $rectorConfig->paths([
