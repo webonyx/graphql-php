@@ -580,10 +580,10 @@ GRAPHQL
      */
     public function testParsesNullValues(): void
     {
-        self::assertSame(
+        self::assertArrayEquals(
             [
-                'kind' => NodeKind::NULL,
                 'loc' => ['start' => 0, 'end' => 4],
+                'kind' => NodeKind::NULL,
             ],
             Parser::parseValue('null')->toArray()
         );
@@ -594,7 +594,7 @@ GRAPHQL
      */
     public function testParsesListValues(): void
     {
-        self::assertEquals(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::LST,
                 'loc' => ['start' => 0, 'end' => 11],
