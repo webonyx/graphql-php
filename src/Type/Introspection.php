@@ -194,8 +194,8 @@ GRAPHQL;
 
         $data = $result->data;
         if ($data === null) {
-            $noDataResult = json_encode($result, JSON_THROW_ON_ERROR);
-            throw new InvariantViolation("Introspection query returned no data: {$noDataResult}");
+            $noDataResult = Utils::printSafeJson($result);
+            throw new InvariantViolation("Introspection query returned no data: {$noDataResult}.");
         }
 
         return $data;

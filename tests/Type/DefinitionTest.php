@@ -536,17 +536,17 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testJSONStringifiesSimpleTypes(): void
     {
-        self::assertSame('"Int"', json_encode(Type::int()));
-        self::assertSame('"Article"', json_encode($this->blogArticle));
-        self::assertSame('"Interface"', json_encode($this->interfaceType));
-        self::assertSame('"Union"', json_encode($this->unionType));
-        self::assertSame('"Enum"', json_encode($this->enumType));
-        self::assertSame('"InputObject"', json_encode($this->inputObjectType));
-        self::assertSame('"Int!"', json_encode(Type::nonNull(Type::int())));
-        self::assertSame('"[Int]"', json_encode(Type::listOf(Type::int())));
-        self::assertSame('"[Int]!"', json_encode(Type::nonNull(Type::listOf(Type::int()))));
-        self::assertSame('"[Int!]"', json_encode(Type::listOf(Type::nonNull(Type::int()))));
-        self::assertSame('"[[Int]]"', json_encode(Type::listOf(Type::listOf(Type::int()))));
+        self::assertSame('"Int"', json_encode(Type::int(), JSON_THROW_ON_ERROR));
+        self::assertSame('"Article"', json_encode($this->blogArticle, JSON_THROW_ON_ERROR));
+        self::assertSame('"Interface"', json_encode($this->interfaceType, JSON_THROW_ON_ERROR));
+        self::assertSame('"Union"', json_encode($this->unionType, JSON_THROW_ON_ERROR));
+        self::assertSame('"Enum"', json_encode($this->enumType, JSON_THROW_ON_ERROR));
+        self::assertSame('"InputObject"', json_encode($this->inputObjectType, JSON_THROW_ON_ERROR));
+        self::assertSame('"Int!"', json_encode(Type::nonNull(Type::int()), JSON_THROW_ON_ERROR));
+        self::assertSame('"[Int]"', json_encode(Type::listOf(Type::int()), JSON_THROW_ON_ERROR));
+        self::assertSame('"[Int]!"', json_encode(Type::nonNull(Type::listOf(Type::int())), JSON_THROW_ON_ERROR));
+        self::assertSame('"[Int!]"', json_encode(Type::listOf(Type::nonNull(Type::int())), JSON_THROW_ON_ERROR));
+        self::assertSame('"[[Int]]"', json_encode(Type::listOf(Type::listOf(Type::int())), JSON_THROW_ON_ERROR));
     }
 
     /**

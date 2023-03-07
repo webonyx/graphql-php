@@ -251,7 +251,8 @@ class Visitor
             $result = null;
             if (! $node instanceof NodeList) {
                 if (! ($node instanceof Node)) {
-                    throw new \Exception('Invalid AST Node: ' . \json_encode($node));
+                    $notNode = Utils::printSafe($node);
+                    throw new \Exception("Invalid AST Node: {$notNode}.");
                 }
 
                 $visitFn = self::extractVisitFn($visitor, $node->kind, $isLeaving);

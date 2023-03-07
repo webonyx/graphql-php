@@ -201,5 +201,5 @@ try {
 }
 
 header('Content-Type: application/json', true, $status);
-echo json_encode($body);
+echo json_encode($body, JSON_THROW_ON_ERROR);
 ```

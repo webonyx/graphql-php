@@ -883,7 +883,7 @@ SDL;
 
         $clientSchema = BuildClientSchema::build($introspection);
 
-        $this->expectExceptionMessage('Introspection must provide input type for arguments, but received: "SomeUnion".');
+        $this->expectExceptionMessage('Introspection must provide input type for arguments, but received: SomeUnion.');
         $clientSchema->assertValid();
     }
 
@@ -906,7 +906,7 @@ SDL;
 
         $clientSchema = BuildClientSchema::build($introspection);
 
-        $this->expectExceptionMessage('Introspection must provide output type for fields, but received: "SomeInputObject".');
+        $this->expectExceptionMessage('Introspection must provide output type for fields, but received: SomeInputObject.');
         $clientSchema->assertValid();
     }
 
