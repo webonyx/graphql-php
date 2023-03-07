@@ -47,10 +47,11 @@ parameters:
         # Cannot satisfy input covariance
         - '~(expects|should return) array<string, array<string, callable\(GraphQL\\Language\\AST\\Node\): GraphQL\\Language\\VisitorOperation\|void\|false\|null>\|\(callable\(GraphQL\\Language\\AST\\Node\): GraphQL\\Language\\VisitorOperation\|void\|false\|null\)>(,| but returns)?~'
 
-        # Do not need to have @throws in methods that are never called
+        # No need to have @throws in methods that are never called
         ## PHPUnit
-        - "~Method GraphQL\\\\Tests\\\\.+?Test(CaseBase)?::(test.+?|setUp(BeforeClass)?|tearDown)\\(\\) throws checked exception .+? but it's missing from the PHPDoc @throws tag~"
-        ## Bechmarks
+        - message: "~Method GraphQL\\\\Tests\\\\.+?Test(CaseBase)?::(test.+?|setUp(BeforeClass)?|tearDown)\\(\\) throws checked exception .+? but it's missing from the PHPDoc @throws tag~"
+          path: tests
+        ## PHPBench
         - message: "~it's missing from the PHPDoc @throws tag~"
           path: benchmarks
 
