@@ -20,25 +20,20 @@ final class SyncPromiseAdapterTest extends TestCase
 
     public function testIsThenable(): void
     {
-        self::assertEquals(
-            true,
-            $this->promises->isThenable(new Deferred(static function (): void {
-            }))
-        );
-        self::assertEquals(false, $this->promises->isThenable(false));
-        self::assertEquals(false, $this->promises->isThenable(true));
-        self::assertEquals(false, $this->promises->isThenable(1));
-        self::assertEquals(false, $this->promises->isThenable(0));
-        self::assertEquals(false, $this->promises->isThenable('test'));
-        self::assertEquals(false, $this->promises->isThenable(''));
-        self::assertEquals(false, $this->promises->isThenable([]));
-        self::assertEquals(false, $this->promises->isThenable(new \stdClass()));
+        self::assertTrue($this->promises->isThenable(new Deferred(static function (): void {})));
+        self::assertFalse($this->promises->isThenable(false));
+        self::assertFalse($this->promises->isThenable(true));
+        self::assertFalse($this->promises->isThenable(1));
+        self::assertFalse($this->promises->isThenable(0));
+        self::assertFalse($this->promises->isThenable('test'));
+        self::assertFalse($this->promises->isThenable(''));
+        self::assertFalse($this->promises->isThenable([]));
+        self::assertFalse($this->promises->isThenable(new \stdClass()));
     }
 
     public function testConvert(): void
     {
-        $dfd = new Deferred(static function (): void {
-        });
+        $dfd = new Deferred(static function (): void {});
         $result = $this->promises->convertThenable($dfd);
 
         self::assertInstanceOf(SyncPromise::class, $result->adoptedPromise);
