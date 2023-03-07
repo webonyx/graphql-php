@@ -789,8 +789,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param array<string|int>           $path
      * @param mixed                       $result
      *
-     * @throws Error
      * @throws \Throwable
+     * @throws Error
      *
      * @return array<mixed>|mixed|Promise|null
      */
