@@ -81,7 +81,6 @@ class InputObjectField
     /**
      * @param Type&NamedType $parentType
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function assertValid(Type $parentType): void

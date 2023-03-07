@@ -102,7 +102,6 @@ class Argument
     /**
      * @param Type&NamedType $parentType
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function assertValid(FieldDefinition $parentField, Type $parentType): void

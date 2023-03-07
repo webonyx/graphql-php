@@ -140,7 +140,6 @@ abstract class Type implements \JsonSerializable
     /**
      * @param array<ScalarType> $types
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public static function overrideStandardTypes(array $types): void

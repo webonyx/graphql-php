@@ -20,7 +20,6 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function convertThenable($thenable): Promise

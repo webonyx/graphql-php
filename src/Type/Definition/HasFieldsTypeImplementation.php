@@ -17,7 +17,6 @@ trait HasFieldsTypeImplementation
     private array $fields;
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     private function initializeFields(): void
@@ -31,7 +30,6 @@ trait HasFieldsTypeImplementation
 
     /**
      * @throws InvariantViolation
-     * @throws \JsonException
      */
     public function getField(string $name): FieldDefinition
     {
@@ -46,7 +44,6 @@ trait HasFieldsTypeImplementation
 
     /**
      * @throws InvariantViolation
-     * @throws \JsonException
      */
     public function findField(string $name): ?FieldDefinition
     {
@@ -66,7 +63,6 @@ trait HasFieldsTypeImplementation
 
     /**
      * @throws InvariantViolation
-     * @throws \JsonException
      */
     public function hasField(string $name): bool
     {
@@ -76,7 +72,6 @@ trait HasFieldsTypeImplementation
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function getFields(): array
@@ -94,7 +89,6 @@ trait HasFieldsTypeImplementation
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function getFieldNames(): array

@@ -20,7 +20,6 @@ values as specified by
 [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point). ';
 
     /**
-     * @throws \JsonException
      * @throws SerializationError
      */
     public function serialize($value): float
@@ -38,7 +37,6 @@ values as specified by
     }
 
     /**
-     * @throws \JsonException
      * @throws Error
      */
     public function parseValue($value): float

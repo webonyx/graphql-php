@@ -208,7 +208,6 @@ class GraphQL
      *
      * @api
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public static function overrideStandardTypes(array $types): void

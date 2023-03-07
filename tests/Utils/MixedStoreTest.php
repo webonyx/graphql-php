@@ -52,7 +52,6 @@ final class MixedStoreTest extends TestCase
      * @param mixed $value anything goes
      *
      * @throws \InvalidArgumentException
-     * @throws \JsonException
      */
     private function assertAcceptsKeyValue($key, $value): void
     {
@@ -77,7 +76,6 @@ final class MixedStoreTest extends TestCase
      * @param mixed $value anything goes
      *
      * @throws \InvalidArgumentException
-     * @throws \JsonException
      */
     private function assertProvidesArrayAccess($key, $value): void
     {

@@ -55,7 +55,6 @@ class BreakingChangesFinder
      * Given two schemas, returns an Array containing descriptions of all the types
      * of breaking changes covered by the other functions down below.
      *
-     * @throws \JsonException
      * @throws \TypeError
      * @throws InvariantViolation
      *
@@ -184,7 +183,6 @@ class BreakingChangesFinder
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      *
      * @return array<int, Change>
@@ -472,7 +470,6 @@ class BreakingChangesFinder
      * (such as removal or change of type of an argument, or a change in an
      * argument's default value).
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      *
      * @return Changes
@@ -814,7 +811,6 @@ class BreakingChangesFinder
      * Given two schemas, returns an Array containing descriptions of all the types
      * of potentially dangerous changes covered by the other functions down below.
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      *
      * @return array<int, Change>

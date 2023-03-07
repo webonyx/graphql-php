@@ -151,7 +151,6 @@ class MixedStore implements \ArrayAccess
      * @param TValue $value
      *
      * @throws \InvalidArgumentException
-     * @throws \JsonException
      */
     #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value): void

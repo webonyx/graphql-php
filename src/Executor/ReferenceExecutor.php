@@ -586,7 +586,6 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      *
-     * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
      *
@@ -658,7 +657,6 @@ class ReferenceExecutor implements ExecutorImplementation
      * added to the query type, but that would require mutating type
      * definitions, which would cause issues.
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     protected function getFieldDef(Schema $schema, ObjectType $parentType, string $fieldName): ?FieldDefinition
@@ -1093,7 +1091,6 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed|null $contextValue
      * @param AbstractType&Type $abstractType
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      *
      * @return Promise|Type|string|null
@@ -1208,8 +1205,6 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<mixed>                $result
-     *
-     * @throws \JsonException
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
@@ -1290,7 +1285,6 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @phpstan-param Fields $fields
      *
-     * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
      *
@@ -1371,7 +1365,6 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param AbstractType&Type $returnType
      * @param mixed $result
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     protected function ensureValidRuntimeType(

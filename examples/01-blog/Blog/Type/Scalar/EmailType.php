@@ -12,7 +12,6 @@ use GraphQL\Utils\Utils;
 class EmailType extends ScalarType
 {
     /**
-     * @throws \JsonException
      * @throws SerializationError
      */
     public function serialize($value): string
@@ -26,7 +25,6 @@ class EmailType extends ScalarType
     }
 
     /**
-     * @throws \JsonException
      * @throws Error
      */
     public function parseValue($value): string

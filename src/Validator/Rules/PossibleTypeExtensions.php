@@ -121,7 +121,6 @@ class PossibleTypeExtensions extends ValidationRule
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     private static function typeToExtKind(NamedType $type): string

@@ -22,7 +22,6 @@ When expected as an input type, any string (such as `"4"`) or integer
 (such as `4`) input value will be accepted as an ID.';
 
     /**
-     * @throws \JsonException
      * @throws SerializationError
      */
     public function serialize($value): string
@@ -40,7 +39,6 @@ When expected as an input type, any string (such as `"4"`) or integer
     }
 
     /**
-     * @throws \JsonException
      * @throws Error
      */
     public function parseValue($value): string

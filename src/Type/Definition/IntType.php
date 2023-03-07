@@ -26,7 +26,6 @@ class IntType extends ScalarType
 values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
     /**
-     * @throws \JsonException
      * @throws SerializationError
      */
     public function serialize($value): int
@@ -54,7 +53,6 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     }
 
     /**
-     * @throws \JsonException
      * @throws Error
      */
     public function parseValue($value): int

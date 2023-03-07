@@ -184,8 +184,6 @@ class Schema
 
     /**
      * @param mixed $typeLoaderReturn could be anything
-     *
-     * @throws \JsonException
      */
     public static function typeLoaderNotType($typeLoaderReturn): string
     {
@@ -473,7 +471,6 @@ class Schema
      *
      * This operation requires a full schema scan. Do not use in production environment.
      *
-     * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
      *
@@ -507,7 +504,6 @@ class Schema
      *
      * This operation requires a full schema scan. Do not use in production environment.
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      *
      * @return array<int, Error>

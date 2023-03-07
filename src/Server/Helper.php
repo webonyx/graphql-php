@@ -40,7 +40,6 @@ class Helper
      *
      * For PSR-7 request parsing use `parsePsrRequest()` instead.
      *
-     * @throws \JsonException
      * @throws RequestError
      *
      * @return OperationParams|array<int, OperationParams>
@@ -124,8 +123,6 @@ class Helper
     /**
      * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
      * if params are invalid (or empty array when params are valid).
-     *
-     * @throws \JsonException
      *
      * @return array<int, RequestError>
      *
@@ -405,6 +402,8 @@ class Helper
      * @param Promise|ExecutionResult|array<ExecutionResult> $result
      *
      * @api
+     *
+     * @throws \JsonException
      */
     public function sendResponse($result): void
     {
@@ -419,6 +418,8 @@ class Helper
 
     /**
      * @param array<mixed>|\JsonSerializable $jsonSerializable
+     *
+     * @throws \JsonException
      */
     protected function emitResponse($jsonSerializable): void
     {
@@ -442,7 +443,6 @@ class Helper
     /**
      * Converts PSR-7 request to OperationParams or an array thereof.
      *
-     * @throws \JsonException
      * @throws RequestError
      *
      * @return OperationParams|array<OperationParams>
@@ -515,7 +515,6 @@ class Helper
     /**
      * @param mixed $bodyParams
      *
-     * @throws \JsonException
      * @throws RequestError
      */
     protected function assertJsonObjectOrArray($bodyParams): void

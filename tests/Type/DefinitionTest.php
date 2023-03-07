@@ -1053,7 +1053,6 @@ final class DefinitionTest extends TestCaseBase
     /**
      * @param mixed $resolveValue
      *
-     * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
      */
@@ -1193,7 +1192,6 @@ final class DefinitionTest extends TestCaseBase
     /**
      * @param Type&NamedType $type
      *
-     * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
      */

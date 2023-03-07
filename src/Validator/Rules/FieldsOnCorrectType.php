@@ -59,7 +59,6 @@ class FieldsOnCorrectType extends ValidationRule
      * suggest them, sorted by how often the type is referenced, starting
      * with interfaces.
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      *
      * @return array<int, string>

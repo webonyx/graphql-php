@@ -23,9 +23,6 @@ final class RequestValidationTest extends TestCase
         self::assertValid($parsedBody);
     }
 
-    /**
-     * @throws \JsonException
-     */
     private static function assertValid(OperationParams $operationParams): void
     {
         $helper = new Helper();
@@ -61,9 +58,6 @@ final class RequestValidationTest extends TestCase
         );
     }
 
-    /**
-     * @throws \JsonException
-     */
     private function assertInputError(OperationParams $parsedRequest, string $expectedMessage): void
     {
         $errors = (new Helper())->validateOperationParams($parsedRequest);

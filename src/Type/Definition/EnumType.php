@@ -128,7 +128,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     /**
      * @throws \InvalidArgumentException
-     * @throws \JsonException
      * @throws InvariantViolation
      * @throws SerializationError
      */
@@ -145,7 +144,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     /**
      * @throws \InvalidArgumentException
-     * @throws \JsonException
      * @throws InvariantViolation
      *
      * @return MixedStore<EnumValueDefinition>
@@ -164,7 +162,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
-     * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
      */
@@ -215,7 +212,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
-     * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
      */

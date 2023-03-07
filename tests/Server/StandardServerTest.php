@@ -48,7 +48,6 @@ final class StandardServerTest extends ServerTestCase
 
     /**
      * @throws \GraphQL\Server\RequestError
-     * @throws \JsonException
      */
     private function parseRawRequest(string $contentType, string $content, string $method = 'POST'): OperationParams
     {

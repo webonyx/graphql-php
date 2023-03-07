@@ -334,7 +334,6 @@ class TypeInfo
      * statically evaluated environment we do not always have an Object type,
      * and need to handle Interface and Union types.
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode): ?FieldDefinition

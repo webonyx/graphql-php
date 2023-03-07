@@ -87,7 +87,6 @@ class BuildClientSchema
      *
      * @api
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public static function build(array $introspectionQuery, array $options = []): Schema
@@ -96,7 +95,6 @@ class BuildClientSchema
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function buildSchema(): Schema
@@ -255,7 +253,6 @@ class BuildClientSchema
     /**
      * @param array<string, mixed> $typeRef
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     private function getObjectType(array $typeRef): ObjectType
@@ -268,7 +265,6 @@ class BuildClientSchema
     /**
      * @param array<string, mixed> $typeRef
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function getInterfaceType(array $typeRef): InterfaceType

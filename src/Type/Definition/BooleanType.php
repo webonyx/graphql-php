@@ -26,7 +26,6 @@ class BooleanType extends ScalarType
     }
 
     /**
-     * @throws \JsonException
      * @throws Error
      */
     public function parseValue($value): bool

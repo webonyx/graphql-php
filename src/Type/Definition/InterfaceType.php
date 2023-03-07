@@ -55,7 +55,6 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /**
      * @param mixed $type
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public static function assertInterfaceType($type): self

@@ -179,7 +179,6 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      * Validates type config and throws if one of type options is invalid.
      * Note: this method is shallow, it won't validate object fields and their arguments.
      *
-     * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
      */

@@ -94,7 +94,6 @@ class SchemaValidationContext
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function validateDirectives(): void
@@ -109,7 +108,6 @@ class SchemaValidationContext
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function validateDirectiveDefinitions(): void
@@ -241,7 +239,6 @@ class SchemaValidationContext
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     public function validateTypes(): void
@@ -330,7 +327,6 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     private function validateFields(Type $type): void
@@ -523,7 +519,6 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     private function validateInterfaces(ImplementingType $type): void
@@ -626,7 +621,6 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      *
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     private function validateTypeImplementsInterface(ImplementingType $type, InterfaceType $iface): void
@@ -825,7 +819,6 @@ class SchemaValidationContext
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     private function validateInputFields(InputObjectType $inputObj): void

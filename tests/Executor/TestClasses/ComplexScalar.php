@@ -23,7 +23,6 @@ final class ComplexScalar extends ScalarType
     }
 
     /**
-     * @throws \JsonException
      * @throws SerializationError
      */
     public function serialize($value): string
@@ -37,7 +36,6 @@ final class ComplexScalar extends ScalarType
     }
 
     /**
-     * @throws \JsonException
      * @throws Error
      */
     public function parseValue($value): string

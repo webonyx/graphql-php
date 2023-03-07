@@ -54,9 +54,6 @@ class CoercionError extends Error
         return $path;
     }
 
-    /**
-     * @throws \JsonException
-     */
     public function printInvalidValue(): string
     {
         return Utils::printSafeJson($this->invalidValue);

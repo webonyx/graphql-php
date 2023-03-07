@@ -88,7 +88,6 @@ class UniqueFieldDefinitionNames extends ValidationRule
     }
 
     /**
-     * @throws \JsonException
      * @throws InvariantViolation
      */
     private static function hasField(?NamedType $type, string $fieldName): bool
