@@ -177,7 +177,7 @@ final class ExecutorLazySchemaTest extends TestCase
 
         self::assertSame([], $calls);
         $result = Executor::execute($schema, Parser::parse($query), ['test' => ['test' => 'value']]);
-        self::assertSame(['Test', 'Test'], $calls);
+        self::assertSame(['Test', 'Test'], $calls); // @phpstan-ignore-line side-effects
 
         $error = $result->errors[0] ?? null;
         self::assertInstanceOf(Error::class, $error);
