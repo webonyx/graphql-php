@@ -28,7 +28,7 @@ final class SchemaPrinterTest extends TestCase
             'name' => new NameNode(['value' => 'foo']),
             'directives' => new NodeList([]),
         ]);
-        self::assertEquals('scalar foo', Printer::doPrint($ast));
+        self::assertSame('scalar foo', Printer::doPrint($ast));
     }
 
     /**
@@ -46,12 +46,12 @@ final class SchemaPrinterTest extends TestCase
     {
         $ast = Parser::parse(file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql'), ['noLocation' => true]);
 
-        $astBeforePrintCall = json_encode($ast);
+        $astBeforePrintCall = json_encode($ast, JSON_THROW_ON_ERROR);
         $printed = Printer::doPrint($ast);
         $printedAST = Parser::parse($printed, ['noLocation' => true]);
 
         self::assertEquals($printedAST, $ast);
-        self::assertSame($astBeforePrintCall, json_encode($ast));
+        self::assertSame($astBeforePrintCall, json_encode($ast, JSON_THROW_ON_ERROR));
 
         self::assertSame(
             <<<'GRAPHQL'

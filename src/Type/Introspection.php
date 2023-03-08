@@ -190,8 +190,8 @@ GRAPHQL;
 
         $data = $result->data;
         if ($data === null) {
-            $noDataResult = json_encode($result, JSON_THROW_ON_ERROR);
-            throw new InvariantViolation("Introspection query returned no data: {$noDataResult}");
+            $noDataResult = Utils::printSafeJson($result);
+            throw new InvariantViolation("Introspection query returned no data: {$noDataResult}.");
         }
 
         return $data;
@@ -243,8 +243,7 @@ GRAPHQL;
                     'resolve' => static fn (Schema $schema): ?ObjectType => $schema->getQueryType(),
                 ],
                 'mutationType' => [
-                    'description' => 'If this server supports mutation, the type that '
-                        . 'mutation operations will be rooted at.',
+                    'description' => 'If this server supports mutation, the type that mutation operations will be rooted at.',
                     'type' => self::_type(),
                     'resolve' => static fn (Schema $schema): ?ObjectType => $schema->getMutationType(),
                 ],

@@ -93,11 +93,9 @@ class AST
             }
 
             if (\is_array($value)) {
-                if (isset($value[0]) || \count($value) === 0) {
-                    $value = new NodeList($value);
-                } else {
-                    $value = self::fromArray($value);
-                }
+                $value = isset($value[0]) || $value === []
+                    ? new NodeList($value)
+                    : self::fromArray($value);
             }
 
             $instance->{$key} = $value;
@@ -193,11 +191,9 @@ class AST
             $fields = $type->getFields();
             $fieldNodes = [];
             foreach ($fields as $fieldName => $field) {
-                if ($isArrayLike) {
-                    $fieldValue = $value[$fieldName] ?? null;
-                } else {
-                    $fieldValue = $value->{$fieldName} ?? null;
-                }
+                $fieldValue = $isArrayLike
+                    ? $value[$fieldName] ?? null
+                    : $value->{$fieldName} ?? null;
 
                 // Have to check additionally if key exists, since we differentiate between
                 // "no key" and "value is null":

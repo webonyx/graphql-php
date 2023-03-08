@@ -41,15 +41,15 @@ final class VisitorTest extends ValidatorTestCase
             }
 
             self::assertEquals(null, $parent);
-            self::assertEquals([], $path);
-            self::assertEquals([], $ancestors);
+            self::assertSame([], $path);
+            self::assertSame([], $ancestors);
 
             return;
         }
 
         if ($parent instanceof NodeList) {
             self::assertIsInt($key);
-            self::assertTrue(isset($parent[$key]));
+            self::assertArrayHasKey($key, $parent);
         } else {
             self::assertIsString($key);
             self::assertTrue(property_exists($parent, $key));
@@ -90,12 +90,10 @@ final class VisitorTest extends ValidatorTestCase
         $result = $ast;
 
         foreach ($path as $key) {
-            if ($result instanceof NodeList) {
-                $result = $result[$key];
-            } else {
-                /** @phpstan-ignore-next-line */
-                $result = $result->{$key};
-            }
+            $result = $result instanceof NodeList
+                ? $result[$key]
+                // @phpstan-ignore-next-line variable property access on mixed
+                : $result->{$key};
         }
 
         return $result;
@@ -147,7 +145,7 @@ final class VisitorTest extends ValidatorTestCase
             ['leave', []],
         ];
 
-        self::assertEquals($expected, $visited);
+        self::assertSame($expected, $visited);
     }
 
     /**
@@ -1636,14 +1634,14 @@ final class VisitorTest extends ValidatorTestCase
             )
         );
 
-        self::assertEquals(
+        self::assertSame(
             Printer::doPrint(Parser::parse(
                 '{ human(id: 4) { name, pets }, alien }'
             )),
             Printer::doPrint($ast)
         );
 
-        self::assertEquals(
+        self::assertSame(
             Printer::doPrint(Parser::parse(
                 '{ human(id: 4) { name, pets { __typename } }, alien { __typename } }'
             )),

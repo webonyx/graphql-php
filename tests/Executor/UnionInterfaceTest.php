@@ -572,7 +572,7 @@ final class UnionInterfaceTest extends TestCase
 
         $ast = Parser::parse('{ name, friends { name } }');
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['name' => 'John', 'friends' => [['name' => 'Liz']]]],
             GraphQL::executeQuery($schema2, $ast, $john2, $context)->toArray()
         );

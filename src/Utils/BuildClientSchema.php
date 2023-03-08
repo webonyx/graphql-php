@@ -94,7 +94,8 @@ class BuildClientSchema
     public function buildSchema(): Schema
     {
         if (! \array_key_exists('__schema', $this->introspection)) {
-            throw new InvariantViolation('Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: ' . \json_encode($this->introspection) . '.');
+            $missingSchemaIntrospection = Utils::printSafeJson($this->introspection);
+            throw new InvariantViolation("Invalid or incomplete introspection result. Ensure that you are passing \"data\" property of introspection response and no \"errors\" was returned alongside: {$missingSchemaIntrospection}.");
         }
 
         $schemaIntrospection = $this->introspection['__schema'];
@@ -174,7 +175,7 @@ class BuildClientSchema
         }
 
         if (! isset($typeRef['name'])) {
-            $unknownTypeRef = \json_encode($typeRef);
+            $unknownTypeRef = Utils::printSafeJson($typeRef);
             throw new InvariantViolation("Unknown type reference: {$unknownTypeRef}.");
         }
 
@@ -198,9 +199,9 @@ class BuildClientSchema
      */
     public static function invalidOrIncompleteIntrospectionResult(array $type): InvariantViolation
     {
-        return new InvariantViolation(
-            'Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: ' . \json_encode($type) . '.'
-        );
+        $incompleteType = Utils::printSafeJson($type);
+
+        return new InvariantViolation("Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: {$incompleteType}.");
     }
 
     /**
@@ -216,7 +217,7 @@ class BuildClientSchema
             return $type;
         }
 
-        $notInputType = \json_encode($type);
+        $notInputType = Utils::printSafe($type);
         throw new InvariantViolation("Introspection must provide input type for arguments, but received: {$notInputType}.");
     }
 
@@ -231,7 +232,7 @@ class BuildClientSchema
             return $type;
         }
 
-        $notInputType = \json_encode($type);
+        $notInputType = Utils::printSafe($type);
         throw new InvariantViolation("Introspection must provide output type for fields, but received: {$notInputType}.");
     }
 
@@ -280,8 +281,8 @@ class BuildClientSchema
             case TypeKind::INPUT_OBJECT:
                 return $this->buildInputObjectDef($type);
             default:
-                $safeType = \json_encode($type);
-                throw new InvariantViolation("Invalid or incomplete introspection result. Received type with unknown kind: {$safeType}.");
+                $unknownKindType = Utils::printSafeJson($type);
+                throw new InvariantViolation("Invalid or incomplete introspection result. Received type with unknown kind: {$unknownKindType}.");
         }
     }
 
@@ -314,7 +315,7 @@ class BuildClientSchema
         }
 
         if (! \array_key_exists('interfaces', $implementingIntrospection)) {
-            $safeIntrospection = \json_encode($implementingIntrospection);
+            $safeIntrospection = Utils::printSafeJson($implementingIntrospection);
             throw new InvariantViolation("Introspection result missing interfaces: {$safeIntrospection}.");
         }
 
@@ -356,7 +357,7 @@ class BuildClientSchema
     private function buildUnionDef(array $union): UnionType
     {
         if (! \array_key_exists('possibleTypes', $union)) {
-            $safeUnion = \json_encode($union);
+            $safeUnion = Utils::printSafeJson($union);
             throw new InvariantViolation("Introspection result missing possibleTypes: {$safeUnion}.");
         }
 
@@ -376,7 +377,7 @@ class BuildClientSchema
     private function buildEnumDef(array $enum): EnumType
     {
         if (! \array_key_exists('enumValues', $enum)) {
-            $safeEnum = \json_encode($enum);
+            $safeEnum = Utils::printSafeJson($enum);
             throw new InvariantViolation("Introspection result missing enumValues: {$safeEnum}.");
         }
 
@@ -401,7 +402,7 @@ class BuildClientSchema
     private function buildInputObjectDef(array $inputObject): InputObjectType
     {
         if (! \array_key_exists('inputFields', $inputObject)) {
-            $safeInputObject = \json_encode($inputObject);
+            $safeInputObject = Utils::printSafeJson($inputObject);
             throw new InvariantViolation("Introspection result missing inputFields: {$safeInputObject}.");
         }
 
@@ -420,7 +421,7 @@ class BuildClientSchema
     private function buildFieldDefMap(array $typeIntrospection): array
     {
         if (! \array_key_exists('fields', $typeIntrospection)) {
-            $safeType = \json_encode($typeIntrospection);
+            $safeType = Utils::printSafeJson($typeIntrospection);
             throw new InvariantViolation("Introspection result missing fields: {$safeType}.");
         }
 
@@ -428,7 +429,7 @@ class BuildClientSchema
         $map = [];
         foreach ($typeIntrospection['fields'] as $field) {
             if (! \array_key_exists('args', $field)) {
-                $safeField = \json_encode($field);
+                $safeField = Utils::printSafeJson($field);
                 throw new InvariantViolation("Introspection result missing field args: {$safeField}.");
             }
 
@@ -491,12 +492,12 @@ class BuildClientSchema
     public function buildDirective(array $directive): Directive
     {
         if (! \array_key_exists('args', $directive)) {
-            $safeDirective = \json_encode($directive);
+            $safeDirective = Utils::printSafeJson($directive);
             throw new InvariantViolation("Introspection result missing directive args: {$safeDirective}.");
         }
 
         if (! \array_key_exists('locations', $directive)) {
-            $safeDirective = \json_encode($directive);
+            $safeDirective = Utils::printSafeJson($directive);
             throw new InvariantViolation("Introspection result missing directive locations: {$safeDirective}.");
         }
 

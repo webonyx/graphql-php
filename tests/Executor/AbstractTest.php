@@ -649,7 +649,7 @@ final class AbstractTest extends TestCase
     {
         $PetType = new InterfaceType([
             'name' => 'Pet',
-            'resolveType' => static function ($obj) {
+            'resolveType' => static function ($obj): ?string {
                 if ($obj instanceof Dog) {
                     return 'Dog';
                 }

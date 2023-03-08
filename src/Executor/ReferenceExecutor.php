@@ -197,7 +197,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
         }
 
-        if (\count($errors) > 0) {
+        if ($errors !== []) {
             return $errors;
         }
 
@@ -789,8 +789,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param array<string|int>           $path
      * @param mixed                       $result
      *
-     * @throws Error
      * @throws \Throwable
+     * @throws Error
      *
      * @return array<mixed>|mixed|Promise|null
      */
@@ -1071,7 +1071,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return $typename;
         }
 
-        if ($abstractType instanceof InterfaceType && $info->schema->getConfig()->typeLoader !== null) {
+        if ($abstractType instanceof InterfaceType && isset($info->schema->getConfig()->typeLoader)) {
             $safeValue = Utils::printSafe($value);
             Warning::warnOnce(
                 "GraphQL Interface Type `{$abstractType->name}` returned `null` from its `resolveType` function for value: {$safeValue}. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly. Make sure your `resolveType` function always returns a valid implementation or throws.",
@@ -1095,7 +1095,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
         }
 
-        if (\count($promisedIsTypeOfResults) > 0) {
+        if ($promisedIsTypeOfResults !== []) {
             return $this->exeContext->promiseAdapter
                 ->all($promisedIsTypeOfResults)
                 ->then(static function ($isTypeOfResults) use ($possibleTypes): ?ObjectType {

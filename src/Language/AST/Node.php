@@ -39,10 +39,6 @@ abstract class Node implements \JsonSerializable
      */
     public function __construct(array $vars)
     {
-        if (\count($vars) === 0) {
-            return;
-        }
-
         Utils::assign($this, $vars);
     }
 

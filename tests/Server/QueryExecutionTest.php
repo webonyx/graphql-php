@@ -117,7 +117,7 @@ final class QueryExecutionTest extends ServerTestCase
         $result = $this->executeQuery($query)->toArray();
         self::assertArraySubset($expected, $result);
 
-        self::assertEquals(38, $result['errors'][0]['extensions']['line'] ?? null);
+        self::assertSame(38, $result['errors'][0]['extensions']['line'] ?? null);
 
         self::assertStringContainsString('tests/Server/ServerTestCase.php', $result['errors'][0]['extensions']['file'] ?? '');
     }
@@ -149,7 +149,7 @@ final class QueryExecutionTest extends ServerTestCase
         }
         ';
 
-        self::assertTrue(! isset($context->testedRootValue));
+        self::assertFalse(property_exists($context, 'testedRootValue'));
         $this->executeQuery($query);
         self::assertSame($rootValue, $context->testedRootValue);
     }
@@ -223,7 +223,7 @@ final class QueryExecutionTest extends ServerTestCase
         self::assertTrue($called);
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
-        self::assertEquals('query', $operationType);
+        self::assertSame('query', $operationType);
     }
 
     public function testAllowsDifferentValidationRulesDependingOnOperation(): void
@@ -285,7 +285,7 @@ final class QueryExecutionTest extends ServerTestCase
                 ['message' => 'Persisted queries are not supported by this server'],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     /**
@@ -326,8 +326,8 @@ final class QueryExecutionTest extends ServerTestCase
             ],
         ];
 
-        self::assertEquals($expected[0], $result[0]->toArray());
-        self::assertEquals($expected[1], $result[1]->toArray());
+        self::assertSame($expected[0], $result[0]->toArray());
+        self::assertSame($expected[1], $result[1]->toArray());
     }
 
     /**
@@ -361,7 +361,7 @@ final class QueryExecutionTest extends ServerTestCase
         ];
 
         $result = $this->executeQuery($mutation, null, true);
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     public function testAllowsPersistedQueries(): void
@@ -369,7 +369,7 @@ final class QueryExecutionTest extends ServerTestCase
         $called = false;
         $this->config->setPersistedQueryLoader(static function ($queryId, OperationParams $params) use (&$called): string {
             $called = true;
-            self::assertEquals('some-id', $queryId);
+            self::assertSame('some-id', $queryId);
 
             return '{f1}';
         });
@@ -380,19 +380,19 @@ final class QueryExecutionTest extends ServerTestCase
         $expected = [
             'data' => ['f1' => 'f1'],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         // Make sure it allows returning document node:
         $called = false;
         $this->config->setPersistedQueryLoader(static function ($queryId, OperationParams $params) use (&$called): DocumentNode {
             $called = true;
-            self::assertEquals('some-id', $queryId);
+            self::assertSame('some-id', $queryId);
 
             return Parser::parse('{f1}');
         });
         $result = $this->executePersistedQuery('some-id');
         self::assertTrue($called);
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     public function testProhibitsInvalidPersistedQueryLoader(): void
@@ -418,7 +418,7 @@ final class QueryExecutionTest extends ServerTestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     public function testAllowSkippingValidationForPersistedQueries(): void
@@ -439,7 +439,7 @@ final class QueryExecutionTest extends ServerTestCase
         $expected = [
             'data' => [],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
 
         $result = $this->executePersistedQuery('some-other-id');
         $expected = [
@@ -450,7 +450,7 @@ final class QueryExecutionTest extends ServerTestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
     public function testExecutesQueryWhenQueryAndQueryIdArePassed(): void
@@ -558,7 +558,7 @@ final class QueryExecutionTest extends ServerTestCase
             'load: 2',
             'load: 3',
         ];
-        self::assertEquals($expectedCalls, $calls);
+        self::assertSame($expectedCalls, $calls);
 
         $expected = [
             [
@@ -572,9 +572,9 @@ final class QueryExecutionTest extends ServerTestCase
             ],
         ];
 
-        self::assertEquals($expected[0], $result[0]->toArray());
-        self::assertEquals($expected[1], $result[1]->toArray());
-        self::assertEquals($expected[2], $result[2]->toArray());
+        self::assertSame($expected[0], $result[0]->toArray());
+        self::assertSame($expected[1], $result[1]->toArray());
+        self::assertSame($expected[2], $result[2]->toArray());
     }
 
     public function testValidatesParamsBeforeExecution(): void
@@ -587,7 +587,7 @@ final class QueryExecutionTest extends ServerTestCase
         self::assertEquals(null, $result->data);
         self::assertCount(1, $result->errors);
 
-        self::assertEquals(
+        self::assertSame(
             'GraphQL Request must include at least one of those two parameters: "query" or "queryId"',
             $result->errors[0]->getMessage()
         );
@@ -616,7 +616,7 @@ final class QueryExecutionTest extends ServerTestCase
         self::assertTrue($called);
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
-        self::assertEquals('query', $operationType);
+        self::assertSame('query', $operationType);
     }
 
     public function testAllowsRootValueAsClosure(): void
@@ -637,7 +637,7 @@ final class QueryExecutionTest extends ServerTestCase
         self::assertTrue($called);
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
-        self::assertEquals('query', $operationType);
+        self::assertSame('query', $operationType);
     }
 
     public function testAppliesErrorFormatter(): void

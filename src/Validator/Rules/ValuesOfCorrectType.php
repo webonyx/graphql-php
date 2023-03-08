@@ -109,9 +109,9 @@ class ValuesOfCorrectType extends ValidationRule
                     $node->name->value,
                     \array_keys($parentType->getFields())
                 );
-                $didYouMean = \count($suggestions) > 0
-                    ? ' Did you mean ' . Utils::quotedOrList($suggestions) . '?'
-                    : null;
+                $didYouMean = $suggestions === []
+                    ? null
+                    : ' Did you mean ' . Utils::quotedOrList($suggestions) . '?';
 
                 $context->reportError(
                     new Error(

@@ -37,7 +37,7 @@ abstract class ValidatorTestCase extends TestCase
      */
     protected function expectValid(Schema $schema, array $rules, string $queryString, array $options = []): void
     {
-        self::assertEquals(
+        self::assertSame(
             [],
             DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules),
             'Should validate'

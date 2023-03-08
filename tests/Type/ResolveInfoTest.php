@@ -188,7 +188,7 @@ final class ResolveInfoTest extends TestCase
                 'ping' => [
                     'type' => Type::string(),
                     'resolve' => static function ($value, array $args, $context, ResolveInfo $info): string {
-                        self::assertEquals([], $info->getFieldSelection());
+                        self::assertSame([], $info->getFieldSelection());
 
                         return 'pong';
                     },
@@ -199,7 +199,7 @@ final class ResolveInfoTest extends TestCase
         $schema = new Schema(['query' => $pingPongQuery]);
         $result = GraphQL::executeQuery($schema, $query)->toArray();
 
-        self::assertEquals(['data' => ['ping' => 'pong']], $result);
+        self::assertSame(['data' => ['ping' => 'pong']], $result);
     }
 
     public function testMergedFragmentsFieldSelection(): void
@@ -337,7 +337,6 @@ final class ResolveInfoTest extends TestCase
         ];
 
         $hasCalled = false;
-        $actualDefaultSelection = null;
         $actualDeepSelection = null;
 
         $blogQuery = new ObjectType([

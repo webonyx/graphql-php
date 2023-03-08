@@ -38,7 +38,7 @@ final class LazyInterfaceTest extends TestCase
             ],
         ];
 
-        self::assertEquals(
+        self::assertSame(
             $expected,
             Executor::execute($this->schema, Parser::parse($request))->toArray()
         );

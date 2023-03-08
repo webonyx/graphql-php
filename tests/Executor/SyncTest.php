@@ -92,7 +92,7 @@ final class SyncTest extends TestCase
         $adoptedPromise = $actualResult->adoptedPromise;
 
         self::assertInstanceOf(SyncPromise::class, $adoptedPromise, $message);
-        self::assertEquals(SyncPromise::FULFILLED, $adoptedPromise->state, $message);
+        self::assertSame(SyncPromise::FULFILLED, $adoptedPromise->state, $message);
 
         $result = $adoptedPromise->result;
         self::assertInstanceOf(ExecutionResult::class, $result);
@@ -152,7 +152,7 @@ final class SyncTest extends TestCase
         $adoptedPromise = $actualResult->adoptedPromise;
 
         self::assertInstanceOf(SyncPromise::class, $adoptedPromise, $message);
-        self::assertEquals(SyncPromise::PENDING, $adoptedPromise->state, $message);
+        self::assertSame(SyncPromise::PENDING, $adoptedPromise->state, $message);
 
         $resolvedResult = $this->promiseAdapter->wait($actualResult);
         self::assertInstanceOf(ExecutionResult::class, $resolvedResult);

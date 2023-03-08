@@ -27,7 +27,7 @@ final class ResolveTest extends TestCase
 
         $source = ['test' => 'testValue'];
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['test' => 'testValue']],
             GraphQL::executeQuery($schema, '{ test }', $source)->toArray()
         );
@@ -106,25 +106,25 @@ final class ResolveTest extends TestCase
                 'aStr' => ['type' => Type::string()],
                 'aInt' => ['type' => Type::int()],
             ],
-            'resolve' => static fn (?string $source, array $args) => json_encode([$source, $args]),
+            'resolve' => static fn (?string $source, array $args) => json_encode([$source, $args], JSON_THROW_ON_ERROR),
         ]);
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['test' => '[null,[]]']],
             GraphQL::executeQuery($schema, '{ test }')->toArray()
         );
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['test' => '["Source!",[]]']],
             GraphQL::executeQuery($schema, '{ test }', 'Source!')->toArray()
         );
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['test' => '["Source!",{"aStr":"String!"}]']],
             GraphQL::executeQuery($schema, '{ test(aStr: "String!") }', 'Source!')->toArray()
         );
 
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['test' => '["Source!",{"aStr":"String!","aInt":-123}]']],
             GraphQL::executeQuery($schema, '{ test(aInt: -123, aStr: "String!") }', 'Source!')->toArray()
         );

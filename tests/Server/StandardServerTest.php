@@ -30,7 +30,7 @@ final class StandardServerTest extends ServerTestCase
 
     public function testSimpleRequestExecutionWithOutsideParsing(): void
     {
-        $body = json_encode(['query' => '{f1}']);
+        $body = json_encode(['query' => '{f1}'], JSON_THROW_ON_ERROR);
 
         $parsedBody = $this->parseRawRequest('application/json', $body);
         $server = new StandardServer($this->config);
@@ -67,7 +67,7 @@ final class StandardServerTest extends ServerTestCase
             'data' => ['f1' => 'f1'],
         ];
 
-        $request = $this->preparePsrRequest('application/json', json_encode($body));
+        $request = $this->preparePsrRequest('application/json', json_encode($body, JSON_THROW_ON_ERROR));
         $this->assertPsrRequestEquals($expected, $request);
     }
 
@@ -111,7 +111,7 @@ final class StandardServerTest extends ServerTestCase
             'data' => ['f1' => 'f1'],
         ];
 
-        $request = $this->preparePsrRequest('application/json', json_encode($body));
+        $request = $this->preparePsrRequest('application/json', json_encode($body, JSON_THROW_ON_ERROR));
         $this->assertPsrRequestEquals($expected, $request);
     }
 }

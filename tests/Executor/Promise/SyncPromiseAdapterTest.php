@@ -20,25 +20,20 @@ final class SyncPromiseAdapterTest extends TestCase
 
     public function testIsThenable(): void
     {
-        self::assertEquals(
-            true,
-            $this->promises->isThenable(new Deferred(static function (): void {
-            }))
-        );
-        self::assertEquals(false, $this->promises->isThenable(false));
-        self::assertEquals(false, $this->promises->isThenable(true));
-        self::assertEquals(false, $this->promises->isThenable(1));
-        self::assertEquals(false, $this->promises->isThenable(0));
-        self::assertEquals(false, $this->promises->isThenable('test'));
-        self::assertEquals(false, $this->promises->isThenable(''));
-        self::assertEquals(false, $this->promises->isThenable([]));
-        self::assertEquals(false, $this->promises->isThenable(new \stdClass()));
+        self::assertTrue($this->promises->isThenable(new Deferred(static function (): void {})));
+        self::assertFalse($this->promises->isThenable(false));
+        self::assertFalse($this->promises->isThenable(true));
+        self::assertFalse($this->promises->isThenable(1));
+        self::assertFalse($this->promises->isThenable(0));
+        self::assertFalse($this->promises->isThenable('test'));
+        self::assertFalse($this->promises->isThenable(''));
+        self::assertFalse($this->promises->isThenable([]));
+        self::assertFalse($this->promises->isThenable(new \stdClass()));
     }
 
     public function testConvert(): void
     {
-        $dfd = new Deferred(static function (): void {
-        });
+        $dfd = new Deferred(static function (): void {});
         $result = $this->promises->convertThenable($dfd);
 
         self::assertInstanceOf(SyncPromise::class, $result->adoptedPromise);
@@ -209,22 +204,22 @@ final class SyncPromiseAdapterTest extends TestCase
 
         // Having single promise queue means that we won't stop in wait
         // until all pending promises are resolved
-        self::assertEquals(2, $result);
+        self::assertSame(2, $result);
 
         $p3AdoptedPromise = $p3->adoptedPromise;
         self::assertInstanceOf(SyncPromise::class, $p3AdoptedPromise);
-        self::assertEquals(SyncPromise::FULFILLED, $p3AdoptedPromise->state);
+        self::assertSame(SyncPromise::FULFILLED, $p3AdoptedPromise->state);
 
         $allAdoptedPromise = $all->adoptedPromise;
         self::assertInstanceOf(SyncPromise::class, $allAdoptedPromise);
-        self::assertEquals(SyncPromise::FULFILLED, $allAdoptedPromise->state);
+        self::assertSame(SyncPromise::FULFILLED, $allAdoptedPromise->state);
 
-        self::assertEquals([1, 2, 3, 4], $called);
+        self::assertSame([1, 2, 3, 4], $called);
 
         $expectedResult = [0, 1, 2, 3, 4];
         $result = $this->promises->wait($all);
-        self::assertEquals($expectedResult, $result);
-        self::assertEquals([1, 2, 3, 4], $called);
+        self::assertSame($expectedResult, $result);
+        self::assertSame([1, 2, 3, 4], $called); // @phpstan-ignore-line side-effects
         self::assertValidPromise($all, null, [0, 1, 2, 3, 4], SyncPromise::FULFILLED);
     }
 }

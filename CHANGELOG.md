@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.2.2
+
+### Fixed
+
+- Improve handling of JSON encoding errors
+
 ## v15.2.1
 
 ### Fixed

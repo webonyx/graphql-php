@@ -84,7 +84,7 @@ final class Issue396Test extends TestCase
             [['name' => 'B 2'], ['field', 1]],
             [['name' => 'C 3'], ['field', 2]],
         ];
-        self::assertEquals($expected, $log);
+        self::assertSame($expected, $log);
     }
 
     public function testInterfaceResolveType(): void
@@ -162,7 +162,7 @@ final class Issue396Test extends TestCase
 
         GraphQL::executeQuery($schema, $query);
 
-        self::assertEquals(
+        self::assertSame(
             [
                 [['name' => 'A 1'], ['field', 0]],
                 [['name' => 'B 2'], ['field', 1]],

@@ -1840,10 +1840,8 @@ GRAPHQL,
 
         $fooValue = 'bar';
         $typeConfigDecorator = static function ($typeConfig) use ($fooValue) {
-            switch ($typeConfig['name']) {
-                case 'Foo':
-                    $typeConfig['resolveField'] = static fn (): string => $fooValue;
-                    break;
+            if ($typeConfig['name'] === 'Foo') {
+                $typeConfig['resolveField'] = static fn (): string => $fooValue;
             }
 
             return $typeConfig;

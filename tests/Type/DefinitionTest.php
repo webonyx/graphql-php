@@ -222,8 +222,8 @@ final class DefinitionTest extends TestCaseBase
         $subType = $sub->getType();
         self::assertInstanceOf(ObjectType::class, $subType);
         self::assertEquals($subType, $this->blogArticle);
-        self::assertEquals($subType->name, 'Article');
-        self::assertEquals($sub->name, 'articleSubscribe');
+        self::assertSame($subType->name, 'Article');
+        self::assertSame($sub->name, 'articleSubscribe');
     }
 
     /**
@@ -287,7 +287,7 @@ final class DefinitionTest extends TestCaseBase
 
         $actual = $EnumTypeWithNullishValue->getValues();
 
-        self::assertEquals(\count($expected), \count($actual));
+        self::assertCount(\count($expected), $actual);
         self::assertArraySubset($expected[0], (array) $actual[0]);
         self::assertArraySubset($expected[1], (array) $actual[1]);
     }
@@ -307,11 +307,11 @@ final class DefinitionTest extends TestCaseBase
 
         $foo = $enumType->getValue('FOO');
         self::assertInstanceOf(EnumValueDefinition::class, $foo);
-        self::assertEquals('FOO', $foo->value);
+        self::assertSame('FOO', $foo->value);
 
         $bar = $enumType->getValue('BAR');
         self::assertInstanceOf(EnumValueDefinition::class, $bar);
-        self::assertEquals('BAR', $bar->value);
+        self::assertSame('BAR', $bar->value);
     }
 
     /**
@@ -345,11 +345,11 @@ final class DefinitionTest extends TestCaseBase
 
         $foo = $enumType->getValue('FOO');
         self::assertInstanceOf(EnumValueDefinition::class, $foo);
-        self::assertEquals(10, $foo->value);
+        self::assertSame(10, $foo->value);
 
         $bar = $enumType->getValue('BAR');
         self::assertInstanceOf(EnumValueDefinition::class, $bar);
-        self::assertEquals(20, $bar->value);
+        self::assertSame(20, $bar->value);
     }
 
     /**
@@ -380,11 +380,11 @@ final class DefinitionTest extends TestCaseBase
 
         $foo = $enumType->getValue('FOO');
         self::assertInstanceOf(EnumValueDefinition::class, $foo);
-        self::assertEquals(10, $foo->value);
+        self::assertSame(10, $foo->value);
 
         $bar = $enumType->getValue('BAR');
         self::assertInstanceOf(EnumValueDefinition::class, $bar);
-        self::assertEquals(20, $bar->value);
+        self::assertSame(20, $bar->value);
     }
 
     /**
@@ -406,9 +406,9 @@ final class DefinitionTest extends TestCaseBase
 
         self::assertEquals(Type::string(), $field->getType());
         self::assertEquals(true, $field->isDeprecated());
-        self::assertEquals('A terrible reason', $field->deprecationReason);
-        self::assertEquals('bar', $field->name);
-        self::assertEquals([], $field->args);
+        self::assertSame('A terrible reason', $field->deprecationReason);
+        self::assertSame('bar', $field->name);
+        self::assertSame([], $field->args);
     }
 
     /**
@@ -536,17 +536,17 @@ final class DefinitionTest extends TestCaseBase
      */
     public function testJSONStringifiesSimpleTypes(): void
     {
-        self::assertEquals('"Int"', json_encode(Type::int()));
-        self::assertEquals('"Article"', json_encode($this->blogArticle));
-        self::assertEquals('"Interface"', json_encode($this->interfaceType));
-        self::assertEquals('"Union"', json_encode($this->unionType));
-        self::assertEquals('"Enum"', json_encode($this->enumType));
-        self::assertEquals('"InputObject"', json_encode($this->inputObjectType));
-        self::assertEquals('"Int!"', json_encode(Type::nonNull(Type::int())));
-        self::assertEquals('"[Int]"', json_encode(Type::listOf(Type::int())));
-        self::assertEquals('"[Int]!"', json_encode(Type::nonNull(Type::listOf(Type::int()))));
-        self::assertEquals('"[Int!]"', json_encode(Type::listOf(Type::nonNull(Type::int()))));
-        self::assertEquals('"[[Int]]"', json_encode(Type::listOf(Type::listOf(Type::int()))));
+        self::assertSame('"Int"', json_encode(Type::int(), JSON_THROW_ON_ERROR));
+        self::assertSame('"Article"', json_encode($this->blogArticle, JSON_THROW_ON_ERROR));
+        self::assertSame('"Interface"', json_encode($this->interfaceType, JSON_THROW_ON_ERROR));
+        self::assertSame('"Union"', json_encode($this->unionType, JSON_THROW_ON_ERROR));
+        self::assertSame('"Enum"', json_encode($this->enumType, JSON_THROW_ON_ERROR));
+        self::assertSame('"InputObject"', json_encode($this->inputObjectType, JSON_THROW_ON_ERROR));
+        self::assertSame('"Int!"', json_encode(Type::nonNull(Type::int()), JSON_THROW_ON_ERROR));
+        self::assertSame('"[Int]"', json_encode(Type::listOf(Type::int()), JSON_THROW_ON_ERROR));
+        self::assertSame('"[Int]!"', json_encode(Type::nonNull(Type::listOf(Type::int())), JSON_THROW_ON_ERROR));
+        self::assertSame('"[Int!]"', json_encode(Type::listOf(Type::nonNull(Type::int())), JSON_THROW_ON_ERROR));
+        self::assertSame('"[[Int]]"', json_encode(Type::listOf(Type::listOf(Type::int())), JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -573,7 +573,7 @@ final class DefinitionTest extends TestCaseBase
             [Type::string(), true],
         ];
 
-        foreach ($expected as $index => $entry) {
+        foreach ($expected as $entry) {
             self::assertSame(
                 $entry[1],
                 Type::isInputType($entry[0]),
@@ -606,7 +606,7 @@ final class DefinitionTest extends TestCaseBase
             [Type::string(), true],
         ];
 
-        foreach ($expected as $index => $entry) {
+        foreach ($expected as $entry) {
             self::assertSame(
                 $entry[1],
                 Type::isOutputType($entry[0]),
@@ -721,7 +721,7 @@ final class DefinitionTest extends TestCaseBase
 
         self::assertSame($inputObject, $schema->getType('InputObject'));
         self::assertTrue($called);
-        self::assertEquals(\count($inputObject->getFields()), 2);
+        self::assertCount(2, $inputObject->getFields());
         self::assertSame($inputObject->getField('nested')->getType(), $inputObject);
 
         $input = $someMutation->getField('mutateSomething')->getArg('input');
@@ -755,7 +755,7 @@ final class DefinitionTest extends TestCaseBase
 
         self::assertSame($interface, $schema->getType('SomeInterface'));
         self::assertTrue($called);
-        self::assertEquals(\count($interface->getFields()), 2);
+        self::assertCount(2, $interface->getFields());
         self::assertSame($interface->getField('nested')->getType(), $interface);
         self::assertSame($interface->getField('value')->getType(), Type::string());
     }
@@ -797,23 +797,23 @@ final class DefinitionTest extends TestCaseBase
         $withArg = $SomeInterface->getField('withArg');
         self::assertEquals(Type::string(), $withArg->getType());
 
-        self::assertEquals('arg1', $withArg->args[0]->name);
+        self::assertSame('arg1', $withArg->args[0]->name);
         self::assertEquals(Type::int(), $withArg->args[0]->getType());
 
         /** @var ObjectType $Query */
         $Query = $schema->getType('Query');
         $testField = $Query->getField('test');
         self::assertEquals($interface, $testField->getType());
-        self::assertEquals('test', $testField->name);
+        self::assertSame('test', $testField->name);
     }
 
     public function testInfersNameFromClassname(): void
     {
         $myObj = new MyCustomType();
-        self::assertEquals('MyCustom', $myObj->name);
+        self::assertSame('MyCustom', $myObj->name);
 
         $otherCustom = new OtherCustom();
-        self::assertEquals('OtherCustom', $otherCustom->name);
+        self::assertSame('OtherCustom', $otherCustom->name);
     }
 
     /**
@@ -1635,8 +1635,7 @@ final class DefinitionTest extends TestCaseBase
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'SomeInputObject.f field has a resolve property, '
-            . 'but Input Types cannot define resolvers.'
+            'SomeInputObject.f field has a resolve property, but Input Types cannot define resolvers.'
         );
         $inputObjType->assertValid();
     }
@@ -1730,8 +1729,7 @@ final class DefinitionTest extends TestCaseBase
         ]);
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
-            'SomeInputObject.f field has a resolve property, '
-            . 'but Input Types cannot define resolvers.'
+            'SomeInputObject.f field has a resolve property, but Input Types cannot define resolvers.'
         );
         $inputObjType->assertValid();
     }

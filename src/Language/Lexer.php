@@ -52,25 +52,25 @@ class Lexer
     /**
      * The (1-indexed) line containing the current token.
      */
-    public int $line;
+    public int $line = 1;
 
     /**
      * The character offset at which the current line begins.
      */
-    public int $lineStart;
+    public int $lineStart = 0;
 
     /**
      * Current cursor position for UTF8 encoding of the source.
      */
-    private int $position;
+    private int $position = 0;
 
     /**
      * Current cursor position for ASCII representation of the source.
      */
-    private int $byteStreamPosition;
+    private int $byteStreamPosition = 0;
 
     /**
-     * @phpstan-param ParserOptions        $options
+     * @phpstan-param ParserOptions $options
      */
     public function __construct(Source $source, array $options = [])
     {
@@ -80,9 +80,6 @@ class Lexer
         $this->options = $options;
         $this->lastToken = $startOfFileToken;
         $this->token = $startOfFileToken;
-        $this->line = 1;
-        $this->lineStart = 0;
-        $this->position = $this->byteStreamPosition = 0;
     }
 
     public function advance(): Token

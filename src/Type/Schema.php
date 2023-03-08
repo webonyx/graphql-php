@@ -286,12 +286,11 @@ class Schema
      */
     private function loadType(string $typeName): ?Type
     {
-        $typeLoader = $this->config->typeLoader;
-        if ($typeLoader === null) {
+        if (! isset($this->config->typeLoader)) {
             return $this->getTypeMap()[$typeName] ?? null;
         }
 
-        $type = $typeLoader($typeName);
+        $type = ($this->config->typeLoader)($typeName);
         if ($type === null) {
             return null;
         }
@@ -472,10 +471,8 @@ class Schema
             $type->assertValid();
 
             // Make sure type loader returns the same instance as registered in other places of schema
-            if (isset($this->config->typeLoader)) {
-                if ($this->loadType($name) !== $type) {
-                    throw new InvariantViolation("Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name.");
-                }
+            if (isset($this->config->typeLoader) && $this->loadType($name) !== $type) {
+                throw new InvariantViolation("Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name.");
             }
         }
     }

@@ -142,7 +142,7 @@ final class LexerTest extends TestCase
             $this->lexOne($str);
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            self::assertEquals(
+            self::assertSame(
                 'Syntax Error: Cannot parse the unexpected character "?".' . "\n"
                 . "\n"
                 . "GraphQL request (3:5)\n"
@@ -172,7 +172,7 @@ final class LexerTest extends TestCase
             $lexer->advance();
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            self::assertEquals(
+            self::assertSame(
                 'Syntax Error: Cannot parse the unexpected character "?".' . "\n"
                 . "\n"
                 . "foo.js (13:6)\n"
@@ -194,7 +194,7 @@ final class LexerTest extends TestCase
             $lexer->advance();
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            self::assertEquals(
+            self::assertSame(
                 'Syntax Error: Cannot parse the unexpected character "?".' . "\n"
                 . "\n"
                 . "foo.js (1:5)\n"
@@ -430,7 +430,7 @@ final class LexerTest extends TestCase
             ],
             ['"null-byte is not \u0000 end of file"', 'Invalid character within String: "\\u0000"', $this->loc(1, 19)],
             ['"multi' . "\n" . 'line"', 'Unterminated string.', $this->loc(1, 7)],
-            ['"multi' . "\r" . 'line"', 'Unterminated string.', $this->loc(1, 7)],
+            ['"multiline"', 'Unterminated string.', $this->loc(1, 7)],
             ['"bad esc \\', 'Unterminated string.', $this->loc(1, 11)],
             ['"bad \\z esc"', 'Invalid character escape sequence: \\z', $this->loc(1, 7)],
             ['"bad \\x esc"', 'Invalid character escape sequence: \\x', $this->loc(1, 7)],
@@ -717,7 +717,7 @@ final class LexerTest extends TestCase
             $endToken = $lexer->advance();
             // Lexer advances over ignored comment tokens to make writing parsers
             // easier, but will include them in the linked list result.
-            self::assertNotEquals('Comment', $endToken->kind);
+            self::assertNotSame('Comment', $endToken->kind);
         } while ($endToken->kind !== '<EOF>');
 
         self::assertEquals(null, $startToken->prev);
@@ -725,7 +725,7 @@ final class LexerTest extends TestCase
 
         $tokens = [];
         for ($tok = $startToken; $tok; $tok = $tok->next) {
-            if (\count($tokens) > 0) {
+            if ($tokens !== []) {
                 // Tokens are double-linked, prev should point to last seen token.
                 self::assertSame($tokens[\count($tokens) - 1], $tok->prev);
             }
@@ -733,7 +733,7 @@ final class LexerTest extends TestCase
             $tokens[] = $tok;
         }
 
-        self::assertEquals(
+        self::assertSame(
             [
                 '<SOF>',
                 '{',

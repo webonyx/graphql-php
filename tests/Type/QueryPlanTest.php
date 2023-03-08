@@ -990,7 +990,7 @@ final class QueryPlanTest extends TestCase
         self::assertTrue($hasCalled);
         self::assertSame($expectedResult, $result);
         self::assertSame($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
         self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
         self::assertSame($expectedItemSubFields, $queryPlan->subFields('Item'));
         self::assertSame($expectedBuildingSubFields, $queryPlan->subFields('Building'));

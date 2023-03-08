@@ -65,7 +65,7 @@ class KnownArgumentNames extends ValidationRule
     {
         $message = "Unknown argument \"{$argName}\" on field \"{$fieldName}\" of type \"{$typeName}\".";
 
-        if (\count($suggestedArgs) > 0) {
+        if ($suggestedArgs !== []) {
             $suggestions = Utils::quotedOrList($suggestedArgs);
             $message .= " Did you mean {$suggestions}?";
         }

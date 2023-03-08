@@ -252,7 +252,7 @@ final class EnumTypeTest extends TestCase
      */
     public function testAcceptsEnumLiteralsAsInput(): void
     {
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['colorInt' => 1]],
             GraphQL::executeQuery($this->schema, '{ colorInt(fromEnum: GREEN) }')->toArray()
         );
@@ -263,7 +263,7 @@ final class EnumTypeTest extends TestCase
      */
     public function testEnumMayBeOutputType(): void
     {
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['colorEnum' => 'GREEN']],
             GraphQL::executeQuery($this->schema, '{ colorEnum(fromInt: 1) }')->toArray()
         );
@@ -274,7 +274,7 @@ final class EnumTypeTest extends TestCase
      */
     public function testEnumMayBeBothInputAndOutputType(): void
     {
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['colorEnum' => 'GREEN']],
             GraphQL::executeQuery($this->schema, '{ colorEnum(fromEnum: GREEN) }')->toArray()
         );
@@ -305,7 +305,7 @@ final class EnumTypeTest extends TestCase
         self::assertCount(1, $result->errors);
 
         if (\is_array($err)) {
-            self::assertEquals(
+            self::assertSame(
                 $err['message'],
                 $result->errors[0]->getMessage()
             );
@@ -314,7 +314,7 @@ final class EnumTypeTest extends TestCase
                 $result->errors[0]->getLocations()
             );
         } else {
-            self::assertEquals(
+            self::assertSame(
                 $err,
                 $result->errors[0]->getMessage()
             );
@@ -396,7 +396,7 @@ final class EnumTypeTest extends TestCase
      */
     public function testAcceptsJSONStringAsEnumVariable(): void
     {
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['colorEnum' => 'BLUE']],
             GraphQL::executeQuery(
                 $this->schema,
@@ -413,7 +413,7 @@ final class EnumTypeTest extends TestCase
      */
     public function testAcceptsEnumLiteralsAsInputArgumentsToMutations(): void
     {
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['favoriteEnum' => 'GREEN']],
             GraphQL::executeQuery(
                 $this->schema,
@@ -432,7 +432,7 @@ final class EnumTypeTest extends TestCase
      */
     public function testAcceptsEnumLiteralsAsInputArgumentsToSubscriptions(): void
     {
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['subscribeToEnum' => 'GREEN']],
             GraphQL::executeQuery(
                 $this->schema,
@@ -485,7 +485,7 @@ final class EnumTypeTest extends TestCase
      */
     public function testEnumValueMayHaveAnInternalValueOf0(): void
     {
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['colorEnum' => 'RED', 'colorInt' => 0]],
             GraphQL::executeQuery(
                 $this->schema,
@@ -522,10 +522,10 @@ final class EnumTypeTest extends TestCase
         $ComplexEnum = $this->ComplexEnum;
         $values = $ComplexEnum->getValues();
 
-        self::assertEquals(2, \count($values));
-        self::assertEquals('ONE', $values[0]->name);
+        self::assertCount(2, $values);
+        self::assertSame('ONE', $values[0]->name);
         self::assertEquals($this->Complex1, $values[0]->value);
-        self::assertEquals('TWO', $values[1]->name);
+        self::assertSame('TWO', $values[1]->name);
         self::assertEquals($this->Complex2, $values[1]->value);
     }
 
@@ -536,7 +536,7 @@ final class EnumTypeTest extends TestCase
     {
         $oneValue = $this->ComplexEnum->getValue('ONE');
         self::assertInstanceOf(EnumValueDefinition::class, $oneValue);
-        self::assertEquals('ONE', $oneValue->name);
+        self::assertSame('ONE', $oneValue->name);
         self::assertEquals($this->Complex1, $oneValue->value);
     }
 
@@ -594,7 +594,7 @@ final class EnumTypeTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, $result);
+        self::assertSame($expected, $result);
     }
 
     /**
@@ -688,7 +688,7 @@ final class EnumTypeTest extends TestCase
         self::assertSame(0, $called, 'Should not eagerly call enum values during schema construction');
 
         $query = '{ colorEnum(fromEnum: RED) }';
-        self::assertEquals(
+        self::assertSame(
             ['data' => ['colorEnum' => 'RED']],
             GraphQL::executeQuery($schema, $query)->toArray()
         );
