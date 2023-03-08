@@ -1025,6 +1025,7 @@ class Parser
     /**
      * @throws \JsonException
      * @throws SyntaxError
+     *
      * @return ListValueNode|ConstListValueNode
      */
     private function parseArray(bool $isConst): Node
@@ -1046,6 +1047,7 @@ class Parser
     /**
      * @throws \JsonException
      * @throws SyntaxError
+     *
      * @return ObjectValueNode|ConstObjectValueNode
      */
     private function parseObject(bool $isConst): Node
@@ -1069,6 +1071,7 @@ class Parser
     /**
      * @throws \JsonException
      * @throws SyntaxError
+     *
      * @return ObjectFieldNode|ConstObjectFieldNode
      */
     private function parseObjectField(bool $isConst): Node
