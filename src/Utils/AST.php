@@ -38,7 +38,6 @@ use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\NullableType;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 
 /**
