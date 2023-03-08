@@ -3,7 +3,6 @@
 namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
@@ -29,6 +28,7 @@ use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
+use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
@@ -42,9 +42,9 @@ use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
 
 /**
- * @see ArgumentNode - force IDE import
+ * @see ValueNode - force IDE import
  *
- * @phpstan-import-type ArgumentNodeValue from ArgumentNode
+ * @phpstan-import-type ValueNodeVariants from ValueNode
  */
 class Values
 {
@@ -178,7 +178,7 @@ class Values
             return [];
         }
 
-        /** @var array<string, ArgumentNodeValue> $argumentValueMap */
+        /** @var array<string, ValueNodeVariants> $argumentValueMap */
         $argumentValueMap = [];
 
         // Might not be defined when an AST from JS is used
@@ -193,7 +193,7 @@ class Values
 
     /**
      * @param FieldDefinition|Directive $def
-     * @param array<string, ArgumentNodeValue> $argumentValueMap
+     * @param array<string, ValueNodeVariants> $argumentValueMap
      * @param array<string, mixed>|null $variableValues
      *
      * @throws Error

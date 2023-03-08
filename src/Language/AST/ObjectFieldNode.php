@@ -2,12 +2,15 @@
 
 namespace GraphQL\Language\AST;
 
+/**
+ * @phpstan-import-type ValueNodeVariants from ValueNode
+ */
 class ObjectFieldNode extends Node
 {
     public string $kind = NodeKind::OBJECT_FIELD;
 
     public NameNode $name;
 
-    /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode */
+    /** @var ValueNodeVariants */
     public ValueNode $value;
 }
