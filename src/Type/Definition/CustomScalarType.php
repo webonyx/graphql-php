@@ -4,6 +4,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\ConstValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
@@ -12,12 +13,13 @@ use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 
 /**
+ * @phpstan-type ParseLiteralFn callable((ValueNode&Node)|(ConstValueNode&Node), array<string, mixed>|null): mixed
  * @phpstan-type InputCustomScalarConfig array{
  *   name?: string|null,
  *   description?: string|null,
  *   serialize?: callable(mixed): mixed,
  *   parseValue: callable(mixed): mixed,
- *   parseLiteral: callable(ValueNode&Node, array<string, mixed>|null): mixed,
+ *   parseLiteral: ParseLiteralFn,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
@@ -26,7 +28,7 @@ use GraphQL\Utils\Utils;
  *   description?: string|null,
  *   serialize: callable(mixed): mixed,
  *   parseValue?: callable(mixed): mixed,
- *   parseLiteral?: callable(ValueNode&Node, array<string, mixed>|null): mixed,
+ *   parseLiteral?: ParseLiteralFn,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }

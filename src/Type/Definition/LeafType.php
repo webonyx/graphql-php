@@ -4,6 +4,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
+use GraphQL\Language\AST\ConstValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ValueNode;
 
@@ -45,7 +46,7 @@ interface LeafType
      *
      * Should throw an exception with a client friendly message on invalid value nodes, @see ClientAware.
      *
-     * @param ValueNode&Node $valueNode
+     * @param (ValueNode&Node)|(ConstValueNode&Node) $valueNode
      * @param array<string, mixed>|null $variables
      *
      * @throws Error
