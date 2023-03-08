@@ -433,7 +433,10 @@ class AST
             return $type->parseValue($coercedObj);
         }
 
-        if ($type instanceof EnumType) {
+        // Scalars and Enums fulfill parsing a literal value via parseLiteral().
+        // Invalid values represent a failure to parse correctly, in which case
+        // no value is returned.
+        if ($type instanceof LeafType) {
             try {
                 return $type->parseLiteral($valueNode, $variables);
             } catch (\Throwable $error) {
@@ -441,16 +444,8 @@ class AST
             }
         }
 
-        assert($type instanceof ScalarType, 'only remaining option');
-
-        // Scalars fulfill parsing a literal value via parseLiteral().
-        // Invalid values represent a failure to parse correctly, in which case
-        // no value is returned.
-        try {
-            return $type->parseLiteral($valueNode, $variables);
-        } catch (\Throwable $error) {
-            return $undefined;
-        }
+        $unexpectedInputType = Utils::printSafe($type);
+        throw new \Exception("Unexpected input type: {$unexpectedInputType}");
     }
 
     /**
