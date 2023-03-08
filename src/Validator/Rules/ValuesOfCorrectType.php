@@ -4,6 +4,9 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\ConstListValueNode;
+use GraphQL\Language\AST\ConstObjectFieldNode;
+use GraphQL\Language\AST\ConstObjectValueNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
@@ -14,7 +17,6 @@ use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\ValueNode;
-use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
@@ -31,6 +33,8 @@ use GraphQL\Validator\QueryValidationContext;
  *
  * A GraphQL document is only valid if all value literals are of the type
  * expected at their position.
+ *
+ * @phpstan-import-type ValueNodeVariants from ValueNode
  */
 class ValuesOfCorrectType extends ValidationRule
 {
@@ -50,7 +54,8 @@ class ValuesOfCorrectType extends ValidationRule
                     );
                 }
             },
-            NodeKind::LST => function (ListValueNode $node) use ($context): ?VisitorOperation {
+            NodeKind::LST => function ($node) use ($context): ?VisitorOperation {
+                assert($node instanceof ListValueNode || $node instanceof ConstListValueNode);
                 // Note: TypeInfo will traverse into a list's item type, so look to the
                 // parent input type to check if it is a list.
                 $parentType = $context->getParentInputType();
@@ -65,7 +70,8 @@ class ValuesOfCorrectType extends ValidationRule
 
                 return null;
             },
-            NodeKind::OBJECT => function (ObjectValueNode $node) use ($context): ?VisitorOperation {
+            NodeKind::OBJECT => function ($node) use ($context): ?VisitorOperation {
+                assert($node instanceof ObjectValueNode || $node instanceof ConstObjectValueNode);
                 $type = Type::getNamedType($context->getInputType());
                 if (! $type instanceof InputObjectType) {
                     $this->isValidValueNode($context, $node);
@@ -95,7 +101,8 @@ class ValuesOfCorrectType extends ValidationRule
 
                 return null;
             },
-            NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) use ($context): void {
+            NodeKind::OBJECT_FIELD => static function ($node) use ($context): void {
+                assert($node instanceof ObjectFieldNode || $node instanceof ConstObjectFieldNode);
                 $parentType = Type::getNamedType($context->getParentInputType());
                 if (! $parentType instanceof InputObjectType) {
                     return;
@@ -139,7 +146,7 @@ class ValuesOfCorrectType extends ValidationRule
     }
 
     /**
-     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
+     * @param ValueNodeVariants $node
      */
     protected function isValidValueNode(QueryValidationContext $context, ValueNode $node): void
     {

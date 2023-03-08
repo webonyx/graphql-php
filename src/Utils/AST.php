@@ -5,6 +5,8 @@ namespace GraphQL\Utils;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\ConstListValueNode;
+use GraphQL\Language\AST\ConstObjectValueNode;
 use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumValueNode;
@@ -340,7 +342,7 @@ class AST
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
 
-            if ($valueNode instanceof ListValueNode) {
+            if ($valueNode instanceof ListValueNode || $valueNode instanceof ConstListValueNode) {
                 $coercedValues = [];
                 $itemNodes = $valueNode->values;
                 foreach ($itemNodes as $itemNode) {
@@ -377,7 +379,7 @@ class AST
         }
 
         if ($type instanceof InputObjectType) {
-            if (! $valueNode instanceof ObjectValueNode) {
+            if (! $valueNode instanceof ObjectValueNode && ! $valueNode instanceof ConstObjectValueNode) {
                 // Invalid: intentionally return no value.
                 return $undefined;
             }
@@ -497,6 +499,7 @@ class AST
                 return $valueNode->value;
 
             case $valueNode instanceof ListValueNode:
+            case $valueNode instanceof ConstListValueNode:
                 $values = [];
                 foreach ($valueNode->values as $node) {
                     $values[] = self::valueFromASTUntyped($node, $variables);
@@ -505,6 +508,7 @@ class AST
                 return $values;
 
             case $valueNode instanceof ObjectValueNode:
+            case $valueNode instanceof ConstObjectValueNode:
                 $values = [];
                 foreach ($valueNode->fields as $field) {
                     $values[$field->name->value] = self::valueFromASTUntyped($field->value, $variables);

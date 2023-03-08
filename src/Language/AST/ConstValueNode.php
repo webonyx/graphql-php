@@ -3,15 +3,7 @@
 namespace GraphQL\Language\AST;
 
 /**
-export type ConstValueNode =
-| IntValueNode
-| FloatValueNode
-| StringValueNode
-| BooleanValueNode
-| NullValueNode
-| EnumValueNode
-| ConstListValueNode
-| ConstObjectValueNode;
+ * @phpstan-type ConstValueNodeVariants NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ConstListValueNode|ConstObjectValueNode
  */
 interface ConstValueNode
 {

@@ -5,12 +5,11 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ValueNode;
 
-/*
+/**
 export type GraphQLLeafType =
 GraphQLScalarType |
 GraphQLEnumType;
-*/
-
+ */
 interface LeafType
 {
     /**

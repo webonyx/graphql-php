@@ -214,6 +214,9 @@ final class VariablesTest extends TestCase
         ];
     }
 
+    /**
+     * describe('using variables', () => {
+     */
     public function testUsingVariables(): void
     {
         $doc = '
@@ -222,7 +225,7 @@ final class VariablesTest extends TestCase
             }
         ';
 
-        // executes with complex input:
+        // it('executes with complex input', () => {
         $params = ['input' => ['a' => 'foo', 'b' => ['bar'], 'c' => 'baz']];
         $result = $this->executeQuery($doc, $params);
 

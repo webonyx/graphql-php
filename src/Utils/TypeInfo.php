@@ -4,6 +4,8 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\ConstListValueNode;
+use GraphQL\Language\AST\ConstObjectFieldNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FieldNode;
@@ -266,6 +268,7 @@ class TypeInfo
                 break;
 
             case $node instanceof ListValueNode:
+            case $node instanceof ConstListValueNode:
                 $type = $this->getInputType();
                 $listType = $type instanceof NonNull
                     ? $type->getWrappedType()
@@ -279,6 +282,7 @@ class TypeInfo
                 break;
 
             case $node instanceof ObjectFieldNode:
+            case $node instanceof ConstObjectFieldNode:
                 $objectType = Type::getNamedType($this->getInputType());
                 $inputField = null;
                 $inputFieldType = null;
@@ -410,7 +414,9 @@ class TypeInfo
                 \array_pop($this->inputTypeStack);
                 break;
             case $node instanceof ListValueNode:
+            case $node instanceof ConstListValueNode:
             case $node instanceof ObjectFieldNode:
+            case $node instanceof ConstObjectFieldNode:
                 \array_pop($this->defaultValueStack);
                 \array_pop($this->inputTypeStack);
                 break;

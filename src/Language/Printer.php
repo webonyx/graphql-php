@@ -4,6 +4,9 @@ namespace GraphQL\Language;
 
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\ConstListValueNode;
+use GraphQL\Language\AST\ConstObjectFieldNode;
+use GraphQL\Language\AST\ConstObjectValueNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -87,7 +90,7 @@ class Printer
         return $this->p($node);
     }
 
-    protected function p(?Node $node, bool $isDescription = false): string
+    protected function p(?Node $node): string
     {
         if ($node === null) {
             return '';
@@ -312,6 +315,7 @@ class Printer
                 return '[' . $this->p($node->type) . ']';
 
             case $node instanceof ListValueNode:
+            case $node instanceof ConstListValueNode:
                 return '[' . $this->printList($node->values, ', ') . ']';
 
             case $node instanceof NameNode:
@@ -327,6 +331,7 @@ class Printer
                 return 'null';
 
             case $node instanceof ObjectFieldNode:
+            case $node instanceof ConstObjectFieldNode:
                 return $this->p($node->name) . ': ' . $this->p($node->value);
 
             case $node instanceof ObjectTypeDefinitionNode:
@@ -354,6 +359,7 @@ class Printer
                 );
 
             case $node instanceof ObjectValueNode:
+            case $node instanceof ConstObjectValueNode:
                 return "{ {$this->printList($node->fields, ', ')} }";
 
             case $node instanceof OperationDefinitionNode:

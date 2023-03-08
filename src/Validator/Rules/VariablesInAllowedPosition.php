@@ -3,10 +3,10 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\ConstValueNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
@@ -85,10 +85,9 @@ class VariablesInAllowedPosition extends ValidationRule
      * which includes considering if default values exist for either the variable
      * or the location at which it is located.
      *
-     * @param ValueNode|null $varDefaultValue
-     * @param mixed          $locationDefaultValue
+     * @param mixed $locationDefaultValue
      */
-    protected function allowedVariableUsage(Schema $schema, Type $varType, $varDefaultValue, Type $locationType, $locationDefaultValue): bool
+    protected function allowedVariableUsage(Schema $schema, Type $varType, ?ConstValueNode $varDefaultValue, Type $locationType, $locationDefaultValue): bool
     {
         if ($locationType instanceof NonNull && ! $varType instanceof NonNull) {
             $hasNonNullVariableDefaultValue = $varDefaultValue !== null && ! $varDefaultValue instanceof NullValueNode;
