@@ -298,6 +298,8 @@ final class EnumTypeTest extends TestCase
     /**
      * @param array<string, mixed>|null                                            $vars
      * @param array{message: string, locations: array<int, SourceLocation>}|string $err
+     *
+     * @throws \Exception
      */
     private function expectFailure(string $query, ?array $vars, $err): void
     {

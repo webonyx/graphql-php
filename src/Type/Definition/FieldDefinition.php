@@ -109,6 +109,8 @@ class FieldDefinition
      *
      * @phpstan-param FieldsConfig $fields
      *
+     * @throws InvariantViolation
+     *
      * @return array<string, self|UnresolvedFieldDefinition>
      */
     public static function defineFieldMap(Type $parentType, $fields): array

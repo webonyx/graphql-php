@@ -98,6 +98,8 @@ class TypeInfo
      * ]
      *
      * @param array<string, Type&NamedType> $typeMap
+     *
+     * @throws InvariantViolation
      */
     public static function extractTypes(Type $type, array &$typeMap): void
     {
@@ -156,6 +158,8 @@ class TypeInfo
 
     /**
      * @param array<string, Type&NamedType> $typeMap
+     *
+     * @throws InvariantViolation
      */
     public static function extractTypesFromDirectives(Directive $directive, array &$typeMap): void
     {
@@ -185,6 +189,10 @@ class TypeInfo
         return $this->enumValue;
     }
 
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
     public function enter(Node $node): void
     {
         $schema = $this->schema;
@@ -329,6 +337,8 @@ class TypeInfo
      * Not exactly the same as the executor's definition of getFieldDef, in this
      * statically evaluated environment we do not always have an Object type,
      * and need to handle Interface and Union types.
+     *
+     * @throws InvariantViolation
      */
     private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode): ?FieldDefinition
     {

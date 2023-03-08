@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
@@ -65,6 +66,9 @@ class CustomScalarType extends ScalarType
         return $value;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if (isset($this->config['parseLiteral'])) {
@@ -74,6 +78,10 @@ class CustomScalarType extends ScalarType
         return AST::valueFromASTUntyped($valueNode, $variables);
     }
 
+    /**
+     * @throws Error
+     * @throws InvariantViolation
+     */
     public function assertValid(): void
     {
         parent::assertValid();

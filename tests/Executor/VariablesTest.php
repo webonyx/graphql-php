@@ -3,6 +3,8 @@
 namespace GraphQL\Tests\Executor;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
@@ -115,6 +117,10 @@ final class VariablesTest extends TestCase
 
     /**
      * @param array<string, mixed>|null $variableValues
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
+     * @throws SyntaxError
      */
     private function executeQuery(string $query, ?array $variableValues = null): ExecutionResult
     {
@@ -127,6 +133,9 @@ final class VariablesTest extends TestCase
         );
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function schema(): Schema
     {
         $ComplexScalarType = ComplexScalar::create();
@@ -192,6 +201,8 @@ final class VariablesTest extends TestCase
 
     /**
      * @param UnnamedArgumentConfig $inputArg
+     *
+     * @throws InvariantViolation
      *
      * @return UnnamedFieldDefinitionConfig
      */

@@ -3,6 +3,7 @@
 namespace GraphQL\Tests;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
@@ -41,6 +42,10 @@ final class StarWarsValidationTest extends TestCase
 
     /**
      * Helper function to test a query and the expected response.
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
      *
      * @return array<int, Error>
      */

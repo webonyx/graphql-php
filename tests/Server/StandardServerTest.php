@@ -46,6 +46,9 @@ final class StandardServerTest extends ServerTestCase
         );
     }
 
+    /**
+     * @throws \GraphQL\Server\RequestError
+     */
     private function parseRawRequest(string $contentType, string $content, string $method = 'POST'): OperationParams
     {
         $_SERVER['CONTENT_TYPE'] = $contentType;
@@ -83,6 +86,8 @@ final class StandardServerTest extends ServerTestCase
 
     /**
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
      */
     private function assertPsrRequestEquals(array $expected, RequestInterface $request): ExecutionResult
     {
@@ -92,6 +97,10 @@ final class StandardServerTest extends ServerTestCase
         return $result;
     }
 
+    /**
+     * @throws \Exception
+     * @throws \JsonException
+     */
     private function executePsrRequest(RequestInterface $psrRequest): ExecutionResult
     {
         $result = (new StandardServer($this->config))->executePsrRequest($psrRequest);

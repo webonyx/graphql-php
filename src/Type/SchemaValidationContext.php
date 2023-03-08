@@ -93,6 +93,9 @@ class SchemaValidationContext
         $this->errors[] = $error;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function validateDirectives(): void
     {
         $this->validateDirectiveDefinitions();
@@ -104,6 +107,9 @@ class SchemaValidationContext
         );
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function validateDirectiveDefinitions(): void
     {
         $directiveDefinitions = [];
@@ -183,6 +189,8 @@ class SchemaValidationContext
 
     /**
      * @param (Type&NamedType)|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|Argument $object
+     *
+     * @throws InvariantViolation
      */
     private function validateName(object $object): void
     {
@@ -230,6 +238,9 @@ class SchemaValidationContext
             : $argNode->type;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function validateTypes(): void
     {
         $typeMap = $this->schema->getTypeMap();
@@ -276,6 +287,8 @@ class SchemaValidationContext
 
     /**
      * @param NodeList<DirectiveNode> $directives
+     *
+     * @throws InvariantViolation
      */
     private function validateDirectivesAtLocation(NodeList $directives, string $location): void
     {
@@ -313,6 +326,8 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
+     *
+     * @throws InvariantViolation
      */
     private function validateFields(Type $type): void
     {
@@ -503,6 +518,8 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
+     *
+     * @throws InvariantViolation
      */
     private function validateInterfaces(ImplementingType $type): void
     {
@@ -603,6 +620,8 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
+     *
+     * @throws InvariantViolation
      */
     private function validateTypeImplementsInterface(ImplementingType $type, InterfaceType $iface): void
     {
@@ -703,6 +722,9 @@ class SchemaValidationContext
         }
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function validateUnionMembers(UnionType $union): void
     {
         $memberTypes = $union->getTypes();
@@ -760,6 +782,9 @@ class SchemaValidationContext
         return $types;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function validateEnumValues(EnumType $enumType): void
     {
         $enumValues = $enumType->getValues();
@@ -793,6 +818,9 @@ class SchemaValidationContext
         }
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function validateInputFields(InputObjectType $inputObj): void
     {
         $fieldMap = $inputObj->getFields();
@@ -832,6 +860,9 @@ class SchemaValidationContext
         }
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function validateTypeIsSingleton(Type $type, string $path): void
     {
         $schemaConfig = $this->schema->getConfig();

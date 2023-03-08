@@ -126,6 +126,9 @@ final class QueryDepthTest extends QuerySecurityTestCase
         return QueryDepth::maxQueryDepthErrorMessage($max, $count);
     }
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     protected function getRule(int $max): QueryDepth
     {
         return new QueryDepth($max);

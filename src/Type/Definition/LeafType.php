@@ -2,6 +2,8 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ValueNode;
 
@@ -19,6 +21,8 @@ interface LeafType
      *
      * @param mixed $value
      *
+     * @throws SerializationError
+     *
      * @return mixed
      */
     public function serialize($value);
@@ -29,6 +33,8 @@ interface LeafType
      * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
      *
      * @param mixed $value
+     *
+     * @throws Error
      *
      * @return mixed
      */
@@ -41,6 +47,8 @@ interface LeafType
      *
      * @param ValueNode&Node $valueNode
      * @param array<string, mixed>|null $variables
+     *
+     * @throws Error
      *
      * @return mixed
      */

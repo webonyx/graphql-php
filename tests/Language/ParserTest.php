@@ -145,6 +145,10 @@ fragment MissingOn Type
         self::assertDidNotCrash();
     }
 
+    /**
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     private function expectSyntaxError(string $text, string $message, SourceLocation $location): void
     {
         $this->expectException(SyntaxError::class);

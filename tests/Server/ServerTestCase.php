@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Server;
 
 use GraphQL\Deferred;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -12,6 +13,9 @@ use PHPUnit\Framework\TestCase;
 
 abstract class ServerTestCase extends TestCase
 {
+    /**
+     * @throws InvariantViolation
+     */
     protected function buildSchema(): Schema
     {
         return new Schema([

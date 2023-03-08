@@ -2,6 +2,7 @@
 
 namespace GraphQL\Validator\Rules;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -29,6 +30,9 @@ abstract class QuerySecurityRule extends ValidationRule
     /** @var array<string, FragmentDefinitionNode> */
     protected array $fragments = [];
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     protected function checkIfGreaterOrEqualToZero(string $name, int $value): void
     {
         if ($value < 0) {
@@ -94,6 +98,10 @@ abstract class QuerySecurityRule extends ValidationRule
      * @phpstan-param ASTAndDefs|null $astAndDefs
      *
      * @phpstan-return ASTAndDefs
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
      */
     protected function collectFieldASTsAndDefs(
         QueryValidationContext $context,

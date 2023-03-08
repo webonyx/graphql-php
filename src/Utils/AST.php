@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\ConstListValueNode;
 use GraphQL\Language\AST\ConstObjectValueNode;
@@ -69,6 +70,9 @@ class AST
      * @param array<string, mixed> $node
      *
      * @api
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
      */
     public static function fromArray(array $node): Node
     {
@@ -139,6 +143,10 @@ class AST
      *
      * @param mixed $value
      * @param InputType&Type $type
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
+     * @throws SerializationError
      *
      * @return (ValueNode&Node)|null
      *

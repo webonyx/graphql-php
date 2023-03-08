@@ -25,6 +25,9 @@ class IntType extends ScalarType
         = 'The `Int` scalar type represents non-fractional signed whole numeric
 values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
+    /**
+     * @throws SerializationError
+     */
     public function serialize($value): int
     {
         // Fast path for 90+% of cases:
@@ -49,6 +52,9 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         return (int) $float;
     }
 
+    /**
+     * @throws Error
+     */
     public function parseValue($value): int
     {
         $isInt = \is_int($value)

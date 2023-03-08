@@ -11,6 +11,9 @@ use GraphQL\Utils\Utils;
 
 class EmailType extends ScalarType
 {
+    /**
+     * @throws SerializationError
+     */
     public function serialize($value): string
     {
         if (! $this->isEmail($value)) {
@@ -21,6 +24,9 @@ class EmailType extends ScalarType
         return $value;
     }
 
+    /**
+     * @throws Error
+     */
     public function parseValue($value): string
     {
         if (! $this->isEmail($value)) {

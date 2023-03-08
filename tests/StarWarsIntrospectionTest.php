@@ -53,6 +53,8 @@ final class StarWarsIntrospectionTest extends TestCase
      * Helper function to test a query and the expected response.
      *
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
      */
     private static function assertValidQuery(string $query, array $expected): void
     {

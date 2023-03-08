@@ -2,6 +2,7 @@
 
 namespace GraphQL\Executor;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
@@ -96,6 +97,8 @@ class Executor
      * @phpstan-param FieldResolver|null $fieldResolver
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function execute(
         Schema $schema,

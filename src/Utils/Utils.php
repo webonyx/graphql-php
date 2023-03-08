@@ -154,6 +154,9 @@ class Utils
         return self::ord($char);
     }
 
+    /**
+     * @throws \JsonException
+     */
     public static function printCharCode(?int $code): string
     {
         if ($code === null) {
