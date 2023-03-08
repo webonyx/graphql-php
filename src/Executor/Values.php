@@ -42,8 +42,6 @@ use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
 
 /**
- * @see ValueNode - force IDE import
- *
  * @phpstan-import-type ValueNodeVariants from ValueNode
  */
 class Values
