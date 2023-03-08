@@ -29,6 +29,8 @@ final class StarWarsQueryTest extends TestCase
      * Helper function to test a query and the expected response.
      *
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
      */
     private static function assertValidQuery(string $query, array $expected): void
     {
@@ -174,6 +176,8 @@ final class StarWarsQueryTest extends TestCase
      *
      * @param array<string, mixed> $params
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
      */
     private static function assertValidQueryWithParams(string $query, array $params, array $expected): void
     {

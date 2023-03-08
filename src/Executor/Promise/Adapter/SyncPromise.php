@@ -71,6 +71,8 @@ class SyncPromise
 
     /**
      * @param mixed $value
+     *
+     * @throws \Exception
      */
     public function resolve($value): self
     {
@@ -110,6 +112,11 @@ class SyncPromise
         return $this;
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return $this
+     */
     public function reject(\Throwable $reason): self
     {
         switch ($this->state) {
@@ -131,6 +138,9 @@ class SyncPromise
         return $this;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function enqueueWaitingPromises(): void
     {
         if ($this->state === self::PENDING) {
@@ -177,6 +187,8 @@ class SyncPromise
     /**
      * @param (callable(mixed): mixed)|null $onFulfilled
      * @param (callable(\Throwable): mixed)|null $onRejected
+     *
+     * @throws InvariantViolation
      */
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
     {
@@ -200,6 +212,8 @@ class SyncPromise
 
     /**
      * @param callable(\Throwable): mixed $onRejected
+     *
+     * @throws InvariantViolation
      */
     public function catch(callable $onRejected): self
     {

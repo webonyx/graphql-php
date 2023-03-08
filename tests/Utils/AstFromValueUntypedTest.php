@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
@@ -26,6 +27,10 @@ final class AstFromValueUntypedTest extends TestCase
     /**
      * @param mixed                     $expected
      * @param array<string, mixed>|null $variables
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
      */
     private static function assertTestCase(string $valueText, $expected, ?array $variables = null): void
     {

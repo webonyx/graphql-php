@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Validation;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
@@ -39,6 +40,8 @@ class InputObjectCircularRefs
      * This does a straight-forward DFS to find cycles.
      * It does not terminate when a cycle was found but continues to explore
      * the graph to find all possible cycles.
+     *
+     * @throws InvariantViolation
      */
     public function validate(InputObjectType $inputObj): void
     {

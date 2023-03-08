@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\HasFieldsType;
@@ -58,6 +59,8 @@ class FieldsOnCorrectType extends ValidationRule
      * suggest them, sorted by how often the type is referenced, starting
      * with interfaces.
      *
+     * @throws InvariantViolation
+     *
      * @return array<int, string>
      */
     protected function getSuggestedTypeNames(Schema $schema, Type $type, string $fieldName): array
@@ -100,6 +103,8 @@ class FieldsOnCorrectType extends ValidationRule
     /**
      * For the field name provided, determine if there are any similar field names
      * that may be the result of a typo.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, string>
      */

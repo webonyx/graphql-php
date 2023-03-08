@@ -27,6 +27,10 @@ final class LexerTest extends TestCase
         );
     }
 
+    /**
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     private function expectSyntaxError(string $text, string $message, SourceLocation $location): void
     {
         $this->expectException(SyntaxError::class);
@@ -40,6 +44,10 @@ final class LexerTest extends TestCase
         }
     }
 
+    /**
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     private function lexOne(string $body): Token
     {
         $lexer = new Lexer(new Source($body));

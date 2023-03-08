@@ -172,6 +172,9 @@ class Helper
      * Executes GraphQL operation with given server configuration and returns execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter).
      *
+     * @throws \Exception
+     * @throws InvariantViolation
+     *
      * @return ExecutionResult|Promise
      *
      * @api
@@ -193,6 +196,9 @@ class Helper
      * (thus, effectively batching deferreds|promises of all queries at once).
      *
      * @param array<OperationParams> $operations
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      *
      * @return array<int, ExecutionResult>|Promise
      *
@@ -217,6 +223,10 @@ class Helper
         return $result;
     }
 
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
     protected function promiseToExecuteOperation(
         PromiseAdapter $promiseAdapter,
         ServerConfig $config,
@@ -392,6 +402,8 @@ class Helper
      * @param Promise|ExecutionResult|array<ExecutionResult> $result
      *
      * @api
+     *
+     * @throws \JsonException
      */
     public function sendResponse($result): void
     {
@@ -406,6 +418,8 @@ class Helper
 
     /**
      * @param array<mixed>|\JsonSerializable $jsonSerializable
+     *
+     * @throws \JsonException
      */
     protected function emitResponse($jsonSerializable): void
     {
@@ -413,6 +427,9 @@ class Helper
         echo \json_encode($jsonSerializable, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @throws RequestError
+     */
     protected function readRawBody(): string
     {
         $body = \file_get_contents('php://input');
@@ -486,8 +503,6 @@ class Helper
     }
 
     /**
-     * @throws RequestError
-     *
      * @return array<mixed>
      */
     protected function decodeContent(string $rawBody): array
@@ -515,6 +530,10 @@ class Helper
      *
      * @param Promise|ExecutionResult|array<ExecutionResult> $result
      *
+     * @throws \InvalidArgumentException
+     * @throws \JsonException
+     * @throws \RuntimeException
+     *
      * @return Promise|ResponseInterface
      *
      * @api
@@ -532,6 +551,10 @@ class Helper
 
     /**
      * @param ExecutionResult|array<ExecutionResult> $result
+     *
+     * @throws \InvalidArgumentException
+     * @throws \JsonException
+     * @throws \RuntimeException
      */
     protected function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream): ResponseInterface
     {

@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Directive;
@@ -21,6 +22,9 @@ final class QuerySecuritySchema
 
     private static ObjectType $queryRootType;
 
+    /**
+     * @throws InvariantViolation
+     */
     public static function buildSchema(): Schema
     {
         return self::$schema ??= new Schema([
@@ -29,6 +33,9 @@ final class QuerySecuritySchema
         ]);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public static function buildQueryRootType(): ObjectType
     {
         return self::$queryRootType ??= new ObjectType([
@@ -42,6 +49,9 @@ final class QuerySecuritySchema
         ]);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public static function buildHumanType(): ObjectType
     {
         return self::$humanType ??= new ObjectType(
@@ -69,6 +79,9 @@ final class QuerySecuritySchema
         );
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public static function buildDogType(): ObjectType
     {
         return self::$dogType ??= new ObjectType(
@@ -84,6 +97,9 @@ final class QuerySecuritySchema
         );
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public static function buildFooDirective(): Directive
     {
         return self::$fooDirective ??= new Directive([

@@ -10,6 +10,8 @@ final class UniqueTypeNamesTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors
+     *
+     * @throws \Exception
      */
     private function expectSDLErrors(string $sdlString, ?Schema $schema, array $errors): void
     {

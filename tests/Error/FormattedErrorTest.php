@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Error;
 
 use GraphQL\Error\FormattedError;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
@@ -20,6 +21,8 @@ final class FormattedErrorTest extends TestCase
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, array{mixed, string}>
      */
     public function printVar(): array

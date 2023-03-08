@@ -549,6 +549,8 @@ final class ValidationTest extends TestCaseBase
      * DESCRIBE: Type System: Fields args must be properly named.
      *
      * @param Type&NamedType $type
+     *
+     * @throws InvariantViolation
      */
     private function schemaWithFieldType(Type $type): Schema
     {
@@ -1126,6 +1128,9 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function schemaWithEnum(string $name): Schema
     {
         return $this->schemaWithFieldType(
@@ -1151,6 +1156,8 @@ final class ValidationTest extends TestCaseBase
 
     /**
      * DESCRIBE: Type System: Objects can only implement unique interfaces.
+     *
+     * @throws InvariantViolation
      */
     private function schemaWithObjectFieldOfType(Type $fieldType): Schema
     {
@@ -1467,6 +1474,9 @@ final class ValidationTest extends TestCaseBase
         }
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function schemaWithInterfaceFieldOfType(Type $fieldType): Schema
     {
         $BadInterfaceType = new InterfaceType([
@@ -1583,6 +1593,9 @@ final class ValidationTest extends TestCaseBase
         }
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function schemaWithArgOfType(Type $argType): Schema
     {
         $BadObjectType = new ObjectType([
@@ -1663,6 +1676,9 @@ final class ValidationTest extends TestCaseBase
         }
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function schemaWithInputFieldOfType(Type $inputFieldType): Schema
     {
         // @phpstan-ignore-next-line intentionally wrong

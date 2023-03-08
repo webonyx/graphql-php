@@ -63,6 +63,8 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     private array $nameLookup;
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-param EnumTypeConfig $config
      */
     public function __construct(array $config)
@@ -75,6 +77,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         $this->config = $config;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function getValue(string $name): ?EnumValueDefinition
     {
         if (! isset($this->nameLookup)) {
@@ -85,6 +90,8 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, EnumValueDefinition>
      */
     public function getValues(): array
@@ -119,6 +126,11 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $this->values;
     }
 
+    /**
+     * @throws \InvalidArgumentException
+     * @throws InvariantViolation
+     * @throws SerializationError
+     */
     public function serialize($value)
     {
         $lookup = $this->getValueLookup();
@@ -131,6 +143,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
+     * @throws \InvalidArgumentException
+     * @throws InvariantViolation
+     *
      * @return MixedStore<EnumValueDefinition>
      */
     private function getValueLookup(): MixedStore
@@ -146,6 +161,10 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $this->valueLookup;
     }
 
+    /**
+     * @throws Error
+     * @throws InvariantViolation
+     */
     public function parseValue($value)
     {
         if (! \is_string($value)) {
@@ -164,6 +183,10 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $this->nameLookup[$value]->value;
     }
 
+    /**
+     * @throws Error
+     * @throws InvariantViolation
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if (! $valueNode instanceof EnumValueNode) {
@@ -189,6 +212,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
+     * @throws Error
      * @throws InvariantViolation
      */
     public function assertValid(): void
@@ -204,6 +228,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         $this->getValues();
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function initializeNameLookup(): void
     {
         $this->nameLookup = [];
@@ -212,6 +239,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         }
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     protected function didYouMean(string $unknownValue): ?string
     {
         $suggestions = Utils::suggestionList(

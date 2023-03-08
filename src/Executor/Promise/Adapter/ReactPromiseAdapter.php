@@ -2,6 +2,7 @@
 
 namespace GraphQL\Executor\Promise\Adapter;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use React\Promise\Promise as ReactPromise;
@@ -18,11 +19,17 @@ class ReactPromiseAdapter implements PromiseAdapter
         return $value instanceof ReactPromiseInterface;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function convertThenable($thenable): Promise
     {
         return new Promise($thenable, $this);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $adoptedPromise = $promise->adoptedPromise;
@@ -31,6 +38,9 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function create(callable $resolver): Promise
     {
         $promise = new ReactPromise($resolver);
@@ -38,6 +48,9 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function createFulfilled($value = null): Promise
     {
         $promise = resolve($value);
@@ -45,6 +58,9 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function createRejected(\Throwable $reason): Promise
     {
         $promise = reject($reason);
@@ -52,6 +68,9 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function all(iterable $promisesOrValues): Promise
     {
         foreach ($promisesOrValues as &$promiseOrValue) {

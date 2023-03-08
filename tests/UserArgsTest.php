@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
@@ -39,6 +40,9 @@ final class UserArgsTest extends TestCase
         self::assertSame('Field "array" is not defined by type "InputType".', $result['errors'][0]['message'] ?? null);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function schema(): Schema
     {
         $inputType = new InputObjectType([

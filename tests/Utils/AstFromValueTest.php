@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\EnumValueNode;
@@ -148,6 +149,9 @@ final class AstFromValueTest extends TestCase
         self::assertNull(AST::astFromValue('some-totally-invalid-value', $this->myEnum()));
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function myEnum(): EnumType
     {
         return new EnumType([

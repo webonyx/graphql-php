@@ -2,6 +2,7 @@
 
 namespace GraphQL\Language\AST;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\AST;
 
 /**
@@ -61,6 +62,9 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
      * @param Node|array<string, mixed> $value
      *
      * @phpstan-param T|array<string, mixed> $value
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
      */
     #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
@@ -139,6 +143,9 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * Returns a clone of this instance and all its children, except Location $loc.
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
      *
      * @return static<T>
      */

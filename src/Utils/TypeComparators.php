@@ -2,6 +2,7 @@
 
 namespace GraphQL\Utils;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -37,6 +38,8 @@ class TypeComparators
     /**
      * Provided a type and a super type, return true if the first type is either
      * equal or a subset of the second super type (covariant).
+     *
+     * @throws InvariantViolation
      */
     public static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType): bool
     {

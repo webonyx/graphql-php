@@ -3,6 +3,7 @@
 namespace GraphQL\Utils;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -85,12 +86,17 @@ class BuildClientSchema
      * @phpstan-param Options    $options
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function build(array $introspectionQuery, array $options = []): Schema
     {
         return (new self($introspectionQuery, $options))->buildSchema();
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function buildSchema(): Schema
     {
         if (! \array_key_exists('__schema', $this->introspection)) {
@@ -152,6 +158,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeRef
+     *
+     * @throws InvariantViolation
      */
     private function getType(array $typeRef): Type
     {
@@ -183,6 +191,8 @@ class BuildClientSchema
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return NamedType&Type
      */
     private function getNamedType(string $typeName): NamedType
@@ -207,6 +217,8 @@ class BuildClientSchema
     /**
      * @param array<string, mixed> $typeRef
      *
+     * @throws InvariantViolation
+     *
      * @return Type&InputType
      */
     private function getInputType(array $typeRef): InputType
@@ -223,6 +235,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeRef
+     *
+     * @throws InvariantViolation
      */
     private function getOutputType(array $typeRef): OutputType
     {
@@ -238,6 +252,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeRef
+     *
+     * @throws InvariantViolation
      */
     private function getObjectType(array $typeRef): ObjectType
     {
@@ -248,6 +264,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeRef
+     *
+     * @throws InvariantViolation
      */
     public function getInterfaceType(array $typeRef): InterfaceType
     {
@@ -258,6 +276,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $type
+     *
+     * @throws InvariantViolation
      *
      * @return Type&NamedType
      */
@@ -288,6 +308,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, string> $scalar
+     *
+     * @throws InvariantViolation
      */
     private function buildScalarDef(array $scalar): ScalarType
     {
@@ -300,6 +322,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $implementingIntrospection
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, InterfaceType>
      */
@@ -327,6 +351,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $object
+     *
+     * @throws InvariantViolation
      */
     private function buildObjectDef(array $object): ObjectType
     {
@@ -340,6 +366,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $interface
+     *
+     * @throws InvariantViolation
      */
     private function buildInterfaceDef(array $interface): InterfaceType
     {
@@ -353,6 +381,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $union
+     *
+     * @throws InvariantViolation
      */
     private function buildUnionDef(array $union): UnionType
     {
@@ -373,6 +403,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $enum
+     *
+     * @throws InvariantViolation
      */
     private function buildEnumDef(array $enum): EnumType
     {
@@ -398,6 +430,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $inputObject
+     *
+     * @throws InvariantViolation
      */
     private function buildInputObjectDef(array $inputObject): InputObjectType
     {
@@ -415,6 +449,9 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeIntrospection
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      *
      * @return array<string, UnnamedFieldDefinitionConfig>
      */
@@ -448,6 +485,8 @@ class BuildClientSchema
     /**
      * @param array<int, array<string, mixed>> $inputValueIntrospections
      *
+     * @throws \Exception
+     *
      * @return array<string, UnnamedInputObjectFieldConfig>
      */
     private function buildInputValueDefMap(array $inputValueIntrospections): array
@@ -464,6 +503,9 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $inputValueIntrospection
+     *
+     * @throws \Exception
+     * @throws SyntaxError
      *
      * @return UnnamedInputObjectFieldConfig
      */
@@ -488,6 +530,9 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $directive
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     public function buildDirective(array $directive): Directive
     {

@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Utils\Utils;
@@ -44,6 +45,8 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     public array $config;
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-param ScalarConfig $config
      */
     public function __construct(array $config = [])

@@ -29,6 +29,7 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\DocumentValidator;
+use Symfony\Component\VarExporter\Exception\ExceptionInterface;
 use Symfony\Component\VarExporter\VarExporter;
 
 const OUTPUT_FILE = __DIR__ . '/docs/class-reference.md';
@@ -65,6 +66,8 @@ const ENTRIES = [
 /**
  * @param ReflectionClass<object>                               $class
  * @param array{constants?: bool, props?: bool, methods?: bool} $options
+ *
+ * @throws ExceptionInterface
  */
 function renderClass(ReflectionClass $class, array $options): string
 {

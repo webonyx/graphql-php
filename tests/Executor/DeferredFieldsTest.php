@@ -660,6 +660,8 @@ final class DeferredFieldsTest extends TestCase
 
     /**
      * @param array<mixed> $expectedPaths
+     *
+     * @throws \JsonException
      */
     private function assertPathsMatch(array $expectedPaths): void
     {

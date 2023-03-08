@@ -3,6 +3,7 @@
 namespace GraphQL;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
@@ -71,6 +72,9 @@ class GraphQL
      * @param array<ValidationRule>|null $validationRules
      *
      * @api
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     public static function executeQuery(
         SchemaType $schema,
@@ -110,6 +114,8 @@ class GraphQL
      * @param array<ValidationRule>|null $validationRules
      *
      * @api
+     *
+     * @throws \Exception
      */
     public static function promiseToExecute(
         PromiseAdapter $promiseAdapter,
@@ -168,6 +174,8 @@ class GraphQL
     /**
      * Returns directives defined in GraphQL spec.
      *
+     * @throws InvariantViolation
+     *
      * @return array<string, Directive>
      *
      * @api
@@ -179,6 +187,8 @@ class GraphQL
 
     /**
      * Returns types defined in GraphQL spec.
+     *
+     * @throws InvariantViolation
      *
      * @return array<string, ScalarType>
      *
@@ -197,6 +207,8 @@ class GraphQL
      * @param array<string, ScalarType> $types
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function overrideStandardTypes(array $types): void
     {

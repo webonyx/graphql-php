@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
@@ -42,7 +43,11 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     private array $fields;
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-param InputObjectConfig $config
+     *
+     * @throws InvariantViolation
      */
     public function __construct(array $config)
     {
@@ -68,6 +73,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $field;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function findField(string $name): ?InputObjectField
     {
         if (! isset($this->fields)) {
@@ -77,6 +85,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $this->fields[$name] ?? null;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function hasField(string $name): bool
     {
         if (! isset($this->fields)) {
@@ -87,6 +98,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<string, InputObjectField>
      */
     public function getFields(): array
@@ -98,6 +111,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $this->fields;
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     protected function initializeFields(): void
     {
         $fields = $this->config['fields'];
@@ -115,6 +131,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      * @param string|int $nameOrIndex
      *
      * @phpstan-param FieldConfig $field
+     *
+     * @throws InvariantViolation
      */
     protected function initializeField($nameOrIndex, $field): void
     {
@@ -161,6 +179,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      * Validates type config and throws if one of type options is invalid.
      * Note: this method is shallow, it won't validate object fields and their arguments.
      *
+     * @throws Error
      * @throws InvariantViolation
      */
     public function assertValid(): void

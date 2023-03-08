@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Deferred;
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
@@ -84,6 +85,8 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     public array $config;
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-param ObjectConfig $config
      */
     public function __construct(array $config)
@@ -133,6 +136,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      * Validates type config and throws if one of type options is invalid.
      * Note: this method is shallow, it won't validate object fields and their arguments.
      *
+     * @throws Error
      * @throws InvariantViolation
      */
     public function assertValid(): void

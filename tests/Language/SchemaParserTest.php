@@ -395,6 +395,10 @@ extend type Hello {
         );
     }
 
+    /**
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     private function expectSyntaxError(string $text, string $message, SourceLocation $location): void
     {
         $this->expectException(SyntaxError::class);

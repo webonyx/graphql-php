@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
@@ -37,6 +38,8 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     public array $config;
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-param InterfaceConfig $config
      */
     public function __construct(array $config)
@@ -74,6 +77,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     }
 
     /**
+     * @throws Error
      * @throws InvariantViolation
      */
     public function assertValid(): void

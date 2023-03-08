@@ -55,6 +55,8 @@ final class LazyDefinitionTest extends TestCaseBase
             'fields' => [
                 'f' => new class() {
                     /**
+                     * @throws InvariantViolation
+                     *
                      * @return array{type: ScalarType}
                      */
                     public function __invoke(): array

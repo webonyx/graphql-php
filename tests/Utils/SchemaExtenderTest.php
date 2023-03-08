@@ -5,6 +5,8 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SerializationError;
+use GraphQL\Error\SyntaxError;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\IntValueNode;
@@ -50,6 +52,12 @@ final class SchemaExtenderTest extends TestCaseBase
     }
 
     /**
+     * @throws \JsonException
+     * @throws Error
+     * @throws InvariantViolation
+     * @throws SerializationError
+     * @throws SyntaxError
+     *
      * @return array<string>
      */
     private static function schemaDefinitions(Schema $schema): array
@@ -62,6 +70,13 @@ final class SchemaExtenderTest extends TestCaseBase
         return $definitions;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     * @throws InvariantViolation
+     * @throws SerializationError
+     * @throws SyntaxError
+     */
     private static function printSchemaChanges(Schema $schema, Schema $extendedSchema): string
     {
         $schemaDefinitions = self::schemaDefinitions($schema);
@@ -84,6 +99,12 @@ final class SchemaExtenderTest extends TestCaseBase
         return Printer::doPrint($astNode);
     }
 
+    /**
+     * @throws \GraphQL\Error\SerializationError
+     * @throws \JsonException
+     * @throws Error
+     * @throws InvariantViolation
+     */
     private static function assertSchemaEquals(Schema $expectedSchema, Schema $actualSchema): void
     {
         self::assertSame(

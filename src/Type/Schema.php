@@ -104,6 +104,8 @@ class Schema
      *
      * This operation requires a full schema scan. Do not use in production environment.
      *
+     * @throws InvariantViolation
+     *
      * @return array<string, Type&NamedType> Keys represent type names, values are instances of corresponding type definitions
      *
      * @api
@@ -168,6 +170,8 @@ class Schema
 
     /**
      * Returns a list of directives supported by this schema.
+     *
+     * @throws InvariantViolation
      *
      * @return array<Directive>
      *
@@ -248,6 +252,8 @@ class Schema
     /**
      * Returns a type by name.
      *
+     * @throws InvariantViolation
+     *
      * @return (Type&NamedType)|null
      *
      * @api
@@ -276,12 +282,17 @@ class Schema
         return $this->resolvedTypes[$name] = self::resolveType($type);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     public function hasType(string $name): bool
     {
         return $this->getType($name) !== null;
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return (Type&NamedType)|null
      */
     private function loadType(string $typeName): ?Type
@@ -333,6 +344,8 @@ class Schema
      *
      * @param AbstractType&Type $abstractType
      *
+     * @throws InvariantViolation
+     *
      * @return array<ObjectType>
      *
      * @api
@@ -354,6 +367,8 @@ class Schema
      * This operation requires full schema scan. Do not use in production environment.
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public function getImplementations(InterfaceType $abstractType): InterfaceImplementations
     {
@@ -361,6 +376,8 @@ class Schema
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<string, InterfaceImplementations>
      */
     private function collectImplementations(): array
@@ -417,6 +434,8 @@ class Schema
      * @param ImplementingType&Type $maybeSubType
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public function isSubType(AbstractType $abstractType, ImplementingType $maybeSubType): bool
     {
@@ -433,6 +452,8 @@ class Schema
      * Returns instance of directive by name.
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public function getDirective(string $name): ?Directive
     {
@@ -450,6 +471,7 @@ class Schema
      *
      * This operation requires a full schema scan. Do not use in production environment.
      *
+     * @throws Error
      * @throws InvariantViolation
      *
      * @api
@@ -481,6 +503,8 @@ class Schema
      * Validate the schema and return any errors.
      *
      * This operation requires a full schema scan. Do not use in production environment.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, Error>
      *

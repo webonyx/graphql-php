@@ -2,6 +2,8 @@
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\ObjectType;
@@ -22,6 +24,10 @@ final class DirectivesTest extends TestCase
     ];
 
     /**
+     * @throws \JsonException
+     * @throws InvariantViolation
+     * @throws SyntaxError
+     *
      * @return array<string, mixed>
      */
     private function executeTestQuery(string $doc): array
@@ -30,6 +36,9 @@ final class DirectivesTest extends TestCase
             ->toArray();
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private static function getSchema(): Schema
     {
         return self::$schema ??= new Schema([

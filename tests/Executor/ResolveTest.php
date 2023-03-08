@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ObjectType;
@@ -35,6 +36,8 @@ final class ResolveTest extends TestCase
 
     /**
      * @param UnnamedFieldDefinitionConfig $testField
+     *
+     * @throws InvariantViolation
      */
     private function buildSchema(array $testField): Schema
     {

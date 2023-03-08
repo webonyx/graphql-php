@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\InterfaceType;
@@ -63,6 +64,9 @@ final class LazyInterfaceTest extends TestCase
         );
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     protected function makeLazyInterfaceType(): InterfaceType
     {
         return $this->lazyInterface ??= new InterfaceType([
@@ -74,6 +78,9 @@ final class LazyInterfaceTest extends TestCase
         ]);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     protected function makeTestObjectType(): ObjectType
     {
         return $this->testObject ??= new ObjectType([

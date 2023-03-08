@@ -828,6 +828,8 @@ final class DefinitionTest extends TestCaseBase
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return \Generator<array-key, array{NamedType}>
      */
     public function providerPropertyAccessMethodsGiveCorrectValues(): \Generator
@@ -1050,6 +1052,9 @@ final class DefinitionTest extends TestCaseBase
 
     /**
      * @param mixed $resolveValue
+     *
+     * @throws Error
+     * @throws InvariantViolation
      */
     private function schemaWithObjectWithFieldResolver($resolveValue): Schema
     {
@@ -1186,6 +1191,9 @@ final class DefinitionTest extends TestCaseBase
 
     /**
      * @param Type&NamedType $type
+     *
+     * @throws Error
+     * @throws InvariantViolation
      */
     private function schemaWithFieldType(Type $type): Schema
     {

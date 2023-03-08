@@ -2,6 +2,8 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -39,6 +41,10 @@ final class ValueFromAstTest extends TestCase
 
     /**
      * @param mixed $expected any value
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
      */
     private function runTestCase(Type $type, string $valueText, $expected): void
     {
@@ -181,6 +187,9 @@ final class ValueFromAstTest extends TestCase
         $this->runTestCase($testInputObj, '{ bool: true }', $undefined);
     }
 
+    /**
+     * @throws InvariantViolation
+     */
     private function inputObj(): InputObjectType
     {
         return $this->inputObj ??= new InputObjectType([
@@ -206,6 +215,10 @@ final class ValueFromAstTest extends TestCase
     /**
      * @param array<string, mixed> $variables
      * @param mixed                $expected  any value
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
      */
     private function runTestCaseWithVars(array $variables, Type $type, string $valueText, $expected): void
     {

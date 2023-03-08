@@ -82,6 +82,10 @@ class Lexer
         $this->token = $startOfFileToken;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     public function advance(): Token
     {
         $this->lastToken = $this->token;
@@ -89,6 +93,10 @@ class Lexer
         return $this->token = $this->lookahead();
     }
 
+    /**
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     public function lookahead(): Token
     {
         $token = $this->token;
@@ -102,6 +110,7 @@ class Lexer
     }
 
     /**
+     * @throws \JsonException
      * @throws SyntaxError
      */
     private function readToken(Token $prev): Token
@@ -256,6 +265,9 @@ class Lexer
         );
     }
 
+    /**
+     * @throws \JsonException
+     */
     private function unexpectedCharacterMessage(?int $code): string
     {
         // SourceCharacter
@@ -311,6 +323,7 @@ class Lexer
      * Int:   -?(0|[1-9][0-9]*)
      * Float: -?(0|[1-9][0-9]*)(\.[0-9]+)?((E|e)(+|-)?[0-9]+)?
      *
+     * @throws \JsonException
      * @throws SyntaxError
      */
     private function readNumber(int $line, int $col, Token $prev): Token
@@ -378,6 +391,9 @@ class Lexer
 
     /**
      * Returns string with all digits + changes current string cursor position to point to the first char after digits.
+     *
+     * @throws \JsonException
+     * @throws SyntaxError
      */
     private function readDigits(): string
     {
@@ -406,6 +422,7 @@ class Lexer
     }
 
     /**
+     * @throws \JsonException
      * @throws SyntaxError
      */
     private function readString(int $line, int $col, Token $prev): Token
@@ -539,6 +556,9 @@ class Lexer
      * Reads a block string token from the source file.
      *
      * """("?"?(\\"""|\\(?!=""")|[^"\\]))*"""
+     *
+     * @throws \JsonException
+     * @throws SyntaxError
      */
     private function readBlockString(int $line, int $col, Token $prev): Token
     {
@@ -609,6 +629,10 @@ class Lexer
         );
     }
 
+    /**
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     private function assertValidStringCharacterCode(int $code, int $position): void
     {
         // SourceCharacter
@@ -621,6 +645,10 @@ class Lexer
         }
     }
 
+    /**
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     private function assertValidBlockStringCharacterCode(int $code, int $position): void
     {
         // SourceCharacter

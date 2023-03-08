@@ -80,6 +80,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * GraphQL Document.
      *
      * @phpstan-return array<int, Conflict>
+     *
+     * @throws \Exception
      */
     protected function findConflictsWithinSelectionSet(
         QueryValidationContext $context,
@@ -139,6 +141,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * Given a selection set, return the collection of fields (a mapping of response
      * name to field ASTs and definitions) as well as a list of fragment names
      * referenced via fragment spreads.
+     *
+     * @throws \Exception
      *
      * @return array{FieldMap, array<int, string>}
      */
@@ -229,6 +233,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @param array<string, bool> $fragmentNames
      *
      * @phpstan-param FieldMap $astAndDefs
+     *
+     * @throws \Exception
      */
     protected function internalCollectFieldsAndFragmentNames(
         QueryValidationContext $context,
@@ -283,6 +289,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @param array<int, Conflict> $conflicts
      *
      * @phpstan-param FieldMap $fieldMap
+     *
+     * @throws \Exception
      */
     protected function collectConflictsWithin(
         QueryValidationContext $context,
@@ -327,6 +335,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @param array{Type, FieldNode, FieldDefinition|null} $field2
      *
      * @phpstan-return Conflict|null
+     *
+     * @throws \Exception
      */
     protected function findConflict(
         QueryValidationContext $context,
@@ -496,6 +506,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * via spreading in fragments. Called when determining if conflicts exist
      * between the sub-fields of two overlapping fields.
      *
+     * @throws \Exception
+     *
      * @return array<int, Conflict>
      */
     protected function findConflictsBetweenSubSelectionSets(
@@ -590,6 +602,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @phpstan-param array<int, Conflict> $conflicts
      * @phpstan-param FieldMap $fieldMap1
      * @phpstan-param FieldMap $fieldMap2
+     *
+     * @throws \Exception
      */
     protected function collectConflictsBetween(
         QueryValidationContext $context,
@@ -636,6 +650,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      *
      * @phpstan-param array<int, Conflict> $conflicts
      * @phpstan-param FieldMap $fieldMap
+     *
+     * @throws \Exception
      */
     protected function collectConflictsBetweenFieldsAndFragment(
         QueryValidationContext $context,
@@ -695,6 +711,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * as well as a list of nested fragment names referenced via fragment spreads.
      *
      * @phpstan-return array{FieldMap, array<int, string>}
+     *
+     * @throws \Exception
      */
     protected function getReferencedFieldsAndFragmentNames(
         QueryValidationContext $context,
@@ -719,6 +737,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * any nested fragments.
      *
      * @phpstan-param array<int, Conflict> $conflicts
+     *
+     * @throws \Exception
      */
     protected function collectConflictsBetweenFragments(
         QueryValidationContext $context,
