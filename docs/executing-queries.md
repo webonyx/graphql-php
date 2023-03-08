@@ -83,7 +83,8 @@ $psrResponse = $server->processPsrRequest($psrRequest, $psrResponse, $psrBodyStr
 
 /** @var ExecutionResult|ExecutionResult[] $result */
 $result = $server->executePsrRequest($psrRequest);
-$psrResponse = new SomePsr7ResponseImplementation(json_encode($result));
+$jsonResult = json_encode($result, JSON_THROW_ON_ERROR);
+$psrResponse = new SomePsr7ResponseImplementation($jsonResult );
 ```
 
 PSR-7 is useful when you want to integrate the server into existing framework:

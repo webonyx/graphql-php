@@ -874,7 +874,7 @@ final class ExecutorTest extends TestCase
                 'fields' => [
                     'field' => [
                         'type' => Type::string(),
-                        'resolve' => static fn ($data, array $args): string => json_encode($args),
+                        'resolve' => static fn ($data, array $args): string => json_encode($args, JSON_THROW_ON_ERROR),
                         'args' => [
                             'a' => ['type' => Type::boolean()],
                             'b' => ['type' => Type::boolean()],
@@ -1020,7 +1020,7 @@ final class ExecutorTest extends TestCase
                 'fields' => [
                     'field' => [
                         'type' => Type::string(),
-                        'resolve' => static fn ($data, array $args): string => json_encode($args),
+                        'resolve' => static fn ($data, array $args): string => json_encode($args, JSON_THROW_ON_ERROR),
                         'args' => [
                             'a' => ['type' => Type::boolean(), 'defaultValue' => 1],
                             'b' => ['type' => Type::boolean(), 'defaultValue' => null],

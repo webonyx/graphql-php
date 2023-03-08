@@ -13,10 +13,9 @@ use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\Utils;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
-
-use function Safe\json_encode;
 
 final class NonNullTest extends TestCase
 {
@@ -380,7 +379,8 @@ final class NonNullTest extends TestCase
                 }
             }
 
-            self::assertTrue($found, 'Did not find error: ' . json_encode($expectedError));
+            $safeError = Utils::printSafeJson($expectedError);
+            self::assertTrue($found, "Did not find error: {$safeError}");
         }
     }
 

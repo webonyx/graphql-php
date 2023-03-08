@@ -410,7 +410,7 @@ class Helper
     protected function emitResponse($jsonSerializable): void
     {
         \header('Content-Type: application/json;charset=utf-8');
-        echo \json_encode($jsonSerializable, JSON_UNESCAPED_UNICODE);
+        echo \json_encode($jsonSerializable, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     }
 
     protected function readRawBody(): string
