@@ -7,10 +7,12 @@ use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\ConstListValueNode;
 use GraphQL\Language\AST\ConstObjectFieldNode;
 use GraphQL\Language\AST\ConstObjectValueNode;
+use GraphQL\Language\AST\ConstValueNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListValueNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectFieldNode;
@@ -35,6 +37,7 @@ use GraphQL\Validator\QueryValidationContext;
  * expected at their position.
  *
  * @phpstan-import-type ValueNodeVariants from ValueNode
+ * @phpstan-import-type ConstValueNodeVariants from ConstValueNode
  */
 class ValuesOfCorrectType extends ValidationRule
 {
@@ -146,9 +149,9 @@ class ValuesOfCorrectType extends ValidationRule
     }
 
     /**
-     * @param ValueNodeVariants $node
+     * @param ValueNodeVariants|ConstValueNodeVariants $node
      */
-    protected function isValidValueNode(QueryValidationContext $context, ValueNode $node): void
+    protected function isValidValueNode(QueryValidationContext $context, Node $node): void
     {
         // Report any error at the full type expected by the location.
         $locationType = $context->getInputType();

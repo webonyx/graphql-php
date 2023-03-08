@@ -7,6 +7,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\ConstListValueNode;
 use GraphQL\Language\AST\ConstObjectValueNode;
+use GraphQL\Language\AST\ConstValueNode;
 use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumValueNode;
@@ -292,7 +293,7 @@ class AST
      * | Enum Value           | Mixed         |
      * | Null Value           | null          |
      *
-     * @param (ValueNode&Node)|null $valueNode
+     * @param (ValueNode&Node)|(ConstValueNode&Node)|null $valueNode
      * @param array<string, mixed>|null $variables
      *
      * @throws \Exception
@@ -301,7 +302,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromAST(?ValueNode $valueNode, Type $type, ?array $variables = null)
+    public static function valueFromAST(?Node $valueNode, Type $type, ?array $variables = null)
     {
         $undefined = Utils::undefined();
 
@@ -448,10 +449,10 @@ class AST
      * Returns true if the provided valueNode is a variable which is not defined
      * in the set of variables.
      *
-     * @param ValueNode&Node $valueNode
+     * @param (ValueNode&Node)|(ConstValueNode&Node) $valueNode
      * @param array<string, mixed>|null $variables
      */
-    private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
+    private static function isMissingVariable(Node $valueNode, ?array $variables): bool
     {
         return $valueNode instanceof VariableNode
             && ($variables === null || ! \array_key_exists($valueNode->name->value, $variables));

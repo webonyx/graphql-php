@@ -970,6 +970,7 @@ class Parser
         $class = $isConst
             ? ConstObjectFieldNode::class
             : ObjectFieldNode::class;
+
         return new $class([
             'name' => $name,
             'value' => $this->parseValueLiteral($isConst),

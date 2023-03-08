@@ -316,6 +316,7 @@ class Printer
 
             case $node instanceof ListValueNode:
             case $node instanceof ConstListValueNode:
+                // @phpstan-ignore-next-line weird generic issue
                 return '[' . $this->printList($node->values, ', ') . ']';
 
             case $node instanceof NameNode:
@@ -360,6 +361,7 @@ class Printer
 
             case $node instanceof ObjectValueNode:
             case $node instanceof ConstObjectValueNode:
+                // @phpstan-ignore-next-line weird generic issue
                 return "{ {$this->printList($node->fields, ', ')} }";
 
             case $node instanceof OperationDefinitionNode:
@@ -507,7 +509,7 @@ class Printer
 
     protected function addDescription(?StringValueNode $description, string $body): string
     {
-        return $this->join([$this->p($description, true), $body], "\n");
+        return $this->join([$this->p($description), $body], "\n");
     }
 
     /**

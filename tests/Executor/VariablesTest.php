@@ -215,7 +215,7 @@ final class VariablesTest extends TestCase
     }
 
     /**
-     * describe('using variables', () => {
+     * describe('using variables', () => {.
      */
     public function testUsingVariables(): void
     {
