@@ -833,6 +833,10 @@ allowLegacySDLImplementsInterfaces?: bool,
 experimentalFragmentVariables?: bool
 }
 
+@phpstan-import-type ConstValueNodeVariants from ConstValueNode
+@phpstan-import-type ValueNodeVariants from ValueNode
+@phpstan-import-type TypeNodeVariants from TypeNode
+
 noLocation:
 (By default, the parser creates AST nodes that know the location
 in the source that they correspond to. This configuration flag
@@ -888,17 +892,17 @@ Those magic functions allow partial parsing:
 @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
 @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, bool[] $options = [])
 @method static NameNode fragmentName(Source|string $source, bool[] $options = [])
-@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, bool[] $options = [])
-@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode constValueLiteral(Source|string $source, bool[] $options = [])
+@method static ValueNodeVariants valueLiteral(Source|string $source, bool[] $options = [])
+@method static ConstValueNodeVariants constValueLiteral(Source|string $source, bool[] $options = [])
 @method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
-@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode constValue(Source|string $source, bool[] $options = [])
-@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, bool[] $options = [])
+@method static ConstValueNodeVariants constValue(Source|string $source, bool[] $options = [])
+@method static ValueNodeVariants variableValue(Source|string $source, bool[] $options = [])
 @method static ListValueNode array(Source|string $source, bool[] $options = [])
-@method static ListValueNode constArray(Source|string $source, bool[] $options = [])
+@method static ConstListValueNode constArray(Source|string $source, bool[] $options = [])
 @method static ObjectValueNode object(Source|string $source, bool[] $options = [])
-@method static ObjectValueNode constObject(Source|string $source, bool[] $options = [])
+@method static ConstObjectValueNode constObject(Source|string $source, bool[] $options = [])
 @method static ObjectFieldNode objectField(Source|string $source, bool[] $options = [])
-@method static ObjectFieldNode constObjectField(Source|string $source, bool[] $options = [])
+@method static ConstObjectFieldNode constObjectField(Source|string $source, bool[] $options = [])
 @method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
 @method static NodeList<DirectiveNode> constDirectives(Source|string $source, bool[] $options = [])
 @method static DirectiveNode directive(Source|string $source, bool[] $options = [])
@@ -970,11 +974,11 @@ static function parse($source, array $options = []): GraphQL\Language\AST\Docume
  *
  * @phpstan-param ParserOptions $options
  *
- * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode
+ * @return ValueNodeVariants
  *
  * @api
  */
-static function parseValue($source, array $options = [])
+static function parseValue($source, array $options = []): GraphQL\Language\AST\ValueNode
 ```
 
 ```php
@@ -992,11 +996,11 @@ static function parseValue($source, array $options = [])
  *
  * @phpstan-param ParserOptions       $options
  *
- * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
+ * @return TypeNodeVariants
  *
  * @api
  */
-static function parseType($source, array $options = [])
+static function parseType($source, array $options = []): GraphQL\Language\AST\TypeNode
 ```
 
 ## GraphQL\Language\Printer
@@ -2427,7 +2431,7 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type): ?
  * | Enum Value           | Mixed         |
  * | Null Value           | null          |
  *
- * @param (ValueNode&Node)|null $valueNode
+ * @param (ValueNode&Node)|(ConstValueNode&Node)|null $valueNode
  * @param array<string, mixed>|null $variables
  *
  * @throws \Exception
@@ -2437,7 +2441,7 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type): ?
  * @api
  */
 static function valueFromAST(
-    ?GraphQL\Language\AST\ValueNode $valueNode,
+    ?GraphQL\Language\AST\Node $valueNode,
     GraphQL\Type\Definition\Type $type,
     ?array $variables = null
 )
