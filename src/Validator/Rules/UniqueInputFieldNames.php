@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\ConstObjectFieldNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\ObjectFieldNode;
@@ -54,7 +55,8 @@ class UniqueInputFieldNames extends ValidationRule
                     $this->knownNames = $knownNames;
                 },
             ],
-            NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) use ($context): VisitorOperation {
+            NodeKind::OBJECT_FIELD => function ($node) use ($context): VisitorOperation {
+                assert($node instanceof ObjectFieldNode || $node instanceof ConstObjectFieldNode);
                 $fieldName = $node->name->value;
 
                 if (isset($this->knownNames[$fieldName])) {
