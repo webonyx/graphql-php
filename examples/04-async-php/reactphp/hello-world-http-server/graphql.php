@@ -9,7 +9,7 @@
 // Try mutation
 // curl -d '{"query": "mutation { sum(x: 2, y: 2) }" }' -H "Content-Type: application/json" http://localhost:8080
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;

@@ -256,10 +256,8 @@ in a naive implementation.
 
 ## Async PHP
 
-Since: 0.10.0 (version 0.9.0 had slightly different API which still works, but is deprecated)
-
 If your project runs in an environment that supports async operations
-(like HHVM, ReactPHP, Icicle.io, appserver.io, PHP threads, etc)
+(like HHVM, ReactPHP, AMPHP, appserver.io, PHP threads, etc)
 you can leverage the power of your platform to resolve some fields asynchronously.
 
 The only requirement: your platform must support the concept of Promises compatible with
@@ -290,6 +288,9 @@ Where **$promiseAdapter** is an instance of:
 
 - For [ReactPHP](https://github.com/reactphp/react) (requires **react/promise** as composer dependency): <br>
   `GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter`
+
+- For [AMPHP](https://github.com/amphp/amp): <br>
+  `GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter`
 
 - Other platforms: write your own class implementing interface: <br>
   [`GraphQL\Executor\Promise\PromiseAdapter`](class-reference.md#graphqlexecutorpromisepromiseadapter).
