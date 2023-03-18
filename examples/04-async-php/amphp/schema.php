@@ -5,29 +5,32 @@
  * This can have big advantages if you fetch data from different microservices.
  * Keep in mind, everything in "call" should now be non-blocking, checkout out async libraries like (amphp/mysql, amphp/http-client).
  */
-return new GraphQL\Type\Schema([
-    'query' => new GraphQL\Type\Definition\ObjectType([
+
+use Amp\Promise;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
+use function Amp\call;
+
+return new Schema([
+    'query' => new ObjectType([
         'name' => 'Query',
         'fields' => [
             'product' => [
-                'type' => GraphQL\Type\Definition\Type::string(),
-                'resolve' => function () {
-                    return \Amp\call(
-                        function() {
-                            // use here e.g. amphp/mysql, amphp/http-client, ...
-                            return 'xyz';
-                        }
+                'type' => Type::string(),
+                'resolve' => function (): Promise {
+                    return call(
+                        // use inside the closure e.g. amphp/mysql, amphp/http-client, ...
+                        fn(): string => 'xyz'
                     );
                 },
             ],
             'article' => [
-                'type' => GraphQL\Type\Definition\Type::string(),
-                'resolve' => function () {
-                    return \Amp\call(
-                        function() {
-                            // use here e.g. amphp/mysql, amphp/http-client, ...
-                            return 'zyx';
-                        }
+                'type' => Type::string(),
+                'resolve' => function (): Promise {
+                    return call(
+                        // use inside the closure e.g. amphp/mysql, amphp/http-client, ...
+                        fn(): string => 'zyx'
                     );
                 },
             ],

@@ -5,13 +5,14 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
+use Amp\Loop;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter;
 use GraphQL\GraphQL;
 
 $schema = require_once __DIR__ . '/../schema.php';
 
-\Amp\Loop::run(function () use ($schema) {
+Loop::run(function () use ($schema): void {
     $input = json_decode(file_get_contents('php://input'), true);
     $promise = GraphQL::promiseToExecute(
         new AmpPromiseAdapter(),
@@ -22,9 +23,7 @@ $schema = require_once __DIR__ . '/../schema.php';
         $input['variables'] ?? null,
         $input['operationName'] ?? null
     );
-    $resultArray = [];
-    $promise->then(function(ExecutionResult $result) use (&$resultArray) {
-        $resultArray = $result->toArray();
+    $promise->then(function(ExecutionResult $result): void {
+        echo json_encode($result->toArray());
     });
-    echo json_encode($resultArray);
 });
