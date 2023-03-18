@@ -5,7 +5,6 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-use Amp\Coroutine;
 use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
