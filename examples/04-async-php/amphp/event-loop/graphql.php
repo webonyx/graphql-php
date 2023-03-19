@@ -13,7 +13,13 @@ use GraphQL\GraphQL;
 $schema = require_once __DIR__ . '/../schema.php';
 
 Loop::run(function () use ($schema): void {
-    $input = json_decode(file_get_contents('php://input'), true);
+    $content = file_get_contents('php://input');
+    $input = '';
+
+    if ($content !== false) {
+        $input = json_decode($content, true);
+    }
+
     $promise = GraphQL::promiseToExecute(
         new AmpPromiseAdapter(),
         $schema,

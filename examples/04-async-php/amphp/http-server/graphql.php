@@ -27,14 +27,14 @@ Loop::run(function () use ($schema): Generator {
         $query = $input['query'];
         $variableValues = $input['variables'] ?? null;
         $promise = GraphQL::promiseToExecute(new AmpPromiseAdapter(), $schema, $query, [], null, $variableValues);
-        $promise = $promise->then(fn(ExecutionResult $result): Response =>
-            new Response(
+        $promise = $promise->then(function(ExecutionResult $result): Response {
+            $data = json_encode($result->toArray());
+            return new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                json_encode($result->toArray())
-            )
-        );
-
+                $data !== false ? $data : null
+            );
+        });
         return $promise->adoptedPromise;
     }), new Psr\Log\NullLogger);
 
