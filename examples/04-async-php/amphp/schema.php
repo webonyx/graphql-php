@@ -21,7 +21,7 @@ return new Schema([
                 'resolve' => fn(): Promise => call(
                     // use inside the closure e.g. amphp/mysql, amphp/http-client, ...
                     fn(): string => 'xyz'
-                )
+                ),
             ],
             'article' => [
                 'type' => Type::string(),
