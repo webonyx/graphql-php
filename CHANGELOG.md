@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.2.4
+
+### Fixed
+
+- Ensure `OperationDefinitionNode.variableDefinitions` is initialized
+
 ## v15.2.3
 
 ### Fixed
