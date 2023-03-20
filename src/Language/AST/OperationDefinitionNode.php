@@ -28,6 +28,7 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
     {
         parent::__construct($vars);
         $this->directives ??= new NodeList([]);
+        $this->variableDefinitions ??= new NodeList([]);
     }
 
     public function getSelectionSet(): SelectionSetNode
