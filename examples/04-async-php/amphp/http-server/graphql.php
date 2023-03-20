@@ -25,16 +25,19 @@ Loop::run(function () use ($schema): Generator {
 
     $server = new HttpServer($sockets, new CallableRequestHandler(function (Request $request) use ($schema): Generator {
         $input = json_decode(yield $request->getBody()->buffer(), true);
-        $query = $input['query'];
-        $variableValues = $input['variables'] ?? null;
-        $promise = GraphQL::promiseToExecute(new AmpPromiseAdapter(), $schema, $query, [], null, $variableValues);
-        $promise = $promise->then(function(ExecutionResult $result): Response {
-            return new Response(
-                200,
-                ['Content-Type' => 'application/json'],
-                json_encode($result->toArray(), JSON_THROW_ON_ERROR)
-            );
-        });
+        $promise = GraphQL::promiseToExecute(
+            new AmpPromiseAdapter(),
+            $schema,
+            $input['query'],
+            [],
+            null,
+            $input['variables'] ?? null
+        );
+        $promise = $promise->then(fn (ExecutionResult $result): Response => new Response(
+            200,
+            ['Content-Type' => 'application/json'],
+            json_encode($result->toArray(), JSON_THROW_ON_ERROR)
+        ));
         return $promise->adoptedPromise;
     }), new NullLogger);
 
