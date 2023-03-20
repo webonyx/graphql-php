@@ -3,7 +3,7 @@
 /*
  * The resolvers for "product" and "article" run asynchronously.
  * This can have big advantages if you fetch data from different microservices.
- * Keep in mind everything in "call" should now be non-blocking, check out async libraries like amphp/mysql, amphp/http-client.
+ * Keep in mind everything in "call" should be non-blocking, check out async libraries like amphp/mysql, amphp/http-client.
  */
 
 use Amp\Promise;
