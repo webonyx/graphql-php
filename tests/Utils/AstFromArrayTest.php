@@ -29,6 +29,7 @@ final class AstFromArrayTest extends TestCase
         ]);
         assert($res instanceof OperationDefinitionNode);
         self::assertEquals($res->directives, new NodeList([]));
+        self::assertEquals($res->variableDefinitions, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'Field',
@@ -74,6 +75,7 @@ final class AstFromArrayTest extends TestCase
         ]);
         assert($res instanceof OperationDefinitionNode);
         self::assertEquals($res->directives, new NodeList([]));
+        self::assertEquals($res->variableDefinitions, new NodeList([]));
 
         $res = AST::fromArray([
             'kind' => 'Field',
