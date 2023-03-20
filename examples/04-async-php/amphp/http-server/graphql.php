@@ -14,6 +14,7 @@ use Amp\Socket\Server;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter;
 use GraphQL\GraphQL;
+use Psr\Log\NullLogger;
 
 $schema = require_once __DIR__ . '/../schema.php';
 
@@ -28,15 +29,14 @@ Loop::run(function () use ($schema): Generator {
         $variableValues = $input['variables'] ?? null;
         $promise = GraphQL::promiseToExecute(new AmpPromiseAdapter(), $schema, $query, [], null, $variableValues);
         $promise = $promise->then(function(ExecutionResult $result): Response {
-            $data = json_encode($result->toArray());
             return new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                $data !== false ? $data : null
+                json_encode($result->toArray(), JSON_THROW_ON_ERROR)
             );
         });
         return $promise->adoptedPromise;
-    }), new Psr\Log\NullLogger);
+    }), new NullLogger);
 
     yield $server->start();
 });

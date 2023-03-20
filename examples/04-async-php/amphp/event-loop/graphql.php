@@ -30,6 +30,6 @@ Loop::run(function () use ($schema): void {
         $input['operationName'] ?? null
     );
     $promise->then(function(ExecutionResult $result): void {
-        echo json_encode($result->toArray());
+        echo json_encode($result->toArray(), JSON_THROW_ON_ERROR);
     });
 });
