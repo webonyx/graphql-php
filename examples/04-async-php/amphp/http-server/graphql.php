@@ -20,7 +20,7 @@ $schema = require_once __DIR__ . '/../schema.php';
 
 Loop::run(function () use ($schema): Generator {
     $sockets = [
-        Server::listen("localhost:8080"),
+        Server::listen('localhost:8080'),
     ];
 
     $server = new HttpServer($sockets, new CallableRequestHandler(function (Request $request) use ($schema): Generator {
@@ -38,8 +38,9 @@ Loop::run(function () use ($schema): Generator {
             ['Content-Type' => 'application/json'],
             json_encode($result->toArray(), JSON_THROW_ON_ERROR)
         ));
+
         return $promise->adoptedPromise;
-    }), new NullLogger);
+    }), new NullLogger());
 
     yield $server->start();
 });

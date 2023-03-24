@@ -29,7 +29,7 @@ Loop::run(function () use ($schema): void {
         $input['variables'] ?? null,
         $input['operationName'] ?? null
     );
-    $promise->then(function(ExecutionResult $result): void {
+    $promise->then(function (ExecutionResult $result): void {
         echo json_encode($result->toArray(), JSON_THROW_ON_ERROR);
     });
 });

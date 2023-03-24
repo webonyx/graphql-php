@@ -10,6 +10,7 @@ use Amp\Promise;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+
 use function Amp\call;
 
 return new Schema([
@@ -18,18 +19,18 @@ return new Schema([
         'fields' => [
             'product' => [
                 'type' => Type::string(),
-                'resolve' => fn(): Promise => call(
+                'resolve' => fn (): Promise => call(
                     // use inside the closure e.g. amphp/mysql, amphp/http-client, ...
-                    fn(): string => 'xyz'
+                    fn (): string => 'xyz'
                 ),
             ],
             'article' => [
                 'type' => Type::string(),
-                'resolve' => fn(): Promise => call(
+                'resolve' => fn (): Promise => call(
                     // use inside the closure e.g. amphp/mysql, amphp/http-client, ...
-                    fn(): string => 'zyx'
+                    fn (): string => 'zyx'
                 ),
             ],
         ],
-    ])
+    ]),
 ]);
