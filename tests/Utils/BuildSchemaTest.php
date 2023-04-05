@@ -13,10 +13,13 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\NamedTypeNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
@@ -1444,20 +1447,23 @@ final class BuildSchemaTest extends TestCaseBase
         ';
         $doc = Parser::parse($sdl);
 
+        /** @var array<int, string> $decorated */
         $decorated = [];
+        /** @var array<int, array{array<string, mixed>, Node&TypeDefinitionNode, array<string, mixed>}> $calls */
         $calls = [];
 
-        $typeConfigDecorator = static function ($defaultConfig, $node, $allNodesMap) use (&$decorated, &$calls) {
+        $typeConfigDecorator = static function (array $defaultConfig, TypeDefinitionNode $node, array $allNodesMap) use (&$decorated, &$calls) {
             $decorated[] = $defaultConfig['name'];
             $calls[] = [$defaultConfig, $node, $allNodesMap];
 
-            return ['description' => 'My description of ' . $node->name->value] + $defaultConfig;
+            return ['description' => 'My description of ' . $node->getName()->value] + $defaultConfig;
         };
 
         $schema = BuildSchema::buildAST($doc, $typeConfigDecorator);
         $schema->getTypeMap();
         self::assertSame(['Query', 'Color', 'Hello'], $decorated);
 
+        self::assertArrayHasKey(0, $calls);
         [$defaultConfig, $node, $allNodesMap] = $calls[0]; // type Query
         self::assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
         self::assertSame('Query', $defaultConfig['name']);
@@ -1471,6 +1477,7 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertInstanceOf(ObjectType::class, $query);
         self::assertSame('My description of Query', $query->description);
 
+        self::assertArrayHasKey(1, $calls);
         [$defaultConfig, $node, $allNodesMap] = $calls[1]; // enum Color
         self::assertInstanceOf(EnumTypeDefinitionNode::class, $node);
         self::assertSame('Color', $defaultConfig['name']);
@@ -1493,6 +1500,7 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertInstanceOf(EnumType::class, $color);
         self::assertSame('My description of Color', $color->description);
 
+        self::assertArrayHasKey(2, $calls);
         [$defaultConfig, $node, $allNodesMap] = $calls[2]; // interface Hello
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
         self::assertSame('Hello', $defaultConfig['name']);
