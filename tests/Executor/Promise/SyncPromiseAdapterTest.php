@@ -219,7 +219,7 @@ final class SyncPromiseAdapterTest extends TestCase
         $expectedResult = [0, 1, 2, 3, 4];
         $result = $this->promises->wait($all);
         self::assertSame($expectedResult, $result);
-        self::assertSame([1, 2, 3, 4], $called); // @phpstan-ignore-line side-effects
+        self::assertSame([1, 2, 3, 4], $called);
         self::assertValidPromise($all, null, [0, 1, 2, 3, 4], SyncPromise::FULFILLED);
     }
 }

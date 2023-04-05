@@ -1445,6 +1445,7 @@ final class BuildSchemaTest extends TestCaseBase
         $doc = Parser::parse($sdl);
 
         $decorated = [];
+        /** @var array<int, array{mixed, mixed, mixed}> $calls */
         $calls = [];
 
         $typeConfigDecorator = static function ($defaultConfig, $node, $allNodesMap) use (&$decorated, &$calls) {
@@ -1458,6 +1459,7 @@ final class BuildSchemaTest extends TestCaseBase
         $schema->getTypeMap();
         self::assertSame(['Query', 'Color', 'Hello'], $decorated);
 
+        self::assertArrayHasKey(0, $calls);
         [$defaultConfig, $node, $allNodesMap] = $calls[0]; // type Query
         self::assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
         self::assertSame('Query', $defaultConfig['name']);
@@ -1471,6 +1473,7 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertInstanceOf(ObjectType::class, $query);
         self::assertSame('My description of Query', $query->description);
 
+        self::assertArrayHasKey(1, $calls);
         [$defaultConfig, $node, $allNodesMap] = $calls[1]; // enum Color
         self::assertInstanceOf(EnumTypeDefinitionNode::class, $node);
         self::assertSame('Color', $defaultConfig['name']);
@@ -1493,6 +1496,7 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertInstanceOf(EnumType::class, $color);
         self::assertSame('My description of Color', $color->description);
 
+        self::assertArrayHasKey(2, $calls);
         [$defaultConfig, $node, $allNodesMap] = $calls[2]; // interface Hello
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
         self::assertSame('Hello', $defaultConfig['name']);
