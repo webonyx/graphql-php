@@ -199,7 +199,7 @@ class TypeRegistry
         // even more needless work from happening
         return static fn () => self::byClassName($classname);
     }
-    
+
     private static function byClassName(string $classname): Type
     {
         $parts = \explode('\\', $classname);
@@ -214,7 +214,7 @@ class TypeRegistry
 
     public static function MyA(): callable { return self::get(MyAType::class); }
     public static function MyB(): callable { return self::get(MyBType::class); }
-    
+
     ...
 }
 ```
