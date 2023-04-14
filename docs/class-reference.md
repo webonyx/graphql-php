@@ -560,48 +560,6 @@ static function create(array $options = []): self
 
 ```php
 /**
- * @api
- */
-function getQuery(): ?GraphQL\Type\Definition\ObjectType
-```
-
-```php
-/**
- * @api
- */
-function setQuery(?GraphQL\Type\Definition\ObjectType $query): self
-```
-
-```php
-/**
- * @api
- */
-function getMutation(): ?GraphQL\Type\Definition\ObjectType
-```
-
-```php
-/**
- * @api
- */
-function setMutation(?GraphQL\Type\Definition\ObjectType $mutation): self
-```
-
-```php
-/**
- * @api
- */
-function getSubscription(): ?GraphQL\Type\Definition\ObjectType
-```
-
-```php
-/**
- * @api
- */
-function setSubscription(?GraphQL\Type\Definition\ObjectType $subscription): self
-```
-
-```php
-/**
  * @return array|callable
  *
  * @phpstan-return Types
@@ -750,13 +708,6 @@ function getMutationType(): ?GraphQL\Type\Definition\ObjectType
  * @api
  */
 function getSubscriptionType(): ?GraphQL\Type\Definition\ObjectType
-```
-
-```php
-/**
- * @api
- */
-function getConfig(): GraphQL\Type\SchemaConfig
 ```
 
 ```php
@@ -2021,13 +1972,6 @@ static function create(array $config = []): self
 
 ```php
 /**
- * @api
- */
-function setSchema(GraphQL\Type\Schema $schema): self
-```
-
-```php
-/**
  * @param mixed|callable $context
  *
  * @api
@@ -2079,13 +2023,6 @@ function setValidationRules($validationRules): self
 
 ```php
 /**
- * @api
- */
-function setFieldResolver(callable $fieldResolver): self
-```
-
-```php
-/**
  * @phpstan-param PersistedQueryLoader|null $persistedQueryLoader
  *
  * @api
@@ -2111,13 +2048,6 @@ function setDebugFlag(int $debugFlag = 'GraphQL\\Error\\DebugFlag::INCLUDE_DEBUG
  * @api
  */
 function setQueryBatching(bool $enableBatching): self
-```
-
-```php
-/**
- * @api
- */
-function setPromiseAdapter(GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter): self
 ```
 
 ## GraphQL\Server\Helper
