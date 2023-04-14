@@ -230,9 +230,7 @@ GRAPHQL;
         ];
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function _schema(): ObjectType
     {
         return self::$map['__Schema'] ??= new ObjectType([
@@ -272,9 +270,7 @@ GRAPHQL;
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function _type(): ObjectType
     {
         return self::$map['__Type'] ??= new ObjectType([
@@ -410,9 +406,7 @@ GRAPHQL;
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function _typeKind(): EnumType
     {
         return self::$map['__TypeKind'] ??= new EnumType([
@@ -456,9 +450,7 @@ GRAPHQL;
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function _field(): ObjectType
     {
         return self::$map['__Field'] ??= new ObjectType([
@@ -496,9 +488,7 @@ GRAPHQL;
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function _inputValue(): ObjectType
     {
         return self::$map['__InputValue'] ??= new ObjectType([
@@ -546,9 +536,7 @@ GRAPHQL;
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function _enumValue(): ObjectType
     {
         return self::$map['__EnumValue'] ??= new ObjectType([
@@ -579,9 +567,7 @@ GRAPHQL;
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function _directive(): ObjectType
     {
         return self::$map['__Directive'] ??= new ObjectType([
@@ -620,9 +606,7 @@ GRAPHQL;
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function _directiveLocation(): EnumType
     {
         return self::$map['__DirectiveLocation'] ??= new EnumType([
@@ -711,9 +695,7 @@ GRAPHQL;
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function schemaMetaFieldDef(): FieldDefinition
     {
         return self::$map[self::SCHEMA_FIELD_NAME] ??= new FieldDefinition([
@@ -725,9 +707,7 @@ GRAPHQL;
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function typeMetaFieldDef(): FieldDefinition
     {
         return self::$map[self::TYPE_FIELD_NAME] ??= new FieldDefinition([
@@ -744,9 +724,7 @@ GRAPHQL;
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function typeNameMetaFieldDef(): FieldDefinition
     {
         return self::$map[self::TYPE_NAME_FIELD_NAME] ??= new FieldDefinition([

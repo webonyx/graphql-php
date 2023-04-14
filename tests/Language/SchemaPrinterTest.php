@@ -19,9 +19,7 @@ use function Safe\json_encode;
  */
 final class SchemaPrinterTest extends TestCase
 {
-    /**
-     * @see it('prints minimal ast')
-     */
+    /** @see it('prints minimal ast') */
     public function testPrintsMinimalAst(): void
     {
         $ast = new ScalarTypeDefinitionNode([
@@ -31,17 +29,13 @@ final class SchemaPrinterTest extends TestCase
         self::assertSame('scalar foo', Printer::doPrint($ast));
     }
 
-    /**
-     * @see it('produces helpful error messages')
-     */
+    /** @see it('produces helpful error messages') */
     public function testProducesHelpfulErrorMessages(): void
     {
         self::markTestSkipped('Not equivalent to the reference implementation because we have runtime types that fail early');
     }
 
-    /**
-     * @see it('prints kitchen sink without altering ast', () => {
-     */
+    /** @see it('prints kitchen sink without altering ast', () => { */
     public function testPrintsKitchenSinkWithoutAlteringAST(): void
     {
         $ast = Parser::parse(file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql'), ['noLocation' => true]);
@@ -180,9 +174,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * it('prints viral schema correctly', () => {.
-     */
+    /** it('prints viral schema correctly', () => {. */
     public function testPrintsViralSchemaCorrectly(): void
     {
         $schemaSDL = \Safe\file_get_contents(__DIR__ . '/../viralSchema.graphql');

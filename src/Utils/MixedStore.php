@@ -54,9 +54,7 @@ class MixedStore implements \ArrayAccess
         $this->objectStore = new \SplObjectStorage();
     }
 
-    /**
-     * @param mixed $offset
-     */
+    /** @param mixed $offset */
     #[\ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {
@@ -179,9 +177,7 @@ class MixedStore implements \ArrayAccess
         }
     }
 
-    /**
-     * @param mixed $offset
-     */
+    /** @param mixed $offset */
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {

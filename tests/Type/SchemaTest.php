@@ -92,9 +92,7 @@ final class SchemaTest extends TestCase
     // Type System: Schema
     // Getting possible types
 
-    /**
-     * @see it('throws human-reable error if schema.types is not defined')
-     */
+    /** @see it('throws human-reable error if schema.types is not defined') */
     public function testThrowsHumanReableErrorIfSchemaTypesIsNotDefined(): void
     {
         self::markTestSkipped("Can't check interface implementations without full schema scan");
@@ -110,9 +108,7 @@ final class SchemaTest extends TestCase
 
     // Type Map
 
-    /**
-     * @see it('includes input types only used in directives')
-     */
+    /** @see it('includes input types only used in directives') */
     public function testIncludesInputTypesOnlyUsedInDirectives(): void
     {
         $typeMap = $this->schema->getTypeMap();
@@ -120,9 +116,7 @@ final class SchemaTest extends TestCase
         self::assertArrayHasKey('WrappedDirInput', $typeMap);
     }
 
-    /**
-     * @see https://github.com/webonyx/graphql-php/issues/997
-     */
+    /** @see https://github.com/webonyx/graphql-php/issues/997 */
     public function testSchemaReturnsNullForNonexistentType(): void
     {
         self::assertNull($this->schema->getType('UnknownType'));

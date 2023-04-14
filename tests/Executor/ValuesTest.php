@@ -57,9 +57,7 @@ final class ValuesTest extends TestCase
         return Values::getVariableValues(self::getSchema(), self::getVariableDefinitionNodes(), $variables);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private static function getSchema(): Schema
     {
         return self::$schema ??= new Schema([
@@ -81,9 +79,7 @@ final class ValuesTest extends TestCase
         ]);
     }
 
-    /**
-     * @return NodeList<VariableDefinitionNode>
-     */
+    /** @return NodeList<VariableDefinitionNode> */
     private static function getVariableDefinitionNodes(): NodeList
     {
         $idInputDefinition = new VariableDefinitionNode([
@@ -169,9 +165,7 @@ final class ValuesTest extends TestCase
         $this->expectGraphQLError(['idInput' => 1.0]);
     }
 
-    /**
-     * Helpers for running test cases and making assertions.
-     */
+    /** Helpers for running test cases and making assertions. */
     public function testStringForBooleanVariableThrowsError(): void
     {
         $this->expectGraphQLError(['boolInput' => 'true']);

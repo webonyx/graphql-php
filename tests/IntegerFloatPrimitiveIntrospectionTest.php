@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 final class IntegerFloatPrimitiveIntrospectionTest extends TestCase
 {
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function build(): Schema
     {
         $queryType = new ObjectType([

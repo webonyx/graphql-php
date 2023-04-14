@@ -161,9 +161,7 @@ final class UnionInterfaceTest extends TestCase
 
     // Execute: Union and intersection types
 
-    /**
-     * @see it('can introspect on union and intersection types')
-     */
+    /** @see it('can introspect on union and intersection types') */
     public function testCanIntrospectOnUnionAndIntersectionTypes(): void
     {
         $ast = Parser::parse('
@@ -251,9 +249,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast));
     }
 
-    /**
-     * @see it('executes using union types')
-     */
+    /** @see it('executes using union types') */
     public function testExecutesUsingUnionTypes(): void
     {
         // NOTE: This is an *invalid* query, but it should be an *executable* query.
@@ -291,9 +287,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
-    /**
-     * @see it('executes union types with inline fragments')
-     */
+    /** @see it('executes union types with inline fragments') */
     public function testExecutesUnionTypesWithInlineFragments(): void
     {
         // This is the valid version of the query in the above test.
@@ -335,9 +329,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
-    /**
-     * @see it('executes using interface types')
-     */
+    /** @see it('executes using interface types') */
     public function testExecutesUsingInterfaceTypes(): void
     {
         // NOTE: This is an *invalid* query, but it should be an *executable* query.
@@ -367,9 +359,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
-    /**
-     * @see it('executes interface types with inline fragments')
-     */
+    /** @see it('executes interface types with inline fragments') */
     public function testExecutesInterfaceTypesWithInlineFragments(): void
     {
         // This is the valid version of the query in the above test.
@@ -430,9 +420,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
-    /**
-     * @see it('allows fragment conditions to be abstract types')
-     */
+    /** @see it('allows fragment conditions to be abstract types') */
     public function testAllowsFragmentConditionsToBeAbstractTypes(): void
     {
         $ast = Parser::parse('
@@ -522,9 +510,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
-    /**
-     * @see it('gets execution info in resolver')
-     */
+    /** @see it('gets execution info in resolver') */
     public function testGetsExecutionInfoInResolver(): void
     {
         $encounteredContext = null;

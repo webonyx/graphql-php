@@ -13,9 +13,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
 {
     // Validate: No unused variables
 
-    /**
-     * @see it('uses all variables')
-     */
+    /** @see it('uses all variables') */
     public function testUsesAllVariables(): void
     {
         $this->expectPassesRule(
@@ -28,9 +26,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('uses all variables deeply')
-     */
+    /** @see it('uses all variables deeply') */
     public function testUsesAllVariablesDeeply(): void
     {
         $this->expectPassesRule(
@@ -47,9 +43,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('uses all variables deeply in inline fragments')
-     */
+    /** @see it('uses all variables deeply in inline fragments') */
     public function testUsesAllVariablesDeeplyInInlineFragments(): void
     {
         $this->expectPassesRule(
@@ -70,9 +64,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('uses all variables in fragments')
-     */
+    /** @see it('uses all variables in fragments') */
     public function testUsesAllVariablesInFragments(): void
     {
         $this->expectPassesRule(
@@ -98,9 +90,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('variable used by fragment in multiple operations')
-     */
+    /** @see it('variable used by fragment in multiple operations') */
     public function testVariableUsedByFragmentInMultipleOperations(): void
     {
         $this->expectPassesRule(
@@ -122,9 +112,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('variable used by recursive fragment')
-     */
+    /** @see it('variable used by recursive fragment') */
     public function testVariableUsedByRecursiveFragment(): void
     {
         $this->expectPassesRule(
@@ -142,9 +130,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('variable not used')
-     */
+    /** @see it('variable not used') */
     public function testVariableNotUsed(): void
     {
         $this->expectFailsRule(
@@ -160,9 +146,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function unusedVar(string $varName, ?string $opName, int $line, int $column): array
     {
         return ErrorHelper::create(
@@ -171,9 +155,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('multiple variables not used')
-     */
+    /** @see it('multiple variables not used') */
     public function testMultipleVariablesNotUsed(): void
     {
         $this->expectFailsRule(
@@ -190,9 +172,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('variable not used in fragments')
-     */
+    /** @see it('variable not used in fragments') */
     public function testVariableNotUsedInFragments(): void
     {
         $this->expectFailsRule(
@@ -221,9 +201,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('multiple variables not used')
-     */
+    /** @see it('multiple variables not used') */
     public function testMultipleVariablesNotUsed2(): void
     {
         $this->expectFailsRule(
@@ -253,9 +231,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('variable not used by unreferenced fragment')
-     */
+    /** @see it('variable not used by unreferenced fragment') */
     public function testVariableNotUsedByUnreferencedFragment(): void
     {
         $this->expectFailsRule(
@@ -277,9 +253,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('variable not used by fragment used by other operation')
-     */
+    /** @see it('variable not used by fragment used by other operation') */
     public function testVariableNotUsedByFragmentUsedByOtherOperation(): void
     {
         $this->expectFailsRule(
@@ -305,9 +279,7 @@ final class NoUnusedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * The reference implementation does not test this.
-     */
+    /** The reference implementation does not test this. */
     public function testVariableUsedByDirectives(): void
     {
         $this->expectPassesRule(

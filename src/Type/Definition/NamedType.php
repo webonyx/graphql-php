@@ -23,14 +23,10 @@ use GraphQL\Language\AST\TypeExtensionNode;
  */
 interface NamedType
 {
-    /**
-     * @throws Error
-     */
+    /** @throws Error */
     public function assertValid(): void;
 
-    /**
-     * Is this type a built-in type?
-     */
+    /** Is this type a built-in type? */
     public function isBuiltInType(): bool;
 
     public function name(): string;

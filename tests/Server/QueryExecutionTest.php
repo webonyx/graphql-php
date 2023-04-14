@@ -120,22 +120,21 @@ final class QueryExecutionTest extends ServerTestCase
 
         $result = $this->executeQuery($query)->toArray();
         self::assertArraySubset($expected, $result);
-
-        self::assertSame(42, $result['errors'][0]['extensions']['line'] ?? null);
-
+        self::assertSame(40, $result['errors'][0]['extensions']['line'] ?? null);
         self::assertStringContainsString('tests/Server/ServerTestCase.php', $result['errors'][0]['extensions']['file'] ?? '');
     }
 
     public function testRethrowUnsafeExceptions(): void
     {
         $this->config->setDebugFlag(DebugFlag::RETHROW_UNSAFE_EXCEPTIONS);
-        $this->expectException(Unsafe::class);
-
-        $this->executeQuery('
+        $executionResult = $this->executeQuery('
         {
             fieldWithUnsafeException
         }
-        ')->toArray();
+        ');
+
+        $this->expectException(Unsafe::class);
+        $executionResult->toArray();
     }
 
     public function testPassesRootValueAndContext(): void
@@ -223,8 +222,7 @@ final class QueryExecutionTest extends ServerTestCase
 
         self::assertFalse($called);
         $this->executeQuery('{f1}');
-        /** @var bool $called */
-        self::assertTrue($called);
+        self::assertTrue($called); // @phpstan-ignore-line value is mutable
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
         self::assertSame('query', $operationType);
@@ -264,12 +262,8 @@ final class QueryExecutionTest extends ServerTestCase
         $called2 = false;
         $expected = ['errors' => [['message' => 'This is the error we are looking for!']]];
         $this->assertQueryResultEquals($expected, $q2);
-        /**
-         * @var bool $called1
-         * @var bool $called2
-         */
-        self::assertFalse($called1);
-        self::assertTrue($called2);
+        self::assertFalse($called1); // @phpstan-ignore-line value is mutable
+        self::assertTrue($called2); // @phpstan-ignore-line value is mutable
     }
 
     public function testAllowsSkippingValidation(): void
@@ -620,8 +614,7 @@ final class QueryExecutionTest extends ServerTestCase
 
         self::assertFalse($called);
         $this->executeQuery('{f1}');
-        /** @var bool $called */
-        self::assertTrue($called);
+        self::assertTrue($called); // @phpstan-ignore-line value is mutable
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
         self::assertSame('query', $operationType);
@@ -641,8 +634,7 @@ final class QueryExecutionTest extends ServerTestCase
 
         self::assertFalse($called);
         $this->executeQuery('{f1}');
-        /** @var bool $called */
-        self::assertTrue($called);
+        self::assertTrue($called); // @phpstan-ignore-line value is mutable
         self::assertInstanceOf(OperationParams::class, $params);
         self::assertInstanceOf(DocumentNode::class, $doc);
         self::assertSame('query', $operationType);
@@ -668,8 +660,7 @@ final class QueryExecutionTest extends ServerTestCase
                 $formattedError,
             ],
         ];
-        /** @var bool $called */
-        self::assertTrue($called);
+        self::assertTrue($called); // @phpstan-ignore-line value is mutable
         self::assertArraySubset($expected, $formatted);
         self::assertInstanceOf(Error::class, $error);
 
@@ -713,8 +704,7 @@ final class QueryExecutionTest extends ServerTestCase
         $expected = [
             'errors' => $handledErrors,
         ];
-        /** @var bool $called */
-        self::assertTrue($called);
+        self::assertTrue($called); // @phpstan-ignore-line value is mutable
         self::assertArraySubset($expected, $formatted);
         self::assertIsArray($errors);
         self::assertCount(2, $errors);

@@ -41,9 +41,7 @@ class InputObjectField
     /** @phpstan-var InputObjectFieldConfig */
     public array $config;
 
-    /**
-     * @phpstan-param InputObjectFieldConfig $config
-     */
+    /** @phpstan-param InputObjectFieldConfig $config */
     public function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -55,9 +53,7 @@ class InputObjectField
         $this->config = $config;
     }
 
-    /**
-     * @return Type&InputType
-     */
+    /** @return Type&InputType */
     public function getType(): Type
     {
         if (! isset($this->type)) {

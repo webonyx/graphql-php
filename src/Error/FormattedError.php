@@ -289,9 +289,7 @@ class FormattedError
         return $formatted;
     }
 
-    /**
-     * @param mixed $var
-     */
+    /** @param mixed $var */
     public static function printVar($var): string
     {
         if ($var instanceof Type) {

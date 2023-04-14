@@ -46,9 +46,7 @@ final class StandardServerTest extends ServerTestCase
         );
     }
 
-    /**
-     * @throws \GraphQL\Server\RequestError
-     */
+    /** @throws \GraphQL\Server\RequestError */
     private function parseRawRequest(string $contentType, string $content, string $method = 'POST'): OperationParams
     {
         $_SERVER['CONTENT_TYPE'] = $contentType;

@@ -17,9 +17,7 @@ class QueryDepth extends QuerySecurityRule
 {
     protected int $maxQueryDepth;
 
-    /**
-     * @throws \InvalidArgumentException
-     */
+    /** @throws \InvalidArgumentException */
     public function __construct(int $maxQueryDepth)
     {
         $this->setMaxQueryDepth($maxQueryDepth);
@@ -47,9 +45,7 @@ class QueryDepth extends QuerySecurityRule
         );
     }
 
-    /**
-     * @param OperationDefinitionNode|FieldNode|InlineFragmentNode|FragmentDefinitionNode $node
-     */
+    /** @param OperationDefinitionNode|FieldNode|InlineFragmentNode|FragmentDefinitionNode $node */
     protected function fieldDepth(Node $node, int $depth = 0, int $maxDepth = 0): int
     {
         if ($node->selectionSet instanceof SelectionSetNode) {

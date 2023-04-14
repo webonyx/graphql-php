@@ -28,17 +28,13 @@ class InterfaceImplementations
         $this->interfaces = $interfaces;
     }
 
-    /**
-     * @return array<int, ObjectType>
-     */
+    /** @return array<int, ObjectType> */
     public function objects(): array
     {
         return $this->objects;
     }
 
-    /**
-     * @return array<int, InterfaceType>
-     */
+    /** @return array<int, InterfaceType> */
     public function interfaces(): array
     {
         return $this->interfaces;

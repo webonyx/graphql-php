@@ -94,9 +94,7 @@ final class Types
         return static fn () => self::byClassName($classname);
     }
 
-    /**
-     * @param class-string<Type&NamedType> $classname
-     */
+    /** @param class-string<Type&NamedType> $classname */
     private static function byClassName(string $classname): Type
     {
         $parts = \explode('\\', $classname);
@@ -141,41 +139,31 @@ final class Types
         throw new \Exception("Unknown graphql type: {$shortName}");
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function boolean(): ScalarType
     {
         return Type::boolean();
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function float(): ScalarType
     {
         return Type::float();
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function id(): ScalarType
     {
         return Type::id();
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function int(): ScalarType
     {
         return Type::int();
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function string(): ScalarType
     {
         return Type::string();

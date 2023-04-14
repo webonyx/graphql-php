@@ -15,9 +15,7 @@ class Utils
         return $undefined ??= new \stdClass();
     }
 
-    /**
-     * @param array<string, mixed> $vars
-     */
+    /** @param array<string, mixed> $vars */
     public static function assign(object $obj, array $vars): object
     {
         foreach ($vars as $key => $value) {
@@ -67,9 +65,7 @@ class Utils
         return static::printSafeInternal($value);
     }
 
-    /**
-     * @param \stdClass|array<mixed> $value
-     */
+    /** @param \stdClass|array<mixed> $value */
     protected static function jsonEncodeOrSerialize($value): string
     {
         try {
@@ -79,9 +75,7 @@ class Utils
         }
     }
 
-    /**
-     * @param mixed $value
-     */
+    /** @param mixed $value */
     protected static function printSafeInternal($value): string
     {
         if (\is_array($value)) {
@@ -115,9 +109,7 @@ class Utils
         return \gettype($value);
     }
 
-    /**
-     * UTF-8 compatible chr().
-     */
+    /** UTF-8 compatible chr(). */
     public static function chr(int $ord, string $encoding = 'UTF-8'): string
     {
         if ($encoding === 'UCS-4BE') {
@@ -127,9 +119,7 @@ class Utils
         return \mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
     }
 
-    /**
-     * UTF-8 compatible ord().
-     */
+    /** UTF-8 compatible ord(). */
     public static function ord(string $char, string $encoding = 'UTF-8'): int
     {
         if (! isset($char[1])) {
@@ -144,9 +134,7 @@ class Utils
         return \unpack('N', $char)[1];
     }
 
-    /**
-     * Returns UTF-8 char code at given $positing of the $string.
-     */
+    /** Returns UTF-8 char code at given $positing of the $string. */
     public static function charCodeAt(string $string, int $position): int
     {
         $char = \mb_substr($string, $position, 1, 'UTF-8');
@@ -154,9 +142,7 @@ class Utils
         return self::ord($char);
     }
 
-    /**
-     * @throws \JsonException
-     */
+    /** @throws \JsonException */
     public static function printCharCode(?int $code): string
     {
         if ($code === null) {
@@ -183,9 +169,7 @@ class Utils
         }
     }
 
-    /**
-     * Returns an Error if a name is invalid.
-     */
+    /** Returns an Error if a name is invalid. */
     public static function isValidNameError(string $name, ?Node $node = null): ?Error
     {
         if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
@@ -205,9 +189,7 @@ class Utils
         return null;
     }
 
-    /**
-     * @param array<string> $items
-     */
+    /** @param array<string> $items */
     public static function quotedOrList(array $items): string
     {
         $quoted = \array_map(
@@ -218,9 +200,7 @@ class Utils
         return self::orList($quoted);
     }
 
-    /**
-     * @param array<string> $items
-     */
+    /** @param array<string> $items */
     public static function orList(array $items): string
     {
         if ($items === []) {

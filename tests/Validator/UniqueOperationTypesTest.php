@@ -32,9 +32,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('schema definition with all types')
-     */
+    /** @see it('schema definition with all types') */
     public function testSchemaDefinitionWithAllTypes(): void
     {
         $this->expectValidSDL(
@@ -51,9 +49,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('schema definition with single extension')
-     */
+    /** @see it('schema definition with single extension') */
     public function testSchemaDefinitionWithSingleExtension(): void
     {
         $this->expectValidSDL(
@@ -71,9 +67,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('schema definition with separate extensions')
-     */
+    /** @see it('schema definition with separate extensions') */
     public function testSchemaDefinitionWithSeparateExtensions(): void
     {
         $this->expectValidSDL(
@@ -88,9 +82,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('extend schema before definition')
-     */
+    /** @see it('extend schema before definition') */
     public function testExtendSchemaBeforeDefinition(): void
     {
         $this->expectValidSDL(
@@ -106,9 +98,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate operation types inside single schema definition')
-     */
+    /** @see it('duplicate operation types inside single schema definition') */
     public function testDuplicateOperationTypesInsideSingleSchemaDefinition(): void
     {
         $this->expectSDLErrors(
@@ -152,9 +142,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate operation types inside schema extension')
-     */
+    /** @see it('duplicate operation types inside schema extension') */
     public function testDuplicateOperationTypesInsideSchemaExtension(): void
     {
         $this->expectSDLErrors(
@@ -200,9 +188,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate operation types inside schema extension twice')
-     */
+    /** @see it('duplicate operation types inside schema extension twice') */
     public function testDuplicateOperationTypesInsideSchemaExtensionTwice(): void
     {
         $this->expectSDLErrors(
@@ -275,9 +261,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate operation types inside second schema extension')
-     */
+    /** @see it('duplicate operation types inside second schema extension') */
     public function testDuplicateOperationTypesInsideSecondSchemaExtension(): void
     {
         $this->expectSDLErrors(
@@ -326,9 +310,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('define schema inside extension SDL')
-     */
+    /** @see it('define schema inside extension SDL') */
     public function testDefineSchemaInsideExtensionSdl(): void
     {
         $schema = BuildSchema::build('type Foo');
@@ -343,9 +325,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         $this->expectValidSDL(new UniqueOperationTypes(), $sdl, $schema);
     }
 
-    /**
-     * @see it('define and extend schema inside extension SDL')
-     */
+    /** @see it('define and extend schema inside extension SDL') */
     public function testDefineAndExtendSchemaInsideExtensionSdl(): void
     {
         $schema = BuildSchema::build('type Foo');
@@ -358,9 +338,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         $this->expectValidSDL(new UniqueOperationTypes(), $sdl, $schema);
     }
 
-    /**
-     * @see it('adding new operation types to existing schema')
-     */
+    /** @see it('adding new operation types to existing schema') */
     public function testAddingNewOperationTypesToExistingSchema(): void
     {
         $schema = BuildSchema::build('type Query');
@@ -372,9 +350,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         $this->expectValidSDL(new UniqueOperationTypes(), $sdl, $schema);
     }
 
-    /**
-     * @see it('adding conflicting operation types to existing schema')
-     */
+    /** @see it('adding conflicting operation types to existing schema') */
     public function testAddingConflictingOperationTypesToExistingSchema(): void
     {
         $schema = BuildSchema::build('
@@ -409,9 +385,7 @@ final class UniqueOperationTypesTest extends ValidatorTestCase
         ]);
     }
 
-    /**
-     * @see it('adding conflicting operation types to existing schema twice')
-     */
+    /** @see it('adding conflicting operation types to existing schema twice') */
     public function testAddingConflictingOperationTypesToExistingSchemaTwice(): void
     {
         $schema = BuildSchema::build('

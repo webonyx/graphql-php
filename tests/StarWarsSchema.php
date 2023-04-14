@@ -57,9 +57,7 @@ use GraphQL\Type\Schema;
  */
 final class StarWarsSchema
 {
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function build(): Schema
     {
         /**

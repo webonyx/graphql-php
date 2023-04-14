@@ -18,9 +18,7 @@ class UnresolvedFieldDefinition
      */
     private $definitionResolver;
 
-    /**
-     * @param DefinitionResolver $definitionResolver
-     */
+    /** @param DefinitionResolver $definitionResolver */
     public function __construct(string $name, callable $definitionResolver)
     {
         $this->name = $name;
