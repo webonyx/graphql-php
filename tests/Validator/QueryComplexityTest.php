@@ -89,9 +89,7 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 3, 4);
     }
 
-    /**
-     * @throws \InvalidArgumentException
-     */
+    /** @throws \InvalidArgumentException */
     protected function getRule(int $max = 0): QueryComplexity
     {
         self::$rule ??= new QueryComplexity($max);

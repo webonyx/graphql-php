@@ -83,9 +83,7 @@ final class ServerConfigTest extends TestCase
         self::assertSame($closure, $config->getErrorFormatter());
     }
 
-    /**
-     * @return SerializableError
-     */
+    /** @return SerializableError */
     public static function formatError(): array
     {
         return ['message' => 'irrelevant'];
@@ -105,9 +103,7 @@ final class ServerConfigTest extends TestCase
         self::assertSame($closure, $config->getErrorsHandler());
     }
 
-    /**
-     * @return SerializableErrors
-     */
+    /** @return SerializableErrors */
     public static function handleError(): array
     {
         return [];

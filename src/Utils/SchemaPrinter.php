@@ -158,9 +158,7 @@ class SchemaPrinter
         return \implode("\n\n", \array_filter($elements)) . "\n";
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     protected static function printSchemaDefinition(Schema $schema): ?string
     {
         $queryType = $schema->getQueryType();
@@ -564,9 +562,7 @@ class SchemaPrinter
             . static::printBlock($fields);
     }
 
-    /**
-     * @param array<string> $items
-     */
+    /** @param array<string> $items */
     protected static function printBlock(array $items): string
     {
         return $items === []

@@ -16,9 +16,7 @@ trait HasFieldsTypeImplementation
      */
     private array $fields;
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private function initializeFields(): void
     {
         if (isset($this->fields)) {
@@ -28,9 +26,7 @@ trait HasFieldsTypeImplementation
         $this->fields = FieldDefinition::defineFieldMap($this, $this->config['fields']);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function getField(string $name): FieldDefinition
     {
         $field = $this->findField($name);
@@ -42,9 +38,7 @@ trait HasFieldsTypeImplementation
         return $field;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function findField(string $name): ?FieldDefinition
     {
         $this->initializeFields();
@@ -61,9 +55,7 @@ trait HasFieldsTypeImplementation
         return $field;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function hasField(string $name): bool
     {
         $this->initializeFields();
@@ -71,9 +63,7 @@ trait HasFieldsTypeImplementation
         return isset($this->fields[$name]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function getFields(): array
     {
         $this->initializeFields();
@@ -88,9 +78,7 @@ trait HasFieldsTypeImplementation
         return $this->fields;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function getFieldNames(): array
     {
         $this->initializeFields();

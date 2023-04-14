@@ -73,9 +73,7 @@ class QueryValidationContext implements ValidationContext
         $this->errors[] = $error;
     }
 
-    /**
-     * @return array<int, Error>
-     */
+    /** @return array<int, Error> */
     public function getErrors(): array
     {
         return $this->errors;
@@ -151,9 +149,7 @@ class QueryValidationContext implements ValidationContext
         return $this->variableUsages[$node];
     }
 
-    /**
-     * @return array<int, FragmentDefinitionNode>
-     */
+    /** @return array<int, FragmentDefinitionNode> */
     public function getRecursivelyReferencedFragments(OperationDefinitionNode $operation): array
     {
         $fragments = $this->recursivelyReferencedFragments[$operation] ?? null;
@@ -245,25 +241,19 @@ class QueryValidationContext implements ValidationContext
         return $this->typeInfo->getType();
     }
 
-    /**
-     * @return (CompositeType&Type)|null
-     */
+    /** @return (CompositeType&Type)|null */
     public function getParentType(): ?CompositeType
     {
         return $this->typeInfo->getParentType();
     }
 
-    /**
-     * @return (Type&InputType)|null
-     */
+    /** @return (Type&InputType)|null */
     public function getInputType(): ?InputType
     {
         return $this->typeInfo->getInputType();
     }
 
-    /**
-     * @return (Type&InputType)|null
-     */
+    /** @return (Type&InputType)|null */
     public function getParentInputType(): ?InputType
     {
         return $this->typeInfo->getParentInputType();

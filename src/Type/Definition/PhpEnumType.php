@@ -14,14 +14,10 @@ class PhpEnumType extends EnumType
     public const MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
     public const MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
 
-    /**
-     * @var class-string<\UnitEnum>
-     */
+    /** @var class-string<\UnitEnum> */
     protected string $enumClass;
 
-    /**
-     * @param class-string<\UnitEnum> $enum
-     */
+    /** @param class-string<\UnitEnum> $enum */
     public function __construct(string $enum)
     {
         $this->enumClass = $enum;
@@ -56,9 +52,7 @@ class PhpEnumType extends EnumType
         return $value->name;
     }
 
-    /**
-     * @param class-string $class
-     */
+    /** @param class-string $class */
     protected function baseName(string $class): string
     {
         $parts = explode('\\', $class);

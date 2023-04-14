@@ -68,9 +68,7 @@ final class SyncPromiseAdapterTest extends TestCase
         self::assertValidPromise($promise, null, 'A', SyncPromise::FULFILLED);
     }
 
-    /**
-     * @param mixed $expectedNextValue
-     */
+    /** @param mixed $expectedNextValue */
     private static function assertValidPromise(Promise $promise, ?string $expectedNextReason, $expectedNextValue, string $expectedNextState): void
     {
         self::assertInstanceOf(SyncPromise::class, $promise->adoptedPromise);
@@ -91,22 +89,18 @@ final class SyncPromiseAdapterTest extends TestCase
             }
         );
 
-        self::assertSame($onFulfilledCalled, false);
-        self::assertSame($onRejectedCalled, false);
+        self::assertFalse($onFulfilledCalled);
+        self::assertFalse($onRejectedCalled);
 
         SyncPromise::runQueue();
 
         if ($expectedNextState !== SyncPromise::PENDING) {
-            /**
-             * @var bool $onFulfilledCalled
-             * @var bool $onRejectedCalled
-             */
             if ($expectedNextReason === null) {
-                self::assertTrue($onFulfilledCalled);
-                self::assertFalse($onRejectedCalled);
+                self::assertTrue($onFulfilledCalled); // @phpstan-ignore-line value is mutable
+                self::assertFalse($onRejectedCalled); // @phpstan-ignore-line value is mutable
             } else {
-                self::assertFalse($onFulfilledCalled);
-                self::assertTrue($onRejectedCalled);
+                self::assertFalse($onFulfilledCalled); // @phpstan-ignore-line value is mutable
+                self::assertTrue($onRejectedCalled); // @phpstan-ignore-line value is mutable
             }
         }
 

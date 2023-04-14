@@ -11,9 +11,7 @@ final class ScalarSerializationTest extends TestCase
 {
     // Type System: Scalar coercion
 
-    /**
-     * @see it('serializes output as Int')
-     */
+    /** @see it('serializes output as Int') */
     public function testSerializesOutputAsInt(): void
     {
         $intType = Type::int();
@@ -28,9 +26,7 @@ final class ScalarSerializationTest extends TestCase
         self::assertSame(1, $intType->serialize(true));
     }
 
-    /**
-     * @return iterable<array{mixed, string}>
-     */
+    /** @return iterable<array{mixed, string}> */
     public function badIntValues(): iterable
     {
         return [
@@ -66,9 +62,7 @@ final class ScalarSerializationTest extends TestCase
         $intType->serialize($value);
     }
 
-    /**
-     * @see it('serializes output as Float')
-     */
+    /** @see it('serializes output as Float') */
     public function testSerializesOutputAsFloat(): void
     {
         $floatType = Type::float();
@@ -85,9 +79,7 @@ final class ScalarSerializationTest extends TestCase
         self::assertSame(1.0, $floatType->serialize(true));
     }
 
-    /**
-     * @return iterable<array{mixed, string}>
-     */
+    /** @return iterable<array{mixed, string}> */
     public function badFloatValues(): iterable
     {
         return [
@@ -113,9 +105,7 @@ final class ScalarSerializationTest extends TestCase
         $floatType->serialize($value);
     }
 
-    /**
-     * @see it('serializes output as String')
-     */
+    /** @see it('serializes output as String') */
     public function testSerializesOutputAsString(): void
     {
         $stringType = Type::string();
@@ -133,9 +123,7 @@ final class ScalarSerializationTest extends TestCase
         }));
     }
 
-    /**
-     * @return iterable<array{mixed, string}>
-     */
+    /** @return iterable<array{mixed, string}> */
     public function badStringValues(): iterable
     {
         return [
@@ -158,9 +146,7 @@ final class ScalarSerializationTest extends TestCase
         $stringType->serialize($value);
     }
 
-    /**
-     * @see it('serializes output as Boolean')
-     */
+    /** @see it('serializes output as Boolean') */
     public function testSerializesOutputAsBoolean(): void
     {
         $boolType = Type::boolean();
@@ -176,9 +162,7 @@ final class ScalarSerializationTest extends TestCase
         self::assertFalse($boolType->serialize(''));
     }
 
-    /**
-     * @see it('serializes output as ID')
-     */
+    /** @see it('serializes output as ID') */
     public function testSerializesOutputAsID(): void
     {
         $idType = Type::id();
@@ -193,9 +177,7 @@ final class ScalarSerializationTest extends TestCase
         self::assertSame('2', $idType->serialize(new ObjectIdStub(2)));
     }
 
-    /**
-     * @return iterable<array{mixed, string}>
-     */
+    /** @return iterable<array{mixed, string}> */
     public function badIDValues(): iterable
     {
         return [

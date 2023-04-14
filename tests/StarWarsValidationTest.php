@@ -13,9 +13,7 @@ final class StarWarsValidationTest extends TestCase
     // Star Wars Validation Tests
     // Basic Queries
 
-    /**
-     * @see it('Validates a complex but valid query')
-     */
+    /** @see it('Validates a complex but valid query') */
     public function testValidatesAComplexButValidQuery(): void
     {
         $query = '
@@ -57,9 +55,7 @@ final class StarWarsValidationTest extends TestCase
         return DocumentValidator::validate($schema, $ast);
     }
 
-    /**
-     * @see it('Notes that non-existent fields are invalid')
-     */
+    /** @see it('Notes that non-existent fields are invalid') */
     public function testThatNonExistentFieldsAreInvalid(): void
     {
         $query = '
@@ -73,9 +69,7 @@ final class StarWarsValidationTest extends TestCase
         self::assertCount(1, $errors);
     }
 
-    /**
-     * @see it('Requires fields on objects')
-     */
+    /** @see it('Requires fields on objects') */
     public function testRequiresFieldsOnObjects(): void
     {
         $query = '
@@ -88,9 +82,7 @@ final class StarWarsValidationTest extends TestCase
         self::assertCount(1, $errors);
     }
 
-    /**
-     * @see it('Disallows fields on scalars')
-     */
+    /** @see it('Disallows fields on scalars') */
     public function testDisallowsFieldsOnScalars(): void
     {
         $query = '
@@ -106,9 +98,7 @@ final class StarWarsValidationTest extends TestCase
         self::assertCount(1, $errors);
     }
 
-    /**
-     * @see it('Disallows object fields on interfaces')
-     */
+    /** @see it('Disallows object fields on interfaces') */
     public function testDisallowsObjectFieldsOnInterfaces(): void
     {
         $query = '
@@ -123,9 +113,7 @@ final class StarWarsValidationTest extends TestCase
         self::assertCount(1, $errors);
     }
 
-    /**
-     * @see it('Allows object fields in fragments')
-     */
+    /** @see it('Allows object fields in fragments') */
     public function testAllowsObjectFieldsInFragments(): void
     {
         $query = '
@@ -144,9 +132,7 @@ final class StarWarsValidationTest extends TestCase
         self::assertCount(0, $errors);
     }
 
-    /**
-     * @see it('Allows object fields in inline fragments')
-     */
+    /** @see it('Allows object fields in inline fragments') */
     public function testAllowsObjectFieldsInInlineFragments(): void
     {
         $query = '

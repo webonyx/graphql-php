@@ -38,9 +38,7 @@ class QueryComplexity extends QuerySecurityRule
 
     protected QueryValidationContext $context;
 
-    /**
-     * @throws \InvalidArgumentException
-     */
+    /** @throws \InvalidArgumentException */
     public function __construct(int $maxQueryComplexity)
     {
         $this->setMaxQueryComplexity($maxQueryComplexity);
@@ -95,9 +93,7 @@ class QueryComplexity extends QuerySecurityRule
         );
     }
 
-    /**
-     * @throws \Exception
-     */
+    /** @throws \Exception */
     protected function fieldComplexity(SelectionSetNode $selectionSet): int
     {
         $complexity = 0;
@@ -109,9 +105,7 @@ class QueryComplexity extends QuerySecurityRule
         return $complexity;
     }
 
-    /**
-     * @throws \Exception
-     */
+    /** @throws \Exception */
     protected function nodeComplexity(SelectionNode $node): int
     {
         switch (true) {
@@ -211,17 +205,13 @@ class QueryComplexity extends QuerySecurityRule
         return false;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function getRawVariableValues(): array
     {
         return $this->rawVariableValues;
     }
 
-    /**
-     * @param array<string, mixed>|null $rawVariableValues
-     */
+    /** @param array<string, mixed>|null $rawVariableValues */
     public function setRawVariableValues(?array $rawVariableValues = null): void
     {
         $this->rawVariableValues = $rawVariableValues ?? [];

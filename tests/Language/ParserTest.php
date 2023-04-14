@@ -24,9 +24,7 @@ use function Safe\file_get_contents;
 
 final class ParserTest extends TestCaseBase
 {
-    /**
-     * @return array<int, array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}>
-     */
+    /** @return array<int, array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}> */
     public function parseProvidesUsefulErrors(): array
     {
         return [
@@ -99,9 +97,7 @@ fragment MissingOn Type
         }
     }
 
-    /**
-     * @see it('parse provides useful error when using source')
-     */
+    /** @see it('parse provides useful error when using source') */
     public function testParseProvidesUsefulErrorWhenUsingSource(): void
     {
         try {
@@ -115,18 +111,14 @@ fragment MissingOn Type
         }
     }
 
-    /**
-     * @see it('parses variable inline values')
-     */
+    /** @see it('parses variable inline values') */
     public function testParsesVariableInlineValues(): void
     {
         Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
         self::assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses constant default values')
-     */
+    /** @see it('parses constant default values') */
     public function testParsesConstantDefaultValues(): void
     {
         $this->expectSyntaxError(
@@ -136,9 +128,7 @@ fragment MissingOn Type
         );
     }
 
-    /**
-     * @see it('parses variable definition directives')
-     */
+    /** @see it('parses variable definition directives') */
     public function testParsesVariableDefinitionDirectives(): void
     {
         Parser::parse('query Foo($x: Boolean = false @bar) { field }');
@@ -167,9 +157,7 @@ fragment MissingOn Type
         return new SourceLocation($line, $column);
     }
 
-    /**
-     * @see it('does not accept fragments spread of "on"')
-     */
+    /** @see it('does not accept fragments spread of "on"') */
     public function testDoesNotAcceptFragmentsNamedOn(): void
     {
         $this->expectSyntaxError(
@@ -179,9 +167,7 @@ fragment MissingOn Type
         );
     }
 
-    /**
-     * @see it('does not accept fragments spread of "on"')
-     */
+    /** @see it('does not accept fragments spread of "on"') */
     public function testDoesNotAcceptFragmentSpreadOfOn(): void
     {
         $this->expectSyntaxError(
@@ -191,9 +177,7 @@ fragment MissingOn Type
         );
     }
 
-    /**
-     * @see it('parses multi-byte characters')
-     */
+    /** @see it('parses multi-byte characters') */
     public function testParsesMultiByteCharacters(): void
     {
         // Note: \u0A0A could be naively interpreted as two line-feed chars.
@@ -228,9 +212,7 @@ HEREDOC;
         self::assertEquals($expected, $operationDefinition->selectionSet);
     }
 
-    /**
-     * @see it('parses kitchen sink')
-     */
+    /** @see it('parses kitchen sink') */
     public function testParsesKitchenSink(): void
     {
         // Following should not throw:
@@ -239,9 +221,7 @@ HEREDOC;
         self::assertNotEmpty($result);
     }
 
-    /**
-     * allows non-keywords anywhere a Name is allowed.
-     */
+    /** allows non-keywords anywhere a Name is allowed. */
     public function testAllowsNonKeywordsAnywhereANameIsAllowed(): void
     {
         $nonKeywords = [
@@ -278,9 +258,7 @@ GRAPHQL
         }
     }
 
-    /**
-     * @see it('parses anonymous mutation operations')
-     */
+    /** @see it('parses anonymous mutation operations') */
     public function testParsessAnonymousMutationOperations(): void
     {
         Parser::parse('
@@ -291,9 +269,7 @@ GRAPHQL
         self::assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses anonymous subscription operations')
-     */
+    /** @see it('parses anonymous subscription operations') */
     public function testParsesAnonymousSubscriptionOperations(): void
     {
         Parser::parse('
@@ -304,9 +280,7 @@ GRAPHQL
         self::assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses named mutation operations')
-     */
+    /** @see it('parses named mutation operations') */
     public function testParsesNamedMutationOperations(): void
     {
         Parser::parse('
@@ -317,9 +291,7 @@ GRAPHQL
         self::assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses named subscription operations')
-     */
+    /** @see it('parses named subscription operations') */
     public function testParsesNamedSubscriptionOperations(): void
     {
         Parser::parse('
@@ -330,9 +302,7 @@ GRAPHQL
         self::assertDidNotCrash();
     }
 
-    /**
-     * @see it('creates ast')
-     */
+    /** @see it('creates ast') */
     public function testParseCreatesAst(): void
     {
         $source = new Source('{
@@ -432,9 +402,7 @@ GRAPHQL
         self::assertArrayEquals($expected, $result->toArray());
     }
 
-    /**
-     * @see it('creates ast from nameless query without variables')
-     */
+    /** @see it('creates ast from nameless query without variables') */
     public function testParseCreatesAstFromNamelessQueryWithoutVariables(): void
     {
         $source = new Source('query {
@@ -505,9 +473,7 @@ GRAPHQL
         self::assertArrayEquals($expected, $result->toArray());
     }
 
-    /**
-     * @see it('allows parsing without source location information')
-     */
+    /** @see it('allows parsing without source location information') */
     public function testAllowsParsingWithoutSourceLocationInformation(): void
     {
         $source = new Source('{ id }');
@@ -516,9 +482,7 @@ GRAPHQL
         self::assertEquals(null, $result->loc);
     }
 
-    /**
-     * @see it('Experimental: allows parsing fragment defined variables')
-     */
+    /** @see it('Experimental: allows parsing fragment defined variables') */
     public function testExperimentalAllowsParsingFragmentDefinedVariables(): void
     {
         $source = new Source('fragment a($v: Boolean = false) on t { f(v: $v) }');
@@ -531,9 +495,7 @@ GRAPHQL
 
     // Describe: parseValue
 
-    /**
-     * @see it('contains location information that only stringifys start/end')
-     */
+    /** @see it('contains location information that only stringifys start/end') */
     public function testContainsLocationInformationThatOnlyStringifysStartEnd(): void
     {
         $source = new Source('{ id }');
@@ -544,9 +506,7 @@ GRAPHQL
         self::assertSame(['start' => 0, 'end' => 6], $location->toArray());
     }
 
-    /**
-     * @see it('contains references to source')
-     */
+    /** @see it('contains references to source') */
     public function testContainsReferencesToSource(): void
     {
         $source = new Source('{ id }');
@@ -559,9 +519,7 @@ GRAPHQL
 
     // Describe: parseType
 
-    /**
-     * @see it('contains references to start and end tokens')
-     */
+    /** @see it('contains references to start and end tokens') */
     public function testContainsReferencesToStartAndEndTokens(): void
     {
         $source = new Source('{ id }');
@@ -579,9 +537,7 @@ GRAPHQL
         self::assertSame('<EOF>', $endToken->kind);
     }
 
-    /**
-     * @see it('parses null value')
-     */
+    /** @see it('parses null value') */
     public function testParsesNullValues(): void
     {
         self::assertArrayEquals(
@@ -593,9 +549,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses list values')
-     */
+    /** @see it('parses list values') */
     public function testParsesListValues(): void
     {
         self::assertArrayEquals(
@@ -620,9 +574,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses well known types')
-     */
+    /** @see it('parses well known types') */
     public function testParsesWellKnownTypes(): void
     {
         self::assertArrayEquals(
@@ -639,9 +591,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses custom types')
-     */
+    /** @see it('parses custom types') */
     public function testParsesCustomTypes(): void
     {
         self::assertArrayEquals(
@@ -658,9 +608,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses list types')
-     */
+    /** @see it('parses list types') */
     public function testParsesListTypes(): void
     {
         self::assertArrayEquals(
@@ -681,9 +629,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses non-null types')
-     */
+    /** @see it('parses non-null types') */
     public function testParsesNonNullTypes(): void
     {
         self::assertArrayEquals(
@@ -704,9 +650,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses nested types')
-     */
+    /** @see it('parses nested types') */
     public function testParsesNestedTypes(): void
     {
         self::assertArrayEquals(

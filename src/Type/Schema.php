@@ -61,9 +61,7 @@ class Schema
      */
     private array $implementationsMap;
 
-    /**
-     * True when $resolvedTypes contains all possible schema types.
-     */
+    /** True when $resolvedTypes contains all possible schema types. */
     private bool $fullyLoaded = false;
 
     /** @var array<int, Error> */
@@ -182,9 +180,7 @@ class Schema
         return $this->config->directives ?? GraphQL::getStandardDirectives();
     }
 
-    /**
-     * @param mixed $typeLoaderReturn could be anything
-     */
+    /** @param mixed $typeLoaderReturn could be anything */
     public static function typeLoaderNotType($typeLoaderReturn): string
     {
         $typeClass = Type::class;
@@ -198,9 +194,7 @@ class Schema
         return "Type loader is expected to return type {$expectedTypeName}, but it returned type {$actualTypeName}.";
     }
 
-    /**
-     * Returns root type by operation name.
-     */
+    /** Returns root type by operation name. */
     public function getOperationType(string $operation): ?ObjectType
     {
         switch ($operation) {
@@ -241,9 +235,7 @@ class Schema
         return $this->config->subscription;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function getConfig(): SchemaConfig
     {
         return $this->config;
@@ -282,9 +274,7 @@ class Schema
         return $this->resolvedTypes[$name] = self::resolveType($type);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function hasType(string $name): bool
     {
         return $this->getType($name) !== null;

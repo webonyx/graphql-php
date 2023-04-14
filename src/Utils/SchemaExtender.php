@@ -231,9 +231,7 @@ class SchemaExtender
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     protected function extendUnionType(UnionType $type): UnionType
     {
         /** @var array<int, UnionTypeExtensionNode> $extensionASTNodes */
@@ -268,9 +266,7 @@ class SchemaExtender
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     protected function extendInputObjectType(InputObjectType $type): InputObjectType
     {
         /** @var array<int, InputObjectTypeExtensionNode> $extensionASTNodes */
@@ -520,9 +516,7 @@ class SchemaExtender
         return $newFieldMap;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     protected function extendObjectType(ObjectType $type): ObjectType
     {
         /** @var array<int, ObjectTypeExtensionNode> $extensionASTNodes */
@@ -540,9 +534,7 @@ class SchemaExtender
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     protected function extendInterfaceType(InterfaceType $type): InterfaceType
     {
         /** @var array<int, InterfaceTypeExtensionNode> $extensionASTNodes */
@@ -591,9 +583,7 @@ class SchemaExtender
         return $this->extendTypeCache[$type->name] ??= $this->extendNamedTypeWithoutCache($type);
     }
 
-    /**
-     * @throws \Exception
-     */
+    /** @throws \Exception */
     protected function extendNamedTypeWithoutCache(Type $type): Type
     {
         switch (true) {

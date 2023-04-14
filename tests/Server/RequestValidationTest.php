@@ -105,9 +105,7 @@ final class RequestValidationTest extends TestCase
         );
     }
 
-    /**
-     * @see https://github.com/webonyx/graphql-php/issues/156
-     */
+    /** @see https://github.com/webonyx/graphql-php/issues/156 */
     public function testIgnoresNullAndEmptyStringVariables(): void
     {
         $query = '{my q}';

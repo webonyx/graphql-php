@@ -184,9 +184,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
             ?? null;
     }
 
-    /**
-     * @return array<int, int>
-     */
+    /** @return array<int, int> */
     public function getPositions(): array
     {
         if (! isset($this->positions)) {
@@ -243,9 +241,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         return $this->locations;
     }
 
-    /**
-     * @return array<Node>|null
-     */
+    /** @return array<Node>|null */
     public function getNodes(): ?array
     {
         return $this->nodes;
@@ -264,9 +260,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         return $this->path;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
+    /** @return array<string, mixed>|null */
     public function getExtensions(): ?array
     {
         return $this->extensions;
