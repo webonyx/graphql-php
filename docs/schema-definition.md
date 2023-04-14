@@ -209,11 +209,7 @@ class TypeRegistry
         $parts = \explode('\\', $classname);
         $cacheName = \strtolower(\preg_replace('~Type$~', '', $parts[\count($parts) - 1]));
 
-        if (! isset(self::$types[$cacheName])) {
-            return self::$types[$cacheName] = new $classname();
-        }
-
-        return self::$types[$cacheName];
+        return self::$types[$cacheName] ??= new $classname;
     }
 
     public static function MyA(): callable { return self::get(MyAType::class); }
