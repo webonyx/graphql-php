@@ -178,7 +178,7 @@ class MyAType extends \GraphQL\Type\Definition\ObjectType {
 class MyBType extends \GraphQL\Type\Definition\ObjectType {
     public __construct() {
         parent::__construct([
-            "name"=>"MyA",
+            "name"=>"MyB",
             "fields" => fn() => [
                 'c' => Type::string()
         ]);
