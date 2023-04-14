@@ -32,7 +32,9 @@ trait ImplementingTypeImplementation
         return false;
     }
 
-    /** @return array<int, InterfaceType> */
+    /**
+     * @return array<int, InterfaceType>
+     */
     public function getInterfaces(): array
     {
         if (! isset($this->interfaces)) {
@@ -60,7 +62,9 @@ trait ImplementingTypeImplementation
         }
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     protected function assertValidInterfaces(): void
     {
         if (! isset($this->config['interfaces'])) {

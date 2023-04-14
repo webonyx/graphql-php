@@ -63,7 +63,9 @@ final class BuildClientSchemaTest extends TestCase
 
     // describe('Type System: build schema from introspection', () => {
 
-    /** @see it('builds a simple schema', () => { */
+    /**
+     * @see it('builds a simple schema', () => {
+     */
     public function testBuildsASimpleSchema(): void
     {
         self::assertCycleIntrospection('
@@ -79,7 +81,9 @@ final class BuildClientSchemaTest extends TestCase
         ');
     }
 
-    /** it('builds a schema without the query type', () => {. */
+    /**
+     * it('builds a schema without the query type', () => {.
+     */
     public function testBuildsASchemaWithoutTheQueryType(): void
     {
         $sdl = <<<SDL
@@ -96,7 +100,9 @@ SDL;
         self::assertSame($sdl, SchemaPrinter::doPrint($clientSchema));
     }
 
-    /** it('builds a simple schema with all operation types', () => {. */
+    /**
+     * it('builds a simple schema with all operation types', () => {.
+     */
     public function testBuildsASimpleSchemaWithAllOperationTypes(): void
     {
         self::assertCycleIntrospection('
@@ -126,7 +132,9 @@ SDL;
         ');
     }
 
-    /** it('uses built-in scalars when possible', () => {. */
+    /**
+     * it('uses built-in scalars when possible', () => {.
+     */
     public function testUsesBuiltInScalarsWhenPossible(): void
     {
         $sdl = '
@@ -162,7 +170,9 @@ SDL;
         );
     }
 
-    /** it('includes standard types only if they are used', () => {. */
+    /**
+     * it('includes standard types only if they are used', () => {.
+     */
     public function testIncludesStandardTypesOnlyIfTheyAreUsed(): void
     {
         $clientSchema = self::clientSchemaFromSDL('
@@ -177,7 +187,9 @@ SDL;
         self::assertNull($clientSchema->getType('Int'));
     }
 
-    /** it('builds a schema with a recursive type reference', () => {. */
+    /**
+     * it('builds a schema with a recursive type reference', () => {.
+     */
     public function testBuildsASchemaWithARecursiveTypeReference(): void
     {
         self::assertCycleIntrospection('
@@ -191,7 +203,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with a circular type reference', () => {. */
+    /**
+     * it('builds a schema with a circular type reference', () => {.
+     */
     public function testBuildsASchemaWithACircularTypeReference(): void
     {
         self::assertCycleIntrospection('
@@ -210,7 +224,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with an interface', () => {. */
+    /**
+     * it('builds a schema with an interface', () => {.
+     */
     public function testBuildsASchemaWithAnInterface(): void
     {
         self::assertCycleIntrospection('
@@ -233,7 +249,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with an interface hierarchy', () => {. */
+    /**
+     * it('builds a schema with an interface hierarchy', () => {.
+     */
     public function testBuildsASchemaWithAnInterfaceHierarchy(): void
     {
         self::assertCycleIntrospection('
@@ -263,7 +281,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with an implicit interface', () => {. */
+    /**
+     * it('builds a schema with an implicit interface', () => {.
+     */
     public function testBuildsASchemaWithAnImplicitInterface(): void
     {
         self::assertCycleIntrospection('
@@ -282,7 +302,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with a union', () => {. */
+    /**
+     * it('builds a schema with a union', () => {.
+     */
     public function testBuildsASchemaWithAUnion(): void
     {
         self::assertCycleIntrospection('
@@ -302,7 +324,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with complex field values', () => {. */
+    /**
+     * it('builds a schema with complex field values', () => {.
+     */
     public function testBuildsASchemaWithComplexFieldValues(): void
     {
         self::assertCycleIntrospection('
@@ -316,7 +340,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with field arguments', () => {. */
+    /**
+     * it('builds a schema with field arguments', () => {.
+     */
     public function testBuildsASchemaWithFieldArguments(): void
     {
         self::assertCycleIntrospection('
@@ -339,7 +365,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with default value on custom scalar field', () => {. */
+    /**
+     * it('builds a schema with default value on custom scalar field', () => {.
+     */
     public function testBuildsASchemaWithDefaultValueOnCustomScalarField(): void
     {
         self::assertCycleIntrospection('
@@ -351,7 +379,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with an enum', () => {. */
+    /**
+     * it('builds a schema with an enum', () => {.
+     */
     public function testBuildsASchemaWithAnEnum(): void
     {
         $foodEnum = new EnumType([
@@ -420,7 +450,9 @@ SDL;
         self::assertSame('Too fatty', $oils->deprecationReason);
     }
 
-    /** it('builds a schema with an input object', () => {. */
+    /**
+     * it('builds a schema with an input object', () => {.
+     */
     public function testBuildsASchemaWithAnInputObject(): void
     {
         self::assertCycleIntrospection('
@@ -446,7 +478,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with field arguments with default values', () => {. */
+    /**
+     * it('builds a schema with field arguments with default values', () => {.
+     */
     public function testBuildsASchemaWithFieldArgumentsWithDefaultValues(): void
     {
         self::assertCycleIntrospection('
@@ -465,7 +499,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with custom directives', () => {. */
+    /**
+     * it('builds a schema with custom directives', () => {.
+     */
     public function testBuildsASchemaWithCustomDirectives(): void
     {
         self::assertCycleIntrospection('
@@ -478,7 +514,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema without directives', () => {. */
+    /**
+     * it('builds a schema without directives', () => {.
+     */
     public function testBuildsASchemaWithoutDirectives(): void
     {
         $sdl = <<<SDL
@@ -500,7 +538,9 @@ SDL;
         self::assertSame($sdl, SchemaPrinter::doPrint($clientSchema));
     }
 
-    /** it('builds a schema aware of deprecation', () => {. */
+    /**
+     * it('builds a schema aware of deprecation', () => {.
+     */
     public function testBuildsASchemaAwareOfDeprecation(): void
     {
         self::assertCycleIntrospection('
@@ -529,7 +569,9 @@ SDL;
         ');
     }
 
-    /** it('builds a schema with empty deprecation reasons', () => {. */
+    /**
+     * it('builds a schema with empty deprecation reasons', () => {.
+     */
     public function testBuildsASchemaWithEmptyDeprecationReasons(): void
     {
         self::assertCycleIntrospection('
@@ -543,7 +585,9 @@ SDL;
         ');
     }
 
-    /** it('can use client schema for limited execution', () => {. */
+    /**
+     * it('can use client schema for limited execution', () => {.
+     */
     public function testUseClientSchemaForLimitedExecution(): void
     {
         $schema = BuildSchema::build('
@@ -598,7 +642,9 @@ SDL;
         ');
     }
 
-    /** it('throws when introspection is missing __schema property', () => {. */
+    /**
+     * it('throws when introspection is missing __schema property', () => {.
+     */
     public function testThrowsWhenIntrospectionIsMissingSchemaProperty(): void
     {
         $this->expectExceptionMessage(
@@ -607,7 +653,9 @@ SDL;
         BuildClientSchema::build([]);
     }
 
-    /** it('throws when referenced unknown type', () => {. */
+    /**
+     * it('throws when referenced unknown type', () => {.
+     */
     public function testThrowsWhenReferencedUnknownType(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -623,7 +671,9 @@ SDL;
         BuildClientSchema::build($introspection);
     }
 
-    /** it('throws when missing definition for one of the standard scalars', () => {. */
+    /**
+     * it('throws when missing definition for one of the standard scalars', () => {.
+     */
     public function testThrowsWhenMissingDefinitionForOneOfTheStandardScalars(): void
     {
         $schema = BuildSchema::build('
@@ -644,7 +694,9 @@ SDL;
         $clientSchema->assertValid();
     }
 
-    /** it('throws when type reference is missing name', () => {. */
+    /**
+     * it('throws when type reference is missing name', () => {.
+     */
     public function testThrowsWhenTypeReferenceIsMissingName(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -657,7 +709,9 @@ SDL;
         BuildClientSchema::build($introspection);
     }
 
-    /** it('throws when missing kind', () => {. */
+    /**
+     * it('throws when missing kind', () => {.
+     */
     public function testThrowsWhenMissingKind(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -718,7 +772,9 @@ SDL;
         BuildClientSchema::build($introspection);
     }
 
-    /** it('throws when missing interfaces', () => {. */
+    /**
+     * it('throws when missing interfaces', () => {.
+     */
     public function testThrowsWhenMissingInterfaces(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -738,7 +794,9 @@ SDL;
         $clientSchema->assertValid();
     }
 
-    /** it('Legacy support for interfaces with null as interfaces field', () => {. */
+    /**
+     * it('Legacy support for interfaces with null as interfaces field', () => {.
+     */
     public function testLegacySupportForInterfacesWithNullAsInterfacesField(): void
     {
         $dummySchema = self::dummySchema();
@@ -761,7 +819,9 @@ SDL;
         );
     }
 
-    /** it('throws when missing fields', () => {. */
+    /**
+     * it('throws when missing fields', () => {.
+     */
     public function testThrowsWhenMissingFields(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -781,7 +841,9 @@ SDL;
         $clientSchema->assertValid();
     }
 
-    /** it('throws when missing field args', () => {. */
+    /**
+     * it('throws when missing field args', () => {.
+     */
     public function testThrowsWhenMissingFieldArgs(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -802,7 +864,9 @@ SDL;
         $clientSchema->assertValid();
     }
 
-    /** it('throws when output type is used as an arg type', () => {. */
+    /**
+     * it('throws when output type is used as an arg type', () => {.
+     */
     public function testThrowsWhenOutputTypeIsUsedAsAnArgType(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -823,7 +887,9 @@ SDL;
         $clientSchema->assertValid();
     }
 
-    /** it('throws when input type is used as a field type', () => {. */
+    /**
+     * it('throws when input type is used as a field type', () => {.
+     */
     public function testThrowsWhenInputTypeIsUsedAsAFieldType(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -844,7 +910,9 @@ SDL;
         $clientSchema->assertValid();
     }
 
-    /** it('throws when missing possibleTypes', () => {. */
+    /**
+     * it('throws when missing possibleTypes', () => {.
+     */
     public function testThrowsWhenMissingPossibleTypes(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -865,7 +933,9 @@ SDL;
         BuildClientSchema::build($introspection);
     }
 
-    /** it('throws when missing enumValues', () => {. */
+    /**
+     * it('throws when missing enumValues', () => {.
+     */
     public function testThrowsWhenMissingEnumValues(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -886,7 +956,9 @@ SDL;
         BuildClientSchema::build($introspection);
     }
 
-    /** it('throws when missing inputFields', () => {. */
+    /**
+     * it('throws when missing inputFields', () => {.
+     */
     public function testThrowsWhenMissingInputFields(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -907,7 +979,9 @@ SDL;
         BuildClientSchema::build($introspection);
     }
 
-    /** it('throws when missing directive locations', () => {. */
+    /**
+     * it('throws when missing directive locations', () => {.
+     */
     public function testThrowsWhenMissingDirectiveLocations(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -924,7 +998,9 @@ SDL;
         BuildClientSchema::build($introspection);
     }
 
-    /** it('throws when missing directive args', () => {. */
+    /**
+     * it('throws when missing directive args', () => {.
+     */
     public function testThrowsWhenMissingDirectiveArgs(): void
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
@@ -943,7 +1019,9 @@ SDL;
 
     // describe('very deep decorators are not supported', () => {
 
-    /** it('fails on very deep (> 7 levels) lists', () => {. */
+    /**
+     * it('fails on very deep (> 7 levels) lists', () => {.
+     */
     public function testFailsOnVeryDeepListsWithMoreThan7Levels(): void
     {
         $clientSchema = self::clientSchemaFromSDL('
@@ -956,7 +1034,9 @@ SDL;
         $clientSchema->assertValid();
     }
 
-    /** it('fails on very deep (> 7 levels) non-null', () => {. */
+    /**
+     * it('fails on very deep (> 7 levels) non-null', () => {.
+     */
     public function testFailsOnVeryDeepNonNullWithMoreThan7Levels(): void
     {
         $clientSchema = self::clientSchemaFromSDL('
@@ -969,7 +1049,9 @@ SDL;
         $clientSchema->assertValid();
     }
 
-    /** it('succeeds on deep (<= 7 levels) types', () => {. */
+    /**
+     * it('succeeds on deep (<= 7 levels) types', () => {.
+     */
     public function testSucceedsOnDeepTypesWithMoreThanOrEqualTo7Levels(): void
     {
         // e.g., fully non-null 3D matrix
@@ -982,7 +1064,9 @@ SDL;
 
     // describe('prevents infinite recursion on invalid introspection', () => {
 
-    /** it('recursive interfaces', () => {. */
+    /**
+     * it('recursive interfaces', () => {.
+     */
     public function testRecursiveInterfaces(): void
     {
         $clientSchema = self::clientSchemaFromSDL('
@@ -999,7 +1083,9 @@ SDL;
         $clientSchema->assertValid();
     }
 
-    /** it('recursive union', () => {. */
+    /**
+     * it('recursive union', () => {.
+     */
     public function testRecursiveUnion(): void
     {
         $clientSchema = self::clientSchemaFromSDL('

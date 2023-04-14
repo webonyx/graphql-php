@@ -26,7 +26,9 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownArgumentNamesOnDirectives extends ValidationRule
 {
-    /** @param array<string> $suggestedArgs */
+    /**
+     * @param array<string> $suggestedArgs
+     */
     public static function unknownDirectiveArgMessage(string $argName, string $directiveName, array $suggestedArgs): string
     {
         $message = "Unknown argument \"{$argName}\" on directive \"@{$directiveName}\".";
@@ -39,13 +41,17 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         return $message;
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);

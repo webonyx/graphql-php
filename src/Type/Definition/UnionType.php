@@ -62,7 +62,9 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         $this->config = $config;
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function isPossibleType(Type $type): bool
     {
         if (! $type instanceof ObjectType) {

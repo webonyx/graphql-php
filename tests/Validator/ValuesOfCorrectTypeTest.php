@@ -15,7 +15,9 @@ use GraphQL\Validator\Rules\ValuesOfCorrectType;
  */
 final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 {
-    /** @see it('Good int value') */
+    /**
+     * @see it('Good int value')
+     */
     public function testGoodIntValue(): void
     {
         $this->expectPassesRule(
@@ -30,7 +32,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Good negative int value') */
+    /**
+     * @see it('Good negative int value')
+     */
     public function testGoodNegativeIntValue(): void
     {
         $this->expectPassesRule(
@@ -45,7 +49,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Good boolean value') */
+    /**
+     * @see it('Good boolean value')
+     */
     public function testGoodBooleanValue(): void
     {
         $this->expectPassesRule(
@@ -63,7 +69,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Validate: Values of correct type
     // Valid values
 
-    /** @see it('Good string value') */
+    /**
+     * @see it('Good string value')
+     */
     public function testGoodStringValue(): void
     {
         $this->expectPassesRule(
@@ -78,7 +86,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Good float value') */
+    /**
+     * @see it('Good float value')
+     */
     public function testGoodFloatValue(): void
     {
         $this->expectPassesRule(
@@ -107,7 +117,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Int into Float') */
+    /**
+     * @see it('Int into Float')
+     */
     public function testIntIntoFloat(): void
     {
         $this->expectPassesRule(
@@ -122,7 +134,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Int into ID') */
+    /**
+     * @see it('Int into ID')
+     */
     public function testIntIntoID(): void
     {
         $this->expectPassesRule(
@@ -137,7 +151,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('String into ID') */
+    /**
+     * @see it('String into ID')
+     */
     public function testStringIntoID(): void
     {
         $this->expectPassesRule(
@@ -152,7 +168,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Good enum value') */
+    /**
+     * @see it('Good enum value')
+     */
     public function testGoodEnumValue(): void
     {
         $this->expectPassesRule(
@@ -167,7 +185,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Enum with null value') */
+    /**
+     * @see it('Enum with null value')
+     */
     public function testEnumWithNullValue(): void
     {
         $this->expectPassesRule(
@@ -182,7 +202,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('null into nullable type') */
+    /**
+     * @see it('null into nullable type')
+     */
     public function testNullIntoNullableType(): void
     {
         $this->expectPassesRule(
@@ -208,7 +230,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Int into String') */
+    /**
+     * @see it('Int into String')
+     */
     public function testIntIntoString(): void
     {
         $errors = $this->expectFailsRule(
@@ -228,13 +252,17 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @phpstan-return ErrorArray */
+    /**
+     * @phpstan-return ErrorArray
+     */
     private function badValueWithMessage(string $message, int $line, int $column): array
     {
         return ErrorHelper::create($message, [new SourceLocation($line, $column)]);
     }
 
-    /** @see it('Float into String') */
+    /**
+     * @see it('Float into String')
+     */
     public function testFloatIntoString(): void
     {
         $errors = $this->expectFailsRule(
@@ -256,7 +284,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // Invalid String values
 
-    /** @see it('Boolean into String') */
+    /**
+     * @see it('Boolean into String')
+     */
     public function testBooleanIntoString(): void
     {
         $errors = $this->expectFailsRule(
@@ -276,7 +306,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Unquoted String into String') */
+    /**
+     * @see it('Unquoted String into String')
+     */
     public function testUnquotedStringIntoString(): void
     {
         $errors = $this->expectFailsRule(
@@ -296,7 +328,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('String into Int') */
+    /**
+     * @see it('String into Int')
+     */
     public function testStringIntoInt(): void
     {
         $errors = $this->expectFailsRule(
@@ -316,7 +350,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Big Int into Int') */
+    /**
+     * @see it('Big Int into Int')
+     */
     public function testBigIntIntoInt(): void
     {
         $errors = $this->expectFailsRule(
@@ -338,7 +374,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // Invalid Int values
 
-    /** @see it('Unquoted String into Int') */
+    /**
+     * @see it('Unquoted String into Int')
+     */
     public function testUnquotedStringIntoInt(): void
     {
         $errors = $this->expectFailsRule(
@@ -358,7 +396,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Simple Float into Int') */
+    /**
+     * @see it('Simple Float into Int')
+     */
     public function testSimpleFloatIntoInt(): void
     {
         $errors = $this->expectFailsRule(
@@ -378,7 +418,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Float into Int') */
+    /**
+     * @see it('Float into Int')
+     */
     public function testFloatIntoInt(): void
     {
         $errors = $this->expectFailsRule(
@@ -398,7 +440,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('String into Float') */
+    /**
+     * @see it('String into Float')
+     */
     public function testStringIntoFloat(): void
     {
         $errors = $this->expectFailsRule(
@@ -418,7 +462,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Boolean into Float') */
+    /**
+     * @see it('Boolean into Float')
+     */
     public function testBooleanIntoFloat(): void
     {
         $errors = $this->expectFailsRule(
@@ -440,7 +486,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // Invalid Float values
 
-    /** @see it('Unquoted into Float') */
+    /**
+     * @see it('Unquoted into Float')
+     */
     public function testUnquotedIntoFloat(): void
     {
         $errors = $this->expectFailsRule(
@@ -460,7 +508,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Int into Boolean') */
+    /**
+     * @see it('Int into Boolean')
+     */
     public function testIntIntoBoolean(): void
     {
         $errors = $this->expectFailsRule(
@@ -480,7 +530,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Float into Boolean') */
+    /**
+     * @see it('Float into Boolean')
+     */
     public function testFloatIntoBoolean(): void
     {
         $errors = $this->expectFailsRule(
@@ -502,7 +554,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // Invalid Boolean value
 
-    /** @see it('String into Boolean') */
+    /**
+     * @see it('String into Boolean')
+     */
     public function testStringIntoBoolean(): void
     {
         $errors = $this->expectFailsRule(
@@ -522,7 +576,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Unquoted into Boolean') */
+    /**
+     * @see it('Unquoted into Boolean')
+     */
     public function testUnquotedIntoBoolean(): void
     {
         $errors = $this->expectFailsRule(
@@ -542,7 +598,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Float into ID') */
+    /**
+     * @see it('Float into ID')
+     */
     public function testFloatIntoID(): void
     {
         $errors = $this->expectFailsRule(
@@ -562,7 +620,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Boolean into ID') */
+    /**
+     * @see it('Boolean into ID')
+     */
     public function testBooleanIntoID(): void
     {
         $errors = $this->expectFailsRule(
@@ -584,7 +644,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // Invalid ID value
 
-    /** @see it('Unquoted into ID') */
+    /**
+     * @see it('Unquoted into ID')
+     */
     public function testUnquotedIntoID(): void
     {
         $errors = $this->expectFailsRule(
@@ -604,7 +666,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Int into Enum') */
+    /**
+     * @see it('Int into Enum')
+     */
     public function testIntIntoEnum(): void
     {
         $errors = $this->expectFailsRule(
@@ -624,7 +688,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Float into Enum') */
+    /**
+     * @see it('Float into Enum')
+     */
     public function testFloatIntoEnum(): void
     {
         $errors = $this->expectFailsRule(
@@ -646,7 +712,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // Invalid Enum value
 
-    /** @see it('String into Enum') */
+    /**
+     * @see it('String into Enum')
+     */
     public function testStringIntoEnum(): void
     {
         $errors = $this->expectFailsRule(
@@ -666,7 +734,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Boolean into Enum') */
+    /**
+     * @see it('Boolean into Enum')
+     */
     public function testBooleanIntoEnum(): void
     {
         $errors = $this->expectFailsRule(
@@ -686,7 +756,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Unknown Enum Value into Enum') */
+    /**
+     * @see it('Unknown Enum Value into Enum')
+     */
     public function testUnknownEnumValueIntoEnum(): void
     {
         $errors = $this->expectFailsRule(
@@ -706,7 +778,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Different case Enum Value into Enum') */
+    /**
+     * @see it('Different case Enum Value into Enum')
+     */
     public function testDifferentCaseEnumValueIntoEnum(): void
     {
         $errors = $this->expectFailsRule(
@@ -726,7 +800,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Good list value') */
+    /**
+     * @see it('Good list value')
+     */
     public function testGoodListValue(): void
     {
         $this->expectPassesRule(
@@ -741,7 +817,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Empty list value') */
+    /**
+     * @see it('Empty list value')
+     */
     public function testEmptyListValue(): void
     {
         $this->expectPassesRule(
@@ -758,7 +836,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // Valid List value
 
-    /** @see it('Null value') */
+    /**
+     * @see it('Null value')
+     */
     public function testNullValue(): void
     {
         $this->expectPassesRule(
@@ -773,7 +853,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Single value into List') */
+    /**
+     * @see it('Single value into List')
+     */
     public function testSingleValueIntoList(): void
     {
         $this->expectPassesRule(
@@ -788,7 +870,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Incorrect item type') */
+    /**
+     * @see it('Incorrect item type')
+     */
     public function testIncorrectItemtype(): void
     {
         $errors = $this->expectFailsRule(
@@ -808,7 +892,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Single value of incorrect type') */
+    /**
+     * @see it('Single value of incorrect type')
+     */
     public function testSingleValueOfIncorrectType(): void
     {
         $errors = $this->expectFailsRule(
@@ -830,7 +916,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // Invalid List value
 
-    /** @see it('Arg on optional arg') */
+    /**
+     * @see it('Arg on optional arg')
+     */
     public function testArgOnOptionalArg(): void
     {
         $this->expectPassesRule(
@@ -845,7 +933,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('No Arg on optional arg') */
+    /**
+     * @see it('No Arg on optional arg')
+     */
     public function testNoArgOnOptionalArg(): void
     {
         $this->expectPassesRule(
@@ -862,7 +952,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // Valid non-nullable value
 
-    /** @see it('Multiple args') */
+    /**
+     * @see it('Multiple args')
+     */
     public function testMultipleArgs(): void
     {
         $this->expectPassesRule(
@@ -877,7 +969,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Multiple args reverse order') */
+    /**
+     * @see it('Multiple args reverse order')
+     */
     public function testMultipleArgsReverseOrder(): void
     {
         $this->expectPassesRule(
@@ -892,7 +986,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('No args on multiple optional') */
+    /**
+     * @see it('No args on multiple optional')
+     */
     public function testNoArgsOnMultipleOptional(): void
     {
         $this->expectPassesRule(
@@ -907,7 +1003,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('One arg on multiple optional') */
+    /**
+     * @see it('One arg on multiple optional')
+     */
     public function testOneArgOnMultipleOptional(): void
     {
         $this->expectPassesRule(
@@ -922,7 +1020,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Second arg on multiple optional') */
+    /**
+     * @see it('Second arg on multiple optional')
+     */
     public function testSecondArgOnMultipleOptional(): void
     {
         $this->expectPassesRule(
@@ -937,7 +1037,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Multiple reqs on mixedList') */
+    /**
+     * @see it('Multiple reqs on mixedList')
+     */
     public function testMultipleReqsOnMixedList(): void
     {
         $this->expectPassesRule(
@@ -952,7 +1054,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Multiple reqs and one opt on mixedList') */
+    /**
+     * @see it('Multiple reqs and one opt on mixedList')
+     */
     public function testMultipleReqsAndOneOptOnMixedList(): void
     {
         $this->expectPassesRule(
@@ -967,7 +1071,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('All reqs and opts on mixedList') */
+    /**
+     * @see it('All reqs and opts on mixedList')
+     */
     public function testAllReqsAndOptsOnMixedList(): void
     {
         $this->expectPassesRule(
@@ -982,7 +1088,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Incorrect value type') */
+    /**
+     * @see it('Incorrect value type')
+     */
     public function testIncorrectValueType(): void
     {
         $errors = $this->expectFailsRule(
@@ -1004,7 +1112,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[1]->isClientSafe());
     }
 
-    /** @see it('Incorrect value and missing argument (ProvidedRequiredArgumentsRule)') */
+    /**
+     * @see it('Incorrect value and missing argument (ProvidedRequiredArgumentsRule)')
+     */
     public function testIncorrectValueAndMissingArgumentProvidedRequiredArgumentsRule(): void
     {
         $errors = $this->expectFailsRule(
@@ -1026,7 +1136,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // Invalid non-nullable value
 
-    /** @see it('Null value') */
+    /**
+     * @see it('Null value')
+     */
     public function testNullValue2(): void
     {
         $errors = $this->expectFailsRule(
@@ -1046,7 +1158,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Optional arg, despite required field in type') */
+    /**
+     * @see it('Optional arg, despite required field in type')
+     */
     public function testOptionalArgDespiteRequiredFieldInType(): void
     {
         $this->expectPassesRule(
@@ -1061,7 +1175,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Partial object, only required') */
+    /**
+     * @see it('Partial object, only required')
+     */
     public function testPartialObjectOnlyRequired(): void
     {
         $this->expectPassesRule(
@@ -1078,7 +1194,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // DESCRIBE: Valid input object value
 
-    /** @see it('Partial object, required field can be falsey') */
+    /**
+     * @see it('Partial object, required field can be falsey')
+     */
     public function testPartialObjectRequiredFieldCanBeFalsey(): void
     {
         $this->expectPassesRule(
@@ -1093,7 +1211,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Partial object, including required') */
+    /**
+     * @see it('Partial object, including required')
+     */
     public function testPartialObjectIncludingRequired(): void
     {
         $this->expectPassesRule(
@@ -1108,7 +1228,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Full object') */
+    /**
+     * @see it('Full object')
+     */
     public function testFullObject(): void
     {
         $this->expectPassesRule(
@@ -1129,7 +1251,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Full object with fields in different order') */
+    /**
+     * @see it('Full object with fields in different order')
+     */
     public function testFullObjectWithFieldsInDifferentOrder(): void
     {
         $this->expectPassesRule(
@@ -1150,7 +1274,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Partial object, missing required') */
+    /**
+     * @see it('Partial object, missing required')
+     */
     public function testPartialObjectMissingRequired(): void
     {
         $errors = $this->expectFailsRule(
@@ -1175,7 +1301,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // DESCRIBE: Invalid input object value
 
-    /** @see it('Partial object, invalid field type') */
+    /**
+     * @see it('Partial object, invalid field type')
+     */
     public function testPartialObjectInvalidFieldType(): void
     {
         $errors = $this->expectFailsRule(
@@ -1198,7 +1326,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Partial object, null to non-null field') */
+    /**
+     * @see it('Partial object, null to non-null field')
+     */
     public function testPartialObjectNullToNonNullField(): void
     {
         $errors = $this->expectFailsRule(
@@ -1219,7 +1349,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('Partial object, unknown field arg') */
+    /**
+     * @see it('Partial object, unknown field arg')
+     */
     public function testPartialObjectUnknownFieldArg(): void
     {
         $errors = $this->expectFailsRule(
@@ -1245,7 +1377,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('reports original error for custom scalar which throws') */
+    /**
+     * @see it('reports original error for custom scalar which throws')
+     */
     public function testReportsOriginalErrorForCustomScalarWhichThrows(): void
     {
         $this->expectFailsRule(
@@ -1261,7 +1395,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('allows custom scalar to accept complex literals') */
+    /**
+     * @see it('allows custom scalar to accept complex literals')
+     */
     public function testAllowsCustomScalarToAcceptComplexLiterals(): void
     {
         $customScalar = new CustomScalarType(['name' => 'Any']);
@@ -1295,7 +1431,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // DESCRIBE: Directive arguments
 
-    /** @see it('with directives of valid types') */
+    /**
+     * @see it('with directives of valid types')
+     */
     public function testWithDirectivesOfValidTypes(): void
     {
         $this->expectPassesRule(
@@ -1313,7 +1451,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('with directive with incorrect types') */
+    /**
+     * @see it('with directive with incorrect types')
+     */
     public function testWithDirectiveWithIncorrectTypes(): void
     {
         $errors = $this->expectFailsRule(
@@ -1337,7 +1477,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
     // DESCRIBE: Variable default values
 
-    /** @see it('variables with valid default values') */
+    /**
+     * @see it('variables with valid default values')
+     */
     public function testVariablesWithValidDefaultValues(): void
     {
         $this->expectPassesRule(
@@ -1355,7 +1497,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variables with valid default null values') */
+    /**
+     * @see it('variables with valid default null values')
+     */
     public function testVariablesWithValidDefaultNullValues(): void
     {
         $this->expectPassesRule(
@@ -1372,7 +1516,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variables with invalid default null values') */
+    /**
+     * @see it('variables with invalid default null values')
+     */
     public function testVariablesWithInvalidDefaultNullValues(): void
     {
         $errors = $this->expectFailsRule(
@@ -1407,7 +1553,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[2]->isClientSafe());
     }
 
-    /** @see it('variables with invalid default values') */
+    /**
+     * @see it('variables with invalid default values')
+     */
     public function testVariablesWithInvalidDefaultValues(): void
     {
         $errors = $this->expectFailsRule(
@@ -1440,7 +1588,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('variables with complex invalid default values') */
+    /**
+     * @see it('variables with complex invalid default values')
+     */
     public function testVariablesWithComplexInvalidDefaultValues(): void
     {
         $errors = $this->expectFailsRule(
@@ -1467,7 +1617,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('complex variables missing required field') */
+    /**
+     * @see it('complex variables missing required field')
+     */
     public function testComplexVariablesMissingRequiredField(): void
     {
         $errors = $this->expectFailsRule(
@@ -1488,7 +1640,9 @@ final class ValuesOfCorrectTypeTest extends ValidatorTestCase
         self::assertTrue($errors[0]->isClientSafe());
     }
 
-    /** @see it('list variables with invalid item') */
+    /**
+     * @see it('list variables with invalid item')
+     */
     public function testListVariablesWithInvalidItem(): void
     {
         $errors = $this->expectFailsRule(

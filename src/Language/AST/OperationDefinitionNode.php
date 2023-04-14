@@ -11,7 +11,9 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
 
     public ?NameNode $name = null;
 
-    /** @var OperationType */
+    /**
+     * @var OperationType
+     */
     public string $operation;
 
     /** @var NodeList<VariableDefinitionNode> */

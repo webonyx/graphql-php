@@ -24,7 +24,9 @@ final class ListsTest extends TestCase
 
     // Describe: Execute: Handles list nullability
 
-    /** [T]. */
+    /**
+     * [T].
+     */
     public function testHandlesNullableListsWithArray(): void
     {
         // Contains values
@@ -94,7 +96,9 @@ final class ListsTest extends TestCase
         self::assertArraySubset($expected, $result->toArray($debug));
     }
 
-    /** [T]. */
+    /**
+     * [T].
+     */
     public function testHandlesNullableListsWithPromiseArray(): void
     {
         // Contains values
@@ -133,7 +137,9 @@ final class ListsTest extends TestCase
         );
     }
 
-    /** [T]. */
+    /**
+     * [T].
+     */
     public function testHandlesNullableListsWithArrayPromise(): void
     {
         // Contains values
@@ -183,7 +189,9 @@ final class ListsTest extends TestCase
         );
     }
 
-    /** [T]! */
+    /**
+     * [T]!
+     */
     public function testHandlesNonNullableListsWithArray(): void
     {
         // Contains values
@@ -227,7 +235,9 @@ final class ListsTest extends TestCase
         $this->check($testType, $testData, $expected, $debug);
     }
 
-    /** [T]! */
+    /**
+     * [T]!
+     */
     public function testHandlesNonNullableListsWithPromiseArray(): void
     {
         // Contains values
@@ -275,7 +285,9 @@ final class ListsTest extends TestCase
         );
     }
 
-    /** [T]! */
+    /**
+     * [T]!
+     */
     public function testHandlesNonNullableListsWithArrayPromise(): void
     {
         // Contains values
@@ -319,7 +331,9 @@ final class ListsTest extends TestCase
         );
     }
 
-    /** [T!]. */
+    /**
+     * [T!].
+     */
     public function testHandlesListOfNonNullsWithArray(): void
     {
         // Contains values
@@ -363,7 +377,9 @@ final class ListsTest extends TestCase
         $this->check($testType, $testData, $expected, $debug);
     }
 
-    /** [T!]. */
+    /**
+     * [T!].
+     */
     public function testHandlesListOfNonNullsWithPromiseArray(): void
     {
         // Contains values
@@ -411,7 +427,9 @@ final class ListsTest extends TestCase
         );
     }
 
-    /** [T]! */
+    /**
+     * [T]!
+     */
     public function testHandlesListOfNonNullsWithArrayPromise(): void
     {
         // Contains values
@@ -455,7 +473,9 @@ final class ListsTest extends TestCase
         );
     }
 
-    /** [T!]! */
+    /**
+     * [T!]!
+     */
     public function testHandlesNonNullListOfNonNullsWithArray(): void
     {
         // Contains values
@@ -508,7 +528,9 @@ final class ListsTest extends TestCase
         $this->check($testType, $testData, $expected, $debug);
     }
 
-    /** [T!]! */
+    /**
+     * [T!]!
+     */
     public function testHandlesNonNullListOfNonNullsWithPromiseArray(): void
     {
         // Contains values
@@ -565,7 +587,9 @@ final class ListsTest extends TestCase
         );
     }
 
-    /** [T!]! */
+    /**
+     * [T!]!
+     */
     public function testHandlesNonNullListOfNonNullsWithArrayPromise(): void
     {
         // Contains values

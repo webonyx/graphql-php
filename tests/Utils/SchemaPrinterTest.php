@@ -58,7 +58,9 @@ final class SchemaPrinterTest extends TestCase
         return new Schema(['query' => $query]);
     }
 
-    /** @see it('Prints String Field') */
+    /**
+     * @see it('Prints String Field')
+     */
     public function testPrintsStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -75,7 +77,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints [String] Field') */
+    /**
+     * @see it('Prints [String] Field')
+     */
     public function testPrintArrayStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -92,7 +96,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints String! Field') */
+    /**
+     * @see it('Prints String! Field')
+     */
     public function testPrintNonNullStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -109,7 +115,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints [String]! Field') */
+    /**
+     * @see it('Prints [String]! Field')
+     */
     public function testPrintNonNullArrayStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -126,7 +134,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints [String!] Field') */
+    /**
+     * @see it('Prints [String!] Field')
+     */
     public function testPrintArrayNonNullStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -143,7 +153,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints [String!]! Field') */
+    /**
+     * @see it('Prints [String!]! Field')
+     */
     public function testPrintNonNullArrayNonNullStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -182,7 +194,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @return iterable<string, array{string|null, string}> */
+    /**
+     * @return iterable<string, array{string|null, string}>
+     */
     public function deprecationReasonDataProvider(): iterable
     {
         yield 'when deprecationReason is null' => [
@@ -206,7 +220,9 @@ final class SchemaPrinterTest extends TestCase
         ];
     }
 
-    /** @see it('Print Object Field') */
+    /**
+     * @see it('Print Object Field')
+     */
     public function testPrintObjectField(): void
     {
         $fooType = new ObjectType([
@@ -272,7 +288,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints String Field With Int Arg') */
+    /**
+     * @see it('Prints String Field With Int Arg')
+     */
     public function testPrintsStringFieldWithIntArg(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -290,7 +308,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints String Field With Int Arg With Default') */
+    /**
+     * @see it('Prints String Field With Int Arg With Default')
+     */
     public function testPrintsStringFieldWithIntArgWithDefault(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -308,7 +328,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints String Field With String Arg With Default') */
+    /**
+     * @see it('Prints String Field With String Arg With Default')
+     */
     public function testPrintsStringFieldWithStringArgWithDefault(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -326,7 +348,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints String Field With Int Arg With Default Null') */
+    /**
+     * @see it('Prints String Field With Int Arg With Default Null')
+     */
     public function testPrintsStringFieldWithIntArgWithDefaultNull(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -344,7 +368,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints String Field With Int! Arg') */
+    /**
+     * @see it('Prints String Field With Int! Arg')
+     */
     public function testPrintsStringFieldWithNonNullIntArg(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -362,7 +388,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints String Field With Multiple Args') */
+    /**
+     * @see it('Prints String Field With Multiple Args')
+     */
     public function testPrintsStringFieldWithMultipleArgs(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -383,7 +411,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints String Field With Multiple Args, First is Default') */
+    /**
+     * @see it('Prints String Field With Multiple Args, First is Default')
+     */
     public function testPrintsStringFieldWithMultipleArgsFirstIsDefault(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -405,7 +435,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints String Field With Multiple Args, Second is Default') */
+    /**
+     * @see it('Prints String Field With Multiple Args, Second is Default')
+     */
     public function testPrintsStringFieldWithMultipleArgsSecondIsDefault(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -427,7 +459,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints String Field With Multiple Args, Last is Default') */
+    /**
+     * @see it('Prints String Field With Multiple Args, Last is Default')
+     */
     public function testPrintsStringFieldWithMultipleArgsLastIsDefault(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -487,7 +521,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints custom query root types') */
+    /**
+     * @see it('Prints custom query root types')
+     */
     public function testPrintsCustomQueryRootTypes(): void
     {
         $schema = new Schema([
@@ -505,7 +541,9 @@ final class SchemaPrinterTest extends TestCase
         self::assertPrintedSchemaEquals($expected, $schema);
     }
 
-    /** @see it('Prints custom mutation root types') */
+    /**
+     * @see it('Prints custom mutation root types')
+     */
     public function testPrintsCustomMutationRootTypes(): void
     {
         $schema = new Schema([
@@ -525,7 +563,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints custom subscription root types') */
+    /**
+     * @see it('Prints custom subscription root types')
+     */
     public function testPrintsCustomSubscriptionRootTypes(): void
     {
         $schema = new Schema([
@@ -545,7 +585,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Print Interface') */
+    /**
+     * @see it('Print Interface')
+     */
     public function testPrintInterface(): void
     {
         $fooType = new InterfaceType([
@@ -576,7 +618,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Print Multiple Interface') */
+    /**
+     * @see it('Print Multiple Interface')
+     */
     public function testPrintMultipleInterface(): void
     {
         $fooType = new InterfaceType([
@@ -620,7 +664,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Print Hierarchical Interface') */
+    /**
+     * @see it('Print Hierarchical Interface')
+     */
     public function testPrintHierarchicalInterface(): void
     {
         $FooType = new InterfaceType([
@@ -681,7 +727,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Print Unions') */
+    /**
+     * @see it('Print Unions')
+     */
     public function testPrintUnions(): void
     {
         $fooType = new ObjectType([
@@ -731,7 +779,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Print Input Type') */
+    /**
+     * @see it('Print Input Type')
+     */
     public function testInputType(): void
     {
         $inputType = new InputObjectType([
@@ -752,7 +802,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Custom Scalar') */
+    /**
+     * @see it('Custom Scalar')
+     */
     public function testCustomScalar(): void
     {
         $oddType = new CustomScalarType([
@@ -771,7 +823,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Enum') */
+    /**
+     * @see it('Enum')
+     */
     public function testEnum(): void
     {
         $RGBType = new EnumType([
@@ -798,7 +852,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints empty types') */
+    /**
+     * @see it('Prints empty types')
+     */
     public function testPrintsEmptyTypes(): void
     {
         $schema = new Schema([
@@ -828,7 +884,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints custom directives') */
+    /**
+     * @see it('Prints custom directives')
+     */
     public function testPrintsCustomDirectives(): void
     {
         $simpleDirective = new Directive([
@@ -866,7 +924,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints an empty description') */
+    /**
+     * @see it('Prints an empty description')
+     */
     public function testPrintsAnEmptyDescription(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -886,7 +946,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Prints a description with only whitespace', () => { */
+    /**
+     * @see it('Prints a description with only whitespace', () => {
+     */
     public function testPrintsADescriptionWithOnlyWhitespace(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -906,7 +968,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('One-line prints a short description') */
+    /**
+     * @see it('One-line prints a short description')
+     */
     public function testOneLinePrintsAShortDescription(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -945,7 +1009,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @see it('Print Introspection Schema') */
+    /**
+     * @see it('Print Introspection Schema')
+     */
     public function testPrintIntrospectionSchema(): void
     {
         $schema = new Schema([]);
@@ -1137,7 +1203,9 @@ final class SchemaPrinterTest extends TestCase
         self::assertSame($expected, $output);
     }
 
-    /** Additional functionality not present in the reference implementation. */
+    /**
+     * Additional functionality not present in the reference implementation.
+     */
     public function testPrintSchemaWithSortedTypes(): void
     {
         $schema = new Schema([
@@ -1168,7 +1236,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** Additional functionality not present in the reference implementation. */
+    /**
+     * Additional functionality not present in the reference implementation.
+     */
     public function testPrintSchemaWithSortedFields(): void
     {
         $schema = new Schema([
@@ -1211,7 +1281,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** Additional functionality not present in the reference implementation. */
+    /**
+     * Additional functionality not present in the reference implementation.
+     */
     public function testPrintSchemaWithSortedInputFields(): void
     {
         $schema = new Schema([
@@ -1254,7 +1326,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** Additional functionality not present in the reference implementation. */
+    /**
+     * Additional functionality not present in the reference implementation.
+     */
     public function testPrintSchemaWithSortedEnumValues(): void
     {
         $schema = new Schema([
@@ -1284,7 +1358,9 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** Additional functionality not present in the reference implementation. */
+    /**
+     * Additional functionality not present in the reference implementation.
+     */
     public function testPrintSchemaWithSortedArguments(): void
     {
         $schema = new Schema([

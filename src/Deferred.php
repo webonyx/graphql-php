@@ -9,13 +9,17 @@ use GraphQL\Executor\Promise\Adapter\SyncPromise;
  */
 class Deferred extends SyncPromise
 {
-    /** @param Executor $executor */
+    /**
+     * @param Executor $executor
+     */
     public static function create(callable $executor): self
     {
         return new self($executor);
     }
 
-    /** @param Executor $executor */
+    /**
+     * @param Executor $executor
+     */
     public function __construct(callable $executor)
     {
         parent::__construct($executor);

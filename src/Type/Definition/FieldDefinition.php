@@ -85,7 +85,9 @@ class FieldDefinition
     /** @var Type&OutputType */
     private Type $type;
 
-    /** @param FieldDefinitionConfig $config */
+    /**
+     * @param FieldDefinitionConfig $config
+     */
     public function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -175,7 +177,9 @@ class FieldDefinition
         return $this->name;
     }
 
-    /** @return Type&OutputType */
+    /**
+     * @return Type&OutputType
+     */
     public function getType(): Type
     {
         return $this->type ??= Schema::resolveType($this->config['type']);

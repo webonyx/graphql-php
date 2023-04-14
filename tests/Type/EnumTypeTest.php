@@ -247,7 +247,9 @@ final class EnumTypeTest extends TestCase
 
     // Describe: Type System: Enum Values
 
-    /** @see it('accepts enum literals as input') */
+    /**
+     * @see it('accepts enum literals as input')
+     */
     public function testAcceptsEnumLiteralsAsInput(): void
     {
         self::assertSame(
@@ -256,7 +258,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('enum may be output type') */
+    /**
+     * @see it('enum may be output type')
+     */
     public function testEnumMayBeOutputType(): void
     {
         self::assertSame(
@@ -265,7 +269,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('enum may be both input and output type') */
+    /**
+     * @see it('enum may be both input and output type')
+     */
     public function testEnumMayBeBothInputAndOutputType(): void
     {
         self::assertSame(
@@ -274,7 +280,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('does not accept string literals') */
+    /**
+     * @see it('does not accept string literals')
+     */
     public function testDoesNotAcceptStringLiterals(): void
     {
         $this->expectFailure(
@@ -315,7 +323,9 @@ final class EnumTypeTest extends TestCase
         }
     }
 
-    /** @see it('does not accept values not in the enum') */
+    /**
+     * @see it('does not accept values not in the enum')
+     */
     public function testDoesNotAcceptValuesNotInTheEnum(): void
     {
         $this->expectFailure(
@@ -328,7 +338,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('does not accept values with incorrect casing') */
+    /**
+     * @see it('does not accept values with incorrect casing')
+     */
     public function testDoesNotAcceptValuesWithIncorrectCasing(): void
     {
         $this->expectFailure(
@@ -341,7 +353,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('does not accept incorrect internal value') */
+    /**
+     * @see it('does not accept incorrect internal value')
+     */
     public function testDoesNotAcceptIncorrectInternalValue(): void
     {
         $this->expectFailure(
@@ -355,7 +369,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('does not accept internal value in place of enum literal') */
+    /**
+     * @see it('does not accept internal value in place of enum literal')
+     */
     public function testDoesNotAcceptInternalValueInPlaceOfEnumLiteral(): void
     {
         $this->expectFailure(
@@ -365,7 +381,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('does not accept enum literal in place of int') */
+    /**
+     * @see it('does not accept enum literal in place of int')
+     */
     public function testDoesNotAcceptEnumLiteralInPlaceOfInt(): void
     {
         $this->expectFailure(
@@ -375,7 +393,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('accepts JSON string as enum variable') */
+    /**
+     * @see it('accepts JSON string as enum variable')
+     */
     public function testAcceptsJSONStringAsEnumVariable(): void
     {
         self::assertSame(
@@ -390,7 +410,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('accepts enum literals as input arguments to mutations') */
+    /**
+     * @see it('accepts enum literals as input arguments to mutations')
+     */
     public function testAcceptsEnumLiteralsAsInputArgumentsToMutations(): void
     {
         self::assertSame(
@@ -424,7 +446,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('does not accept internal value as enum variable') */
+    /**
+     * @see it('does not accept internal value as enum variable')
+     */
     public function testDoesNotAcceptInternalValueAsEnumVariable(): void
     {
         $this->expectFailure(
@@ -434,7 +458,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('does not accept string variables as enum input') */
+    /**
+     * @see it('does not accept string variables as enum input')
+     */
     public function testDoesNotAcceptStringVariablesAsEnumInput(): void
     {
         $this->expectFailure(
@@ -444,7 +470,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('does not accept internal value variable as enum input') */
+    /**
+     * @see it('does not accept internal value variable as enum input')
+     */
     public function testDoesNotAcceptInternalValueVariableSsEnumInput(): void
     {
         $this->expectFailure(
@@ -454,7 +482,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('enum value may have an internal value of 0') */
+    /**
+     * @see it('enum value may have an internal value of 0')
+     */
     public function testEnumValueMayHaveAnInternalValueOf0(): void
     {
         self::assertSame(
@@ -469,7 +499,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('enum inputs may be nullable') */
+    /**
+     * @see it('enum inputs may be nullable')
+     */
     public function testEnumInputsMayBeNullable(): void
     {
         self::assertEquals(
@@ -484,7 +516,9 @@ final class EnumTypeTest extends TestCase
         );
     }
 
-    /** @see it('presents a getValues() API for complex enums') */
+    /**
+     * @see it('presents a getValues() API for complex enums')
+     */
     public function testPresentsGetValuesAPIForComplexEnums(): void
     {
         $ComplexEnum = $this->ComplexEnum;
@@ -497,7 +531,9 @@ final class EnumTypeTest extends TestCase
         self::assertEquals($this->Complex2, $values[1]->value);
     }
 
-    /** @see it('presents a getValue() API for complex enums') */
+    /**
+     * @see it('presents a getValue() API for complex enums')
+     */
     public function testPresentsGetValueAPIForComplexEnums(): void
     {
         $oneValue = $this->ComplexEnum->getValue('ONE');
@@ -506,7 +542,9 @@ final class EnumTypeTest extends TestCase
         self::assertEquals($this->Complex1, $oneValue->value);
     }
 
-    /** @see it('may be internally represented with complex values') */
+    /**
+     * @see it('may be internally represented with complex values')
+     */
     public function testMayBeInternallyRepresentedWithComplexValues(): void
     {
         $result = GraphQL::executeQuery(
@@ -561,7 +599,9 @@ final class EnumTypeTest extends TestCase
         self::assertSame($expected, $result);
     }
 
-    /** @see it('can be introspected without error') */
+    /**
+     * @see it('can be introspected without error')
+     */
     public function testCanBeIntrospectedWithoutError(): void
     {
         $result = GraphQL::executeQuery($this->schema, Introspection::getIntrospectionQuery())->toArray();

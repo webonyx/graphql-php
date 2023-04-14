@@ -22,7 +22,9 @@ class CustomValidationRule extends ValidationRule
      */
     protected $visitorFn;
 
-    /** @phpstan-param VisitorFn $visitorFn */
+    /**
+     * @phpstan-param VisitorFn $visitorFn
+     */
     public function __construct(string $name, callable $visitorFn)
     {
         $this->name = $name;

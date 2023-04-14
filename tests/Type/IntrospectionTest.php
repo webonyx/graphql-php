@@ -23,7 +23,9 @@ final class IntrospectionTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @see it('executes an introspection query') */
+    /**
+     * @see it('executes an introspection query')
+     */
     public function testExecutesAnIntrospectionQuery(): void
     {
         $schema = BuildSchema::build('
@@ -908,7 +910,9 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @see it('introspects on input object') */
+    /**
+     * @see it('introspects on input object')
+     */
     public function testIntrospectsOnInputObject(): void
     {
         $TestInputObject = new InputObjectType([
@@ -1005,7 +1009,9 @@ final class IntrospectionTest extends TestCase
         self::assertEquals($expectedFragment, $result['data']['__type'] ?? null);
     }
 
-    /** @see it('supports the __type root field') */
+    /**
+     * @see it('supports the __type root field')
+     */
     public function testSupportsTheTypeRootField(): void
     {
         $TestType = new ObjectType([
@@ -1035,7 +1041,9 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /** @see it('identifies deprecated fields') */
+    /**
+     * @see it('identifies deprecated fields')
+     */
     public function testIdentifiesDeprecatedFields(): void
     {
         $TestType = new ObjectType([
@@ -1087,7 +1095,9 @@ final class IntrospectionTest extends TestCase
         self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /** @see it('respects the includeDeprecated parameter for fields') */
+    /**
+     * @see it('respects the includeDeprecated parameter for fields')
+     */
     public function testRespectsTheIncludeDeprecatedParameterForFields(): void
     {
         $TestType = new ObjectType([
@@ -1142,7 +1152,9 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /** @see it('identifies deprecated enum values') */
+    /**
+     * @see it('identifies deprecated enum values')
+     */
     public function testIdentifiesDeprecatedEnumValues(): void
     {
         $TestEnum = new EnumType([
@@ -1202,7 +1214,9 @@ final class IntrospectionTest extends TestCase
         self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /** @see it('respects the includeDeprecated parameter for enum values') */
+    /**
+     * @see it('respects the includeDeprecated parameter for enum values')
+     */
     public function testRespectsTheIncludeDeprecatedParameterForEnumValues(): void
     {
         $TestEnum = new EnumType([
@@ -1261,7 +1275,9 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /** @see it('fails as expected on the __type root field without an arg') */
+    /**
+     * @see it('fails as expected on the __type root field without an arg')
+     */
     public function testFailsAsExpectedOnTheTypeRootFieldWithoutAnArg(): void
     {
         $TestType = new ObjectType([
@@ -1292,7 +1308,9 @@ final class IntrospectionTest extends TestCase
         self::assertArraySubset($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /** @see it('exposes descriptions on types and fields') */
+    /**
+     * @see it('exposes descriptions on types and fields')
+     */
     public function testExposesDescriptionsOnTypesAndFields(): void
     {
         $QueryRoot = new ObjectType([
@@ -1349,7 +1367,9 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /** @see it('exposes descriptions on enums') */
+    /**
+     * @see it('exposes descriptions on enums')
+     */
     public function testExposesDescriptionsOnEnums(): void
     {
         $QueryRoot = new ObjectType([
@@ -1416,7 +1436,9 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /** @see it('executes an introspection query without calling global fieldResolver') */
+    /**
+     * @see it('executes an introspection query without calling global fieldResolver')
+     */
     public function testExecutesAnIntrospectionQueryWithoutCallingGlobalFieldResolver(): void
     {
         $QueryRoot = new ObjectType([

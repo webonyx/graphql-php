@@ -7,7 +7,9 @@ use PHPUnit\Framework\TestCase;
 
 final class UtilsTest extends TestCase
 {
-    /** @dataProvider chrUtf8DataProvider */
+    /**
+     * @dataProvider chrUtf8DataProvider
+     */
     public function testChrUtf8Generation(int $input, string $expected): void
     {
         $result = Utils::chr($input);
@@ -16,7 +18,9 @@ final class UtilsTest extends TestCase
         self::assertSame($expected, $result);
     }
 
-    /** @return iterable<array{input: int, expected: string}> */
+    /**
+     * @return iterable<array{input: int, expected: string}>
+     */
     public static function chrUtf8DataProvider(): iterable
     {
         yield 'alphabet' => [
@@ -50,7 +54,9 @@ final class UtilsTest extends TestCase
         self::assertSame($expected, Utils::printSafeJson($value));
     }
 
-    /** @return iterable<array{expected: string, value: mixed}> */
+    /**
+     * @return iterable<array{expected: string, value: mixed}>
+     */
     public static function printSafeJsonDataProvider(): iterable
     {
         yield 'stdClass' => [

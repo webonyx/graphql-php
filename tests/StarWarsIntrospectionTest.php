@@ -11,7 +11,9 @@ use PHPUnit\Framework\TestCase;
  */
 final class StarWarsIntrospectionTest extends TestCase
 {
-    /** @see it('Allows querying the schema for types') */
+    /**
+     * @see it('Allows querying the schema for types')
+     */
     public function testAllowsQueryingTheSchemaForTypes(): void
     {
         $query = '
@@ -62,7 +64,9 @@ final class StarWarsIntrospectionTest extends TestCase
         );
     }
 
-    /** @see it('Allows querying the schema for query type') */
+    /**
+     * @see it('Allows querying the schema for query type')
+     */
     public function testAllowsQueryingTheSchemaForQueryType(): void
     {
         $query = '
@@ -82,7 +86,9 @@ final class StarWarsIntrospectionTest extends TestCase
         self::assertValidQuery($query, $expected);
     }
 
-    /** @see it('Allows querying the schema for a specific type') */
+    /**
+     * @see it('Allows querying the schema for a specific type')
+     */
     public function testAllowsQueryingTheSchemaForASpecificType(): void
     {
         $query = '
@@ -98,7 +104,9 @@ final class StarWarsIntrospectionTest extends TestCase
         self::assertValidQuery($query, $expected);
     }
 
-    /** @see it('Allows querying the schema for an object kind') */
+    /**
+     * @see it('Allows querying the schema for an object kind')
+     */
     public function testAllowsQueryingForAnObjectKind(): void
     {
         $query = '
@@ -118,7 +126,9 @@ final class StarWarsIntrospectionTest extends TestCase
         self::assertValidQuery($query, $expected);
     }
 
-    /** @see it('Allows querying the schema for an interface kind') */
+    /**
+     * @see it('Allows querying the schema for an interface kind')
+     */
     public function testAllowsQueryingForInterfaceKind(): void
     {
         $query = '
@@ -138,7 +148,9 @@ final class StarWarsIntrospectionTest extends TestCase
         self::assertValidQuery($query, $expected);
     }
 
-    /** @see it('Allows querying the schema for object fields') */
+    /**
+     * @see it('Allows querying the schema for object fields')
+     */
     public function testAllowsQueryingForObjectFields(): void
     {
         $query = '
@@ -207,7 +219,9 @@ final class StarWarsIntrospectionTest extends TestCase
         self::assertValidQuery($query, $expected);
     }
 
-    /** @see it('Allows querying the schema for nested object fields') */
+    /**
+     * @see it('Allows querying the schema for nested object fields')
+     */
     public function testAllowsQueryingTheSchemaForNestedObjectFields(): void
     {
         $query = '
@@ -295,7 +309,9 @@ final class StarWarsIntrospectionTest extends TestCase
         self::assertValidQuery($query, $expected);
     }
 
-    /** @see it('Allows querying the schema for field args') */
+    /**
+     * @see it('Allows querying the schema for field args')
+     */
     public function testAllowsQueryingTheSchemaForFieldArgs(): void
     {
         $query = '
@@ -386,7 +402,9 @@ final class StarWarsIntrospectionTest extends TestCase
         self::assertValidQuery($query, $expected);
     }
 
-    /** @see it('Allows querying the schema for documentation') */
+    /**
+     * @see it('Allows querying the schema for documentation')
+     */
     public function testAllowsQueryingTheSchemaForDocumentation(): void
     {
         $query = '

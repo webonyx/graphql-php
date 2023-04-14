@@ -11,7 +11,9 @@ final class AstFromValueUntypedTest extends TestCase
 {
     // Describe: valueFromASTUntyped
 
-    /** @see it('parses simple values') */
+    /**
+     * @see it('parses simple values')
+     */
     public function testParsesSimpleValues(): void
     {
         self::assertTestCase('null', null);
@@ -38,7 +40,9 @@ final class AstFromValueUntypedTest extends TestCase
         );
     }
 
-    /** @see it('parses lists of values') */
+    /**
+     * @see it('parses lists of values')
+     */
     public function testParsesListsOfValues(): void
     {
         self::assertTestCase('[true, false]', [true, false]);
@@ -47,7 +51,9 @@ final class AstFromValueUntypedTest extends TestCase
         self::assertTestCase('[true, ["foo", 1.2]]', [true, ['foo', 1.2]]);
     }
 
-    /** @see it('parses input objects') */
+    /**
+     * @see it('parses input objects')
+     */
     public function testParsesInputObjects(): void
     {
         self::assertTestCase(
@@ -61,7 +67,9 @@ final class AstFromValueUntypedTest extends TestCase
         );
     }
 
-    /** @see it('parses enum values as plain strings') */
+    /**
+     * @see it('parses enum values as plain strings')
+     */
     public function testParsesEnumValuesAsPlainStrings(): void
     {
         self::assertTestCase(
@@ -75,7 +83,9 @@ final class AstFromValueUntypedTest extends TestCase
         );
     }
 
-    /** @see it('parses enum values as plain strings') */
+    /**
+     * @see it('parses enum values as plain strings')
+     */
     public function testParsesVariables(): void
     {
         self::assertTestCase(

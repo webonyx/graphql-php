@@ -19,7 +19,9 @@ final class ResolveTest extends TestCase
 {
     // Execute: resolve function
 
-    /** @see it('default function accesses properties') */
+    /**
+     * @see it('default function accesses properties')
+     */
     public function testDefaultFunctionAccessesProperties(): void
     {
         $schema = $this->buildSchema(['type' => Type::string()]);
@@ -47,7 +49,9 @@ final class ResolveTest extends TestCase
         ]);
     }
 
-    /** @see it('default function calls methods') */
+    /**
+     * @see it('default function calls methods')
+     */
     public function testDefaultFunctionCallsClosures(): void
     {
         $schema = $this->buildSchema(['type' => Type::string()]);
@@ -62,7 +66,9 @@ final class ResolveTest extends TestCase
         );
     }
 
-    /** @see it('default function passes args and context') */
+    /**
+     * @see it('default function passes args and context')
+     */
     public function testDefaultFunctionPassesArgsAndContext(): void
     {
         $schema = $this->buildSchema([
@@ -92,7 +98,9 @@ final class ResolveTest extends TestCase
         ], $result);
     }
 
-    /** @see it('uses provided resolve function') */
+    /**
+     * @see it('uses provided resolve function')
+     */
     public function testUsesProvidedResolveFunction(): void
     {
         $schema = $this->buildSchema([

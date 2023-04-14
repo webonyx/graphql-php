@@ -64,7 +64,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($sdl, $cycled);
     }
 
-    /** @param ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $obj */
+    /**
+     * @param ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $obj
+     */
     private function printAllASTNodes(NamedType $obj): string
     {
         self::assertNotNull($obj->astNode);
@@ -79,7 +81,9 @@ final class BuildSchemaTest extends TestCaseBase
 
     // Describe: Schema Builder
 
-    /** @see it('can use built schema for limited execution') */
+    /**
+     * @see it('can use built schema for limited execution')
+     */
     public function testUseBuiltSchemaForLimitedExecution(): void
     {
         $schema = BuildSchema::buildAST(Parser::parse('
@@ -98,7 +102,9 @@ final class BuildSchemaTest extends TestCaseBase
         );
     }
 
-    /** @see it('can build a schema directly from the source') */
+    /**
+     * @see it('can build a schema directly from the source')
+     */
     public function testBuildSchemaDirectlyFromSource(): void
     {
         $schema = BuildSchema::build('
@@ -119,7 +125,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame(['data' => ['add' => 89]], $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
-    /** @see it('Ignores non-type system definitions') */
+    /**
+     * @see it('Ignores non-type system definitions')
+     */
     public function testIgnoresNonTypeSystemDefinitions(): void
     {
         $sdl = '
@@ -136,7 +144,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertDidNotCrash();
     }
 
-    /** @see it('Match order of default types and directives') */
+    /**
+     * @see it('Match order of default types and directives')
+     */
     public function testMatchOrderOfDefaultTypesAndDirectives(): void
     {
         $schema = new Schema([]);
@@ -148,7 +158,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($schema->getTypeMap(), $sdlSchema->getTypeMap());
     }
 
-    /** @see it('Empty Type') */
+    /**
+     * @see it('Empty Type')
+     */
     public function testEmptyType(): void
     {
         $sdl = <<<GRAPHQL
@@ -158,7 +170,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Simple Type') */
+    /**
+     * @see it('Simple Type')
+     */
     public function testSimpleType(): void
     {
         $sdl = <<<GRAPHQL
@@ -182,7 +196,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame(Type::id(), $schema->getType('ID'));
     }
 
-    /** @see it('include standard type only if it is used') */
+    /**
+     * @see it('include standard type only if it is used')
+     */
     public function testIncludeStandardTypeOnlyIfItIsUsed(): void
     {
         $schema = BuildSchema::build('type Query');
@@ -199,7 +215,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertNull($schema->getType('ID'));
     }
 
-    /** @see it('With directives') */
+    /**
+     * @see it('With directives')
+     */
     public function testWithDirectives(): void
     {
         $sdl = <<<GRAPHQL
@@ -211,7 +229,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Supports descriptions') */
+    /**
+     * @see it('Supports descriptions')
+     */
     public function testSupportsDescriptions(): void
     {
         /* TODO add schema description - see https://github.com/webonyx/graphql-php/issues/1027
@@ -264,7 +284,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Maintains @include, @skip & @specifiedBy') */
+    /**
+     * @see it('Maintains @include, @skip & @specifiedBy')
+     */
     public function testMaintainsIncludeSkipAndSpecifiedBy(): void
     {
         $schema = BuildSchema::buildAST(Parser::parse('type Query'));
@@ -279,7 +301,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
 
-    /** @see it('Overriding directives excludes specified') */
+    /**
+     * @see it('Overriding directives excludes specified')
+     */
     public function testOverridingDirectivesExcludesSpecified(): void
     {
         $schema = BuildSchema::buildAST(Parser::parse('
@@ -298,7 +322,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertNotEquals(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
 
-    /** @see it('Adding directives maintains @include, @skip & @specifiedBy') */
+    /**
+     * @see it('Adding directives maintains @include, @skip & @specifiedBy')
+     */
     public function testAddingDirectivesMaintainsIncludeSkipAndSpecifiedBy(): void
     {
         $sdl = <<<GRAPHQL
@@ -318,7 +344,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertNotNull($schema->getDirective('specifiedBy'));
     }
 
-    /** @see it('Type modifiers') */
+    /**
+     * @see it('Type modifiers')
+     */
     public function testTypeModifiers(): void
     {
         $sdl = <<<GRAPHQL
@@ -334,7 +362,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Recursive type') */
+    /**
+     * @see it('Recursive type')
+     */
     public function testRecursiveType(): void
     {
         $sdl = <<<GRAPHQL
@@ -347,7 +377,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Two types circular') */
+    /**
+     * @see it('Two types circular')
+     */
     public function testTwoTypesCircular(): void
     {
         $sdl = <<<GRAPHQL
@@ -365,7 +397,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Single argument field') */
+    /**
+     * @see it('Single argument field')
+     */
     public function testSingleArgumentField(): void
     {
         $sdl = <<<GRAPHQL
@@ -381,7 +415,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Simple type with multiple arguments') */
+    /**
+     * @see it('Simple type with multiple arguments')
+     */
     public function testSimpleTypeWithMultipleArguments(): void
     {
         $sdl = <<<GRAPHQL
@@ -393,7 +429,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Empty interface') */
+    /**
+     * @see it('Empty interface')
+     */
     public function testEmptyInterface(): void
     {
         $sdl = <<<GRAPHQL
@@ -408,7 +446,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Simple type with interface') */
+    /**
+     * @see it('Simple type with interface')
+     */
     public function testSimpleTypeWithInterface(): void
     {
         $sdl = <<<GRAPHQL
@@ -424,7 +464,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Simple interface hierarchy') */
+    /**
+     * @see it('Simple interface hierarchy')
+     */
     public function testSimpleInterfaceHierarchy(): void
     {
         // `graphql-js` has `query: Child` but that's incorrect as `query` has to be Object type
@@ -449,7 +491,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Empty enum') */
+    /**
+     * @see it('Empty enum')
+     */
     public function testEmptyEnum(): void
     {
         $sdl = <<<GRAPHQL
@@ -459,7 +503,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Simple output enum') */
+    /**
+     * @see it('Simple output enum')
+     */
     public function testSimpleOutputEnum(): void
     {
         $sdl = <<<GRAPHQL
@@ -475,7 +521,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Simple input enum') */
+    /**
+     * @see it('Simple input enum')
+     */
     public function testSimpleInputEnum(): void
     {
         $sdl = <<<GRAPHQL
@@ -491,7 +539,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Multiple value enum') */
+    /**
+     * @see it('Multiple value enum')
+     */
     public function testMultipleValueEnum(): void
     {
         $sdl = <<<GRAPHQL
@@ -508,7 +558,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Empty union') */
+    /**
+     * @see it('Empty union')
+     */
     public function testEmptyUnion(): void
     {
         $sdl = <<<GRAPHQL
@@ -518,7 +570,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Simple Union') */
+    /**
+     * @see it('Simple Union')
+     */
     public function testSimpleUnion(): void
     {
         $sdl = <<<GRAPHQL
@@ -536,7 +590,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Multiple Union') */
+    /**
+     * @see it('Multiple Union')
+     */
     public function testMultipleUnion(): void
     {
         $sdl = <<<GRAPHQL
@@ -558,7 +614,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Can build recursive Union') */
+    /**
+     * @see it('Can build recursive Union')
+     */
     public function testCanBuildRecursiveUnion(): void
     {
         $schema = BuildSchema::build('
@@ -572,7 +630,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertNotEmpty($errors);
     }
 
-    /** @see it('Custom Scalar') */
+    /**
+     * @see it('Custom Scalar')
+     */
     public function testCustomScalar(): void
     {
         $sdl = <<<GRAPHQL
@@ -586,7 +646,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Empty Input Object') */
+    /**
+     * @see it('Empty Input Object')
+     */
     public function testEmptyInputObject(): void
     {
         $sdl = <<<GRAPHQL
@@ -596,7 +658,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Input Object') */
+    /**
+     * @see it('Input Object')
+     */
     public function testInputObject(): void
     {
         $sdl = <<<GRAPHQL
@@ -612,7 +676,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Simple argument field with default') */
+    /**
+     * @see it('Simple argument field with default')
+     */
     public function testSimpleArgumentFieldWithDefault(): void
     {
         $sdl = <<<GRAPHQL
@@ -624,7 +690,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Custom scalar argument field with default') */
+    /**
+     * @see it('Custom scalar argument field with default')
+     */
     public function testCustomScalarArgumentFieldWithDefault(): void
     {
         $sdl = <<<GRAPHQL
@@ -638,7 +706,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Simple type with mutation') */
+    /**
+     * @see it('Simple type with mutation')
+     */
     public function testSimpleTypeWithMutation(): void
     {
         $sdl = <<<GRAPHQL
@@ -661,7 +731,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Simple type with subscription') */
+    /**
+     * @see it('Simple type with subscription')
+     */
     public function testSimpleTypeWithSubscription(): void
     {
         $sdl = <<<GRAPHQL
@@ -684,7 +756,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Unreferenced type implementing referenced interface') */
+    /**
+     * @see it('Unreferenced type implementing referenced interface')
+     */
     public function testUnreferencedTypeImplementingReferencedInterface(): void
     {
         $sdl = <<<GRAPHQL
@@ -704,7 +778,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Unreferenced interface implementing referenced interface') */
+    /**
+     * @see it('Unreferenced interface implementing referenced interface')
+     */
     public function testUnreferencedInterfaceImplementingReferencedInterface(): void
     {
         $sdl = <<<GRAPHQL
@@ -724,7 +800,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Unreferenced type implementing referenced union') */
+    /**
+     * @see it('Unreferenced type implementing referenced union')
+     */
     public function testUnreferencedTypeImplementingReferencedUnion(): void
     {
         $sdl = <<<GRAPHQL
@@ -742,7 +820,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
     }
 
-    /** @see it('Supports @deprecated') */
+    /**
+     * @see it('Supports @deprecated')
+     */
     public function testSupportsDeprecated(): void
     {
         // TODO restore @deprecated on inputs - see https://github.com/webonyx/graphql-php/issues/110
@@ -814,7 +894,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame('Why not?', $rootFields['field4']->args[0]->deprecationReason);
     }
 
-    /** @see it('Supports @specifiedBy') */
+    /**
+     * @see it('Supports @specifiedBy')
+     */
     public function testSupportsSpecifiedBy(): void
     {
         self::markTestSkipped('See https://github.com/webonyx/graphql-php/issues/1140');
@@ -834,7 +916,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame('https://example.com/foo_spec', $schema->getType('Foo')->specifiedByURL);
     }
 
-    /** @see it('Correctly extend scalar type') */
+    /**
+     * @see it('Correctly extend scalar type')
+     */
     public function testCorrectlyExtendScalarType(): void
     {
         $scalarSDL = <<<'GRAPHQL'
@@ -863,7 +947,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($scalarSDL, $this->printAllASTNodes($someScalar));
     }
 
-    /** @see it('Correctly extend object type') */
+    /**
+     * @see it('Correctly extend object type')
+     */
     public function testCorrectlyExtendObjectType(): void
     {
         $objectSDL = <<<'GRAPHQL'
@@ -903,7 +989,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($objectSDL, $this->printAllASTNodes($someObject));
     }
 
-    /** @see it('Correctly extend interface type') */
+    /**
+     * @see it('Correctly extend interface type')
+     */
     public function testCorrectlyExtendInterfaceType(): void
     {
         $interfaceSDL = <<<'GRAPHQL'
@@ -938,7 +1026,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($interfaceSDL, $this->printAllASTNodes($someInterface));
     }
 
-    /** @see it('Correctly extend union type') */
+    /**
+     * @see it('Correctly extend union type')
+     */
     public function testCorrectlyExtendUnionType(): void
     {
         $unionSDL = <<<'GRAPHQL'
@@ -968,7 +1058,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($unionSDL, $this->printAllASTNodes($someUnion));
     }
 
-    /** @see it('Correctly extend enum type') */
+    /**
+     * @see it('Correctly extend enum type')
+     */
     public function testCorrectlyExtendEnumType(): void
     {
         $enumSDL = <<<'GRAPHQL'
@@ -1003,7 +1095,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($enumSDL, $this->printAllASTNodes($someEnum));
     }
 
-    /** @see it('Correctly extend input object type') */
+    /**
+     * @see it('Correctly extend input object type')
+     */
     public function testCorrectlyExtendInputObjectType(): void
     {
         $inputSDL = <<<'GRAPHQL'
@@ -1038,7 +1132,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($inputSDL, $this->printAllASTNodes($someInput));
     }
 
-    /** @see it('Correctly assign AST nodes') */
+    /**
+     * @see it('Correctly assign AST nodes')
+     */
     public function testCorrectlyAssignASTNodes(): void
     {
         $sdl = '
@@ -1150,7 +1246,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertASTMatches('arg: TestScalar', $testDirective->args[0]->astNode);
     }
 
-    /** @see it('Root operation types with custom names') */
+    /**
+     * @see it('Root operation types with custom names')
+     */
     public function testRootOperationTypesWithCustomNames(): void
     {
         $schema = BuildSchema::build('
@@ -1177,7 +1275,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame('SomeSubscription', $subscription->name);
     }
 
-    /** @see it('Default root operation type names') */
+    /**
+     * @see it('Default root operation type names')
+     */
     public function testDefaultRootOperationTypeNames(): void
     {
         $schema = BuildSchema::build('
@@ -1199,7 +1299,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame('Subscription', $subscription->name);
     }
 
-    /** @see it('can build invalid schema') */
+    /**
+     * @see it('can build invalid schema')
+     */
     public function testCanBuildInvalidSchema(): void
     {
         // Invalid schema, because it is missing query root type
@@ -1208,7 +1310,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertNotEmpty($errors);
     }
 
-    /** @see it('Do not override standard types') */
+    /**
+     * @see it('Do not override standard types')
+     */
     public function testDoNotOverrideStandardTypes(): void
     {
         // NOTE: not sure it's desired behaviour to just silently ignore override
@@ -1224,7 +1328,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame(Introspection::_schema(), $schema->getType('__Schema'));
     }
 
-    /** @see it('Allows to reference introspection types') */
+    /**
+     * @see it('Allows to reference introspection types')
+     */
     public function testAllowsToReferenceIntrospectionTypes(): void
     {
         $schema = BuildSchema::build('
@@ -1241,7 +1347,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame(Introspection::_enumValue(), $schema->getType('__EnumValue'));
     }
 
-    /** @see it('Rejects invalid SDL') */
+    /**
+     * @see it('Rejects invalid SDL')
+     */
     public function testRejectsInvalidSDL(): void
     {
         $doc = Parser::parse('
@@ -1255,7 +1363,9 @@ final class BuildSchemaTest extends TestCaseBase
         BuildSchema::build($doc);
     }
 
-    /** @see it('Allows to disable SDL validation') */
+    /**
+     * @see it('Allows to disable SDL validation')
+     */
     public function testAllowsToDisableSDLValidation(): void
     {
         $sdl = '
@@ -1271,7 +1381,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCount(1, $schema->validate());
     }
 
-    /** @see it('Throws on unknown types') */
+    /**
+     * @see it('Throws on unknown types')
+     */
     public function testThrowsOnUnknownTypes(): void
     {
         $this->expectException(Error::class);
@@ -1284,7 +1396,9 @@ final class BuildSchemaTest extends TestCaseBase
         BuildSchema::build($sdl, null, ['assumeValidSDL' => true])->assertValid();
     }
 
-    /** it('correctly processes viral schema', () => {. */
+    /**
+     * it('correctly processes viral schema', () => {.
+     */
     public function testCorrectlyProcessesViralSchema(): void
     {
         $schema = BuildSchema::build(\Safe\file_get_contents(__DIR__ . '/../viralSchema.graphql'));
@@ -1298,7 +1412,9 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertNull($schema->getMutationType());
     }
 
-    /** @see https://github.com/webonyx/graphql-php/issues/997 */
+    /**
+     * @see https://github.com/webonyx/graphql-php/issues/997
+     */
     public function testBuiltSchemaReturnsNullForNonexistentType(): void
     {
         $schema = BuildSchema::build('type KnownType');
@@ -1477,7 +1593,9 @@ final class BuildSchemaTest extends TestCaseBase
         $assert($myType);
     }
 
-    /** @return iterable<string, array<mixed>> */
+    /**
+     * @return iterable<string, array<mixed>>
+     */
     public function correctlyExtendsTypesDataProvider(): iterable
     {
         yield 'scalar' => [

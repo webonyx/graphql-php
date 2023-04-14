@@ -24,7 +24,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('does not dedent first line', () => { */
+    /**
+     * @see it('does not dedent first line', () => {
+     */
     public function testDoesNotDedentFirstLine(): void
     {
         self::assertSame(
@@ -45,7 +47,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('removes minimal indentation length', () => { */
+    /**
+     * @see it('removes minimal indentation length', () => {
+     */
     public function testRemovesMinimalIndentationLength(): void
     {
         self::assertSame(
@@ -91,7 +95,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('dedent both tab and space as single character', () => { */
+    /**
+     * @see it('dedent both tab and space as single character', () => {
+     */
     public function testDedentBothTabAndSpaceAsSingleCharacter(): void
     {
         self::assertSame(
@@ -117,7 +123,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('dedent do not take empty lines into account', () => { */
+    /**
+     * @see it('dedent do not take empty lines into account', () => {
+     */
     public function testDedentDoNotTakeEmptyLinesIntoAccount(): void
     {
         self::assertSame(
@@ -150,7 +158,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('removes uniform indentation from a string') */
+    /**
+     * @see it('removes uniform indentation from a string')
+     */
     public function testRemovesUniformIndentationFromAString(): void
     {
         self::assertSame(
@@ -174,7 +184,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('removes empty leading and trailing lines', () => { */
+    /**
+     * @see it('removes empty leading and trailing lines', () => {
+     */
     public function testRemovesEmptyLeadingAndTrailingLines(): void
     {
         self::assertSame(
@@ -201,7 +213,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('removes blank leading and trailing lines', () => { */
+    /**
+     * @see it('removes blank leading and trailing lines', () => {
+     */
     public function testRemovesBlankLeadingAndTrailingLines(): void
     {
         $rawValue = self::joinLines(
@@ -221,7 +235,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('retains indentation from first line', () => { */
+    /**
+     * @see it('retains indentation from first line', () => {
+     */
     public function testRetainsIndentationFromFirstLine(): void
     {
         self::assertSame(
@@ -246,7 +262,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('does not alter trailing spaces') */
+    /**
+     * @see it('does not alter trailing spaces')
+     */
     public function testDoesNotAlterTrailingSpaces(): void
     {
         $rawValue = self::joinLines(
@@ -272,20 +290,26 @@ final class BlockStringTest extends TestCase
 
     // describe('getBlockStringIndentation')
 
-    /** @see it('returns zero for an empty string') */
+    /**
+     * @see it('returns zero for an empty string')
+     */
     public function testReturnsZeroForAnEmptyString(): void
     {
         self::assertSame(0, BlockString::getIndentation(''));
     }
 
-    /** @see it('do not take first line into account') */
+    /**
+     * @see it('do not take first line into account')
+     */
     public function testDoNotTakeFirstLineIntoAccount(): void
     {
         self::assertSame(0, BlockString::getIndentation('  a'));
         self::assertSame(2, BlockString::getIndentation(" a\n  b"));
     }
 
-    /** @see it('returns minimal indentation length') */
+    /**
+     * @see it('returns minimal indentation length')
+     */
     public function testReturnsMinimalIndentationLength(): void
     {
         self::assertSame(1, BlockString::getIndentation("\n a\n  b"));
@@ -293,7 +317,9 @@ final class BlockStringTest extends TestCase
         self::assertSame(0, BlockString::getIndentation("\n  a\n b\nc"));
     }
 
-    /** @see it('count both tab and space as single character') */
+    /**
+     * @see it('count both tab and space as single character')
+     */
     public function testCountBothTabAndSpaceAsSingleCharacter(): void
     {
         self::assertSame(1, BlockString::getIndentation("\n\ta\n          b"));
@@ -301,7 +327,9 @@ final class BlockStringTest extends TestCase
         self::assertSame(3, BlockString::getIndentation("\n \t a\n          b"));
     }
 
-    /** @see it('do not take empty lines into account') */
+    /**
+     * @see it('do not take empty lines into account')
+     */
     public function testDoNotTakeEmptyLinesIntoAccount(): void
     {
         self::assertSame(0, BlockString::getIndentation("a\n "));
@@ -327,14 +355,18 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('by default print block strings as single line', () => { */
+    /**
+     * @see it('by default print block strings as single line', () => {
+     */
     public function testByDefaultPrintBlockStringsAsSingleLine(): void
     {
         $str = 'one liner';
         self::assertSame('"""one liner"""', BlockString::print($str));
     }
 
-    /** @see it('by default print block strings ending with triple quotation as multi-line', () => { */
+    /**
+     * @see it('by default print block strings ending with triple quotation as multi-line', () => {
+     */
     public function testByDefaultPrintBlockStringsEndingWithTripleQuotationAsMultiLine(): void
     {
         $str = 'triple quotation """';
@@ -348,14 +380,18 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('correctly prints single-line with leading space') */
+    /**
+     * @see it('correctly prints single-line with leading space')
+     */
     public function testCorrectlyPrintsSingleLineWithLeadingSpace(): void
     {
         $str = '    space-led string';
         self::assertSame('"""    space-led string"""', BlockString::print($str));
     }
 
-    /** @see it('correctly prints single-line with leading space and trailing quotation', () => { */
+    /**
+     * @see it('correctly prints single-line with leading space and trailing quotation', () => {
+     */
     public function testCorrectlyPrintsSingleLineWithLeadingSpaceAndQuotation(): void
     {
         $str = '    space-led value "quoted string"';
@@ -368,7 +404,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('correctly prints single-line with trailing backslash') */
+    /**
+     * @see it('correctly prints single-line with trailing backslash')
+     */
     public function testCorrectlyPrintsSingleLineWithTrailingBackslash(): void
     {
         $str = 'backslash \\';
@@ -382,7 +420,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('correctly prints multi-line with internal indent', () => { */
+    /**
+     * @see it('correctly prints multi-line with internal indent', () => {
+     */
     public function testCorrectlyPrintsMultiLineWithInternalIndent(): void
     {
         $str = <<<EOF
@@ -400,7 +440,9 @@ final class BlockStringTest extends TestCase
         );
     }
 
-    /** @see it('correctly prints string with a first line indentation') */
+    /**
+     * @see it('correctly prints string with a first line indentation')
+     */
     public function testCorrectlyPrintsStringWithAFirstLineIndentation(): void
     {
         $str = <<<EOF

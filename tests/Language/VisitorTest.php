@@ -23,7 +23,9 @@ use function Safe\file_get_contents;
 
 final class VisitorTest extends ValidatorTestCase
 {
-    /** @param array<int, mixed> $args */
+    /**
+     * @param array<int, mixed> $args
+     */
     private function checkVisitorFnArgs(DocumentNode $ast, array $args, bool $isEdited = false): void
     {
         self::assertCount(5, $args);
@@ -97,7 +99,9 @@ final class VisitorTest extends ValidatorTestCase
         return $result;
     }
 
-    /** @see it('handles empty visitor', () => { */
+    /**
+     * @see it('handles empty visitor', () => {
+     */
     public function testHandlesEmptyVisitor(): void
     {
         $ast = Parser::parse('{ a }', ['noLocation' => true]);
@@ -105,7 +109,9 @@ final class VisitorTest extends ValidatorTestCase
         $this->expectNotToPerformAssertions();
     }
 
-    /** @see it('validates path argument') */
+    /**
+     * @see it('validates path argument')
+     */
     public function testValidatesPathArgument(): void
     {
         $visited = [];
@@ -142,7 +148,9 @@ final class VisitorTest extends ValidatorTestCase
         self::assertSame($expected, $visited);
     }
 
-    /** @see it('validates ancestors argument') */
+    /**
+     * @see it('validates ancestors argument')
+     */
     public function testValidatesAncestorsArgument(): void
     {
         $ast = Parser::parse('{ a }', ['noLocation' => true]);
@@ -174,7 +182,9 @@ final class VisitorTest extends ValidatorTestCase
         ]);
     }
 
-    /** @see it('allows editing a node both on enter and on leave', () => { */
+    /**
+     * @see it('allows editing a node both on enter and on leave', () => {
+     */
     public function testAllowsEditingANodeBothOnEnterAndOnLeave(): void
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
@@ -1460,7 +1470,9 @@ final class VisitorTest extends ValidatorTestCase
         );
     }
 
-    /** Describe: visitWithTypeInfo. */
+    /**
+     * Describe: visitWithTypeInfo.
+     */
     public function testMaintainsTypeInfoDuringVisit(): void
     {
         $visited = [];

@@ -22,7 +22,9 @@ final class QuerySecuritySchema
 
     private static ObjectType $queryRootType;
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public static function buildSchema(): Schema
     {
         return self::$schema ??= new Schema([
@@ -31,7 +33,9 @@ final class QuerySecuritySchema
         ]);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public static function buildQueryRootType(): ObjectType
     {
         return self::$queryRootType ??= new ObjectType([
@@ -45,7 +49,9 @@ final class QuerySecuritySchema
         ]);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public static function buildHumanType(): ObjectType
     {
         return self::$humanType ??= new ObjectType(
@@ -73,7 +79,9 @@ final class QuerySecuritySchema
         );
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public static function buildDogType(): ObjectType
     {
         return self::$dogType ??= new ObjectType(
@@ -89,7 +97,9 @@ final class QuerySecuritySchema
         );
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public static function buildFooDirective(): Directive
     {
         return self::$fooDirective ??= new Directive([

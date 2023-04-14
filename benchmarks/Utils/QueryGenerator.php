@@ -60,7 +60,9 @@ class QueryGenerator
         return Printer::doPrint($ast);
     }
 
-    /** @param array<FieldDefinition> $fields */
+    /**
+     * @param array<FieldDefinition> $fields
+     */
     public function buildSelectionSet(array $fields): SelectionSetNode
     {
         $selections = [

@@ -39,25 +39,39 @@ class Lexer
     /** @phpstan-var ParserOptions */
     public array $options;
 
-    /** The previously focused non-ignored token. */
+    /**
+     * The previously focused non-ignored token.
+     */
     public Token $lastToken;
 
-    /** The currently focused non-ignored token. */
+    /**
+     * The currently focused non-ignored token.
+     */
     public Token $token;
 
-    /** The (1-indexed) line containing the current token. */
+    /**
+     * The (1-indexed) line containing the current token.
+     */
     public int $line = 1;
 
-    /** The character offset at which the current line begins. */
+    /**
+     * The character offset at which the current line begins.
+     */
     public int $lineStart = 0;
 
-    /** Current cursor position for UTF8 encoding of the source. */
+    /**
+     * Current cursor position for UTF8 encoding of the source.
+     */
     private int $position = 0;
 
-    /** Current cursor position for ASCII representation of the source. */
+    /**
+     * Current cursor position for ASCII representation of the source.
+     */
     private int $byteStreamPosition = 0;
 
-    /** @phpstan-param ParserOptions $options */
+    /**
+     * @phpstan-param ParserOptions $options
+     */
     public function __construct(Source $source, array $options = [])
     {
         $startOfFileToken = new Token(Token::SOF, 0, 0, 0, 0, null);
@@ -251,7 +265,9 @@ class Lexer
         );
     }
 
-    /** @throws \JsonException */
+    /**
+     * @throws \JsonException
+     */
     private function unexpectedCharacterMessage(?int $code): string
     {
         // SourceCharacter
@@ -780,7 +796,9 @@ class Lexer
         return [$result, $totalBytes];
     }
 
-    /** Moves internal string cursor position. */
+    /**
+     * Moves internal string cursor position.
+     */
     private function moveStringCursor(int $positionOffset, int $byteStreamOffset): self
     {
         $this->position += $positionOffset;

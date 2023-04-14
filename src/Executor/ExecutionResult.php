@@ -131,7 +131,9 @@ class ExecutionResult implements \JsonSerializable
         return $this;
     }
 
-    /** @phpstan-return SerializableResult */
+    /**
+     * @phpstan-return SerializableResult
+     */
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): array
     {

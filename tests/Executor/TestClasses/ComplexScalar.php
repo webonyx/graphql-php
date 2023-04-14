@@ -14,13 +14,17 @@ final class ComplexScalar extends ScalarType
 {
     public string $name = 'ComplexScalar';
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public static function create(): self
     {
         return new self();
     }
 
-    /** @throws SerializationError */
+    /**
+     * @throws SerializationError
+     */
     public function serialize($value): string
     {
         if ($value === 'DeserializedValue') {
@@ -31,7 +35,9 @@ final class ComplexScalar extends ScalarType
         throw new SerializationError("Cannot serialize value as ComplexScalar: {$notComplexScalar}");
     }
 
-    /** @throws Error */
+    /**
+     * @throws Error
+     */
     public function parseValue($value): string
     {
         if ($value === 'SerializedValue') {

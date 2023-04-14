@@ -11,7 +11,9 @@ use GraphQL\Utils\Utils;
 
 class UrlType extends ScalarType
 {
-    /** @throws SerializationError */
+    /**
+     * @throws SerializationError
+     */
     public function serialize($value): string
     {
         if (! $this->isUrl($value)) {
@@ -22,7 +24,9 @@ class UrlType extends ScalarType
         return $value;
     }
 
-    /** @throws Error */
+    /**
+     * @throws Error
+     */
     public function parseValue($value): string
     {
         if (! $this->isUrl($value)) {

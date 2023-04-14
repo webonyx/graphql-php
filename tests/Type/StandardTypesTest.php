@@ -124,7 +124,9 @@ final class StandardTypesTest extends TestCase
         Type::overrideStandardTypes([$notType]);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     private function createCustomScalarType(string $name): CustomScalarType
     {
         return new CustomScalarType([

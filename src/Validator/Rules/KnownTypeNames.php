@@ -25,13 +25,17 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownTypeNames extends ValidationRule
 {
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
@@ -96,7 +100,9 @@ class KnownTypeNames extends ValidationRule
         ];
     }
 
-    /** @param array<string> $suggestedTypes */
+    /**
+     * @param array<string> $suggestedTypes
+     */
     public static function unknownTypeMessage(string $type, array $suggestedTypes): string
     {
         $message = "Unknown type \"{$type}\".";

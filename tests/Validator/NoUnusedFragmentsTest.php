@@ -13,7 +13,9 @@ final class NoUnusedFragmentsTest extends ValidatorTestCase
 {
     // Validate: No unused fragments
 
-    /** @see it('all fragment names are used') */
+    /**
+     * @see it('all fragment names are used')
+     */
     public function testAllFragmentNamesAreUsed(): void
     {
         $this->expectPassesRule(
@@ -41,7 +43,9 @@ final class NoUnusedFragmentsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('all fragment names are used by multiple operations') */
+    /**
+     * @see it('all fragment names are used by multiple operations')
+     */
     public function testAllFragmentNamesAreUsedByMultipleOperations(): void
     {
         $this->expectPassesRule(
@@ -71,7 +75,9 @@ final class NoUnusedFragmentsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('contains unknown fragments') */
+    /**
+     * @see it('contains unknown fragments')
+     */
     public function testContainsUnknownFragments(): void
     {
         $this->expectFailsRule(
@@ -111,7 +117,9 @@ final class NoUnusedFragmentsTest extends ValidatorTestCase
         );
     }
 
-    /** @phpstan-return ErrorArray */
+    /**
+     * @phpstan-return ErrorArray
+     */
     private function unusedFrag(string $fragName, int $line, int $column): array
     {
         return ErrorHelper::create(
@@ -120,7 +128,9 @@ final class NoUnusedFragmentsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('contains unknown fragments with ref cycle') */
+    /**
+     * @see it('contains unknown fragments with ref cycle')
+     */
     public function testContainsUnknownFragmentsWithRefCycle(): void
     {
         $this->expectFailsRule(
@@ -162,7 +172,9 @@ final class NoUnusedFragmentsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('contains unknown and undef fragments') */
+    /**
+     * @see it('contains unknown and undef fragments')
+     */
     public function testContainsUnknownAndUndefFragments(): void
     {
         $this->expectFailsRule(

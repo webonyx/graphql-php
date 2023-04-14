@@ -13,7 +13,9 @@ final class UniqueOperationNamesTest extends ValidatorTestCase
 {
     // Validate: Unique operation names
 
-    /** @see it('no operations') */
+    /**
+     * @see it('no operations')
+     */
     public function testNoOperations(): void
     {
         $this->expectPassesRule(
@@ -26,7 +28,9 @@ final class UniqueOperationNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('one anon operation') */
+    /**
+     * @see it('one anon operation')
+     */
     public function testOneAnonOperation(): void
     {
         $this->expectPassesRule(
@@ -39,7 +43,9 @@ final class UniqueOperationNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('one named operation') */
+    /**
+     * @see it('one named operation')
+     */
     public function testOneNamedOperation(): void
     {
         $this->expectPassesRule(
@@ -52,7 +58,9 @@ final class UniqueOperationNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('multiple operations') */
+    /**
+     * @see it('multiple operations')
+     */
     public function testMultipleOperations(): void
     {
         $this->expectPassesRule(
@@ -69,7 +77,9 @@ final class UniqueOperationNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('multiple operations of different types') */
+    /**
+     * @see it('multiple operations of different types')
+     */
     public function testMultipleOperationsOfDifferentTypes(): void
     {
         $this->expectPassesRule(
@@ -90,7 +100,9 @@ final class UniqueOperationNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('fragment and operation named the same') */
+    /**
+     * @see it('fragment and operation named the same')
+     */
     public function testFragmentAndOperationNamedTheSame(): void
     {
         $this->expectPassesRule(
@@ -106,7 +118,9 @@ final class UniqueOperationNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('multiple operations of same name') */
+    /**
+     * @see it('multiple operations of same name')
+     */
     public function testMultipleOperationsOfSameName(): void
     {
         $this->expectFailsRule(
@@ -123,7 +137,9 @@ final class UniqueOperationNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @phpstan-return ErrorArray */
+    /**
+     * @phpstan-return ErrorArray
+     */
     private function duplicateOp(string $opName, int $l1, int $c1, int $l2, int $c2): array
     {
         return ErrorHelper::create(
@@ -132,7 +148,9 @@ final class UniqueOperationNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('multiple ops of same name of different types (mutation)') */
+    /**
+     * @see it('multiple ops of same name of different types (mutation)')
+     */
     public function testMultipleOpsOfSameNameOfDifferentTypesMutation(): void
     {
         $this->expectFailsRule(
@@ -149,7 +167,9 @@ final class UniqueOperationNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('multiple ops of same name of different types (subscription)') */
+    /**
+     * @see it('multiple ops of same name of different types (subscription)')
+     */
     public function testMultipleOpsOfSameNameOfDifferentTypesSubscription(): void
     {
         $this->expectFailsRule(

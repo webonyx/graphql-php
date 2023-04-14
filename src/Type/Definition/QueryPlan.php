@@ -59,13 +59,17 @@ class QueryPlan
         $this->analyzeQueryPlan($parentType, $fieldNodes);
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @return array<string, mixed>
+     */
     public function queryPlan(): array
     {
         return $this->queryPlan;
     }
 
-    /** @return array<int, string> */
+    /**
+     * @return array<int, string>
+     */
     public function getReferencedTypes(): array
     {
         return \array_keys($this->typeToFields);

@@ -32,7 +32,9 @@ final class UniqueTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('one type') */
+    /**
+     * @see it('one type')
+     */
     public function testOneType(): void
     {
         $this->expectValidSDL(
@@ -43,7 +45,9 @@ final class UniqueTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('many types') */
+    /**
+     * @see it('many types')
+     */
     public function testManyTypes(): void
     {
         $this->expectValidSDL(
@@ -56,7 +60,9 @@ final class UniqueTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('type and non-type definitions named the same') */
+    /**
+     * @see it('type and non-type definitions named the same')
+     */
     public function testTypeAndNonTypeDefinitionsNamedTheSame(): void
     {
         $this->expectValidSDL(
@@ -71,7 +77,9 @@ final class UniqueTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('types named the same') */
+    /**
+     * @see it('types named the same')
+     */
     public function testTypesNamedTheSame(): void
     {
         $this->expectSDLErrors(
@@ -133,7 +141,9 @@ final class UniqueTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('adding new type to existing schema') */
+    /**
+     * @see it('adding new type to existing schema')
+     */
     public function testAddingNewTypeToExistingSchema(): void
     {
         $schema = BuildSchema::build('type Foo');
@@ -141,7 +151,9 @@ final class UniqueTypeNamesTest extends ValidatorTestCase
         $this->expectValidSDL(new UniqueTypeNames(), 'type Bar', $schema);
     }
 
-    /** @see it('adding new type to existing schema with same-named directive') */
+    /**
+     * @see it('adding new type to existing schema with same-named directive')
+     */
     public function testAddingNewTypeToExistingSchemaWithSameNamedDirective(): void
     {
         $schema = BuildSchema::build('directive @Foo on SCHEMA');
@@ -149,7 +161,9 @@ final class UniqueTypeNamesTest extends ValidatorTestCase
         $this->expectValidSDL(new UniqueTypeNames(), 'type Foo', $schema);
     }
 
-    /** @see it('adding conflicting types to existing schema') */
+    /**
+     * @see it('adding conflicting types to existing schema')
+     */
     public function testAddingConflictingTypesToExistingSchema(): void
     {
         $schema = BuildSchema::build('type Foo');

@@ -19,13 +19,17 @@ class AmpPromiseAdapter implements PromiseAdapter
         return $value instanceof AmpPromise;
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function convertThenable($thenable): Promise
     {
         return new Promise($thenable, $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $deferred = new Deferred();
@@ -49,7 +53,9 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($deferred->promise(), $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function create(callable $resolver): Promise
     {
         $deferred = new Deferred();
@@ -77,7 +83,9 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function createRejected(\Throwable $reason): Promise
     {
         $promise = new Failure($reason);

@@ -13,7 +13,9 @@ final class UniqueInputFieldNamesTest extends ValidatorTestCase
 {
     // Validate: Unique input field names
 
-    /** @see it('input object with fields') */
+    /**
+     * @see it('input object with fields')
+     */
     public function testInputObjectWithFields(): void
     {
         $this->expectPassesRule(
@@ -26,7 +28,9 @@ final class UniqueInputFieldNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('same input object within two args') */
+    /**
+     * @see it('same input object within two args')
+     */
     public function testSameInputObjectWithinTwoArgs(): void
     {
         $this->expectPassesRule(
@@ -39,7 +43,9 @@ final class UniqueInputFieldNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('multiple input object fields') */
+    /**
+     * @see it('multiple input object fields')
+     */
     public function testMultipleInputObjectFields(): void
     {
         $this->expectPassesRule(
@@ -52,7 +58,9 @@ final class UniqueInputFieldNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('allows for nested input objects with similar fields') */
+    /**
+     * @see it('allows for nested input objects with similar fields')
+     */
     public function testAllowsForNestedInputObjectsWithSimilarFields(): void
     {
         $this->expectPassesRule(
@@ -73,7 +81,9 @@ final class UniqueInputFieldNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('duplicate input object fields') */
+    /**
+     * @see it('duplicate input object fields')
+     */
     public function testDuplicateInputObjectFields(): void
     {
         $this->expectFailsRule(
@@ -87,7 +97,9 @@ final class UniqueInputFieldNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @phpstan-return ErrorArray */
+    /**
+     * @phpstan-return ErrorArray
+     */
     private function duplicateField(string $name, int $l1, int $c1, int $l2, int $c2): array
     {
         return ErrorHelper::create(
@@ -96,7 +108,9 @@ final class UniqueInputFieldNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('many duplicate input object fields') */
+    /**
+     * @see it('many duplicate input object fields')
+     */
     public function testManyDuplicateInputObjectFields(): void
     {
         $this->expectFailsRule(

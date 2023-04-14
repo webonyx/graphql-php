@@ -6,7 +6,9 @@ use GraphQL\Error\InvariantViolation;
 
 interface HasFieldsType
 {
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function getField(string $name): FieldDefinition;
 
     public function hasField(string $name): bool;

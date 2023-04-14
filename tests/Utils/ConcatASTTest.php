@@ -9,7 +9,9 @@ use PHPUnit\Framework\TestCase;
 
 final class ConcatASTTest extends TestCase
 {
-    /** @see it('concatenates two ASTs together' */
+    /**
+     * @see it('concatenates two ASTs together'
+     */
     public function testConcatenatesTwoAstsTogether(): void
     {
         $sourceA = '

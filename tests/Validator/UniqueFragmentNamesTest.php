@@ -13,7 +13,9 @@ final class UniqueFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique fragment names
 
-    /** @see it('no fragments') */
+    /**
+     * @see it('no fragments')
+     */
     public function testNoFragments(): void
     {
         $this->expectPassesRule(
@@ -26,7 +28,9 @@ final class UniqueFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('one fragment') */
+    /**
+     * @see it('one fragment')
+     */
     public function testOneFragment(): void
     {
         $this->expectPassesRule(
@@ -43,7 +47,9 @@ final class UniqueFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('many fragments') */
+    /**
+     * @see it('many fragments')
+     */
     public function testManyFragments(): void
     {
         $this->expectPassesRule(
@@ -67,7 +73,9 @@ final class UniqueFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('inline fragments are always unique') */
+    /**
+     * @see it('inline fragments are always unique')
+     */
     public function testInlineFragmentsAreAlwaysUnique(): void
     {
         $this->expectPassesRule(
@@ -85,7 +93,9 @@ final class UniqueFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('fragment and operation named the same') */
+    /**
+     * @see it('fragment and operation named the same')
+     */
     public function testFragmentAndOperationNamedTheSame(): void
     {
         $this->expectPassesRule(
@@ -101,7 +111,9 @@ final class UniqueFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('fragments named the same') */
+    /**
+     * @see it('fragments named the same')
+     */
     public function testFragmentsNamedTheSame(): void
     {
         $this->expectFailsRule(
@@ -121,7 +133,9 @@ final class UniqueFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @phpstan-return ErrorArray */
+    /**
+     * @phpstan-return ErrorArray
+     */
     private function duplicateFrag(string $fragName, int $l1, int $c1, int $l2, int $c2): array
     {
         return ErrorHelper::create(
@@ -130,7 +144,9 @@ final class UniqueFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('fragments named the same without being referenced') */
+    /**
+     * @see it('fragments named the same without being referenced')
+     */
     public function testFragmentsNamedTheSameWithoutBeingReferenced(): void
     {
         $this->expectFailsRule(

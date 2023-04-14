@@ -336,7 +336,9 @@ class Helper
         return $source;
     }
 
-    /** @return array<mixed>|null */
+    /**
+     * @return array<mixed>|null
+     */
     protected function resolveValidationRules(
         ServerConfig $config,
         OperationParams $params,
@@ -358,7 +360,9 @@ class Helper
         return $validationRules;
     }
 
-    /** @return mixed */
+    /**
+     * @return mixed
+     */
     protected function resolveRootValue(
         ServerConfig $config,
         OperationParams $params,
@@ -374,7 +378,9 @@ class Helper
         return $rootValue;
     }
 
-    /** @return mixed user defined */
+    /**
+     * @return mixed user defined
+     */
     protected function resolveContextValue(
         ServerConfig $config,
         OperationParams $params,
@@ -421,7 +427,9 @@ class Helper
         echo \json_encode($jsonSerializable, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     }
 
-    /** @throws RequestError */
+    /**
+     * @throws RequestError
+     */
     protected function readRawBody(): string
     {
         $body = \file_get_contents('php://input');
@@ -494,7 +502,9 @@ class Helper
         return $bodyParams;
     }
 
-    /** @return array<mixed> */
+    /**
+     * @return array<mixed>
+     */
     protected function decodeContent(string $rawBody): array
     {
         \parse_str($rawBody, $bodyParams);

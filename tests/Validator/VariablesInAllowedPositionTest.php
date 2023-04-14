@@ -10,7 +10,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
 {
     // Validate: Variables are in allowed positions
 
-    /** @see it('Boolean => Boolean') */
+    /**
+     * @see it('Boolean => Boolean')
+     */
     public function testBooleanXBoolean(): void
     {
         // Boolean => Boolean
@@ -27,7 +29,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Boolean => Boolean within fragment') */
+    /**
+     * @see it('Boolean => Boolean within fragment')
+     */
     public function testBooleanXBooleanWithinFragment(): void
     {
         // Boolean => Boolean within fragment
@@ -62,7 +66,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Boolean! => Boolean') */
+    /**
+     * @see it('Boolean! => Boolean')
+     */
     public function testBooleanNonNullXBoolean(): void
     {
         // Boolean! => Boolean
@@ -79,7 +85,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Boolean! => Boolean within fragment') */
+    /**
+     * @see it('Boolean! => Boolean within fragment')
+     */
     public function testBooleanNonNullXBooleanWithinFragment(): void
     {
         // Boolean! => Boolean within fragment
@@ -100,7 +108,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('[String] => [String]') */
+    /**
+     * @see it('[String] => [String]')
+     */
     public function testListOfStringXListOfString(): void
     {
         $this->expectPassesRule(
@@ -116,7 +126,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('[String!] => [String]') */
+    /**
+     * @see it('[String!] => [String]')
+     */
     public function testListOfStringNonNullXListOfString(): void
     {
         $this->expectPassesRule(
@@ -132,7 +144,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('String => [String] in item position') */
+    /**
+     * @see it('String => [String] in item position')
+     */
     public function testStringXListOfStringInItemPosition(): void
     {
         $this->expectPassesRule(
@@ -148,7 +162,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('String! => [String] in item position') */
+    /**
+     * @see it('String! => [String] in item position')
+     */
     public function testStringNonNullXListOfStringInItemPosition(): void
     {
         $this->expectPassesRule(
@@ -164,7 +180,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('ComplexInput => ComplexInput') */
+    /**
+     * @see it('ComplexInput => ComplexInput')
+     */
     public function testComplexInputXComplexInput(): void
     {
         $this->expectPassesRule(
@@ -180,7 +198,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('ComplexInput => ComplexInput in field position') */
+    /**
+     * @see it('ComplexInput => ComplexInput in field position')
+     */
     public function testComplexInputXComplexInputInFieldPosition(): void
     {
         $this->expectPassesRule(
@@ -196,7 +216,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Boolean! => Boolean! in directive') */
+    /**
+     * @see it('Boolean! => Boolean! in directive')
+     */
     public function testBooleanNonNullXBooleanNonNullInDirective(): void
     {
         $this->expectPassesRule(
@@ -210,7 +232,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Int => Int!') */
+    /**
+     * @see it('Int => Int!')
+     */
     public function testIntXIntNonNull(): void
     {
         $this->expectFailsRule(
@@ -231,7 +255,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Int => Int! within fragment') */
+    /**
+     * @see it('Int => Int! within fragment')
+     */
     public function testIntXIntNonNullWithinFragment(): void
     {
         $this->expectFailsRule(
@@ -256,7 +282,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Int => Int! within nested fragment') */
+    /**
+     * @see it('Int => Int! within nested fragment')
+     */
     public function testIntXIntNonNullWithinNestedFragment(): void
     {
         // Int => Int! within nested fragment
@@ -287,7 +315,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('String over Boolean') */
+    /**
+     * @see it('String over Boolean')
+     */
     public function testStringOverBoolean(): void
     {
         $this->expectFailsRule(
@@ -308,7 +338,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('String => [String]') */
+    /**
+     * @see it('String => [String]')
+     */
     public function testStringXListOfString(): void
     {
         $this->expectFailsRule(
@@ -329,7 +361,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Boolean => Boolean! in directive') */
+    /**
+     * @see it('Boolean => Boolean! in directive')
+     */
     public function testBooleanXBooleanNonNullInDirective(): void
     {
         $this->expectFailsRule(
@@ -348,7 +382,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('String => Boolean! in directive') */
+    /**
+     * @see it('String => Boolean! in directive')
+     */
     public function testStringXBooleanNonNullInDirective(): void
     {
         // String => Boolean! in directive
@@ -368,7 +404,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('[String] => [String!]') */
+    /**
+     * @see it('[String] => [String!]')
+     */
     public function testStringArrayXStringNonNullArray(): void
     {
         $this->expectFailsRule(
@@ -392,7 +430,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
 
     // Allows optional (nullable) variables with default values
 
-    /** @see it('Int => Int! fails when variable provides null default value') */
+    /**
+     * @see it('Int => Int! fails when variable provides null default value')
+     */
     public function testIntXIntNonNullFailsWhenVariableProvidesNullDefaultValue(): void
     {
         $this->expectFailsRule(
@@ -413,7 +453,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Int => Int! when variable provides non-null default value') */
+    /**
+     * @see it('Int => Int! when variable provides non-null default value')
+     */
     public function testIntXIntNonNullWhenVariableProvidesNonNullDefaultValue(): void
     {
         $this->expectPassesRule(
@@ -427,7 +469,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Int => Int! when optional argument provides default value') */
+    /**
+     * @see it('Int => Int! when optional argument provides default value')
+     */
     public function testIntXIntNonNullWhenOptionalArgumentProvidesDefaultValue(): void
     {
         $this->expectPassesRule(
@@ -441,7 +485,9 @@ final class VariablesInAllowedPositionTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Boolean => Boolean! in directive with default value with option') */
+    /**
+     * @see it('Boolean => Boolean! in directive with default value with option')
+     */
     public function testBooleanXBooleanNonNullInDirectiveWithDefaultValueWithOption(): void
     {
         $this->expectPassesRule(

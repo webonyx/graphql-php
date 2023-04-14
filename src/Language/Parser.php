@@ -337,7 +337,9 @@ class Parser
         return null;
     }
 
-    /** Determines if the next token is of a given kind. */
+    /**
+     * Determines if the next token is of a given kind.
+     */
     private function peek(string $kind): bool
     {
         return $this->lexer->token->kind === $kind;

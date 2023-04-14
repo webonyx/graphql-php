@@ -630,7 +630,9 @@ final class DeferredFieldsTest extends TestCase
         ]);
     }
 
-    /** @return array<string, mixed>|null */
+    /**
+     * @return array<string, mixed>|null
+     */
     private function findStoryById(int $id): ?array
     {
         foreach ($this->storyDataSource as $story) {
@@ -642,7 +644,9 @@ final class DeferredFieldsTest extends TestCase
         return null;
     }
 
-    /** @return array<string, mixed>|null */
+    /**
+     * @return array<string, mixed>|null
+     */
     private function findUserById(int $id): ?array
     {
         foreach ($this->userDataSource as $user) {

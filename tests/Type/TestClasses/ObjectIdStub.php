@@ -7,7 +7,9 @@ final class ObjectIdStub
     /** @var int */
     private $id;
 
-    /** @param int $id */
+    /**
+     * @param int $id
+     */
     public function __construct($id)
     {
         $this->id = $id;

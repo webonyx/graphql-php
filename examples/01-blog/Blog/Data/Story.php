@@ -16,7 +16,9 @@ class Story
 
     public bool $isAnonymous = false;
 
-    /** @param array<string, mixed> $data */
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         Utils::assign($this, $data);

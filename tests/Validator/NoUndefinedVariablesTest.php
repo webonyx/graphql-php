@@ -10,7 +10,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
 {
     // Validate: No undefined variables
 
-    /** @see it('all variables defined') */
+    /**
+     * @see it('all variables defined')
+     */
     public function testAllVariablesDefined(): void
     {
         $this->expectPassesRule(
@@ -23,7 +25,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('all variables deeply defined') */
+    /**
+     * @see it('all variables deeply defined')
+     */
     public function testAllVariablesDeeplyDefined(): void
     {
         $this->expectPassesRule(
@@ -40,7 +44,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('all variables deeply in inline fragments defined') */
+    /**
+     * @see it('all variables deeply in inline fragments defined')
+     */
     public function testAllVariablesDeeplyInInlineFragmentsDefined(): void
     {
         $this->expectPassesRule(
@@ -61,7 +67,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('all variables in fragments deeply defined') */
+    /**
+     * @see it('all variables in fragments deeply defined')
+     */
     public function testAllVariablesInFragmentsDeeplyDefined(): void
     {
         $this->expectPassesRule(
@@ -87,7 +95,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variable within single fragment defined in multiple operations') */
+    /**
+     * @see it('variable within single fragment defined in multiple operations')
+     */
     public function testVariableWithinSingleFragmentDefinedInMultipleOperations(): void
     {
         // variable within single fragment defined in multiple operations
@@ -107,7 +117,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variable within fragments defined in operations') */
+    /**
+     * @see it('variable within fragments defined in operations')
+     */
     public function testVariableWithinFragmentsDefinedInOperations(): void
     {
         $this->expectPassesRule(
@@ -129,7 +141,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variable within recursive fragment defined') */
+    /**
+     * @see it('variable within recursive fragment defined')
+     */
     public function testVariableWithinRecursiveFragmentDefined(): void
     {
         $this->expectPassesRule(
@@ -147,7 +161,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variable not defined') */
+    /**
+     * @see it('variable not defined')
+     */
     public function testVariableNotDefined(): void
     {
         $this->expectFailsRule(
@@ -183,7 +199,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variable not defined by un-named query') */
+    /**
+     * @see it('variable not defined by un-named query')
+     */
     public function testVariableNotDefinedByUnNamedQuery(): void
     {
         $this->expectFailsRule(
@@ -199,7 +217,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('multiple variables not defined') */
+    /**
+     * @see it('multiple variables not defined')
+     */
     public function testMultipleVariablesNotDefined(): void
     {
         $this->expectFailsRule(
@@ -216,7 +236,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variable in fragment not defined by un-named query') */
+    /**
+     * @see it('variable in fragment not defined by un-named query')
+     */
     public function testVariableInFragmentNotDefinedByUnNamedQuery(): void
     {
         $this->expectFailsRule(
@@ -235,7 +257,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variable in fragment not defined by operation') */
+    /**
+     * @see it('variable in fragment not defined by operation')
+     */
     public function testVariableInFragmentNotDefinedByOperation(): void
     {
         $this->expectFailsRule(
@@ -264,7 +288,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('multiple variables in fragments not defined') */
+    /**
+     * @see it('multiple variables in fragments not defined')
+     */
     public function testMultipleVariablesInFragmentsNotDefined(): void
     {
         $this->expectFailsRule(
@@ -294,7 +320,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('single variable in fragment not defined by multiple operations') */
+    /**
+     * @see it('single variable in fragment not defined by multiple operations')
+     */
     public function testSingleVariableInFragmentNotDefinedByMultipleOperations(): void
     {
         $this->expectFailsRule(
@@ -317,7 +345,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variables in fragment not defined by multiple operations') */
+    /**
+     * @see it('variables in fragment not defined by multiple operations')
+     */
     public function testVariablesInFragmentNotDefinedByMultipleOperations(): void
     {
         $this->expectFailsRule(
@@ -340,7 +370,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('variable in fragment used by other operation') */
+    /**
+     * @see it('variable in fragment used by other operation')
+     */
     public function testVariableInFragmentUsedByOtherOperation(): void
     {
         $this->expectFailsRule(
@@ -366,7 +398,9 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('multiple undefined variables produce multiple errors') */
+    /**
+     * @see it('multiple undefined variables produce multiple errors')
+     */
     public function testMultipleUndefinedVariablesProduceMultipleErrors(): void
     {
         $this->expectFailsRule(

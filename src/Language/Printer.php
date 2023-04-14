@@ -89,7 +89,9 @@ class Printer
         return $this->p($node);
     }
 
-    /** @throws \JsonException */
+    /**
+     * @throws \JsonException
+     */
     protected function p(?Node $node, bool $isDescription = false): string
     {
         if ($node === null) {
@@ -506,7 +508,9 @@ class Printer
         return "{\n" . $this->indent($this->join($parts, "\n")) . "\n}";
     }
 
-    /** @throws \JsonException */
+    /**
+     * @throws \JsonException
+     */
     protected function addDescription(?StringValueNode $description, string $body): string
     {
         return $this->join([$this->p($description, true), $body], "\n");
@@ -534,7 +538,9 @@ class Printer
         return '  ' . \str_replace("\n", "\n  ", $string);
     }
 
-    /** @param array<string|null> $parts */
+    /**
+     * @param array<string|null> $parts
+     */
     protected function join(array $parts, string $separator = ''): string
     {
         return \implode($separator, \array_filter($parts));

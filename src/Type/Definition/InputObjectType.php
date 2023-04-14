@@ -59,7 +59,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         $this->config = $config;
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function getField(string $name): InputObjectField
     {
         $field = $this->findField($name);
@@ -71,7 +73,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $field;
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function findField(string $name): ?InputObjectField
     {
         if (! isset($this->fields)) {
@@ -81,7 +85,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $this->fields[$name] ?? null;
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function hasField(string $name): bool
     {
         if (! isset($this->fields)) {
@@ -105,7 +111,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $this->fields;
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     protected function initializeFields(): void
     {
         $fields = $this->config['fields'];

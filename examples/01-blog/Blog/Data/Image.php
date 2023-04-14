@@ -23,7 +23,9 @@ class Image
 
     public int $height;
 
-    /** @param array<string, mixed> $data */
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         Utils::assign($this, $data);

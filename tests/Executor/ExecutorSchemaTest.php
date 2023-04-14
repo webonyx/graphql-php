@@ -15,7 +15,9 @@ use PHPUnit\Framework\TestCase;
  */
 final class ExecutorSchemaTest extends TestCase
 {
-    /** @see it('executes using a schema') */
+    /**
+     * @see it('executes using a schema')
+     */
     public function testExecutesUsingASchema(): void
     {
         $BlogSerializableValueType = new CustomScalarType([
@@ -201,7 +203,9 @@ final class ExecutorSchemaTest extends TestCase
         self::assertEquals($expected, Executor::execute($BlogSchema, Parser::parse($request))->toArray());
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @return array<string, mixed>
+     */
     private function article(string $id): array
     {
         $johnSmith = null;

@@ -18,7 +18,9 @@ class Comment
 
     public bool $isAnonymous = true;
 
-    /** @param array<string, mixed> $data */
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         Utils::assign($this, $data);

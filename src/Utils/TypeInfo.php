@@ -66,13 +66,17 @@ class TypeInfo
         $this->schema = $schema;
     }
 
-    /** @return array<int, (CompositeType&Type)|null> */
+    /**
+     * @return array<int, (CompositeType&Type)|null>
+     */
     public function getParentTypeStack(): array
     {
         return $this->parentTypeStack;
     }
 
-    /** @return array<int, FieldDefinition|null> */
+    /**
+     * @return array<int, FieldDefinition|null>
+     */
     public function getFieldDefStack(): array
     {
         return $this->fieldDefStack;
@@ -162,7 +166,9 @@ class TypeInfo
         }
     }
 
-    /** @return (Type&InputType)|null */
+    /**
+     * @return (Type&InputType)|null
+     */
     public function getParentInputType(): ?InputType
     {
         return $this->inputTypeStack[\count($this->inputTypeStack) - 2] ?? null;
@@ -173,7 +179,9 @@ class TypeInfo
         return $this->argument;
     }
 
-    /** @return mixed */
+    /**
+     * @return mixed
+     */
     public function getEnumValue()
     {
         return $this->enumValue;
@@ -313,7 +321,9 @@ class TypeInfo
         return $this->typeStack[\count($this->typeStack) - 1] ?? null;
     }
 
-    /** @return (CompositeType & Type) | null */
+    /**
+     * @return (CompositeType & Type) | null
+     */
     public function getParentType(): ?CompositeType
     {
         return $this->parentTypeStack[\count($this->parentTypeStack) - 1] ?? null;
@@ -364,13 +374,17 @@ class TypeInfo
         return $this->fieldDefStack[\count($this->fieldDefStack) - 1] ?? null;
     }
 
-    /** @return mixed any value is possible */
+    /**
+     * @return mixed any value is possible
+     */
     public function getDefaultValue()
     {
         return $this->defaultValueStack[\count($this->defaultValueStack) - 1] ?? null;
     }
 
-    /** @return (InputType&Type)|null */
+    /**
+     * @return (InputType&Type)|null
+     */
     public function getInputType(): ?InputType
     {
         return $this->inputTypeStack[\count($this->inputTypeStack) - 1] ?? null;

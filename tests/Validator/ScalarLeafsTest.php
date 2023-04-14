@@ -13,7 +13,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
 {
     // Validate: Scalar leafs
 
-    /** @see it('valid scalar selection') */
+    /**
+     * @see it('valid scalar selection')
+     */
     public function testValidScalarSelection(): void
     {
         $this->expectPassesRule(
@@ -26,7 +28,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('object type missing selection') */
+    /**
+     * @see it('object type missing selection')
+     */
     public function testObjectTypeMissingSelection(): void
     {
         $this->expectFailsRule(
@@ -40,7 +44,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    /** @phpstan-return ErrorArray */
+    /**
+     * @phpstan-return ErrorArray
+     */
     private function missingObjSubselection(string $field, string $type, int $line, int $column): array
     {
         return ErrorHelper::create(
@@ -49,7 +55,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('interface type missing selection') */
+    /**
+     * @see it('interface type missing selection')
+     */
     public function testInterfaceTypeMissingSelection(): void
     {
         $this->expectFailsRule(
@@ -63,7 +71,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('valid scalar selection with args') */
+    /**
+     * @see it('valid scalar selection with args')
+     */
     public function testValidScalarSelectionWithArgs(): void
     {
         $this->expectPassesRule(
@@ -76,7 +86,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('scalar selection not allowed on Boolean') */
+    /**
+     * @see it('scalar selection not allowed on Boolean')
+     */
     public function testScalarSelectionNotAllowedOnBoolean(): void
     {
         $this->expectFailsRule(
@@ -90,7 +102,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    /** @phpstan-return ErrorArray */
+    /**
+     * @phpstan-return ErrorArray
+     */
     private function noScalarSubselection(string $field, string $type, int $line, int $column): array
     {
         return ErrorHelper::create(
@@ -99,7 +113,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('scalar selection not allowed on Enum') */
+    /**
+     * @see it('scalar selection not allowed on Enum')
+     */
     public function testScalarSelectionNotAllowedOnEnum(): void
     {
         $this->expectFailsRule(
@@ -113,7 +129,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('scalar selection not allowed with args') */
+    /**
+     * @see it('scalar selection not allowed with args')
+     */
     public function testScalarSelectionNotAllowedWithArgs(): void
     {
         $this->expectFailsRule(
@@ -127,7 +145,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Scalar selection not allowed with directives') */
+    /**
+     * @see it('Scalar selection not allowed with directives')
+     */
     public function testScalarSelectionNotAllowedWithDirectives(): void
     {
         $this->expectFailsRule(
@@ -141,7 +161,9 @@ final class ScalarLeafsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Scalar selection not allowed with directives and args') */
+    /**
+     * @see it('Scalar selection not allowed with directives and args')
+     */
     public function testScalarSelectionNotAllowedWithDirectivesAndArgs(): void
     {
         $this->expectFailsRule(

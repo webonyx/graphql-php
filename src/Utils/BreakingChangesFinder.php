@@ -345,7 +345,9 @@ class BreakingChangesFinder
         ];
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     private static function isChangeSafeForInputObjectFieldOrFieldArg(
         Type $oldType,
         Type $newType
@@ -680,7 +682,9 @@ class BreakingChangesFinder
         return $removedDirectiveArgs;
     }
 
-    /** @return array<int, Argument> */
+    /**
+     * @return array<int, Argument>
+     */
     public static function findRemovedArgsForDirectives(Directive $oldDirective, Directive $newDirective): array
     {
         $removedArgs = [];
@@ -694,7 +698,9 @@ class BreakingChangesFinder
         return $removedArgs;
     }
 
-    /** @return array<string, Argument> */
+    /**
+     * @return array<string, Argument>
+     */
     private static function getArgumentMapForDirective(Directive $directive): array
     {
         $args = [];
@@ -738,7 +744,9 @@ class BreakingChangesFinder
         return $addedNonNullableArgs;
     }
 
-    /** @return array<int, Argument> */
+    /**
+     * @return array<int, Argument>
+     */
     public static function findAddedArgsForDirective(Directive $oldDirective, Directive $newDirective): array
     {
         $addedArgs = [];
@@ -783,7 +791,9 @@ class BreakingChangesFinder
         return $removedLocations;
     }
 
-    /** @return array<int, string> */
+    /**
+     * @return array<int, string>
+     */
     public static function findRemovedLocationsForDirective(Directive $oldDirective, Directive $newDirective): array
     {
         $removedLocations = [];

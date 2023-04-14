@@ -11,7 +11,9 @@ use PHPUnit\Framework\TestCase;
  */
 final class DirectiveTest extends TestCase
 {
-    /** @see it('defines a directive with no args', () => { */
+    /**
+     * @see it('defines a directive with no args', () => {
+     */
     public function testDefinesADirectiveWithNoArgs(): void
     {
         $name = 'Foo';

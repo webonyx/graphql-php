@@ -8,7 +8,9 @@ use PHPUnit\Framework\TestCase;
 
 final class HelperTest extends TestCase
 {
-    /** @runInSeparateProcess */
+    /**
+     * @runInSeparateProcess
+     */
     public function testSendResponseWithUtf8Support(): void
     {
         $helper = new Helper();

@@ -28,7 +28,9 @@ final class AbstractTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @see it('isTypeOf used to resolve runtime type for Interface') */
+    /**
+     * @see it('isTypeOf used to resolve runtime type for Interface')
+     */
     public function testIsTypeOfUsedToResolveRuntimeTypeForInterface(): void
     {
         // isTypeOf used to resolve runtime type for Interface
@@ -99,7 +101,9 @@ final class AbstractTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /** @see it('isTypeOf used to resolve runtime type for Union') */
+    /**
+     * @see it('isTypeOf used to resolve runtime type for Union')
+     */
     public function testIsTypeOfUsedToResolveRuntimeTypeForUnion(): void
     {
         $dogType = new ObjectType([
@@ -162,7 +166,9 @@ final class AbstractTest extends TestCase
         self::assertEquals($expected, Executor::execute($schema, Parser::parse($query)));
     }
 
-    /** @see it('resolveType on Interface yields useful error') */
+    /**
+     * @see it('resolveType on Interface yields useful error')
+     */
     public function testResolveTypeOnInterfaceYieldsUsefulError(): void
     {
         $DogType = null;
@@ -266,7 +272,9 @@ final class AbstractTest extends TestCase
         self::assertArraySubset($expected, $actual);
     }
 
-    /** @see it('resolveType on Union yields useful error') */
+    /**
+     * @see it('resolveType on Union yields useful error')
+     */
     public function testResolveTypeOnUnionYieldsUsefulError(): void
     {
         $HumanType = new ObjectType([
@@ -538,7 +546,9 @@ final class AbstractTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /** @see it('returning invalid value from resolveType yields useful error') */
+    /**
+     * @see it('returning invalid value from resolveType yields useful error')
+     */
     public function testReturningInvalidValueFromResolveTypeYieldsUsefulError(): void
     {
         // @phpstan-ignore-next-line intentionally wrong

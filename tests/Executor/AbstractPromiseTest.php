@@ -24,7 +24,9 @@ final class AbstractPromiseTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @see it('isTypeOf used to resolve runtime type for Interface') */
+    /**
+     * @see it('isTypeOf used to resolve runtime type for Interface')
+     */
     public function testIsTypeOfUsedToResolveRuntimeTypeForInterface(): void
     {
         $petType = new InterfaceType([
@@ -96,7 +98,9 @@ final class AbstractPromiseTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /** @see it('isTypeOf can be rejected') */
+    /**
+     * @see it('isTypeOf can be rejected')
+     */
     public function testIsTypeOfCanBeRejected(): void
     {
         $PetType = new InterfaceType([
@@ -181,7 +185,9 @@ final class AbstractPromiseTest extends TestCase
         self::assertArraySubset($expected, $result);
     }
 
-    /** @see it('isTypeOf used to resolve runtime type for Union') */
+    /**
+     * @see it('isTypeOf used to resolve runtime type for Union')
+     */
     public function testIsTypeOfUsedToResolveRuntimeTypeForUnion(): void
     {
         $dogType = new ObjectType([
@@ -253,7 +259,9 @@ final class AbstractPromiseTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /** @see it('resolveType on Interface yields useful error') */
+    /**
+     * @see it('resolveType on Interface yields useful error')
+     */
     public function testResolveTypeOnInterfaceYieldsUsefulError(): void
     {
         $PetType = new InterfaceType([
@@ -358,7 +366,9 @@ final class AbstractPromiseTest extends TestCase
         self::assertArraySubset($expected, $result);
     }
 
-    /** @see it('resolveType on Union yields useful error') */
+    /**
+     * @see it('resolveType on Union yields useful error')
+     */
     public function testResolveTypeOnUnionYieldsUsefulError(): void
     {
         $HumanType = new ObjectType([
@@ -457,7 +467,9 @@ final class AbstractPromiseTest extends TestCase
         self::assertArraySubset($expected, $result);
     }
 
-    /** @see it('resolveType allows resolving with type name') */
+    /**
+     * @see it('resolveType allows resolving with type name')
+     */
     public function testResolveTypeAllowsResolvingWithTypeName(): void
     {
         $PetType = new InterfaceType([
@@ -539,7 +551,9 @@ final class AbstractPromiseTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /** @see it('resolveType can be caught') */
+    /**
+     * @see it('resolveType can be caught')
+     */
     public function testResolveTypeCanBeCaught(): void
     {
         $PetType = new InterfaceType([

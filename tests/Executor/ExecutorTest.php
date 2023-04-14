@@ -34,7 +34,9 @@ final class ExecutorTest extends TestCase
 
     // Execute: Handles basic execution tasks
 
-    /** @see it('executes arbitrary code') */
+    /**
+     * @see it('executes arbitrary code')
+     */
     public function testExecutesArbitraryCode(): void
     {
         $deepData = null;
@@ -164,7 +166,9 @@ final class ExecutorTest extends TestCase
         );
     }
 
-    /** @see it('merges parallel fragments') */
+    /**
+     * @see it('merges parallel fragments')
+     */
     public function testMergesParallelFragments(): void
     {
         $ast = Parser::parse('
@@ -225,7 +229,9 @@ final class ExecutorTest extends TestCase
         self::assertSame($expected, Executor::execute($schema, $ast)->toArray());
     }
 
-    /** @see it('provides info about current execution state') */
+    /**
+     * @see it('provides info about current execution state')
+     */
     public function testProvidesInfoAboutCurrentExecutionState(): void
     {
         $ast = Parser::parse('query ($var: String) { result: test }');
@@ -265,7 +271,9 @@ final class ExecutorTest extends TestCase
         self::assertSame(['var' => '123'], $info->variableValues);
     }
 
-    /** @see it('threads root value context correctly') */
+    /**
+     * @see it('threads root value context correctly')
+     */
     public function testThreadsContextCorrectly(): void
     {
         // threads context correctly
@@ -295,7 +303,9 @@ final class ExecutorTest extends TestCase
         self::assertEquals(true, $gotHere);
     }
 
-    /** @see it('correctly threads arguments') */
+    /**
+     * @see it('correctly threads arguments')
+     */
     public function testCorrectlyThreadsArguments(): void
     {
         $doc = '
@@ -330,7 +340,9 @@ final class ExecutorTest extends TestCase
         self::assertSame($gotHere, true);
     }
 
-    /** @see it('nulls out error subtrees') */
+    /**
+     * @see it('nulls out error subtrees')
+     */
     public function testNullsOutErrorSubtrees(): void
     {
         $doc = '{
@@ -511,7 +523,9 @@ final class ExecutorTest extends TestCase
         self::assertArraySubset($expected, $result);
     }
 
-    /** @see it('uses the inline operation if no operation name is provided') */
+    /**
+     * @see it('uses the inline operation if no operation name is provided')
+     */
     public function testUsesTheInlineOperationIfNoOperationIsProvided(): void
     {
         $doc = '{ a }';
@@ -531,7 +545,9 @@ final class ExecutorTest extends TestCase
         self::assertSame(['data' => ['a' => 'b']], $ex->toArray());
     }
 
-    /** @see it('uses the only operation if no operation name is provided') */
+    /**
+     * @see it('uses the only operation if no operation name is provided')
+     */
     public function testUsesTheOnlyOperationIfNoOperationIsProvided(): void
     {
         $doc = 'query Example { a }';
@@ -550,7 +566,9 @@ final class ExecutorTest extends TestCase
         self::assertSame(['data' => ['a' => 'b']], $ex->toArray());
     }
 
-    /** @see it('uses the named operation if operation name is provided') */
+    /**
+     * @see it('uses the named operation if operation name is provided')
+     */
     public function testUsesTheNamedOperationIfOperationNameIsProvided(): void
     {
         $doc = 'query Example { first: a } query OtherExample { second: a }';
@@ -569,7 +587,9 @@ final class ExecutorTest extends TestCase
         self::assertSame(['data' => ['second' => 'b']], $result->toArray());
     }
 
-    /** @see it('provides error if no operation is provided') */
+    /**
+     * @see it('provides error if no operation is provided')
+     */
     public function testProvidesErrorIfNoOperationIsProvided(): void
     {
         $doc = 'fragment Example on Type { a }';
@@ -594,7 +614,9 @@ final class ExecutorTest extends TestCase
         self::assertArraySubset($expected, $result->toArray());
     }
 
-    /** @see it('errors if no op name is provided with multiple operations') */
+    /**
+     * @see it('errors if no op name is provided with multiple operations')
+     */
     public function testErrorsIfNoOperationIsProvidedWithMultipleOperations(): void
     {
         $doc = 'query Example { a } query OtherExample { a }';
@@ -620,7 +642,9 @@ final class ExecutorTest extends TestCase
         self::assertArraySubset($expected, $result->toArray());
     }
 
-    /** @see it('errors if unknown operation name is provided') */
+    /**
+     * @see it('errors if unknown operation name is provided')
+     */
     public function testErrorsIfUnknownOperationNameIsProvided(): void
     {
         $doc = 'query Example { a } query OtherExample { a }';
@@ -652,7 +676,9 @@ final class ExecutorTest extends TestCase
         self::assertArraySubset($expected, $result->toArray());
     }
 
-    /** @see it('uses the query schema for queries') */
+    /**
+     * @see it('uses the query schema for queries')
+     */
     public function testUsesTheQuerySchemaForQueries(): void
     {
         $doc = 'query Q { a } mutation M { c }';
@@ -677,7 +703,9 @@ final class ExecutorTest extends TestCase
         self::assertSame(['data' => ['a' => 'b']], $queryResult->toArray());
     }
 
-    /** @see it('uses the mutation schema for mutations') */
+    /**
+     * @see it('uses the mutation schema for mutations')
+     */
     public function testUsesTheMutationSchemaForMutations(): void
     {
         $doc = 'query Q { a } mutation M { c }';
@@ -701,7 +729,9 @@ final class ExecutorTest extends TestCase
         self::assertSame(['data' => ['c' => 'd']], $mutationResult->toArray());
     }
 
-    /** @see it('uses the subscription schema for subscriptions') */
+    /**
+     * @see it('uses the subscription schema for subscriptions')
+     */
     public function testUsesTheSubscriptionSchemaForSubscriptions(): void
     {
         $doc = 'query Q { a } subscription S { a }';
@@ -774,7 +804,9 @@ final class ExecutorTest extends TestCase
         self::assertSame($expected, Executor::execute($schema, $ast, $data)->toArray());
     }
 
-    /** @see it('Avoids recursion') */
+    /**
+     * @see it('Avoids recursion')
+     */
     public function testAvoidsRecursion(): void
     {
         $doc = '
@@ -804,7 +836,9 @@ final class ExecutorTest extends TestCase
         self::assertSame(['data' => ['a' => 'b']], $queryResult->toArray());
     }
 
-    /** @see it('does not include illegal fields in output') */
+    /**
+     * @see it('does not include illegal fields in output')
+     */
     public function testDoesNotIncludeIllegalFieldsInOutput(): void
     {
         $doc = 'mutation M {
@@ -829,7 +863,9 @@ final class ExecutorTest extends TestCase
         self::assertSame(['data' => []], $mutationResult->toArray());
     }
 
-    /** @see it('does not include arguments that were not set') */
+    /**
+     * @see it('does not include arguments that were not set')
+     */
     public function testDoesNotIncludeArgumentsThatWereNotSet(): void
     {
         $schema = new Schema([
@@ -860,7 +896,9 @@ final class ExecutorTest extends TestCase
         self::assertSame($expected, $result->toArray());
     }
 
-    /** @see it('fails when an isTypeOf check is not met') */
+    /**
+     * @see it('fails when an isTypeOf check is not met')
+     */
     public function testFailsWhenAnIsTypeOfCheckIsNotMet(): void
     {
         $SpecialType = new ObjectType([
@@ -910,7 +948,9 @@ final class ExecutorTest extends TestCase
         );
     }
 
-    /** @see it('executes ignoring invalid non-executable definitions') */
+    /**
+     * @see it('executes ignoring invalid non-executable definitions')
+     */
     public function testExecutesIgnoringInvalidNonExecutableDefinitions(): void
     {
         $query = Parser::parse('
@@ -937,7 +977,9 @@ final class ExecutorTest extends TestCase
         self::assertArraySubset($expected, $result->toArray());
     }
 
-    /** @see it('uses a custom field resolver') */
+    /**
+     * @see it('uses a custom field resolver')
+     */
     public function testUsesACustomFieldResolver(): void
     {
         $query = Parser::parse('{ foo }');
@@ -1022,7 +1064,9 @@ final class ExecutorTest extends TestCase
         self::assertSame($expected, $result->toArray());
     }
 
-    /** @see https://github.com/webonyx/graphql-php/issues/59 */
+    /**
+     * @see https://github.com/webonyx/graphql-php/issues/59
+     */
     public function testSerializesToEmptyObjectVsEmptyArray(): void
     {
         $iface = null;
@@ -1151,7 +1195,9 @@ final class ExecutorTest extends TestCase
                     'arrayAccess' => [
                         'type' => $ArrayAccess,
                         'resolve' => static fn (): \ArrayAccess => new class() implements \ArrayAccess {
-                            /** @param mixed $offset */
+                            /**
+                             * @param mixed $offset
+                             */
                             #[\ReturnTypeWillChange]
                             public function offsetExists($offset): bool
                             {
@@ -1193,7 +1239,9 @@ final class ExecutorTest extends TestCase
                             {
                             }
 
-                            /** @param mixed $offset */
+                            /**
+                             * @param mixed $offset
+                             */
                             #[\ReturnTypeWillChange]
                             public function offsetUnset($offset): void
                             {
@@ -1222,7 +1270,9 @@ final class ExecutorTest extends TestCase
                                 }
                             }
 
-                            /** @throws \Exception */
+                            /**
+                             * @throws \Exception
+                             */
                             public function __get(string $name): ?int
                             {
                                 switch ($name) {

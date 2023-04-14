@@ -35,7 +35,9 @@ abstract class Node implements \JsonSerializable
 
     public string $kind;
 
-    /** @param array<string, mixed> $vars */
+    /**
+     * @param array<string, mixed> $vars
+     */
     public function __construct(array $vars)
     {
         Utils::assign($this, $vars);
@@ -83,7 +85,9 @@ abstract class Node implements \JsonSerializable
         return $value;
     }
 
-    /** @throws \JsonException */
+    /**
+     * @throws \JsonException
+     */
     public function __toString(): string
     {
         return \json_encode($this, JSON_THROW_ON_ERROR);
@@ -101,13 +105,17 @@ abstract class Node implements \JsonSerializable
         return $this->toArray();
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return self::recursiveToArray($this);
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @return array<string, mixed>
+     */
     private static function recursiveToArray(Node $node): array
     {
         $result = [];

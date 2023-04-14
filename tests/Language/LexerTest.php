@@ -15,7 +15,9 @@ final class LexerTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @see it('disallows uncommon control characters') */
+    /**
+     * @see it('disallows uncommon control characters')
+     */
     public function testDisallowsUncommonControlCharacters(): void
     {
         $this->expectSyntaxError(
@@ -58,7 +60,9 @@ final class LexerTest extends TestCase
         return new SourceLocation($line, $column);
     }
 
-    /** @see it('accepts BOM header') */
+    /**
+     * @see it('accepts BOM header')
+     */
     public function testAcceptsBomHeader(): void
     {
         $bom = Utils::chr(0xFEFF);
@@ -72,7 +76,9 @@ final class LexerTest extends TestCase
         self::assertArraySubset($expected, (array) $this->lexOne($bom . ' foo'));
     }
 
-    /** @see it('records line and column') */
+    /**
+     * @see it('records line and column')
+     */
     public function testRecordsLineAndColumn(): void
     {
         $expected = [
@@ -86,7 +92,9 @@ final class LexerTest extends TestCase
         self::assertArraySubset($expected, (array) $this->lexOne("\n \r\n \r  foo\n"));
     }
 
-    /** @see it('skips whitespace and comments') */
+    /**
+     * @see it('skips whitespace and comments')
+     */
     public function testSkipsWhitespacesAndComments(): void
     {
         $example1 = '
@@ -127,7 +135,9 @@ final class LexerTest extends TestCase
         self::assertArraySubset($expected, (array) $this->lexOne($example3));
     }
 
-    /** @see it('errors respect whitespace') */
+    /**
+     * @see it('errors respect whitespace')
+     */
     public function testErrorsRespectWhitespace(): void
     {
         $str = ''
@@ -153,7 +163,9 @@ final class LexerTest extends TestCase
         }
     }
 
-    /** @see it('updates line numbers in error for file context') */
+    /**
+     * @see it('updates line numbers in error for file context')
+     */
     public function testUpdatesLineNumbersInErrorForFileContext(): void
     {
         $str = ''
@@ -201,7 +213,9 @@ final class LexerTest extends TestCase
         }
     }
 
-    /** @see it('lexes strings') */
+    /**
+     * @see it('lexes strings')
+     */
     public function testLexesStrings(): void
     {
         self::assertArraySubset(
@@ -296,7 +310,9 @@ final class LexerTest extends TestCase
         );
     }
 
-    /** @see it('lexes block strings') */
+    /**
+     * @see it('lexes block strings')
+     */
     public function testLexesBlockString(): void
     {
         self::assertArraySubset(
@@ -396,7 +412,9 @@ final class LexerTest extends TestCase
         );
     }
 
-    /** @return iterable<array{string, string, SourceLocation}> */
+    /**
+     * @return iterable<array{string, string, SourceLocation}>
+     */
     public function reportsUsefulStringErrors(): iterable
     {
         return [
@@ -450,7 +468,9 @@ final class LexerTest extends TestCase
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
 
-    /** @return iterable<array{string, string, SourceLocation}> */
+    /**
+     * @return iterable<array{string, string, SourceLocation}>
+     */
     public function reportsUsefulBlockStringErrors(): iterable
     {
         return [
@@ -485,7 +505,9 @@ final class LexerTest extends TestCase
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
 
-    /** @see it('lexes numbers') */
+    /**
+     * @see it('lexes numbers')
+     */
     public function testLexesNumbers(): void
     {
         self::assertArraySubset(
@@ -554,7 +576,9 @@ final class LexerTest extends TestCase
         );
     }
 
-    /** @return iterable<array{string, string, SourceLocation}> */
+    /**
+     * @return iterable<array{string, string, SourceLocation}>
+     */
     public function reportsUsefulNumberErrors(): iterable
     {
         return [
@@ -580,7 +604,9 @@ final class LexerTest extends TestCase
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
 
-    /** @see it('lexes punctuation') */
+    /**
+     * @see it('lexes punctuation')
+     */
     public function testLexesPunctuation(): void
     {
         self::assertArraySubset(
@@ -637,7 +663,9 @@ final class LexerTest extends TestCase
         );
     }
 
-    /** @return iterable<array{string, string, SourceLocation}> */
+    /**
+     * @return iterable<array{string, string, SourceLocation}>
+     */
     public function reportsUsefulUnknownCharErrors(): iterable
     {
         return [
@@ -658,7 +686,9 @@ final class LexerTest extends TestCase
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
 
-    /** @see it('lex reports useful information for dashes in names') */
+    /**
+     * @see it('lex reports useful information for dashes in names')
+     */
     public function testReportsUsefulDashesInfo(): void
     {
         $q = 'a-b';
@@ -680,7 +710,9 @@ final class LexerTest extends TestCase
         }
     }
 
-    /** @see it('produces double linked list of tokens, including comments') */
+    /**
+     * @see it('produces double linked list of tokens, including comments')
+     */
     public function testDoubleLinkedList(): void
     {
         $lexer = new Lexer(new Source('{

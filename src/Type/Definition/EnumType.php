@@ -77,7 +77,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         $this->config = $config;
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     public function getValue(string $name): ?EnumValueDefinition
     {
         if (! isset($this->nameLookup)) {
@@ -226,7 +228,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         $this->getValues();
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     private function initializeNameLookup(): void
     {
         $this->nameLookup = [];
@@ -235,7 +239,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         }
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     protected function didYouMean(string $unknownValue): ?string
     {
         $suggestions = Utils::suggestionList(

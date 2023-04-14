@@ -42,7 +42,9 @@ class Argument
     /** @phpstan-var ArgumentConfig */
     public array $config;
 
-    /** @phpstan-param ArgumentConfig $config */
+    /**
+     * @phpstan-param ArgumentConfig $config
+     */
     public function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -74,7 +76,9 @@ class Argument
         return $list;
     }
 
-    /** @return Type&InputType */
+    /**
+     * @return Type&InputType
+     */
     public function getType(): Type
     {
         if (! isset($this->type)) {

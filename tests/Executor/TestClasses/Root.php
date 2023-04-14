@@ -25,7 +25,9 @@ final class Root
         return $this->numberHolder;
     }
 
-    /** @throws \Exception */
+    /**
+     * @throws \Exception
+     */
     public function failToChangeTheNumber(): void
     {
         throw new \Exception('Cannot change the number');

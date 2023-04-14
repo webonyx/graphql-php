@@ -218,7 +218,9 @@ class ResolveInfo
         );
     }
 
-    /** @return array<string, bool> */
+    /**
+     * @return array<string, bool>
+     */
     private function foldSelectionSet(SelectionSetNode $selectionSet, int $descend): array
     {
         /** @var array<string, bool> $fields */

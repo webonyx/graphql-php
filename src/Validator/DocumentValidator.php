@@ -149,7 +149,9 @@ class DocumentValidator
         return self::$rules;
     }
 
-    /** @return array<class-string<ValidationRule>, ValidationRule> */
+    /**
+     * @return array<class-string<ValidationRule>, ValidationRule>
+     */
     public static function defaultRules(): array
     {
         return self::$defaultRules ??= [
@@ -198,7 +200,9 @@ class DocumentValidator
         ];
     }
 
-    /** @return array<class-string<ValidationRule>, ValidationRule> */
+    /**
+     * @return array<class-string<ValidationRule>, ValidationRule>
+     */
     public static function sdlRules(): array
     {
         return self::$sdlRules ??= [
@@ -315,7 +319,9 @@ class DocumentValidator
         }
     }
 
-    /** @param array<Error> $errors */
+    /**
+     * @param array<Error> $errors
+     */
     private static function combineErrorMessages(array $errors): string
     {
         $messages = [];

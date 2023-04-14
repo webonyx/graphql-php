@@ -62,7 +62,9 @@ final class SyncTest extends TestCase
 
     // Describe: Execute: synchronously when possible
 
-    /** @see it('does not return a Promise for initial errors') */
+    /**
+     * @see it('does not return a Promise for initial errors')
+     */
     public function testDoesNotReturnAPromiseForInitialErrors(): void
     {
         $doc = 'fragment Example on Query { syncField }';
@@ -74,7 +76,9 @@ final class SyncTest extends TestCase
         self::assertSync(['errors' => [['message' => 'Must provide an operation.']]], $result);
     }
 
-    /** @param mixed $rootValue */
+    /**
+     * @param mixed $rootValue
+     */
     private function execute(Schema $schema, DocumentNode $doc, $rootValue = null): Promise
     {
         return Executor::promiseToExecute($this->promiseAdapter, $schema, $doc, $rootValue);
@@ -98,7 +102,9 @@ final class SyncTest extends TestCase
         self::assertArraySubset($expectedFinalArray, $result->toArray());
     }
 
-    /** @see it('does not return a Promise if fields are all synchronous') */
+    /**
+     * @see it('does not return a Promise if fields are all synchronous')
+     */
     public function testDoesNotReturnAPromiseIfFieldsAreAllSynchronous(): void
     {
         $doc = 'query Example { syncField }';
@@ -112,7 +118,9 @@ final class SyncTest extends TestCase
 
     // Describe: graphqlSync
 
-    /** @see it('does not return a Promise if mutation fields are all synchronous') */
+    /**
+     * @see it('does not return a Promise if mutation fields are all synchronous')
+     */
     public function testDoesNotReturnAPromiseIfMutationFieldsAreAllSynchronous(): void
     {
         $doc = 'mutation Example { syncMutationField }';
@@ -124,7 +132,9 @@ final class SyncTest extends TestCase
         self::assertSync(['data' => ['syncMutationField' => 'rootValue']], $result);
     }
 
-    /** @see it('returns a Promise if any field is asynchronous') */
+    /**
+     * @see it('returns a Promise if any field is asynchronous')
+     */
     public function testReturnsAPromiseIfAnyFieldIsAsynchronous(): void
     {
         $doc = 'query Example { syncField, asyncField }';
@@ -155,7 +165,9 @@ final class SyncTest extends TestCase
         self::assertArraySubset($expectedFinalArray, $resolvedResult->toArray());
     }
 
-    /** @see it('does not return a Promise for syntax errors') */
+    /**
+     * @see it('does not return a Promise for syntax errors')
+     */
     public function testDoesNotReturnAPromiseForSyntaxErrors(): void
     {
         $result = $this->graphqlSync(
@@ -186,7 +198,9 @@ final class SyncTest extends TestCase
         return GraphQL::promiseToExecute($this->promiseAdapter, $schema, $doc, $rootValue);
     }
 
-    /** @see it('does not return a Promise for validation errors') */
+    /**
+     * @see it('does not return a Promise for validation errors')
+     */
     public function testDoesNotReturnAPromiseForValidationErrors(): void
     {
         $doc = 'fragment Example on Query { unknownField }';
@@ -204,7 +218,9 @@ final class SyncTest extends TestCase
         self::assertSync($expected, $result);
     }
 
-    /** @see it('does not return a Promise for sync execution') */
+    /**
+     * @see it('does not return a Promise for sync execution')
+     */
     public function testDoesNotReturnAPromiseForSyncExecution(): void
     {
         $doc = 'query Example { syncField }';

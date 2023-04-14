@@ -64,7 +64,9 @@ final class LazyInterfaceTest extends TestCase
         );
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     protected function makeLazyInterfaceType(): InterfaceType
     {
         return $this->lazyInterface ??= new InterfaceType([
@@ -76,7 +78,9 @@ final class LazyInterfaceTest extends TestCase
         ]);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     */
     protected function makeTestObjectType(): ObjectType
     {
         return $this->testObject ??= new ObjectType([

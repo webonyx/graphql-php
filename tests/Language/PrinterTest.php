@@ -30,7 +30,9 @@ final class PrinterTest extends TestCaseBase
         self::assertEquals($astCopy, $ast);
     }
 
-    /** @see it('prints minimal ast', () => { */
+    /**
+     * @see it('prints minimal ast', () => {
+     */
     public function testPrintsMinimalAst(): void
     {
         $ast = new FieldNode([
@@ -41,13 +43,17 @@ final class PrinterTest extends TestCaseBase
         self::assertSame('foo', Printer::doPrint($ast));
     }
 
-    /** @see it('produces helpful error messages', () => { */
+    /**
+     * @see it('produces helpful error messages', () => {
+     */
     public function testProducesHelpfulErrorMessages(): void
     {
         self::markTestSkipped('Not necessary because our class based AST makes it impossible to pass bad data.');
     }
 
-    /** @see it('correctly prints non-query operations without name', () => { */
+    /**
+     * @see it('correctly prints non-query operations without name', () => {
+     */
     public function testCorrectlyPrintsNonQueryOperationsWithoutName(): void
     {
         $queryAstShorthanded = Parser::parse('query { id, name }');
@@ -120,7 +126,9 @@ final class PrinterTest extends TestCaseBase
         self::assertSame($expected, Printer::doPrint($queryWithNonNullVariable));
     }
 
-    /** @see it('prints query with variable directives', () => { */
+    /**
+     * @see it('prints query with variable directives', () => {
+     */
     public function testPrintsQueryWithVariableDirectives(): void
     {
         $queryAstWithVariableDirective = Parser::parse(
@@ -137,7 +145,9 @@ final class PrinterTest extends TestCaseBase
         );
     }
 
-    /** @see it('keeps arguments on one line if line is short (<= 80 chars)', () => { */
+    /**
+     * @see it('keeps arguments on one line if line is short (<= 80 chars)', () => {
+     */
     public function testKeepsArgumentsOnOneLineIfLineIsShortBelowOrEquals80Chars(): void
     {
         $queryASTWithMultipleArguments = Parser::parse(
@@ -156,7 +166,9 @@ final class PrinterTest extends TestCaseBase
         );
     }
 
-    /** @see it('puts arguments on multiple lines if line is long (> 80 chars)', () => { */
+    /**
+     * @see it('puts arguments on multiple lines if line is long (> 80 chars)', () => {
+     */
     public function testPutsArgumentsOnMultipleLinesIfLineIsLongMoreThan80Chars(): void
     {
         $queryASTWithMultipleArguments = Parser::parse(
@@ -180,7 +192,9 @@ final class PrinterTest extends TestCaseBase
         );
     }
 
-    /** @see it('prints fragment with variable directives') */
+    /**
+     * @see it('prints fragment with variable directives')
+     */
     public function testPrintsFragmentWithVariableDirectives(): void
     {
         $queryAstWithVariableDirective = Parser::parse(
@@ -196,7 +210,9 @@ GRAPHQL;
         self::assertSame($expected, Printer::doPrint($queryAstWithVariableDirective));
     }
 
-    /** @see it('Experimental: correctly prints fragment defined variables') */
+    /**
+     * @see it('Experimental: correctly prints fragment defined variables')
+     */
     public function testExperimentalCorrectlyPrintsFragmentDefinedVariables(): void
     {
         $fragmentWithVariable = Parser::parse(
@@ -219,7 +235,9 @@ GRAPHQL
         );
     }
 
-    /** @see it('prints kitchen sink without altering ast', () => { */
+    /**
+     * @see it('prints kitchen sink without altering ast', () => {
+     */
     public function testPrintsKitchenSinkWithoutAlteringAST(): void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');

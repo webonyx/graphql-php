@@ -138,7 +138,9 @@ class ValuesOfCorrectType extends ValidationRule
         ];
     }
 
-    /** @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node */
+    /**
+     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
+     */
     protected function isValidValueNode(QueryValidationContext $context, ValueNode $node): void
     {
         // Report any error at the full type expected by the location.

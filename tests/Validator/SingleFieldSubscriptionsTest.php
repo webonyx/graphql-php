@@ -11,7 +11,9 @@ use GraphQL\Validator\Rules\SingleFieldSubscription;
  */
 final class SingleFieldSubscriptionsTest extends ValidatorTestCase
 {
-    /** @see it('valid single field subscription') */
+    /**
+     * @see it('valid single field subscription')
+     */
     public function testValidSingleFieldSubscription(): void
     {
         $this->expectPassesRule(
@@ -26,7 +28,9 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('valid single field bulk subscriptions') */
+    /**
+     * @see it('valid single field bulk subscriptions')
+     */
     public function testValidSingleFieldBulkSubscriptions(): void
     {
         $this->expectPassesRule(
@@ -47,7 +51,9 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('valid single field anonymous subscription') */
+    /**
+     * @see it('valid single field anonymous subscription')
+     */
     public function testValidSingleFieldAnonymousSubscription(): void
     {
         $this->expectPassesRule(
@@ -62,7 +68,9 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('valid single field subscription') */
+    /**
+     * @see it('valid single field subscription')
+     */
     public function testValidSingleFieldSubscriptionWithMultipleResultFields(): void
     {
         $this->expectPassesRule(
@@ -78,7 +86,9 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('invalid multiple field subscription') */
+    /**
+     * @see it('invalid multiple field subscription')
+     */
     public function testInvalidMultipleFieldSubscription(): void
     {
         $this->expectFailsRule(
@@ -97,7 +107,9 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('invalid multiple field anonymous subscription') */
+    /**
+     * @see it('invalid multiple field anonymous subscription')
+     */
     public function testInvalidMultipleFieldAnonymousSubscription(): void
     {
         $this->expectFailsRule(
@@ -116,7 +128,9 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('invalid many fields subscription') */
+    /**
+     * @see it('invalid many fields subscription')
+     */
     public function testInvalidManyFieldsSubscription(): void
     {
         $this->expectFailsRule(
@@ -138,7 +152,9 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('invalid many fields anonymous subscription') */
+    /**
+     * @see it('invalid many fields anonymous subscription')
+     */
     public function testInvalidManyFieldAnonymousSubscription(): void
     {
         $this->expectFailsRule(

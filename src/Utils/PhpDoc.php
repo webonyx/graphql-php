@@ -4,7 +4,9 @@ namespace GraphQL\Utils;
 
 class PhpDoc
 {
-    /** @param string|false|null $docBlock */
+    /**
+     * @param string|false|null $docBlock
+     */
     public static function unwrap($docBlock): ?string
     {
         if ($docBlock === false || $docBlock === null) {
@@ -23,7 +25,9 @@ class PhpDoc
         return static::nonEmptyOrNull($content);
     }
 
-    /** @param string|false|null $docBlock */
+    /**
+     * @param string|false|null $docBlock
+     */
     public static function unpad($docBlock): ?string
     {
         if ($docBlock === false || $docBlock === null) {

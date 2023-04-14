@@ -7,7 +7,9 @@ namespace GraphQL\Utils;
  */
 class LazyException extends \Exception
 {
-    /** @param callable(): string $makeMessage */
+    /**
+     * @param callable(): string $makeMessage
+     */
     public function __construct(callable $makeMessage)
     {
         parent::__construct($makeMessage());
