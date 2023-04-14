@@ -163,7 +163,7 @@ introduce a Dependency Injection Container if your types have other dependencies
 This approach has its drawbacks; while using a callable for the **fields** property does provide some protection,
 once the fields property is accessed each individual field under its governance is still evaluated whether it's needed
 for the current query or not, and this can result in many superfluous field and argument instantiations.
-For a more robust solution, you can craft a type registry populated with static helpers that 
+For a more robust solution, you can craft a type registry populated with static helpers that
 return callables for each individual type:
 
 ```php
