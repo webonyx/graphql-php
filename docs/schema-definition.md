@@ -160,8 +160,64 @@ $schema = new Schema([
 You can automate this registry if you wish to reduce boilerplate or even
 introduce a Dependency Injection Container if your types have other dependencies.
 
-Alternatively, all methods of the registry could be static - then there is no need
-to pass it in the constructor - instead use **TypeRegistry::myAType()** in your type definitions.
+This approach has its drawbacks; while using a callable for the **fields** property does provide some protection, once the fields property is accessed each individual field in its governance is still evaluated whether it's needed for the current query or not, and this can result in many superfluous field and argument instantiations. For a more robust solution, you can skip the type loader altogether and instead craft a type registry populated with static helpers that return callables for each individual type:
+
+```php
+// MyAType.php
+class MyAType extends \GraphQL\Type\Definition\ObjectType {
+    public __construct() {
+        parent::__construct([
+            "name"=>"MyA",
+            "fields" => fn() => [
+                'b' => Types::MyB()
+        ]);
+    }
+}
+
+// MyBType.php
+class MyBType extends \GraphQL\Type\Definition\ObjectType {
+    public __construct() {
+        parent::__construct([
+            "name"=>"MyA",
+            "fields" => fn() => [
+                'c' => Type::string()
+        ]);
+    }
+}
+
+// TypeRegistry.php
+class TypeRegistry
+{
+    /**
+     * @var array<string, Type&NamedType>
+     */
+    private static array $types = [];
+
+    private static function get(string $classname): \Closure
+    {
+        // by moving our custom types to separate files and returning a callable here, we can prevent
+        // even more needless work from happening
+        return static fn () => self::byClassName($classname);
+    }
+    
+    private static function byClassName(string $classname): Type
+    {
+        $parts = \explode('\\', $classname);
+        $cacheName = \strtolower(\preg_replace('~Type$~', '', $parts[\count($parts) - 1]));
+
+        if (! isset(self::$types[$cacheName])) {
+            return self::$types[$cacheName] = new $classname();
+        }
+
+        return self::$types[$cacheName];
+    }
+
+    public static function MyA(): callable { return self::get(MyAType::class); }
+    public static function MyB(): callable { return self::get(MyBType::class); }
+    
+    ...
+}
+```
 
 ## Schema Validation
 
