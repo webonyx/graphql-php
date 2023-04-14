@@ -101,9 +101,7 @@ class ASTDefinitionBuilder
         $this->cache = Type::builtInTypes();
     }
 
-    /**
-     * @throws \Exception
-     */
+    /** @throws \Exception */
     public function buildDirective(DirectiveDefinitionNode $directiveNode): Directive
     {
         $locations = [];
@@ -326,9 +324,7 @@ class ASTDefinitionBuilder
         }
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private function makeTypeDef(ObjectTypeDefinitionNode $def): ObjectType
     {
         $name = $def->name->value;
@@ -434,9 +430,7 @@ class ASTDefinitionBuilder
         return $interfaces;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private function makeInterfaceDef(InterfaceTypeDefinitionNode $def): InterfaceType
     {
         $name = $def->name->value;
@@ -485,9 +479,7 @@ class ASTDefinitionBuilder
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private function makeUnionDef(UnionTypeDefinitionNode $def): UnionType
     {
         $name = $def->name->value;
@@ -516,9 +508,7 @@ class ASTDefinitionBuilder
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private function makeScalarDef(ScalarTypeDefinitionNode $def): CustomScalarType
     {
         $name = $def->name->value;
@@ -534,9 +524,7 @@ class ASTDefinitionBuilder
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private function makeInputObjectDef(InputObjectTypeDefinitionNode $def): InputObjectType
     {
         $name = $def->name->value;

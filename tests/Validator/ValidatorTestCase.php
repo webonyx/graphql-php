@@ -54,9 +54,7 @@ abstract class ValidatorTestCase extends TestCase
         );
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function getTestSchema(): Schema
     {
         $Being = new InterfaceType([
@@ -534,9 +532,7 @@ abstract class ValidatorTestCase extends TestCase
         );
     }
 
-    /**
-     * @throws \Exception
-     */
+    /** @throws \Exception */
     protected function expectValidSDL(ValidationRule $rule, string $sdlString, ?Schema $schema = null): void
     {
         $this->expectSDLErrorsFromRule($rule, $sdlString, $schema, []);

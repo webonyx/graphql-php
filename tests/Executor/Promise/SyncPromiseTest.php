@@ -38,9 +38,7 @@ final class SyncPromiseTest extends TestCaseBase
         ];
     }
 
-    /**
-     * @dataProvider fulfilledPromiseResolveData
-     */
+    /** @dataProvider fulfilledPromiseResolveData */
     public function testFulfilledPromiseCannotChangeValue(
         string $resolvedValue,
         ?callable $onFulfilled,
@@ -59,9 +57,7 @@ final class SyncPromiseTest extends TestCaseBase
         $promise->resolve($resolvedValue . '-other-value');
     }
 
-    /**
-     * @dataProvider fulfilledPromiseResolveData
-     */
+    /** @dataProvider fulfilledPromiseResolveData */
     public function testFulfilledPromiseCannotBeRejected(
         string $resolvedValue,
         ?callable $onFulfilled,
@@ -186,9 +182,7 @@ final class SyncPromiseTest extends TestCaseBase
         self::assertEquals($expectedNextState, $promise->state);
     }
 
-    /**
-     * @return iterable<array{\Exception, ?callable, ?string, ?string, string}>
-     */
+    /** @return iterable<array{\Exception, ?callable, ?string, ?string, string}> */
     public function rejectedPromiseData(): iterable
     {
         $onRejectedReturnsNull = static fn () => null;
@@ -213,9 +207,7 @@ final class SyncPromiseTest extends TestCaseBase
         ];
     }
 
-    /**
-     * @dataProvider rejectedPromiseData
-     */
+    /** @dataProvider rejectedPromiseData */
     public function testRejectedPromiseCannotChangeReason(
         \Throwable $rejectedReason,
         ?callable $onRejected,
@@ -234,9 +226,7 @@ final class SyncPromiseTest extends TestCaseBase
         $promise->reject(new \Exception('other-reason'));
     }
 
-    /**
-     * @dataProvider rejectedPromiseData
-     */
+    /** @dataProvider rejectedPromiseData */
     public function testRejectedPromiseCannotBeResolved(
         \Throwable $rejectedReason,
         ?callable $onRejected,
@@ -255,9 +245,7 @@ final class SyncPromiseTest extends TestCaseBase
         $promise->resolve('anything');
     }
 
-    /**
-     * @dataProvider rejectedPromiseData
-     */
+    /** @dataProvider rejectedPromiseData */
     public function testRejectedPromise(
         \Throwable $rejectedReason,
         ?callable $onRejected,

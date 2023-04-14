@@ -310,9 +310,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
     }
 
-    /**
-     * @param mixed $error
-     */
+    /** @param mixed $error */
     public function onError($error): ?Promise
     {
         if ($error instanceof Error) {
@@ -486,9 +484,7 @@ class ReferenceExecutor implements ExecutorImplementation
         return ! isset($include['if']) || $include['if'] !== false;
     }
 
-    /**
-     * Implements the logic to compute the key of a given fields entry.
-     */
+    /** Implements the logic to compute the key of a given fields entry. */
     protected static function getFieldEntryKey(FieldNode $node): string
     {
         return $node->alias->value
@@ -891,9 +887,7 @@ class ReferenceExecutor implements ExecutorImplementation
         throw new \RuntimeException("Cannot complete value of unexpected type {$safeReturnType}.");
     }
 
-    /**
-     * @param mixed $value
-     */
+    /** @param mixed $value */
     protected function isPromise($value): bool
     {
         return $value instanceof Promise

@@ -68,9 +68,7 @@ final class SyncPromiseAdapterTest extends TestCase
         self::assertValidPromise($promise, null, 'A', SyncPromise::FULFILLED);
     }
 
-    /**
-     * @param mixed $expectedNextValue
-     */
+    /** @param mixed $expectedNextValue */
     private static function assertValidPromise(Promise $promise, ?string $expectedNextReason, $expectedNextValue, string $expectedNextState): void
     {
         self::assertInstanceOf(SyncPromise::class, $promise->adoptedPromise);

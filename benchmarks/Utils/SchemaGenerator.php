@@ -25,9 +25,7 @@ class SchemaGenerator
     /** @var array<string, ObjectType> */
     private array $objectTypes = [];
 
-    /**
-     * @param array<string, int> $config
-     */
+    /** @param array<string, int> $config */
     public function __construct(array $config)
     {
         $this->config = \array_merge($this->config, $config);
@@ -78,9 +76,7 @@ class SchemaGenerator
         return $type;
     }
 
-    /**
-     * @return array{0: Type, 1: string}
-     */
+    /** @return array{0: Type, 1: string} */
     protected function getFieldTypeAndName(int $nestingLevel, int $fieldIndex): array
     {
         if ($nestingLevel >= $this->config['nestingLevel']) {
@@ -97,9 +93,7 @@ class SchemaGenerator
         return [$fieldType, $fieldName];
     }
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
+    /** @return array<int, array<string, mixed>> */
     protected function createTypeFields(string $typeName, int $nestingLevel): array
     {
         $fields = [];
@@ -133,9 +127,7 @@ class SchemaGenerator
         return $fields;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     protected function createFieldArgs(string $fieldName, string $typeName): array
     {
         return [

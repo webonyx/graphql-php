@@ -35,9 +35,7 @@ class Executor
      */
     private static $implementationFactory = [ReferenceExecutor::class, 'create'];
 
-    /**
-     * @phpstan-return FieldResolver
-     */
+    /** @phpstan-return FieldResolver */
     public static function getDefaultFieldResolver(): callable
     {
         return self::$defaultFieldResolver;
@@ -58,17 +56,13 @@ class Executor
         return self::$defaultPromiseAdapter ??= new SyncPromiseAdapter();
     }
 
-    /**
-     * Set a custom default promise adapter.
-     */
+    /** Set a custom default promise adapter. */
     public static function setPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null): void
     {
         self::$defaultPromiseAdapter = $defaultPromiseAdapter;
     }
 
-    /**
-     * @phpstan-return ImplementationFactory
-     */
+    /** @phpstan-return ImplementationFactory */
     public static function getImplementationFactory(): callable
     {
         return self::$implementationFactory;

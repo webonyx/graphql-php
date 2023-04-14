@@ -18,9 +18,7 @@ class StringType extends ScalarType
 character sequences. The String type is most often used by GraphQL to
 represent free-form human-readable text.';
 
-    /**
-     * @throws SerializationError
-     */
+    /** @throws SerializationError */
     public function serialize($value): string
     {
         $canCast = \is_scalar($value)
@@ -35,9 +33,7 @@ represent free-form human-readable text.';
         return (string) $value;
     }
 
-    /**
-     * @throws Error
-     */
+    /** @throws Error */
     public function parseValue($value): string
     {
         if (! \is_string($value)) {

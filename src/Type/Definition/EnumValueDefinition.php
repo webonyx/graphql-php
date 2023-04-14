@@ -29,9 +29,7 @@ class EnumValueDefinition
     /** @phpstan-var EnumValueConfig */
     public array $config;
 
-    /**
-     * @phpstan-param EnumValueConfig $config
-     */
+    /** @phpstan-param EnumValueConfig $config */
     public function __construct(array $config)
     {
         $this->name = $config['name'];

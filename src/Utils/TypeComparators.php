@@ -11,9 +11,7 @@ use GraphQL\Type\Schema;
 
 class TypeComparators
 {
-    /**
-     * Provided two types, return true if the types are equal (invariant).
-     */
+    /** Provided two types, return true if the types are equal (invariant). */
     public static function isEqualType(Type $typeA, Type $typeB): bool
     {
         // Equivalent types are equal.

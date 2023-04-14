@@ -16,17 +16,13 @@ final class ValueFromAstTest extends TestCase
 {
     private InputObjectType $inputObj;
 
-    /**
-     * @see it('rejects empty input')
-     */
+    /** @see it('rejects empty input') */
     public function testRejectsEmptyInput(): void
     {
         self::assertEquals(Utils::undefined(), AST::valueFromAST(null, Type::boolean()));
     }
 
-    /**
-     * @see it('converts according to input coercion rules')
-     */
+    /** @see it('converts according to input coercion rules') */
     public function testConvertsAccordingToInputCoercionRules(): void
     {
         $this->runTestCase(Type::boolean(), 'true', true);
@@ -51,9 +47,7 @@ final class ValueFromAstTest extends TestCase
         self::assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type));
     }
 
-    /**
-     * @see it('does not convert when input coercion rules reject a value')
-     */
+    /** @see it('does not convert when input coercion rules reject a value') */
     public function testDoesNotConvertWhenInputCoercionRulesRejectAValue(): void
     {
         $undefined = Utils::undefined();
@@ -68,9 +62,7 @@ final class ValueFromAstTest extends TestCase
         $this->runTestCase(Type::id(), '123.456', $undefined);
     }
 
-    /**
-     * @see it('converts enum values according to input coercion rules')
-     */
+    /** @see it('converts enum values according to input coercion rules') */
     public function testConvertsEnumValuesAccordingToInputCoercionRules(): void
     {
         $testEnum = new EnumType([
@@ -91,18 +83,14 @@ final class ValueFromAstTest extends TestCase
         $this->runTestCase($testEnum, 'NULL', null);
     }
 
-    /**
-     * @see it('coerces to null unless non-null')
-     */
+    /** @see it('coerces to null unless non-null') */
     public function testCoercesToNullUnlessNonNull(): void
     {
         $this->runTestCase(Type::boolean(), 'null', null);
         $this->runTestCase(Type::nonNull(Type::boolean()), 'null', Utils::undefined());
     }
 
-    /**
-     * @see it('coerces lists of values')
-     */
+    /** @see it('coerces lists of values') */
     public function testCoercesListsOfValues(): void
     {
         $listOfBool = Type::listOf(Type::boolean());
@@ -117,9 +105,7 @@ final class ValueFromAstTest extends TestCase
         $this->runTestCase($listOfBool, '{ true: true }', $undefined);
     }
 
-    /**
-     * @see it('coerces non-null lists of values')
-     */
+    /** @see it('coerces non-null lists of values') */
     public function testCoercesNonNullListsOfValues(): void
     {
         $nonNullListOfBool = Type::nonNull(Type::listOf(Type::boolean()));
@@ -133,9 +119,7 @@ final class ValueFromAstTest extends TestCase
         $this->runTestCase($nonNullListOfBool, '[true, null]', [true, null]);
     }
 
-    /**
-     * @see it('coerces lists of non-null values')
-     */
+    /** @see it('coerces lists of non-null values') */
     public function testCoercesListsOfNonNullValues(): void
     {
         $listOfNonNullBool = Type::listOf(Type::nonNull(Type::boolean()));
@@ -149,9 +133,7 @@ final class ValueFromAstTest extends TestCase
         $this->runTestCase($listOfNonNullBool, '[true, null]', $undefined);
     }
 
-    /**
-     * @see it('coerces non-null lists of non-null values')
-     */
+    /** @see it('coerces non-null lists of non-null values') */
     public function testCoercesNonNullListsOfNonNullValues(): void
     {
         $nonNullListOfNonNullBool = Type::nonNull(Type::listOf(Type::nonNull(Type::boolean())));
@@ -165,9 +147,7 @@ final class ValueFromAstTest extends TestCase
         $this->runTestCase($nonNullListOfNonNullBool, '[true, null]', $undefined);
     }
 
-    /**
-     * @see it('coerces input objects according to input coercion rules')
-     */
+    /** @see it('coerces input objects according to input coercion rules') */
     public function testCoercesInputObjectsAccordingToInputCoercionRules(): void
     {
         $testInputObj = $this->inputObj();
@@ -187,9 +167,7 @@ final class ValueFromAstTest extends TestCase
         $this->runTestCase($testInputObj, '{ bool: true }', $undefined);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private function inputObj(): InputObjectType
     {
         return $this->inputObj ??= new InputObjectType([
@@ -202,9 +180,7 @@ final class ValueFromAstTest extends TestCase
         ]);
     }
 
-    /**
-     * @see it('accepts variable values assuming already coerced')
-     */
+    /** @see it('accepts variable values assuming already coerced') */
     public function testAcceptsVariableValuesAssumingAlreadyCoerced(): void
     {
         $this->runTestCaseWithVars([], Type::boolean(), '$var', Utils::undefined());
@@ -225,9 +201,7 @@ final class ValueFromAstTest extends TestCase
         self::assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type, $variables));
     }
 
-    /**
-     * @see it('asserts variables are provided as items in lists')
-     */
+    /** @see it('asserts variables are provided as items in lists') */
     public function testAssertsVariablesAreProvidedAsItemsInLists(): void
     {
         $listOfBool = Type::listOf(Type::boolean());
@@ -242,9 +216,7 @@ final class ValueFromAstTest extends TestCase
         $this->runTestCaseWithVars(['foo' => [true]], $listOfNonNullBool, '$foo', [true]);
     }
 
-    /**
-     * @see it('omits input object fields for unprovided variables')
-     */
+    /** @see it('omits input object fields for unprovided variables') */
     public function testOmitsInputObjectFieldsForUnprovidedVariables(): void
     {
         $testInputObj = $this->inputObj();
