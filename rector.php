@@ -4,6 +4,7 @@ use Rector\CodeQuality\Rector\Array_\CallableThisArrayToAnonymousFunctionRector;
 use Rector\CodeQuality\Rector\Foreach_\UnusedForeachValueToArrayKeysRector;
 use Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector;
 use Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector;
+use Rector\CodeQuality\Rector\Switch_\SwitchTrueToIfRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector;
@@ -43,6 +44,7 @@ return static function (RectorConfig $rectorConfig): void {
         AssertEqualsToSameRector::class => [
             __DIR__ . '/tests/TestCaseBase.php',
         ],
+        SwitchTrueToIfRector::class, // More expressive in some cases
     ]);
     $rectorConfig->paths([
         __DIR__ . '/examples',
