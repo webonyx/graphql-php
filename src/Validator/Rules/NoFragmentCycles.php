@@ -89,9 +89,7 @@ class NoFragmentCycles extends ValidationRule
         $this->spreadPathIndexByName[$fragmentName] = null;
     }
 
-    /**
-     * @param array<string> $spreadNames
-     */
+    /** @param array<string> $spreadNames */
     public static function cycleErrorMessage(string $fragName, array $spreadNames = []): string
     {
         $via = $spreadNames === []

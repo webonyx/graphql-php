@@ -19,9 +19,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         return $value instanceof SyncPromise;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function convertThenable($thenable): Promise
     {
         if (! $thenable instanceof SyncPromise) {
@@ -34,9 +32,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($thenable, $this);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $adoptedPromise = $promise->adoptedPromise;
@@ -87,9 +83,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->reject($reason), $this);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function all(iterable $promisesOrValues): Promise
     {
         $all = new SyncPromise();
@@ -162,16 +156,12 @@ class SyncPromiseAdapter implements PromiseAdapter
         throw new InvariantViolation('Could not resolve promise');
     }
 
-    /**
-     * Execute just before starting to run promise completion.
-     */
+    /** Execute just before starting to run promise completion. */
     protected function beforeWait(Promise $promise): void
     {
     }
 
-    /**
-     * Execute while running promise completion.
-     */
+    /** Execute while running promise completion. */
     protected function onWait(Promise $promise): void
     {
     }

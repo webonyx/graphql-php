@@ -23,9 +23,7 @@ final class MixedStoreTest extends TestCase
         }
     }
 
-    /**
-     * @return array<int, mixed>
-     */
+    /** @return array<int, mixed> */
     public function possibleValues(): array
     {
         /** @var MixedStore<mixed> $mixedStore */

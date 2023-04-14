@@ -30,9 +30,7 @@ abstract class QuerySecurityRule extends ValidationRule
     /** @var array<string, FragmentDefinitionNode> */
     protected array $fragments = [];
 
-    /**
-     * @throws \InvalidArgumentException
-     */
+    /** @throws \InvalidArgumentException */
     protected function checkIfGreaterOrEqualToZero(string $name, int $value): void
     {
         if ($value < 0) {
@@ -45,9 +43,7 @@ abstract class QuerySecurityRule extends ValidationRule
         return $this->fragments[$fragmentSpread->name->value] ?? null;
     }
 
-    /**
-     * @return array<string, FragmentDefinitionNode>
-     */
+    /** @return array<string, FragmentDefinitionNode> */
     protected function getFragments(): array
     {
         return $this->fragments;

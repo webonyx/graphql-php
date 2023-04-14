@@ -33,9 +33,7 @@ class UniqueInputFieldNames extends ValidationRule
         return $this->getASTVisitor($context);
     }
 
-    /**
-     * @phpstan-return VisitorArray
-     */
+    /** @phpstan-return VisitorArray */
     public function getASTVisitor(ValidationContext $context): array
     {
         $this->knownNames = [];

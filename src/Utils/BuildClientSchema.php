@@ -94,9 +94,7 @@ class BuildClientSchema
         return (new self($introspectionQuery, $options))->buildSchema();
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function buildSchema(): Schema
     {
         if (! \array_key_exists('__schema', $this->introspection)) {
@@ -204,9 +202,7 @@ class BuildClientSchema
         return $this->typeMap[$typeName];
     }
 
-    /**
-     * @param array<mixed> $type
-     */
+    /** @param array<mixed> $type */
     public static function invalidOrIncompleteIntrospectionResult(array $type): InvariantViolation
     {
         $incompleteType = Utils::printSafeJson($type);

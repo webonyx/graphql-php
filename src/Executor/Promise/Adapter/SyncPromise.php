@@ -51,9 +51,7 @@ class SyncPromise
         }
     }
 
-    /**
-     * @param Executor|null $executor
-     */
+    /** @param Executor|null $executor */
     public function __construct(?callable $executor = null)
     {
         if ($executor === null) {
@@ -138,9 +136,7 @@ class SyncPromise
         return $this;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private function enqueueWaitingPromises(): void
     {
         if ($this->state === self::PENDING) {
@@ -174,9 +170,7 @@ class SyncPromise
         $this->waiting = [];
     }
 
-    /**
-     * @return \SplQueue<callable(): void>
-     */
+    /** @return \SplQueue<callable(): void> */
     public static function getQueue(): \SplQueue
     {
         static $queue;

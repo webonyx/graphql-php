@@ -13,9 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 abstract class ServerTestCase extends TestCase
 {
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     protected function buildSchema(): Schema
     {
         return new Schema([

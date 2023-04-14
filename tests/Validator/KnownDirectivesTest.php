@@ -44,9 +44,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
 
     // Validate: Known directives
 
-    /**
-     * @see it('with no directives')
-     */
+    /** @see it('with no directives') */
     public function testWithNoDirectives(): void
     {
         $this->expectPassesRule(
@@ -64,9 +62,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with known directives')
-     */
+    /** @see it('with known directives') */
     public function testWithKnownDirectives(): void
     {
         $this->expectPassesRule(
@@ -84,9 +80,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with unknown directive')
-     */
+    /** @see it('with unknown directive') */
     public function testWithUnknownDirective(): void
     {
         $this->expectFailsRule(
@@ -102,9 +96,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function unknownDirective(string $directiveName, int $line, int $column): array
     {
         return ErrorHelper::create(
@@ -113,9 +105,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with many unknown directives')
-     */
+    /** @see it('with many unknown directives') */
     public function testWithManyUnknownDirectives(): void
     {
         $this->expectFailsRule(
@@ -141,9 +131,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with well placed directives')
-     */
+    /** @see it('with well placed directives') */
     public function testWithWellPlacedDirectives(): void
     {
         $this->expectPassesRule(
@@ -163,9 +151,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with well placed variable definition directive')
-     */
+    /** @see it('with well placed variable definition directive') */
     public function testWithWellPlacedVariableDefinitionDirective(): void
     {
         $this->expectPassesRule(
@@ -180,9 +166,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
 
     // DESCRIBE: within SDL
 
-    /**
-     * @see it('with directive defined inside SDL')
-     */
+    /** @see it('with directive defined inside SDL') */
     public function testWithDirectiveDefinedInsideSDL(): void
     {
         $this->expectSDLErrors('
@@ -194,9 +178,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         ', null, []);
     }
 
-    /**
-     * @see it('with standard directive')
-     */
+    /** @see it('with standard directive') */
     public function testWithStandardDirective(): void
     {
         $this->expectSDLErrors(
@@ -209,9 +191,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with overrided standard directive')
-     */
+    /** @see it('with overrided standard directive') */
     public function testWithOverridedStandardDirective(): void
     {
         $this->expectSDLErrors(
@@ -225,9 +205,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with directive defined in schema extension')
-     */
+    /** @see it('with directive defined in schema extension') */
     public function testWithDirectiveDefinedInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
@@ -246,9 +224,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with directive used in schema extension')
-     */
+    /** @see it('with directive used in schema extension') */
     public function testWithDirectiveUsedInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
@@ -267,9 +243,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with unknown directive in schema extension')
-     */
+    /** @see it('with unknown directive in schema extension') */
     public function testWithUnknownDirectiveInSchemaExtension(): void
     {
         $schema = BuildSchema::build('
@@ -286,9 +260,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with misplaced directives')
-     */
+    /** @see it('with misplaced directives') */
     public function testWithMisplacedDirectives(): void
     {
         $this->expectFailsRule(
@@ -312,9 +284,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with misplaced variable definition directive')
-     */
+    /** @see it('with misplaced variable definition directive') */
     public function testWithMisplacedVariableDefinitionDirective(): void
     {
         $this->expectFailsRule(
@@ -328,9 +298,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function misplacedDirective(string $directiveName, string $placement, int $line, int $column): array
     {
         return ErrorHelper::create(
@@ -339,9 +307,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with well placed directives')
-     */
+    /** @see it('with well placed directives') */
     public function testWSLWithWellPlacedDirectives(): void
     {
         $this->expectSDLErrors(
@@ -387,9 +353,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with misplaced directives')
-     */
+    /** @see it('with misplaced directives') */
     public function testWSLWithMisplacedDirectives(): void
     {
         $this->expectSDLErrors(

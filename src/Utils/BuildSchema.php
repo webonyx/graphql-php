@@ -249,9 +249,7 @@ class BuildSchema
         );
     }
 
-    /**
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     private function getOperationTypes(SchemaDefinitionNode $schemaDef): array
     {
         /** @var array<string, string> $operationTypes */

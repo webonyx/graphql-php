@@ -44,17 +44,13 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownDirectives extends ValidationRule
 {
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);

@@ -13,9 +13,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
 {
     // Validate: No circular fragment spreads
 
-    /**
-     * @see it('single reference is valid')
-     */
+    /** @see it('single reference is valid') */
     public function testSingleReferenceIsValid(): void
     {
         $this->expectPassesRule(
@@ -27,9 +25,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('spreading twice is not circular')
-     */
+    /** @see it('spreading twice is not circular') */
     public function testSpreadingTwiceIsNotCircular(): void
     {
         $this->expectPassesRule(
@@ -41,9 +37,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('spreading twice indirectly is not circular')
-     */
+    /** @see it('spreading twice indirectly is not circular') */
     public function testSpreadingTwiceIndirectlyIsNotCircular(): void
     {
         $this->expectPassesRule(
@@ -56,9 +50,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('double spread within abstract types')
-     */
+    /** @see it('double spread within abstract types') */
     public function testDoubleSpreadWithinAbstractTypes(): void
     {
         $this->expectPassesRule(
@@ -77,9 +69,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('does not false positive on unknown fragment')
-     */
+    /** @see it('does not false positive on unknown fragment') */
     public function testDoesNotFalsePositiveOnUnknownFragment(): void
     {
         $this->expectPassesRule(
@@ -92,9 +82,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('spreading recursively within field fails')
-     */
+    /** @see it('spreading recursively within field fails') */
     public function testSpreadingRecursivelyWithinFieldFails(): void
     {
         $this->expectFailsRule(
@@ -121,9 +109,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('no spreading itself directly')
-     */
+    /** @see it('no spreading itself directly') */
     public function testNoSpreadingItselfDirectly(): void
     {
         $this->expectFailsRule(
@@ -137,9 +123,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('no spreading itself directly within inline fragment')
-     */
+    /** @see it('no spreading itself directly within inline fragment') */
     public function testNoSpreadingItselfDirectlyWithinInlineFragment(): void
     {
         $this->expectFailsRule(
@@ -157,9 +141,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('no spreading itself indirectly')
-     */
+    /** @see it('no spreading itself indirectly') */
     public function testNoSpreadingItselfIndirectly(): void
     {
         $this->expectFailsRule(
@@ -177,9 +159,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('no spreading itself indirectly reports opposite order')
-     */
+    /** @see it('no spreading itself indirectly reports opposite order') */
     public function testNoSpreadingItselfIndirectlyReportsOppositeOrder(): void
     {
         $this->expectFailsRule(
@@ -197,9 +177,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('no spreading itself indirectly within inline fragment')
-     */
+    /** @see it('no spreading itself indirectly within inline fragment') */
     public function testNoSpreadingItselfIndirectlyWithinInlineFragment(): void
     {
         $this->expectFailsRule(
@@ -225,9 +203,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('no spreading itself deeply')
-     */
+    /** @see it('no spreading itself deeply') */
     public function testNoSpreadingItselfDeeply(): void
     {
         $this->expectFailsRule(
@@ -267,9 +243,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('no spreading itself deeply two paths')
-     */
+    /** @see it('no spreading itself deeply two paths') */
     public function testNoSpreadingItselfDeeplyTwoPaths(): void
     {
         $this->expectFailsRule(
@@ -292,9 +266,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('no spreading itself deeply two paths -- alt traverse order')
-     */
+    /** @see it('no spreading itself deeply two paths -- alt traverse order') */
     public function testNoSpreadingItselfDeeplyTwoPathsTraverseOrder(): void
     {
         $this->expectFailsRule(
@@ -317,9 +289,7 @@ final class NoFragmentCyclesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('no spreading itself deeply and immediately')
-     */
+    /** @see it('no spreading itself deeply and immediately') */
     public function testNoSpreadingItselfDeeplyAndImmediately(): void
     {
         $this->expectFailsRule(
