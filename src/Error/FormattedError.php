@@ -122,7 +122,7 @@ class FormattedError
      *
      * For a list of available debug flags @see \GraphQL\Error\DebugFlag constants.
      *
-     * @return SerializableError
+     * @return array
      *
      * @api
      */
@@ -172,7 +172,7 @@ class FormattedError
      *
      * @throws \Throwable
      *
-     * @return SerializableError
+     * @return array
      */
     public static function addDebugEntries(array $formattedError, \Throwable $e, int $debugFlag): array
     {
