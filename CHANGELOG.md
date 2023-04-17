@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.2.5
+
+### Fixed
+
+- Merge selected fields in `ResolveInfo::getFieldSelection()` https://github.com/webonyx/graphql-php/pull/1365
+
 ## v15.2.4
 
 ### Fixed
