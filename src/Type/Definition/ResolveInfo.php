@@ -228,8 +228,8 @@ class ResolveInfo
             if ($selectionNode instanceof FieldNode) {
                 $fields[$selectionNode->name->value] = $descend > 0 && $selectionNode->selectionSet !== null
                     ? \array_merge_recursive(
-                      $fields[$selectionNode->name->value] ?? [],
-                      $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
+                        $fields[$selectionNode->name->value] ?? [],
+                        $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
                     )
                     : true;
             } elseif ($selectionNode instanceof FragmentSpreadNode) {

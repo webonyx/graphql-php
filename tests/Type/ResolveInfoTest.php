@@ -372,49 +372,49 @@ final class ResolveInfoTest extends TestCase
 
     public function testDeepFieldSelectionOnDuplicatedFields(): void
     {
-      $level2 = new ObjectType([
-          'name' => 'level2',
-          'fields' => [
-              'scalar1' => ['type' => Type::int()],
-              'scalar2' => ['type' => Type::int()],
-          ],
-      ]);
-      $level1 = new ObjectType([
-          'name' => 'level1',
-          'fields' => [
-              'scalar1' => ['type' => Type::int()],
-              'scalar2' => ['type' => Type::int()],
-              'level2' => $level2,
-          ],
-      ]);
+        $level2 = new ObjectType([
+            'name' => 'level2',
+            'fields' => [
+                'scalar1' => ['type' => Type::int()],
+                'scalar2' => ['type' => Type::int()],
+            ],
+        ]);
+        $level1 = new ObjectType([
+            'name' => 'level1',
+            'fields' => [
+                'scalar1' => ['type' => Type::int()],
+                'scalar2' => ['type' => Type::int()],
+                'level2' => $level2,
+            ],
+        ]);
 
-      $hasCalled = false;
-      $actualDeepSelection = null;
+        $hasCalled = false;
+        $actualDeepSelection = null;
 
-      $query = new ObjectType([
-          'name' => 'Query',
-          'fields' => [
-              'level1' => [
-                  'type' => $level1,
-                  'resolve' => static function (
-                      $value,
-                      array $args,
-                      $context,
-                      ResolveInfo $info
-                  ) use (
-                      &$hasCalled,
-                      &$actualDeepSelection
-                  ) {
-                      $hasCalled = true;
-                      $actualDeepSelection = $info->getFieldSelection(2);
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'level1' => [
+                    'type' => $level1,
+                    'resolve' => static function (
+                        $value,
+                        array $args,
+                        $context,
+                        ResolveInfo $info
+                    ) use (
+                        &$hasCalled,
+                        &$actualDeepSelection
+                    ) {
+                        $hasCalled = true;
+                        $actualDeepSelection = $info->getFieldSelection(2);
 
-                      return null;
-                  },
-              ],
-          ],
-      ]);
+                        return null;
+                    },
+                ],
+            ],
+        ]);
 
-      $doc = '
+        $doc = '
         query deepMerge {
           level1 {
             level2 {
@@ -429,20 +429,20 @@ final class ResolveInfoTest extends TestCase
         }
       ';
 
-      $expectedDeepSelection = [
-          'level2' => [
-              'scalar1' => true,
-              'scalar2' => true,
-          ],
-          'scalar1' => true,
-          'scalar2' => true,
-      ];
+        $expectedDeepSelection = [
+            'level2' => [
+                'scalar1' => true,
+                'scalar2' => true,
+            ],
+            'scalar1' => true,
+            'scalar2' => true,
+        ];
 
-      $schema = new Schema(['query' => $query]);
-      $result = GraphQL::executeQuery($schema, $doc)->toArray();
+        $schema = new Schema(['query' => $query]);
+        $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
-      self::assertTrue($hasCalled);
-      self::assertEquals(['data' => ['level1' => null]], $result);
-      self::assertEquals($expectedDeepSelection, $actualDeepSelection);
+        self::assertTrue($hasCalled);
+        self::assertEquals(['data' => ['level1' => null]], $result);
+        self::assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
 }
