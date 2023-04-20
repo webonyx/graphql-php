@@ -8,6 +8,11 @@
     "API"
   ],
   "homepage": "https://github.com/webonyx/graphql-php",
+  "repositories": [{
+    "type": "github",
+    "url": "https://github.com/spawnia/phpunit-arraysubset-asserts"
+  }
+  ],
   "require": {
     "php": "^7.4 || ^8",
     "ext-json": "*",
@@ -16,7 +21,7 @@
   "require-dev": {
     "amphp/amp": "^2.6",
     "amphp/http-server": "^2.1",
-    "dms/phpunit-arraysubset-asserts": "^0.4",
+    "dms/phpunit-arraysubset-asserts": "dev-support-phpunit-10",
     "ergebnis/composer-normalize": "^2.28",
     "mll-lab/php-cs-fixer-config": "^5",
     "nyholm/psr7": "^1.5",
