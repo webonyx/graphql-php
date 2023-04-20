@@ -182,8 +182,8 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /** @return iterable<string, array{string|null, string}> */
-    public function deprecationReasonDataProvider(): iterable
+    /** @return iterable<array{string|null, string}> */
+    public static function deprecationReasonDataProvider(): iterable
     {
         yield 'when deprecationReason is null' => [
             null,

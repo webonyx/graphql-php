@@ -21,7 +21,7 @@ final class LexerTest extends TestCase
         $this->expectSyntaxError(
             Utils::chr(0x0007),
             'Cannot contain the invalid character "\u0007"',
-            $this->loc(1, 1)
+            self::loc(1, 1)
         );
     }
 
@@ -53,7 +53,7 @@ final class LexerTest extends TestCase
         return $lexer->advance();
     }
 
-    private function loc(int $line, int $column): SourceLocation
+    private static function loc(int $line, int $column): SourceLocation
     {
         return new SourceLocation($line, $column);
     }
@@ -397,47 +397,32 @@ final class LexerTest extends TestCase
     }
 
     /** @return iterable<array{string, string, SourceLocation}> */
-    public function reportsUsefulStringErrors(): iterable
+    public static function reportsUsefulStringErrors(): iterable
     {
-        return [
-            ['"', 'Unterminated string.', $this->loc(1, 2)],
-            ['"no end quote', 'Unterminated string.', $this->loc(1, 14)],
-            [
-                "'single quotes'",
-                "Unexpected single quote character ('), did you mean to use a double quote (\")?",
-                $this->loc(
-                    1,
-                    1
-                ),
-            ],
-            [
-                '"contains unescaped \u0007 control char"',
-                'Invalid character within String: "\\u0007"',
-                $this->loc(
-                    1,
-                    21
-                ),
-            ],
-            ['"null-byte is not \u0000 end of file"', 'Invalid character within String: "\\u0000"', $this->loc(1, 19)],
-            ['"multi' . "\n" . 'line"', 'Unterminated string.', $this->loc(1, 7)],
-            ['"multiline"', 'Unterminated string.', $this->loc(1, 7)],
-            ['"bad esc \\', 'Unterminated string.', $this->loc(1, 11)],
-            ['"bad \\z esc"', 'Invalid character escape sequence: \\z', $this->loc(1, 7)],
-            ['"bad \\x esc"', 'Invalid character escape sequence: \\x', $this->loc(1, 7)],
-            ['"bad \\u1 esc"', 'Invalid character escape sequence: \\u1 es', $this->loc(1, 7)],
-            ['"bad \\u0XX1 esc"', 'Invalid character escape sequence: \\u0XX1', $this->loc(1, 7)],
-            ['"bad \\uXXXX esc"', 'Invalid character escape sequence: \\uXXXX', $this->loc(1, 7)],
-            ['"bad \\uFXXX esc"', 'Invalid character escape sequence: \\uFXXX', $this->loc(1, 7)],
-            ['"bad \\uXXXF esc"', 'Invalid character escape sequence: \\uXXXF', $this->loc(1, 7)],
-            ['"bad \\uD835"', 'Invalid UTF-16 trailing surrogate: ', $this->loc(1, 13)],
-            ['"bad \\uD835\\u1"', 'Invalid UTF-16 trailing surrogate: \\u1', $this->loc(1, 13)],
-            ['"bad \\uD835\\u1 esc"', 'Invalid UTF-16 trailing surrogate: \\u1 es', $this->loc(1, 13)],
-            ['"bad \\uD835uuFFFF esc"', 'Invalid UTF-16 trailing surrogate: uuFFFF', $this->loc(1, 13)],
-            ['"bad \\uD835\\u0XX1 esc"', 'Invalid UTF-16 trailing surrogate: \\u0XX1', $this->loc(1, 13)],
-            ['"bad \\uD835\\uXXXX esc"', 'Invalid UTF-16 trailing surrogate: \\uXXXX', $this->loc(1, 13)],
-            ['"bad \\uD835\\uFXXX esc"', 'Invalid UTF-16 trailing surrogate: \\uFXXX', $this->loc(1, 13)],
-            ['"bad \\uD835\\uXXXF esc"', 'Invalid UTF-16 trailing surrogate: \\uXXXF', $this->loc(1, 13)],
-        ];
+        yield ['"', 'Unterminated string.', self::loc(1, 2)];
+        yield ['"no end quote', 'Unterminated string.', self::loc(1, 14)];
+        yield ["'single quotes'", "Unexpected single quote character ('), did you mean to use a double quote (\")?", self::loc(1, 1)];
+        yield ['"contains unescaped \u0007 control char"', 'Invalid character within String: "\\u0007"', self::loc(1, 21)];
+        yield ['"null-byte is not \u0000 end of file"', 'Invalid character within String: "\\u0000"', self::loc(1, 19)];
+        yield ['"multi' . "\n" . 'line"', 'Unterminated string.', self::loc(1, 7)];
+        yield ['"multi
+line"', 'Unterminated string.', self::loc(1, 7)];
+        yield ['"bad esc \\', 'Unterminated string.', self::loc(1, 11)];
+        yield ['"bad \\z esc"', 'Invalid character escape sequence: \\z', self::loc(1, 7)];
+        yield ['"bad \\x esc"', 'Invalid character escape sequence: \\x', self::loc(1, 7)];
+        yield ['"bad \\u1 esc"', 'Invalid character escape sequence: \\u1 es', self::loc(1, 7)];
+        yield ['"bad \\u0XX1 esc"', 'Invalid character escape sequence: \\u0XX1', self::loc(1, 7)];
+        yield ['"bad \\uXXXX esc"', 'Invalid character escape sequence: \\uXXXX', self::loc(1, 7)];
+        yield ['"bad \\uFXXX esc"', 'Invalid character escape sequence: \\uFXXX', self::loc(1, 7)];
+        yield ['"bad \\uXXXF esc"', 'Invalid character escape sequence: \\uXXXF', self::loc(1, 7)];
+        yield ['"bad \\uD835"', 'Invalid UTF-16 trailing surrogate: ', self::loc(1, 13)];
+        yield ['"bad \\uD835\\u1"', 'Invalid UTF-16 trailing surrogate: \\u1', self::loc(1, 13)];
+        yield ['"bad \\uD835\\u1 esc"', 'Invalid UTF-16 trailing surrogate: \\u1 es', self::loc(1, 13)];
+        yield ['"bad \\uD835uuFFFF esc"', 'Invalid UTF-16 trailing surrogate: uuFFFF', self::loc(1, 13)];
+        yield ['"bad \\uD835\\u0XX1 esc"', 'Invalid UTF-16 trailing surrogate: \\u0XX1', self::loc(1, 13)];
+        yield ['"bad \\uD835\\uXXXX esc"', 'Invalid UTF-16 trailing surrogate: \\uXXXX', self::loc(1, 13)];
+        yield ['"bad \\uD835\\uFXXX esc"', 'Invalid UTF-16 trailing surrogate: \\uFXXX', self::loc(1, 13)];
+        yield ['"bad \\uD835\\uXXXF esc"', 'Invalid UTF-16 trailing surrogate: \\uXXXF', self::loc(1, 13)];
     }
 
     /**
@@ -451,27 +436,19 @@ final class LexerTest extends TestCase
     }
 
     /** @return iterable<array{string, string, SourceLocation}> */
-    public function reportsUsefulBlockStringErrors(): iterable
+    public static function reportsUsefulBlockStringErrors(): iterable
     {
-        return [
-            ['"""', 'Unterminated string.', $this->loc(1, 4)],
-            ['"""no end quote', 'Unterminated string.', $this->loc(1, 16)],
-            [
-                '"""contains unescaped ' . \json_decode('"\u0007"') . ' control char"""',
-                'Invalid character within String: "\\u0007"',
-                $this->loc(
-                    1,
-                    23
-                ),
-            ],
-            [
-                '"""null-byte is not ' . \json_decode('"\u0000"') . ' end of file"""',
-                'Invalid character within String: "\\u0000"',
-                $this->loc(
-                    1,
-                    21
-                ),
-            ],
+        yield ['"""', 'Unterminated string.', self::loc(1, 4)];
+        yield ['"""no end quote', 'Unterminated string.', self::loc(1, 16)];
+        yield [
+            '"""contains unescaped ' . \json_decode('"\u0007"') . ' control char"""',
+            'Invalid character within String: "\\u0007"',
+            self::loc(1, 23),
+        ];
+        yield [
+            '"""null-byte is not ' . \json_decode('"\u0000"') . ' end of file"""',
+            'Invalid character within String: "\\u0000"',
+            self::loc(1, 21),
         ];
     }
 
@@ -555,19 +532,17 @@ final class LexerTest extends TestCase
     }
 
     /** @return iterable<array{string, string, SourceLocation}> */
-    public function reportsUsefulNumberErrors(): iterable
+    public static function reportsUsefulNumberErrors(): iterable
     {
-        return [
-            ['00', 'Invalid number, unexpected digit after 0: "0"', $this->loc(1, 2)],
-            ['+1', 'Cannot parse the unexpected character "+".', $this->loc(1, 1)],
-            ['1.', 'Invalid number, expected digit but got: <EOF>', $this->loc(1, 3)],
-            ['1.e1', 'Invalid number, expected digit but got: "e"', $this->loc(1, 3)],
-            ['.123', 'Cannot parse the unexpected character ".".', $this->loc(1, 1)],
-            ['1.A', 'Invalid number, expected digit but got: "A"', $this->loc(1, 3)],
-            ['-A', 'Invalid number, expected digit but got: "A"', $this->loc(1, 2)],
-            ['1.0e', 'Invalid number, expected digit but got: <EOF>', $this->loc(1, 5)],
-            ['1.0eA', 'Invalid number, expected digit but got: "A"', $this->loc(1, 5)],
-        ];
+        yield ['00', 'Invalid number, unexpected digit after 0: "0"', self::loc(1, 2)];
+        yield ['+1', 'Cannot parse the unexpected character "+".', self::loc(1, 1)];
+        yield ['1.', 'Invalid number, expected digit but got: <EOF>', self::loc(1, 3)];
+        yield ['1.e1', 'Invalid number, expected digit but got: "e"', self::loc(1, 3)];
+        yield ['.123', 'Cannot parse the unexpected character ".".', self::loc(1, 1)];
+        yield ['1.A', 'Invalid number, expected digit but got: "A"', self::loc(1, 3)];
+        yield ['-A', 'Invalid number, expected digit but got: "A"', self::loc(1, 2)];
+        yield ['1.0e', 'Invalid number, expected digit but got: <EOF>', self::loc(1, 5)];
+        yield ['1.0eA', 'Invalid number, expected digit but got: "A"', self::loc(1, 5)];
     }
 
     /**
@@ -638,14 +613,12 @@ final class LexerTest extends TestCase
     }
 
     /** @return iterable<array{string, string, SourceLocation}> */
-    public function reportsUsefulUnknownCharErrors(): iterable
+    public static function reportsUsefulUnknownCharErrors(): iterable
     {
-        return [
-            ['..', 'Cannot parse the unexpected character ".".', $this->loc(1, 1)],
-            ['?', 'Cannot parse the unexpected character "?".', $this->loc(1, 1)],
-            [\json_decode('"\u203B"'), 'Cannot parse the unexpected character "\\u203b".', $this->loc(1, 1)],
-            [\json_decode('"\u200b"'), 'Cannot parse the unexpected character "\\u200b".', $this->loc(1, 1)],
-        ];
+        yield ['..', 'Cannot parse the unexpected character ".".', self::loc(1, 1)];
+        yield ['?', 'Cannot parse the unexpected character "?".', self::loc(1, 1)];
+        yield [\json_decode('"\u203B"'), 'Cannot parse the unexpected character "\\u203b".', self::loc(1, 1)];
+        yield [\json_decode('"\u200b"'), 'Cannot parse the unexpected character "\\u200b".', self::loc(1, 1)];
     }
 
     /**
@@ -674,7 +647,7 @@ final class LexerTest extends TestCase
             $lexer->advance();
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            self::assertEquals([$this->loc(1, 3)], $error->getLocations());
+            self::assertEquals([self::loc(1, 3)], $error->getLocations());
 
             throw $error;
         }
