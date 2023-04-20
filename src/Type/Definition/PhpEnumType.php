@@ -17,8 +17,11 @@ class PhpEnumType extends EnumType
     /** @var class-string<\UnitEnum> */
     protected string $enumClass;
 
-    /** @param class-string<\UnitEnum> $enum */
-    public function __construct(string $enum)
+    /**
+     * @param class-string<\UnitEnum> $enum
+     * @param string|null $name The name the enum will have in the schema, defaults to the basename of the given class
+     */
+    public function __construct(string $enum, ?string $name = null)
     {
         $this->enumClass = $enum;
         $reflection = new \ReflectionEnum($enum);
@@ -36,7 +39,7 @@ class PhpEnumType extends EnumType
         }
 
         parent::__construct([
-            'name' => $this->baseName($enum),
+            'name' => $name ?? $this->baseName($enum),
             'values' => $enumDefinitions,
             'description' => $this->extractDescription($reflection),
         ]);
