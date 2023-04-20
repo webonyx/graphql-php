@@ -432,7 +432,7 @@ final class AbstractTest extends TestCase
      *
      * @return iterable<array{mixed, mixed}>
      */
-    public function dogCatRootValues(): iterable
+    public static function dogCatRootValues(): iterable
     {
         yield [
             [

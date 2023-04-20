@@ -17,7 +17,7 @@ final class SyncPromiseTest extends TestCaseBase
      *   string,
      * }>
      */
-    public function fulfilledPromiseResolveData(): iterable
+    public static function fulfilledPromiseResolveData(): iterable
     {
         $onFulfilledReturnsNull = static fn () => null;
 
@@ -179,7 +179,7 @@ final class SyncPromiseTest extends TestCaseBase
     }
 
     /** @return iterable<array{\Exception, ?callable, ?string, ?string, string}> */
-    public function rejectedPromiseData(): iterable
+    public static function rejectedPromiseData(): iterable
     {
         $onRejectedReturnsNull = static fn () => null;
 

@@ -25,7 +25,7 @@ final class FormattedErrorTest extends TestCase
      *
      * @return array<int, array{mixed, string}>
      */
-    public function printVar(): array
+    public static function printVar(): array
     {
         return [
             [Type::string(), 'GraphQLType: String'],

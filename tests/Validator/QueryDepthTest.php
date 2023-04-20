@@ -94,7 +94,7 @@ final class QueryDepthTest extends QuerySecurityTestCase
     }
 
     /** @return array<int, array{0: int, 1?: int, 2?: array<int, array<string, mixed>>}> */
-    public function queryDataProvider(): array
+    public static function queryDataProvider(): array
     {
         return [
             [1], // Valid because depth under default limit (7)
@@ -109,17 +109,17 @@ final class QueryDepthTest extends QuerySecurityTestCase
             [
                 10,
                 8,
-                [$this->createFormattedError(8, 10)],
+                [self::createFormattedError(8, 10)],
             ], // failed because depth over limit (8)
             [
                 20,
                 15,
-                [$this->createFormattedError(15, 20)],
+                [self::createFormattedError(15, 20)],
             ], // failed because depth over limit (15)
         ];
     }
 
-    protected function getErrorMessage(int $max, int $count): string
+    protected static function getErrorMessage(int $max, int $count): string
     {
         return QueryDepth::maxQueryDepthErrorMessage($max, $count);
     }

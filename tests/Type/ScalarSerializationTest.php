@@ -27,7 +27,7 @@ final class ScalarSerializationTest extends TestCase
     }
 
     /** @return iterable<array{mixed, string}> */
-    public function badIntValues(): iterable
+    public static function badIntValues(): iterable
     {
         return [
             [0.1, 'Int cannot represent non-integer value: 0.1'],
@@ -80,7 +80,7 @@ final class ScalarSerializationTest extends TestCase
     }
 
     /** @return iterable<array{mixed, string}> */
-    public function badFloatValues(): iterable
+    public static function badFloatValues(): iterable
     {
         return [
             ['one', 'Float cannot represent non numeric value: "one"'],
@@ -124,7 +124,7 @@ final class ScalarSerializationTest extends TestCase
     }
 
     /** @return iterable<array{mixed, string}> */
-    public function badStringValues(): iterable
+    public static function badStringValues(): iterable
     {
         return [
             [[1], 'String cannot represent value: [1]'],
@@ -178,7 +178,7 @@ final class ScalarSerializationTest extends TestCase
     }
 
     /** @return iterable<array{mixed, string}> */
-    public function badIDValues(): iterable
+    public static function badIDValues(): iterable
     {
         return [
             [new \stdClass(), 'ID cannot represent a non-string and non-integer value: instance of stdClass'],

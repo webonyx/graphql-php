@@ -429,7 +429,7 @@ final class ValidationTest extends TestCaseBase
     }
 
     /** @return array<int, array{string}> */
-    public function rootTypes(): array
+    public static function rootTypes(): array
     {
         return [
             ['query'],
@@ -1043,7 +1043,7 @@ final class ValidationTest extends TestCaseBase
      *
      * @return array<int, array{0: string, 1: string}>
      */
-    public function invalidEnumValueName(): array
+    public static function invalidEnumValueName(): array
     {
         return [
             ['#value', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "#value" does not.'],

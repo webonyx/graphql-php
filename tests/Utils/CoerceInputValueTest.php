@@ -192,7 +192,7 @@ final class CoerceInputValueTest extends TestCase
     }
 
     /** @return iterable<int, array{mixed}> */
-    public function validInputObjects(): iterable
+    public static function validInputObjects(): iterable
     {
         yield [['foo' => 123]];
         yield [(object) ['foo' => 123]];

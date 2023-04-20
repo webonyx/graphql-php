@@ -1478,7 +1478,7 @@ final class BuildSchemaTest extends TestCaseBase
     }
 
     /** @return iterable<string, array<mixed>> */
-    public function correctlyExtendsTypesDataProvider(): iterable
+    public static function correctlyExtendsTypesDataProvider(): iterable
     {
         yield 'scalar' => [
             'scalar MyType',
