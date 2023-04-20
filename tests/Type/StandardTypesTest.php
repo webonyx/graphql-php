@@ -31,11 +31,11 @@ final class StandardTypesTest extends TestCase
         self::assertCount(5, $originalTypes);
         self::assertSame(self::$originalStandardTypes, $originalTypes);
 
-        $newBooleanType = $this->createCustomScalarType(Type::BOOLEAN);
-        $newFloatType = $this->createCustomScalarType(Type::FLOAT);
-        $newIDType = $this->createCustomScalarType(Type::ID);
-        $newIntType = $this->createCustomScalarType(Type::INT);
-        $newStringType = $this->createCustomScalarType(Type::STRING);
+        $newBooleanType = self::createCustomScalarType(Type::BOOLEAN);
+        $newFloatType = self::createCustomScalarType(Type::FLOAT);
+        $newIDType = self::createCustomScalarType(Type::ID);
+        $newIntType = self::createCustomScalarType(Type::INT);
+        $newStringType = self::createCustomScalarType(Type::STRING);
 
         Type::overrideStandardTypes([
             $newBooleanType,
@@ -67,8 +67,8 @@ final class StandardTypesTest extends TestCase
         self::assertCount(5, $originalTypes);
         self::assertSame(self::$originalStandardTypes, $originalTypes);
 
-        $newIDType = $this->createCustomScalarType(Type::ID);
-        $newStringType = $this->createCustomScalarType(Type::STRING);
+        $newIDType = self::createCustomScalarType(Type::ID);
+        $newStringType = self::createCustomScalarType(Type::STRING);
 
         Type::overrideStandardTypes([
             $newStringType,
@@ -98,17 +98,15 @@ final class StandardTypesTest extends TestCase
      *
      * @return iterable<array{mixed, string}>
      */
-    public function invalidStandardTypes(): iterable
+    public static function invalidStandardTypes(): iterable
     {
-        return [
-            [null, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got null'],
-            [5, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got 5'],
-            ['', 'Expecting instance of GraphQL\Type\Definition\ScalarType, got (empty string)'],
-            [new \stdClass(), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got instance of stdClass'],
-            [[], 'Expecting instance of GraphQL\Type\Definition\ScalarType, got []'],
-            [new ObjectType(['name' => 'ID', 'fields' => []]), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got ID'],
-            [$this->createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: Int, Float, String, Boolean, ID; got "NonStandardName"'],
-        ];
+        yield [null, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got null'];
+        yield [5, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got 5'];
+        yield ['', 'Expecting instance of GraphQL\Type\Definition\ScalarType, got (empty string)'];
+        yield [new \stdClass(), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got instance of stdClass'];
+        yield [[], 'Expecting instance of GraphQL\Type\Definition\ScalarType, got []'];
+        yield [new ObjectType(['name' => 'ID', 'fields' => []]), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got ID'];
+        yield [self::createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: Int, Float, String, Boolean, ID; got "NonStandardName"'];
     }
 
     /**
@@ -125,7 +123,7 @@ final class StandardTypesTest extends TestCase
     }
 
     /** @throws InvariantViolation */
-    private function createCustomScalarType(string $name): CustomScalarType
+    private static function createCustomScalarType(string $name): CustomScalarType
     {
         return new CustomScalarType([
             'name' => $name,

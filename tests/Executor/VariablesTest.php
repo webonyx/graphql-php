@@ -136,7 +136,7 @@ final class VariablesTest extends TestCase
     /** @throws InvariantViolation */
     public function schema(): Schema
     {
-        $ComplexScalarType = ComplexScalar::create();
+        $ComplexScalarType = new ComplexScalar();
 
         $TestInputObject = new InputObjectType([
             'name' => 'TestInputObject',

@@ -796,7 +796,7 @@ final class DefinitionTest extends TestCaseBase
      *
      * @return \Generator<array-key, array{NamedType}>
      */
-    public function providerPropertyAccessMethodsGiveCorrectValues(): \Generator
+    public static function providerPropertyAccessMethodsGiveCorrectValues(): \Generator
     {
         $description = 'To the quartered rhubarb add lobster, lettuce, eggs sauce and bitter strudel.';
 

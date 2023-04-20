@@ -3,7 +3,6 @@
 namespace GraphQL\Tests\Executor\TestClasses;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
@@ -13,12 +12,6 @@ use GraphQL\Utils\Utils;
 final class ComplexScalar extends ScalarType
 {
     public string $name = 'ComplexScalar';
-
-    /** @throws InvariantViolation */
-    public static function create(): self
-    {
-        return new self();
-    }
 
     /** @throws SerializationError */
     public function serialize($value): string

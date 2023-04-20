@@ -53,7 +53,7 @@ abstract class QuerySecurityTestCase extends TestCase
             return;
         }
 
-        $this->assertDocumentValidator($query, $newMax, [$this->createFormattedError($newMax, $maxExpected)]);
+        $this->assertDocumentValidator($query, $newMax, [self::createFormattedError($newMax, $maxExpected)]);
     }
 
     /**
@@ -83,12 +83,15 @@ abstract class QuerySecurityTestCase extends TestCase
      *
      * @phpstan-return ErrorArray
      */
-    protected function createFormattedError(int $max, int $count, array $locations = []): array
+    protected static function createFormattedError(int $max, int $count, array $locations = []): array
     {
-        return ErrorHelper::create($this->getErrorMessage($max, $count), $locations);
+        return ErrorHelper::create(
+            static::getErrorMessage($max, $count),
+            $locations
+        );
     }
 
-    abstract protected function getErrorMessage(int $max, int $count): string;
+    abstract protected static function getErrorMessage(int $max, int $count): string;
 
     /**
      * @throws \Exception
