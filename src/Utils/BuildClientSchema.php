@@ -3,6 +3,7 @@
 namespace GraphQL\Utils;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -85,16 +86,20 @@ class BuildClientSchema
      * @phpstan-param Options    $options
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function build(array $introspectionQuery, array $options = []): Schema
     {
         return (new self($introspectionQuery, $options))->buildSchema();
     }
 
+    /** @throws InvariantViolation */
     public function buildSchema(): Schema
     {
         if (! \array_key_exists('__schema', $this->introspection)) {
-            throw new InvariantViolation('Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: ' . \json_encode($this->introspection) . '.');
+            $missingSchemaIntrospection = Utils::printSafeJson($this->introspection);
+            throw new InvariantViolation("Invalid or incomplete introspection result. Ensure that you are passing \"data\" property of introspection response and no \"errors\" was returned alongside: {$missingSchemaIntrospection}.");
         }
 
         $schemaIntrospection = $this->introspection['__schema'];
@@ -151,6 +156,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeRef
+     *
+     * @throws InvariantViolation
      */
     private function getType(array $typeRef): Type
     {
@@ -174,7 +181,7 @@ class BuildClientSchema
         }
 
         if (! isset($typeRef['name'])) {
-            $unknownTypeRef = \json_encode($typeRef);
+            $unknownTypeRef = Utils::printSafeJson($typeRef);
             throw new InvariantViolation("Unknown type reference: {$unknownTypeRef}.");
         }
 
@@ -182,6 +189,8 @@ class BuildClientSchema
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return NamedType&Type
      */
     private function getNamedType(string $typeName): NamedType
@@ -193,18 +202,18 @@ class BuildClientSchema
         return $this->typeMap[$typeName];
     }
 
-    /**
-     * @param array<mixed> $type
-     */
+    /** @param array<mixed> $type */
     public static function invalidOrIncompleteIntrospectionResult(array $type): InvariantViolation
     {
-        return new InvariantViolation(
-            'Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: ' . \json_encode($type) . '.'
-        );
+        $incompleteType = Utils::printSafeJson($type);
+
+        return new InvariantViolation("Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: {$incompleteType}.");
     }
 
     /**
      * @param array<string, mixed> $typeRef
+     *
+     * @throws InvariantViolation
      *
      * @return Type&InputType
      */
@@ -216,12 +225,14 @@ class BuildClientSchema
             return $type;
         }
 
-        $notInputType = \json_encode($type);
+        $notInputType = Utils::printSafe($type);
         throw new InvariantViolation("Introspection must provide input type for arguments, but received: {$notInputType}.");
     }
 
     /**
      * @param array<string, mixed> $typeRef
+     *
+     * @throws InvariantViolation
      */
     private function getOutputType(array $typeRef): OutputType
     {
@@ -231,12 +242,14 @@ class BuildClientSchema
             return $type;
         }
 
-        $notInputType = \json_encode($type);
+        $notInputType = Utils::printSafe($type);
         throw new InvariantViolation("Introspection must provide output type for fields, but received: {$notInputType}.");
     }
 
     /**
      * @param array<string, mixed> $typeRef
+     *
+     * @throws InvariantViolation
      */
     private function getObjectType(array $typeRef): ObjectType
     {
@@ -247,6 +260,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $typeRef
+     *
+     * @throws InvariantViolation
      */
     public function getInterfaceType(array $typeRef): InterfaceType
     {
@@ -257,6 +272,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $type
+     *
+     * @throws InvariantViolation
      *
      * @return Type&NamedType
      */
@@ -280,13 +297,15 @@ class BuildClientSchema
             case TypeKind::INPUT_OBJECT:
                 return $this->buildInputObjectDef($type);
             default:
-                $safeType = \json_encode($type);
-                throw new InvariantViolation("Invalid or incomplete introspection result. Received type with unknown kind: {$safeType}.");
+                $unknownKindType = Utils::printSafeJson($type);
+                throw new InvariantViolation("Invalid or incomplete introspection result. Received type with unknown kind: {$unknownKindType}.");
         }
     }
 
     /**
      * @param array<string, string> $scalar
+     *
+     * @throws InvariantViolation
      */
     private function buildScalarDef(array $scalar): ScalarType
     {
@@ -299,6 +318,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $implementingIntrospection
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, InterfaceType>
      */
@@ -314,7 +335,7 @@ class BuildClientSchema
         }
 
         if (! \array_key_exists('interfaces', $implementingIntrospection)) {
-            $safeIntrospection = \json_encode($implementingIntrospection);
+            $safeIntrospection = Utils::printSafeJson($implementingIntrospection);
             throw new InvariantViolation("Introspection result missing interfaces: {$safeIntrospection}.");
         }
 
@@ -326,6 +347,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $object
+     *
+     * @throws InvariantViolation
      */
     private function buildObjectDef(array $object): ObjectType
     {
@@ -339,6 +362,8 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $interface
+     *
+     * @throws InvariantViolation
      */
     private function buildInterfaceDef(array $interface): InterfaceType
     {
@@ -352,11 +377,13 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $union
+     *
+     * @throws InvariantViolation
      */
     private function buildUnionDef(array $union): UnionType
     {
         if (! \array_key_exists('possibleTypes', $union)) {
-            $safeUnion = \json_encode($union);
+            $safeUnion = Utils::printSafeJson($union);
             throw new InvariantViolation("Introspection result missing possibleTypes: {$safeUnion}.");
         }
 
@@ -372,11 +399,13 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $enum
+     *
+     * @throws InvariantViolation
      */
     private function buildEnumDef(array $enum): EnumType
     {
         if (! \array_key_exists('enumValues', $enum)) {
-            $safeEnum = \json_encode($enum);
+            $safeEnum = Utils::printSafeJson($enum);
             throw new InvariantViolation("Introspection result missing enumValues: {$safeEnum}.");
         }
 
@@ -397,11 +426,13 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $inputObject
+     *
+     * @throws InvariantViolation
      */
     private function buildInputObjectDef(array $inputObject): InputObjectType
     {
         if (! \array_key_exists('inputFields', $inputObject)) {
-            $safeInputObject = \json_encode($inputObject);
+            $safeInputObject = Utils::printSafeJson($inputObject);
             throw new InvariantViolation("Introspection result missing inputFields: {$safeInputObject}.");
         }
 
@@ -415,12 +446,15 @@ class BuildClientSchema
     /**
      * @param array<string, mixed> $typeIntrospection
      *
+     * @throws \Exception
+     * @throws InvariantViolation
+     *
      * @return array<string, UnnamedFieldDefinitionConfig>
      */
     private function buildFieldDefMap(array $typeIntrospection): array
     {
         if (! \array_key_exists('fields', $typeIntrospection)) {
-            $safeType = \json_encode($typeIntrospection);
+            $safeType = Utils::printSafeJson($typeIntrospection);
             throw new InvariantViolation("Introspection result missing fields: {$safeType}.");
         }
 
@@ -428,7 +462,7 @@ class BuildClientSchema
         $map = [];
         foreach ($typeIntrospection['fields'] as $field) {
             if (! \array_key_exists('args', $field)) {
-                $safeField = \json_encode($field);
+                $safeField = Utils::printSafeJson($field);
                 throw new InvariantViolation("Introspection result missing field args: {$safeField}.");
             }
 
@@ -447,6 +481,8 @@ class BuildClientSchema
     /**
      * @param array<int, array<string, mixed>> $inputValueIntrospections
      *
+     * @throws \Exception
+     *
      * @return array<string, UnnamedInputObjectFieldConfig>
      */
     private function buildInputValueDefMap(array $inputValueIntrospections): array
@@ -463,6 +499,9 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $inputValueIntrospection
+     *
+     * @throws \Exception
+     * @throws SyntaxError
      *
      * @return UnnamedInputObjectFieldConfig
      */
@@ -487,16 +526,19 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $directive
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     public function buildDirective(array $directive): Directive
     {
         if (! \array_key_exists('args', $directive)) {
-            $safeDirective = \json_encode($directive);
+            $safeDirective = Utils::printSafeJson($directive);
             throw new InvariantViolation("Introspection result missing directive args: {$safeDirective}.");
         }
 
         if (! \array_key_exists('locations', $directive)) {
-            $safeDirective = \json_encode($directive);
+            $safeDirective = Utils::printSafeJson($directive);
             throw new InvariantViolation("Introspection result missing directive locations: {$safeDirective}.");
         }
 

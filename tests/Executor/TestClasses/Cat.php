@@ -2,29 +2,22 @@
 
 namespace GraphQL\Tests\Executor\TestClasses;
 
-class Cat
+final class Cat
 {
-    /** @var string */
-    public $name;
+    public string $name;
 
-    /** @var bool */
-    public $meows;
+    public bool $meows;
 
-    /** @var Cat|null */
-    public $mother;
+    public ?Cat $mother = null;
 
-    /** @var Cat|null */
-    public $father;
+    public ?Cat $father = null;
 
     /** @var array<int, Cat> */
-    public $progeny;
+    public array $progeny = [];
 
     public function __construct(string $name, bool $meows)
     {
         $this->name = $name;
         $this->meows = $meows;
-        $this->mother = null;
-        $this->father = null;
-        $this->progeny = [];
     }
 }

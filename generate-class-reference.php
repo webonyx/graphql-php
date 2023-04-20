@@ -29,6 +29,7 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\DocumentValidator;
+use Symfony\Component\VarExporter\Exception\ExceptionInterface;
 use Symfony\Component\VarExporter\VarExporter;
 
 const OUTPUT_FILE = __DIR__ . '/docs/class-reference.md';
@@ -65,6 +66,8 @@ const ENTRIES = [
 /**
  * @param ReflectionClass<object>                               $class
  * @param array{constants?: bool, props?: bool, methods?: bool} $options
+ *
+ * @throws ExceptionInterface
  */
 function renderClass(ReflectionClass $class, array $options): string
 {
@@ -78,7 +81,7 @@ function renderClass(ReflectionClass $class, array $options): string
             $constants[] = "const {$name} = " . VarExporter::export($value) . ';';
         }
 
-        if (count($constants) > 0) {
+        if ($constants !== []) {
             $constants = "```php\n" . implode("\n", $constants) . "\n```";
             $content .= "### {$className} Constants\n\n{$constants}\n\n";
         }
@@ -92,7 +95,7 @@ function renderClass(ReflectionClass $class, array $options): string
             }
         }
 
-        if (count($props) > 0) {
+        if ($props !== []) {
             $props = "```php\n" . implode("\n\n", $props) . "\n```";
             $content .= "### {$className} Props\n\n{$props}\n\n";
         }
@@ -106,7 +109,7 @@ function renderClass(ReflectionClass $class, array $options): string
             }
         }
 
-        if (count($methods) > 0) {
+        if ($methods !== []) {
             $methods = implode("\n\n", $methods);
             $content .= "### {$className} Methods\n\n{$methods}\n\n";
         }

@@ -58,6 +58,9 @@ class SchemaExtender
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      *
      * @api
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     public static function extend(
         Schema $schema,
@@ -72,6 +75,11 @@ class SchemaExtender
      * @param array<string, bool> $options
      *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws Error
+     * @throws InvariantViolation
      */
     protected function doExtend(
         Schema $schema,
@@ -115,10 +123,10 @@ class SchemaExtender
         }
 
         if (
-            \count($this->typeExtensionsMap) === 0
-            && \count($typeDefinitionMap) === 0
-            && \count($directiveDefinitions) === 0
-            && \count($schemaExtensions) === 0
+            $this->typeExtensionsMap === []
+            && $typeDefinitionMap === []
+            && $directiveDefinitions === []
+            && $schemaExtensions === []
             && $schemaDef === null
         ) {
             return $schema;
@@ -202,6 +210,11 @@ class SchemaExtender
         );
     }
 
+    /**
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
+     */
     protected function extendScalarType(ScalarType $type): CustomScalarType
     {
         /** @var array<int, ScalarTypeExtensionNode> $extensionASTNodes */
@@ -218,6 +231,7 @@ class SchemaExtender
         ]);
     }
 
+    /** @throws InvariantViolation */
     protected function extendUnionType(UnionType $type): UnionType
     {
         /** @var array<int, UnionTypeExtensionNode> $extensionASTNodes */
@@ -233,6 +247,11 @@ class SchemaExtender
         ]);
     }
 
+    /**
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
+     */
     protected function extendEnumType(EnumType $type): EnumType
     {
         /** @var array<int, EnumTypeExtensionNode> $extensionASTNodes */
@@ -247,6 +266,7 @@ class SchemaExtender
         ]);
     }
 
+    /** @throws InvariantViolation */
     protected function extendInputObjectType(InputObjectType $type): InputObjectType
     {
         /** @var array<int, InputObjectTypeExtensionNode> $extensionASTNodes */
@@ -263,6 +283,9 @@ class SchemaExtender
     }
 
     /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     *
      * @return array<string, UnnamedInputObjectFieldConfig>
      */
     protected function extendInputFieldMap(InputObjectType $type): array
@@ -301,6 +324,9 @@ class SchemaExtender
     }
 
     /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     *
      * @return array<string, array<string, mixed>>
      */
     protected function extendEnumValueMap(EnumType $type): array
@@ -331,6 +357,11 @@ class SchemaExtender
     }
 
     /**
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws Error
+     * @throws InvariantViolation
+     *
      * @return array<int, ObjectType>
      */
     protected function extendUnionPossibleTypes(UnionType $type): array
@@ -356,6 +387,11 @@ class SchemaExtender
 
     /**
      * @param ObjectType|InterfaceType $type
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws Error
+     * @throws InvariantViolation
      *
      * @return array<int, InterfaceType>
      */
@@ -439,7 +475,9 @@ class SchemaExtender
     /**
      * @param InterfaceType|ObjectType $type
      *
+     * @throws \Exception
      * @throws Error
+     * @throws InvariantViolation
      *
      * @return array<string, array<string, mixed>>
      */
@@ -478,6 +516,7 @@ class SchemaExtender
         return $newFieldMap;
     }
 
+    /** @throws InvariantViolation */
     protected function extendObjectType(ObjectType $type): ObjectType
     {
         /** @var array<int, ObjectTypeExtensionNode> $extensionASTNodes */
@@ -495,6 +534,7 @@ class SchemaExtender
         ]);
     }
 
+    /** @throws InvariantViolation */
     protected function extendInterfaceType(InterfaceType $type): InterfaceType
     {
         /** @var array<int, InterfaceTypeExtensionNode> $extensionASTNodes */
@@ -528,6 +568,9 @@ class SchemaExtender
      *
      * @param T&NamedType $type
      *
+     * @throws \ReflectionException
+     * @throws InvariantViolation
+     *
      * @return T&NamedType
      */
     protected function extendNamedType(Type $type): Type
@@ -540,6 +583,7 @@ class SchemaExtender
         return $this->extendTypeCache[$type->name] ??= $this->extendNamedTypeWithoutCache($type);
     }
 
+    /** @throws \Exception */
     protected function extendNamedTypeWithoutCache(Type $type): Type
     {
         switch (true) {
@@ -560,6 +604,9 @@ class SchemaExtender
      *
      * @param (T&NamedType)|null $type
      *
+     * @throws \ReflectionException
+     * @throws InvariantViolation
+     *
      * @return (T&NamedType)|null
      */
     protected function extendMaybeNamedType(?Type $type = null): ?Type
@@ -574,6 +621,10 @@ class SchemaExtender
     /**
      * @param array<DirectiveDefinitionNode> $directiveDefinitions
      *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
+     *
      * @return array<int, Directive>
      */
     protected function getMergedDirectives(Schema $schema, array $directiveDefinitions): array
@@ -583,7 +634,7 @@ class SchemaExtender
             $schema->getDirectives()
         );
 
-        if (\count($directives) === 0) {
+        if ($directives === []) {
             throw new InvariantViolation('Schema must have default directives.');
         }
 

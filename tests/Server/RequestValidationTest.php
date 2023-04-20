@@ -6,7 +6,7 @@ use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use PHPUnit\Framework\TestCase;
 
-class RequestValidationTest extends TestCase
+final class RequestValidationTest extends TestCase
 {
     public function testSimpleRequestShouldValidate(): void
     {
@@ -105,9 +105,7 @@ class RequestValidationTest extends TestCase
         );
     }
 
-    /**
-     * @see https://github.com/webonyx/graphql-php/issues/156
-     */
+    /** @see https://github.com/webonyx/graphql-php/issues/156 */
     public function testIgnoresNullAndEmptyStringVariables(): void
     {
         $query = '{my q}';

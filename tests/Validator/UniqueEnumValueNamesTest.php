@@ -8,11 +8,9 @@ use GraphQL\Validator\Rules\UniqueEnumValueNames;
 /**
  * @see describe('Validate: Unique enum value names')
  */
-class UniqueEnumValueNamesTest extends ValidatorTestCase
+final class UniqueEnumValueNamesTest extends ValidatorTestCase
 {
-    /**
-     * @see it('no values')
-     */
+    /** @see it('no values') */
     public function testNoValues(): void
     {
         $this->expectValidSDL(
@@ -23,9 +21,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('one value')
-     */
+    /** @see it('one value') */
     public function testOneValue(): void
     {
         $this->expectValidSDL(
@@ -38,9 +34,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('multiple values')
-     */
+    /** @see it('multiple values') */
     public function testMultipleValues(): void
     {
         $this->expectValidSDL(
@@ -54,9 +48,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate values inside the same enum definition')
-     */
+    /** @see it('duplicate values inside the same enum definition') */
     public function testDuplicateValuesInsideTheSameEnumDefinition(): void
     {
         $this->expectSDLErrorsFromRule(
@@ -81,9 +73,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('extend enum with new value')
-     */
+    /** @see it('extend enum with new value') */
     public function testExtendEnumWithNewValue(): void
     {
         $this->expectValidSDL(
@@ -102,9 +92,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('extend enum with duplicate value')
-     */
+    /** @see it('extend enum with duplicate value') */
     public function testExtendEnumWithDuplicateValue(): void
     {
         $this->expectSDLErrorsFromRule(
@@ -130,9 +118,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate value inside extension')
-     */
+    /** @see it('duplicate value inside extension') */
     public function testDuplicateValueInsideExtension(): void
     {
         $this->expectSDLErrorsFromRule(
@@ -158,9 +144,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate value inside different extensions')
-     */
+    /** @see it('duplicate value inside different extensions') */
     public function testDuplicateValueInsideDifferentExtensions(): void
     {
         $this->expectSDLErrorsFromRule(
@@ -187,9 +171,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('adding new value to the type inside existing schema')
-     */
+    /** @see it('adding new value to the type inside existing schema') */
     public function testAddingNewValueToTheTypeInsideExistingSchema(): void
     {
         $schema = BuildSchema::build('enum SomeEnum');
@@ -206,9 +188,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('adding conflicting value to existing schema twice')
-     */
+    /** @see it('adding conflicting value to existing schema twice') */
     public function testAddingConflictingValueToExistingSchemaTwice(): void
     {
         $schema = BuildSchema::build('
@@ -246,9 +226,7 @@ class UniqueEnumValueNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('adding enum values to existing schema twice')
-     */
+    /** @see it('adding enum values to existing schema twice') */
     public function testAddingEnumValuesToExistingSchemaTwice(): void
     {
         $schema = BuildSchema::build('

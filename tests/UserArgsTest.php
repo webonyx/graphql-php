@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
@@ -9,7 +10,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class UserArgsTest extends TestCase
+final class UserArgsTest extends TestCase
 {
     public function testErrorForNonExistentScalarInputField(): void
     {
@@ -22,7 +23,7 @@ class UserArgsTest extends TestCase
         }
         ';
         $result = GraphQL::executeQuery($this->schema(), $query)->toArray();
-        self::assertEquals('Field "scalar" is not defined by type "InputType".', $result['errors'][0]['message'] ?? null);
+        self::assertSame('Field "scalar" is not defined by type "InputType".', $result['errors'][0]['message'] ?? null);
     }
 
     public function testErrorForNonExistentArrayInputField(): void
@@ -36,9 +37,10 @@ class UserArgsTest extends TestCase
         }
         ';
         $result = GraphQL::executeQuery($this->schema(), $query)->toArray();
-        self::assertEquals('Field "array" is not defined by type "InputType".', $result['errors'][0]['message'] ?? null);
+        self::assertSame('Field "array" is not defined by type "InputType".', $result['errors'][0]['message'] ?? null);
     }
 
+    /** @throws InvariantViolation */
     private function schema(): Schema
     {
         $inputType = new InputObjectType([

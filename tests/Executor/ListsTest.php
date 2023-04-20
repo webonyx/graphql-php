@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Executor;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Deferred;
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
@@ -17,15 +18,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * @see describe('Execute: Handles list nullability', () => {
  */
-class ListsTest extends TestCase
+final class ListsTest extends TestCase
 {
     use ArraySubsetAsserts;
 
     // Describe: Execute: Handles list nullability
 
-    /**
-     * [T].
-     */
+    /** [T]. */
     public function testHandlesNullableListsWithArray(): void
     {
         // Contains values
@@ -50,6 +49,9 @@ class ListsTest extends TestCase
     /**
      * @param mixed                $testData
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     private function checkHandlesNullableLists($testData, array $expected): void
     {
@@ -61,6 +63,10 @@ class ListsTest extends TestCase
      * @param Type&OutputType $testType
      * @param mixed $testData
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws InvariantViolation
      */
     private function check(Type $testType, $testData, array $expected, int $debug = DebugFlag::NONE): void
     {
@@ -88,9 +94,7 @@ class ListsTest extends TestCase
         self::assertArraySubset($expected, $result->toArray($debug));
     }
 
-    /**
-     * [T].
-     */
+    /** [T]. */
     public function testHandlesNullableListsWithPromiseArray(): void
     {
         // Contains values
@@ -129,9 +133,7 @@ class ListsTest extends TestCase
         );
     }
 
-    /**
-     * [T].
-     */
+    /** [T]. */
     public function testHandlesNullableListsWithArrayPromise(): void
     {
         // Contains values
@@ -181,9 +183,7 @@ class ListsTest extends TestCase
         );
     }
 
-    /**
-     * [T]!
-     */
+    /** [T]! */
     public function testHandlesNonNullableListsWithArray(): void
     {
         // Contains values
@@ -217,6 +217,9 @@ class ListsTest extends TestCase
     /**
      * @param mixed                $testData
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     private function checkHandlesNonNullableLists($testData, array $expected, int $debug = DebugFlag::NONE): void
     {
@@ -224,9 +227,7 @@ class ListsTest extends TestCase
         $this->check($testType, $testData, $expected, $debug);
     }
 
-    /**
-     * [T]!
-     */
+    /** [T]! */
     public function testHandlesNonNullableListsWithPromiseArray(): void
     {
         // Contains values
@@ -274,9 +275,7 @@ class ListsTest extends TestCase
         );
     }
 
-    /**
-     * [T]!
-     */
+    /** [T]! */
     public function testHandlesNonNullableListsWithArrayPromise(): void
     {
         // Contains values
@@ -320,9 +319,7 @@ class ListsTest extends TestCase
         );
     }
 
-    /**
-     * [T!].
-     */
+    /** [T!]. */
     public function testHandlesListOfNonNullsWithArray(): void
     {
         // Contains values
@@ -356,6 +353,9 @@ class ListsTest extends TestCase
     /**
      * @param mixed                $testData
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     private function checkHandlesListOfNonNulls($testData, array $expected, int $debug = DebugFlag::NONE): void
     {
@@ -363,9 +363,7 @@ class ListsTest extends TestCase
         $this->check($testType, $testData, $expected, $debug);
     }
 
-    /**
-     * [T!].
-     */
+    /** [T!]. */
     public function testHandlesListOfNonNullsWithPromiseArray(): void
     {
         // Contains values
@@ -413,9 +411,7 @@ class ListsTest extends TestCase
         );
     }
 
-    /**
-     * [T]!
-     */
+    /** [T]! */
     public function testHandlesListOfNonNullsWithArrayPromise(): void
     {
         // Contains values
@@ -459,9 +455,7 @@ class ListsTest extends TestCase
         );
     }
 
-    /**
-     * [T!]!
-     */
+    /** [T!]! */
     public function testHandlesNonNullListOfNonNullsWithArray(): void
     {
         // Contains values
@@ -504,6 +498,9 @@ class ListsTest extends TestCase
     /**
      * @param mixed                $testData
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     public function checkHandlesNonNullListOfNonNulls($testData, array $expected, int $debug = DebugFlag::NONE): void
     {
@@ -511,9 +508,7 @@ class ListsTest extends TestCase
         $this->check($testType, $testData, $expected, $debug);
     }
 
-    /**
-     * [T!]!
-     */
+    /** [T!]! */
     public function testHandlesNonNullListOfNonNullsWithPromiseArray(): void
     {
         // Contains values
@@ -570,9 +565,7 @@ class ListsTest extends TestCase
         );
     }
 
-    /**
-     * [T!]!
-     */
+    /** [T!]! */
     public function testHandlesNonNullListOfNonNullsWithArrayPromise(): void
     {
         // Contains values

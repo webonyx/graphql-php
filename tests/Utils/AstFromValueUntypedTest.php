@@ -2,17 +2,16 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 
-class AstFromValueUntypedTest extends TestCase
+final class AstFromValueUntypedTest extends TestCase
 {
     // Describe: valueFromASTUntyped
 
-    /**
-     * @see it('parses simple values')
-     */
+    /** @see it('parses simple values') */
     public function testParsesSimpleValues(): void
     {
         self::assertTestCase('null', null);
@@ -26,6 +25,10 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @param mixed                     $expected
      * @param array<string, mixed>|null $variables
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
      */
     private static function assertTestCase(string $valueText, $expected, ?array $variables = null): void
     {
@@ -35,9 +38,7 @@ class AstFromValueUntypedTest extends TestCase
         );
     }
 
-    /**
-     * @see it('parses lists of values')
-     */
+    /** @see it('parses lists of values') */
     public function testParsesListsOfValues(): void
     {
         self::assertTestCase('[true, false]', [true, false]);
@@ -46,9 +47,7 @@ class AstFromValueUntypedTest extends TestCase
         self::assertTestCase('[true, ["foo", 1.2]]', [true, ['foo', 1.2]]);
     }
 
-    /**
-     * @see it('parses input objects')
-     */
+    /** @see it('parses input objects') */
     public function testParsesInputObjects(): void
     {
         self::assertTestCase(
@@ -62,9 +61,7 @@ class AstFromValueUntypedTest extends TestCase
         );
     }
 
-    /**
-     * @see it('parses enum values as plain strings')
-     */
+    /** @see it('parses enum values as plain strings') */
     public function testParsesEnumValuesAsPlainStrings(): void
     {
         self::assertTestCase(
@@ -78,9 +75,7 @@ class AstFromValueUntypedTest extends TestCase
         );
     }
 
-    /**
-     * @see it('parses enum values as plain strings')
-     */
+    /** @see it('parses enum values as plain strings') */
     public function testParsesVariables(): void
     {
         self::assertTestCase(

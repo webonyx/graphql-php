@@ -62,7 +62,7 @@ class SchemaConfig
      *
      * @phpstan-var TypeLoader|null
      */
-    public $typeLoader = null;
+    public $typeLoader;
 
     public bool $assumeValid = false;
 
@@ -83,7 +83,7 @@ class SchemaConfig
     {
         $config = new static();
 
-        if (\count($options) > 0) {
+        if ($options !== []) {
             if (isset($options['query'])) {
                 $config->setQuery($options['query']);
             }
@@ -124,17 +124,13 @@ class SchemaConfig
         return $config;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function getQuery(): ?ObjectType
     {
         return $this->query;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function setQuery(?ObjectType $query): self
     {
         $this->query = $query;
@@ -142,17 +138,13 @@ class SchemaConfig
         return $this;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function getMutation(): ?ObjectType
     {
         return $this->mutation;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function setMutation(?ObjectType $mutation): self
     {
         $this->mutation = $mutation;
@@ -160,17 +152,13 @@ class SchemaConfig
         return $this;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function getSubscription(): ?ObjectType
     {
         return $this->subscription;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function setSubscription(?ObjectType $subscription): self
     {
         $this->subscription = $subscription;
@@ -274,17 +262,13 @@ class SchemaConfig
         return $this;
     }
 
-    /**
-     * @return array<SchemaExtensionNode>
-     */
+    /** @return array<SchemaExtensionNode> */
     public function getExtensionASTNodes(): array
     {
         return $this->extensionASTNodes;
     }
 
-    /**
-     * @param array<SchemaExtensionNode> $extensionASTNodes
-     */
+    /** @param array<SchemaExtensionNode> $extensionASTNodes */
     public function setExtensionASTNodes(array $extensionASTNodes): self
     {
         $this->extensionASTNodes = $extensionASTNodes;

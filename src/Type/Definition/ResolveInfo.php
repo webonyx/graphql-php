@@ -2,6 +2,8 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -199,6 +201,10 @@ class ResolveInfo
 
     /**
      * @param QueryPlanOptions $options
+     *
+     * @throws \Exception
+     * @throws Error
+     * @throws InvariantViolation
      */
     public function lookAhead(array $options = []): QueryPlan
     {
@@ -212,9 +218,7 @@ class ResolveInfo
         );
     }
 
-    /**
-     * @return array<string, bool>
-     */
+    /** @return array<string, bool> */
     private function foldSelectionSet(SelectionSetNode $selectionSet, int $descend): array
     {
         /** @var array<string, bool> $fields */
@@ -223,7 +227,10 @@ class ResolveInfo
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
                 $fields[$selectionNode->name->value] = $descend > 0 && $selectionNode->selectionSet !== null
-                    ? $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
+                    ? \array_merge_recursive(
+                        $fields[$selectionNode->name->value] ?? [],
+                        $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
+                    )
                     : true;
             } elseif ($selectionNode instanceof FragmentSpreadNode) {
                 $spreadName = $selectionNode->name->value;

@@ -85,9 +85,7 @@ class FieldDefinition
     /** @var Type&OutputType */
     private Type $type;
 
-    /**
-     * @param FieldDefinitionConfig $config
-     */
+    /** @param FieldDefinitionConfig $config */
     public function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -108,6 +106,8 @@ class FieldDefinition
      * @param callable|iterable $fields
      *
      * @phpstan-param FieldsConfig $fields
+     *
+     * @throws InvariantViolation
      *
      * @return array<string, self|UnresolvedFieldDefinition>
      */
@@ -175,9 +175,7 @@ class FieldDefinition
         return $this->name;
     }
 
-    /**
-     * @return Type&OutputType
-     */
+    /** @return Type&OutputType */
     public function getType(): Type
     {
         return $this->type ??= Schema::resolveType($this->config['type']);
@@ -204,12 +202,13 @@ class FieldDefinition
 
         if (! $type instanceof OutputType) {
             $safeType = Utils::printSafe($this->type);
-            throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}");
+            throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}.");
         }
 
+        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
         if ($this->resolveFn !== null && ! \is_callable($this->resolveFn)) {
             $safeResolveFn = Utils::printSafe($this->resolveFn);
-            throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}");
+            throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}.");
         }
 
         foreach ($this->args as $fieldArgument) {

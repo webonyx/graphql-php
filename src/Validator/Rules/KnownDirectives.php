@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
@@ -43,11 +44,13 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownDirectives extends ValidationRule
 {
+    /** @throws InvariantViolation */
     public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
+    /** @throws InvariantViolation */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
@@ -55,6 +58,8 @@ class KnownDirectives extends ValidationRule
 
     /**
      * @phpstan-return VisitorArray
+     *
+     * @throws InvariantViolation
      */
     public function getASTVisitor(ValidationContext $context): array
     {
@@ -127,6 +132,8 @@ class KnownDirectives extends ValidationRule
 
     /**
      * @param array<Node|NodeList> $ancestors
+     *
+     * @throws \Exception
      */
     protected function getDirectiveLocationForASTPath(array $ancestors): string
     {

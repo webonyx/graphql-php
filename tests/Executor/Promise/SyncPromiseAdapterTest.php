@@ -9,7 +9,7 @@ use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use PHPUnit\Framework\TestCase;
 
-class SyncPromiseAdapterTest extends TestCase
+final class SyncPromiseAdapterTest extends TestCase
 {
     private SyncPromiseAdapter $promises;
 
@@ -20,25 +20,20 @@ class SyncPromiseAdapterTest extends TestCase
 
     public function testIsThenable(): void
     {
-        self::assertEquals(
-            true,
-            $this->promises->isThenable(new Deferred(static function (): void {
-            }))
-        );
-        self::assertEquals(false, $this->promises->isThenable(false));
-        self::assertEquals(false, $this->promises->isThenable(true));
-        self::assertEquals(false, $this->promises->isThenable(1));
-        self::assertEquals(false, $this->promises->isThenable(0));
-        self::assertEquals(false, $this->promises->isThenable('test'));
-        self::assertEquals(false, $this->promises->isThenable(''));
-        self::assertEquals(false, $this->promises->isThenable([]));
-        self::assertEquals(false, $this->promises->isThenable(new \stdClass()));
+        self::assertTrue($this->promises->isThenable(new Deferred(static function (): void {})));
+        self::assertFalse($this->promises->isThenable(false));
+        self::assertFalse($this->promises->isThenable(true));
+        self::assertFalse($this->promises->isThenable(1));
+        self::assertFalse($this->promises->isThenable(0));
+        self::assertFalse($this->promises->isThenable('test'));
+        self::assertFalse($this->promises->isThenable(''));
+        self::assertFalse($this->promises->isThenable([]));
+        self::assertFalse($this->promises->isThenable(new \stdClass()));
     }
 
     public function testConvert(): void
     {
-        $dfd = new Deferred(static function (): void {
-        });
+        $dfd = new Deferred(static function (): void {});
         $result = $this->promises->convertThenable($dfd);
 
         self::assertInstanceOf(SyncPromise::class, $result->adoptedPromise);
@@ -73,9 +68,7 @@ class SyncPromiseAdapterTest extends TestCase
         self::assertValidPromise($promise, null, 'A', SyncPromise::FULFILLED);
     }
 
-    /**
-     * @param mixed $expectedNextValue
-     */
+    /** @param mixed $expectedNextValue */
     private static function assertValidPromise(Promise $promise, ?string $expectedNextReason, $expectedNextValue, string $expectedNextState): void
     {
         self::assertInstanceOf(SyncPromise::class, $promise->adoptedPromise);
@@ -96,22 +89,18 @@ class SyncPromiseAdapterTest extends TestCase
             }
         );
 
-        self::assertSame($onFulfilledCalled, false);
-        self::assertSame($onRejectedCalled, false);
+        self::assertFalse($onFulfilledCalled);
+        self::assertFalse($onRejectedCalled);
 
         SyncPromise::runQueue();
 
         if ($expectedNextState !== SyncPromise::PENDING) {
-            /**
-             * @var bool $onFulfilledCalled
-             * @var bool $onRejectedCalled
-             */
             if ($expectedNextReason === null) {
-                self::assertTrue($onFulfilledCalled);
-                self::assertFalse($onRejectedCalled);
+                self::assertTrue($onFulfilledCalled); // @phpstan-ignore-line value is mutable
+                self::assertFalse($onRejectedCalled); // @phpstan-ignore-line value is mutable
             } else {
-                self::assertFalse($onFulfilledCalled);
-                self::assertTrue($onRejectedCalled);
+                self::assertFalse($onFulfilledCalled); // @phpstan-ignore-line value is mutable
+                self::assertTrue($onRejectedCalled); // @phpstan-ignore-line value is mutable
             }
         }
 
@@ -209,22 +198,22 @@ class SyncPromiseAdapterTest extends TestCase
 
         // Having single promise queue means that we won't stop in wait
         // until all pending promises are resolved
-        self::assertEquals(2, $result);
+        self::assertSame(2, $result);
 
         $p3AdoptedPromise = $p3->adoptedPromise;
         self::assertInstanceOf(SyncPromise::class, $p3AdoptedPromise);
-        self::assertEquals(SyncPromise::FULFILLED, $p3AdoptedPromise->state);
+        self::assertSame(SyncPromise::FULFILLED, $p3AdoptedPromise->state);
 
         $allAdoptedPromise = $all->adoptedPromise;
         self::assertInstanceOf(SyncPromise::class, $allAdoptedPromise);
-        self::assertEquals(SyncPromise::FULFILLED, $allAdoptedPromise->state);
+        self::assertSame(SyncPromise::FULFILLED, $allAdoptedPromise->state);
 
-        self::assertEquals([1, 2, 3, 4], $called);
+        self::assertSame([1, 2, 3, 4], $called);
 
         $expectedResult = [0, 1, 2, 3, 4];
         $result = $this->promises->wait($all);
-        self::assertEquals($expectedResult, $result);
-        self::assertEquals([1, 2, 3, 4], $called);
+        self::assertSame($expectedResult, $result);
+        self::assertSame([1, 2, 3, 4], $called);
         self::assertValidPromise($all, null, [0, 1, 2, 3, 4], SyncPromise::FULFILLED);
     }
 }

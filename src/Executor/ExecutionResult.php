@@ -66,14 +66,14 @@ class ExecutionResult implements \JsonSerializable
      *
      * @phpstan-var ErrorFormatter|null
      */
-    private $errorFormatter = null;
+    private $errorFormatter;
 
     /**
      * @var callable|null
      *
      * @phpstan-var ErrorsHandler|null
      */
-    private $errorsHandler = null;
+    private $errorsHandler;
 
     /**
      * @param array<string, mixed>|null $data
@@ -131,9 +131,7 @@ class ExecutionResult implements \JsonSerializable
         return $this;
     }
 
-    /**
-     * @phpstan-return SerializableResult
-     */
+    /** @phpstan-return SerializableResult */
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): array
     {
@@ -157,7 +155,7 @@ class ExecutionResult implements \JsonSerializable
     {
         $result = [];
 
-        if (\count($this->errors) > 0) {
+        if ($this->errors !== []) {
             $errorsHandler = $this->errorsHandler
                 ?? static fn (array $errors, callable $formatter): array => \array_map($formatter, $errors);
 
@@ -176,7 +174,7 @@ class ExecutionResult implements \JsonSerializable
             $result['data'] = $this->data;
         }
 
-        if ($this->extensions !== null && \count($this->extensions) > 0) {
+        if ($this->extensions !== null && $this->extensions !== []) {
             $result['extensions'] = $this->extensions;
         }
 

@@ -44,7 +44,7 @@ jobs:
 
       - run: composer docs
 
-      - uses: creyD/prettier_action@v4.2
+      - uses: creyD/prettier_action@v4.3
         with:
           prettier_options: --write --tab-width=2 *.md **/*.md
           branch: ${{ github.head_ref }}

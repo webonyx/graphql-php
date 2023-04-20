@@ -5,7 +5,6 @@ namespace GraphQL\Utils;
 use GraphQL\Error\Error;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\Node;
-use GraphQL\Type\Definition\Type;
 
 class Utils
 {
@@ -16,9 +15,7 @@ class Utils
         return $undefined ??= new \stdClass();
     }
 
-    /**
-     * @param array<string, mixed> $vars
-     */
+    /** @param array<string, mixed> $vars */
     public static function assign(object $obj, array $vars): object
     {
         foreach ($vars as $key => $value) {
@@ -39,98 +36,80 @@ class Utils
     /**
      * Print a value that came from JSON for debugging purposes.
      *
-     * @param mixed $var
+     * @param mixed $value
      */
-    public static function printSafeJson($var): string
+    public static function printSafeJson($value): string
     {
-        if ($var instanceof \stdClass) {
-            return \json_encode($var, JSON_THROW_ON_ERROR);
+        if ($value instanceof \stdClass) {
+            return static::jsonEncodeOrSerialize($value);
         }
 
-        if (\is_array($var)) {
-            return \json_encode($var, JSON_THROW_ON_ERROR);
-        }
-
-        if ($var === '') {
-            return '(empty string)';
-        }
-
-        if ($var === null) {
-            return 'null';
-        }
-
-        if ($var === false) {
-            return 'false';
-        }
-
-        if ($var === true) {
-            return 'true';
-        }
-
-        if (\is_string($var)) {
-            return "\"{$var}\"";
-        }
-
-        if (\is_scalar($var)) {
-            return (string) $var;
-        }
-
-        return \gettype($var);
+        return static::printSafeInternal($value);
     }
 
     /**
      * Print a value that came from PHP for debugging purposes.
      *
-     * @param mixed $var
+     * @param mixed $value
      */
-    public static function printSafe($var): string
+    public static function printSafe($value): string
     {
-        if ($var instanceof Type) {
-            return $var->toString();
-        }
-
-        if (\is_object($var)) {
-            if (\method_exists($var, '__toString')) {
-                return (string) $var;
+        if (\is_object($value)) {
+            if (\method_exists($value, '__toString')) {
+                return $value->__toString();
             }
 
-            return 'instance of ' . \get_class($var);
+            return 'instance of ' . \get_class($value);
         }
 
-        if (\is_array($var)) {
-            return \json_encode($var, JSON_THROW_ON_ERROR);
+        return static::printSafeInternal($value);
+    }
+
+    /** @param \stdClass|array<mixed> $value */
+    protected static function jsonEncodeOrSerialize($value): string
+    {
+        try {
+            return \json_encode($value, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $jsonException) {
+            return serialize($value);
+        }
+    }
+
+    /** @param mixed $value */
+    protected static function printSafeInternal($value): string
+    {
+        if (\is_array($value)) {
+            return static::jsonEncodeOrSerialize($value);
         }
 
-        if ($var === '') {
+        if ($value === '') {
             return '(empty string)';
         }
 
-        if ($var === null) {
+        if ($value === null) {
             return 'null';
         }
 
-        if ($var === false) {
+        if ($value === false) {
             return 'false';
         }
 
-        if ($var === true) {
+        if ($value === true) {
             return 'true';
         }
 
-        if (\is_string($var)) {
-            return "\"{$var}\"";
+        if (\is_string($value)) {
+            return "\"{$value}\"";
         }
 
-        if (\is_scalar($var)) {
-            return (string) $var;
+        if (\is_scalar($value)) {
+            return (string) $value;
         }
 
-        return \gettype($var);
+        return \gettype($value);
     }
 
-    /**
-     * UTF-8 compatible chr().
-     */
+    /** UTF-8 compatible chr(). */
     public static function chr(int $ord, string $encoding = 'UTF-8'): string
     {
         if ($encoding === 'UCS-4BE') {
@@ -140,9 +119,7 @@ class Utils
         return \mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
     }
 
-    /**
-     * UTF-8 compatible ord().
-     */
+    /** UTF-8 compatible ord(). */
     public static function ord(string $char, string $encoding = 'UTF-8'): int
     {
         if (! isset($char[1])) {
@@ -157,9 +134,7 @@ class Utils
         return \unpack('N', $char)[1];
     }
 
-    /**
-     * Returns UTF-8 char code at given $positing of the $string.
-     */
+    /** Returns UTF-8 char code at given $positing of the $string. */
     public static function charCodeAt(string $string, int $position): int
     {
         $char = \mb_substr($string, $position, 1, 'UTF-8');
@@ -167,6 +142,7 @@ class Utils
         return self::ord($char);
     }
 
+    /** @throws \JsonException */
     public static function printCharCode(?int $code): string
     {
         if ($code === null) {
@@ -193,9 +169,7 @@ class Utils
         }
     }
 
-    /**
-     * Returns an Error if a name is invalid.
-     */
+    /** Returns an Error if a name is invalid. */
     public static function isValidNameError(string $name, ?Node $node = null): ?Error
     {
         if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
@@ -215,9 +189,7 @@ class Utils
         return null;
     }
 
-    /**
-     * @param array<string> $items
-     */
+    /** @param array<string> $items */
     public static function quotedOrList(array $items): string
     {
         $quoted = \array_map(
@@ -228,12 +200,10 @@ class Utils
         return self::orList($quoted);
     }
 
-    /**
-     * @param array<string> $items
-     */
+    /** @param array<string> $items */
     public static function orList(array $items): string
     {
-        if (\count($items) === 0) {
+        if ($items === []) {
             return '';
         }
 

@@ -93,9 +93,7 @@ final class QueryDepthTest extends QuerySecurityTestCase
         $this->assertTypeNameMetaFieldQuery(1);
     }
 
-    /**
-     * @return array<int, array{0: int, 1?: int, 2?: array<int, array<string, mixed>>}>
-     */
+    /** @return array<int, array{0: int, 1?: int, 2?: array<int, array<string, mixed>>}> */
     public function queryDataProvider(): array
     {
         return [
@@ -126,6 +124,7 @@ final class QueryDepthTest extends QuerySecurityTestCase
         return QueryDepth::maxQueryDepthErrorMessage($max, $count);
     }
 
+    /** @throws \InvalidArgumentException */
     protected function getRule(int $max): QueryDepth
     {
         return new QueryDepth($max);

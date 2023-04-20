@@ -5,7 +5,7 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
-class SuggestionListTest extends TestCase
+final class SuggestionListTest extends TestCase
 {
     /**
      * @see describe('suggestionList')
@@ -19,9 +19,7 @@ class SuggestionListTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Returns empty array when there are no options')
-     */
+    /** @see it('Returns empty array when there are no options') */
     public function testReturnsEmptyArrayWhenThereAreNoOptions(): void
     {
         self::assertSame(
@@ -30,9 +28,7 @@ class SuggestionListTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Returns options with small lexical distance')
-     */
+    /** @see it('Returns options with small lexical distance') */
     public function testReturnsOptionsWithSmallLexicalDistance(): void
     {
         self::assertSame(
@@ -45,9 +41,7 @@ class SuggestionListTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Rejects options with distance that exceeds threshold')
-     */
+    /** @see it('Rejects options with distance that exceeds threshold') */
     public function testRejectsOptionsWithDistanceThatExceedsThreshold(): void
     {
         self::assertSame(
@@ -68,9 +62,7 @@ class SuggestionListTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Returns options with different case')
-     */
+    /** @see it('Returns options with different case') */
     public function testReturnsOptionsWithDifferentCase(): void
     {
         self::assertSame(
@@ -87,9 +79,7 @@ class SuggestionListTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Returns options with transpositions')
-     */
+    /** @see it('Returns options with transpositions') */
     public function testReturnsOptionsWithTranspositions(): void
     {
         self::assertSame(
@@ -102,9 +92,7 @@ class SuggestionListTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Returns options sorted based on lexical distance')
-     */
+    /** @see it('Returns options sorted based on lexical distance') */
     public function testReturnsOptionsSortedBasedOnLexicalDistance(): void
     {
         self::assertSame(
@@ -113,9 +101,7 @@ class SuggestionListTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Returns options with the same lexical distance sorted lexicographically')
-     */
+    /** @see it('Returns options with the same lexical distance sorted lexicographically') */
     public function testReturnsOptionsWithTheSameLexicalDistanceSortedLexicographically(): void
     {
         self::assertSame(

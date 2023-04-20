@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -66,6 +67,9 @@ class AST
      * @param array<string, mixed> $node
      *
      * @api
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
      */
     public static function fromArray(array $node): Node
     {
@@ -93,11 +97,9 @@ class AST
             }
 
             if (\is_array($value)) {
-                if (isset($value[0]) || \count($value) === 0) {
-                    $value = new NodeList($value);
-                } else {
-                    $value = self::fromArray($value);
-                }
+                $value = isset($value[0]) || $value === []
+                    ? new NodeList($value)
+                    : self::fromArray($value);
             }
 
             $instance->{$key} = $value;
@@ -138,6 +140,10 @@ class AST
      *
      * @param mixed $value
      * @param InputType&Type $type
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
+     * @throws SerializationError
      *
      * @return (ValueNode&Node)|null
      *
@@ -193,11 +199,9 @@ class AST
             $fields = $type->getFields();
             $fieldNodes = [];
             foreach ($fields as $fieldName => $field) {
-                if ($isArrayLike) {
-                    $fieldValue = $value[$fieldName] ?? null;
-                } else {
-                    $fieldValue = $value->{$fieldName} ?? null;
-                }
+                $fieldValue = $isArrayLike
+                    ? $value[$fieldName] ?? null
+                    : $value->{$fieldName} ?? null;
 
                 // Have to check additionally if key exists, since we differentiate between
                 // "no key" and "value is null":

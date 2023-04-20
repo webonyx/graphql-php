@@ -45,6 +45,23 @@ GRAPHQL,
         );
     }
 
+    public function testConstructEnumTypeFromPhpEnumWithCustomName(): void
+    {
+        $enumType = new PhpEnumType(PhpEnum::class, 'CustomNamedPhpEnum');
+        self::assertSame(
+            <<<'GRAPHQL'
+"foo"
+enum CustomNamedPhpEnum {
+  "bar"
+  A
+  B @deprecated
+  C @deprecated(reason: "baz")
+}
+GRAPHQL,
+            SchemaPrinter::printType($enumType)
+        );
+    }
+
     public function testConstructEnumTypeFromPhpEnumWithDocBlockDescriptions(): void
     {
         $enumType = new PhpEnumType(DocBlockPhpEnum::class);

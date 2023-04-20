@@ -9,13 +9,11 @@ use GraphQL\Validator\Rules\LoneAnonymousOperation;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class LoneAnonymousOperationTest extends ValidatorTestCase
+final class LoneAnonymousOperationTest extends ValidatorTestCase
 {
     // Validate: Anonymous operation must be alone
 
-    /**
-     * @see it('no operations')
-     */
+    /** @see it('no operations') */
     public function testNoOperations(): void
     {
         $this->expectPassesRule(
@@ -28,9 +26,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('one anon operation')
-     */
+    /** @see it('one anon operation') */
     public function testOneAnonOperation(): void
     {
         $this->expectPassesRule(
@@ -43,9 +39,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('multiple named operations')
-     */
+    /** @see it('multiple named operations') */
     public function testMultipleNamedOperations(): void
     {
         $this->expectPassesRule(
@@ -62,9 +56,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('anon operation with fragment')
-     */
+    /** @see it('anon operation with fragment') */
     public function testAnonOperationWithFragment(): void
     {
         $this->expectPassesRule(
@@ -80,9 +72,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('multiple anon operations')
-     */
+    /** @see it('multiple anon operations') */
     public function testMultipleAnonOperations(): void
     {
         $this->expectFailsRule(
@@ -102,9 +92,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function anonNotAlone(int $line, int $column): array
     {
         return ErrorHelper::create(
@@ -113,9 +101,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('anon operation with a mutation')
-     */
+    /** @see it('anon operation with a mutation') */
     public function testAnonOperationWithMutation(): void
     {
         $this->expectFailsRule(
@@ -134,9 +120,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('anon operation with a subscription')
-     */
+    /** @see it('anon operation with a subscription') */
     public function testAnonOperationWithSubscription(): void
     {
         $this->expectFailsRule(

@@ -9,13 +9,11 @@ use GraphQL\Validator\Rules\UniqueArgumentNames;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class UniqueArgumentNamesTest extends ValidatorTestCase
+final class UniqueArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique argument names
 
-    /**
-     * @see it('no arguments on field')
-     */
+    /** @see it('no arguments on field') */
     public function testNoArgumentsOnField(): void
     {
         $this->expectPassesRule(
@@ -28,9 +26,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('no arguments on directive')
-     */
+    /** @see it('no arguments on directive') */
     public function testNoArgumentsOnDirective(): void
     {
         $this->expectPassesRule(
@@ -43,9 +39,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('argument on field')
-     */
+    /** @see it('argument on field') */
     public function testArgumentOnField(): void
     {
         $this->expectPassesRule(
@@ -58,9 +52,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('argument on directive')
-     */
+    /** @see it('argument on directive') */
     public function testArgumentOnDirective(): void
     {
         $this->expectPassesRule(
@@ -73,9 +65,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('same argument on two fields')
-     */
+    /** @see it('same argument on two fields') */
     public function testSameArgumentOnTwoFields(): void
     {
         $this->expectPassesRule(
@@ -89,9 +79,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('same argument on field and directive')
-     */
+    /** @see it('same argument on field and directive') */
     public function testSameArgumentOnFieldAndDirective(): void
     {
         $this->expectPassesRule(
@@ -104,9 +92,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('same argument on two directives')
-     */
+    /** @see it('same argument on two directives') */
     public function testSameArgumentOnTwoDirectives(): void
     {
         $this->expectPassesRule(
@@ -119,9 +105,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('multiple field arguments')
-     */
+    /** @see it('multiple field arguments') */
     public function testMultipleFieldArguments(): void
     {
         $this->expectPassesRule(
@@ -134,9 +118,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('multiple directive arguments')
-     */
+    /** @see it('multiple directive arguments') */
     public function testMultipleDirectiveArguments(): void
     {
         $this->expectPassesRule(
@@ -149,9 +131,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate field arguments')
-     */
+    /** @see it('duplicate field arguments') */
     public function testDuplicateFieldArguments(): void
     {
         $this->expectFailsRule(
@@ -165,9 +145,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function duplicateArg(string $argName, int $l1, int $c1, int $l2, int $c2): array
     {
         return ErrorHelper::create(
@@ -176,9 +154,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('many duplicate field arguments')
-     */
+    /** @see it('many duplicate field arguments') */
     public function testManyDuplicateFieldArguments(): void
     {
         $this->expectFailsRule(
@@ -195,9 +171,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate directive arguments')
-     */
+    /** @see it('duplicate directive arguments') */
     public function testDuplicateDirectiveArguments(): void
     {
         $this->expectFailsRule(
@@ -211,9 +185,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('many duplicate directive arguments')
-     */
+    /** @see it('many duplicate directive arguments') */
     public function testManyDuplicateDirectiveArguments(): void
     {
         $this->expectFailsRule(

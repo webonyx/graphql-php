@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 
-class StandardTypesTest extends TestCase
+final class StandardTypesTest extends TestCase
 {
     /** @var array<string, ScalarType> */
     private static array $originalStandardTypes;
@@ -94,6 +94,8 @@ class StandardTypesTest extends TestCase
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return iterable<array{mixed, string}>
      */
     public function invalidStandardTypes(): iterable
@@ -122,6 +124,7 @@ class StandardTypesTest extends TestCase
         Type::overrideStandardTypes([$notType]);
     }
 
+    /** @throws InvariantViolation */
     private function createCustomScalarType(string $name): CustomScalarType
     {
         return new CustomScalarType([

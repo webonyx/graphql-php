@@ -2,11 +2,9 @@
 
 namespace GraphQL\Tests;
 
-class StarWarsData
+final class StarWarsData
 {
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public static function getCharacter(string $id): ?array
     {
         $key = (int) $id;
@@ -16,9 +14,7 @@ class StarWarsData
             ?? null;
     }
 
-    /**
-     * @return array<int, mixed>
-     */
+    /** @return array<int, mixed> */
     public static function humans(): array
     {
         return [
@@ -30,9 +26,7 @@ class StarWarsData
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private static function luke(): array
     {
         return [
@@ -44,9 +38,7 @@ class StarWarsData
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private static function vader(): array
     {
         return [
@@ -58,9 +50,7 @@ class StarWarsData
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private static function han(): array
     {
         return [
@@ -71,9 +61,7 @@ class StarWarsData
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private static function leia(): array
     {
         return [
@@ -85,9 +73,7 @@ class StarWarsData
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private static function tarkin(): array
     {
         return [
@@ -98,9 +84,7 @@ class StarWarsData
         ];
     }
 
-    /**
-     * @return array<int, mixed>
-     */
+    /** @return array<int, mixed> */
     public static function droids(): array
     {
         return [
@@ -109,9 +93,7 @@ class StarWarsData
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private static function threepio(): array
     {
         return [
@@ -123,9 +105,7 @@ class StarWarsData
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private static function artoo(): array
     {
         return [
@@ -147,9 +127,7 @@ class StarWarsData
         return \array_map([self::class, 'getCharacter'], $character['friends']);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public static function getHero(?int $episode): array
     {
         if ($episode === 5) {
@@ -161,17 +139,13 @@ class StarWarsData
         return self::artoo();
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
+    /** @return array<string, mixed>|null */
     public static function getHuman(string $id): ?array
     {
         return self::humans()[(int) $id] ?? null;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
+    /** @return array<string, mixed>|null */
     public static function getDroid(string $id): ?array
     {
         return self::droids()[(int) $id] ?? null;

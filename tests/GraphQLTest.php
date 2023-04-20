@@ -11,7 +11,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use PHPUnit\Framework\TestCase;
 
-class GraphQLTest extends TestCase
+final class GraphQLTest extends TestCase
 {
     public function testPromiseToExecute(): void
     {

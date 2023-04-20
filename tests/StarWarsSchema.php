@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NonNull;
@@ -54,8 +55,9 @@ use GraphQL\Type\Schema;
  *
  * We begin by setting up our schema.
  */
-class StarWarsSchema
+final class StarWarsSchema
 {
+    /** @throws InvariantViolation */
     public static function build(): Schema
     {
         /**

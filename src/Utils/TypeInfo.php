@@ -66,17 +66,13 @@ class TypeInfo
         $this->schema = $schema;
     }
 
-    /**
-     * @return array<int, (CompositeType&Type)|null>
-     */
+    /** @return array<int, (CompositeType&Type)|null> */
     public function getParentTypeStack(): array
     {
         return $this->parentTypeStack;
     }
 
-    /**
-     * @return array<int, FieldDefinition|null>
-     */
+    /** @return array<int, FieldDefinition|null> */
     public function getFieldDefStack(): array
     {
         return $this->fieldDefStack;
@@ -96,6 +92,8 @@ class TypeInfo
      * ]
      *
      * @param array<string, Type&NamedType> $typeMap
+     *
+     * @throws InvariantViolation
      */
     public static function extractTypes(Type $type, array &$typeMap): void
     {
@@ -154,6 +152,8 @@ class TypeInfo
 
     /**
      * @param array<string, Type&NamedType> $typeMap
+     *
+     * @throws InvariantViolation
      */
     public static function extractTypesFromDirectives(Directive $directive, array &$typeMap): void
     {
@@ -162,9 +162,7 @@ class TypeInfo
         }
     }
 
-    /**
-     * @return (Type&InputType)|null
-     */
+    /** @return (Type&InputType)|null */
     public function getParentInputType(): ?InputType
     {
         return $this->inputTypeStack[\count($this->inputTypeStack) - 2] ?? null;
@@ -175,14 +173,16 @@ class TypeInfo
         return $this->argument;
     }
 
-    /**
-     * @return mixed
-     */
+    /** @return mixed */
     public function getEnumValue()
     {
         return $this->enumValue;
     }
 
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
     public function enter(Node $node): void
     {
         $schema = $this->schema;
@@ -217,7 +217,6 @@ class TypeInfo
                 break;
 
             case $node instanceof OperationDefinitionNode:
-                $type = null;
                 if ($node->operation === 'query') {
                     $type = $schema->getQueryType();
                 } elseif ($node->operation === 'mutation') {
@@ -227,7 +226,9 @@ class TypeInfo
                     $type = $schema->getSubscriptionType();
                 }
 
-                $this->typeStack[] = Type::isOutputType($type) ? $type : null;
+                $this->typeStack[] = Type::isOutputType($type)
+                    ? $type
+                    : null;
                 break;
 
             case $node instanceof InlineFragmentNode:
@@ -312,9 +313,7 @@ class TypeInfo
         return $this->typeStack[\count($this->typeStack) - 1] ?? null;
     }
 
-    /**
-     * @return (CompositeType & Type) | null
-     */
+    /** @return (CompositeType & Type) | null */
     public function getParentType(): ?CompositeType
     {
         return $this->parentTypeStack[\count($this->parentTypeStack) - 1] ?? null;
@@ -324,6 +323,8 @@ class TypeInfo
      * Not exactly the same as the executor's definition of getFieldDef, in this
      * statically evaluated environment we do not always have an Object type,
      * and need to handle Interface and Union types.
+     *
+     * @throws InvariantViolation
      */
     private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode): ?FieldDefinition
     {
@@ -363,17 +364,13 @@ class TypeInfo
         return $this->fieldDefStack[\count($this->fieldDefStack) - 1] ?? null;
     }
 
-    /**
-     * @return mixed any value is possible
-     */
+    /** @return mixed any value is possible */
     public function getDefaultValue()
     {
         return $this->defaultValueStack[\count($this->defaultValueStack) - 1] ?? null;
     }
 
-    /**
-     * @return (InputType&Type)|null
-     */
+    /** @return (InputType&Type)|null */
     public function getInputType(): ?InputType
     {
         return $this->inputTypeStack[\count($this->inputTypeStack) - 1] ?? null;

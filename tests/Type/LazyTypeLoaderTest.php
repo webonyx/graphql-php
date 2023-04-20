@@ -9,10 +9,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-/**
- * @see TypeLoaderTest
- */
-final class LazyTypeLoaderTest extends TypeLoaderTest
+final class LazyTypeLoaderTest extends TypeLoaderTestCaseBase
 {
     /** @var callable(): InterfaceType */
     private $node;
@@ -178,7 +175,7 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
         ]);
         $schema->assertValid();
 
-        self::assertEquals([
+        self::assertSame([
             'Node.fields',
             'Content.fields',
             'BlogStory.fields',
@@ -212,26 +209,26 @@ final class LazyTypeLoaderTest extends TypeLoaderTest
             'mutation' => $this->mutation,
             'typeLoader' => $this->typeLoader,
         ]);
-        self::assertEquals([], $this->calls);
+        self::assertSame([], $this->calls);
 
         $node = $schema->getType('Node');
         self::assertInstanceOf(InterfaceType::class, $node);
         $resolvedNode = Schema::resolveType($this->node);
         self::assertSame($resolvedNode, $node);
-        self::assertEquals(['Node'], $this->calls);
+        self::assertSame(['Node'], $this->calls);
 
         $content = $schema->getType('Content');
         self::assertSame(Schema::resolveType($this->content), $content);
-        self::assertEquals(['Node', 'Content'], $this->calls);
+        self::assertSame(['Node', 'Content'], $this->calls);
 
         $input = $schema->getType('PostStoryMutationInput');
         self::assertSame(Schema::resolveType($this->postStoryMutationInput), $input);
-        self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
+        self::assertSame(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
 
         $resolvedBlogStory = Schema::resolveType($this->blogStory);
 
         self::assertTrue($schema->isSubType($resolvedNode, $resolvedBlogStory));
-        self::assertEquals(
+        self::assertSame(
             [
                 'Node',
                 'Content',

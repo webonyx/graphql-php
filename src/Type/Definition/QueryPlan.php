@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
@@ -44,6 +45,10 @@ class QueryPlan
      * @param array<string, mixed> $variableValues
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param QueryPlanOptions $options
+     *
+     * @throws \Exception
+     * @throws Error
+     * @throws InvariantViolation
      */
     public function __construct(ObjectType $parentType, Schema $schema, iterable $fieldNodes, array $variableValues, array $fragments, array $options = [])
     {
@@ -54,17 +59,13 @@ class QueryPlan
         $this->analyzeQueryPlan($parentType, $fieldNodes);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function queryPlan(): array
     {
         return $this->queryPlan;
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public function getReferencedTypes(): array
     {
         return \array_keys($this->typeToFields);
@@ -115,6 +116,10 @@ class QueryPlan
 
     /**
      * @param iterable<FieldNode> $fieldNodes
+     *
+     * @throws \Exception
+     * @throws Error
+     * @throws InvariantViolation
      */
     private function analyzeQueryPlan(ObjectType $parentType, iterable $fieldNodes): void
     {
@@ -149,7 +154,9 @@ class QueryPlan
      * @param Type&NamedType $parentType
      * @param array<string, mixed> $implementors
      *
+     * @throws \Exception
      * @throws Error
+     * @throws InvariantViolation
      *
      * @return array<mixed>
      */
@@ -220,6 +227,9 @@ class QueryPlan
 
     /**
      * @param array<string, mixed> $implementors
+     *
+     * @throws \Exception
+     * @throws Error
      *
      * @return array<mixed>
      */

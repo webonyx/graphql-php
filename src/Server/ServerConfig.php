@@ -42,6 +42,8 @@ class ServerConfig
      * @param array<string, mixed> $config
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function create(array $config = []): self
     {
@@ -92,28 +94,28 @@ class ServerConfig
     private ?Schema $schema = null;
 
     /** @var mixed|callable(self, OperationParams, DocumentNode): mixed|null */
-    private $context = null;
+    private $context;
 
     /**
      * @var mixed|callable
      *
      * @phpstan-var mixed|RootValueResolver
      */
-    private $rootValue = null;
+    private $rootValue;
 
     /**
      * @var callable|null
      *
      * @phpstan-var ErrorFormatter|null
      */
-    private $errorFormatter = null;
+    private $errorFormatter;
 
     /**
      * @var callable|null
      *
      * @phpstan-var ErrorsHandler|null
      */
-    private $errorsHandler = null;
+    private $errorsHandler;
 
     private int $debugFlag = DebugFlag::NONE;
 
@@ -124,10 +126,10 @@ class ServerConfig
      *
      * @phpstan-var ValidationRulesOption
      */
-    private $validationRules = null;
+    private $validationRules;
 
     /** @var callable|null */
-    private $fieldResolver = null;
+    private $fieldResolver;
 
     private ?PromiseAdapter $promiseAdapter = null;
 
@@ -136,11 +138,9 @@ class ServerConfig
      *
      * @phpstan-var PersistedQueryLoader|null
      */
-    private $persistedQueryLoader = null;
+    private $persistedQueryLoader;
 
-    /**
-     * @api
-     */
+    /** @api */
     public function setSchema(Schema $schema): self
     {
         $this->schema = $schema;
@@ -220,9 +220,7 @@ class ServerConfig
         return $this;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function setFieldResolver(callable $fieldResolver): self
     {
         $this->fieldResolver = $fieldResolver;
@@ -268,9 +266,7 @@ class ServerConfig
         return $this;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function setPromiseAdapter(PromiseAdapter $promiseAdapter): self
     {
         $this->promiseAdapter = $promiseAdapter;
@@ -278,9 +274,7 @@ class ServerConfig
         return $this;
     }
 
-    /**
-     * @return mixed|callable
-     */
+    /** @return mixed|callable */
     public function getContext()
     {
         return $this->context;
@@ -301,17 +295,13 @@ class ServerConfig
         return $this->schema;
     }
 
-    /**
-     * @phpstan-return ErrorFormatter|null
-     */
+    /** @phpstan-return ErrorFormatter|null */
     public function getErrorFormatter(): ?callable
     {
         return $this->errorFormatter;
     }
 
-    /**
-     * @phpstan-return ErrorsHandler|null
-     */
+    /** @phpstan-return ErrorsHandler|null */
     public function getErrorsHandler(): ?callable
     {
         return $this->errorsHandler;
@@ -337,9 +327,7 @@ class ServerConfig
         return $this->fieldResolver;
     }
 
-    /**
-     * @phpstan-return PersistedQueryLoader|null
-     */
+    /** @phpstan-return PersistedQueryLoader|null */
     public function getPersistedQueryLoader(): ?callable
     {
         return $this->persistedQueryLoader;

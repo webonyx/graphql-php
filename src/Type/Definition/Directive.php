@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 
@@ -74,6 +75,7 @@ class Directive
         $this->config = $config;
     }
 
+    /** @throws InvariantViolation */
     public static function includeDirective(): Directive
     {
         $internal = self::getInternalDirectives();
@@ -82,6 +84,8 @@ class Directive
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<string, Directive>
      */
     public static function getInternalDirectives(): array
@@ -135,6 +139,7 @@ class Directive
         ];
     }
 
+    /** @throws InvariantViolation */
     public static function skipDirective(): Directive
     {
         $internal = self::getInternalDirectives();
@@ -142,6 +147,7 @@ class Directive
         return $internal['skip'];
     }
 
+    /** @throws InvariantViolation */
     public static function deprecatedDirective(): Directive
     {
         $internal = self::getInternalDirectives();
@@ -149,6 +155,7 @@ class Directive
         return $internal['deprecated'];
     }
 
+    /** @throws InvariantViolation */
     public static function isSpecifiedDirective(Directive $directive): bool
     {
         return \array_key_exists($directive->name, self::getInternalDirectives());

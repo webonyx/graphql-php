@@ -11,6 +11,11 @@ return \MLL\PhpCsFixerConfig\risky($finder, [
     'no_superfluous_phpdoc_tags' => [
         'allow_mixed' => true,
     ],
+    'phpdoc_order_by_value' => [
+        'annotations' => [
+            'throws',
+        ],
+    ],
     'yoda_style' => [
         'equal' => false,
         'identical' => false,

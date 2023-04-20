@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -37,6 +38,7 @@ class QueryComplexity extends QuerySecurityRule
 
     protected QueryValidationContext $context;
 
+    /** @throws \InvalidArgumentException */
     public function __construct(int $maxQueryComplexity)
     {
         $this->setMaxQueryComplexity($maxQueryComplexity);
@@ -69,7 +71,7 @@ class QueryComplexity extends QuerySecurityRule
                     'leave' => function (OperationDefinitionNode $operationDefinition) use ($context): void {
                         $errors = $context->getErrors();
 
-                        if (\count($errors) > 0) {
+                        if ($errors !== []) {
                             return;
                         }
 
@@ -91,6 +93,7 @@ class QueryComplexity extends QuerySecurityRule
         );
     }
 
+    /** @throws \Exception */
     protected function fieldComplexity(SelectionSetNode $selectionSet): int
     {
         $complexity = 0;
@@ -102,6 +105,7 @@ class QueryComplexity extends QuerySecurityRule
         return $complexity;
     }
 
+    /** @throws \Exception */
     protected function nodeComplexity(SelectionNode $node): int
     {
         switch (true) {
@@ -115,7 +119,7 @@ class QueryComplexity extends QuerySecurityRule
                     : 0;
 
                 $fieldDef = $this->fieldDefinition($node);
-                if ($fieldDef instanceof FieldDefinition && isset($fieldDef->complexityFn)) {
+                if ($fieldDef instanceof FieldDefinition && $fieldDef->complexityFn !== null) {
                     $fieldArguments = $this->buildFieldArguments($node);
 
                     return ($fieldDef->complexityFn)($childrenComplexity, $fieldArguments);
@@ -148,6 +152,11 @@ class QueryComplexity extends QuerySecurityRule
         return null;
     }
 
+    /**
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
+     */
     protected function directiveExcludesField(FieldNode $node): bool
     {
         foreach ($node->directives as $directiveNode) {
@@ -160,7 +169,7 @@ class QueryComplexity extends QuerySecurityRule
                 $this->variableDefs,
                 $this->getRawVariableValues()
             );
-            if ($errors !== null && \count($errors) > 0) {
+            if ($errors !== null && $errors !== []) {
                 throw new Error(\implode(
                     "\n\n",
                     \array_map(
@@ -196,23 +205,22 @@ class QueryComplexity extends QuerySecurityRule
         return false;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function getRawVariableValues(): array
     {
         return $this->rawVariableValues;
     }
 
-    /**
-     * @param array<string, mixed>|null $rawVariableValues
-     */
+    /** @param array<string, mixed>|null $rawVariableValues */
     public function setRawVariableValues(?array $rawVariableValues = null): void
     {
         $this->rawVariableValues = $rawVariableValues ?? [];
     }
 
     /**
+     * @throws \Exception
+     * @throws Error
+     *
      * @return array<string, mixed>
      */
     protected function buildFieldArguments(FieldNode $node): array
@@ -230,7 +238,7 @@ class QueryComplexity extends QuerySecurityRule
                 $rawVariableValues
             );
 
-            if (is_array($errors) && \count($errors) > 0) {
+            if (is_array($errors) && $errors !== []) {
                 throw new Error(\implode(
                     "\n\n",
                     \array_map(
@@ -253,6 +261,8 @@ class QueryComplexity extends QuerySecurityRule
 
     /**
      * Set max query complexity. If equal to 0 no check is done. Must be greater or equal to 0.
+     *
+     * @throws \InvalidArgumentException
      */
     public function setMaxQueryComplexity(int $maxQueryComplexity): void
     {

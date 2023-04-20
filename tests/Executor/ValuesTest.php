@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
@@ -14,7 +15,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class ValuesTest extends TestCase
+final class ValuesTest extends TestCase
 {
     private static Schema $schema;
 
@@ -30,6 +31,9 @@ class ValuesTest extends TestCase
 
     /**
      * @param array<string, mixed> $variables
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     private function expectInputVariablesMatchOutputVariables(array $variables): void
     {
@@ -43,6 +47,9 @@ class ValuesTest extends TestCase
     /**
      * @param array<string, mixed> $variables
      *
+     * @throws \Exception
+     * @throws InvariantViolation
+     *
      * @return array{array<int, Error>, null}|array{null, array<string, mixed>}
      */
     private function runTestCase(array $variables): array
@@ -50,6 +57,7 @@ class ValuesTest extends TestCase
         return Values::getVariableValues(self::getSchema(), self::getVariableDefinitionNodes(), $variables);
     }
 
+    /** @throws InvariantViolation */
     private static function getSchema(): Schema
     {
         return self::$schema ??= new Schema([
@@ -71,9 +79,7 @@ class ValuesTest extends TestCase
         ]);
     }
 
-    /**
-     * @return NodeList<VariableDefinitionNode>
-     */
+    /** @return NodeList<VariableDefinitionNode> */
     private static function getVariableDefinitionNodes(): NodeList
     {
         $idInputDefinition = new VariableDefinitionNode([
@@ -143,6 +149,9 @@ class ValuesTest extends TestCase
 
     /**
      * @param array<string, mixed> $variables
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     private function expectGraphQLError(array $variables): void
     {
@@ -156,9 +165,7 @@ class ValuesTest extends TestCase
         $this->expectGraphQLError(['idInput' => 1.0]);
     }
 
-    /**
-     * Helpers for running test cases and making assertions.
-     */
+    /** Helpers for running test cases and making assertions. */
     public function testStringForBooleanVariableThrowsError(): void
     {
         $this->expectGraphQLError(['boolInput' => 'true']);

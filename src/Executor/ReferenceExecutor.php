@@ -76,6 +76,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param array<string, mixed> $variableValues
      *
      * @phpstan-param FieldResolver $fieldResolver
+     *
+     * @throws \Exception
      */
     public static function create(
         PromiseAdapter $promiseAdapter,
@@ -126,6 +128,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param array<string, mixed> $rawVariableValues
      *
      * @phpstan-param FieldResolver $fieldResolver
+     *
+     * @throws \Exception
      *
      * @return ExecutionContext|array<int, Error>
      */
@@ -197,7 +201,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
         }
 
-        if (\count($errors) > 0) {
+        if ($errors !== []) {
             return $errors;
         }
 
@@ -217,6 +221,10 @@ class ReferenceExecutor implements ExecutorImplementation
         );
     }
 
+    /**
+     * @throws \Exception
+     * @throws Error
+     */
     public function doExecute(): Promise
     {
         // Return a Promise that will eventually resolve to the data described by
@@ -269,6 +277,9 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param mixed $rootValue
      *
+     * @throws \Exception
+     * @throws Error
+     *
      * @return array<mixed>|Promise|\stdClass|null
      */
     protected function executeOperation(OperationDefinitionNode $operation, $rootValue)
@@ -299,9 +310,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
     }
 
-    /**
-     * @param mixed $error
-     */
+    /** @param mixed $error */
     public function onError($error): ?Promise
     {
         if ($error instanceof Error) {
@@ -316,6 +325,7 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Extracts the root type of the operation from the schema.
      *
+     * @throws \Exception
      * @throws Error
      */
     protected function getOperationRootType(Schema $schema, OperationDefinitionNode $operation): ObjectType
@@ -375,6 +385,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * @phpstan-param Fields $fields
      *
      * @phpstan-return Fields
+     *
+     * @throws \Exception
+     * @throws Error
      */
     protected function collectFields(
         ObjectType $runtimeType,
@@ -445,6 +458,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * directives, where @skip has higher precedence than @include.
      *
      * @param FragmentSpreadNode|FieldNode|InlineFragmentNode $node
+     *
+     * @throws \Exception
+     * @throws Error
      */
     protected function shouldIncludeNode(SelectionNode $node): bool
     {
@@ -468,9 +484,7 @@ class ReferenceExecutor implements ExecutorImplementation
         return ! isset($include['if']) || $include['if'] !== false;
     }
 
-    /**
-     * Implements the logic to compute the key of a given fields entry.
-     */
+    /** Implements the logic to compute the key of a given fields entry. */
     protected static function getFieldEntryKey(FieldNode $node): string
     {
         return $node->alias->value
@@ -481,6 +495,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * Determines if a fragment is applicable to the given type.
      *
      * @param FragmentDefinitionNode|InlineFragmentNode $fragment
+     *
+     * @throws \Exception
      */
     protected function doesFragmentConditionMatch(Node $fragment, ObjectType $type): bool
     {
@@ -566,6 +582,9 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      *
+     * @throws Error
+     * @throws InvariantViolation
+     *
      * @return array<mixed>|\Throwable|mixed|null
      */
     protected function resolveField(ObjectType $parentType, $rootValue, \ArrayObject $fieldNodes, array $path)
@@ -633,6 +652,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * are allowed, like on a Union. __schema could get automatically
      * added to the query type, but that would require mutating type
      * definitions, which would cause issues.
+     *
+     * @throws InvariantViolation
      */
     protected function getFieldDef(Schema $schema, ObjectType $parentType, string $fieldName): ?FieldDefinition
     {
@@ -701,6 +722,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * @phpstan-param Path                $path
      *
      * @param mixed                       $result
+     *
+     * @throws Error
      *
      * @return array<mixed>|Promise|\stdClass|null
      */
@@ -789,8 +812,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param array<string|int>           $path
      * @param mixed                       $result
      *
-     * @throws Error
      * @throws \Throwable
+     * @throws Error
      *
      * @return array<mixed>|mixed|Promise|null
      */
@@ -864,9 +887,7 @@ class ReferenceExecutor implements ExecutorImplementation
         throw new \RuntimeException("Cannot complete value of unexpected type {$safeReturnType}.");
     }
 
-    /**
-     * @param mixed $value
-     */
+    /** @param mixed $value */
     protected function isPromise($value): bool
     {
         return $value instanceof Promise
@@ -929,7 +950,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param list<string|int> $path
      * @param iterable<mixed> $results
      *
-     * @throws \Exception
+     * @throws Error
      *
      * @return array<mixed>|Promise|\stdClass
      */
@@ -996,7 +1017,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param array<string|int> $path
      * @param array<mixed> $result
      *
+     * @throws \Exception
      * @throws Error
+     * @throws InvariantViolation
      *
      * @return array<mixed>|Promise|\stdClass
      */
@@ -1062,6 +1085,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed|null $contextValue
      * @param AbstractType&Type $abstractType
      *
+     * @throws InvariantViolation
+     *
      * @return Promise|Type|string|null
      */
     protected function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
@@ -1071,7 +1096,7 @@ class ReferenceExecutor implements ExecutorImplementation
             return $typename;
         }
 
-        if ($abstractType instanceof InterfaceType && $info->schema->getConfig()->typeLoader !== null) {
+        if ($abstractType instanceof InterfaceType && isset($info->schema->getConfig()->typeLoader)) {
             $safeValue = Utils::printSafe($value);
             Warning::warnOnce(
                 "GraphQL Interface Type `{$abstractType->name}` returned `null` from its `resolveType` function for value: {$safeValue}. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly. Make sure your `resolveType` function always returns a valid implementation or throws.",
@@ -1095,7 +1120,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
         }
 
-        if (\count($promisedIsTypeOfResults) > 0) {
+        if ($promisedIsTypeOfResults !== []) {
             return $this->exeContext->promiseAdapter
                 ->all($promisedIsTypeOfResults)
                 ->then(static function ($isTypeOfResults) use ($possibleTypes): ?ObjectType {
@@ -1119,6 +1144,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param array<string|int>           $path
      * @param mixed                       $result
      *
+     * @throws \Exception
      * @throws Error
      *
      * @return array<mixed>|Promise|\stdClass
@@ -1192,6 +1218,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param array<string|int>           $path
      * @param mixed                       $result
      *
+     * @throws \Exception
      * @throws Error
      *
      * @return array<mixed>|Promise|\stdClass
@@ -1215,6 +1242,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      *
      * @phpstan-return Fields
+     *
+     * @throws \Exception
+     * @throws Error
      */
     protected function collectSubFields(ObjectType $returnType, \ArrayObject $fieldNodes): \ArrayObject
     {
@@ -1248,6 +1278,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param array<string|int> $path
      *
      * @phpstan-param Fields $fields
+     *
+     * @throws Error
+     * @throws InvariantViolation
      *
      * @return Promise|\stdClass|array<mixed>
      */
@@ -1325,6 +1358,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed $runtimeTypeOrName
      * @param AbstractType&Type $returnType
      * @param mixed $result
+     *
+     * @throws InvariantViolation
      */
     protected function ensureValidRuntimeType(
         $runtimeTypeOrName,

@@ -92,7 +92,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         $this->positions = $positions;
         $this->path = $path;
 
-        if (\is_array($extensions) && \count($extensions) > 0) {
+        if (\is_array($extensions) && $extensions !== []) {
             $this->extensions = $extensions;
         } elseif ($previous instanceof ProvidesExtensions) {
             $this->extensions = $previous->getExtensions();
@@ -167,9 +167,9 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         $nodes = $this->getNodes();
 
         return $path !== null
-            && \count($path) > 0
+            && $path !== []
             && $nodes !== null
-            && \count($nodes) > 0;
+            && $nodes !== [];
     }
 
     public function isClientSafe(): bool
@@ -184,9 +184,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
             ?? null;
     }
 
-    /**
-     * @return array<int, int>
-     */
+    /** @return array<int, int> */
     public function getPositions(): array
     {
         if (! isset($this->positions)) {
@@ -227,11 +225,11 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
             $nodes = $this->getNodes();
 
             $this->locations = [];
-            if ($source !== null && \count($positions) !== 0) {
+            if ($source !== null && $positions !== []) {
                 foreach ($positions as $position) {
                     $this->locations[] = $source->getLocation($position);
                 }
-            } elseif ($nodes !== null && \count($nodes) !== 0) {
+            } elseif ($nodes !== null && $nodes !== []) {
                 foreach ($nodes as $node) {
                     if (isset($node->loc->source)) {
                         $this->locations[] = $node->loc->source->getLocation($node->loc->start);
@@ -243,9 +241,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         return $this->locations;
     }
 
-    /**
-     * @return array<Node>|null
-     */
+    /** @return array<Node>|null */
     public function getNodes(): ?array
     {
         return $this->nodes;
@@ -264,9 +260,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         return $this->path;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
+    /** @return array<string, mixed>|null */
     public function getExtensions(): ?array
     {
         return $this->extensions;

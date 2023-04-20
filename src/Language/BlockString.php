@@ -67,8 +67,8 @@ class BlockString
                     if (Utils::charCodeAt($value, $i + 1) === 10) {
                         ++$i; // skip \r\n as one symbol
                     }
-                // falls through
-                // no break
+                    // falls through
+                    // no break
                 case 10: //  \n
                     $isFirstLine = false;
                     $isEmptyLine = true;

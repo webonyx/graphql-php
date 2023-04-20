@@ -3,6 +3,7 @@
 namespace GraphQL;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
@@ -71,6 +72,9 @@ class GraphQL
      * @param array<ValidationRule>|null $validationRules
      *
      * @api
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     public static function executeQuery(
         SchemaType $schema,
@@ -110,6 +114,8 @@ class GraphQL
      * @param array<ValidationRule>|null $validationRules
      *
      * @api
+     *
+     * @throws \Exception
      */
     public static function promiseToExecute(
         PromiseAdapter $promiseAdapter,
@@ -127,7 +133,7 @@ class GraphQL
                 ? $source
                 : Parser::parse(new Source($source, 'GraphQL'));
 
-            if ($validationRules === null || \count($validationRules) === 0) {
+            if ($validationRules === null || $validationRules === []) {
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
                 assert($queryComplexity instanceof QueryComplexity, 'should not register a different rule for QueryComplexity');
 
@@ -142,7 +148,7 @@ class GraphQL
 
             $validationErrors = DocumentValidator::validate($schema, $documentNode, $validationRules);
 
-            if (\count($validationErrors) > 0) {
+            if ($validationErrors !== []) {
                 return $promiseAdapter->createFulfilled(
                     new ExecutionResult(null, $validationErrors)
                 );
@@ -168,6 +174,8 @@ class GraphQL
     /**
      * Returns directives defined in GraphQL spec.
      *
+     * @throws InvariantViolation
+     *
      * @return array<string, Directive>
      *
      * @api
@@ -179,6 +187,8 @@ class GraphQL
 
     /**
      * Returns types defined in GraphQL spec.
+     *
+     * @throws InvariantViolation
      *
      * @return array<string, ScalarType>
      *
@@ -197,6 +207,8 @@ class GraphQL
      * @param array<string, ScalarType> $types
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function overrideStandardTypes(array $types): void
     {

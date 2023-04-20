@@ -19,13 +19,11 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
-class IntrospectionTest extends TestCase
+final class IntrospectionTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /**
-     * @see it('executes an introspection query')
-     */
+    /** @see it('executes an introspection query') */
     public function testExecutesAnIntrospectionQuery(): void
     {
         $schema = BuildSchema::build('
@@ -910,9 +908,7 @@ class IntrospectionTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /**
-     * @see it('introspects on input object')
-     */
+    /** @see it('introspects on input object') */
     public function testIntrospectsOnInputObject(): void
     {
         $TestInputObject = new InputObjectType([
@@ -930,7 +926,7 @@ class IntrospectionTest extends TestCase
                 'field' => [
                     'type' => Type::string(),
                     'args' => ['complex' => ['type' => $TestInputObject]],
-                    'resolve' => static fn ($testType, array $args): string => json_encode($args['complex']),
+                    'resolve' => static fn ($testType, array $args): string => json_encode($args['complex'], JSON_THROW_ON_ERROR),
                 ],
             ],
         ]);
@@ -1009,9 +1005,7 @@ class IntrospectionTest extends TestCase
         self::assertEquals($expectedFragment, $result['data']['__type'] ?? null);
     }
 
-    /**
-     * @see it('supports the __type root field')
-     */
+    /** @see it('supports the __type root field') */
     public function testSupportsTheTypeRootField(): void
     {
         $TestType = new ObjectType([
@@ -1038,12 +1032,10 @@ class IntrospectionTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('identifies deprecated fields')
-     */
+    /** @see it('identifies deprecated fields') */
     public function testIdentifiesDeprecatedFields(): void
     {
         $TestType = new ObjectType([
@@ -1095,9 +1087,7 @@ class IntrospectionTest extends TestCase
         self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('respects the includeDeprecated parameter for fields')
-     */
+    /** @see it('respects the includeDeprecated parameter for fields') */
     public function testRespectsTheIncludeDeprecatedParameterForFields(): void
     {
         $TestType = new ObjectType([
@@ -1149,12 +1139,10 @@ class IntrospectionTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('identifies deprecated enum values')
-     */
+    /** @see it('identifies deprecated enum values') */
     public function testIdentifiesDeprecatedEnumValues(): void
     {
         $TestEnum = new EnumType([
@@ -1214,9 +1202,7 @@ class IntrospectionTest extends TestCase
         self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('respects the includeDeprecated parameter for enum values')
-     */
+    /** @see it('respects the includeDeprecated parameter for enum values') */
     public function testRespectsTheIncludeDeprecatedParameterForEnumValues(): void
     {
         $TestEnum = new EnumType([
@@ -1272,12 +1258,10 @@ class IntrospectionTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('fails as expected on the __type root field without an arg')
-     */
+    /** @see it('fails as expected on the __type root field without an arg') */
     public function testFailsAsExpectedOnTheTypeRootFieldWithoutAnArg(): void
     {
         $TestType = new ObjectType([
@@ -1308,9 +1292,7 @@ class IntrospectionTest extends TestCase
         self::assertArraySubset($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('exposes descriptions on types and fields')
-     */
+    /** @see it('exposes descriptions on types and fields') */
     public function testExposesDescriptionsOnTypesAndFields(): void
     {
         $QueryRoot = new ObjectType([
@@ -1350,8 +1332,7 @@ class IntrospectionTest extends TestCase
                         ],
                         [
                             'name' => 'mutationType',
-                            'description' => 'If this server supports mutation, the type that '
-                                . 'mutation operations will be rooted at.',
+                            'description' => 'If this server supports mutation, the type that mutation operations will be rooted at.',
                         ],
                         [
                             'name' => 'subscriptionType',
@@ -1365,12 +1346,10 @@ class IntrospectionTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('exposes descriptions on enums')
-     */
+    /** @see it('exposes descriptions on enums') */
     public function testExposesDescriptionsOnEnums(): void
     {
         $QueryRoot = new ObjectType([
@@ -1398,55 +1377,46 @@ class IntrospectionTest extends TestCase
                     'description' => 'An enum describing what kind of type a given `__Type` is.',
                     'enumValues' => [
                         [
-                            'description' => 'Indicates this type is a scalar.',
                             'name' => 'SCALAR',
+                            'description' => 'Indicates this type is a scalar.',
                         ],
                         [
-                            'description' => 'Indicates this type is an object. '
-                                . '`fields` and `interfaces` are valid fields.',
                             'name' => 'OBJECT',
+                            'description' => 'Indicates this type is an object. `fields` and `interfaces` are valid fields.',
                         ],
                         [
-                            'description' => 'Indicates this type is an interface. '
-                                . '`fields`, `interfaces`, and `possibleTypes` are valid fields.',
                             'name' => 'INTERFACE',
+                            'description' => 'Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.',
                         ],
                         [
-                            'description' => 'Indicates this type is a union. '
-                                . '`possibleTypes` is a valid field.',
                             'name' => 'UNION',
+                            'description' => 'Indicates this type is a union. `possibleTypes` is a valid field.',
                         ],
                         [
-                            'description' => 'Indicates this type is an enum. '
-                                . '`enumValues` is a valid field.',
                             'name' => 'ENUM',
+                            'description' => 'Indicates this type is an enum. `enumValues` is a valid field.',
                         ],
                         [
-                            'description' => 'Indicates this type is an input object. '
-                                . '`inputFields` is a valid field.',
                             'name' => 'INPUT_OBJECT',
+                            'description' => 'Indicates this type is an input object. `inputFields` is a valid field.',
                         ],
                         [
-                            'description' => 'Indicates this type is a list. '
-                                . '`ofType` is a valid field.',
                             'name' => 'LIST',
+                            'description' => 'Indicates this type is a list. `ofType` is a valid field.',
                         ],
                         [
-                            'description' => 'Indicates this type is a non-null. '
-                                . '`ofType` is a valid field.',
                             'name' => 'NON_NULL',
+                            'description' => 'Indicates this type is a non-null. `ofType` is a valid field.',
                         ],
                     ],
                 ],
             ],
         ];
 
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('executes an introspection query without calling global fieldResolver')
-     */
+    /** @see it('executes an introspection query without calling global fieldResolver') */
     public function testExecutesAnIntrospectionQueryWithoutCallingGlobalFieldResolver(): void
     {
         $QueryRoot = new ObjectType([

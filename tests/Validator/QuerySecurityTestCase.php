@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
@@ -27,6 +28,11 @@ abstract class QuerySecurityTestCase extends TestCase
 
     abstract protected function getRule(int $max): QuerySecurityRule;
 
+    /**
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     protected function assertIntrospectionQuery(int $maxExpected): void
     {
         $query = Introspection::getIntrospectionQuery();
@@ -34,6 +40,11 @@ abstract class QuerySecurityTestCase extends TestCase
         $this->assertMaxValue($query, $maxExpected);
     }
 
+    /**
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     protected function assertMaxValue(string $query, int $maxExpected): void
     {
         $this->assertDocumentValidator($query, $maxExpected);
@@ -47,6 +58,10 @@ abstract class QuerySecurityTestCase extends TestCase
 
     /**
      * @param array<int, array<string, mixed>> $expectedErrors
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
      *
      * @return array<int, Error>
      */
@@ -75,6 +90,11 @@ abstract class QuerySecurityTestCase extends TestCase
 
     abstract protected function getErrorMessage(int $max, int $count): string;
 
+    /**
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     protected function assertIntrospectionTypeMetaFieldQuery(int $maxExpected): void
     {
         $query = '
@@ -88,6 +108,11 @@ abstract class QuerySecurityTestCase extends TestCase
         $this->assertMaxValue($query, $maxExpected);
     }
 
+    /**
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     protected function assertTypeNameMetaFieldQuery(int $maxExpected): void
     {
         $query = '

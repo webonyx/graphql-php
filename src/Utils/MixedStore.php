@@ -32,20 +32,20 @@ class MixedStore implements \ArrayAccess
     private ?array $lastArrayKey = null;
 
     /** @var TValue|null */
-    private $lastArrayValue = null;
+    private $lastArrayValue;
 
     /** @var TValue|null */
-    private $nullValue = null;
+    private $nullValue;
 
     private bool $nullValueIsSet = false;
 
     /** @var TValue|null */
-    private $trueValue = null;
+    private $trueValue;
 
     private bool $trueValueIsSet = false;
 
     /** @var TValue|null */
-    private $falseValue = null;
+    private $falseValue;
 
     private bool $falseValueIsSet = false;
 
@@ -54,9 +54,7 @@ class MixedStore implements \ArrayAccess
         $this->objectStore = new \SplObjectStorage();
     }
 
-    /**
-     * @param mixed $offset
-     */
+    /** @param mixed $offset */
     #[\ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {
@@ -149,6 +147,8 @@ class MixedStore implements \ArrayAccess
     /**
      * @param mixed  $offset
      * @param TValue $value
+     *
+     * @throws \InvalidArgumentException
      */
     #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
@@ -177,9 +177,7 @@ class MixedStore implements \ArrayAccess
         }
     }
 
-    /**
-     * @param mixed $offset
-     */
+    /** @param mixed $offset */
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {

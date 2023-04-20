@@ -7,21 +7,17 @@ use PHPUnit\Framework\TestCase;
 
 final class UtilsTest extends TestCase
 {
-    /**
-     * @dataProvider chrUtf8DataProvider
-     */
+    /** @dataProvider chrUtf8DataProvider */
     public function testChrUtf8Generation(int $input, string $expected): void
     {
         $result = Utils::chr($input);
 
         self::assertTrue(\mb_check_encoding($result, 'UTF-8'));
-        self::assertEquals($expected, $result);
+        self::assertSame($expected, $result);
     }
 
-    /**
-     * @return iterable<array{input: int, expected: string}>
-     */
-    public function chrUtf8DataProvider(): iterable
+    /** @return iterable<array{input: int, expected: string}> */
+    public static function chrUtf8DataProvider(): iterable
     {
         yield 'alphabet' => [
             'input' => 0x0061,
@@ -44,12 +40,32 @@ final class UtilsTest extends TestCase
         ];
     }
 
-    public function testPrintSafeJson(): void
+    /**
+     * @dataProvider printSafeJsonDataProvider
+     *
+     * @param mixed $value
+     */
+    public function testPrintSafeJson(string $expected, $value): void
     {
-        self::assertJsonStringEqualsJsonString(
-            /** @lang JSON */
-            '{"foo":1}',
-            Utils::printSafeJson((object) ['foo' => 1])
-        );
+        self::assertSame($expected, Utils::printSafeJson($value));
+    }
+
+    /** @return iterable<array{expected: string, value: mixed}> */
+    public static function printSafeJsonDataProvider(): iterable
+    {
+        yield 'stdClass' => [
+            'expected' => '{"foo":1}',
+            'value' => (object) ['foo' => 1],
+        ];
+
+        yield 'invalid stdClass' => [
+            'expected' => "O:8:\"stdClass\":1:{s:12:\"invalid utf8\";s:2:\"\xB1\x31\";}",
+            'value' => (object) ['invalid utf8' => "\xB1\x31"],
+        ];
+
+        yield 'empty string' => [
+            'expected' => '(empty string)',
+            'value' => '',
+        ];
     }
 }

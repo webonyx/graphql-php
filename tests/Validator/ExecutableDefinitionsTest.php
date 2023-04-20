@@ -9,13 +9,11 @@ use GraphQL\Validator\Rules\ExecutableDefinitions;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class ExecutableDefinitionsTest extends ValidatorTestCase
+final class ExecutableDefinitionsTest extends ValidatorTestCase
 {
     // Validate: Executable definitions
 
-    /**
-     * @see it('with only operation')
-     */
+    /** @see it('with only operation') */
     public function testWithOnlyOperation(): void
     {
         $this->expectPassesRule(
@@ -30,9 +28,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with operation and fragment')
-     */
+    /** @see it('with operation and fragment') */
     public function testWithOperationAndFragment(): void
     {
         $this->expectPassesRule(
@@ -52,9 +48,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('with typeDefinition')
-     */
+    /** @see it('with typeDefinition') */
     public function testWithTypeDefinition(): void
     {
         $this->expectFailsRule(
@@ -81,9 +75,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function nonExecutableDefinition(string $defName, int $line, int $column): array
     {
         return ErrorHelper::create(

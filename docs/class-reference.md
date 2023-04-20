@@ -52,6 +52,9 @@ See [related documentation](executing-queries.md).
  * @param array<ValidationRule>|null $validationRules
  *
  * @api
+ *
+ * @throws \Exception
+ * @throws InvariantViolation
  */
 static function executeQuery(
     GraphQL\Type\Schema $schema,
@@ -77,6 +80,8 @@ static function executeQuery(
  * @param array<ValidationRule>|null $validationRules
  *
  * @api
+ *
+ * @throws \Exception
  */
 static function promiseToExecute(
     GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter,
@@ -95,6 +100,8 @@ static function promiseToExecute(
 /**
  * Returns directives defined in GraphQL spec.
  *
+ * @throws InvariantViolation
+ *
  * @return array<string, Directive>
  *
  * @api
@@ -105,6 +112,8 @@ static function getStandardDirectives(): array
 ```php
 /**
  * Returns types defined in GraphQL spec.
+ *
+ * @throws InvariantViolation
  *
  * @return array<string, ScalarType>
  *
@@ -122,6 +131,8 @@ static function getStandardTypes(): array
  * @param array<string, ScalarType> $types
  *
  * @api
+ *
+ * @throws InvariantViolation
  */
 static function overrideStandardTypes(array $types): void
 ```
@@ -157,6 +168,8 @@ Registry of standard GraphQL types and base class for all other types.
 ```php
 /**
  * @api
+ *
+ * @throws InvariantViolation
  */
 static function int(): GraphQL\Type\Definition\ScalarType
 ```
@@ -164,6 +177,8 @@ static function int(): GraphQL\Type\Definition\ScalarType
 ```php
 /**
  * @api
+ *
+ * @throws InvariantViolation
  */
 static function float(): GraphQL\Type\Definition\ScalarType
 ```
@@ -171,6 +186,8 @@ static function float(): GraphQL\Type\Definition\ScalarType
 ```php
 /**
  * @api
+ *
+ * @throws InvariantViolation
  */
 static function string(): GraphQL\Type\Definition\ScalarType
 ```
@@ -178,6 +195,8 @@ static function string(): GraphQL\Type\Definition\ScalarType
 ```php
 /**
  * @api
+ *
+ * @throws InvariantViolation
  */
 static function boolean(): GraphQL\Type\Definition\ScalarType
 ```
@@ -185,6 +204,8 @@ static function boolean(): GraphQL\Type\Definition\ScalarType
 ```php
 /**
  * @api
+ *
+ * @throws InvariantViolation
  */
 static function id(): GraphQL\Type\Definition\ScalarType
 ```
@@ -539,48 +560,6 @@ static function create(array $options = []): self
 
 ```php
 /**
- * @api
- */
-function getQuery(): ?GraphQL\Type\Definition\ObjectType
-```
-
-```php
-/**
- * @api
- */
-function setQuery(?GraphQL\Type\Definition\ObjectType $query): self
-```
-
-```php
-/**
- * @api
- */
-function getMutation(): ?GraphQL\Type\Definition\ObjectType
-```
-
-```php
-/**
- * @api
- */
-function setMutation(?GraphQL\Type\Definition\ObjectType $mutation): self
-```
-
-```php
-/**
- * @api
- */
-function getSubscription(): ?GraphQL\Type\Definition\ObjectType
-```
-
-```php
-/**
- * @api
- */
-function setSubscription(?GraphQL\Type\Definition\ObjectType $subscription): self
-```
-
-```php
-/**
  * @return array|callable
  *
  * @phpstan-return Types
@@ -682,6 +661,8 @@ function __construct($config)
  *
  * This operation requires a full schema scan. Do not use in production environment.
  *
+ * @throws InvariantViolation
+ *
  * @return array<string, Type&NamedType> Keys represent type names, values are instances of corresponding type definitions
  *
  * @api
@@ -692,6 +673,8 @@ function getTypeMap(): array
 ```php
 /**
  * Returns a list of directives supported by this schema.
+ *
+ * @throws InvariantViolation
  *
  * @return array<Directive>
  *
@@ -729,14 +712,9 @@ function getSubscriptionType(): ?GraphQL\Type\Definition\ObjectType
 
 ```php
 /**
- * @api
- */
-function getConfig(): GraphQL\Type\SchemaConfig
-```
-
-```php
-/**
  * Returns a type by name.
+ *
+ * @throws InvariantViolation
  *
  * @return (Type&NamedType)|null
  *
@@ -754,6 +732,8 @@ function getType(string $name): ?GraphQL\Type\Definition\Type
  *
  * @param AbstractType&Type $abstractType
  *
+ * @throws InvariantViolation
+ *
  * @return array<ObjectType>
  *
  * @api
@@ -768,6 +748,8 @@ function getPossibleTypes(GraphQL\Type\Definition\AbstractType $abstractType): a
  * This operation requires full schema scan. Do not use in production environment.
  *
  * @api
+ *
+ * @throws InvariantViolation
  */
 function getImplementations(GraphQL\Type\Definition\InterfaceType $abstractType): GraphQL\Utils\InterfaceImplementations
 ```
@@ -780,6 +762,8 @@ function getImplementations(GraphQL\Type\Definition\InterfaceType $abstractType)
  * @param ImplementingType&Type $maybeSubType
  *
  * @api
+ *
+ * @throws InvariantViolation
  */
 function isSubType(
     GraphQL\Type\Definition\AbstractType $abstractType,
@@ -792,6 +776,8 @@ function isSubType(
  * Returns instance of directive by name.
  *
  * @api
+ *
+ * @throws InvariantViolation
  */
 function getDirective(string $name): ?GraphQL\Type\Definition\Directive
 ```
@@ -802,6 +788,7 @@ function getDirective(string $name): ?GraphQL\Type\Definition\Directive
  *
  * This operation requires a full schema scan. Do not use in production environment.
  *
+ * @throws Error
  * @throws InvariantViolation
  *
  * @api
@@ -814,6 +801,8 @@ function assertValid(): void
  * Validate the schema and return any errors.
  *
  * This operation requires a full schema scan. Do not use in production environment.
+ *
+ * @throws InvariantViolation
  *
  * @return array<int, Error>
  *
@@ -948,9 +937,10 @@ Those magic functions allow partial parsing:
  *
  * @phpstan-param ParserOptions       $options
  *
- * @throws SyntaxError
- *
  * @api
+ *
+ * @throws \JsonException
+ * @throws SyntaxError
  */
 static function parse($source, array $options = []): GraphQL\Language\AST\DocumentNode
 ```
@@ -969,6 +959,9 @@ static function parse($source, array $options = []): GraphQL\Language\AST\Docume
  * @param Source|string $source
  *
  * @phpstan-param ParserOptions $options
+ *
+ * @throws \JsonException
+ * @throws SyntaxError
  *
  * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode
  *
@@ -991,6 +984,9 @@ static function parseValue($source, array $options = [])
  * @param Source|string $source
  *
  * @phpstan-param ParserOptions       $options
+ *
+ * @throws \JsonException
+ * @throws SyntaxError
  *
  * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
  *
@@ -1033,34 +1029,29 @@ Utility for efficient AST traversal and modification.
 the visitor's enter function at each node in the traversal, and calling the
 leave function after visiting that node and all of its child nodes.
 
-By returning different values from the enter and leave functions, the
-behavior of the visitor can be altered, including skipping over a sub-tree of
-the AST (by returning false), editing the AST by returning a value or null
-to remove the value, or to stop the whole traversal by returning BREAK.
+By returning different values from the `enter` and `leave` functions, the
+behavior of the visitor can be altered.
+
+- no return (`void`) or return `null`: no action
+- `Visitor::skipNode()`: skips over the subtree at the current node of the AST
+- `Visitor::stop()`: stop the Visitor completely
+- `Visitor::removeNode()`: remove the current node
+- return any other value: replace this node with the returned value
 
 When using `visit()` to edit an AST, the original AST will not be modified, and
 a new version of the AST with the changes applied will be returned from the
 visit function.
 
-    $editedAST = Visitor::visit($ast, [
-      'enter' => function ($node, $key, $parent, $path, $ancestors) {
-        // return
-        //   null: no action
-        //   Visitor::skipNode(): skip visiting this node
-        //   Visitor::stop(): stop visiting altogether
-        //   Visitor::removeNode(): delete this node
-        //   any value: replace this node with the returned value
-      },
-      'leave' => function ($node, $key, $parent, $path, $ancestors) {
-        // return
-        //   null: no action
-        //   Visitor::stop(): stop visiting altogether
-        //   Visitor::removeNode(): delete this node
-        //   any value: replace this node with the returned value
-      }
-    ]);
+$editedAST = Visitor::visit($ast, [
+'enter' => function ($node, $key, $parent, $path, $ancestors) {
+// ...
+},
+'leave' => function ($node, $key, $parent, $path, $ancestors) {
+// ...
+}
+]);
 
-Alternatively to providing enter() and leave() functions, a visitor can
+Alternatively to providing `enter` and `leave` functions, a visitor can
 instead provide functions named the same as the [kinds of AST nodes](class-reference.md#graphqllanguageastnodekind),
 or enter/leave visitors at a named key, leading to four permutations of
 visitor API:
@@ -1113,7 +1104,8 @@ visitor API:
    ]
    ]);
 
-@phpstan-type VisitorArray array<string, callable(Node): VisitorOperation|mixed|null>|array<string, array<string, callable(Node): VisitorOperation|mixed|null>>
+@phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
+@phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
 
 ### GraphQL\Language\Visitor Methods
 
@@ -1121,15 +1113,13 @@ visitor API:
 /**
  * Visit the AST (see class description for details).
  *
- * @template TNode of Node
- *
- * @param NodeList<TNode>|Node $root
+ * @param NodeList<Node>|Node $root
  * @param VisitorArray $visitor
  * @param array<string, mixed>|null $keyMap
  *
  * @throws \Exception
  *
- * @return Node|mixed
+ * @return mixed
  *
  * @api
  */
@@ -1147,7 +1137,7 @@ static function stop(): GraphQL\Language\VisitorStop
 
 ```php
 /**
- * Returns marker for skipping the current node.
+ * Returns marker for skipping the subtree at the current node.
  *
  * @api
  */
@@ -1282,6 +1272,8 @@ Implements the "Evaluating requests" section of the GraphQL specification.
  * @phpstan-param FieldResolver|null $fieldResolver
  *
  * @api
+ *
+ * @throws InvariantViolation
  */
 static function execute(
     GraphQL\Type\Schema $schema,
@@ -1550,6 +1542,8 @@ will be created from the provided schema.
  *
  * @param array<ValidationRule>|null $rules
  *
+ * @throws \Exception
+ *
  * @return array<int, Error>
  *
  * @api
@@ -1565,6 +1559,8 @@ static function validate(
 ```php
 /**
  * Returns all global validation rules.
+ *
+ * @throws \InvalidArgumentException
  *
  * @return array<string, ValidationRule>
  *
@@ -1582,6 +1578,8 @@ static function allRules(): array
  * @example DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
  *
  * @api
+ *
+ * @throws \InvalidArgumentException
  */
 static function getRule(string $name): ?GraphQL\Validator\Rules\ValidationRule
 ```
@@ -1839,6 +1837,8 @@ See [dedicated section in docs](executing-queries.md#using-server) for details.
  * @param ServerConfig|array<string, mixed> $config
  *
  * @api
+ *
+ * @throws InvariantViolation
  */
 function __construct($config)
 ```
@@ -1857,6 +1857,10 @@ function __construct($config)
  * @param OperationParams|array<OperationParams> $parsedBody
  *
  * @api
+ *
+ * @throws \Exception
+ * @throws InvariantViolation
+ * @throws RequestError
  */
 function handleRequest($parsedBody = null): void
 ```
@@ -1874,6 +1878,10 @@ function handleRequest($parsedBody = null): void
  *
  * @param OperationParams|array<OperationParams> $parsedBody
  *
+ * @throws \Exception
+ * @throws InvariantViolation
+ * @throws RequestError
+ *
  * @return ExecutionResult|array<int, ExecutionResult>|Promise
  *
  * @api
@@ -1887,6 +1895,13 @@ function executeRequest($parsedBody = null)
  *
  * See `executePsrRequest()` if you prefer to create response yourself
  * (e.g. using specific JsonResponse instance of some framework).
+ *
+ * @throws \Exception
+ * @throws \InvalidArgumentException
+ * @throws \JsonException
+ * @throws \RuntimeException
+ * @throws InvariantViolation
+ * @throws RequestError
  *
  * @return ResponseInterface|Promise
  *
@@ -1903,6 +1918,11 @@ function processPsrRequest(
 /**
  * Executes GraphQL operation and returns execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter).
+ *
+ * @throws \Exception
+ * @throws \JsonException
+ * @throws InvariantViolation
+ * @throws RequestError
  *
  * @return ExecutionResult|array<int, ExecutionResult>|Promise
  *
@@ -1944,15 +1964,10 @@ Usage example:
  * @param array<string, mixed> $config
  *
  * @api
+ *
+ * @throws InvariantViolation
  */
 static function create(array $config = []): self
-```
-
-```php
-/**
- * @api
- */
-function setSchema(GraphQL\Type\Schema $schema): self
 ```
 
 ```php
@@ -2008,13 +2023,6 @@ function setValidationRules($validationRules): self
 
 ```php
 /**
- * @api
- */
-function setFieldResolver(callable $fieldResolver): self
-```
-
-```php
-/**
  * @phpstan-param PersistedQueryLoader|null $persistedQueryLoader
  *
  * @api
@@ -2040,13 +2048,6 @@ function setDebugFlag(int $debugFlag = 'GraphQL\\Error\\DebugFlag::INCLUDE_DEBUG
  * @api
  */
 function setQueryBatching(bool $enableBatching): self
-```
-
-```php
-/**
- * @api
- */
-function setPromiseAdapter(GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter): self
 ```
 
 ## GraphQL\Server\Helper
@@ -2116,6 +2117,9 @@ function validateOperationParams(GraphQL\Server\OperationParams $params): array
  * Executes GraphQL operation with given server configuration and returns execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter).
  *
+ * @throws \Exception
+ * @throws InvariantViolation
+ *
  * @return ExecutionResult|Promise
  *
  * @api
@@ -2129,6 +2133,9 @@ function executeOperation(GraphQL\Server\ServerConfig $config, GraphQL\Server\Op
  * (thus, effectively batching deferreds|promises of all queries at once).
  *
  * @param array<OperationParams> $operations
+ *
+ * @throws \Exception
+ * @throws InvariantViolation
  *
  * @return array<int, ExecutionResult>|Promise
  *
@@ -2144,6 +2151,8 @@ function executeBatch(GraphQL\Server\ServerConfig $config, array $operations)
  * @param Promise|ExecutionResult|array<ExecutionResult> $result
  *
  * @api
+ *
+ * @throws \JsonException
  */
 function sendResponse($result): void
 ```
@@ -2166,6 +2175,10 @@ function parsePsrRequest(Psr\Http\Message\RequestInterface $request)
  * Converts query execution result to PSR-7 response.
  *
  * @param Promise|ExecutionResult|array<ExecutionResult> $result
+ *
+ * @throws \InvalidArgumentException
+ * @throws \JsonException
+ * @throws \RuntimeException
  *
  * @return Promise|ResponseInterface
  *
@@ -2310,6 +2323,12 @@ assumeValidSDL?: bool
  * @phpstan-param BuildSchemaOptions $options
  *
  * @api
+ *
+ * @throws \Exception
+ * @throws \ReflectionException
+ * @throws Error
+ * @throws InvariantViolation
+ * @throws SyntaxError
  */
 static function build($source, ?callable $typeConfigDecorator = null, array $options = []): GraphQL\Type\Schema
 ```
@@ -2329,9 +2348,12 @@ static function build($source, ?callable $typeConfigDecorator = null, array $opt
  *
  * @phpstan-param BuildSchemaOptions $options
  *
- * @throws Error
- *
  * @api
+ *
+ * @throws \Exception
+ * @throws \ReflectionException
+ * @throws Error
+ * @throws InvariantViolation
  */
 static function buildAST(
     GraphQL\Language\AST\DocumentNode $ast,
@@ -2371,6 +2393,9 @@ Various utilities dealing with AST.
  * @param array<string, mixed> $node
  *
  * @api
+ *
+ * @throws \JsonException
+ * @throws InvariantViolation
  */
 static function fromArray(array $node): GraphQL\Language\AST\Node
 ````
@@ -2407,6 +2432,10 @@ static function toArray(GraphQL\Language\AST\Node $node): array
  *
  * @param mixed $value
  * @param InputType&Type $type
+ *
+ * @throws \JsonException
+ * @throws InvariantViolation
+ * @throws SerializationError
  *
  * @return (ValueNode&Node)|null
  *
@@ -2521,7 +2550,15 @@ static function concatAST(array $documents): GraphQL\Language\AST\DocumentNode
 
 Prints the contents of a Schema in schema definition language.
 
-@phpstan-type Options array{sortTypes?: bool}
+All sorting options sort alphabetically. If not given or `false`, the original schema definition order will be used.
+
+@phpstan-type Options array{
+sortArguments?: bool,
+sortEnumValues?: bool,
+sortFields?: bool,
+sortInputFields?: bool,
+sortTypes?: bool,
+}
 
 ### GraphQL\Utils\SchemaPrinter Methods
 
@@ -2532,6 +2569,11 @@ Prints the contents of a Schema in schema definition language.
  * @phpstan-param Options $options
  *
  * @api
+ *
+ * @throws \JsonException
+ * @throws Error
+ * @throws InvariantViolation
+ * @throws SerializationError
  */
 static function doPrint(GraphQL\Type\Schema $schema, array $options = []): string
 ```
@@ -2543,6 +2585,11 @@ static function doPrint(GraphQL\Type\Schema $schema, array $options = []): strin
  * @phpstan-param Options $options
  *
  * @api
+ *
+ * @throws \JsonException
+ * @throws Error
+ * @throws InvariantViolation
+ * @throws SerializationError
  */
 static function printIntrospectionSchema(GraphQL\Type\Schema $schema, array $options = []): string
 ```

@@ -10,4 +10,10 @@ class DirectiveNode extends Node
 
     /** @var NodeList<ArgumentNode> */
     public NodeList $arguments;
+
+    public function __construct(array $vars)
+    {
+        parent::__construct($vars);
+        $this->arguments ??= new NodeList([]);
+    }
 }

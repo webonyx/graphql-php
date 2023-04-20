@@ -3,6 +3,8 @@
 namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\Node;
@@ -88,6 +90,12 @@ class BuildSchema
      * @phpstan-param BuildSchemaOptions $options
      *
      * @api
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws Error
+     * @throws InvariantViolation
+     * @throws SyntaxError
      */
     public static function build(
         $source,
@@ -115,9 +123,12 @@ class BuildSchema
      *
      * @phpstan-param BuildSchemaOptions $options
      *
-     * @throws Error
-     *
      * @api
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws Error
+     * @throws InvariantViolation
      */
     public static function buildAST(
         DocumentNode $ast,
@@ -127,6 +138,12 @@ class BuildSchema
         return (new self($ast, $typeConfigDecorator, $options))->buildSchema();
     }
 
+    /**
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws Error
+     * @throws InvariantViolation
+     */
     public function buildSchema(): Schema
     {
         if (
@@ -232,9 +249,7 @@ class BuildSchema
         );
     }
 
-    /**
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     private function getOperationTypes(SchemaDefinitionNode $schemaDef): array
     {
         /** @var array<string, string> $operationTypes */

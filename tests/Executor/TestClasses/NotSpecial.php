@@ -2,14 +2,12 @@
 
 namespace GraphQL\Tests\Executor\TestClasses;
 
-class NotSpecial
+final class NotSpecial
 {
     /** @var string */
     public $value;
 
-    /**
-     * @param string $value
-     */
+    /** @param string $value */
     public function __construct($value)
     {
         $this->value = $value;

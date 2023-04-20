@@ -23,9 +23,7 @@ use function Safe\file_get_contents;
 
 final class VisitorTest extends ValidatorTestCase
 {
-    /**
-     * @param array<int, mixed> $args
-     */
+    /** @param array<int, mixed> $args */
     private function checkVisitorFnArgs(DocumentNode $ast, array $args, bool $isEdited = false): void
     {
         self::assertCount(5, $args);
@@ -41,18 +39,18 @@ final class VisitorTest extends ValidatorTestCase
             }
 
             self::assertEquals(null, $parent);
-            self::assertEquals([], $path);
-            self::assertEquals([], $ancestors);
+            self::assertSame([], $path);
+            self::assertSame([], $ancestors);
 
             return;
         }
 
         if ($parent instanceof NodeList) {
             self::assertIsInt($key);
-            self::assertTrue(isset($parent[$key]));
+            self::assertArrayHasKey($key, $parent);
         } else {
             self::assertIsString($key);
-            self::assertObjectHasAttribute($key, $parent);
+            self::assertTrue(property_exists($parent, $key));
         }
 
         self::assertIsArray($path);
@@ -90,20 +88,16 @@ final class VisitorTest extends ValidatorTestCase
         $result = $ast;
 
         foreach ($path as $key) {
-            if ($result instanceof NodeList) {
-                $result = $result[$key];
-            } else {
-                /** @phpstan-ignore-next-line */
-                $result = $result->{$key};
-            }
+            $result = $result instanceof NodeList
+                ? $result[$key]
+                // @phpstan-ignore-next-line variable property access on mixed
+                : $result->{$key};
         }
 
         return $result;
     }
 
-    /**
-     * @see it('handles empty visitor', () => {
-     */
+    /** @see it('handles empty visitor', () => { */
     public function testHandlesEmptyVisitor(): void
     {
         $ast = Parser::parse('{ a }', ['noLocation' => true]);
@@ -111,9 +105,7 @@ final class VisitorTest extends ValidatorTestCase
         $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @see it('validates path argument')
-     */
+    /** @see it('validates path argument') */
     public function testValidatesPathArgument(): void
     {
         $visited = [];
@@ -147,12 +139,10 @@ final class VisitorTest extends ValidatorTestCase
             ['leave', []],
         ];
 
-        self::assertEquals($expected, $visited);
+        self::assertSame($expected, $visited);
     }
 
-    /**
-     * @see it('validates ancestors argument')
-     */
+    /** @see it('validates ancestors argument') */
     public function testValidatesAncestorsArgument(): void
     {
         $ast = Parser::parse('{ a }', ['noLocation' => true]);
@@ -184,9 +174,7 @@ final class VisitorTest extends ValidatorTestCase
         ]);
     }
 
-    /**
-     * @see it('allows editing a node both on enter and on leave', () => {
-     */
+    /** @see it('allows editing a node both on enter and on leave', () => { */
     public function testAllowsEditingANodeBothOnEnterAndOnLeave(): void
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
@@ -1472,9 +1460,7 @@ final class VisitorTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * Describe: visitWithTypeInfo.
-     */
+    /** Describe: visitWithTypeInfo. */
     public function testMaintainsTypeInfoDuringVisit(): void
     {
         $visited = [];
@@ -1636,14 +1622,14 @@ final class VisitorTest extends ValidatorTestCase
             )
         );
 
-        self::assertEquals(
+        self::assertSame(
             Printer::doPrint(Parser::parse(
                 '{ human(id: 4) { name, pets }, alien }'
             )),
             Printer::doPrint($ast)
         );
 
-        self::assertEquals(
+        self::assertSame(
             Printer::doPrint(Parser::parse(
                 '{ human(id: 4) { name, pets { __typename } }, alien { __typename } }'
             )),

@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Executor\TestClasses;
 
-class Human
+final class Human
 {
     /** @var string */
     public $name;

@@ -9,14 +9,10 @@ use GraphQL\Utils\Utils;
  */
 class CoercionError extends Error
 {
-    /**
-     * @var InputPath|null
-     */
+    /** @var InputPath|null */
     public ?array $inputPath;
 
-    /**
-     * @var mixed whatever invalid value was passed
-     */
+    /** @var mixed whatever invalid value was passed */
     public $invalidValue;
 
     /**

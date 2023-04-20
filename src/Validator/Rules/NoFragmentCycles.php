@@ -54,7 +54,7 @@ class NoFragmentCycles extends ValidationRule
 
         $spreadNodes = $context->getFragmentSpreads($fragment);
 
-        if (\count($spreadNodes) === 0) {
+        if ($spreadNodes === []) {
             return;
         }
 
@@ -89,14 +89,12 @@ class NoFragmentCycles extends ValidationRule
         $this->spreadPathIndexByName[$fragmentName] = null;
     }
 
-    /**
-     * @param array<string> $spreadNames
-     */
+    /** @param array<string> $spreadNames */
     public static function cycleErrorMessage(string $fragName, array $spreadNames = []): string
     {
-        $via = \count($spreadNames) > 0
-            ? ' via ' . \implode(', ', $spreadNames)
-            : '';
+        $via = $spreadNames === []
+            ? ''
+            : ' via ' . \implode(', ', $spreadNames);
 
         return "Cannot spread fragment \"{$fragName}\" within itself{$via}.";
     }

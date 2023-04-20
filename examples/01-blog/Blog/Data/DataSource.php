@@ -129,9 +129,7 @@ class DataSource
         return $storiesFound[\count($storiesFound) - 1] ?? null;
     }
 
-    /**
-     * @return array<int, User>
-     */
+    /** @return array<int, User> */
     public static function findLikes(int $storyId, int $limit): array
     {
         $likes = self::$storyLikes[$storyId] ?? [];
@@ -166,9 +164,7 @@ class DataSource
         return self::$stories[\count(self::$stories) - 1] ?? null;
     }
 
-    /**
-     * @return array<int, Story>
-     */
+    /** @return array<int, Story> */
     public static function findStories(int $limit, ?int $afterId = null): array
     {
         $start = $afterId !== null
@@ -178,9 +174,7 @@ class DataSource
         return \array_slice(\array_values(self::$stories), $start, $limit);
     }
 
-    /**
-     * @return array<int, Comment>
-     */
+    /** @return array<int, Comment> */
     public static function findComments(int $storyId, int $limit = 5, ?int $afterId = null): array
     {
         $storyComments = self::$storyComments[$storyId] ?? [];
@@ -196,9 +190,7 @@ class DataSource
         );
     }
 
-    /**
-     * @return array<int, Comment>
-     */
+    /** @return array<int, Comment> */
     public static function findReplies(int $commentId, int $limit = 5, ?int $afterId = null): array
     {
         $commentReplies = self::$commentReplies[$commentId] ?? [];
@@ -228,9 +220,7 @@ class DataSource
             : 0;
     }
 
-    /**
-     * @return array<int, Story|User>
-     */
+    /** @return array<int, Story|User> */
     public static function findStoryMentions(int $storyId): array
     {
         return self::$storyMentions[$storyId] ?? [];

@@ -172,6 +172,9 @@ class Helper
      * Executes GraphQL operation with given server configuration and returns execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter).
      *
+     * @throws \Exception
+     * @throws InvariantViolation
+     *
      * @return ExecutionResult|Promise
      *
      * @api
@@ -193,6 +196,9 @@ class Helper
      * (thus, effectively batching deferreds|promises of all queries at once).
      *
      * @param array<OperationParams> $operations
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      *
      * @return array<int, ExecutionResult>|Promise
      *
@@ -217,6 +223,10 @@ class Helper
         return $result;
     }
 
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
     protected function promiseToExecuteOperation(
         PromiseAdapter $promiseAdapter,
         ServerConfig $config,
@@ -234,7 +244,7 @@ class Helper
 
             $errors = $this->validateOperationParams($op);
 
-            if (\count($errors) > 0) {
+            if ($errors !== []) {
                 $locatedErrors = \array_map(
                     [Error::class, 'createLocatedError'],
                     $errors
@@ -326,9 +336,7 @@ class Helper
         return $source;
     }
 
-    /**
-     * @return array<mixed>|null
-     */
+    /** @return array<mixed>|null */
     protected function resolveValidationRules(
         ServerConfig $config,
         OperationParams $params,
@@ -350,9 +358,7 @@ class Helper
         return $validationRules;
     }
 
-    /**
-     * @return mixed
-     */
+    /** @return mixed */
     protected function resolveRootValue(
         ServerConfig $config,
         OperationParams $params,
@@ -368,9 +374,7 @@ class Helper
         return $rootValue;
     }
 
-    /**
-     * @return mixed user defined
-     */
+    /** @return mixed user defined */
     protected function resolveContextValue(
         ServerConfig $config,
         OperationParams $params,
@@ -392,6 +396,8 @@ class Helper
      * @param Promise|ExecutionResult|array<ExecutionResult> $result
      *
      * @api
+     *
+     * @throws \JsonException
      */
     public function sendResponse($result): void
     {
@@ -406,13 +412,16 @@ class Helper
 
     /**
      * @param array<mixed>|\JsonSerializable $jsonSerializable
+     *
+     * @throws \JsonException
      */
     protected function emitResponse($jsonSerializable): void
     {
         \header('Content-Type: application/json;charset=utf-8');
-        echo \json_encode($jsonSerializable, JSON_UNESCAPED_UNICODE);
+        echo \json_encode($jsonSerializable, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     }
 
+    /** @throws RequestError */
     protected function readRawBody(): string
     {
         $body = \file_get_contents('php://input');
@@ -485,11 +494,7 @@ class Helper
         return $bodyParams;
     }
 
-    /**
-     * @throws RequestError
-     *
-     * @return array<mixed>
-     */
+    /** @return array<mixed> */
     protected function decodeContent(string $rawBody): array
     {
         \parse_str($rawBody, $bodyParams);
@@ -515,6 +520,10 @@ class Helper
      *
      * @param Promise|ExecutionResult|array<ExecutionResult> $result
      *
+     * @throws \InvalidArgumentException
+     * @throws \JsonException
+     * @throws \RuntimeException
+     *
      * @return Promise|ResponseInterface
      *
      * @api
@@ -532,6 +541,10 @@ class Helper
 
     /**
      * @param ExecutionResult|array<ExecutionResult> $result
+     *
+     * @throws \InvalidArgumentException
+     * @throws \JsonException
+     * @throws \RuntimeException
      */
     protected function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream): ResponseInterface
     {

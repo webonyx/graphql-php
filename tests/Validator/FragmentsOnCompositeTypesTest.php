@@ -9,13 +9,11 @@ use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class FragmentsOnCompositeTypesTest extends ValidatorTestCase
+final class FragmentsOnCompositeTypesTest extends ValidatorTestCase
 {
     // Validate: Fragments on composite types
 
-    /**
-     * @see it('object is valid fragment type')
-     */
+    /** @see it('object is valid fragment type') */
     public function testObjectIsValidFragmentType(): void
     {
         $this->expectPassesRule(
@@ -28,9 +26,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('interface is valid fragment type')
-     */
+    /** @see it('interface is valid fragment type') */
     public function testInterfaceIsValidFragmentType(): void
     {
         $this->expectPassesRule(
@@ -43,9 +39,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('object is valid inline fragment type')
-     */
+    /** @see it('object is valid inline fragment type') */
     public function testObjectIsValidInlineFragmentType(): void
     {
         $this->expectPassesRule(
@@ -60,9 +54,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('interface is valid inline fragment type')
-     */
+    /** @see it('interface is valid inline fragment type') */
     public function testInterfaceIsValidInlineFragmentType(): void
     {
         $this->expectPassesRule(
@@ -77,9 +69,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('inline fragment without type is valid')
-     */
+    /** @see it('inline fragment without type is valid') */
     public function testInlineFragmentWithoutTypeIsValid(): void
     {
         $this->expectPassesRule(
@@ -94,9 +84,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('union is valid fragment type')
-     */
+    /** @see it('union is valid fragment type') */
     public function testUnionIsValidFragmentType(): void
     {
         $this->expectPassesRule(
@@ -109,9 +97,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('scalar is invalid fragment type')
-     */
+    /** @see it('scalar is invalid fragment type') */
     public function testScalarIsInvalidFragmentType(): void
     {
         $this->expectFailsRule(
@@ -125,9 +111,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function error(string $fragName, string $typeName, int $line, int $column): array
     {
         return ErrorHelper::create(
@@ -136,9 +120,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('enum is invalid fragment type')
-     */
+    /** @see it('enum is invalid fragment type') */
     public function testEnumIsInvalidFragmentType(): void
     {
         $this->expectFailsRule(
@@ -152,9 +134,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('input object is invalid fragment type')
-     */
+    /** @see it('input object is invalid fragment type') */
     public function testInputObjectIsInvalidFragmentType(): void
     {
         $this->expectFailsRule(
@@ -168,9 +148,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('scalar is invalid inline fragment type')
-     */
+    /** @see it('scalar is invalid inline fragment type') */
     public function testScalarIsInvalidInlineFragmentType(): void
     {
         $this->expectFailsRule(

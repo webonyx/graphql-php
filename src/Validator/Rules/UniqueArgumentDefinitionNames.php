@@ -49,9 +49,7 @@ class UniqueArgumentDefinitionNames extends ValidationRule
         ];
     }
 
-    /**
-     * @param NodeList<InputValueDefinitionNode> $arguments
-     */
+    /** @param NodeList<InputValueDefinitionNode> $arguments */
     private static function checkArgUniqueness(string $parentName, NodeList $arguments, SDLValidationContext $context): VisitorOperation
     {
         $seenArgs = [];
