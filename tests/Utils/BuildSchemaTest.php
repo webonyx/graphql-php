@@ -1477,7 +1477,7 @@ final class BuildSchemaTest extends TestCaseBase
         $assert($myType);
     }
 
-    /** @return iterable<string, array<mixed>> */
+    /** @return iterable<array<mixed>> */
     public static function correctlyExtendsTypesDataProvider(): iterable
     {
         yield 'scalar' => [

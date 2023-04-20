@@ -24,44 +24,42 @@ use function Safe\file_get_contents;
 
 final class ParserTest extends TestCaseBase
 {
-    /** @return array<int, array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}> */
-    public static function parseProvidesUsefulErrors(): array
+    /** @return iterable<array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}> */
+    public static function parseProvidesUsefulErrors(): iterable
     {
-        return [
+        yield [
+            '{',
+            'Syntax Error: Expected Name, found <EOF>',
+            "Syntax Error: Expected Name, found <EOF>\n\nGraphQL request (1:2)\n1: {\n    ^\n",
+            [1],
             [
-                '{',
-                'Syntax Error: Expected Name, found <EOF>',
-                "Syntax Error: Expected Name, found <EOF>\n\nGraphQL request (1:2)\n1: {\n    ^\n",
-                [1],
-                [
-                    new SourceLocation(
-                        1,
-                        2
-                    ),
-                ],
+                new SourceLocation(
+                    1,
+                    2
+                ),
             ],
-            [
-                '{ ...MissingOn }
+        ];
+        yield [
+            '{ ...MissingOn }
 fragment MissingOn Type
 ',
-                'Syntax Error: Expected "on", found Name "Type"',
-                "Syntax Error: Expected \"on\", found Name \"Type\"\n\nGraphQL request (2:20)\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",
-            ],
-            [
-                '{ field: {} }',
-                'Syntax Error: Expected Name, found {',
-                "Syntax Error: Expected Name, found {\n\nGraphQL request (1:10)\n1: { field: {} }\n            ^\n",
-            ],
-            [
-                'notanoperation Foo { field }',
-                'Syntax Error: Unexpected Name "notanoperation"',
-                "Syntax Error: Unexpected Name \"notanoperation\"\n\nGraphQL request (1:1)\n1: notanoperation Foo { field }\n   ^\n",
-            ],
-            [
-                '...',
-                'Syntax Error: Unexpected ...',
-                "Syntax Error: Unexpected ...\n\nGraphQL request (1:1)\n1: ...\n   ^\n",
-            ],
+            'Syntax Error: Expected "on", found Name "Type"',
+            "Syntax Error: Expected \"on\", found Name \"Type\"\n\nGraphQL request (2:20)\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",
+        ];
+        yield [
+            '{ field: {} }',
+            'Syntax Error: Expected Name, found {',
+            "Syntax Error: Expected Name, found {\n\nGraphQL request (1:10)\n1: { field: {} }\n            ^\n",
+        ];
+        yield [
+            'notanoperation Foo { field }',
+            'Syntax Error: Unexpected Name "notanoperation"',
+            "Syntax Error: Unexpected Name \"notanoperation\"\n\nGraphQL request (1:1)\n1: notanoperation Foo { field }\n   ^\n",
+        ];
+        yield [
+            '...',
+            'Syntax Error: Unexpected ...',
+            "Syntax Error: Unexpected ...\n\nGraphQL request (1:1)\n1: ...\n   ^\n",
         ];
     }
 

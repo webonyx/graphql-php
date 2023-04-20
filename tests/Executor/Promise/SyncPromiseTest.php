@@ -29,13 +29,11 @@ final class SyncPromiseTest extends TestCaseBase
             throw new \Exception('onFulfilled throws this!');
         };
 
-        return [
-            ['test-value', null, 'test-value', null, SyncPromise::FULFILLED],
-            [\uniqid(), $onFulfilledReturnsNull, null, null, SyncPromise::FULFILLED],
-            ['test-value', $onFulfilledReturnsSameValue, 'test-value', null, SyncPromise::FULFILLED],
-            ['test-value-2', $onFulfilledReturnsOtherValue, 'other-test-value-2', null, SyncPromise::FULFILLED],
-            ['test-value-3', $onFulfilledThrows, null, 'onFulfilled throws this!', SyncPromise::REJECTED],
-        ];
+        yield ['test-value', null, 'test-value', null, SyncPromise::FULFILLED];
+        yield [\uniqid(), $onFulfilledReturnsNull, null, null, SyncPromise::FULFILLED];
+        yield ['test-value', $onFulfilledReturnsSameValue, 'test-value', null, SyncPromise::FULFILLED];
+        yield ['test-value-2', $onFulfilledReturnsOtherValue, 'other-test-value-2', null, SyncPromise::FULFILLED];
+        yield ['test-value-3', $onFulfilledThrows, null, 'onFulfilled throws this!', SyncPromise::REJECTED];
     }
 
     /** @dataProvider fulfilledPromiseResolveData */
@@ -193,14 +191,12 @@ final class SyncPromiseTest extends TestCaseBase
             throw new \Exception('onRejected throws other!');
         };
 
-        return [
-            // $rejectedReason, $onRejected, $expectedNextValue, $expectedNextReason, $expectedNextState
-            [new \Exception('test-reason'), null, null, 'test-reason', SyncPromise::REJECTED],
-            [new \Exception('test-reason-2'), $onRejectedReturnsNull, null, null, SyncPromise::FULFILLED],
-            [new \Exception('test-reason-3'), $onRejectedReturnsSomeValue, 'some-value', null, SyncPromise::FULFILLED],
-            [new \Exception('test-reason-4'), $onRejectedThrowsSameReason, null, 'test-reason-4', SyncPromise::REJECTED],
-            [new \Exception('test-reason-5'), $onRejectedThrowsOtherReason, null, 'onRejected throws other!', SyncPromise::REJECTED],
-        ];
+        // $rejectedReason, $onRejected, $expectedNextValue, $expectedNextReason, $expectedNextState
+        yield [new \Exception('test-reason'), null, null, 'test-reason', SyncPromise::REJECTED];
+        yield [new \Exception('test-reason-2'), $onRejectedReturnsNull, null, null, SyncPromise::FULFILLED];
+        yield [new \Exception('test-reason-3'), $onRejectedReturnsSomeValue, 'some-value', null, SyncPromise::FULFILLED];
+        yield [new \Exception('test-reason-4'), $onRejectedThrowsSameReason, null, 'test-reason-4', SyncPromise::REJECTED];
+        yield [new \Exception('test-reason-5'), $onRejectedThrowsOtherReason, null, 'onRejected throws other!', SyncPromise::REJECTED];
     }
 
     /** @dataProvider rejectedPromiseData */

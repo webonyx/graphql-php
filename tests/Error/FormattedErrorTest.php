@@ -23,21 +23,19 @@ final class FormattedErrorTest extends TestCase
     /**
      * @throws InvariantViolation
      *
-     * @return array<int, array{mixed, string}>
+     * @return iterable<array{mixed, string}>
      */
-    public static function printVar(): array
+    public static function printVar(): iterable
     {
-        return [
-            [Type::string(), 'GraphQLType: String'],
-            [new NodeList([]), 'instance of GraphQL\Language\AST\NodeList(0)'],
-            [[2], 'array(1)'],
-            ['', '(empty string)'],
-            ["'", "'\\''"],
-            [true, 'true'],
-            [false, 'false'],
-            [1, '1'],
-            [2.3, '2.3'],
-            [null, 'null'],
-        ];
+        yield [Type::string(), 'GraphQLType: String'];
+        yield [new NodeList([]), 'instance of GraphQL\Language\AST\NodeList(0)'];
+        yield [[2], 'array(1)'];
+        yield ['', '(empty string)'];
+        yield ["'", "'\\''"];
+        yield [true, 'true'];
+        yield [false, 'false'];
+        yield [1, '1'];
+        yield [2.3, '2.3'];
+        yield [null, 'null'];
     }
 }
