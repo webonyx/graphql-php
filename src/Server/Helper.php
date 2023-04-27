@@ -255,7 +255,7 @@ class Helper
                 );
             }
 
-            $doc = $op->queryId !== null && $op->query === null
+            $doc = $op->queryId !== null
                 ? $this->loadPersistedQuery($config, $op)
                 : $op->query;
 

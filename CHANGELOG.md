@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Changed
+
+- Allow sending both `query` and `queryId`, let `persistedQueryLoader` handle it
+
 ## v15.3.0
 
 ### Added

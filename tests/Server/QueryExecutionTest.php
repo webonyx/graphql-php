@@ -455,15 +455,22 @@ final class QueryExecutionTest extends ServerTestCase
         self::assertSame($expected, $result->toArray());
     }
 
-    public function testExecutesQueryWhenQueryAndQueryIdArePassed(): void
+    public function testLoadsPersistedQueryWhenQueryAndQueryIdArePassed(): void
     {
         $query = /** @lang GraphQL */ '{ f1 }';
 
         $expected = [
-            'data' => ['f1' => 'f1'],
+            'errors' => [
+                [
+                    'message' => 'Cannot query field "invalid" on type "Query".',
+                    'locations' => [['line' => 1, 'column' => 3]],
+                ],
+            ],
         ];
-        $this->config->setPersistedQueryLoader(static function (): array {
-            throw new \Exception('Should not be called since a query is also passed');
+        $this->config->setPersistedQueryLoader(static function (string $queryId, OperationParams $params) use ($query): string {
+            self::assertSame($query, $params->query);
+
+            return /** @lang GraphQL */ '{ invalid }';
         });
 
         $this->assertQueryResultEquals($expected, $query, [], 'some-id');
