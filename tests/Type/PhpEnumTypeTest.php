@@ -31,7 +31,7 @@ final class PhpEnumTypeTest extends TestCaseBase
     public function testConstructEnumTypeFromPhpEnum(): void
     {
         $enumType = new PhpEnumType(
-            ["enumPath" => MyCustomPhpEnum::class]
+            ['enumPath' => MyCustomPhpEnum::class]
         );
         self::assertSame(
             <<<'GRAPHQL'
@@ -50,8 +50,8 @@ GRAPHQL,
     public function testConstructEnumTypeFromPhpEnumWithCustomName(): void
     {
         $enumType = new PhpEnumType([
-            "enumPath"=>MyCustomPhpEnum::class,
-            "name"=>'CustomNamedPhpEnum'
+            'enumPath' => MyCustomPhpEnum::class,
+            'name' => 'CustomNamedPhpEnum',
         ]);
         self::assertSame(
             <<<'GRAPHQL'
@@ -69,7 +69,7 @@ GRAPHQL,
 
     public function testConstructEnumTypeFromPhpEnumWithDocBlockDescriptions(): void
     {
-        $enumType = new PhpEnumType(["enumPath"=>DocBlockPhpEnum::class]);
+        $enumType = new PhpEnumType(['enumPath' => DocBlockPhpEnum::class]);
         self::assertSame(
             <<<'GRAPHQL'
 "foo"
@@ -92,7 +92,7 @@ GRAPHQL,
     {
         self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));
         new PhpEnumType([
-            "enumPath"=>MultipleDescriptionsPhpEnum::class
+            'enumPath' => MultipleDescriptionsPhpEnum::class,
         ]);
     }
 
@@ -100,7 +100,7 @@ GRAPHQL,
     {
         self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));
         new PhpEnumType([
-            "enumPath" => MultipleDescriptionsCasePhpEnum::class
+            'enumPath' => MultipleDescriptionsCasePhpEnum::class,
         ]);
     }
 
@@ -108,7 +108,7 @@ GRAPHQL,
     {
         self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DEPRECATIONS_DISALLOWED));
         new PhpEnumType([
-            "enumPath"=>MultipleDeprecationsPhpEnum::class
+            'enumPath' => MultipleDeprecationsPhpEnum::class,
         ]);
     }
 
