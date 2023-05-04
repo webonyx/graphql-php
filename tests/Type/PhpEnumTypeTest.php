@@ -10,7 +10,7 @@ use GraphQL\Tests\Type\PhpEnumType\DocBlockPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\MultipleDeprecationsPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\MultipleDescriptionsCasePhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\MultipleDescriptionsPhpEnum;
-use GraphQL\Tests\Type\PhpEnumType\PhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\MyCustomPhpEnum;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\Type;
@@ -30,11 +30,13 @@ final class PhpEnumTypeTest extends TestCaseBase
 
     public function testConstructEnumTypeFromPhpEnum(): void
     {
-        $enumType = new PhpEnumType(PhpEnum::class);
+        $enumType = new PhpEnumType(
+            ["enumPath" => MyCustomPhpEnum::class]
+        );
         self::assertSame(
             <<<'GRAPHQL'
 "foo"
-enum PhpEnum {
+enum MyCustomPhpEnum {
   "bar"
   A
   B @deprecated
@@ -47,7 +49,10 @@ GRAPHQL,
 
     public function testConstructEnumTypeFromPhpEnumWithCustomName(): void
     {
-        $enumType = new PhpEnumType(PhpEnum::class, 'CustomNamedPhpEnum');
+        $enumType = new PhpEnumType([
+            "enumPath"=>MyCustomPhpEnum::class,
+            "name"=>'CustomNamedPhpEnum'
+        ]);
         self::assertSame(
             <<<'GRAPHQL'
 "foo"
@@ -64,7 +69,7 @@ GRAPHQL,
 
     public function testConstructEnumTypeFromPhpEnumWithDocBlockDescriptions(): void
     {
-        $enumType = new PhpEnumType(DocBlockPhpEnum::class);
+        $enumType = new PhpEnumType(["enumPath"=>DocBlockPhpEnum::class]);
         self::assertSame(
             <<<'GRAPHQL'
 "foo"
@@ -86,24 +91,30 @@ GRAPHQL,
     public function testMultipleDescriptionsDisallowed(): void
     {
         self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));
-        new PhpEnumType(MultipleDescriptionsPhpEnum::class);
+        new PhpEnumType([
+            "enumPath"=>MultipleDescriptionsPhpEnum::class
+        ]);
     }
 
     public function testMultipleDescriptionsDisallowedOnCase(): void
     {
         self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));
-        new PhpEnumType(MultipleDescriptionsCasePhpEnum::class);
+        new PhpEnumType([
+            "enumPath" => MultipleDescriptionsCasePhpEnum::class
+        ]);
     }
 
     public function testMultipleDeprecationsDisallowed(): void
     {
         self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DEPRECATIONS_DISALLOWED));
-        new PhpEnumType(MultipleDeprecationsPhpEnum::class);
+        new PhpEnumType([
+            "enumPath"=>MultipleDeprecationsPhpEnum::class
+        ]);
     }
 
     public function testExecutesWithEnumTypeFromPhpEnum(): void
     {
-        $enumType = new PhpEnumType(PhpEnum::class);
+        $enumType = PhpEnumType::fromPath(MyCustomPhpEnum::class);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
@@ -115,9 +126,9 @@ GRAPHQL,
                                 'type' => Type::nonNull($enumType),
                             ],
                         ],
-                        'resolve' => static function ($_, array $args): PhpEnum {
+                        'resolve' => static function ($_, array $args): MyCustomPhpEnum {
                             $bar = $args['bar'];
-                            assert($bar === PhpEnum::A);
+                            assert($bar === MyCustomPhpEnum::A);
 
                             return $bar;
                         },
@@ -138,7 +149,7 @@ GRAPHQL,
 
     public function testFailsToSerializeNonEnum(): void
     {
-        $enumType = new PhpEnumType(PhpEnum::class);
+        $enumType = PhpEnumType::fromPath(MyCustomPhpEnum::class);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
@@ -153,7 +164,7 @@ GRAPHQL,
 
         $result = GraphQL::executeQuery($schema, '{ foo }');
 
-        self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: "A", expected instance of GraphQL\\Tests\\Type\\PhpEnumType\\PhpEnum.'));
+        self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: "A", expected instance of GraphQL\\Tests\\Type\\PhpEnumType\\MyCustomPhpEnum.'));
         $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS);
     }
 }

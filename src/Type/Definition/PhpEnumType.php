@@ -4,31 +4,35 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\SerializationError;
 use GraphQL\Utils\PhpDoc;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Utils\Utils;
 
 /**
+ * @see EnumValueDefinitionNode
  * @phpstan-import-type PartialEnumValueConfig from EnumType
+ *
+ * @phpstan-type PhpEnumTypeConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   enumPath: class-string<\UnitEnum>,
+ *   astNode?: EnumTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<int, EnumTypeExtensionNode>|null
+ * }
  */
 class PhpEnumType extends EnumType
 {
     public const MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
     public const MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
 
-    /** @var class-string<\UnitEnum> */
-    protected string $enumClass;
-
     /**
-     * @param class-string<\UnitEnum> $enum
-     * @param string|null $name The name the enum will have in the schema, defaults to the basename of the given class
+     * @phpstan-param PhpEnumTypeConfig $config
      */
-    public function __construct(string $enum, ?string $name = null)
+    public function __construct(array $config)
     {
-        $this->enumClass = $enum;
-        $reflection = new \ReflectionEnum($enum);
+        $reflection = new \ReflectionEnum($config['enumPath']);
 
-        /**
-         * @var array<string, PartialEnumValueConfig> $enumDefinitions
-         */
         $enumDefinitions = [];
         foreach ($reflection->getCases() as $case) {
             $enumDefinitions[$case->name] = [
@@ -39,20 +43,27 @@ class PhpEnumType extends EnumType
         }
 
         parent::__construct([
-            'name' => $name ?? $this->baseName($enum),
+            'name' => $config['name'] ?? $this->baseName($config['enumPath']),
             'values' => $enumDefinitions,
-            'description' => $this->extractDescription($reflection),
+            'description' => $config['description'] ?? $this->extractDescription($reflection),
+            'enumPath' => $config['enumPath']
         ]);
     }
 
     public function serialize($value): string
     {
-        if (! is_a($value, $this->enumClass)) {
+        if (! is_a($value, $this->config['enumPath'])) {
             $notEnum = Utils::printSafe($value);
-            throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$this->enumClass}.");
+            throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$this->config['enumPath']}.");
         }
-
         return $value->name;
+    }
+
+    /**
+    /* @param class-string $path
+     */
+    public static function fromPath($path): PhpEnumType {
+        return new static(["enumPath"=>$path]);
     }
 
     /** @param class-string $class */
