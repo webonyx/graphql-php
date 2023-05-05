@@ -150,7 +150,7 @@ GRAPHQL,
     public function testFailsToSerializeNonEnum(): void
     {
         $enumType = new PhpEnumType([
-            'enumClass' => MyCustomPhpEnum::class
+            'enumClass' => MyCustomPhpEnum::class,
         ]);
         $schema = new Schema([
             'query' => new ObjectType([
