@@ -16,7 +16,7 @@ use GraphQL\Utils\Utils;
  * @phpstan-type PhpEnumTypeConfig array{
  *   name?: string|null,
  *   description?: string|null,
- *   enumPath: class-string<\UnitEnum>,
+ *   enumClass: class-string<\UnitEnum>,
  *   astNode?: EnumTypeDefinitionNode|null,
  *   extensionASTNodes?: array<int, EnumTypeExtensionNode>|null
  * }
@@ -31,7 +31,8 @@ class PhpEnumType extends EnumType
      */
     public function __construct(array $config)
     {
-        $reflection = new \ReflectionEnum($config['enumPath']);
+        $enumClass = $config['enumClass'];
+        $reflection = new \ReflectionEnum($enumClass);
 
         $enumDefinitions = [];
         foreach ($reflection->getCases() as $case) {
@@ -43,27 +44,20 @@ class PhpEnumType extends EnumType
         }
 
         parent::__construct([
-            'name' => $config['name'] ?? $this->baseName($config['enumPath']),
+            'name' => $config['name'] ?? $this->baseName($enumClass),
             'values' => $enumDefinitions,
             'description' => $config['description'] ?? $this->extractDescription($reflection),
-            'enumPath' => $config['enumPath']
+            'enumClass' => $enumClass
         ]);
     }
 
     public function serialize($value): string
     {
-        if (! is_a($value, $this->config['enumPath'])) {
+        if (! is_a($value, $this->config['enumClass'])) {
             $notEnum = Utils::printSafe($value);
-            throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$this->config['enumPath']}.");
+            throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$this->config['enumClass']}.");
         }
         return $value->name;
-    }
-
-    /**
-    /* @param class-string $path
-     */
-    public static function fromPath($path): PhpEnumType {
-        return new static(["enumPath"=>$path]);
     }
 
     /** @param class-string $class */

@@ -30,9 +30,9 @@ final class PhpEnumTypeTest extends TestCaseBase
 
     public function testConstructEnumTypeFromPhpEnum(): void
     {
-        $enumType = new PhpEnumType(
-            ["enumPath" => MyCustomPhpEnum::class]
-        );
+        $enumType = new PhpEnumType([
+            "enumClass" => MyCustomPhpEnum::class
+        ]);
         self::assertSame(
             <<<'GRAPHQL'
 "foo"
@@ -50,7 +50,7 @@ GRAPHQL,
     public function testConstructEnumTypeFromPhpEnumWithCustomName(): void
     {
         $enumType = new PhpEnumType([
-            "enumPath"=>MyCustomPhpEnum::class,
+            "enumClass"=>MyCustomPhpEnum::class,
             "name"=>'CustomNamedPhpEnum'
         ]);
         self::assertSame(
@@ -69,7 +69,7 @@ GRAPHQL,
 
     public function testConstructEnumTypeFromPhpEnumWithDocBlockDescriptions(): void
     {
-        $enumType = new PhpEnumType(["enumPath"=>DocBlockPhpEnum::class]);
+        $enumType = new PhpEnumType(["enumClass"=>DocBlockPhpEnum::class]);
         self::assertSame(
             <<<'GRAPHQL'
 "foo"
@@ -92,7 +92,7 @@ GRAPHQL,
     {
         self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));
         new PhpEnumType([
-            "enumPath"=>MultipleDescriptionsPhpEnum::class
+            "enumClass"=>MultipleDescriptionsPhpEnum::class
         ]);
     }
 
@@ -100,7 +100,7 @@ GRAPHQL,
     {
         self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DESCRIPTIONS_DISALLOWED));
         new PhpEnumType([
-            "enumPath" => MultipleDescriptionsCasePhpEnum::class
+            "enumClass" => MultipleDescriptionsCasePhpEnum::class
         ]);
     }
 
@@ -108,13 +108,13 @@ GRAPHQL,
     {
         self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DEPRECATIONS_DISALLOWED));
         new PhpEnumType([
-            "enumPath"=>MultipleDeprecationsPhpEnum::class
+            "enumClass"=>MultipleDeprecationsPhpEnum::class
         ]);
     }
 
     public function testExecutesWithEnumTypeFromPhpEnum(): void
     {
-        $enumType = PhpEnumType::fromPath(MyCustomPhpEnum::class);
+        $enumType = new PhpEnumType(['enumClass' => MyCustomPhpEnum::class]);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
@@ -149,7 +149,7 @@ GRAPHQL,
 
     public function testFailsToSerializeNonEnum(): void
     {
-        $enumType = PhpEnumType::fromPath(MyCustomPhpEnum::class);
+        $enumType = new PhpEnumType(['enumClass' => MyCustomPhpEnum::class]);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
