@@ -174,7 +174,7 @@ class SchemaPrinter
         // TODO add condition for schema.description
         // Only print a schema definition if there is a description or if it should
         // not be omitted because of having default type names.
-        if (! self::hasDefaultRootOperationTypes($schema)) {
+        if (! static::hasDefaultRootOperationTypes($schema)) {
             return "schema {\n"
                 . ($queryType !== null ? "  query: {$queryType->name}\n" : '')
                 . ($mutationType !== null ? "  mutation: {$mutationType->name}\n" : '')
@@ -378,7 +378,7 @@ class SchemaPrinter
     {
         return static::printDescription($options, $type)
             . "type {$type->name}"
-            . self::printImplementedInterfaces($type)
+            . static::printImplementedInterfaces($type)
             . static::printFields($options, $type);
     }
 
@@ -420,7 +420,7 @@ class SchemaPrinter
             $previousHasDescription = $hasDescription;
         }
 
-        return self::printBlock($fields);
+        return static::printBlock($fields);
     }
 
     /**
@@ -477,7 +477,7 @@ class SchemaPrinter
     {
         return static::printDescription($options, $type)
             . "interface {$type->name}"
-            . self::printImplementedInterfaces($type)
+            . static::printImplementedInterfaces($type)
             . static::printFields($options, $type);
     }
 
