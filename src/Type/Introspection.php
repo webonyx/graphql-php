@@ -96,7 +96,7 @@ class Introspection
     fields(includeDeprecated: true) {
       name
       {$descriptions}
-      args {
+      args(includeDeprecated: true) {
         ...InputValue
       }
       type {
@@ -105,7 +105,7 @@ class Introspection
       isDeprecated
       deprecationReason
     }
-    inputFields {
+    inputFields(includeDeprecated: true) {
       ...InputValue
     }
     interfaces {
@@ -127,6 +127,8 @@ class Introspection
     {$descriptions}
     type { ...TypeRef }
     defaultValue
+    isDeprecated
+    deprecationReason
   }
 
   fragment TypeRef on __Type {
@@ -392,9 +394,31 @@ GRAPHQL;
                 ],
                 'inputFields' => [
                     'type' => Type::listOf(Type::nonNull(self::_inputValue())),
-                    'resolve' => static fn ($type): ?array => $type instanceof InputObjectType
-                        ? $type->getFields()
-                        : null,
+                    'args' => [
+                        'includeDeprecated' => [
+                            'type' => Type::boolean(),
+                            'defaultValue' => false,
+                        ],
+                    ],
+                    'resolve' => static function ($type, $args): ?array {
+                        if ($type instanceof InputObjectType) {
+                            $fields = $type->getFields();
+
+                            if (! ($args['includeDeprecated'] ?? false)) {
+                                return \array_filter(
+                                    $fields,
+                                    static fn (InputObjectField $field): bool =>
+                                        $field->deprecationReason === null
+                                        || $field->deprecationReason === '',
+
+                                );
+                            }
+
+                            return $fields;
+                        }
+
+                        return null;
+                    },
                 ],
                 'ofType' => [
                     'type' => self::_type(),
@@ -469,7 +493,27 @@ GRAPHQL;
                 ],
                 'args' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                    'resolve' => static fn (FieldDefinition $field): array => $field->args,
+                    'args' => [
+                        'includeDeprecated' => [
+                            'type' => Type::boolean(),
+                            'defaultValue' => false,
+                        ],
+                    ],
+                    'resolve' => static function (FieldDefinition $field, $args): array {
+                        $values = $field->args;
+
+                        if (! ($args['includeDeprecated'] ?? false)) {
+                            return \array_filter(
+                                $values,
+                                static fn (Argument $value): bool =>
+                                    $value->deprecationReason === null
+                                    || $value->deprecationReason === '',
+
+                            );
+                        }
+
+                        return $values;
+                    },
                 ],
                 'type' => [
                     'type' => Type::nonNull(self::_type()),
@@ -531,6 +575,17 @@ GRAPHQL;
 
                         return null;
                     },
+                ],
+                'isDeprecated' => [
+                    'type' => Type::nonNull(Type::boolean()),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): bool => $inputValue->deprecationReason !== null
+                        && $inputValue->deprecationReason !== '',
+                ],
+                'deprecationReason' => [
+                    'type' => Type::string(),
+                    /** @param Argument|InputObjectField $inputValue */
+                    'resolve' => static fn ($inputValue): ?string => $inputValue->deprecationReason,
                 ],
             ],
         ]);

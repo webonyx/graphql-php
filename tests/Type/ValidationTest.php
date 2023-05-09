@@ -1005,6 +1005,26 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
+    /** @see it('rejects an Input Object type with required argument that is deprecated' */
+    public function testRejectsAnInputObjectTypeWithRequiredArgumentThatIsDeprecated(): void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        field(arg: SomeInputObject): String
+      }
+
+      input SomeInputObject {
+        optionalField: String @deprecated
+        anotherOptionalField: String! = "" @deprecated
+        badField: String! @deprecated
+      }
+        ');
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Required input field SomeInputObject.badField cannot be deprecated.');
+        $schema->assertValid();
+    }
+
     /** @see it('rejects an Enum type without values') */
     public function testRejectsAnEnumTypeWithoutValues(): void
     {
@@ -1542,6 +1562,29 @@ final class ValidationTest extends TestCaseBase
                 ]
             );
         }
+    }
+
+    /** @see it('rejects an required argument that is deprecated' */
+    public function testRejectsARequiredArgumentThatIsDeprecated(): void
+    {
+        $schema = BuildSchema::build('
+      directive @BadDirective(
+        badArg: String! @deprecated
+        optionalArg: String @deprecated
+        anotherOptionalArg: String! = "" @deprecated
+      ) on FIELD
+      type Query {
+        test(
+          badArg: String! @deprecated
+          optionalArg: String @deprecated
+          anotherOptionalArg: String! = "" @deprecated
+        ): String
+      }
+        ');
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Required argument String.test(badArg:) cannot be deprecated.');
+        $schema->assertValid();
     }
 
     /** @see it('rejects a non-input type as a field arg with locations') */
