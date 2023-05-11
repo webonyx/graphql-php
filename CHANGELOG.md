@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.4.0
+
+### Added
+
+- Allow deprecating input fields and arguments https://github.com/webonyx/graphql-php/pull/1382
+
 ## v15.3.2
 
 ### Fixed
