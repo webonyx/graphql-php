@@ -407,8 +407,7 @@ GRAPHQL;
                             if (! ($args['includeDeprecated'] ?? false)) {
                                 return \array_filter(
                                     $fields,
-                                    static fn (InputObjectField $field): bool =>
-                                        $field->deprecationReason === null
+                                    static fn (InputObjectField $field): bool => $field->deprecationReason === null
                                         || $field->deprecationReason === '',
                                 );
                             }
@@ -504,8 +503,7 @@ GRAPHQL;
                         if (! ($args['includeDeprecated'] ?? false)) {
                             return \array_filter(
                                 $values,
-                                static fn (Argument $value): bool =>
-                                    $value->deprecationReason === null
+                                static fn (Argument $value): bool => $value->deprecationReason === null
                                     || $value->deprecationReason === '',
                             );
                         }
