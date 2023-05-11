@@ -410,7 +410,6 @@ GRAPHQL;
                                     static fn (InputObjectField $field): bool =>
                                         $field->deprecationReason === null
                                         || $field->deprecationReason === '',
-
                                 );
                             }
 
@@ -508,7 +507,6 @@ GRAPHQL;
                                 static fn (Argument $value): bool =>
                                     $value->deprecationReason === null
                                     || $value->deprecationReason === '',
-
                             );
                         }
 
