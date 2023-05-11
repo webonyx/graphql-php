@@ -300,6 +300,7 @@ class SchemaExtender
             $newFieldConfig = [
                 'description' => $field->description,
                 'type' => $extendedType,
+                'deprecationReason' => $field->deprecationReason,
                 'astNode' => $field->astNode,
             ];
 
@@ -459,6 +460,7 @@ class SchemaExtender
             $def = [
                 'type' => $extendedType,
                 'description' => $arg->description,
+                'deprecationReason' => $arg->deprecationReason,
                 'astNode' => $arg->astNode,
             ];
 

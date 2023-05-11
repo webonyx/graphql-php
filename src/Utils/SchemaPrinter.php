@@ -336,7 +336,7 @@ class SchemaPrinter
      */
     protected static function printInputValue($arg): string
     {
-        $argDecl = "{$arg->name}: {$arg->getType()->toString()}";
+        $argDecl = "{$arg->name}: {$arg->getType()->toString()}" . static::printDeprecated($arg);
 
         if ($arg->defaultValueExists()) {
             $defaultValueAST = AST::astFromValue($arg->defaultValue, $arg->getType());
@@ -424,15 +424,15 @@ class SchemaPrinter
     }
 
     /**
-     * @param FieldDefinition|EnumValueDefinition $fieldOrEnumVal
+     * @param FieldDefinition|EnumValueDefinition|InputObjectField|Argument $deprecation
      *
      * @throws \JsonException
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    protected static function printDeprecated($fieldOrEnumVal): string
+    protected static function printDeprecated($deprecation): string
     {
-        $reason = $fieldOrEnumVal->deprecationReason;
+        $reason = $deprecation->deprecationReason;
         if ($reason === null) {
             return '';
         }

@@ -920,13 +920,19 @@ final class DefinitionTest extends TestCaseBase
                 'goodField' => [
                     'type' => Type::string(),
                     'args' => [
-                        'goodArg' => ['type' => Type::string()],
+                        'goodArg' => [
+                            'type' => Type::string(),
+                            'deprecationReason' => 'Just because',
+                        ],
                     ],
                 ],
             ],
         ]);
         $objType->assertValid();
-        self::assertDidNotCrash();
+        $argument = $objType->getField('goodField')->getArg('goodArg');
+        self::assertInstanceOf(Argument::class, $argument);
+        self::assertTrue($argument->isDeprecated());
+        self::assertSame('Just because', $argument->deprecationReason);
     }
 
     // Object interfaces must be array
@@ -1436,12 +1442,16 @@ final class DefinitionTest extends TestCaseBase
             'fields' => [
                 $fieldName => [
                     'type' => Type::string(),
+                    'deprecationReason' => 'Just because',
                 ],
             ],
         ]);
 
         $inputObjType->assertValid();
-        self::assertSame(Type::string(), $inputObjType->getField($fieldName)->getType());
+        $field = $inputObjType->getField($fieldName);
+        self::assertSame(Type::string(), $field->getType());
+        self::assertTrue($field->isDeprecated());
+        self::assertSame('Just because', $field->deprecationReason);
     }
 
     /** @see it('accepts an Input Object type with a field function') */
@@ -1453,12 +1463,16 @@ final class DefinitionTest extends TestCaseBase
             'fields' => static fn (): array => [
                 $fieldName => [
                     'type' => Type::string(),
+                    'deprecationReason' => 'Just because',
                 ],
             ],
         ]);
 
         $inputObjType->assertValid();
+        $field = $inputObjType->getField($fieldName);
         self::assertSame(Type::string(), $inputObjType->getField($fieldName)->getType());
+        self::assertTrue($field->isDeprecated());
+        self::assertSame('Just because', $field->deprecationReason);
     }
 
     /** @see it('accepts an Input Object type with a field type function') */
