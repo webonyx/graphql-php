@@ -69,11 +69,11 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
     public function __construct(
         string $message = '',
         $nodes = null,
-        ?Source $source = null,
-        ?array $positions = null,
-        ?array $path = null,
-        ?\Throwable $previous = null,
-        ?array $extensions = null
+        Source $source = null,
+        array $positions = null,
+        array $path = null,
+        \Throwable $previous = null,
+        array $extensions = null
     ) {
         parent::__construct($message, 0, $previous);
 
@@ -114,7 +114,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
      * @param iterable<Node>|Node|null    $nodes
      * @param array<int, int|string>|null $path
      */
-    public static function createLocatedError($error, $nodes = null, ?array $path = null): Error
+    public static function createLocatedError($error, $nodes = null, array $path = null): Error
     {
         if ($error instanceof self) {
             if ($error->isLocated()) {

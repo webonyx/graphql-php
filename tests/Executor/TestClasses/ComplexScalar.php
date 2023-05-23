@@ -35,7 +35,7 @@ final class ComplexScalar extends ScalarType
         throw new Error("Cannot represent value as ComplexScalar: {$notComplexScalar}");
     }
 
-    public function parseLiteral(Node $valueNode, ?array $variables = null): string
+    public function parseLiteral(Node $valueNode, array $variables = null): string
     {
         $value = property_exists($valueNode, 'value')
             ? $valueNode->value
