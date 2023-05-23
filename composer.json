@@ -23,7 +23,7 @@
     "phpbench/phpbench": "^1.2",
     "phpstan/extension-installer": "^1.1",
     "phpstan/phpstan": "1.10.15",
-    "phpstan/phpstan-phpunit": "1.3.11",
+    "phpstan/phpstan-phpunit": "1.3.12",
     "phpstan/phpstan-strict-rules": "1.5.1",
     "phpunit/phpunit": "^9.5",
     "psr/http-message": "^1 || ^2",
