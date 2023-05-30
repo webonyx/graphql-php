@@ -1454,6 +1454,12 @@ function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
 function all(iterable $promisesOrValues): GraphQL\Executor\Promise\Promise
 ```
 
+## GraphQL\Executor\ScopedContext
+
+When the context implements `ScopedContext` the `clone()` method will be
+called before passing the context to the subfields. This allows passing
+information to subfields without affecting the parent fields.
+
 ## GraphQL\Validator\DocumentValidator
 
 Implements the "Validation" section of the spec.
