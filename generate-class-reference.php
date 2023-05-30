@@ -10,6 +10,7 @@ use GraphQL\Error\Warning;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\PromiseAdapter;
+use GraphQL\Executor\ScopedContext;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\DirectiveLocation;
@@ -48,6 +49,7 @@ const ENTRIES = [
     Executor::class => [],
     ExecutionResult::class => [],
     PromiseAdapter::class => [],
+    ScopedContext::class => [],
     DocumentValidator::class => [],
     Error::class => ['constants' => true],
     Warning::class => ['constants' => true],
