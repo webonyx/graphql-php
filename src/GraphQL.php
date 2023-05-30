@@ -49,9 +49,9 @@ class GraphQL
      *    field arguments. It is used to pass shared information useful at any point
      *    during executing this query, for example the currently logged in user and
      *    connections to databases or other services.
-     *    You can implement the `ScopedContext` interface on your custom context
-     *    object to make sure modifications of the context object are only available
-     *    to subfields without affecting the parent fields.
+     *    If the passed object implements the `ScopedContext` interface,
+     *    its `clone()` method will be called before passing the context down to a field.
+     *    This allows passing information to child fields in the query tree without affecting sibling or parent fields.
      * variableValues:
      *    A mapping of variable name to runtime value to use for all variables
      *    defined in the requestString.
@@ -74,10 +74,10 @@ class GraphQL
      * @param array<string, mixed>|null  $variableValues
      * @param array<ValidationRule>|null $validationRules
      *
+     * @api
+     *
      * @throws \Exception
      * @throws InvariantViolation
-     *
-     *@api
      */
     public static function executeQuery(
         SchemaType $schema,

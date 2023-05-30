@@ -33,7 +33,7 @@ final class ScopedContextTest extends TestCase
             'fields' => [
                 'c' => [
                     'type' => Type::string(),
-                    'resolve' => function ($rootValue, $args, $context) {
+                    'resolve' => function ($rootValue, $args, $context): string {
                         $context->path[] = 'c';
                         $this->contexts['c'] = $context;
 
@@ -48,7 +48,7 @@ final class ScopedContextTest extends TestCase
             'fields' => [
                 'f' => [
                     'type' => Type::string(),
-                    'resolve' => function ($rootValue, $args, $context) {
+                    'resolve' => function ($rootValue, $args, $context): string {
                         $context->path[] = 'f';
                         $this->contexts['f'] = $context;
 
@@ -102,7 +102,7 @@ final class ScopedContextTest extends TestCase
             'fields' => [
                 'i' => [
                     'type' => Type::string(),
-                    'resolve' => function ($rootValue, $args, $context) {
+                    'resolve' => function ($rootValue, $args, $context): string {
                         $context->path[] = 'i';
                         $this->contexts['i'] = $context;
 
