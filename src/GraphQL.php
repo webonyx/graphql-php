@@ -76,8 +76,8 @@ class GraphQL
      *
      * @throws \Exception
      * @throws InvariantViolation
-     *@api
      *
+     *@api
      */
     public static function executeQuery(
         SchemaType $schema,
