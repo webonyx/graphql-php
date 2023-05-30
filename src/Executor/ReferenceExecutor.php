@@ -1044,7 +1044,6 @@ class ReferenceExecutor implements ExecutorImplementation
         &$result,
         $contextValue
     ) {
-        $exeContext = $this->exeContext;
         $typeCandidate = $returnType->resolveType($result, $contextValue, $info);
 
         if ($typeCandidate === null) {

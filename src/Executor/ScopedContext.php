@@ -3,9 +3,9 @@
 namespace GraphQL\Executor;
 
 /**
- * When the context implements `ScopedContext` the `clone()` method will be
- * called before passing the context to the subfields. This allows passing
- * information to subfields without affecting the parent fields.
+ * When the object passed as `$contextValue` to GraphQL execution implements this,
+ * its `clone()` method will be called before passing the context down to a field.
+ * This allows passing information to child fields in the query tree without affecting sibling or parent fields.
  */
 interface ScopedContext
 {
