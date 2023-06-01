@@ -145,7 +145,7 @@ class FormattedError
                 $formattedError['locations'] = $locations;
             }
 
-            if ($exception->path !== null && \count($exception->path) > 0) {
+            if ($exception->path !== null && $exception->path !== []) {
                 $formattedError['path'] = $exception->path;
             }
         }

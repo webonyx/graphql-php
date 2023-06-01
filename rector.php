@@ -1,11 +1,13 @@
 <?php declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Array_\CallableThisArrayToAnonymousFunctionRector;
+use Rector\CodeQuality\Rector\Concat\JoinStringConcatRector;
 use Rector\CodeQuality\Rector\Foreach_\UnusedForeachValueToArrayKeysRector;
 use Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector;
 use Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector;
 use Rector\CodeQuality\Rector\Switch_\SwitchTrueToIfRector;
 use Rector\Config\RectorConfig;
+use Rector\DeadCode\Rector\Assign\RemoveUnusedVariableAssignRector;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector;
 use Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector;
@@ -33,6 +35,10 @@ return static function (RectorConfig $rectorConfig): void {
         CallableThisArrayToAnonymousFunctionRector::class, // Callable in array form is shorter and more efficient
         IssetOnPropertyObjectToPropertyExistsRector::class, // isset() is nice when moving towards typed properties
         FlipTypeControlToUseExclusiveTypeRector::class, // Unnecessarily complex with PHPStan
+        JoinStringConcatRector::class => [
+            __DIR__ . '/tests',
+        ],
+        RemoveUnusedVariableAssignRector::class, // TODO reintroduce when https://github.com/rectorphp/rector/issues/7963 is fixed
         UnusedForeachValueToArrayKeysRector::class, // Less efficient
         RemoveAlwaysTrueIfConditionRector::class, // Sometimes necessary to prove runtime behaviour matches defined types
         RemoveDeadInstanceOfRector::class, // Sometimes necessary to prove runtime behaviour matches defined types
