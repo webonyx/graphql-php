@@ -38,7 +38,7 @@ return static function (RectorConfig $rectorConfig): void {
         JoinStringConcatRector::class => [
             __DIR__ . '/tests',
         ],
-        RemoveUnusedVariableAssignRector::class, // TODO reintroduce when https://github.com/rectorphp/rector/issues/7963 is fixed
+        RemoveUnusedVariableAssignRector::class, // TODO reintroduce when https://github.com/rectorphp/rector/issues/7963 is released in version >0.17.0
         UnusedForeachValueToArrayKeysRector::class, // Less efficient
         RemoveAlwaysTrueIfConditionRector::class, // Sometimes necessary to prove runtime behaviour matches defined types
         RemoveDeadInstanceOfRector::class, // Sometimes necessary to prove runtime behaviour matches defined types
