@@ -74,6 +74,7 @@
     ],
     "php-cs-fixer": "php-cs-fixer fix",
     "rector": "rector process",
+    "baseline": "phpstan --generate-baseline",
     "stan": "phpstan",
     "test": "phpunit"
   }
