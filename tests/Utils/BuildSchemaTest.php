@@ -745,7 +745,6 @@ final class BuildSchemaTest extends TestCaseBase
     /** @see it('Supports @deprecated') */
     public function testSupportsDeprecated(): void
     {
-        // TODO restore @deprecated on inputs - see https://github.com/webonyx/graphql-php/issues/110
         $sdl = <<<GRAPHQL
             enum MyEnum {
               VALUE
@@ -754,8 +753,8 @@ final class BuildSchemaTest extends TestCaseBase
             }
 
             input MyInput {
-              oldInput: String
-              otherInput: String
+              oldInput: String @deprecated
+              otherInput: String @deprecated(reason: "Use newInput")
               newInput: String
             }
             
@@ -763,8 +762,8 @@ final class BuildSchemaTest extends TestCaseBase
               field1: String @deprecated
               field2: Int @deprecated(reason: "Because I said so")
               enum: MyEnum
-              field3(oldArg: String, arg: String): String
-              field4(oldArg: String, arg: String): String
+              field3(oldArg: String @deprecated, arg: String): String
+              field4(oldArg: String @deprecated(reason: "Why not?"), arg: String): String
               field5(arg: MyInput): String
             }
             
@@ -802,7 +801,6 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertTrue($rootFields['field2']->isDeprecated());
         self::assertSame('Because I said so', $rootFields['field2']->deprecationReason);
 
-        self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/110');
         $type = $schema->getType('MyInput');
         self::assertInstanceOf(InputObjectType::class, $type);
         $inputFields = $type->getFields();

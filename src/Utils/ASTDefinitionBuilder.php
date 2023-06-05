@@ -91,7 +91,7 @@ class ASTDefinitionBuilder
         array $typeDefinitionsMap,
         array $typeExtensionsMap,
         callable $resolveType,
-        ?callable $typeConfigDecorator = null
+        callable $typeConfigDecorator = null
     ) {
         $this->typeDefinitionsMap = $typeDefinitionsMap;
         $this->typeExtensionsMap = $typeExtensionsMap;
@@ -141,6 +141,7 @@ class ASTDefinitionBuilder
                 'name' => $value->name->value,
                 'type' => $type,
                 'description' => $value->description->value ?? null,
+                'deprecationReason' => $this->getDeprecationReason($value),
                 'astNode' => $value,
             ];
 
@@ -246,7 +247,7 @@ class ASTDefinitionBuilder
      *
      * @return Type&NamedType
      */
-    private function internalBuildType(string $typeName, ?Node $typeNode = null): Type
+    private function internalBuildType(string $typeName, Node $typeNode = null): Type
     {
         if (isset($this->cache[$typeName])) {
             return $this->cache[$typeName];
@@ -388,7 +389,7 @@ class ASTDefinitionBuilder
      * Given a collection of directives, returns the string value for the
      * deprecation reason.
      *
-     * @param EnumValueDefinitionNode|FieldDefinitionNode $node
+     * @param EnumValueDefinitionNode|FieldDefinitionNode|InputValueDefinitionNode $node
      *
      * @throws \Exception
      * @throws \ReflectionException

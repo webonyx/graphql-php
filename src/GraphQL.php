@@ -49,6 +49,9 @@ class GraphQL
      *    field arguments. It is used to pass shared information useful at any point
      *    during executing this query, for example the currently logged in user and
      *    connections to databases or other services.
+     *    If the passed object implements the `ScopedContext` interface,
+     *    its `clone()` method will be called before passing the context down to a field.
+     *    This allows passing information to child fields in the query tree without affecting sibling or parent fields.
      * variableValues:
      *    A mapping of variable name to runtime value to use for all variables
      *    defined in the requestString.
@@ -81,10 +84,10 @@ class GraphQL
         $source,
         $rootValue = null,
         $contextValue = null,
-        ?array $variableValues = null,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        array $variableValues = null,
+        string $operationName = null,
+        callable $fieldResolver = null,
+        array $validationRules = null
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -123,10 +126,10 @@ class GraphQL
         $source,
         $rootValue = null,
         $context = null,
-        ?array $variableValues = null,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        array $variableValues = null,
+        string $operationName = null,
+        callable $fieldResolver = null,
+        array $validationRules = null
     ): Promise {
         try {
             $documentNode = $source instanceof DocumentNode

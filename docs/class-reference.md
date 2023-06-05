@@ -29,6 +29,9 @@ See [related documentation](executing-queries.md).
  *    field arguments. It is used to pass shared information useful at any point
  *    during executing this query, for example the currently logged in user and
  *    connections to databases or other services.
+ *    If the passed object implements the `ScopedContext` interface,
+ *    its `clone()` method will be called before passing the context down to a field.
+ *    This allows passing information to child fields in the query tree without affecting sibling or parent fields.
  * variableValues:
  *    A mapping of variable name to runtime value to use for all variables
  *    defined in the requestString.
@@ -1312,6 +1315,12 @@ static function promiseToExecute(
     ?callable $fieldResolver = null
 ): GraphQL\Executor\Promise\Promise
 ```
+
+## GraphQL\Executor\ScopedContext
+
+When the object passed as `$contextValue` to GraphQL execution implements this,
+its `clone()` method will be called before passing the context down to a field.
+This allows passing information to child fields in the query tree without affecting sibling or parent fields.
 
 ## GraphQL\Executor\ExecutionResult
 

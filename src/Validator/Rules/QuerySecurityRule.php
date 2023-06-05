@@ -103,8 +103,8 @@ abstract class QuerySecurityRule extends ValidationRule
         QueryValidationContext $context,
         ?Type $parentType,
         SelectionSetNode $selectionSet,
-        ?\ArrayObject $visitedFragmentNames = null,
-        ?\ArrayObject $astAndDefs = null
+        \ArrayObject $visitedFragmentNames = null,
+        \ArrayObject $astAndDefs = null
     ): \ArrayObject {
         $visitedFragmentNames ??= new \ArrayObject();
         $astAndDefs ??= new \ArrayObject();

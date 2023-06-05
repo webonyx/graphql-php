@@ -21,7 +21,7 @@ class PhpEnumType extends EnumType
      * @param class-string<\UnitEnum> $enum
      * @param string|null $name The name the enum will have in the schema, defaults to the basename of the given class
      */
-    public function __construct(string $enum, ?string $name = null)
+    public function __construct(string $enum, string $name = null)
     {
         $this->enumClass = $enum;
         $reflection = new \ReflectionEnum($enum);

@@ -40,7 +40,7 @@ final class Warning
      *
      * @api
      */
-    public static function setWarningHandler(?callable $warningHandler = null): void
+    public static function setWarningHandler(callable $warningHandler = null): void
     {
         self::$warningHandler = $warningHandler;
     }
@@ -62,7 +62,7 @@ final class Warning
             self::$enableWarnings = 0;
         } elseif ($suppress === false) {
             self::$enableWarnings = self::ALL;
-        // @phpstan-ignore-next-line necessary until we can use proper unions
+            // @phpstan-ignore-next-line necessary until we can use proper unions
         } elseif (\is_int($suppress)) {
             self::$enableWarnings &= ~$suppress;
         } else {
@@ -88,7 +88,7 @@ final class Warning
             self::$enableWarnings = self::ALL;
         } elseif ($enable === false) {
             self::$enableWarnings = 0;
-        // @phpstan-ignore-next-line necessary until we can use proper unions
+            // @phpstan-ignore-next-line necessary until we can use proper unions
         } elseif (\is_int($enable)) {
             self::$enableWarnings |= $enable;
         } else {
@@ -97,7 +97,7 @@ final class Warning
         }
     }
 
-    public static function warnOnce(string $errorMessage, int $warningId, ?int $messageLevel = null): void
+    public static function warnOnce(string $errorMessage, int $warningId, int $messageLevel = null): void
     {
         $messageLevel ??= \E_USER_WARNING;
 
@@ -109,7 +109,7 @@ final class Warning
         }
     }
 
-    public static function warn(string $errorMessage, int $warningId, ?int $messageLevel = null): void
+    public static function warn(string $errorMessage, int $warningId, int $messageLevel = null): void
     {
         $messageLevel ??= \E_USER_WARNING;
 

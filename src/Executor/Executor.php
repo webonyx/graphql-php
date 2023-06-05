@@ -57,7 +57,7 @@ class Executor
     }
 
     /** Set a custom default promise adapter. */
-    public static function setPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null): void
+    public static function setPromiseAdapter(PromiseAdapter $defaultPromiseAdapter = null): void
     {
         self::$defaultPromiseAdapter = $defaultPromiseAdapter;
     }
@@ -99,9 +99,9 @@ class Executor
         DocumentNode $documentNode,
         $rootValue = null,
         $contextValue = null,
-        ?array $variableValues = null,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null
+        array $variableValues = null,
+        string $operationName = null,
+        callable $fieldResolver = null
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -139,9 +139,9 @@ class Executor
         DocumentNode $documentNode,
         $rootValue = null,
         $contextValue = null,
-        ?array $variableValues = null,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null
+        array $variableValues = null,
+        string $operationName = null,
+        callable $fieldResolver = null
     ): Promise {
         $executor = (self::$implementationFactory)(
             $promiseAdapter,

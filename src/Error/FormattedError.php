@@ -126,7 +126,7 @@ class FormattedError
      *
      * @api
      */
-    public static function createFromException(\Throwable $exception, int $debugFlag = DebugFlag::NONE, ?string $internalErrorMessage = null): array
+    public static function createFromException(\Throwable $exception, int $debugFlag = DebugFlag::NONE, string $internalErrorMessage = null): array
     {
         $internalErrorMessage ??= self::$internalErrorMessage;
 
@@ -145,7 +145,7 @@ class FormattedError
                 $formattedError['locations'] = $locations;
             }
 
-            if ($exception->path !== null && \count($exception->path) > 0) {
+            if ($exception->path !== null && $exception->path !== []) {
                 $formattedError['path'] = $exception->path;
             }
         }

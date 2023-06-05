@@ -66,7 +66,7 @@ class SchemaExtender
         Schema $schema,
         DocumentNode $documentAST,
         array $options = [],
-        ?callable $typeConfigDecorator = null
+        callable $typeConfigDecorator = null
     ): Schema {
         return (new static())->doExtend($schema, $documentAST, $options, $typeConfigDecorator);
     }
@@ -85,7 +85,7 @@ class SchemaExtender
         Schema $schema,
         DocumentNode $documentAST,
         array $options = [],
-        ?callable $typeConfigDecorator = null
+        callable $typeConfigDecorator = null
     ): Schema {
         if (
             ! ($options['assumeValid'] ?? false)
@@ -300,6 +300,7 @@ class SchemaExtender
             $newFieldConfig = [
                 'description' => $field->description,
                 'type' => $extendedType,
+                'deprecationReason' => $field->deprecationReason,
                 'astNode' => $field->astNode,
             ];
 
@@ -459,6 +460,7 @@ class SchemaExtender
             $def = [
                 'type' => $extendedType,
                 'description' => $arg->description,
+                'deprecationReason' => $arg->deprecationReason,
                 'astNode' => $arg->astNode,
             ];
 
@@ -609,7 +611,7 @@ class SchemaExtender
      *
      * @return (T&NamedType)|null
      */
-    protected function extendMaybeNamedType(?Type $type = null): ?Type
+    protected function extendMaybeNamedType(Type $type = null): ?Type
     {
         if ($type !== null) {
             return $this->extendNamedType($type);

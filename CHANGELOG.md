@@ -9,6 +9,30 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.5.0
+
+### Added
+
+- Add `ScopedContext` interface to control cloning of the context value
+
+## v15.4.0
+
+### Added
+
+- Allow deprecating input fields and arguments https://github.com/webonyx/graphql-php/pull/1382
+
+## v15.3.2
+
+### Fixed
+
+- Call static methods in `SchemaPrinter` with `static::` to enable overrides
+
+## v15.3.1
+
+### Fixed
+
+- Allow sending both `query` and `queryId`, let `persistedQueryLoader` handle it https://github.com/webonyx/graphql-php/pull/1372
+
 ## v15.3.0
 
 ### Added
