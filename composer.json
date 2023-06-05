@@ -61,6 +61,7 @@
     "sort-packages": true
   },
   "scripts": {
+    "baseline": "phpstan --generate-baseline",
     "bench": "phpbench run",
     "check": [
       "@fix",
@@ -74,7 +75,6 @@
     ],
     "php-cs-fixer": "php-cs-fixer fix",
     "rector": "rector process",
-    "baseline": "phpstan --generate-baseline",
     "stan": "phpstan",
     "test": "phpunit"
   }
