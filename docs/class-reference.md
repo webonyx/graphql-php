@@ -862,7 +862,6 @@ future.)
 Those magic functions allow partial parsing:
 
 @method static NameNode name(Source|string $source, bool[] $options = [])
-@method static DocumentNode document(Source|string $source, bool[] $options = [])
 @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
 @method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
 @method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
@@ -938,7 +937,7 @@ Those magic functions allow partial parsing:
  *
  * @param Source|string $source
  *
- * @phpstan-param ParserOptions       $options
+ * @phpstan-param ParserOptions $options
  *
  * @api
  *
@@ -986,7 +985,7 @@ static function parseValue($source, array $options = [])
  *
  * @param Source|string $source
  *
- * @phpstan-param ParserOptions       $options
+ * @phpstan-param ParserOptions $options
  *
  * @throws \JsonException
  * @throws SyntaxError
