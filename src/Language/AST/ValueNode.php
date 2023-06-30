@@ -13,6 +13,4 @@ namespace GraphQL\Language\AST;
  * | ListValueNode
  * | ObjectValueNode.
  */
-interface ValueNode
-{
-}
+interface ValueNode {}

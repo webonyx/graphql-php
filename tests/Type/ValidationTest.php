@@ -61,12 +61,9 @@ final class ValidationTest extends TestCaseBase
 
         $this->SomeScalarType = new CustomScalarType([
             'name' => 'SomeScalar',
-            'serialize' => static function (): void {
-            },
-            'parseValue' => static function (): void {
-            },
-            'parseLiteral' => static function (): void {
-            },
+            'serialize' => static function (): void {},
+            'parseValue' => static function (): void {},
+            'parseLiteral' => static function (): void {},
         ]);
 
         $this->SomeInterfaceType = new InterfaceType([
