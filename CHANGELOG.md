@@ -254,6 +254,13 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
 - Remove alias `GraphQL\Utils\FindBreakingChanges`, use `GraphQL\Utils\BreakingChangesFinder`
 
+## v14.11.10
+
+### Fixed
+
+- Fix PHP 8.2 deprecated string interpolation syntax
+- Fix PHP 8.2 deprecated dynamic properties
+
 ## v14.11.9
 
 ### Fixed
