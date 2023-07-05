@@ -19,6 +19,7 @@ use function sprintf;
 /**
  * @todo Move complexity-related code to it's own place
  */
+#[\AllowDynamicProperties]
 class FieldDefinition
 {
     public const DEFAULT_COMPLEXITY_FN = 'GraphQL\Type\Definition\FieldDefinition::defaultComplexity';
