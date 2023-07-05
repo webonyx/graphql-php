@@ -103,7 +103,7 @@ class BreakingChangesFinder
 
             $breakingChanges[] = [
                 'type'        => self::BREAKING_CHANGE_TYPE_REMOVED,
-                'description' => "${typeName} was removed.",
+                'description' => $typeName . ' was removed.',
             ];
         }
 
@@ -141,7 +141,7 @@ class BreakingChangesFinder
             $schemaBTypeKindName = self::typeKindName($schemaBType);
             $breakingChanges[]   = [
                 'type'        => self::BREAKING_CHANGE_TYPE_CHANGED_KIND,
-                'description' => "${typeName} changed from ${schemaATypeKindName} to ${schemaBTypeKindName}.",
+                'description' => $typeName . ' changed from ' . $schemaATypeKindName . ' to ' . $schemaBTypeKindName . '.',
             ];
         }
 
@@ -209,7 +209,7 @@ class BreakingChangesFinder
                 if (! isset($newTypeFieldsDef[$fieldName])) {
                     $breakingChanges[] = [
                         'type'        => self::BREAKING_CHANGE_FIELD_REMOVED,
-                        'description' => "${typeName}.${fieldName} was removed.",
+                        'description' => $typeName . '.' . $fieldName . ' was removed.',
                     ];
                 } else {
                     $oldFieldType = $oldTypeFieldsDef[$fieldName]->getType();
@@ -227,7 +227,7 @@ class BreakingChangesFinder
                             : $newFieldType;
                         $breakingChanges[]  = [
                             'type'        => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                            'description' => "${typeName}.${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}.",
+                            'description' => $typeName . '.' . $fieldName . ' changed type from ' . $oldFieldTypeString . ' to ' . $newFieldTypeString . '.',
                         ];
                     }
                 }
@@ -298,7 +298,7 @@ class BreakingChangesFinder
                 if (! isset($newTypeFieldsDef[$fieldName])) {
                     $breakingChanges[] = [
                         'type'        => self::BREAKING_CHANGE_FIELD_REMOVED,
-                        'description' => "${typeName}.${fieldName} was removed.",
+                        'description' => $typeName . '.' . $fieldName . ' was removed.',
                     ];
                 } else {
                     $oldFieldType = $oldTypeFieldsDef[$fieldName]->getType();
@@ -321,7 +321,7 @@ class BreakingChangesFinder
                         }
                         $breakingChanges[] = [
                             'type'        => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
-                            'description' => "${typeName}.${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}.",
+                            'description' => $typeName . '.' . $fieldName . ' changed type from ' . $oldFieldTypeString . ' to ' . $newFieldTypeString . '.',
                         ];
                     }
                 }
@@ -336,12 +336,12 @@ class BreakingChangesFinder
                 if ($fieldDef->isRequired()) {
                     $breakingChanges[] = [
                         'type'        => self::BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED,
-                        'description' => "A required field ${fieldName} on input type ${newTypeName} was added.",
+                        'description' => 'A required field ' . $fieldName . ' on input type ' . $newTypeName . ' was added.',
                     ];
                 } else {
                     $dangerousChanges[] = [
                         'type'        => self::DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED,
-                        'description' => "An optional field ${fieldName} on input type ${newTypeName} was added.",
+                        'description' => 'An optional field ' . $fieldName . ' on input type ' . $newTypeName . ' was added.',
                     ];
                 }
             }
@@ -525,12 +525,12 @@ class BreakingChangesFinder
                             $newArgType        = $newArgDef->getType();
                             $breakingChanges[] = [
                                 'type'        => self::BREAKING_CHANGE_ARG_CHANGED_KIND,
-                                'description' => "${typeName}.${fieldName} arg ${oldArgName} has changed type from ${oldArgType} to ${newArgType}",
+                                'description' => $typeName . '.' . $fieldName . ' arg ' . $oldArgName . ' has changed type from ' . $oldArgType . ' to ' . $newArgType,
                             ];
                         } elseif ($oldArgDef->defaultValueExists() && $oldArgDef->defaultValue !== $newArgDef->defaultValue) {
                             $dangerousChanges[] = [
                                 'type'        => self::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
-                                'description' => "${typeName}.${fieldName} arg ${oldArgName} has changed defaultValue",
+                                'description' => $typeName . '.' . $fieldName . ' arg ' . $oldArgName . ' has changed defaultValue',
                             ];
                         }
                     } else {
@@ -563,12 +563,12 @@ class BreakingChangesFinder
                         if ($newTypeFieldArgDef->isRequired()) {
                             $breakingChanges[] = [
                                 'type'        => self::BREAKING_CHANGE_REQUIRED_ARG_ADDED,
-                                'description' => "A required arg ${newArgName} on ${newTypeName}.${fieldName} was added",
+                                'description' => 'A required arg ' . $newArgName . ' on ' . $newTypeName . '.' . $fieldName . ' was added',
                             ];
                         } else {
                             $dangerousChanges[] = [
                                 'type'        => self::DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED,
-                                'description' => "An optional arg ${newArgName} on ${newTypeName}.${fieldName} was added",
+                                'description' => 'An optional arg ' . $newArgName . ' on ' . $newTypeName . '.' . $fieldName . ' was added',
                             ];
                         }
                     }

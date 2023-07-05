@@ -187,7 +187,7 @@ class BuildClientSchema
     {
         if (! isset($this->typeMap[$typeName])) {
             throw new InvariantViolation(
-                "Invalid or incomplete schema, unknown type: ${typeName}. Ensure that a full introspection query is used in order to build a client schema."
+                'Invalid or incomplete schema, unknown type: ' . $typeName . '. Ensure that a full introspection query is used in order to build a client schema.'
             );
         }
 

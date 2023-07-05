@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Language\AST;
 
+#[\AllowDynamicProperties]
 class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, HasSelectionSet
 {
     /** @var string */

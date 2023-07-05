@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Language\AST;
 
+#[\AllowDynamicProperties]
 class DocumentNode extends Node
 {
     /** @var string */
