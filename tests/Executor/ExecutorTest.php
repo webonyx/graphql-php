@@ -1266,96 +1266,102 @@ class ExecutorTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema([
-            'query' => new ObjectType([
-                'name'   => 'Query',
-                'fields' => [
-                    'array' => [
-                        'type' => $Array,
-                        'resolve' => static function () : array {
-                            return ['set' => 1];
-                        },
-                    ],
-                    'arrayAccess' => [
-                        'type' => $ArrayAccess,
-                        'resolve' => static function () : ArrayAccess {
-                            return new class implements ArrayAccess {
-                                public function offsetExists($offset) : bool
-                                {
-                                    switch ($offset) {
-                                        case 'set':
-                                            return true;
-                                        default:
-                                            return false;
+        $schema = new Schema(
+            [
+                'query' => new ObjectType(
+                    [
+                        'name'   => 'Query',
+                        'fields' => [
+                            'array' => [
+                                'type' => $Array,
+                                'resolve' => static function () : array {
+                                    return ['set' => 1];
+                                },
+                            ],
+                            'arrayAccess' => [
+                                'type' => $ArrayAccess,
+                                'resolve' => static function () : ArrayAccess {
+                                    return new class implements ArrayAccess {
+                                        public function offsetExists($offset) : bool
+                                        {
+                                            switch ($offset) {
+                                                case 'set':
+                                                    return true;
+                                                default:
+                                                    return false;
+                                            }
+                                        }
+
+                                        #[ReturnTypeWillChange,
+                            ]
+
+                            public function offsetGet($offset)
+                            {
+                                switch ($offset) {
+                                    case 'set':
+                                        return 1;
+                                    case 'unsetNull':
+                                        return null;
+                                    default:
+                                        throw new Exception('unsetThrow');
+                                }
+                            }
+
+                            public function offsetSet($offset, $value) : void
+                            {
+                            }
+
+                            public function offsetUnset($offset) : void
+                            {
+                            }
+                                    };
+                                },
+                        ],
+                        'objectField' => [
+                            'type' => $ObjectField,
+                            'resolve' => static function () : stdClass {
+                                return new class extends stdClass {
+                                    /** @var int|null */
+                                    public $set = 1;
+
+                                    /** @var int|null */
+                                    public $unset;
+                                };
+                            },
+                        ],
+                        'objectVirtual' => [
+                            'type' => $ObjectVirtual,
+                            'resolve' => static function () {
+                                return new class {
+                                    public function __isset($name) : bool
+                                    {
+                                        switch ($name) {
+                                            case 'set':
+                                                return true;
+                                            default:
+                                                return false;
+                                        }
                                     }
-                                }
 
-                                #[ReturnTypeWillChange]
-                                public function offsetGet($offset)
-                                {
-                                    switch ($offset) {
-                                        case 'set':
-                                            return 1;
-                                        case 'unsetNull':
-                                            return null;
-                                        default:
-                                            throw new Exception('unsetThrow');
+                                    public function __get($name) : ?int
+                                    {
+                                        switch ($name) {
+                                            case 'set':
+                                                return 1;
+                                            case 'unsetNull':
+                                                return null;
+                                            default:
+                                                throw new Exception('unsetThrow');
+                                        }
                                     }
-                                }
-
-                                public function offsetSet($offset, $value) : void
-                                {
-                                }
-
-                                public function offsetUnset($offset) : void
-                                {
-                                }
-                            };
-                        },
+                                };
+                            },
+                        ],
                     ],
-                    'objectField' => [
-                        'type' => $ObjectField,
-                        'resolve' => static function () : stdClass {
-                            return new class extends stdClass {
-                                /** @var int|null */
-                                public $set = 1;
-
-                                /** @var int|null */
-                                public $unset;
-                            };
-                        },
-                    ],
-                    'objectVirtual' => [
-                        'type' => $ObjectVirtual,
-                        'resolve' => static function () {
-                            return new class {
-                                public function __isset($name) : bool
-                                {
-                                    switch ($name) {
-                                        case 'set':
-                                            return true;
-                                        default:
-                                            return false;
-                                    }
-                                }
-
-                                public function __get($name) : ?int
-                                {
-                                    switch ($name) {
-                                        case 'set':
-                                            return 1;
-                                        case 'unsetNull':
-                                            return null;
-                                        default:
-                                            throw new Exception('unsetThrow');
-                                    }
-                                }
-                            };
-                        },
-                    ],
-                ],
-            ]),
-        ]);
+                    ]
+            ),
+            ]
+        );
 
         $query = Parser::parse('
             {
