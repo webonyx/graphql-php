@@ -179,7 +179,7 @@ class ValuesOfCorrectType extends ValidationRule
     public static function badValueMessage($typeName, $valueName, $message = null)
     {
         return sprintf('Expected type %s, found %s', $typeName, $valueName) .
-            ($message ? '; ' . $message : '.');
+            ($message ? "; {$message}" : '.');
     }
 
     /**

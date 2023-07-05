@@ -369,7 +369,6 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * which is a value of any type other than a resource.
      */
     #[ReturnTypeWillChange]
-
     public function jsonSerialize()
     {
         return $this->toSerializableArray();
