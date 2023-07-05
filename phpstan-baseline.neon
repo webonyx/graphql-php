@@ -591,7 +591,7 @@ parameters:
 			path: tests/Executor/DirectivesTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"class@anonymous/tests/Executor/ExecutorTest\\.php\\:1331\"\\.$#"
+			message: "#^Anonymous function should have native return typehint \"class@anonymous/tests/Executor/ExecutorTest\\.php\\:1333\"\\.$#"
 			count: 1
 			path: tests/Executor/ExecutorTest.php
 
