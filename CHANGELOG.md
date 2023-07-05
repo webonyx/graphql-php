@@ -2,6 +2,12 @@
 
 #### Unreleased
 
+#### 14.11.10
+
+Fixed:
+- Fix PHP 8.2 deprecated string interpolation syntax
+- Fix PHP 8.2 deprecated dynamic properties
+
 #### 14.11.9
 
 Fixed:
