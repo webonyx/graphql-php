@@ -1292,74 +1292,72 @@ class ExecutorTest extends TestCase
                                             }
                                         }
 
-                                        #[ReturnTypeWillChange,
-                            ]
+                                        #[\ReturnTypeWillChange]
+                                        public function offsetGet($offset)
+                                        {
+                                            switch ($offset) {
+                                                case 'set':
+                                                    return 1;
+                                                case 'unsetNull':
+                                                    return null;
+                                                default:
+                                                    throw new Exception('unsetThrow');
+                                            }
+                                        }
 
-                            public function offsetGet($offset)
-                            {
-                                switch ($offset) {
-                                    case 'set':
-                                        return 1;
-                                    case 'unsetNull':
-                                        return null;
-                                    default:
-                                        throw new Exception('unsetThrow');
-                                }
-                            }
+                                        public function offsetSet($offset, $value) : void
+                                        {
+                                        }
 
-                            public function offsetSet($offset, $value) : void
-                            {
-                            }
-
-                            public function offsetUnset($offset) : void
-                            {
-                            }
+                                        public function offsetUnset($offset) : void
+                                        {
+                                        }
                                     };
                                 },
-                        ],
-                        'objectField' => [
-                            'type' => $ObjectField,
-                            'resolve' => static function () : stdClass {
-                                return new class extends stdClass {
-                                    /** @var int|null */
-                                    public $set = 1;
+                            ],
+                            'objectField' => [
+                                'type' => $ObjectField,
+                                'resolve' => static function () : stdClass {
+                                    return new class extends stdClass {
+                                        /** @var int|null */
+                                        public $set = 1;
 
-                                    /** @var int|null */
-                                    public $unset;
-                                };
-                            },
-                        ],
-                        'objectVirtual' => [
-                            'type' => $ObjectVirtual,
-                            'resolve' => static function () {
-                                return new class {
-                                    public function __isset($name) : bool
-                                    {
-                                        switch ($name) {
-                                            case 'set':
-                                                return true;
-                                            default:
-                                                return false;
+                                        /** @var int|null */
+                                        public $unset;
+                                    };
+                                },
+                            ],
+                            'objectVirtual' => [
+                                'type' => $ObjectVirtual,
+                                'resolve' => static function () {
+                                    return new class {
+                                        public function __isset($name) : bool
+                                        {
+                                            switch ($name) {
+                                                case 'set':
+                                                    return true;
+                                                default:
+                                                    return false;
+                                            }
                                         }
-                                    }
 
-                                    public function __get($name) : ?int
-                                    {
-                                        switch ($name) {
-                                            case 'set':
-                                                return 1;
-                                            case 'unsetNull':
-                                                return null;
-                                            default:
-                                                throw new Exception('unsetThrow');
+                                        public function __get($name) : ?int
+                                        {
+                                            switch ($name) {
+                                                case 'set':
+                                                    return 1;
+                                                case 'unsetNull':
+                                                    return null;
+                                                default:
+                                                    throw new Exception('unsetThrow');
+                                            }
                                         }
-                                    }
-                                };
-                            },
+                                    };
+                                },
+                            ],
                         ],
-                    ],
                     ]
-            ),
+                ),
             ]
         );
 

@@ -129,11 +129,12 @@ class QuerySecuritySchema
         self::$fooDirective = new Directive([
             'name'      => 'foo',
             'locations' => [DirectiveLocation::FIELD],
-            'args'      => [new FieldArgument([
-                'name'         => 'bar',
-                'type'         => Type::nonNull(Type::boolean()),
-                'defaultValue' => ' ',
-            ]),
+            'args'      => [
+                new FieldArgument([
+                    'name'         => 'bar',
+                    'type'         => Type::nonNull(Type::boolean()),
+                    'defaultValue' => ' ',
+                ]),
             ],
         ]);
 

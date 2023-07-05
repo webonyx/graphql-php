@@ -301,14 +301,15 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
       fragment definedOnImplementorsQueriedOnUnion on CatOrDog {
         name
       }',
-            [$this->undefinedField(
-                'name',
-                'CatOrDog',
-                ['Being', 'Pet', 'Canine', 'Dog', 'Cat'],
-                [],
-                3,
-                9
-            ),
+            [
+                $this->undefinedField(
+                    'name',
+                    'CatOrDog',
+                    ['Being', 'Pet', 'Canine', 'Dog', 'Cat'],
+                    [],
+                    3,
+                    9
+                ),
             ]
         );
     }

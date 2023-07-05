@@ -91,11 +91,12 @@ class VariablesTest extends TestCase
 
         $expected = [
             'data'   => ['fieldWithObjectInput' => null],
-            'errors' => [[
-                'message'   => 'Argument "input" has invalid value ["foo", "bar", "baz"].',
-                'path'      => ['fieldWithObjectInput'],
-                'locations' => [['line' => 3, 'column' => 39]],
-            ],
+            'errors' => [
+                [
+                    'message'   => 'Argument "input" has invalid value ["foo", "bar", "baz"].',
+                    'path'      => ['fieldWithObjectInput'],
+                    'locations' => [['line' => 3, 'column' => 39]],
+                ],
             ],
         ];
         self::assertArraySubset($expected, $result->toArray());
@@ -676,12 +677,13 @@ class VariablesTest extends TestCase
         ');
         $expected = [
             'data'   => ['fieldWithNonNullableStringInput' => null],
-            'errors' => [[
-                'message'   => 'Argument "input" of required type "String!" was not provided.',
-                'locations' => [['line' => 3, 'column' => 9]],
-                'path'      => ['fieldWithNonNullableStringInput'],
-                'extensions' => ['category' => 'graphql'],
-            ],
+            'errors' => [
+                [
+                    'message'   => 'Argument "input" of required type "String!" was not provided.',
+                    'locations' => [['line' => 3, 'column' => 9]],
+                    'path'      => ['fieldWithNonNullableStringInput'],
+                    'extensions' => ['category' => 'graphql'],
+                ],
             ],
         ];
         self::assertEquals($expected, $result->toArray());
@@ -703,15 +705,16 @@ class VariablesTest extends TestCase
         $result    = $this->executeQuery($doc, $variables);
 
         $expected = [
-            'errors' => [[
-                'message'   =>
+            'errors' => [
+                [
+                    'message'   =>
                     'Variable "$value" got invalid value [1,2,3]; Expected type ' .
                     'String; String cannot represent a non string value: [1,2,3]',
-                'locations' => [
-                    ['line' => 2, 'column' => 31],
+                    'locations' => [
+                        ['line' => 2, 'column' => 31],
+                    ],
+                    'extensions' => ['category' => 'graphql'],
                 ],
-                'extensions' => ['category' => 'graphql'],
-            ],
             ],
         ];
         self::assertEquals($expected, $result->toArray());
@@ -734,14 +737,15 @@ class VariablesTest extends TestCase
         ');
         $expected = [
             'data'   => ['fieldWithNonNullableStringInput' => null],
-            'errors' => [[
-                'message'   =>
+            'errors' => [
+                [
+                    'message'   =>
                     'Argument "input" of required type "String!" was provided the ' .
                     'variable "$foo" which was not provided a runtime value.',
-                'locations' => [['line' => 3, 'column' => 48]],
-                'path'      => ['fieldWithNonNullableStringInput'],
-                'extensions' => ['category' => 'graphql'],
-            ],
+                    'locations' => [['line' => 3, 'column' => 48]],
+                    'path'      => ['fieldWithNonNullableStringInput'],
+                    'extensions' => ['category' => 'graphql'],
+                ],
             ],
         ];
         self::assertEquals($expected, $result->toArray());
@@ -1060,13 +1064,14 @@ class VariablesTest extends TestCase
 
         $expected = [
             'data'   => ['fieldWithDefaultArgumentValue' => null],
-            'errors' => [[
-                'message'   =>
+            'errors' => [
+                [
+                    'message'   =>
                     'Argument "input" has invalid value WRONG_TYPE.',
-                'locations' => [['line' => 2, 'column' => 50]],
-                'path'      => ['fieldWithDefaultArgumentValue'],
-                'extensions' => ['category' => 'graphql'],
-            ],
+                    'locations' => [['line' => 2, 'column' => 50]],
+                    'path'      => ['fieldWithDefaultArgumentValue'],
+                    'extensions' => ['category' => 'graphql'],
+                ],
             ],
         ];
 

@@ -48,26 +48,6 @@ jobs:
       env:
         ENV: ${{ matrix.env}}
 
-  coding-standard:
-    runs-on: ubuntu-latest
-    name: Coding Standard
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Install PHP
-      uses: shivammathur/setup-php@2.9.0
-      with:
-        php-version: 7.4
-        coverage: none
-        extensions: json, mbstring
-
-    - name: Install Dependencies
-      run: composer install
-
-    - name: Coding Standard
-      run: composer lint
-
   phpstan:
     runs-on: ubuntu-latest
     name: PHPStan

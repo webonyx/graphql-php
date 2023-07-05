@@ -1,9 +1,7 @@
-.phpcs-cache
 .php-cs-fixer.cache
 .phpunit.result.cache
 composer.lock
 composer.phar
-phpcs.xml
 phpstan.neon
 vendor/
 /.idea

@@ -25,8 +25,7 @@
     "phpunit/phpunit": "^7.2 || ^8.5",
     "psr/http-message": "^1.0",
     "react/promise": "2.*",
-    "simpod/php-coveralls-mirror": "^3.0",
-    "squizlabs/php_codesniffer": "3.5.4"
+    "simpod/php-coveralls-mirror": "^3.0"
   },
   "suggest": {
     "psr/http-message": "To use standard GraphQL server",
@@ -57,9 +56,8 @@
     "api-docs": "php tools/gendocs.php",
     "baseline": "phpstan --ansi --generate-baseline",
     "bench": "phpbench run",
-    "check": "composer lint && composer stan && composer test",
-    "fix": "phpcbf && composer normalize",
-    "lint": "phpcs",
+    "check": "composer stan && composer test",
+    "fix": "composer normalize",
     "stan": "phpstan --ansi",
     "test": "phpunit"
   }

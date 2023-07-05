@@ -1057,22 +1057,23 @@ class VisitorTest extends ValidatorTestCase
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit(
             $ast,
-            Visitor::visitInParallel([[
-                'enter' => function ($node) use (&$visited, $ast) : ?VisitorOperation {
-                    $this->checkVisitorFnArgs($ast, func_get_args());
-                    $value     = $node->value ?? null;
-                    $visited[] = ['enter', $node->kind, $value];
-                    if ($node->kind === 'Name' && $value === 'x') {
-                        return Visitor::stop();
-                    }
+            Visitor::visitInParallel([
+                [
+                    'enter' => function ($node) use (&$visited, $ast) : ?VisitorOperation {
+                        $this->checkVisitorFnArgs($ast, func_get_args());
+                        $value     = $node->value ?? null;
+                        $visited[] = ['enter', $node->kind, $value];
+                        if ($node->kind === 'Name' && $value === 'x') {
+                            return Visitor::stop();
+                        }
 
-                    return null;
-                },
-                'leave' => function ($node) use (&$visited, $ast) : void {
-                    $this->checkVisitorFnArgs($ast, func_get_args());
-                    $visited[] = ['leave', $node->kind, $node->value ?? null];
-                },
-            ],
+                        return null;
+                    },
+                    'leave' => function ($node) use (&$visited, $ast) : void {
+                        $this->checkVisitorFnArgs($ast, func_get_args());
+                        $visited[] = ['leave', $node->kind, $node->value ?? null];
+                    },
+                ],
             ])
         );
 
@@ -1173,22 +1174,23 @@ class VisitorTest extends ValidatorTestCase
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit(
             $ast,
-            Visitor::visitInParallel([[
-                'enter' => function ($node) use (&$visited, $ast) : void {
-                    $this->checkVisitorFnArgs($ast, func_get_args());
-                    $visited[] = ['enter', $node->kind, $node->value ?? null];
-                },
-                'leave' => function ($node) use (&$visited, $ast) : ?VisitorOperation {
-                    $this->checkVisitorFnArgs($ast, func_get_args());
-                    $value     = $node->value ?? null;
-                    $visited[] = ['leave', $node->kind, $value];
-                    if ($node->kind === 'Name' && $value === 'x') {
-                        return Visitor::stop();
-                    }
+            Visitor::visitInParallel([
+                [
+                    'enter' => function ($node) use (&$visited, $ast) : void {
+                        $this->checkVisitorFnArgs($ast, func_get_args());
+                        $visited[] = ['enter', $node->kind, $node->value ?? null];
+                    },
+                    'leave' => function ($node) use (&$visited, $ast) : ?VisitorOperation {
+                        $this->checkVisitorFnArgs($ast, func_get_args());
+                        $value     = $node->value ?? null;
+                        $visited[] = ['leave', $node->kind, $value];
+                        if ($node->kind === 'Name' && $value === 'x') {
+                            return Visitor::stop();
+                        }
 
-                    return null;
-                },
-            ],
+                        return null;
+                    },
+                ],
             ])
         );
 
@@ -1583,9 +1585,10 @@ class VisitorTest extends ValidatorTestCase
                                 'directives'   => $node->directives,
                                 'selectionSet' => new SelectionSetNode([
                                     'kind'       => 'SelectionSet',
-                                    'selections' => [new FieldNode([
-                                        'name' => new NameNode(['value' => '__typename']),
-                                    ]),
+                                    'selections' => [
+                                        new FieldNode([
+                                            'name' => new NameNode(['value' => '__typename']),
+                                        ]),
                                     ],
                                 ]),
                             ]);

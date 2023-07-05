@@ -446,10 +446,11 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
           }
         }
             ',
-            [FormattedError::create(
-                VariablesInAllowedPosition::badVarPosMessage('intVar', 'Int', 'Int!'),
-                [new SourceLocation(2, 21), new SourceLocation(4, 47)]
-            ),
+            [
+                FormattedError::create(
+                    VariablesInAllowedPosition::badVarPosMessage('intVar', 'Int', 'Int!'),
+                    [new SourceLocation(2, 21), new SourceLocation(4, 47)]
+                ),
             ]
         );
     }

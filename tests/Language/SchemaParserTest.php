@@ -987,7 +987,8 @@ type Hello {
                                         'type'   => $this->typeNode(
                                             'String',
                                             $loc(31, 37)
-                                        ), 'loc' => $loc(30, 38),
+                                        ),
+                                        'loc' => $loc(30, 38),
                                     ],
                                     null,
                                     $loc(22, 38)

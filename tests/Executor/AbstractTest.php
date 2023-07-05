@@ -265,11 +265,12 @@ class AbstractTest extends TestCase
                     null,
                 ],
             ],
-            'errors' => [[
-                'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
-                'locations'    => [['line' => 2, 'column' => 11]],
-                'path'         => ['pets', 2],
-            ],
+            'errors' => [
+                [
+                    'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
+                    'locations'    => [['line' => 2, 'column' => 11]],
+                    'path'         => ['pets', 2],
+                ],
             ],
         ];
         $actual   = GraphQL::executeQuery($schema, $query)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
@@ -369,11 +370,12 @@ class AbstractTest extends TestCase
                     null,
                 ],
             ],
-            'errors' => [[
-                'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
-                'locations'    => [['line' => 2, 'column' => 11]],
-                'path'         => ['pets', 2],
-            ],
+            'errors' => [
+                [
+                    'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
+                    'locations'    => [['line' => 2, 'column' => 11]],
+                    'path'         => ['pets', 2],
+                ],
             ],
         ];
         self::assertArraySubset($expected, $result);

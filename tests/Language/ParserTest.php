@@ -57,16 +57,18 @@ class ParserTest extends TestCase
                 'Syntax Error: Expected Name, found <EOF>',
                 "Syntax Error: Expected Name, found <EOF>\n\nGraphQL request (1:2)\n1: {\n    ^\n",
                 [1],
-                [new SourceLocation(
-                    1,
-                    2
-                ),
+                [
+                    new SourceLocation(
+                        1,
+                        2
+                    ),
                 ],
             ],
             [
                 '{ ...MissingOn }
 fragment MissingOn Type
-', 'Syntax Error: Expected "on", found Name "Type"',
+',
+                'Syntax Error: Expected "on", found Name "Type"',
                 "Syntax Error: Expected \"on\", found Name \"Type\"\n\nGraphQL request (2:20)\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",
             ],
             ['{ field: {} }', 'Syntax Error: Expected Name, found {', "Syntax Error: Expected Name, found {\n\nGraphQL request (1:10)\n1: { field: {} }\n            ^\n"],

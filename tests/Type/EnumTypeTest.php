@@ -542,11 +542,12 @@ class EnumTypeTest extends TestCase
                 'good'   => 'TWO',
                 'bad'    => null,
             ],
-            'errors' => [[
-                'debugMessage' =>
+            'errors' => [
+                [
+                    'debugMessage' =>
                     'Expected a value of type "Complex" but received: instance of ArrayObject',
-                'locations'    => [['line' => 5, 'column' => 9]],
-            ],
+                    'locations'    => [['line' => 5, 'column' => 9]],
+                ],
             ],
         ];
 
@@ -597,10 +598,11 @@ class EnumTypeTest extends TestCase
         self::assertArraySubset(
             [
                 'data'   => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
-                'errors' => [[
-                    'debugMessage' => 'Expected a value of type "SimpleEnum" but received: WRONG',
-                    'locations'    => [['line' => 4, 'column' => 13]],
-                ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Expected a value of type "SimpleEnum" but received: WRONG',
+                        'locations'    => [['line' => 4, 'column' => 13]],
+                    ],
                 ],
             ],
             GraphQL::executeQuery($this->schema, $q)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)

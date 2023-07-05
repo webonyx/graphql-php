@@ -178,10 +178,11 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
         }
       }
         ',
-            [FormattedError::create(
-                FragmentsOnCompositeTypes::inlineFragmentOnNonCompositeErrorMessage('String'),
-                [new SourceLocation(3, 16)]
-            ),
+            [
+                FormattedError::create(
+                    FragmentsOnCompositeTypes::inlineFragmentOnNonCompositeErrorMessage('String'),
+                    [new SourceLocation(3, 16)]
+                ),
             ]
         );
     }
