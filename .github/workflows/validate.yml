@@ -1,0 +1,89 @@
+name: Validate
+
+on:
+  push:
+    branches:
+    tags:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        php: [7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+        env: [
+          'EXECUTOR= DEPENDENCIES=--prefer-lowest',
+          'EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest',
+          'EXECUTOR=',
+          'EXECUTOR=coroutine',
+        ]
+    name: PHP ${{ matrix.php }} Test ${{ matrix.env }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@2.18.1
+      with:
+        php-version: ${{ matrix.php  }}
+        coverage: none
+        extensions: json, mbstring
+
+    - name: Remove dependencies not used in this job for PHP 8 compatibility
+      run: |
+        composer remove --dev --no-update phpbench/phpbench
+        composer remove --dev --no-update phpstan/phpstan
+        composer remove --dev --no-update phpstan/phpstan-phpunit
+        composer remove --dev --no-update phpstan/phpstan-strict-rules
+        composer remove --dev --no-update doctrine/coding-standard
+
+    - name: Install Dependencies
+      run: composer update
+
+    - name: Run unit tests
+      run: |
+        export $ENV
+        vendor/bin/phpunit --group default,ReactPromise
+      env:
+        ENV: ${{ matrix.env}}
+
+  coding-standard:
+    runs-on: ubuntu-18.04
+    name: Coding Standard
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@2.9.0
+      with:
+        php-version: 7.4
+        coverage: none
+        extensions: json, mbstring
+
+    - name: Install Dependencies
+      run: composer install
+
+    - name: Coding Standard
+      run: composer lint
+
+  phpstan:
+    runs-on: ubuntu-18.04
+    name: PHPStan
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@2.9.0
+      with:
+        php-version: 7.4
+        coverage: none
+        extensions: json, mbstring
+
+    - name: Install Dependencies
+      run: composer install
+
+    - name: PHPStan
+      run: composer stan
