@@ -9,7 +9,7 @@ on:
 jobs:
   static-analysis-phpstan:
     name: Static Analysis with PHPStan
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
