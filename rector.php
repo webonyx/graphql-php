@@ -45,7 +45,7 @@ return static function (RectorConfig $rectorConfig): void {
         RemoveAlwaysTrueIfConditionRector::class, // Sometimes necessary to prove runtime behaviour matches defined types
         RemoveDeadInstanceOfRector::class, // Sometimes necessary to prove runtime behaviour matches defined types
         RemoveNonExistingVarAnnotationRector::class, // Sometimes false-positive
-        RemoveUnusedPrivatePropertyRector::class, // TODO reintroduce when https://github.com/rectorphp/rector/issues/8054 is fixed
+        RemoveUnusedPrivatePropertyRector::class, // TODO reintroduce when https://github.com/rectorphp/rector-src/pull/4491 is released
         AssertPropertyExistsRector::class, // Uses deprecated PHPUnit methods
         AssertIssetToSpecificMethodRector::class => [
             __DIR__ . '/tests/Utils/MixedStoreTest.php', // Uses keys that are not string or int
