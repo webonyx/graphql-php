@@ -136,7 +136,7 @@ class GraphQL
                 ? $source
                 : Parser::parse(new Source($source, 'GraphQL'));
 
-            if ($validationRules === null || $validationRules === []) {
+            if ($validationRules === null) {
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
                 assert($queryComplexity instanceof QueryComplexity, 'should not register a different rule for QueryComplexity');
 
