@@ -62,6 +62,8 @@ use GraphQL\Language\AST\VariableNode;
  */
 class Printer
 {
+    private bool $useShortFormQueryWhenPossible;
+
     /**
      * Converts the AST of a GraphQL node to a string.
      *
@@ -72,12 +74,15 @@ class Printer
     public static function doPrint(Node $ast): string
     {
         static $instance;
-        $instance ??= new static();
+        $instance ??= new static(true);
 
         return $instance->printAST($ast);
     }
 
-    protected function __construct() {}
+    public function __construct(bool $useShortFormQueryWhenPossible)
+    {
+        $this->useShortFormQueryWhenPossible = $useShortFormQueryWhenPossible;
+    }
 
     /**
      * Recursively traverse an AST depth-first and produce a pretty string.
@@ -368,7 +373,7 @@ class Printer
 
                 // Anonymous queries with no directives or variable definitions can use
                 // the query short form.
-                return $name === '' && $directives === '' && $varDefs === '' && $op === 'query'
+                return $this->useShortFormQueryWhenPossible && $name === '' && $directives === '' && $varDefs === '' && $op === 'query'
                     ? $selectionSet
                     : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
 

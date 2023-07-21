@@ -291,4 +291,22 @@ GRAPHQL, Printer::doPrint($ast));
         self::assertASTMatches('3', AST::astFromValue(3, Type::int()));
         self::assertASTMatches('3.14', AST::astFromValue(3.14, Type::float()));
     }
+
+    public function testPrintwithoutShortFormQuery() : void
+    {
+        $printer = new Printer(false);
+        $queryAstShorthanded = Parser::parse('query { id, name }');
+
+        self::assertSame(
+            <<<'GRAPHQL'
+      query {
+        id
+        name
+      }
+
+      GRAPHQL,
+            $printer->printAST($queryAstShorthanded)
+        );
+
+    }
 }
