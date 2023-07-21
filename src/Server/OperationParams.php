@@ -117,7 +117,6 @@ class OperationParams
         // Apollo server/client compatibility
         if (
             isset($instance->extensions['persistedQuery']['sha256Hash'])
-            && $instance->query === null
             && $instance->queryId === null
         ) {
             $instance->queryId = $instance->extensions['persistedQuery']['sha256Hash'];
