@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.5.3
+
+### Fixes
+
+- Also set `queryId` from Apollo-source `sha256Hash` if `query` is provided https://github.com/webonyx/graphql-php/pull/1412
+
 ## v15.5.2
 
 ### Fixed
