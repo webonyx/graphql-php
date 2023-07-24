@@ -28,6 +28,8 @@ use GraphQL\Error\FormattedError;
  * }
  * @phpstan-type ErrorFormatter callable(\Throwable): SerializableError
  * @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
+ *
+ * @see \GraphQL\Tests\Executor\ExecutionResultTest
  */
 class ExecutionResult implements \JsonSerializable
 {

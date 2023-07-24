@@ -22,6 +22,8 @@ use Psr\Http\Message\StreamInterface;
 
 /**
  * Contains functionality that could be re-used by various server implementations.
+ *
+ * @see \GraphQL\Tests\Server\HelperTest
  */
 class Helper
 {
