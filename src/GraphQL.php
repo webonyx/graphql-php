@@ -110,11 +110,11 @@ class GraphQL
      * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
      * Useful for Async PHP platforms.
      *
-     * @param string|DocumentNode        $source
-     * @param mixed                      $rootValue
-     * @param mixed                      $context
-     * @param array<string, mixed>|null  $variableValues
-     * @param array<ValidationRule>|null $validationRules
+     * @param string|DocumentNode $source
+     * @param mixed $rootValue
+     * @param mixed $context
+     * @param array<string, mixed>|null $variableValues
+     * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
      *
      * @api
      *
