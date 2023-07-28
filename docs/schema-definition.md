@@ -111,7 +111,7 @@ If your schema makes use of a large number of complex or dynamically-generated t
 
 2. Define each custom type as a callable that returns a type, rather than an object instance. Then, the work of instantiating them will only happen as they are needed by each query.
 
-3. Define all of your object **fields** and **args* properties as callbacks. If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
+3. Define all of your object **fields** and \*_args_ properties as callbacks. If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
 
 It is recommended to centralize this kind of functionality in a type loader. A typical example might look like the following:
 
@@ -173,7 +173,7 @@ $typeRegistry = new TypeRegistry();
 $schema = new Schema([
     'query' => new Query(),
     'mutation' => new Mutation(),
-    'typeLoader' => static fn (string $name): Type => 
+    'typeLoader' => static fn (string $name): Type =>
         $typeRegistry->get($name),
 ]);
 ```
