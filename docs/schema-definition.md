@@ -148,7 +148,7 @@ class Types
      */
     private static array $types = [];
 
-    private static function get(string $classname): \Closure
+    public static function get(string $classname): \Closure
     {
         return static fn () => self::byClassName($classname);
     }
