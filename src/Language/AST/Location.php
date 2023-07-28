@@ -38,7 +38,7 @@ class Location
         return $tmp;
     }
 
-    public function __construct(?Token $startToken = null, ?Token $endToken = null, ?Source $source = null)
+    public function __construct(Token $startToken = null, Token $endToken = null, Source $source = null)
     {
         $this->startToken = $startToken;
         $this->endToken = $endToken;

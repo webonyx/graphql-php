@@ -44,7 +44,7 @@ represent free-form human-readable text.';
         return $value;
     }
 
-    public function parseLiteral(Node $valueNode, ?array $variables = null): string
+    public function parseLiteral(Node $valueNode, array $variables = null): string
     {
         if ($valueNode instanceof StringValueNode) {
             return $valueNode->value;

@@ -2,6 +2,4 @@
 
 namespace GraphQL\Language;
 
-final class VisitorStop extends VisitorOperation
-{
-}
+final class VisitorStop extends VisitorOperation {}

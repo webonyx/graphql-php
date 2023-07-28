@@ -133,8 +133,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $localObjectType = new class(['name' => 'ObjectType', 'fields' => ['field1' => ['type' => Type::string()]]]) extends ObjectType {
-        };
+        $localObjectType = new class(['name' => 'ObjectType', 'fields' => ['field1' => ['type' => Type::string()]]]) extends ObjectType {};
 
         $schemaA = new Schema([
             'query' => $this->queryType,

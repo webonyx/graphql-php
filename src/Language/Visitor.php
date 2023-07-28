@@ -166,7 +166,7 @@ class Visitor
      *
      * @api
      */
-    public static function visit(object $root, array $visitor, ?array $keyMap = null)
+    public static function visit(object $root, array $visitor, array $keyMap = null)
     {
         $visitorKeys = $keyMap ?? self::VISITOR_KEYS;
 

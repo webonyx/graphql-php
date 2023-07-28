@@ -31,8 +31,7 @@ final class AmpPromiseAdapterTest extends TestCase
         self::assertTrue($ampAdapter->isThenable(new Failure(new \Exception())));
         self::assertTrue($ampAdapter->isThenable(new Delayed(0)));
         self::assertTrue(
-            $ampAdapter->isThenable(new LazyPromise(static function (): void {
-            }))
+            $ampAdapter->isThenable(new LazyPromise(static function (): void {}))
         );
         self::assertFalse($ampAdapter->isThenable(false));
         self::assertFalse($ampAdapter->isThenable(true));
