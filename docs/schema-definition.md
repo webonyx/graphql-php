@@ -164,7 +164,7 @@ class Types
     {
         return static fn () => self::byClassName($classname);
     }
-    
+
     public static function byTypeName(string $shortName): Type
     {
         $cacheName = \strtolower($shortName);
