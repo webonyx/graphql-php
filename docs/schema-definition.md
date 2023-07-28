@@ -105,16 +105,15 @@ $schema = new Schema($config);
 
 ## Lazy loading of types
 
-When GraphQL needs to resolve a type by name, it will first initialize a mapping of names to types by walking over all your fields and arguments to resolve each type, then use that map to look up the type information for that name. For complex schemas this can become cumbersome, and there are a few best practices to minimize this kind of overhead: 
+If your schema makes use of a large number of complex or dynamically-generated types, they can become a performance concern. There are a few best practices that can lessen their impact: 
 
-1. Use a type loader. This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to build the map of types.
+1. Use a type loader. This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to build to preload a map of all known types to do its work.
 
-2. Define all of your object **fields** as callbacks. When using a type loader, GraphQL won't access the **fields** property until it's needed.
-
-3. Define each type as a callable that returns a type, rather than an object instance.
+2. Define each type as a callable that returns a type, rather than an object instance. Then, the work on instantiating them will only happen as they are needed by each query.
  
-Type loading is very similar to PHP class loading, but keep in mind that the **typeLoader** must
-always return the same instance of a type. If you use a type registry you can not only ensure that types are properly managed as singletons, but also lazy-loaded for optimal performance:
+3. Define all of your object **fields** and **args* properties as callbacks. If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
+
+It is recommended to centralize this kind of work in a type loader. A typical example might look like the following:
 
 ```php
 use GraphQL\Type\Definition\Type;
