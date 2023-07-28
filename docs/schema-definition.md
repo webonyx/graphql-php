@@ -113,55 +113,10 @@ If your schema makes use of a large number of complex or dynamically-generated t
  
 3. Define all of your object **fields** and **args* properties as callbacks. If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
 
-It is recommended to centralize this kind of work in a type loader. A typical example might look like the following:
+It is recommended to centralize this kind of functionality in a type loader. A typical example might look like the following:
 
 ```php
-use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Schema;
 
-class TypeRegistry
-{
-    /**
-     * @var array<string, Type>
-     */
-    private array $types = [];
-
-    public function get(string $name): Type
-    {
-        return $this->types[$name] ??= $this->{$name}();
-    }
-
-    private function MyTypeA(): ObjectType
-    {
-        return new ObjectType([
-            'name' => 'MyTypeA',
-            'fields' => fn() => [
-                'b' => [
-                    'type' => $this->get('MyTypeB')
-                ],
-            ]
-        ]);
-    }
-
-    private function MyTypeB(): ObjectType
-    {
-        // ...
-    }
-}
-
-$typeRegistry = new TypeRegistry();
-
-$schema = new Schema([
-    'query' => $typeRegistry->get('Query'),
-    'typeLoader' => static fn (string $name): Type => $typeRegistry->get($name),
-]);
-```
-
-You can automate this registry if you wish to reduce boilerplate or even
-introduce a Dependency Injection Container if your types have other dependencies.
-
-```php
 // MyAType.php
 class MyAType extends \GraphQL\Type\Definition\ObjectType {
     public __construct() {
@@ -212,6 +167,15 @@ class TypeRegistry
 
     ...
 }
+
+// ...
+
+$typeRegistry = new TypeRegistry();
+
+$schema = new Schema([
+    'query' => $typeRegistry->get('Query'),
+    'typeLoader' => static fn (string $name): Type => $typeRegistry->get($name),
+]);
 ```
 
 ## Schema Validation
