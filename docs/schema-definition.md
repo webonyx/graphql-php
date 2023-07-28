@@ -118,6 +118,8 @@ It is recommended to centralize this kind of functionality in a type registry. A
 ```php
 
 // MyAType.php
+use GraphQL\Type\Definition\ObjectType;
+
 class MyAType extends \GraphQL\Type\Definition\ObjectType {
     public __construct() {
         parent::__construct([
@@ -129,6 +131,8 @@ class MyAType extends \GraphQL\Type\Definition\ObjectType {
 }
 
 // MyBType.php
+use GraphQL\Type\Definition\ObjectType;
+
 class MyBType extends \GraphQL\Type\Definition\ObjectType {
     public __construct() {
         parent::__construct([
@@ -141,6 +145,8 @@ class MyBType extends \GraphQL\Type\Definition\ObjectType {
 }
 
 // TypeRegistry.php
+use GraphQL\Type\Definition\Type;
+
 class Types
 {
     /**
@@ -169,11 +175,17 @@ class Types
 
 // ...
 
-$typeRegistry = new TypeRegistry();
-
 $schema = new Schema([
-    'query' => new Query(),
-    'mutation' => new Mutation(),
+    'query' => new ObjectType([
+        'name' => 'Query',
+        'fields' => static fn() => [
+            'myA' => [
+                'type' => Types::MyA(),
+                'description' => 'Returns my A',
+                'resolve' => static fn ($rootValue, array $args): array => [],
+            ],
+        ]
+    ]),
     'typeLoader' => static fn (string $name): Type =>
         Types::get($name),
 ]);
