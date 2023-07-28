@@ -105,14 +105,16 @@ $schema = new Schema($config);
 
 ## Lazy loading of types
 
-By default, the schema will scan all of your type, field and argument definitions to serve GraphQL queries.
-It may cause performance overhead when there are many types in the schema.
+When GraphQL needs to resolve a type by name, it will first initialize a mapping of names to types by walking over all your fields and arguments to resolve each type, then use that map to look up the type information for that name. For complex schemas this can become cumbersome, and there are a few best practices to minimize this kind of overhead: 
 
-In this case, it is recommended to pass the **typeLoader** option to the schema constructor and define all
-of your object **fields** as callbacks.
+1. Use a type loader. This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to build the map of types.
 
+2. Define all of your object **fields** as callbacks. When using a type loader, GraphQL won't access the **fields** property until it's needed.
+
+3. Define each type as a callable that returns a type, rather than an object instance.
+ 
 Type loading is very similar to PHP class loading, but keep in mind that the **typeLoader** must
-always return the same instance of a type. A good way to ensure this is to use a type registry:
+always return the same instance of a type. If you use a type registry you can not only ensure that types are properly managed as singletons, but also lazy-loaded for optimal performance:
 
 ```php
 use GraphQL\Type\Definition\Type;
@@ -159,12 +161,6 @@ $schema = new Schema([
 
 You can automate this registry if you wish to reduce boilerplate or even
 introduce a Dependency Injection Container if your types have other dependencies.
-
-This approach has its drawbacks; while using a callable for the **fields** property does provide some protection,
-once the fields property is accessed each individual field under its governance is still evaluated whether it's needed
-for the current query or not, and this can result in many superfluous field and argument instantiations.
-For a more robust solution, you can craft a type registry populated with static helpers that 
-return callables for each individual type:
 
 ```php
 // MyAType.php
