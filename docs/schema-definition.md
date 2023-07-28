@@ -107,9 +107,9 @@ $schema = new Schema($config);
 
 If your schema makes use of a large number of complex or dynamically-generated types, they can become a performance concern. There are a few best practices that can lessen their impact: 
 
-1. Use a type loader. This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to build to preload a map of all known types to do its work.
+1. Use a type loader. This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to preload a map of all known types to do its work.
 
-2. Define each type as a callable that returns a type, rather than an object instance. Then, the work on instantiating them will only happen as they are needed by each query.
+2. Define each custom type as a callable that returns a type, rather than an object instance. Then, the work of instantiating them will only happen as they are needed by each query.
  
 3. Define all of your object **fields** and **args* properties as callbacks. If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
 
@@ -149,8 +149,6 @@ class TypeRegistry
 
     private static function get(string $classname): \Closure
     {
-        // by moving our custom types to separate files and returning a callable here, we can prevent
-        // even more needless work from happening
         return static fn () => self::byClassName($classname);
     }
 
@@ -173,10 +171,14 @@ class TypeRegistry
 $typeRegistry = new TypeRegistry();
 
 $schema = new Schema([
-    'query' => $typeRegistry->get('Query'),
-    'typeLoader' => static fn (string $name): Type => $typeRegistry->get($name),
+    'query' => new Query(),
+    'mutation' => new Mutation(),
+    'typeLoader' => static fn (string $name): Type => 
+        $typeRegistry->get($name),
 ]);
 ```
+
+A working demonstration of this kind of architecture can be found in the [01-blog](../examples/01-blog) sample.
 
 ## Schema Validation
 
