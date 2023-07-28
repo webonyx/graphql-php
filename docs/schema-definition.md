@@ -105,12 +105,12 @@ $schema = new Schema($config);
 
 ## Lazy loading of types
 
-If your schema makes use of a large number of complex or dynamically-generated types, they can become a performance concern. There are a few best practices that can lessen their impact: 
+If your schema makes use of a large number of complex or dynamically-generated types, they can become a performance concern. There are a few best practices that can lessen their impact:
 
 1. Use a type loader. This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to preload a map of all known types to do its work.
 
 2. Define each custom type as a callable that returns a type, rather than an object instance. Then, the work of instantiating them will only happen as they are needed by each query.
- 
+
 3. Define all of your object **fields** and **args* properties as callbacks. If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
 
 It is recommended to centralize this kind of functionality in a type loader. A typical example might look like the following:
