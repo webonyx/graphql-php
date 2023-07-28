@@ -107,7 +107,7 @@ $schema = new Schema($config);
 
 If your schema makes use of a large number of complex or dynamically-generated types, they can become a performance concern. There are a few best practices that can lessen their impact:
 
-1. Use a type loader. This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to preload a map of all known types to do its work.
+1. Use a type registry. This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to preload a map of all known types to do its work.
 
 2. Define each custom type as a callable that returns a type, rather than an object instance. Then, the work of instantiating them will only happen as they are needed by each query.
 
@@ -170,6 +170,9 @@ class Types
         $parts = \explode('\\', $classname);
         $cacheName = \strtolower(\preg_replace('~Type$~', '', $parts[\count($parts) - 1]));
 
+        // Type loading is very similar to PHP class loading, but keep in mind
+        // that the **typeLoader** must always return the same instance of a type.
+        // We can enforce that in our type registry by caching known types.
         return self::$types[$cacheName] ??= new $classname;
     }
 
