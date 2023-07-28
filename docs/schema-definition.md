@@ -111,40 +111,46 @@ If your schema makes use of a large number of complex or dynamically-generated t
 
 2. Define each custom type as a callable that returns a type, rather than an object instance. Then, the work of instantiating them will only happen as they are needed by each query.
 
-3. Define all of your object **fields** and **args** properties as callbacks. If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
+3. Define all of your object **fields** and properties as callbacks. If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
 
 It is recommended to centralize this kind of functionality in a type registry. A typical example might look like the following:
 
 ```php
 
-// MyAType.php
+// StoryType.php
 use GraphQL\Type\Definition\ObjectType;
 
-class MyAType extends \GraphQL\Type\Definition\ObjectType {
-    public __construct() {
+class StoryType extends ObjectType {
+    public function __construct() {
         parent::__construct([
-            "name"=>"MyA",
-            "fields" => fn() => [
-                'b' => Types::MyB()
-        ]);
-    }
-}
-
-// MyBType.php
-use GraphQL\Type\Definition\ObjectType;
-
-class MyBType extends \GraphQL\Type\Definition\ObjectType {
-    public __construct() {
-        parent::__construct([
-            "name" => "MyB",
-            "fields" => fn() => [
-                "c" => Types::string()
+            'fields' => static fn (): array => [
+                'author' => [
+                    'type' => Types::author(),
+                    'resolve' => static fn (Story $story): ?Author =>
+                        DataSource::findUser($story->authorId),
+                ],
             ]
         ]);
     }
 }
 
-// TypeRegistry.php
+// AuthorType.php
+use GraphQL\Type\Definition\ObjectType;
+
+class AuthorType extends ObjectType
+{
+    public function __construct()
+    {
+        parent::__construct([
+            'description' => 'Writer of books',
+            'fields' => static fn (): array => [
+                'firstName' => Types::string(),
+            ],
+        ]);
+    }
+}
+
+// Types.php
 use GraphQL\Type\Definition\Type;
 
 class Types
@@ -167,28 +173,33 @@ class Types
         return self::$types[$cacheName] ??= new $classname;
     }
 
-    public static function MyA(): callable { return self::get(MyAType::class); }
-    public static function MyB(): callable { return self::get(MyBType::class); }
+    public static function author(): callable { return self::get(AuthorType::class); }
+    public static function story(): callable { return self::get(StoryType::class); }
 
     ...
 }
 
-// ...
+// api/index.php
+use GraphQL\Type\Definition\ObjectType;
 
 $schema = new Schema([
     'query' => new ObjectType([
         'name' => 'Query',
         'fields' => static fn() => [
-            'myA' => [
-                'type' => Types::MyA(),
+            'story' => [
+                'args'=>[
+                  'id' => Types::int()
+                ],
+                'type' => Types::story(),
                 'description' => 'Returns my A',
-                'resolve' => static fn ($rootValue, array $args): array => [],
+                'resolve' => static fn ($rootValue, array $args): ?Story =>
+                    DataSource::findStory($args['id']),
             ],
         ]
     ]),
     'typeLoader' => static fn (string $name): Type =>
-        Types::get($name),
-]);
+        Types::byTypeName($name),
+    ]);
 ```
 
 A working demonstration of this kind of architecture can be found in the [01-blog](../examples/01-blog) sample.
