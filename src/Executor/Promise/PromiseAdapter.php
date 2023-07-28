@@ -31,7 +31,7 @@ interface PromiseAdapter
      *
      * @api
      */
-    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise;
+    public function then(Promise $promise, callable $onFulfilled = null, callable $onRejected = null): Promise;
 
     /**
      * Creates a Promise from the given resolver callable.

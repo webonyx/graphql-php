@@ -126,7 +126,7 @@ class FormattedError
      *
      * @api
      */
-    public static function createFromException(\Throwable $exception, int $debugFlag = DebugFlag::NONE, ?string $internalErrorMessage = null): array
+    public static function createFromException(\Throwable $exception, int $debugFlag = DebugFlag::NONE, string $internalErrorMessage = null): array
     {
         $internalErrorMessage ??= self::$internalErrorMessage;
 

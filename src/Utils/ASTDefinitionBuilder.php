@@ -91,7 +91,7 @@ class ASTDefinitionBuilder
         array $typeDefinitionsMap,
         array $typeExtensionsMap,
         callable $resolveType,
-        ?callable $typeConfigDecorator = null
+        callable $typeConfigDecorator = null
     ) {
         $this->typeDefinitionsMap = $typeDefinitionsMap;
         $this->typeExtensionsMap = $typeExtensionsMap;
@@ -246,7 +246,7 @@ class ASTDefinitionBuilder
      *
      * @return Type&NamedType
      */
-    private function internalBuildType(string $typeName, ?Node $typeNode = null): Type
+    private function internalBuildType(string $typeName, Node $typeNode = null): Type
     {
         if (isset($this->cache[$typeName])) {
             return $this->cache[$typeName];

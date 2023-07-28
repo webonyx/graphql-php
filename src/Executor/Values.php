@@ -152,7 +152,7 @@ class Values
      *
      * @return array<string, mixed>|null
      */
-    public static function getDirectiveValues(Directive $directiveDef, Node $node, ?array $variableValues = null): ?array
+    public static function getDirectiveValues(Directive $directiveDef, Node $node, array $variableValues = null): ?array
     {
         $directiveDefName = $directiveDef->name;
 
@@ -178,7 +178,7 @@ class Values
      *
      * @return array<string, mixed>
      */
-    public static function getArgumentValues($def, Node $node, ?array $variableValues = null): array
+    public static function getArgumentValues($def, Node $node, array $variableValues = null): array
     {
         if ($def->args === []) {
             return [];
@@ -207,7 +207,7 @@ class Values
      *
      * @return array<string, mixed>
      */
-    public static function getArgumentValuesForMap($def, array $argumentValueMap, ?array $variableValues = null, ?Node $referenceNode = null): array
+    public static function getArgumentValuesForMap($def, array $argumentValueMap, array $variableValues = null, Node $referenceNode = null): array
     {
         /** @var array<string, mixed> $coercedValues */
         $coercedValues = [];
