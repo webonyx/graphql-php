@@ -175,7 +175,7 @@ $schema = new Schema([
     'query' => new Query(),
     'mutation' => new Mutation(),
     'typeLoader' => static fn (string $name): Type =>
-        $typeRegistry->get($name),
+        Types::get($name),
 ]);
 ```
 
