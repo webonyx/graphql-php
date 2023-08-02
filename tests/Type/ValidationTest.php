@@ -435,8 +435,8 @@ final class ValidationTest extends TestCaseBase
 
     private function expectRootTypeMustBeObjectTypeNotInputType(string $rootType): void
     {
-        $this->expectException(\TypeError::class);
-        $this->expectExceptionMessageMatches('/.*GraphQL\\\\Type\\\\SchemaConfig::set' . \ucfirst($rootType) . '.*GraphQL\\\\Type\\\\Definition\\\\ObjectType.*GraphQL\\\\Type\\\\Definition\\\\InputObjectType given.*/');
+        $this->expectException(\AssertionError::class);
+        $this->expectExceptionMessage('Invalid ' . \ucfirst($rootType));
     }
 
     /** @see it('rejects a Schema whose directives are incorrectly typed') */

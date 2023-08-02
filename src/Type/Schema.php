@@ -147,7 +147,7 @@ class Schema
                 TypeInfo::extractTypes($type, $allReferencedTypes);
             }
 
-            foreach ([$this->config->query, $this->config->mutation, $this->config->subscription] as $rootType) {
+            foreach ([$this->getQueryType(), $this->getMutationType(), $this->getSubscriptionType()] as $rootType) {
                 if ($rootType instanceof ObjectType) {
                     TypeInfo::extractTypes($rootType, $allReferencedTypes);
                 }
@@ -214,6 +214,14 @@ class Schema
      */
     public function getQueryType(): ?ObjectType
     {
+        if ($this->config->query === null) {
+            return null;
+        }
+
+        if (is_callable($this->config->query)) {
+            return $this->config->query = ($this->config->query)();
+        }
+
         return $this->config->query;
     }
 
@@ -224,6 +232,14 @@ class Schema
      */
     public function getMutationType(): ?ObjectType
     {
+        if ($this->config->mutation === null) {
+            return null;
+        }
+
+        if (is_callable($this->config->mutation)) {
+            return $this->config->mutation = ($this->config->mutation)();
+        }
+
         return $this->config->mutation;
     }
 
@@ -234,6 +250,14 @@ class Schema
      */
     public function getSubscriptionType(): ?ObjectType
     {
+        if ($this->config->subscription === null) {
+            return null;
+        }
+
+        if (is_callable($this->config->subscription)) {
+            return $this->config->subscription = ($this->config->subscription)();
+        }
+
         return $this->config->subscription;
     }
 

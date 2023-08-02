@@ -28,9 +28,9 @@ use GraphQL\Type\Definition\Type;
  * @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
  * @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
  * @phpstan-type SchemaConfigOptions array{
- *   query?: ObjectType|null,
- *   mutation?: ObjectType|null,
- *   subscription?: ObjectType|null,
+ *   query?: ObjectType|(callable(): ObjectType)|null,
+ *   mutation?: ObjectType|(callable(): ObjectType)|null,
+ *   subscription?: ObjectType|(callable(): ObjectType)|null,
  *   types?: Types|null,
  *   directives?: array<Directive>|null,
  *   typeLoader?: TypeLoader|null,
@@ -41,11 +41,14 @@ use GraphQL\Type\Definition\Type;
  */
 class SchemaConfig
 {
-    public ?ObjectType $query = null;
+    /** @var ObjectType|(callable(): ObjectType)|null */
+    public $query;
 
-    public ?ObjectType $mutation = null;
+    /** @var ObjectType|(callable(): ObjectType)|null */
+    public $mutation;
 
-    public ?ObjectType $subscription = null;
+    /** @var ObjectType|(callable(): ObjectType)|null */
+    public $subscription;
 
     /**
      * @var iterable|callable
@@ -124,43 +127,73 @@ class SchemaConfig
         return $config;
     }
 
-    /** @api */
-    public function getQuery(): ?ObjectType
+    /**
+     * @return ObjectType|(callable(): ObjectType)|null
+     *
+     * @api
+     */
+    public function getQuery()
     {
         return $this->query;
     }
 
-    /** @api */
-    public function setQuery(?ObjectType $query): self
+    /**
+     * @param ObjectType|(callable(): ObjectType)|null $query
+     *
+     * @api
+     */
+    public function setQuery($query): self
     {
+        assert(is_callable($query) || $query instanceof ObjectType || is_null($query), 'Invalid Query');
+
         $this->query = $query;
 
         return $this;
     }
 
-    /** @api */
-    public function getMutation(): ?ObjectType
+    /**
+     * @return ObjectType|(callable(): ObjectType)|null
+     *
+     * @api
+     */
+    public function getMutation()
     {
         return $this->mutation;
     }
 
-    /** @api */
-    public function setMutation(?ObjectType $mutation): self
+    /**
+     * @param ObjectType|(callable(): ObjectType)|null $mutation
+     *
+     * @api
+     */
+    public function setMutation($mutation): self
     {
+        assert(is_callable($mutation) || $mutation instanceof ObjectType || is_null($mutation), 'Invalid Mutation');
+
         $this->mutation = $mutation;
 
         return $this;
     }
 
-    /** @api */
-    public function getSubscription(): ?ObjectType
+    /**
+     * @return ObjectType|(callable(): ObjectType)|null
+     *
+     * @api
+     */
+    public function getSubscription()
     {
         return $this->subscription;
     }
 
-    /** @api */
-    public function setSubscription(?ObjectType $subscription): self
+    /**
+     * @param ObjectType|(callable(): ObjectType)|null $subscription
+     *
+     * @api
+     */
+    public function setSubscription($subscription): self
     {
+        assert(is_callable($subscription) || $subscription instanceof ObjectType || is_null($subscription), 'Invalid Subscription');
+
         $this->subscription = $subscription;
 
         return $this;

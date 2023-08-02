@@ -538,9 +538,9 @@ Usage example:
 @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
 @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
 @phpstan-type SchemaConfigOptions array{
-query?: ObjectType|null,
-mutation?: ObjectType|null,
-subscription?: ObjectType|null,
+query?: ObjectType|(callable(): ObjectType)|null,
+mutation?: ObjectType|(callable(): ObjectType)|null,
+subscription?: ObjectType|(callable(): ObjectType)|null,
 types?: Types|null,
 directives?: array<Directive>|null,
 typeLoader?: TypeLoader|null,
@@ -561,6 +561,60 @@ extensionASTNodes?: array<SchemaExtensionNode>|null,
  * @api
  */
 static function create(array $options = []): self
+```
+
+```php
+/**
+ * @return ObjectType|(callable(): ObjectType)|null
+ *
+ * @api
+ */
+function getQuery()
+```
+
+```php
+/**
+ * @param ObjectType|(callable(): ObjectType)|null $query
+ *
+ * @api
+ */
+function setQuery($query): self
+```
+
+```php
+/**
+ * @return ObjectType|(callable(): ObjectType)|null
+ *
+ * @api
+ */
+function getMutation()
+```
+
+```php
+/**
+ * @param ObjectType|(callable(): ObjectType)|null $mutation
+ *
+ * @api
+ */
+function setMutation($mutation): self
+```
+
+```php
+/**
+ * @return ObjectType|(callable(): ObjectType)|null
+ *
+ * @api
+ */
+function getSubscription()
+```
+
+```php
+/**
+ * @param ObjectType|(callable(): ObjectType)|null $subscription
+ *
+ * @api
+ */
+function setSubscription($subscription): self
 ```
 
 ```php

@@ -182,4 +182,27 @@ final class LazyDefinitionTest extends TestCaseBase
         self::assertSame($field->name, 'width');
         self::assertInstanceOf(IntType::class, $field->getType());
     }
+
+    public function testLazyRootTypes(): void
+    {
+        $query = new ObjectType([
+            'name' => 'Query',
+        ]);
+        $mutation = new ObjectType([
+            'name' => 'Mutation',
+        ]);
+        $subscription = new ObjectType([
+            'name' => 'Subscription',
+        ]);
+
+        $schema = new Schema([
+            'query' => fn () => $query,
+            'mutation' => fn () => $mutation,
+            'subscription' => fn () => $subscription,
+        ]);
+
+        self::assertSame($schema->getQueryType(), $query);
+        self::assertSame($schema->getMutationType(), $mutation);
+        self::assertSame($schema->getSubscriptionType(), $subscription);
+    }
 }
