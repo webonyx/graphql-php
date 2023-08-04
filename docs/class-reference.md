@@ -559,6 +559,8 @@ extensionASTNodes?: array<SchemaExtensionNode>|null,
  *
  * @phpstan-param SchemaConfigOptions $options
  *
+ * @throws InvariantViolation
+ *
  * @api
  */
 static function create(array $options = []): self
