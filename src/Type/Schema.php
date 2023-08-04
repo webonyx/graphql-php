@@ -235,6 +235,7 @@ class Schema
     public function getMutationType(): ?ObjectType
     {
         $mutation = $this->config->mutation;
+
         if ($mutation === null) {
             return null;
         }
@@ -254,6 +255,7 @@ class Schema
     public function getSubscriptionType(): ?ObjectType
     {
         $subscription = $this->config->subscription;
+
         if ($subscription === null) {
             return null;
         }
