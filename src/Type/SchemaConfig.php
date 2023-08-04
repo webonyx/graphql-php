@@ -315,7 +315,9 @@ class SchemaConfig
             return;
         }
 
-        $notMaybeLazyObjectType = Utils::printSafe($maybeLazyObjectType);
+        $notMaybeLazyObjectType = is_object($maybeLazyObjectType)
+            ? get_class($maybeLazyObjectType)
+            : gettype($maybeLazyObjectType);
         $objectTypeClass = ObjectType::class;
         throw new \InvalidArgumentException("Expected instanceof {$objectTypeClass}, a callable that returns such an instance, or null, got: {$notMaybeLazyObjectType}.");
     }
