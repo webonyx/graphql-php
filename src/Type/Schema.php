@@ -214,15 +214,17 @@ class Schema
      */
     public function getQueryType(): ?ObjectType
     {
-        if ($this->config->query === null) {
+        $query = $this->config->query;
+
+        if ($query === null) {
             return null;
         }
 
-        if (is_callable($this->config->query)) {
-            return $this->config->query = ($this->config->query)();
+        if (is_callable($query)) {
+            return $this->config->query = ($query)();
         }
 
-        return $this->config->query;
+        return $query;
     }
 
     /**
@@ -232,15 +234,16 @@ class Schema
      */
     public function getMutationType(): ?ObjectType
     {
-        if ($this->config->mutation === null) {
+        $mutation = $this->config->mutation;
+        if ($mutation === null) {
             return null;
         }
 
-        if (is_callable($this->config->mutation)) {
-            return $this->config->mutation = ($this->config->mutation)();
+        if (is_callable($mutation)) {
+            return $this->config->mutation = ($mutation)();
         }
 
-        return $this->config->mutation;
+        return $mutation;
     }
 
     /**
@@ -250,15 +253,16 @@ class Schema
      */
     public function getSubscriptionType(): ?ObjectType
     {
-        if ($this->config->subscription === null) {
+        $subscription = $this->config->subscription;
+        if ($subscription === null) {
             return null;
         }
 
-        if (is_callable($this->config->subscription)) {
-            return $this->config->subscription = ($this->config->subscription)();
+        if (is_callable($subscription)) {
+            return $this->config->subscription = ($subscription)();
         }
 
-        return $this->config->subscription;
+        return $subscription;
     }
 
     /** @api */
