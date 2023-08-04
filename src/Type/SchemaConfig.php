@@ -8,7 +8,6 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils\Utils;
 
 /**
  * Configuration options for schema construction.
