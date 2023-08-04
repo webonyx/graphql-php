@@ -307,7 +307,10 @@ class SchemaConfig
         return $this;
     }
 
-    /** @param mixed $maybeLazyObjectType Should be MaybeLazyObjectType */
+    /**
+     * @param mixed $maybeLazyObjectType Should be MaybeLazyObjectType
+     * @throws \InvalidArgumentException
+     */
     protected function assertMaybeLazyObjectType($maybeLazyObjectType): void
     {
         if ($maybeLazyObjectType instanceof ObjectType || is_callable($maybeLazyObjectType) || is_null($maybeLazyObjectType)) {

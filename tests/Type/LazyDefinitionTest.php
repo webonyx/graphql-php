@@ -187,12 +187,15 @@ final class LazyDefinitionTest extends TestCaseBase
     {
         $query = new ObjectType([
             'name' => 'Query',
+            'fields' => [],
         ]);
         $mutation = new ObjectType([
             'name' => 'Mutation',
+            'fields' => [],
         ]);
         $subscription = new ObjectType([
             'name' => 'Subscription',
+            'fields' => [],
         ]);
 
         $schema = new Schema([
