@@ -535,12 +535,13 @@ Usage example:
 
 @see Type, NamedType
 
+@phpstan-type MaybeLazyObjectType ObjectType|(callable(): ObjectType)|null
 @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
 @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
 @phpstan-type SchemaConfigOptions array{
-query?: ObjectType|(callable(): ObjectType)|null,
-mutation?: ObjectType|(callable(): ObjectType)|null,
-subscription?: ObjectType|(callable(): ObjectType)|null,
+query?: MaybeLazyObjectType,
+mutation?: MaybeLazyObjectType,
+subscription?: MaybeLazyObjectType,
 types?: Types|null,
 directives?: array<Directive>|null,
 typeLoader?: TypeLoader|null,
@@ -565,7 +566,7 @@ static function create(array $options = []): self
 
 ```php
 /**
- * @return ObjectType|(callable(): ObjectType)|null
+ * @return MaybeLazyObjectType
  *
  * @api
  */
@@ -574,7 +575,7 @@ function getQuery()
 
 ```php
 /**
- * @param ObjectType|(callable(): ObjectType)|null $query
+ * @param MaybeLazyObjectType $query
  *
  * @api
  */
@@ -583,7 +584,7 @@ function setQuery($query): self
 
 ```php
 /**
- * @return ObjectType|(callable(): ObjectType)|null
+ * @return MaybeLazyObjectType
  *
  * @api
  */
@@ -592,7 +593,7 @@ function getMutation()
 
 ```php
 /**
- * @param ObjectType|(callable(): ObjectType)|null $mutation
+ * @param MaybeLazyObjectType $mutation
  *
  * @api
  */
@@ -601,7 +602,7 @@ function setMutation($mutation): self
 
 ```php
 /**
- * @return ObjectType|(callable(): ObjectType)|null
+ * @return MaybeLazyObjectType
  *
  * @api
  */
@@ -610,7 +611,7 @@ function getSubscription()
 
 ```php
 /**
- * @param ObjectType|(callable(): ObjectType)|null $subscription
+ * @param MaybeLazyObjectType $subscription
  *
  * @api
  */
