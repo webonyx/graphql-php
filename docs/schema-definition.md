@@ -105,31 +105,36 @@ $schema = new Schema($config);
 
 ## Lazy loading of types
 
-If your schema makes use of a large number of complex or dynamically-generated types, they can become a performance concern. There are a few best practices that can lessen their impact:
+If your schema makes use of a large number of complex or dynamically-generated types, they can become a performance concern.
+There are a few best practices that can lessen their impact:
 
-1. Use a type registry. This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to preload a map of all known types to do its work.
+1. Use a type registry.
+   This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to preload a map of all known types to do its work.
 
-2. Define each custom type as a callable that returns a type, rather than an object instance. Then, the work of instantiating them will only happen as they are needed by each query.
+2. Define each custom type as a callable that returns a type, rather than an object instance.
+   Then, the work of instantiating them will only happen as they are needed by each query.
 
-3. Define all of your object **fields** properties as callbacks. If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
+3. Define all of your object **fields** as callbacks.
+   If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
 
-It is recommended to centralize this kind of functionality in a type registry. A typical example might look like the following:
+It is recommended to centralize this kind of functionality in a type registry.
+A typical example might look like the following:
 
 ```php
-
 // StoryType.php
 use GraphQL\Type\Definition\ObjectType;
 
-class StoryType extends ObjectType {
-    public function __construct() {
+final class StoryType extends ObjectType
+{
+    public function __construct()
+    {
         parent::__construct([
             'fields' => static fn (): array => [
                 'author' => [
                     'type' => Types::author(),
-                    'resolve' => static fn (Story $story): ?Author =>
-                        DataSource::findUser($story->authorId),
+                    'resolve' => static fn (Story $story): ?Author => DataSource::findUser($story->authorId),
                 ],
-            ]
+            ],
         ]);
     }
 }
@@ -137,7 +142,7 @@ class StoryType extends ObjectType {
 // AuthorType.php
 use GraphQL\Type\Definition\ObjectType;
 
-class AuthorType extends ObjectType
+final class AuthorType extends ObjectType
 {
     public function __construct()
     {
@@ -153,50 +158,37 @@ class AuthorType extends ObjectType
 // Types.php
 use GraphQL\Type\Definition\Type;
 
-class Types
+final class Types
 {
-    /**
-     * @var array<string, Type&NamedType>
-     */
+    /** @var array<string, Type&NamedType> */
     private static array $types = [];
 
+    /** @return \Closure(): Type&NamedType */
     public static function get(string $classname): \Closure
     {
         return static fn () => self::byClassName($classname);
     }
 
-    public static function byTypeName(string $shortName): Type
+    public static function byTypeName(string $typeName): Type&NamedType
     {
-        $cacheName = \strtolower($shortName);
-
-        if (isset(self::$types[$cacheName])) {
-            return self::$types[$cacheName];
+        return match ($typeName) {
+            'Boolean' => self::boolean(),
+            'Float' => self::float(),
+            'ID' => self::id(),
+            'Int' => self::int(),
+            default => self::$types[$typeName] ?? throw new \Exception("Unknown GraphQL type: {$typeName}."),
         }
-
-        $method = \lcfirst($shortName);
-        switch ($method) {
-            case 'boolean':
-                return self::boolean();
-            case 'float':
-                return self::float();
-            case 'id':
-                return self::id();
-            case 'int':
-                return self::int();
-        }
-
-        throw new \Exception("Unknown graphql type: {$shortName}");
     }
 
     private static function byClassName(string $classname): Type
     {
         $parts = \explode('\\', $classname);
-        $cacheName = \strtolower(\preg_replace('~Type$~', '', $parts[\count($parts) - 1]));
+        $typeName = \preg_replace('~Type$~', '', $parts[\count($parts) - 1]);
 
         // Type loading is very similar to PHP class loading, but keep in mind
         // that the **typeLoader** must always return the same instance of a type.
         // We can enforce that in our type registry by caching known types.
-        return self::$types[$cacheName] ??= new $classname;
+        return self::$types[$typeName] ??= new $classname;
     }
 
     public static function author(): callable { return self::get(AuthorType::class); }
@@ -214,18 +206,16 @@ $schema = new Schema([
         'fields' => static fn() => [
             'story' => [
                 'args'=>[
-                  'id' => Types::int()
+                  'id' => Types::int(),
                 ],
                 'type' => Types::story(),
                 'description' => 'Returns my A',
-                'resolve' => static fn ($rootValue, array $args): ?Story =>
-                    DataSource::findStory($args['id']),
+                'resolve' => static fn ($rootValue, array $args): ?Story => DataSource::findStory($args['id']),
             ],
-        ]
+        ],
     ]),
-    'typeLoader' => static fn (string $name): Type =>
-        Types::byTypeName($name),
-    ]);
+    'typeLoader' => Types::byTypeName(...),
+]);
 ```
 
 A working demonstration of this kind of architecture can be found in the [01-blog](../examples/01-blog) sample.
