@@ -720,6 +720,8 @@ Or using Schema Config instance:
  *
  * @phpstan-param SchemaConfig|SchemaConfigOptions $config
  *
+ * @throws InvariantViolation
+ *
  * @api
  */
 function __construct($config)
