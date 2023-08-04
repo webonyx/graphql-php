@@ -535,12 +535,13 @@ Usage example:
 
 @see Type, NamedType
 
+@phpstan-type MaybeLazyObjectType ObjectType|(callable(): ObjectType)|null
 @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
 @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
 @phpstan-type SchemaConfigOptions array{
-query?: ObjectType|null,
-mutation?: ObjectType|null,
-subscription?: ObjectType|null,
+query?: MaybeLazyObjectType,
+mutation?: MaybeLazyObjectType,
+subscription?: MaybeLazyObjectType,
 types?: Types|null,
 directives?: array<Directive>|null,
 typeLoader?: TypeLoader|null,
@@ -558,9 +559,71 @@ extensionASTNodes?: array<SchemaExtensionNode>|null,
  *
  * @phpstan-param SchemaConfigOptions $options
  *
+ * @throws InvariantViolation
+ *
  * @api
  */
 static function create(array $options = []): self
+```
+
+```php
+/**
+ * @return MaybeLazyObjectType
+ *
+ * @api
+ */
+function getQuery()
+```
+
+```php
+/**
+ * @param MaybeLazyObjectType $query
+ *
+ * @throws InvariantViolation
+ *
+ * @api
+ */
+function setQuery($query): self
+```
+
+```php
+/**
+ * @return MaybeLazyObjectType
+ *
+ * @api
+ */
+function getMutation()
+```
+
+```php
+/**
+ * @param MaybeLazyObjectType $mutation
+ *
+ * @throws InvariantViolation
+ *
+ * @api
+ */
+function setMutation($mutation): self
+```
+
+```php
+/**
+ * @return MaybeLazyObjectType
+ *
+ * @api
+ */
+function getSubscription()
+```
+
+```php
+/**
+ * @param MaybeLazyObjectType $subscription
+ *
+ * @throws InvariantViolation
+ *
+ * @api
+ */
+function setSubscription($subscription): self
 ```
 
 ```php
@@ -656,6 +719,8 @@ Or using Schema Config instance:
  * @param SchemaConfig|array<string, mixed> $config
  *
  * @phpstan-param SchemaConfig|SchemaConfigOptions $config
+ *
+ * @throws InvariantViolation
  *
  * @api
  */

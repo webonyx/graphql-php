@@ -79,6 +79,8 @@ class Schema
      *
      * @phpstan-param SchemaConfig|SchemaConfigOptions $config
      *
+     * @throws InvariantViolation
+     *
      * @api
      */
     public function __construct($config)
@@ -147,7 +149,7 @@ class Schema
                 TypeInfo::extractTypes($type, $allReferencedTypes);
             }
 
-            foreach ([$this->config->query, $this->config->mutation, $this->config->subscription] as $rootType) {
+            foreach ([$this->getQueryType(), $this->getMutationType(), $this->getSubscriptionType()] as $rootType) {
                 if ($rootType instanceof ObjectType) {
                     TypeInfo::extractTypes($rootType, $allReferencedTypes);
                 }
@@ -214,7 +216,17 @@ class Schema
      */
     public function getQueryType(): ?ObjectType
     {
-        return $this->config->query;
+        $query = $this->config->query;
+
+        if ($query === null) {
+            return null;
+        }
+
+        if (is_callable($query)) {
+            return $this->config->query = $query();
+        }
+
+        return $query;
     }
 
     /**
@@ -224,7 +236,17 @@ class Schema
      */
     public function getMutationType(): ?ObjectType
     {
-        return $this->config->mutation;
+        $mutation = $this->config->mutation;
+
+        if ($mutation === null) {
+            return null;
+        }
+
+        if (is_callable($mutation)) {
+            return $this->config->mutation = $mutation();
+        }
+
+        return $mutation;
     }
 
     /**
@@ -234,7 +256,17 @@ class Schema
      */
     public function getSubscriptionType(): ?ObjectType
     {
-        return $this->config->subscription;
+        $subscription = $this->config->subscription;
+
+        if ($subscription === null) {
+            return null;
+        }
+
+        if (is_callable($subscription)) {
+            return $this->config->subscription = $subscription();
+        }
+
+        return $subscription;
     }
 
     /** @api */

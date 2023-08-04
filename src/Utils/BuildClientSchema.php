@@ -83,9 +83,9 @@ class BuildClientSchema
      * the "errors" field of a server response before calling this function.
      *
      * @param array<string, mixed> $introspectionQuery
-     * @param array<string, bool>  $options
+     * @param array<string, bool> $options
      *
-     * @phpstan-param Options    $options
+     * @phpstan-param Options $options
      *
      * @api
      *
