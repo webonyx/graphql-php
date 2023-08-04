@@ -79,6 +79,8 @@ class Schema
      *
      * @phpstan-param SchemaConfig|SchemaConfigOptions $config
      *
+     * @throws InvariantViolation
+     *
      * @api
      */
     public function __construct($config)
