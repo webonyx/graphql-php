@@ -577,6 +577,8 @@ function getQuery()
 /**
  * @param MaybeLazyObjectType $query
  *
+ * @throws InvariantViolation
+ *
  * @api
  */
 function setQuery($query): self
@@ -595,6 +597,8 @@ function getMutation()
 /**
  * @param MaybeLazyObjectType $mutation
  *
+ * @throws InvariantViolation
+ *
  * @api
  */
 function setMutation($mutation): self
@@ -612,6 +616,8 @@ function getSubscription()
 ```php
 /**
  * @param MaybeLazyObjectType $subscription
+ *
+ * @throws InvariantViolation
  *
  * @api
  */
