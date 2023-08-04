@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\Utils;
 
 /**
  * Configuration options for schema construction.
@@ -25,12 +26,13 @@ use GraphQL\Type\Definition\Type;
  *
  * @see Type, NamedType
  *
+ * @phpstan-type MaybeLazyObjectType ObjectType|(callable(): ObjectType)|null
  * @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
  * @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
  * @phpstan-type SchemaConfigOptions array{
- *   query?: ObjectType|(callable(): ObjectType)|null,
- *   mutation?: ObjectType|(callable(): ObjectType)|null,
- *   subscription?: ObjectType|(callable(): ObjectType)|null,
+ *   query?: MaybeLazyObjectType,
+ *   mutation?: MaybeLazyObjectType,
+ *   subscription?: MaybeLazyObjectType,
  *   types?: Types|null,
  *   directives?: array<Directive>|null,
  *   typeLoader?: TypeLoader|null,
@@ -41,13 +43,13 @@ use GraphQL\Type\Definition\Type;
  */
 class SchemaConfig
 {
-    /** @var ObjectType|(callable(): ObjectType)|null */
+    /** @var MaybeLazyObjectType */
     public $query;
 
-    /** @var ObjectType|(callable(): ObjectType)|null */
+    /** @var MaybeLazyObjectType */
     public $mutation;
 
-    /** @var ObjectType|(callable(): ObjectType)|null */
+    /** @var MaybeLazyObjectType */
     public $subscription;
 
     /**
@@ -128,7 +130,7 @@ class SchemaConfig
     }
 
     /**
-     * @return ObjectType|(callable(): ObjectType)|null
+     * @return MaybeLazyObjectType
      *
      * @api
      */
@@ -138,21 +140,20 @@ class SchemaConfig
     }
 
     /**
-     * @param ObjectType|(callable(): ObjectType)|null $query
+     * @param MaybeLazyObjectType $query
      *
      * @api
      */
     public function setQuery($query): self
     {
-        assert(is_callable($query) || $query instanceof ObjectType || is_null($query), 'Invalid Query');
-
+        $this->assertMaybeLazyObjectType($query);
         $this->query = $query;
 
         return $this;
     }
 
     /**
-     * @return ObjectType|(callable(): ObjectType)|null
+     * @return MaybeLazyObjectType
      *
      * @api
      */
@@ -162,21 +163,20 @@ class SchemaConfig
     }
 
     /**
-     * @param ObjectType|(callable(): ObjectType)|null $mutation
+     * @param MaybeLazyObjectType $mutation
      *
      * @api
      */
     public function setMutation($mutation): self
     {
-        assert(is_callable($mutation) || $mutation instanceof ObjectType || is_null($mutation), 'Invalid Mutation');
-
+        $this->assertMaybeLazyObjectType($mutation);
         $this->mutation = $mutation;
 
         return $this;
     }
 
     /**
-     * @return ObjectType|(callable(): ObjectType)|null
+     * @return MaybeLazyObjectType
      *
      * @api
      */
@@ -186,14 +186,13 @@ class SchemaConfig
     }
 
     /**
-     * @param ObjectType|(callable(): ObjectType)|null $subscription
+     * @param MaybeLazyObjectType $subscription
      *
      * @api
      */
     public function setSubscription($subscription): self
     {
-        assert(is_callable($subscription) || $subscription instanceof ObjectType || is_null($subscription), 'Invalid Subscription');
-
+        $this->assertMaybeLazyObjectType($subscription);
         $this->subscription = $subscription;
 
         return $this;
@@ -307,5 +306,17 @@ class SchemaConfig
         $this->extensionASTNodes = $extensionASTNodes;
 
         return $this;
+    }
+
+    /** @param mixed $maybeLazyObjectType Should be MaybeLazyObjectType */
+    protected function assertMaybeLazyObjectType($maybeLazyObjectType): void
+    {
+        if ($maybeLazyObjectType instanceof ObjectType || is_callable($maybeLazyObjectType) || is_null($maybeLazyObjectType)) {
+            return;
+        }
+
+        $notMaybeLazyObjectType = Utils::printSafe($maybeLazyObjectType);
+        $objectTypeClass = ObjectType::class;
+        throw new \InvalidArgumentException("Expected instanceof {$objectTypeClass}, a callable that returns such an instance, or null, got: {$notMaybeLazyObjectType}.");
     }
 }
