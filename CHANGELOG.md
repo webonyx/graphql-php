@@ -11,7 +11,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Added
 
-- Allow lazy root types `query`, `mutation`, `subscription`
+- Allow lazy root types `query`, `mutation`, `subscription` https://github.com/webonyx/graphql-php/pull/1418
 
 ## v15.5.3
 
