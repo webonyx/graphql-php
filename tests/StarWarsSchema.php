@@ -132,7 +132,7 @@ final class StarWarsSchema
                 ];
             },
             'resolveType' => static function (array $obj) use (&$humanType, &$droidType): ObjectType {
-                return StarWarsData::getHuman($obj['id']) === null
+                return StarWarsData::human($obj['id']) === null
                     ? $droidType
                     : $humanType;
             },
@@ -173,7 +173,7 @@ final class StarWarsSchema
                             static function ($friend) use ($fieldSelection): array {
                                 return \array_intersect_key($friend, $fieldSelection);
                             },
-                            StarWarsData::getFriends($human)
+                            StarWarsData::friends($human)
                         );
                     },
                 ],
@@ -225,7 +225,7 @@ final class StarWarsSchema
                 'friends' => [
                     'type' => Type::listOf($characterInterface),
                     'description' => 'The friends of the droid, or an empty list if they have none.',
-                    'resolve' => static fn (array $droid): array => StarWarsData::getFriends($droid),
+                    'resolve' => static fn (array $droid): array => StarWarsData::friends($droid),
                 ],
                 'appearsIn' => [
                     'type' => Type::listOf($episodeEnum),
@@ -271,7 +271,7 @@ final class StarWarsSchema
                             'type' => $episodeEnum,
                         ],
                     ],
-                    'resolve' => static fn ($rootValue, array $args): array => StarWarsData::getHero($args['episode'] ?? null),
+                    'resolve' => static fn ($rootValue, array $args): array => StarWarsData::hero($args['episode'] ?? null),
                 ],
                 'human' => [
                     'type' => $humanType,

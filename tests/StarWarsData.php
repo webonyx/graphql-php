@@ -5,7 +5,7 @@ namespace GraphQL\Tests;
 final class StarWarsData
 {
     /** @return array<string, mixed> */
-    public static function getCharacter(string $id): ?array
+    public static function character(string $id): ?array
     {
         $key = (int) $id;
 
@@ -122,13 +122,13 @@ final class StarWarsData
      *
      * @return array<int, mixed>
      */
-    public static function getFriends(array $character): array
+    public static function friends(array $character): array
     {
-        return \array_map([self::class, 'getCharacter'], $character['friends']);
+        return \array_map([self::class, 'character'], $character['friends']);
     }
 
     /** @return array<string, mixed> */
-    public static function getHero(?int $episode): array
+    public static function hero(?int $episode): array
     {
         if ($episode === 5) {
             // Luke is the hero of Episode V.
@@ -140,13 +140,13 @@ final class StarWarsData
     }
 
     /** @return array<string, mixed>|null */
-    public static function getHuman(string $id): ?array
+    public static function human(string $id): ?array
     {
         return self::humans()[(int) $id] ?? null;
     }
 
     /** @return array<string, mixed>|null */
-    public static function getDroid(string $id): ?array
+    public static function droid(string $id): ?array
     {
         return self::droids()[(int) $id] ?? null;
     }

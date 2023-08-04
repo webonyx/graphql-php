@@ -141,6 +141,7 @@ class ASTDefinitionBuilder
                 'name' => $value->name->value,
                 'type' => $type,
                 'description' => $value->description->value ?? null,
+                'deprecationReason' => $this->getDeprecationReason($value),
                 'astNode' => $value,
             ];
 
@@ -388,7 +389,7 @@ class ASTDefinitionBuilder
      * Given a collection of directives, returns the string value for the
      * deprecation reason.
      *
-     * @param EnumValueDefinitionNode|FieldDefinitionNode $node
+     * @param EnumValueDefinitionNode|FieldDefinitionNode|InputValueDefinitionNode $node
      *
      * @throws \Exception
      * @throws \ReflectionException

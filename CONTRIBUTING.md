@@ -80,6 +80,10 @@ We cannot foresee every possible use case in advance, extending the code should 
 
 Always use class member visibility `protected` over `private`.
 
+#### Late Static Binding
+
+Always use `static::` over `self::` for method calls to enable overriding of static class methods.
+
 #### `final` classes
 
 Prefer `final` classes in [tests](tests), but never use them in [src](src).

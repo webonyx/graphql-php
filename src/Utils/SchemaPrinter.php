@@ -37,6 +37,8 @@ use GraphQL\Type\Schema;
  *   sortInputFields?: bool,
  *   sortTypes?: bool,
  * }
+ *
+ * @see \GraphQL\Tests\Utils\SchemaPrinterTest
  */
 class SchemaPrinter
 {
@@ -174,7 +176,7 @@ class SchemaPrinter
         // TODO add condition for schema.description
         // Only print a schema definition if there is a description or if it should
         // not be omitted because of having default type names.
-        if (! self::hasDefaultRootOperationTypes($schema)) {
+        if (! static::hasDefaultRootOperationTypes($schema)) {
             return "schema {\n"
                 . ($queryType !== null ? "  query: {$queryType->name}\n" : '')
                 . ($mutationType !== null ? "  mutation: {$mutationType->name}\n" : '')
@@ -336,7 +338,7 @@ class SchemaPrinter
      */
     protected static function printInputValue($arg): string
     {
-        $argDecl = "{$arg->name}: {$arg->getType()->toString()}";
+        $argDecl = "{$arg->name}: {$arg->getType()->toString()}" . static::printDeprecated($arg);
 
         if ($arg->defaultValueExists()) {
             $defaultValueAST = AST::astFromValue($arg->defaultValue, $arg->getType());
@@ -378,7 +380,7 @@ class SchemaPrinter
     {
         return static::printDescription($options, $type)
             . "type {$type->name}"
-            . self::printImplementedInterfaces($type)
+            . static::printImplementedInterfaces($type)
             . static::printFields($options, $type);
     }
 
@@ -420,19 +422,19 @@ class SchemaPrinter
             $previousHasDescription = $hasDescription;
         }
 
-        return self::printBlock($fields);
+        return static::printBlock($fields);
     }
 
     /**
-     * @param FieldDefinition|EnumValueDefinition $fieldOrEnumVal
+     * @param FieldDefinition|EnumValueDefinition|InputObjectField|Argument $deprecation
      *
      * @throws \JsonException
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    protected static function printDeprecated($fieldOrEnumVal): string
+    protected static function printDeprecated($deprecation): string
     {
-        $reason = $fieldOrEnumVal->deprecationReason;
+        $reason = $deprecation->deprecationReason;
         if ($reason === null) {
             return '';
         }
@@ -477,7 +479,7 @@ class SchemaPrinter
     {
         return static::printDescription($options, $type)
             . "interface {$type->name}"
-            . self::printImplementedInterfaces($type)
+            . static::printImplementedInterfaces($type)
             . static::printFields($options, $type);
     }
 

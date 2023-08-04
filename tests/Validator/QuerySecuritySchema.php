@@ -48,45 +48,41 @@ final class QuerySecuritySchema
     /** @throws InvariantViolation */
     public static function buildHumanType(): ObjectType
     {
-        return self::$humanType ??= new ObjectType(
-            [
-                'name' => 'Human',
-                'fields' => static fn (): array => [
-                    'firstName' => ['type' => Type::nonNull(Type::string())],
-                    'dogs' => [
-                        'type' => Type::nonNull(
-                            Type::listOf(
-                                Type::nonNull(self::buildDogType())
-                            )
-                        ),
-                        'complexity' => static function (int $childrenComplexity, array $args): int {
-                            $ownComplexity = isset($args['name'])
-                                ? 1
-                                : 10;
+        return self::$humanType ??= new ObjectType([
+            'name' => 'Human',
+            'fields' => static fn (): array => [
+                'firstName' => ['type' => Type::nonNull(Type::string())],
+                'dogs' => [
+                    'type' => Type::nonNull(
+                        Type::listOf(
+                            Type::nonNull(self::buildDogType())
+                        )
+                    ),
+                    'complexity' => static function (int $childrenComplexity, array $args): int {
+                        $ownComplexity = isset($args['name'])
+                            ? 1
+                            : 10;
 
-                            return $childrenComplexity + $ownComplexity;
-                        },
-                        'args' => ['name' => ['type' => Type::string()]],
-                    ],
+                        return $childrenComplexity + $ownComplexity;
+                    },
+                    'args' => ['name' => ['type' => Type::string()]],
                 ],
-            ]
-        );
+            ],
+        ]);
     }
 
     /** @throws InvariantViolation */
     public static function buildDogType(): ObjectType
     {
-        return self::$dogType ??= new ObjectType(
-            [
-                'name' => 'Dog',
-                'fields' => [
-                    'name' => ['type' => Type::nonNull(Type::string())],
-                    'master' => [
-                        'type' => self::buildHumanType(),
-                    ],
+        return self::$dogType ??= new ObjectType([
+            'name' => 'Dog',
+            'fields' => [
+                'name' => ['type' => Type::nonNull(Type::string())],
+                'master' => [
+                    'type' => self::buildHumanType(),
                 ],
-            ]
-        );
+            ],
+        ]);
     }
 
     /** @throws InvariantViolation */

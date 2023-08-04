@@ -425,14 +425,12 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /** @return array<int, array{string}> */
-    public function rootTypes(): array
+    /** @return iterable<array{string}> */
+    public static function rootTypes(): iterable
     {
-        return [
-            ['query'],
-            ['mutation'],
-            ['subscription'],
-        ];
+        yield ['query'];
+        yield ['mutation'];
+        yield ['subscription'];
     }
 
     private function expectRootTypeMustBeObjectTypeNotInputType(string $rootType): void
@@ -1004,6 +1002,26 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
+    /** @see it('rejects an Input Object type with required argument that is deprecated' */
+    public function testRejectsAnInputObjectTypeWithRequiredArgumentThatIsDeprecated(): void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        field(arg: SomeInputObject): String
+      }
+
+      input SomeInputObject {
+        optionalField: String @deprecated
+        anotherOptionalField: String! = "" @deprecated
+        badField: String! @deprecated
+      }
+        ');
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Required input field SomeInputObject.badField cannot be deprecated.');
+        $schema->assertValid();
+    }
+
     /** @see it('rejects an Enum type without values') */
     public function testRejectsAnEnumTypeWithoutValues(): void
     {
@@ -1038,18 +1056,16 @@ final class ValidationTest extends TestCaseBase
     /**
      * DESCRIBE: Type System: Object fields must have output types.
      *
-     * @return array<int, array{0: string, 1: string}>
+     * @return iterable<array{0: string, 1: string}>
      */
-    public function invalidEnumValueName(): array
+    public static function invalidEnumValueName(): iterable
     {
-        return [
-            ['#value', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "#value" does not.'],
-            ['1value', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "1value" does not.'],
-            ['KEBAB-CASE', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "KEBAB-CASE" does not.'],
-            ['false', 'Enum type SomeEnum cannot include value: false.'],
-            ['true', 'Enum type SomeEnum cannot include value: true.'],
-            ['null', 'Enum type SomeEnum cannot include value: null.'],
-        ];
+        yield ['#value', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "#value" does not.'];
+        yield ['1value', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "1value" does not.'];
+        yield ['KEBAB-CASE', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "KEBAB-CASE" does not.'];
+        yield ['false', 'Enum type SomeEnum cannot include value: false.'];
+        yield ['true', 'Enum type SomeEnum cannot include value: true.'];
+        yield ['null', 'Enum type SomeEnum cannot include value: null.'];
     }
 
     /**
@@ -1543,6 +1559,29 @@ final class ValidationTest extends TestCaseBase
                 ]
             );
         }
+    }
+
+    /** @see it('rejects an required argument that is deprecated' */
+    public function testRejectsARequiredArgumentThatIsDeprecated(): void
+    {
+        $schema = BuildSchema::build('
+      directive @BadDirective(
+        badArg: String! @deprecated
+        optionalArg: String @deprecated
+        anotherOptionalArg: String! = "" @deprecated
+      ) on FIELD
+      type Query {
+        test(
+          badArg: String! @deprecated
+          optionalArg: String @deprecated
+          anotherOptionalArg: String! = "" @deprecated
+        ): String
+      }
+        ');
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Required argument String.test(badArg:) cannot be deprecated.');
+        $schema->assertValid();
     }
 
     /** @see it('rejects a non-input type as a field arg with locations') */

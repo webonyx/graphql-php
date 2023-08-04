@@ -191,8 +191,8 @@ final class CoerceInputValueTest extends TestCase
         $this->expectGraphQLValue($result, ['foo' => 123]);
     }
 
-    /** @return iterable<int, array{mixed}> */
-    public function validInputObjects(): iterable
+    /** @return iterable<array{mixed}> */
+    public static function validInputObjects(): iterable
     {
         yield [['foo' => 123]];
         yield [(object) ['foo' => 123]];

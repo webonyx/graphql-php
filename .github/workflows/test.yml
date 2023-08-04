@@ -11,7 +11,7 @@ on:
 jobs:
   phpunit:
     name: PHPUnit
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -58,7 +58,7 @@ jobs:
 
   upload_coverage:
     name: Upload coverage to Codecov
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs:
       - phpunit
 
@@ -80,7 +80,7 @@ jobs:
 
   benchmarks:
     name: Benchmarks
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout

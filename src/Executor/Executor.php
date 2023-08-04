@@ -16,6 +16,8 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
  * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
+ *
+ * @see \GraphQL\Tests\Executor\ExecutorTest
  */
 class Executor
 {

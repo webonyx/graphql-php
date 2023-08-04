@@ -41,6 +41,8 @@ use GraphQL\Validator\DocumentValidator;
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
  * @phpstan-import-type UnnamedArgumentConfig from Argument
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+ *
+ * @see \GraphQL\Tests\Utils\SchemaExtenderTest
  */
 class SchemaExtender
 {
@@ -300,6 +302,7 @@ class SchemaExtender
             $newFieldConfig = [
                 'description' => $field->description,
                 'type' => $extendedType,
+                'deprecationReason' => $field->deprecationReason,
                 'astNode' => $field->astNode,
             ];
 
@@ -459,6 +462,7 @@ class SchemaExtender
             $def = [
                 'type' => $extendedType,
                 'description' => $arg->description,
+                'deprecationReason' => $arg->deprecationReason,
                 'astNode' => $arg->astNode,
             ];
 
