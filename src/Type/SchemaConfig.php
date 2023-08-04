@@ -82,6 +82,8 @@ class SchemaConfig
      *
      * @phpstan-param SchemaConfigOptions $options
      *
+     * @throws InvariantViolation
+     *
      * @api
      */
     public static function create(array $options = []): self
