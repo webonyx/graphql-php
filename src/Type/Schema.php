@@ -221,7 +221,7 @@ class Schema
         }
 
         if (is_callable($query)) {
-            return $this->config->query = ($query)();
+            return $this->config->query = $query();
         }
 
         return $query;
@@ -241,7 +241,7 @@ class Schema
         }
 
         if (is_callable($mutation)) {
-            return $this->config->mutation = ($mutation)();
+            return $this->config->mutation = $mutation();
         }
 
         return $mutation;
@@ -261,7 +261,7 @@ class Schema
         }
 
         if (is_callable($subscription)) {
-            return $this->config->subscription = ($subscription)();
+            return $this->config->subscription = $subscription();
         }
 
         return $subscription;
