@@ -434,7 +434,7 @@ final class ValidationTest extends TestCaseBase
 
     private function expectRootTypeMustBeObjectTypeNotInputType(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage("Expected instanceof GraphQL\Type\Definition\ObjectType, a callable that returns such an instance, or null, got: GraphQL\Type\Definition\InputObjectType.");
     }
 

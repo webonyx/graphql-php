@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\Directive;
@@ -141,6 +142,8 @@ class SchemaConfig
     /**
      * @param MaybeLazyObjectType $query
      *
+     * @throws InvariantViolation
+     *
      * @api
      */
     public function setQuery($query): self
@@ -164,6 +167,8 @@ class SchemaConfig
     /**
      * @param MaybeLazyObjectType $mutation
      *
+     * @throws InvariantViolation
+     *
      * @api
      */
     public function setMutation($mutation): self
@@ -186,6 +191,8 @@ class SchemaConfig
 
     /**
      * @param MaybeLazyObjectType $subscription
+     *
+     * @throws InvariantViolation
      *
      * @api
      */
@@ -309,7 +316,8 @@ class SchemaConfig
 
     /**
      * @param mixed $maybeLazyObjectType Should be MaybeLazyObjectType
-     * @throws \InvalidArgumentException
+     *
+     * @throws InvariantViolation
      */
     protected function assertMaybeLazyObjectType($maybeLazyObjectType): void
     {
@@ -321,6 +329,6 @@ class SchemaConfig
             ? get_class($maybeLazyObjectType)
             : gettype($maybeLazyObjectType);
         $objectTypeClass = ObjectType::class;
-        throw new \InvalidArgumentException("Expected instanceof {$objectTypeClass}, a callable that returns such an instance, or null, got: {$notMaybeLazyObjectType}.");
+        throw new InvariantViolation("Expected instanceof {$objectTypeClass}, a callable that returns such an instance, or null, got: {$notMaybeLazyObjectType}.");
     }
 }
