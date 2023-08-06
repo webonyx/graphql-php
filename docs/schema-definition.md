@@ -218,7 +218,7 @@ $schema = new Schema([
 ]);
 ```
 
-A working demonstration of this kind of architecture can be found in the [01-blog](../examples/01-blog) sample.
+A working demonstration of this kind of architecture can be found in the [01-blog](https://github.com/webonyx/graphql-php/blob/master/examples/01-blog) sample.
 
 ## Schema Validation
 
