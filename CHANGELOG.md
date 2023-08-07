@@ -13,7 +13,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Fixed
 
-- Allow lazy root type callables to return `null`
+- Allow lazy root type callables to return `null` https://github.com/webonyx/graphql-php/pull/1422
 
 ## v15.6.0
 
