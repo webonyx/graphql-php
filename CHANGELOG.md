@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.6.1
+
+### Fixed
+
+- Allow lazy root type callables to return `null`
+
 ## v15.6.0
 
 ### Added

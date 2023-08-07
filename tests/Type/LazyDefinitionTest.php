@@ -208,4 +208,17 @@ final class LazyDefinitionTest extends TestCaseBase
         self::assertSame($schema->getMutationType(), $mutation);
         self::assertSame($schema->getSubscriptionType(), $subscription);
     }
+
+    public function testLazyRootTypesNull(): void
+    {
+        $schema = new Schema([
+            'query' => fn () => null,
+            'mutation' => fn () => null,
+            'subscription' => fn () => null,
+        ]);
+
+        self::assertNull($schema->getQueryType());
+        self::assertNull($schema->getMutationType());
+        self::assertNull($schema->getSubscriptionType());
+    }
 }
