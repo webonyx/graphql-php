@@ -181,8 +181,6 @@ class SchemaValidationContext
 
     /**
      * @param (Type&NamedType)|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|Argument $object
-     *
-     * @throws InvariantViolation
      */
     private function validateName(object $object): void
     {
