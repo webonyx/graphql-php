@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.6.2
+
+### Fixed
+
+- Avoid instantiations when checking if types are built-in https://github.com/webonyx/graphql-php/pull/1423
+
 ## v15.6.1
 
 ### Fixed
