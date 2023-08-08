@@ -48,6 +48,26 @@ class Introspection
     public const TYPE_FIELD_NAME = '__type';
     public const TYPE_NAME_FIELD_NAME = '__typename';
 
+    public const SCHEMA_OBJECT_NAME = '__Schema';
+    public const TYPE_OBJECT_NAME = '__Type';
+    public const DIRECTIVE_OBJECT_NAME = '__Directive';
+    public const FIELD_OBJECT_NAME = '__Field';
+    public const INPUT_VALUE_OBJECT_NAME = '__InputValue';
+    public const ENUM_VALUE_OBJECT_NAME = '__EnumValue';
+    public const TYPE_KIND_ENUM_NAME = '__TypeKind';
+    public const DIRECTIVE_LOCATION_ENUM_NAME = '__DirectiveLocation';
+
+    public const TYPE_NAMES = [
+        self::SCHEMA_OBJECT_NAME,
+        self::TYPE_OBJECT_NAME,
+        self::DIRECTIVE_OBJECT_NAME,
+        self::FIELD_OBJECT_NAME,
+        self::INPUT_VALUE_OBJECT_NAME,
+        self::ENUM_VALUE_OBJECT_NAME,
+        self::TYPE_KIND_ENUM_NAME,
+        self::DIRECTIVE_LOCATION_ENUM_NAME,
+    ];
+
     /** @var array<string, mixed> */
     private static $map = [];
 
@@ -205,14 +225,10 @@ GRAPHQL;
         return $data;
     }
 
-    /**
-     * @param Type&NamedType $type
-     *
-     * @throws InvariantViolation
-     */
+    /** @param Type&NamedType $type */
     public static function isIntrospectionType(NamedType $type): bool
     {
-        return \array_key_exists($type->name, self::getTypes());
+        return \in_array($type->name, self::TYPE_NAMES, true);
     }
 
     /**
@@ -223,22 +239,22 @@ GRAPHQL;
     public static function getTypes(): array
     {
         return [
-            '__Schema' => self::_schema(),
-            '__Type' => self::_type(),
-            '__Directive' => self::_directive(),
-            '__Field' => self::_field(),
-            '__InputValue' => self::_inputValue(),
-            '__EnumValue' => self::_enumValue(),
-            '__TypeKind' => self::_typeKind(),
-            '__DirectiveLocation' => self::_directiveLocation(),
+            self::SCHEMA_OBJECT_NAME => self::_schema(),
+            self::TYPE_OBJECT_NAME => self::_type(),
+            self::DIRECTIVE_OBJECT_NAME => self::_directive(),
+            self::FIELD_OBJECT_NAME => self::_field(),
+            self::INPUT_VALUE_OBJECT_NAME => self::_inputValue(),
+            self::ENUM_VALUE_OBJECT_NAME => self::_enumValue(),
+            self::TYPE_KIND_ENUM_NAME => self::_typeKind(),
+            self::DIRECTIVE_LOCATION_ENUM_NAME => self::_directiveLocation(),
         ];
     }
 
     /** @throws InvariantViolation */
     public static function _schema(): ObjectType
     {
-        return self::$map['__Schema'] ??= new ObjectType([
-            'name' => '__Schema',
+        return self::$map[self::SCHEMA_OBJECT_NAME] ??= new ObjectType([
+            'name' => self::SCHEMA_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'A GraphQL Schema defines the capabilities of a GraphQL '
                 . 'server. It exposes all available types and directives on '
@@ -277,8 +293,8 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _type(): ObjectType
     {
-        return self::$map['__Type'] ??= new ObjectType([
-            'name' => '__Type',
+        return self::$map[self::TYPE_OBJECT_NAME] ??= new ObjectType([
+            'name' => self::TYPE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'The fundamental unit of any GraphQL Schema is the type. There are '
                 . 'many kinds of types in GraphQL as represented by the `__TypeKind` enum.'
@@ -433,8 +449,8 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _typeKind(): EnumType
     {
-        return self::$map['__TypeKind'] ??= new EnumType([
-            'name' => '__TypeKind',
+        return self::$map[self::TYPE_KIND_ENUM_NAME] ??= new EnumType([
+            'name' => self::TYPE_KIND_ENUM_NAME,
             'isIntrospection' => true,
             'description' => 'An enum describing what kind of type a given `__Type` is.',
             'values' => [
@@ -477,8 +493,8 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _field(): ObjectType
     {
-        return self::$map['__Field'] ??= new ObjectType([
-            'name' => '__Field',
+        return self::$map[self::FIELD_OBJECT_NAME] ??= new ObjectType([
+            'name' => self::FIELD_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'Object and Interface types are described by a list of Fields, each of '
                     . 'which has a name, potentially a list of arguments, and a return type.',
@@ -533,8 +549,8 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _inputValue(): ObjectType
     {
-        return self::$map['__InputValue'] ??= new ObjectType([
-            'name' => '__InputValue',
+        return self::$map[self::INPUT_VALUE_OBJECT_NAME] ??= new ObjectType([
+            'name' => self::INPUT_VALUE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'Arguments provided to Fields or Directives and the input fields of an '
                     . 'InputObject are represented as Input Values which describe their type '
@@ -592,8 +608,8 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _enumValue(): ObjectType
     {
-        return self::$map['__EnumValue'] ??= new ObjectType([
-            'name' => '__EnumValue',
+        return self::$map[self::ENUM_VALUE_OBJECT_NAME] ??= new ObjectType([
+            'name' => self::ENUM_VALUE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'One possible value for a given Enum. Enum values are unique values, not '
                     . 'a placeholder for a string or numeric value. However an Enum value is '
@@ -623,8 +639,8 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _directive(): ObjectType
     {
-        return self::$map['__Directive'] ??= new ObjectType([
-            'name' => '__Directive',
+        return self::$map[self::DIRECTIVE_OBJECT_NAME] ??= new ObjectType([
+            'name' => self::DIRECTIVE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'A Directive provides a way to describe alternate runtime execution and '
                 . 'type validation behavior in a GraphQL document.'
@@ -662,8 +678,8 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _directiveLocation(): EnumType
     {
-        return self::$map['__DirectiveLocation'] ??= new EnumType([
-            'name' => '__DirectiveLocation',
+        return self::$map[self::DIRECTIVE_LOCATION_ENUM_NAME] ??= new EnumType([
+            'name' => self::DIRECTIVE_LOCATION_ENUM_NAME,
             'isIntrospection' => true,
             'description' => 'A Directive can be adjacent to many parts of the GraphQL language, a '
                     . '__DirectiveLocation describes one such possible adjacencies.',
