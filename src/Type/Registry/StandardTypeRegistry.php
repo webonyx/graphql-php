@@ -43,6 +43,5 @@ interface StandardTypeRegistry
      */
     public function standardTypes(): array;
 
-
     public function introspection(): Introspection;
 }

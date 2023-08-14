@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\BooleanType;
 use GraphQL\Type\Definition\FloatType;
 use GraphQL\Type\Definition\IDType;
