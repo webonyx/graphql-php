@@ -74,7 +74,7 @@ class DefaultStandardTypeRegistry implements StandardTypeRegistry
      *
      * @return T|callable():T
      */
-    private function objectOrLazyInitialize($objectOrClassName)
+    protected function objectOrLazyInitialize($objectOrClassName)
     {
         return is_object($objectOrClassName) ? $objectOrClassName : fn () => new $objectOrClassName();
     }

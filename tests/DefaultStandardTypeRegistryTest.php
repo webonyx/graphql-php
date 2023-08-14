@@ -21,7 +21,6 @@ final class DefaultStandardTypeRegistryTest extends TestCase
         $this->registry = new DefaultStandardTypeRegistry();
     }
 
-    /** @throws InvariantViolation */
     public function testInitializeWithStandardTypes(): void
     {
         self::assertInstanceOf(IntType::class, $this->registry->int());
@@ -31,7 +30,6 @@ final class DefaultStandardTypeRegistryTest extends TestCase
         self::assertInstanceOf(IDType::class, $this->registry->id());
     }
 
-    /** @throws InvariantViolation */
     public function testReturnSameStandardTypeInstance(): void
     {
         self::assertSame($this->registry->int(), $this->registry->int());
@@ -41,7 +39,6 @@ final class DefaultStandardTypeRegistryTest extends TestCase
         self::assertSame($this->registry->id(), $this->registry->id());
     }
 
-    /** @throws InvariantViolation */
     public function testAllowOverridingStandardType(): void
     {
         $this->registry = new DefaultStandardTypeRegistry(CustomIntType::class);
