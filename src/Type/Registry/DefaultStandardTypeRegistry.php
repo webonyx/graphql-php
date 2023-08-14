@@ -22,7 +22,7 @@ use GraphQL\Type\Introspection;
  * When a type by class is requested, it will return a callable that will instantiate the type on first call.
  * On subsequent calls, it will return the same instance immediately.
  */
-class DefaultStandardTypeRegistry implements StandardTypeRegistry
+class DefaultStandardTypeRegistry implements StandardTypeRegistry, BuiltInDirectiveRegistry
 {
     private static self $instance;
 

@@ -3,7 +3,6 @@
 namespace GraphQL\Type\Registry;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
@@ -44,21 +43,6 @@ interface StandardTypeRegistry
      */
     public function standardTypes(): array;
 
-    /** @throws InvariantViolation */
-    public function deprecatedDirective(): Directive;
-
-    /** @throws InvariantViolation */
-    public function includeDirective(): Directive;
-
-    /** @throws InvariantViolation */
-    public function skipDirective(): Directive;
-
-    /**
-     * @throws InvariantViolation
-     *
-     * @return array<string, Directive>
-     */
-    public function internalDirectives(): array;
 
     public function introspection(): Introspection;
 }
