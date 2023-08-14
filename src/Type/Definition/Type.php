@@ -32,6 +32,8 @@ abstract class Type implements \JsonSerializable
     ];
 
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @api
      *
      * @throws InvariantViolation
@@ -42,6 +44,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @api
      *
      * @throws InvariantViolation
@@ -52,6 +56,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @api
      *
      * @throws InvariantViolation
@@ -62,6 +68,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @api
      *
      * @throws InvariantViolation
@@ -72,6 +80,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @api
      *
      * @throws InvariantViolation
@@ -108,6 +118,8 @@ abstract class Type implements \JsonSerializable
     /**
      * Returns all builtin scalar types.
      *
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @throws InvariantViolation
      *
      * @return array<string, ScalarType>
@@ -118,7 +130,7 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @deprecated use a custom instance of `DefaultStandardTypeRegistry` on the `Schema` instead
+     * @deprecated use the `typeRegistry` on the `Schema` instead
      *
      * @param array<ScalarType> $types
      *
