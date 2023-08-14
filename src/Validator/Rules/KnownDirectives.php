@@ -34,7 +34,7 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Visitor;
-use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
@@ -66,7 +66,7 @@ class KnownDirectives extends ValidationRule
         $locationsMap = [];
         $schema = $context->getSchema();
         $definedDirectives = $schema === null
-            ? Directive::getInternalDirectives()
+            ? DefaultStandardTypeRegistry::instance()->internalDirectives()
             : $schema->getDirectives();
 
         foreach ($definedDirectives as $directive) {

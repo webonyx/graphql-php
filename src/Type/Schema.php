@@ -16,6 +16,8 @@ use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
+use GraphQL\Type\Registry\StandardTypeRegistry;
 use GraphQL\Utils\InterfaceImplementations;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
@@ -74,6 +76,8 @@ class Schema
     /** @var array<int, SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
+    public StandardTypeRegistry $typeRegistry;
+
     /**
      * @param SchemaConfig|array<string, mixed> $config
      *
@@ -99,6 +103,8 @@ class Schema
         $this->extensionASTNodes = $config->extensionASTNodes;
 
         $this->config = $config;
+
+        $this->typeRegistry = $config->typeRegistry ?? DefaultStandardTypeRegistry::instance();
     }
 
     /**
@@ -161,7 +167,7 @@ class Schema
                     TypeInfo::extractTypesFromDirectives($directive, $allReferencedTypes);
                 }
             }
-            TypeInfo::extractTypes(Introspection::_schema(), $allReferencedTypes);
+            TypeInfo::extractTypes($this->typeRegistry->introspection()->_schema(), $allReferencedTypes);
 
             $this->resolvedTypes = $allReferencedTypes;
             $this->fullyLoaded = true;
@@ -181,7 +187,7 @@ class Schema
      */
     public function getDirectives(): array
     {
-        return $this->config->directives ?? GraphQL::getStandardDirectives();
+        return $this->config->directives ?? $this->typeRegistry->internalDirectives();
     }
 
     /** @param mixed $typeLoaderReturn could be anything */
@@ -290,14 +296,13 @@ class Schema
             return $this->resolvedTypes[$name];
         }
 
-        $introspectionTypes = Introspection::getTypes();
+        $introspectionTypes = $this->typeRegistry->introspection()->getTypes();
         if (isset($introspectionTypes[$name])) {
             return $introspectionTypes[$name];
         }
 
-        $standardTypes = Type::getStandardTypes();
-        if (isset($standardTypes[$name])) {
-            return $standardTypes[$name];
+        if (in_array($name, Type::STANDARD_TYPE_NAMES, true)) {
+            return $this->typeRegistry->standardType($name);
         }
 
         $type = $this->loadType($name);
@@ -508,9 +513,9 @@ class Schema
             throw new InvariantViolation(\implode("\n\n", $this->validationErrors));
         }
 
-        $internalTypes = Type::getStandardTypes() + Introspection::getTypes();
+        $internalTypes = [...Type::STANDARD_TYPE_NAMES, ...Introspection::TYPE_NAMES];
         foreach ($this->getTypeMap() as $name => $type) {
-            if (isset($internalTypes[$name])) {
+            if (\in_array($name, $internalTypes, true)) {
                 continue;
             }
 

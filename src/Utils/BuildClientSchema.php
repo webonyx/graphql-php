@@ -21,7 +21,8 @@ use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-use GraphQL\Type\Introspection;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
+use GraphQL\Type\Registry\StandardTypeRegistry;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\TypeKind;
@@ -31,7 +32,8 @@ use GraphQL\Type\TypeKind;
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
  *
  * @phpstan-type Options array{
- *   assumeValid?: bool
+ *   assumeValid?: bool,
+ *   typeRegistry?: StandardTypeRegistry,
  * }
  *
  *    - assumeValid:
@@ -49,7 +51,7 @@ class BuildClientSchema
     private array $introspection;
 
     /**
-     * @var array<string, bool>
+     * @var array<string, mixed>
      *
      * @phpstan-var Options
      */
@@ -58,9 +60,11 @@ class BuildClientSchema
     /** @var array<string, NamedType&Type> */
     private array $typeMap = [];
 
+    private StandardTypeRegistry $typeRegistry;
+
     /**
      * @param array<string, mixed> $introspectionQuery
-     * @param array<string, bool>  $options
+     * @param array<string, mixed>  $options
      *
      * @phpstan-param Options    $options
      */
@@ -68,6 +72,7 @@ class BuildClientSchema
     {
         $this->introspection = $introspectionQuery;
         $this->options = $options;
+        $this->typeRegistry = $options['typeRegistry'] ?? DefaultStandardTypeRegistry::instance();
     }
 
     /**
@@ -83,7 +88,7 @@ class BuildClientSchema
      * the "errors" field of a server response before calling this function.
      *
      * @param array<string, mixed> $introspectionQuery
-     * @param array<string, bool> $options
+     * @param array<string, mixed> $options
      *
      * @phpstan-param Options $options
      *
@@ -107,8 +112,8 @@ class BuildClientSchema
         $schemaIntrospection = $this->introspection['__schema'];
 
         $builtInTypes = \array_merge(
-            Type::getStandardTypes(),
-            Introspection::getTypes()
+            $this->typeRegistry->standardTypes(),
+            $this->typeRegistry->introspection()->getTypes()
         );
 
         foreach ($schemaIntrospection['types'] as $typeIntrospection) {
@@ -147,6 +152,7 @@ class BuildClientSchema
 
         return new Schema(
             (new SchemaConfig())
+            ->setTypeRegistry($this->typeRegistry)
             ->setQuery($queryType)
             ->setMutation($mutationType)
             ->setSubscription($subscriptionType)

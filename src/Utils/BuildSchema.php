@@ -13,8 +13,9 @@ use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
-use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
+use GraphQL\Type\Registry\StandardTypeRegistry;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Validator\DocumentValidator;
@@ -63,6 +64,8 @@ class BuildSchema
      */
     private array $options;
 
+    private StandardTypeRegistry $typeRegistry;
+
     /**
      * @param array<string, bool> $options
      *
@@ -72,11 +75,14 @@ class BuildSchema
     public function __construct(
         DocumentNode $ast,
         callable $typeConfigDecorator = null,
-        array $options = []
+        array $options = [],
+        StandardTypeRegistry $typeRegistry = null
     ) {
         $this->ast = $ast;
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->options = $options;
+
+        $this->typeRegistry = $typeRegistry ?? DefaultStandardTypeRegistry::instance();
     }
 
     /**
@@ -102,13 +108,14 @@ class BuildSchema
     public static function build(
         $source,
         callable $typeConfigDecorator = null,
-        array $options = []
+        array $options = [],
+        StandardTypeRegistry $typeRegistry = null
     ): Schema {
         $doc = $source instanceof DocumentNode
             ? $source
             : Parser::parse($source);
 
-        return self::buildAST($doc, $typeConfigDecorator, $options);
+        return self::buildAST($doc, $typeConfigDecorator, $options, $typeRegistry);
     }
 
     /**
@@ -135,9 +142,10 @@ class BuildSchema
     public static function buildAST(
         DocumentNode $ast,
         callable $typeConfigDecorator = null,
-        array $options = []
+        array $options = [],
+        StandardTypeRegistry $typeRegistry = null
     ): Schema {
-        return (new self($ast, $typeConfigDecorator, $options))->buildSchema();
+        return (new self($ast, $typeConfigDecorator, $options, $typeRegistry))->buildSchema();
     }
 
     /**
@@ -200,7 +208,8 @@ class BuildSchema
             static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
-            $this->typeConfigDecorator
+            $this->typeConfigDecorator,
+            $this->typeRegistry
         );
 
         $directives = \array_map(
@@ -215,13 +224,13 @@ class BuildSchema
 
         // If specified directives were not explicitly declared, add them.
         if (! isset($directivesByName['include'])) {
-            $directives[] = Directive::includeDirective();
+            $directives[] = $this->typeRegistry->includeDirective();
         }
         if (! isset($directivesByName['skip'])) {
-            $directives[] = Directive::skipDirective();
+            $directives[] = $this->typeRegistry->skipDirective();
         }
         if (! isset($directivesByName['deprecated'])) {
-            $directives[] = Directive::deprecatedDirective();
+            $directives[] = $this->typeRegistry->deprecatedDirective();
         }
 
         // Note: While this could make early assertions to get the correctly
@@ -243,6 +252,7 @@ class BuildSchema
                 : null)
             ->setTypeLoader(static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name))
             ->setDirectives($directives)
+            ->setTypeRegistry($this->typeRegistry)
             ->setAstNode($schemaDef)
             ->setTypes(fn (): array => \array_map(
                 static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->getName()->value),

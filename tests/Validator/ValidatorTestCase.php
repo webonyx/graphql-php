@@ -18,6 +18,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\ValidationRule;
@@ -57,6 +58,8 @@ abstract class ValidatorTestCase extends TestCase
     /** @throws InvariantViolation */
     public static function getTestSchema(): Schema
     {
+        $typeRegistry = DefaultStandardTypeRegistry::instance();
+
         $Being = new InterfaceType([
             'name' => 'Being',
             'fields' => [
@@ -364,9 +367,9 @@ abstract class ValidatorTestCase extends TestCase
             'query' => $queryRoot,
             'subscription' => $subscriptionRoot,
             'directives' => [
-                Directive::includeDirective(),
-                Directive::skipDirective(),
-                Directive::deprecatedDirective(),
+                $typeRegistry->includeDirective(),
+                $typeRegistry->skipDirective(),
+                $typeRegistry->deprecatedDirective(),
                 new Directive([
                     'name' => 'directive',
                     'locations' => [DirectiveLocation::FIELD, DirectiveLocation::FRAGMENT_DEFINITION],

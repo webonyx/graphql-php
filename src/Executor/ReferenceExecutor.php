@@ -17,7 +17,6 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Definition\AbstractType;
-use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\LeafType;
@@ -467,7 +466,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $variableValues = $this->exeContext->variableValues;
 
         $skip = Values::getDirectiveValues(
-            Directive::skipDirective(),
+            $this->exeContext->schema->typeRegistry->skipDirective(),
             $node,
             $variableValues
         );
@@ -476,7 +475,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         $include = Values::getDirectiveValues(
-            Directive::includeDirective(),
+            $this->exeContext->schema->typeRegistry->includeDirective(),
             $node,
             $variableValues
         );
@@ -661,23 +660,20 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function getFieldDef(Schema $schema, ObjectType $parentType, string $fieldName): ?FieldDefinition
     {
-        static $schemaMetaFieldDef, $typeMetaFieldDef, $typeNameMetaFieldDef;
-        $schemaMetaFieldDef ??= Introspection::schemaMetaFieldDef();
-        $typeMetaFieldDef ??= Introspection::typeMetaFieldDef();
-        $typeNameMetaFieldDef ??= Introspection::typeNameMetaFieldDef();
-
         $queryType = $schema->getQueryType();
-
-        if ($fieldName === $schemaMetaFieldDef->name && $queryType === $parentType) {
-            return $schemaMetaFieldDef;
+        $schemaMeta = $schema->typeRegistry->introspection()->schemaMetaFieldDef();
+        if ($fieldName === $schemaMeta->name && $queryType === $parentType) {
+            return $schemaMeta;
         }
 
-        if ($fieldName === $typeMetaFieldDef->name && $queryType === $parentType) {
-            return $typeMetaFieldDef;
+        $typeMeta = $schema->typeRegistry->introspection()->typeMetaFieldDef();
+        if ($fieldName === $typeMeta->name && $queryType === $parentType) {
+            return $typeMeta;
         }
 
-        if ($fieldName === $typeNameMetaFieldDef->name) {
-            return $typeNameMetaFieldDef;
+        $typeNameMeta = $schema->typeRegistry->introspection()->typeNameMetaFieldDef();
+        if ($fieldName === $typeNameMeta->name) {
+            return $typeNameMeta;
         }
 
         return $parentType->findField($fieldName);

@@ -23,6 +23,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
+use GraphQL\Type\Registry\StandardTypeRegistry;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 
@@ -69,7 +70,14 @@ class Introspection
     ];
 
     /** @var array<string, mixed> */
-    private static $map = [];
+    private array $cache = [];
+
+    private StandardTypeRegistry $typeRegistry;
+
+    public function __construct(StandardTypeRegistry $typeRegistry)
+    {
+        $this->typeRegistry = $typeRegistry;
+    }
 
     /**
      * @param IntrospectionOptions $options
@@ -236,24 +244,24 @@ GRAPHQL;
      *
      * @return array<string, Type&NamedType>
      */
-    public static function getTypes(): array
+    public function getTypes(): array
     {
         return [
-            self::SCHEMA_OBJECT_NAME => self::_schema(),
-            self::TYPE_OBJECT_NAME => self::_type(),
-            self::DIRECTIVE_OBJECT_NAME => self::_directive(),
-            self::FIELD_OBJECT_NAME => self::_field(),
-            self::INPUT_VALUE_OBJECT_NAME => self::_inputValue(),
-            self::ENUM_VALUE_OBJECT_NAME => self::_enumValue(),
-            self::TYPE_KIND_ENUM_NAME => self::_typeKind(),
-            self::DIRECTIVE_LOCATION_ENUM_NAME => self::_directiveLocation(),
+            self::SCHEMA_OBJECT_NAME => $this->_schema(),
+            self::TYPE_OBJECT_NAME => $this->_type(),
+            self::DIRECTIVE_OBJECT_NAME => $this->_directive(),
+            self::FIELD_OBJECT_NAME => $this->_field(),
+            self::INPUT_VALUE_OBJECT_NAME => $this->_inputValue(),
+            self::ENUM_VALUE_OBJECT_NAME => $this->_enumValue(),
+            self::TYPE_KIND_ENUM_NAME => $this->_typeKind(),
+            self::DIRECTIVE_LOCATION_ENUM_NAME => $this->_directiveLocation(),
         ];
     }
 
     /** @throws InvariantViolation */
-    public static function _schema(): ObjectType
+    public function _schema(): ObjectType
     {
-        return self::$map[self::SCHEMA_OBJECT_NAME] ??= new ObjectType([
+        return $this->cache[self::SCHEMA_OBJECT_NAME] ??= new ObjectType([
             'name' => self::SCHEMA_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'A GraphQL Schema defines the capabilities of a GraphQL '
@@ -263,27 +271,27 @@ GRAPHQL;
             'fields' => [
                 'types' => [
                     'description' => 'A list of all types supported by this server.',
-                    'type' => new NonNull(new ListOfType(new NonNull(self::_type()))),
+                    'type' => new NonNull(new ListOfType(new NonNull($this->_type()))),
                     'resolve' => static fn (Schema $schema): array => $schema->getTypeMap(),
                 ],
                 'queryType' => [
                     'description' => 'The type that query operations will be rooted at.',
-                    'type' => new NonNull(self::_type()),
+                    'type' => new NonNull($this->_type()),
                     'resolve' => static fn (Schema $schema): ?ObjectType => $schema->getQueryType(),
                 ],
                 'mutationType' => [
                     'description' => 'If this server supports mutation, the type that mutation operations will be rooted at.',
-                    'type' => self::_type(),
+                    'type' => $this->_type(),
                     'resolve' => static fn (Schema $schema): ?ObjectType => $schema->getMutationType(),
                 ],
                 'subscriptionType' => [
                     'description' => 'If this server support subscription, the type that subscription operations will be rooted at.',
-                    'type' => self::_type(),
+                    'type' => $this->_type(),
                     'resolve' => static fn (Schema $schema): ?ObjectType => $schema->getSubscriptionType(),
                 ],
                 'directives' => [
                     'description' => 'A list of all directives supported by this server.',
-                    'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_directive()))),
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull($this->_directive()))),
                     'resolve' => static fn (Schema $schema): array => $schema->getDirectives(),
                 ],
             ],
@@ -291,9 +299,9 @@ GRAPHQL;
     }
 
     /** @throws InvariantViolation */
-    public static function _type(): ObjectType
+    public function _type(): ObjectType
     {
-        return self::$map[self::TYPE_OBJECT_NAME] ??= new ObjectType([
+        return $this->cache[self::TYPE_OBJECT_NAME] ??= new ObjectType([
             'name' => self::TYPE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'The fundamental unit of any GraphQL Schema is the type. There are '
@@ -305,10 +313,10 @@ GRAPHQL;
                 . 'Object and Interface types provide the fields they describe. Abstract '
                 . 'types, Union and Interface, provide the Object types possible '
                 . 'at runtime. List and NonNull types compose other types.',
-            'fields' => static fn (): array => [
+            'fields' => fn (): array => [
                 'kind' => [
-                    'type' => Type::nonNull(self::_typeKind()),
-                    'resolve' => static function (Type $type): string {
+                    'type' => Type::nonNull($this->_typeKind()),
+                    'resolve' => function (Type $type): string {
                         switch (true) {
                             case $type instanceof ListOfType:
                                 return TypeKind::LIST;
@@ -333,22 +341,22 @@ GRAPHQL;
                     },
                 ],
                 'name' => [
-                    'type' => Type::string(),
+                    'type' => $this->typeRegistry->string(),
                     'resolve' => static fn (Type $type): ?string => $type instanceof NamedType
                         ? $type->name
                         : null,
                 ],
                 'description' => [
-                    'type' => Type::string(),
+                    'type' => $this->typeRegistry->string(),
                     'resolve' => static fn (Type $type): ?string => $type instanceof NamedType
                         ? $type->description
                         : null,
                 ],
                 'fields' => [
-                    'type' => Type::listOf(Type::nonNull(self::_field())),
+                    'type' => Type::listOf(Type::nonNull($this->_field())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => $this->typeRegistry->boolean(),
                             'defaultValue' => false,
                         ],
                     ],
@@ -371,22 +379,22 @@ GRAPHQL;
                     },
                 ],
                 'interfaces' => [
-                    'type' => Type::listOf(Type::nonNull(self::_type())),
+                    'type' => Type::listOf(Type::nonNull($this->_type())),
                     'resolve' => static fn ($type): ?array => $type instanceof ObjectType || $type instanceof InterfaceType
                         ? $type->getInterfaces()
                         : null,
                 ],
                 'possibleTypes' => [
-                    'type' => Type::listOf(Type::nonNull(self::_type())),
+                    'type' => Type::listOf(Type::nonNull($this->_type())),
                     'resolve' => static fn ($type, $args, $context, ResolveInfo $info): ?array => $type instanceof InterfaceType || $type instanceof UnionType
                         ? $info->schema->getPossibleTypes($type)
                         : null,
                 ],
                 'enumValues' => [
-                    'type' => Type::listOf(Type::nonNull(self::_enumValue())),
+                    'type' => Type::listOf(Type::nonNull($this->_enumValue())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => $this->typeRegistry->boolean(),
                             'defaultValue' => false,
                         ],
                     ],
@@ -411,10 +419,10 @@ GRAPHQL;
                     },
                 ],
                 'inputFields' => [
-                    'type' => Type::listOf(Type::nonNull(self::_inputValue())),
+                    'type' => Type::listOf(Type::nonNull($this->_inputValue())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => $this->typeRegistry->boolean(),
                             'defaultValue' => false,
                         ],
                     ],
@@ -437,7 +445,7 @@ GRAPHQL;
                     },
                 ],
                 'ofType' => [
-                    'type' => self::_type(),
+                    'type' => $this->_type(),
                     'resolve' => static fn ($type): ?Type => $type instanceof WrappingType
                         ? $type->getWrappedType()
                         : null,
@@ -447,9 +455,9 @@ GRAPHQL;
     }
 
     /** @throws InvariantViolation */
-    public static function _typeKind(): EnumType
+    public function _typeKind(): EnumType
     {
-        return self::$map[self::TYPE_KIND_ENUM_NAME] ??= new EnumType([
+        return $this->cache[self::TYPE_KIND_ENUM_NAME] ??= new EnumType([
             'name' => self::TYPE_KIND_ENUM_NAME,
             'isIntrospection' => true,
             'description' => 'An enum describing what kind of type a given `__Type` is.',
@@ -491,27 +499,27 @@ GRAPHQL;
     }
 
     /** @throws InvariantViolation */
-    public static function _field(): ObjectType
+    public function _field(): ObjectType
     {
-        return self::$map[self::FIELD_OBJECT_NAME] ??= new ObjectType([
+        return $this->cache[self::FIELD_OBJECT_NAME] ??= new ObjectType([
             'name' => self::FIELD_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'Object and Interface types are described by a list of Fields, each of '
                     . 'which has a name, potentially a list of arguments, and a return type.',
-            'fields' => static fn (): array => [
+            'fields' => fn (): array => [
                 'name' => [
-                    'type' => Type::nonNull(Type::string()),
+                    'type' => Type::nonNull($this->typeRegistry->string()),
                     'resolve' => static fn (FieldDefinition $field): string => $field->name,
                 ],
                 'description' => [
-                    'type' => Type::string(),
+                    'type' => $this->typeRegistry->string(),
                     'resolve' => static fn (FieldDefinition $field): ?string => $field->description,
                 ],
                 'args' => [
-                    'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull($this->_inputValue()))),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => $this->typeRegistry->boolean(),
                             'defaultValue' => false,
                         ],
                     ],
@@ -530,16 +538,16 @@ GRAPHQL;
                     },
                 ],
                 'type' => [
-                    'type' => Type::nonNull(self::_type()),
+                    'type' => Type::nonNull($this->_type()),
                     'resolve' => static fn (FieldDefinition $field): Type => $field->getType(),
                 ],
                 'isDeprecated' => [
-                    'type' => Type::nonNull(Type::boolean()),
+                    'type' => Type::nonNull($this->typeRegistry->boolean()),
                     'resolve' => static fn (FieldDefinition $field): bool => $field->deprecationReason !== null
                         && $field->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
-                    'type' => Type::string(),
+                    'type' => $this->typeRegistry->string(),
                     'resolve' => static fn (FieldDefinition $field): ?string => $field->deprecationReason,
                 ],
             ],
@@ -547,32 +555,32 @@ GRAPHQL;
     }
 
     /** @throws InvariantViolation */
-    public static function _inputValue(): ObjectType
+    public function _inputValue(): ObjectType
     {
-        return self::$map[self::INPUT_VALUE_OBJECT_NAME] ??= new ObjectType([
+        return $this->cache[self::INPUT_VALUE_OBJECT_NAME] ??= new ObjectType([
             'name' => self::INPUT_VALUE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'Arguments provided to Fields or Directives and the input fields of an '
                     . 'InputObject are represented as Input Values which describe their type '
                     . 'and optionally a default value.',
-            'fields' => static fn (): array => [
+            'fields' => fn (): array => [
                 'name' => [
-                    'type' => Type::nonNull(Type::string()),
+                    'type' => Type::nonNull($this->typeRegistry->string()),
                     /** @param Argument|InputObjectField $inputValue */
                     'resolve' => static fn ($inputValue): string => $inputValue->name,
                 ],
                 'description' => [
-                    'type' => Type::string(),
+                    'type' => $this->typeRegistry->string(),
                     /** @param Argument|InputObjectField $inputValue */
                     'resolve' => static fn ($inputValue): ?string => $inputValue->description,
                 ],
                 'type' => [
-                    'type' => Type::nonNull(self::_type()),
+                    'type' => Type::nonNull($this->_type()),
                     /** @param Argument|InputObjectField $inputValue */
                     'resolve' => static fn ($inputValue): Type => $inputValue->getType(),
                 ],
                 'defaultValue' => [
-                    'type' => Type::string(),
+                    'type' => $this->typeRegistry->string(),
                     'description' => 'A GraphQL-formatted string representing the default value for this input value.',
                     /** @param Argument|InputObjectField $inputValue */
                     'resolve' => static function ($inputValue): ?string {
@@ -591,13 +599,13 @@ GRAPHQL;
                     },
                 ],
                 'isDeprecated' => [
-                    'type' => Type::nonNull(Type::boolean()),
+                    'type' => Type::nonNull($this->typeRegistry->boolean()),
                     /** @param Argument|InputObjectField $inputValue */
                     'resolve' => static fn ($inputValue): bool => $inputValue->deprecationReason !== null
                         && $inputValue->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
-                    'type' => Type::string(),
+                    'type' => $this->typeRegistry->string(),
                     /** @param Argument|InputObjectField $inputValue */
                     'resolve' => static fn ($inputValue): ?string => $inputValue->deprecationReason,
                 ],
@@ -606,9 +614,9 @@ GRAPHQL;
     }
 
     /** @throws InvariantViolation */
-    public static function _enumValue(): ObjectType
+    public function _enumValue(): ObjectType
     {
-        return self::$map[self::ENUM_VALUE_OBJECT_NAME] ??= new ObjectType([
+        return $this->cache[self::ENUM_VALUE_OBJECT_NAME] ??= new ObjectType([
             'name' => self::ENUM_VALUE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'One possible value for a given Enum. Enum values are unique values, not '
@@ -616,20 +624,20 @@ GRAPHQL;
                     . 'returned in a JSON response as a string.',
             'fields' => [
                 'name' => [
-                    'type' => Type::nonNull(Type::string()),
+                    'type' => Type::nonNull($this->typeRegistry->string()),
                     'resolve' => static fn (EnumValueDefinition $enumValue): string => $enumValue->name,
                 ],
                 'description' => [
-                    'type' => Type::string(),
+                    'type' => $this->typeRegistry->string(),
                     'resolve' => static fn (EnumValueDefinition $enumValue): ?string => $enumValue->description,
                 ],
                 'isDeprecated' => [
-                    'type' => Type::nonNull(Type::boolean()),
+                    'type' => Type::nonNull($this->typeRegistry->boolean()),
                     'resolve' => static fn (EnumValueDefinition $enumValue): bool => $enumValue->deprecationReason !== null
                         && $enumValue->deprecationReason !== '',
                 ],
                 'deprecationReason' => [
-                    'type' => Type::string(),
+                    'type' => $this->typeRegistry->string(),
                     'resolve' => static fn (EnumValueDefinition $enumValue): ?string => $enumValue->deprecationReason,
                 ],
             ],
@@ -637,9 +645,9 @@ GRAPHQL;
     }
 
     /** @throws InvariantViolation */
-    public static function _directive(): ObjectType
+    public function _directive(): ObjectType
     {
-        return self::$map[self::DIRECTIVE_OBJECT_NAME] ??= new ObjectType([
+        return $this->cache[self::DIRECTIVE_OBJECT_NAME] ??= new ObjectType([
             'name' => self::DIRECTIVE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'A Directive provides a way to describe alternate runtime execution and '
@@ -650,25 +658,25 @@ GRAPHQL;
                 . 'describing additional information to the executor.',
             'fields' => [
                 'name' => [
-                    'type' => Type::nonNull(Type::string()),
+                    'type' => Type::nonNull($this->typeRegistry->string()),
                     'resolve' => static fn (Directive $directive): string => $directive->name,
                 ],
                 'description' => [
-                    'type' => Type::string(),
+                    'type' => $this->typeRegistry->string(),
                     'resolve' => static fn (Directive $directive): ?string => $directive->description,
                 ],
                 'isRepeatable' => [
-                    'type' => Type::nonNull(Type::boolean()),
+                    'type' => Type::nonNull($this->typeRegistry->boolean()),
                     'resolve' => static fn (Directive $directive): bool => $directive->isRepeatable,
                 ],
                 'locations' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(
-                        self::_directiveLocation()
+                        $this->_directiveLocation()
                     ))),
                     'resolve' => static fn (Directive $directive): array => $directive->locations,
                 ],
                 'args' => [
-                    'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull($this->_inputValue()))),
                     'resolve' => static fn (Directive $directive): array => $directive->args,
                 ],
             ],
@@ -676,9 +684,9 @@ GRAPHQL;
     }
 
     /** @throws InvariantViolation */
-    public static function _directiveLocation(): EnumType
+    public function _directiveLocation(): EnumType
     {
-        return self::$map[self::DIRECTIVE_LOCATION_ENUM_NAME] ??= new EnumType([
+        return $this->cache[self::DIRECTIVE_LOCATION_ENUM_NAME] ??= new EnumType([
             'name' => self::DIRECTIVE_LOCATION_ENUM_NAME,
             'isIntrospection' => true,
             'description' => 'A Directive can be adjacent to many parts of the GraphQL language, a '
@@ -765,11 +773,11 @@ GRAPHQL;
     }
 
     /** @throws InvariantViolation */
-    public static function schemaMetaFieldDef(): FieldDefinition
+    public function schemaMetaFieldDef(): FieldDefinition
     {
-        return self::$map[self::SCHEMA_FIELD_NAME] ??= new FieldDefinition([
+        return $this->cache[self::SCHEMA_FIELD_NAME] ??= new FieldDefinition([
             'name' => self::SCHEMA_FIELD_NAME,
-            'type' => Type::nonNull(self::_schema()),
+            'type' => Type::nonNull($this->_schema()),
             'description' => 'Access the current type schema of this server.',
             'args' => [],
             'resolve' => static fn ($source, array $args, $context, ResolveInfo $info): Schema => $info->schema,
@@ -777,16 +785,16 @@ GRAPHQL;
     }
 
     /** @throws InvariantViolation */
-    public static function typeMetaFieldDef(): FieldDefinition
+    public function typeMetaFieldDef(): FieldDefinition
     {
-        return self::$map[self::TYPE_FIELD_NAME] ??= new FieldDefinition([
+        return $this->cache[self::TYPE_FIELD_NAME] ??= new FieldDefinition([
             'name' => self::TYPE_FIELD_NAME,
-            'type' => self::_type(),
+            'type' => $this->_type(),
             'description' => 'Request the type information of a single type.',
             'args' => [
                 [
                     'name' => 'name',
-                    'type' => Type::nonNull(Type::string()),
+                    'type' => Type::nonNull($this->typeRegistry->string()),
                 ],
             ],
             'resolve' => static fn ($source, array $args, $context, ResolveInfo $info): ?Type => $info->schema->getType($args['name']),
@@ -794,11 +802,11 @@ GRAPHQL;
     }
 
     /** @throws InvariantViolation */
-    public static function typeNameMetaFieldDef(): FieldDefinition
+    public function typeNameMetaFieldDef(): FieldDefinition
     {
-        return self::$map[self::TYPE_NAME_FIELD_NAME] ??= new FieldDefinition([
+        return $this->cache[self::TYPE_NAME_FIELD_NAME] ??= new FieldDefinition([
             'name' => self::TYPE_NAME_FIELD_NAME,
-            'type' => Type::nonNull(Type::string()),
+            'type' => Type::nonNull($this->typeRegistry->string()),
             'description' => 'The name of the current Object type at runtime.',
             'args' => [],
             'resolve' => static fn ($source, array $args, $context, ResolveInfo $info): string => $info->parentType->name,

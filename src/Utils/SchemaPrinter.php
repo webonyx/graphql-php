@@ -20,6 +20,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
@@ -443,7 +444,7 @@ class SchemaPrinter
             return ' @deprecated';
         }
 
-        $reasonAST = AST::astFromValue($reason, Type::string());
+        $reasonAST = AST::astFromValue($reason, new StringType());
         assert($reasonAST instanceof StringValueNode);
 
         $reasonASTString = Printer::doPrint($reasonAST);

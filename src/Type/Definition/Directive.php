@@ -4,7 +4,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
-use GraphQL\Language\DirectiveLocation;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 
 /**
  * @phpstan-import-type ArgumentListConfig from Argument
@@ -28,12 +28,11 @@ class Directive
     public const DEPRECATED_NAME = 'deprecated';
     public const REASON_ARGUMENT_NAME = 'reason';
 
-    /**
-     * Lazily initialized.
-     *
-     * @var array<string, Directive>
-     */
-    protected static array $internalDirectives;
+    public const INTERNAL_DIRECTIVE_NAMES = [
+        self::INCLUDE_NAME,
+        self::SKIP_NAME,
+        self::DEPRECATED_NAME,
+    ];
 
     public string $name;
 
@@ -75,14 +74,6 @@ class Directive
         $this->config = $config;
     }
 
-    /** @throws InvariantViolation */
-    public static function includeDirective(): Directive
-    {
-        $internal = self::getInternalDirectives();
-
-        return $internal['include'];
-    }
-
     /**
      * @throws InvariantViolation
      *
@@ -90,76 +81,11 @@ class Directive
      */
     public static function getInternalDirectives(): array
     {
-        return self::$internalDirectives ??= [
-            'include' => new self([
-                'name' => self::INCLUDE_NAME,
-                'description' => 'Directs the executor to include this field or fragment only when the `if` argument is true.',
-                'locations' => [
-                    DirectiveLocation::FIELD,
-                    DirectiveLocation::FRAGMENT_SPREAD,
-                    DirectiveLocation::INLINE_FRAGMENT,
-                ],
-                'args' => [
-                    self::IF_ARGUMENT_NAME => [
-                        'type' => Type::nonNull(Type::boolean()),
-                        'description' => 'Included when true.',
-                    ],
-                ],
-            ]),
-            'skip' => new self([
-                'name' => self::SKIP_NAME,
-                'description' => 'Directs the executor to skip this field or fragment when the `if` argument is true.',
-                'locations' => [
-                    DirectiveLocation::FIELD,
-                    DirectiveLocation::FRAGMENT_SPREAD,
-                    DirectiveLocation::INLINE_FRAGMENT,
-                ],
-                'args' => [
-                    self::IF_ARGUMENT_NAME => [
-                        'type' => Type::nonNull(Type::boolean()),
-                        'description' => 'Skipped when true.',
-                    ],
-                ],
-            ]),
-            'deprecated' => new self([
-                'name' => self::DEPRECATED_NAME,
-                'description' => 'Marks an element of a GraphQL schema as no longer supported.',
-                'locations' => [
-                    DirectiveLocation::FIELD_DEFINITION,
-                    DirectiveLocation::ENUM_VALUE,
-                    DirectiveLocation::ARGUMENT_DEFINITION,
-                    DirectiveLocation::INPUT_FIELD_DEFINITION,
-                ],
-                'args' => [
-                    self::REASON_ARGUMENT_NAME => [
-                        'type' => Type::string(),
-                        'description' => 'Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).',
-                        'defaultValue' => self::DEFAULT_DEPRECATION_REASON,
-                    ],
-                ],
-            ]),
-        ];
+        return DefaultStandardTypeRegistry::instance()->internalDirectives();
     }
 
-    /** @throws InvariantViolation */
-    public static function skipDirective(): Directive
-    {
-        $internal = self::getInternalDirectives();
-
-        return $internal['skip'];
-    }
-
-    /** @throws InvariantViolation */
-    public static function deprecatedDirective(): Directive
-    {
-        $internal = self::getInternalDirectives();
-
-        return $internal['deprecated'];
-    }
-
-    /** @throws InvariantViolation */
     public static function isSpecifiedDirective(Directive $directive): bool
     {
-        return \array_key_exists($directive->name, self::getInternalDirectives());
+        return \in_array($directive->name, self::INTERNAL_DIRECTIVE_NAMES, true);
     }
 }

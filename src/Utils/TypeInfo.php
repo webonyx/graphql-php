@@ -32,7 +32,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
-use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 
 class TypeInfo
@@ -329,17 +328,17 @@ class TypeInfo
     private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode): ?FieldDefinition
     {
         $name = $fieldNode->name->value;
-        $schemaMeta = Introspection::schemaMetaFieldDef();
+        $schemaMeta = $schema->typeRegistry->introspection()->schemaMetaFieldDef();
         if ($name === $schemaMeta->name && $schema->getQueryType() === $parentType) {
             return $schemaMeta;
         }
 
-        $typeMeta = Introspection::typeMetaFieldDef();
+        $typeMeta = $schema->typeRegistry->introspection()->typeMetaFieldDef();
         if ($name === $typeMeta->name && $schema->getQueryType() === $parentType) {
             return $typeMeta;
         }
 
-        $typeNameMeta = Introspection::typeNameMetaFieldDef();
+        $typeNameMeta = $schema->typeRegistry->introspection()->typeNameMetaFieldDef();
         if ($name === $typeNameMeta->name && $parentType instanceof CompositeType) {
             return $typeNameMeta;
         }

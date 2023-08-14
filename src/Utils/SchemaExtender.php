@@ -557,14 +557,7 @@ class SchemaExtender
 
     protected function isSpecifiedScalarType(Type $type): bool
     {
-        return $type instanceof NamedType
-            && (
-                $type->name === Type::STRING
-                || $type->name === Type::INT
-                || $type->name === Type::FLOAT
-                || $type->name === Type::BOOLEAN
-                || $type->name === Type::ID
-            );
+        return $type instanceof NamedType && in_array($type->name, Type::STANDARD_TYPE_NAMES, true);
     }
 
     /**

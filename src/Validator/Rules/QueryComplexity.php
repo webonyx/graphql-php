@@ -181,7 +181,7 @@ class QueryComplexity extends QuerySecurityRule
 
             if ($directiveNode->name->value === Directive::INCLUDE_NAME) {
                 $includeArguments = Values::getArgumentValues(
-                    Directive::includeDirective(),
+                    $this->context->getSchema()->typeRegistry->includeDirective(),
                     $directiveNode,
                     $variableValues
                 );
@@ -192,7 +192,7 @@ class QueryComplexity extends QuerySecurityRule
 
             if ($directiveNode->name->value === Directive::SKIP_NAME) {
                 $skipArguments = Values::getArgumentValues(
-                    Directive::skipDirective(),
+                    $this->context->getSchema()->typeRegistry->skipDirective(),
                     $directiveNode,
                     $variableValues
                 );

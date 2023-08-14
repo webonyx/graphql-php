@@ -548,6 +548,7 @@ typeLoader?: TypeLoader|null,
 assumeValid?: bool|null,
 astNode?: SchemaDefinitionNode|null,
 extensionASTNodes?: array<SchemaExtensionNode>|null,
+typeRegistry?: StandardTypeRegistry|null,
 }
 
 ### GraphQL\Type\SchemaConfig Methods
@@ -2429,7 +2430,12 @@ assumeValidSDL?: bool
  * @throws InvariantViolation
  * @throws SyntaxError
  */
-static function build($source, ?callable $typeConfigDecorator = null, array $options = []): GraphQL\Type\Schema
+static function build(
+    $source,
+    ?callable $typeConfigDecorator = null,
+    array $options = [],
+    ?GraphQL\Type\Registry\StandardTypeRegistry $typeRegistry = null
+): GraphQL\Type\Schema
 ```
 
 ```php
@@ -2457,7 +2463,8 @@ static function build($source, ?callable $typeConfigDecorator = null, array $opt
 static function buildAST(
     GraphQL\Language\AST\DocumentNode $ast,
     ?callable $typeConfigDecorator = null,
-    array $options = []
+    array $options = [],
+    ?GraphQL\Type\Registry\StandardTypeRegistry $typeRegistry = null
 ): GraphQL\Type\Schema
 ```
 

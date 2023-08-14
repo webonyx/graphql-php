@@ -9,6 +9,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Registry\StandardTypeRegistry;
 
 /**
  * Configuration options for schema construction.
@@ -39,6 +40,7 @@ use GraphQL\Type\Definition\Type;
  *   assumeValid?: bool|null,
  *   astNode?: SchemaDefinitionNode|null,
  *   extensionASTNodes?: array<SchemaExtensionNode>|null,
+ *   typeRegistry?: StandardTypeRegistry|null,
  * }
  */
 class SchemaConfig
@@ -75,6 +77,8 @@ class SchemaConfig
 
     /** @var array<SchemaExtensionNode> */
     public array $extensionASTNodes = [];
+
+    public ?StandardTypeRegistry $typeRegistry = null;
 
     /**
      * Converts an array of options to instance of SchemaConfig
@@ -125,6 +129,10 @@ class SchemaConfig
 
             if (isset($options['extensionASTNodes'])) {
                 $config->setExtensionASTNodes($options['extensionASTNodes']);
+            }
+
+            if (isset($options['typeRegistry'])) {
+                $config->setTypeRegistry($options['typeRegistry']);
             }
         }
 
@@ -312,6 +320,18 @@ class SchemaConfig
     public function setExtensionASTNodes(array $extensionASTNodes): self
     {
         $this->extensionASTNodes = $extensionASTNodes;
+
+        return $this;
+    }
+
+    public function getTypeRegistry(): ?StandardTypeRegistry
+    {
+        return $this->typeRegistry;
+    }
+
+    public function setTypeRegistry(StandardTypeRegistry $typeRegistry): self
+    {
+        $this->typeRegistry = $typeRegistry;
 
         return $this;
     }
