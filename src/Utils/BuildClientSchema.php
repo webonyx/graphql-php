@@ -21,6 +21,7 @@ use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Registry\BuiltInDirectiveRegistry;
 use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Type\Registry\StandardTypeRegistry;
 use GraphQL\Type\Schema;
@@ -33,7 +34,7 @@ use GraphQL\Type\TypeKind;
  *
  * @phpstan-type Options array{
  *   assumeValid?: bool,
- *   typeRegistry?: StandardTypeRegistry,
+ *   typeRegistry?: null|(StandardTypeRegistry&BuiltInDirectiveRegistry),
  * }
  *
  *    - assumeValid:
@@ -60,7 +61,8 @@ class BuildClientSchema
     /** @var array<string, NamedType&Type> */
     private array $typeMap = [];
 
-    private StandardTypeRegistry $typeRegistry;
+    /** @var StandardTypeRegistry&BuiltInDirectiveRegistry */
+    private $typeRegistry;
 
     /**
      * @param array<string, mixed> $introspectionQuery

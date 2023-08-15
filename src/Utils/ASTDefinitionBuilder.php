@@ -42,6 +42,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Registry\BuiltInDirectiveRegistry;
 use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Type\Registry\StandardTypeRegistry;
 
@@ -80,11 +81,13 @@ class ASTDefinitionBuilder
     /** @var array<string, array<int, Node&TypeExtensionNode>> */
     private array $typeExtensionsMap;
 
-    private StandardTypeRegistry $typeRegistry;
+    /** @var StandardTypeRegistry&BuiltInDirectiveRegistry */
+    private $typeRegistry;
 
     /**
      * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
      * @param array<string, array<int, Node&TypeExtensionNode>> $typeExtensionsMap
+     * @param (StandardTypeRegistry&BuiltInDirectiveRegistry)|null $typeRegistry
      *
      * @phpstan-param ResolveType $resolveType
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
@@ -94,7 +97,7 @@ class ASTDefinitionBuilder
         array $typeExtensionsMap,
         callable $resolveType,
         callable $typeConfigDecorator = null,
-        StandardTypeRegistry $typeRegistry = null
+        $typeRegistry = null
     ) {
         $this->typeDefinitionsMap = $typeDefinitionsMap;
         $this->typeExtensionsMap = $typeExtensionsMap;

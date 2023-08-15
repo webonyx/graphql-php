@@ -14,6 +14,7 @@ use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Registry\BuiltInDirectiveRegistry;
 use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Type\Registry\StandardTypeRegistry;
 use GraphQL\Type\Schema;
@@ -64,10 +65,12 @@ class BuildSchema
      */
     private array $options;
 
-    private StandardTypeRegistry $typeRegistry;
+    /** @var StandardTypeRegistry&BuiltInDirectiveRegistry */
+    private $typeRegistry;
 
     /**
      * @param array<string, bool> $options
+     * @param (StandardTypeRegistry&BuiltInDirectiveRegistry)|null $typeRegistry
      *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      * @phpstan-param BuildSchemaOptions $options
@@ -76,7 +79,7 @@ class BuildSchema
         DocumentNode $ast,
         callable $typeConfigDecorator = null,
         array $options = [],
-        StandardTypeRegistry $typeRegistry = null
+        $typeRegistry = null
     ) {
         $this->ast = $ast;
         $this->typeConfigDecorator = $typeConfigDecorator;
@@ -94,6 +97,7 @@ class BuildSchema
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      *
      * @param array<string, bool> $options
+     * @param (StandardTypeRegistry&BuiltInDirectiveRegistry)|null $typeRegistry
      *
      * @phpstan-param BuildSchemaOptions $options
      *
@@ -109,7 +113,7 @@ class BuildSchema
         $source,
         callable $typeConfigDecorator = null,
         array $options = [],
-        StandardTypeRegistry $typeRegistry = null
+        $typeRegistry = null
     ): Schema {
         $doc = $source instanceof DocumentNode
             ? $source
@@ -129,6 +133,7 @@ class BuildSchema
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      *
      * @param array<string, bool> $options
+     * @param (StandardTypeRegistry&BuiltInDirectiveRegistry)|null $typeRegistry
      *
      * @phpstan-param BuildSchemaOptions $options
      *
@@ -143,7 +148,7 @@ class BuildSchema
         DocumentNode $ast,
         callable $typeConfigDecorator = null,
         array $options = [],
-        StandardTypeRegistry $typeRegistry = null
+        $typeRegistry = null
     ): Schema {
         return (new self($ast, $typeConfigDecorator, $options, $typeRegistry))->buildSchema();
     }

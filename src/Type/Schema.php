@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Registry\BuiltInDirectiveRegistry;
 use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Type\Registry\StandardTypeRegistry;
 use GraphQL\Utils\InterfaceImplementations;
@@ -76,7 +77,8 @@ class Schema
     /** @var array<int, SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
-    public StandardTypeRegistry $typeRegistry;
+    /** @var StandardTypeRegistry&BuiltInDirectiveRegistry */
+    public $typeRegistry;
 
     /**
      * @param SchemaConfig|array<string, mixed> $config

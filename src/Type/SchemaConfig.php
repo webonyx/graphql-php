@@ -9,6 +9,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Registry\BuiltInDirectiveRegistry;
 use GraphQL\Type\Registry\StandardTypeRegistry;
 
 /**
@@ -40,7 +41,7 @@ use GraphQL\Type\Registry\StandardTypeRegistry;
  *   assumeValid?: bool|null,
  *   astNode?: SchemaDefinitionNode|null,
  *   extensionASTNodes?: array<SchemaExtensionNode>|null,
- *   typeRegistry?: StandardTypeRegistry|null,
+ *   typeRegistry?: null|(StandardTypeRegistry&BuiltInDirectiveRegistry),
  * }
  */
 class SchemaConfig
@@ -78,7 +79,8 @@ class SchemaConfig
     /** @var array<SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
-    public ?StandardTypeRegistry $typeRegistry = null;
+    /** @var (StandardTypeRegistry&BuiltInDirectiveRegistry)|null */
+    public $typeRegistry;
 
     /**
      * Converts an array of options to instance of SchemaConfig
@@ -324,12 +326,18 @@ class SchemaConfig
         return $this;
     }
 
-    public function getTypeRegistry(): ?StandardTypeRegistry
+    /** @return (StandardTypeRegistry&BuiltInDirectiveRegistry)|null */
+    public function getTypeRegistry()
     {
         return $this->typeRegistry;
     }
 
-    public function setTypeRegistry(StandardTypeRegistry $typeRegistry): self
+    /**
+     * @param (StandardTypeRegistry&BuiltInDirectiveRegistry)|null $typeRegistry
+     *
+     * @return $this
+     */
+    public function setTypeRegistry($typeRegistry): self
     {
         $this->typeRegistry = $typeRegistry;
 
