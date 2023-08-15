@@ -2445,7 +2445,8 @@ static function build(
     $source,
     ?callable $typeConfigDecorator = null,
     array $options = [],
-    $typeRegistry = null
+    $typeRegistry = null,
+    ?GraphQL\Type\Introspection $introspection = null
 ): GraphQL\Type\Schema
 ```
 
@@ -2476,7 +2477,8 @@ static function buildAST(
     GraphQL\Language\AST\DocumentNode $ast,
     ?callable $typeConfigDecorator = null,
     array $options = [],
-    $typeRegistry = null
+    $typeRegistry = null,
+    ?GraphQL\Type\Introspection $introspection = null
 ): GraphQL\Type\Schema
 ```
 
