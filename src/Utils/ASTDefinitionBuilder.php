@@ -42,6 +42,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Introspection;
 use GraphQL\Type\Registry\BuiltInDirectiveRegistry;
 use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Type\Registry\StandardTypeRegistry;
@@ -84,6 +85,8 @@ class ASTDefinitionBuilder
     /** @var StandardTypeRegistry&BuiltInDirectiveRegistry */
     private $typeRegistry;
 
+    private Introspection $introspection;
+
     /**
      * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
      * @param array<string, array<int, Node&TypeExtensionNode>> $typeExtensionsMap
@@ -97,13 +100,15 @@ class ASTDefinitionBuilder
         array $typeExtensionsMap,
         callable $resolveType,
         callable $typeConfigDecorator = null,
-        $typeRegistry = null
+        $typeRegistry = null,
+        Introspection $introspection = null,
     ) {
         $this->typeDefinitionsMap = $typeDefinitionsMap;
         $this->typeExtensionsMap = $typeExtensionsMap;
         $this->resolveType = $resolveType;
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->typeRegistry = $typeRegistry ?? DefaultStandardTypeRegistry::instance();
+        $this->introspection = $introspection ?? new Introspection($this->typeRegistry);
     }
 
     /** @throws \Exception */
@@ -255,7 +260,7 @@ class ASTDefinitionBuilder
     private function internalBuildType(string $typeName, Node $typeNode = null): Type
     {
         $this->cache ??= \array_merge(
-            $this->typeRegistry->introspection()->getTypes(),
+            $this->introspection->getTypes(),
             $this->typeRegistry->standardTypes()
         );
 

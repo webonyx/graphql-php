@@ -80,6 +80,8 @@ class Schema
     /** @var StandardTypeRegistry&BuiltInDirectiveRegistry */
     public $typeRegistry;
 
+    public Introspection $introspection;
+
     /**
      * @param SchemaConfig|array<string, mixed> $config
      *
@@ -107,6 +109,7 @@ class Schema
         $this->config = $config;
 
         $this->typeRegistry = $config->typeRegistry ?? DefaultStandardTypeRegistry::instance();
+        $this->introspection = $config->introspection ?? new Introspection($this->typeRegistry);
     }
 
     /**
@@ -169,7 +172,7 @@ class Schema
                     TypeInfo::extractTypesFromDirectives($directive, $allReferencedTypes);
                 }
             }
-            TypeInfo::extractTypes($this->typeRegistry->introspection()->_schema(), $allReferencedTypes);
+            TypeInfo::extractTypes($this->introspection->_schema(), $allReferencedTypes);
 
             $this->resolvedTypes = $allReferencedTypes;
             $this->fullyLoaded = true;
@@ -298,7 +301,7 @@ class Schema
             return $this->resolvedTypes[$name];
         }
 
-        $introspectionTypes = $this->typeRegistry->introspection()->getTypes();
+        $introspectionTypes = $this->introspection->getTypes();
         if (isset($introspectionTypes[$name])) {
             return $introspectionTypes[$name];
         }

@@ -146,7 +146,9 @@ class SchemaExtender
 
                 return $this->extendNamedType($existingType);
             },
-            $typeConfigDecorator
+            $typeConfigDecorator,
+            $schema->typeRegistry,
+            $schema->introspection
         );
 
         $this->extendTypeCache = [];
@@ -196,6 +198,8 @@ class SchemaExtender
             ->setDirectives($this->getMergedDirectives($schema, $directiveDefinitions))
             ->setAstNode($schema->astNode ?? $schemaDef)
             ->setExtensionASTNodes($schemaExtensionASTNodes)
+            ->setTypeRegistry($schema->typeRegistry)
+            ->setIntrospection($schema->introspection)
         );
     }
 

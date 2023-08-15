@@ -142,7 +142,11 @@ final class BuildSchemaTest extends TestCaseBase
     {
         $schema = new Schema([]);
         $sdlSchema = BuildSchema::buildAST(
-            new DocumentNode(['definitions' => new NodeList([])])
+            new DocumentNode(['definitions' => new NodeList([])]),
+            null,
+            [],
+            $schema->typeRegistry,
+            $schema->introspection
         );
 
         self::assertEquals(array_values($schema->getDirectives()), $sdlSchema->getDirectives());
@@ -1221,7 +1225,7 @@ final class BuildSchemaTest extends TestCaseBase
         ');
 
         self::assertSame(Type::id(), $schema->getType('ID'));
-        self::assertSame(DefaultStandardTypeRegistry::instance()->introspection()->_schema(), $schema->getType('__Schema'));
+        self::assertSame($schema->introspection->_schema(), $schema->getType('__Schema'));
     }
 
     /** @see it('Allows to reference introspection types') */
@@ -1238,7 +1242,7 @@ final class BuildSchemaTest extends TestCaseBase
         $type = $queryType->getField('introspectionField')->getType();
         self::assertInstanceOf(ObjectType::class, $type);
         self::assertSame('__EnumValue', $type->name);
-        self::assertSame(DefaultStandardTypeRegistry::instance()->introspection()->_enumValue(), $schema->getType('__EnumValue'));
+        self::assertSame($schema->introspection->_enumValue(), $schema->getType('__EnumValue'));
     }
 
     /** @see it('Rejects invalid SDL') */

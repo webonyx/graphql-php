@@ -12,7 +12,6 @@ use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Introspection;
 
 /**
  * A default implementation of the type registry.
@@ -40,8 +39,6 @@ class DefaultStandardTypeRegistry implements StandardTypeRegistry, BuiltInDirect
     /** @var array<string, Directive> */
     protected array $directives = [];
 
-    protected Introspection $introspection;
-
     /**
      * @param ScalarType|class-string<ScalarType> $intType
      * @param ScalarType|class-string<ScalarType> $floatType
@@ -63,8 +60,6 @@ class DefaultStandardTypeRegistry implements StandardTypeRegistry, BuiltInDirect
             Type::BOOLEAN => $this->objectOrLazyInitialize($booleanType),
             Type::ID => $this->objectOrLazyInitialize($idType),
         ];
-
-        $this->introspection = new Introspection($this);
     }
 
     /**
@@ -227,10 +222,5 @@ class DefaultStandardTypeRegistry implements StandardTypeRegistry, BuiltInDirect
                 ],
             ],
         ]);
-    }
-
-    public function introspection(): Introspection
-    {
-        return $this->introspection;
     }
 }

@@ -661,17 +661,17 @@ class ReferenceExecutor implements ExecutorImplementation
     protected function getFieldDef(Schema $schema, ObjectType $parentType, string $fieldName): ?FieldDefinition
     {
         $queryType = $schema->getQueryType();
-        $schemaMeta = $schema->typeRegistry->introspection()->schemaMetaFieldDef();
+        $schemaMeta = $schema->introspection->schemaMetaFieldDef();
         if ($fieldName === $schemaMeta->name && $queryType === $parentType) {
             return $schemaMeta;
         }
 
-        $typeMeta = $schema->typeRegistry->introspection()->typeMetaFieldDef();
+        $typeMeta = $schema->introspection->typeMetaFieldDef();
         if ($fieldName === $typeMeta->name && $queryType === $parentType) {
             return $typeMeta;
         }
 
-        $typeNameMeta = $schema->typeRegistry->introspection()->typeNameMetaFieldDef();
+        $typeNameMeta = $schema->introspection->typeNameMetaFieldDef();
         if ($fieldName === $typeNameMeta->name) {
             return $typeNameMeta;
         }

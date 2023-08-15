@@ -21,6 +21,7 @@ use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Introspection;
 use GraphQL\Type\Registry\BuiltInDirectiveRegistry;
 use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Type\Registry\StandardTypeRegistry;
@@ -35,6 +36,7 @@ use GraphQL\Type\TypeKind;
  * @phpstan-type Options array{
  *   assumeValid?: bool,
  *   typeRegistry?: null|(StandardTypeRegistry&BuiltInDirectiveRegistry),
+ *   introspection?: null|Introspection,
  * }
  *
  *    - assumeValid:
@@ -49,7 +51,7 @@ use GraphQL\Type\TypeKind;
 class BuildClientSchema
 {
     /** @var array<string, mixed> */
-    private array $introspection;
+    private array $introspectionQuery;
 
     /**
      * @var array<string, mixed>
@@ -64,6 +66,8 @@ class BuildClientSchema
     /** @var StandardTypeRegistry&BuiltInDirectiveRegistry */
     private $typeRegistry;
 
+    private Introspection $introspection;
+
     /**
      * @param array<string, mixed> $introspectionQuery
      * @param array<string, mixed>  $options
@@ -72,9 +76,10 @@ class BuildClientSchema
      */
     public function __construct(array $introspectionQuery, array $options = [])
     {
-        $this->introspection = $introspectionQuery;
+        $this->introspectionQuery = $introspectionQuery;
         $this->options = $options;
         $this->typeRegistry = $options['typeRegistry'] ?? DefaultStandardTypeRegistry::instance();
+        $this->introspection = $options['introspection'] ?? new Introspection($this->typeRegistry);
     }
 
     /**
@@ -106,16 +111,16 @@ class BuildClientSchema
     /** @throws InvariantViolation */
     public function buildSchema(): Schema
     {
-        if (! \array_key_exists('__schema', $this->introspection)) {
-            $missingSchemaIntrospection = Utils::printSafeJson($this->introspection);
+        if (! \array_key_exists('__schema', $this->introspectionQuery)) {
+            $missingSchemaIntrospection = Utils::printSafeJson($this->introspectionQuery);
             throw new InvariantViolation("Invalid or incomplete introspection result. Ensure that you are passing \"data\" property of introspection response and no \"errors\" was returned alongside: {$missingSchemaIntrospection}.");
         }
 
-        $schemaIntrospection = $this->introspection['__schema'];
+        $schemaIntrospection = $this->introspectionQuery['__schema'];
 
         $builtInTypes = \array_merge(
             $this->typeRegistry->standardTypes(),
-            $this->typeRegistry->introspection()->getTypes()
+            $this->introspection->getTypes()
         );
 
         foreach ($schemaIntrospection['types'] as $typeIntrospection) {
@@ -155,6 +160,7 @@ class BuildClientSchema
         return new Schema(
             (new SchemaConfig())
             ->setTypeRegistry($this->typeRegistry)
+            ->setIntrospection($this->introspection)
             ->setQuery($queryType)
             ->setMutation($mutationType)
             ->setSubscription($subscriptionType)

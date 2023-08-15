@@ -328,17 +328,17 @@ class TypeInfo
     private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode): ?FieldDefinition
     {
         $name = $fieldNode->name->value;
-        $schemaMeta = $schema->typeRegistry->introspection()->schemaMetaFieldDef();
+        $schemaMeta = $schema->introspection->schemaMetaFieldDef();
         if ($name === $schemaMeta->name && $schema->getQueryType() === $parentType) {
             return $schemaMeta;
         }
 
-        $typeMeta = $schema->typeRegistry->introspection()->typeMetaFieldDef();
+        $typeMeta = $schema->introspection->typeMetaFieldDef();
         if ($name === $typeMeta->name && $schema->getQueryType() === $parentType) {
             return $typeMeta;
         }
 
-        $typeNameMeta = $schema->typeRegistry->introspection()->typeNameMetaFieldDef();
+        $typeNameMeta = $schema->introspection->typeNameMetaFieldDef();
         if ($name === $typeNameMeta->name && $parentType instanceof CompositeType) {
             return $typeNameMeta;
         }

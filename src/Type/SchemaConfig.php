@@ -82,6 +82,8 @@ class SchemaConfig
     /** @var (StandardTypeRegistry&BuiltInDirectiveRegistry)|null */
     public $typeRegistry;
 
+    public ?Introspection $introspection = null;
+
     /**
      * Converts an array of options to instance of SchemaConfig
      * (or just returns empty config when array is not passed).
@@ -340,6 +342,19 @@ class SchemaConfig
     public function setTypeRegistry($typeRegistry): self
     {
         $this->typeRegistry = $typeRegistry;
+
+        return $this;
+    }
+
+    public function getIntrospection(): ?Introspection
+    {
+        return $this->introspection;
+    }
+
+    /** @return $this */
+    public function setIntrospection(?Introspection $introspection): self
+    {
+        $this->introspection = $introspection;
 
         return $this;
     }

@@ -5,7 +5,6 @@ namespace GraphQL\Type\Registry;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Introspection;
 
 /**
  * A registry that returns standard types.
@@ -42,6 +41,4 @@ interface StandardTypeRegistry
      * @return array<string, ScalarType>
      */
     public function standardTypes(): array;
-
-    public function introspection(): Introspection;
 }
