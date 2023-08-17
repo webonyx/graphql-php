@@ -12,11 +12,12 @@ use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector;
 use Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector;
 use Rector\DeadCode\Rector\Property\RemoveUnusedPrivatePropertyRector;
-use Rector\PHPUnit\Rector\Class_\AddSeeTestAnnotationRector;
-use Rector\PHPUnit\Rector\Class_\PreferPHPUnitThisCallRector;
-use Rector\PHPUnit\Rector\MethodCall\AssertEqualsToSameRector;
-use Rector\PHPUnit\Rector\MethodCall\AssertIssetToSpecificMethodRector;
-use Rector\PHPUnit\Rector\MethodCall\AssertPropertyExistsRector;
+use Rector\PHPUnit\CodeQuality\Rector\Class_\AddSeeTestAnnotationRector;
+use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector;
+use Rector\PHPUnit\CodeQuality\Rector\MethodCall\AssertEqualsToSameRector;
+use Rector\PHPUnit\CodeQuality\Rector\MethodCall\AssertIssetToSpecificMethodRector;
+use Rector\PHPUnit\CodeQuality\Rector\MethodCall\AssertPropertyExistsRector;
+use Rector\PHPUnit\PHPUnit60\Rector\ClassMethod\AddDoesNotPerformAssertionToNonAssertingTestRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\SetList;
 
@@ -24,16 +25,16 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->sets([
         SetList::CODE_QUALITY,
         SetList::DEAD_CODE,
+        PHPUnitSetList::PHPUNIT_60,
+        PHPUnitSetList::PHPUNIT_70,
+        PHPUnitSetList::PHPUNIT_80,
         PHPUnitSetList::PHPUNIT_90,
-        PHPUnitSetList::PHPUNIT_91,
         PHPUnitSetList::PHPUNIT_CODE_QUALITY,
-        PHPUnitSetList::PHPUNIT_EXCEPTION,
-        PHPUnitSetList::PHPUNIT_SPECIFIC_METHOD,
-        PHPUnitSetList::REMOVE_MOCKS,
     ]);
     $rectorConfig->skip([
-        AddSeeTestAnnotationRector::class, // We do not bundle tests
+        AddSeeTestAnnotationRector::class, // We do not bundle tests, so referring to them is confusing for library users
         PreferPHPUnitThisCallRector::class, // Prefer self::
+        AddDoesNotPerformAssertionToNonAssertingTestRector::class, // False-positive
         CallableThisArrayToAnonymousFunctionRector::class, // Callable in array form is shorter and more efficient
         IssetOnPropertyObjectToPropertyExistsRector::class, // isset() is nice when moving towards typed properties
         FlipTypeControlToUseExclusiveTypeRector::class, // Unnecessarily complex with PHPStan
@@ -51,7 +52,7 @@ return static function (RectorConfig $rectorConfig): void {
             __DIR__ . '/tests/Utils/MixedStoreTest.php', // Uses keys that are not string or int
         ],
         AssertEqualsToSameRector::class => [
-            __DIR__ . '/tests/TestCaseBase.php',
+            __DIR__ . '/tests/TestCaseBase.php', // Array output may differ between tested PHP versions, assertEquals smooths over this
         ],
         SwitchTrueToIfRector::class, // More expressive in some cases
     ]);
