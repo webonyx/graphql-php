@@ -15,7 +15,7 @@
 - [DataLoaderPHP](https://github.com/overblog/dataloader-php) – Implements [deferred resolvers](data-fetching.md#solving-n1-problem)
 - [GraphQL Upload](https://github.com/Ecodev/graphql-upload) – PSR-15 middleware to support file uploads in GraphQL
 - [GraphQL Batch Processor](https://github.com/vasily-kartashov/graphql-batch-processing) – Provides a builder interface for defining collection, querying, filtering, and post-processing logic of batched data fetches
-- [GraphQL Utils](https://github.com/simPod/GraphQL-Utils) – Objective schema definition builders (no need for arrays anymore) and `DateTime` scalar
+- [GraphQL Utils](https://github.com/simPod/GraphQL-Utils) – Objective schema definition builders (no need for arrays anymore)
 - [Relay Library](https://github.com/ivome/graphql-relay-php) – Helps construct Relay related schema definitions
 - [GraphQL PHP Validation Toolkit](https://github.com/shmax/graphql-php-validation-toolkit) - Small library for validation of user input
 
