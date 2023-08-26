@@ -1725,4 +1725,50 @@ final class IntrospectionTest extends TestCase
         GraphQL::executeQuery($schema, $source, null, null, null, null, $fieldResolver);
         self::assertEmpty($calledForFields);
     }
+
+    /** @see it('does not expose invisible fields') */
+    public function testDoesNotExposeInvisibleFields(): void
+    {
+        $TestType = new ObjectType([
+            'name' => 'TestType',
+            'fields' => [
+                'nonVisible' => [
+                    'type' => Type::string(),
+                    'visible' => function ($context): bool {
+                        return false;
+                    },
+                ],
+                'visible' => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $TestType]);
+        $request = '
+          {
+            __type(name: "TestType") {
+              name
+              fields {
+                name
+              }
+            }
+          }
+        ';
+
+        $expected = [
+            'data' => [
+                '__type' => [
+                    'name' => 'TestType',
+                    'fields' => [
+                        [
+                            'name' => 'visible',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+    }
 }

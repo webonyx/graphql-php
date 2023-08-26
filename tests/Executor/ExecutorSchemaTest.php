@@ -30,6 +30,12 @@ final class ExecutorSchemaTest extends TestCase
                 'url' => ['type' => Type::string()],
                 'width' => ['type' => Type::int()],
                 'height' => ['type' => Type::int()],
+                'mimetype' => [
+                    'type' => Type::string(),
+                    'visible' => function ($context): bool {
+                        return false;
+                    },
+                ],
             ],
         ]);
 
@@ -107,7 +113,8 @@ final class ExecutorSchemaTest extends TestCase
             pic(width: 640, height: 480) {
               url,
               width,
-              height
+              height,
+              mimetype
             },
             recentArticle {
               ...articleFields,
@@ -222,6 +229,7 @@ final class ExecutorSchemaTest extends TestCase
             'url' => "cdn://{$uid}",
             'width' => $width,
             'height' => $height,
+            'mimetype' => 'image/gif',
         ];
 
         $johnSmith = [

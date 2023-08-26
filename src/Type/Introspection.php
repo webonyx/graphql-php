@@ -352,17 +352,24 @@ GRAPHQL;
                             'defaultValue' => false,
                         ],
                     ],
-                    'resolve' => static function (Type $type, $args): ?array {
+                    'resolve' => static function (Type $type, $args, $context): ?array {
                         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                             $fields = $type->getFields();
 
-                            if (! ($args['includeDeprecated'] ?? false)) {
-                                $fields = \array_filter(
-                                    $fields,
-                                    static fn (FieldDefinition $field): bool => $field->deprecationReason === null
-                                        || $field->deprecationReason === ''
-                                );
-                            }
+                            $fields = \array_filter(
+                                $fields,
+                                static function (FieldDefinition $field) use ($args, $context): bool {
+                                    if (! $field->isVisible($context)) {
+                                        return false;
+                                    }
+
+                                    if ($field->isDeprecated() && ! ($args['includeDeprecated'] ?? false)) {
+                                        return false;
+                                    }
+
+                                    return true;
+                                }
+                            );
 
                             return $fields;
                         }

@@ -601,6 +601,10 @@ class ReferenceExecutor implements ExecutorImplementation
             return static::$UNDEFINED;
         }
 
+        if (! $fieldDef->isVisible($contextValue)) {
+            return static::$UNDEFINED;
+        }
+
         $returnType = $fieldDef->getType();
         // The resolve function's optional 3rd argument is a context value that
         // is provided to every resolve function within an execution. It is commonly
