@@ -4,6 +4,7 @@ GraphQL allows a large degree of dynamism and flexibility for clients to control
 Malicious clients may abuse this by sending very deep and complex queries whose execution exhausts server resources.
 
 At a basic level, it is recommended to limit the resources a single HTTP request can use through PHP settings such as:
+
 - [`max_execution_time`](https://www.php.net/manual/en/info.configuration.php#ini.max-execution-time)
 - [`memory_limit`](https://www.php.net/manual/en/ini.core.php#ini.memory-limit)
 - [`post_max_size`](https://www.php.net/manual/en/ini.core.php#ini.post-max-size)
