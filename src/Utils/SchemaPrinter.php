@@ -253,7 +253,7 @@ class SchemaPrinter
             : $indentation;
 
         if (count(Utils::splitLines($description)) === 1) {
-            $description = \json_encode($description, JSON_THROW_ON_ERROR);
+            $description = \json_encode($description, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
         } else {
             $description = BlockString::print($description);
             $description = $indentation !== ''
