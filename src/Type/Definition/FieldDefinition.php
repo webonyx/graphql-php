@@ -194,11 +194,9 @@ class FieldDefinition
 
     public function isVisible(mixed $context): bool
     {
-        if (is_callable($this->visible)) {
-            return call_user_func($this->visible, $context);
-        }
-
-        return true;
+	    return is_callable($this->visible)
+		    ? ($this->visible)($context)
+		    : $this->visible;
     }
 
     public function isDeprecated(): bool

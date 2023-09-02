@@ -1726,17 +1726,15 @@ final class IntrospectionTest extends TestCase
         self::assertEmpty($calledForFields);
     }
 
-    /** @see it('does not expose invisible fields') */
-    public function testDoesNotExposeInvisibleFields(): void
+	/** @dataProvider invisibleFieldDataProvider */
+    public function testDoesNotExposeInvisibleFields($visible): void
     {
         $TestType = new ObjectType([
             'name' => 'TestType',
             'fields' => [
                 'nonVisible' => [
                     'type' => Type::string(),
-                    'visible' => function ($context): bool {
-                        return false;
-                    },
+                    'visible' => $visible,
                 ],
                 'visible' => [
                     'type' => Type::string(),
@@ -1769,6 +1767,21 @@ final class IntrospectionTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
+
+	/**
+	 * @return array
+	 */
+	public static function invisibleFieldDataProvider(): array
+	{
+		return [
+			[
+				fn ($context): bool => false,
+			],
+			[
+				false,
+			]
+		];
+	}
 }
