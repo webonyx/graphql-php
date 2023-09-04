@@ -9,7 +9,7 @@ jobs:
   composer-normalize:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
 
@@ -30,7 +30,7 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
 
@@ -55,7 +55,7 @@ jobs:
   php-cs-fixer:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
 
