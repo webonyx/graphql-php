@@ -29,22 +29,22 @@ final class ExecutorSchemaTest extends TestCase
             'fields' => [
                 'url' => ['type' => Type::string()],
                 'width' => [
-					'type' => Type::int(),
-	                'visible' => fn ($context): bool => true,
+                    'type' => Type::int(),
+                    'visible' => fn ($context): bool => true,
                 ],
                 'height' => [
-					'type' => Type::int(),
-	                'visible' => true,
+                    'type' => Type::int(),
+                    'visible' => true,
                 ],
                 'mimetype' => [
                     'type' => Type::string(),
-	                'visible' => fn ($context): bool => false,
+                    'visible' => fn ($context): bool => false,
                 ],
-	            'size' => [
-		            'type' => Type::string(),
-		            'visible' => false,
-	            ],
-	        ],
+                'size' => [
+                    'type' => Type::string(),
+                    'visible' => false,
+                ],
+            ],
         ]);
 
         $BlogAuthor = new ObjectType([

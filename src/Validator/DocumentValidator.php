@@ -19,6 +19,7 @@ use GraphQL\Validator\Rules\KnownTypeNames;
 use GraphQL\Validator\Rules\LoneAnonymousOperation;
 use GraphQL\Validator\Rules\LoneSchemaDefinition;
 use GraphQL\Validator\Rules\NoFragmentCycles;
+use GraphQL\Validator\Rules\NoInvisibleFields;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
@@ -170,6 +171,7 @@ class DocumentValidator
             UniqueVariableNames::class => new UniqueVariableNames(),
             NoUndefinedVariables::class => new NoUndefinedVariables(),
             NoUnusedVariables::class => new NoUnusedVariables(),
+            NoInvisibleFields::class => new NoInvisibleFields(),
             KnownDirectives::class => new KnownDirectives(),
             UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
             KnownArgumentNames::class => new KnownArgumentNames(),
