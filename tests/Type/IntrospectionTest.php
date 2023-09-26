@@ -1733,7 +1733,7 @@ final class IntrospectionTest extends TestCase
      *
      * @dataProvider invisibleFieldDataProvider
      */
-    public function testDoesNotExposeInvisibleFields(mixed $visible): void
+    public function testDoesNotExposeInvisibleFields($visible): void
     {
         $TestType = new ObjectType([
             'name' => 'TestType',
