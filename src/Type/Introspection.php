@@ -358,15 +358,12 @@ GRAPHQL;
 
                             return \array_filter(
                                 $fields,
-                                static function (FieldDefinition $field) use ($args, $context): bool {
-                                    if (! $field->isVisible($context)) {
-                                        return false;
-                                    }
-
-                                    return ! (
-                                        $field->isDeprecated()
-                                        && ! ($args['includeDeprecated'] ?? false)
-                                    );
+                                static function (FieldDefinition $field) use ($args): bool {
+                                    return $field->isVisible()
+                                        && ! (
+                                            $field->isDeprecated()
+                                            && ! ($args['includeDeprecated'] ?? false)
+                                        );
                                 }
                             );
                         }

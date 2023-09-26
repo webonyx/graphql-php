@@ -83,6 +83,15 @@ trait HasFieldsTypeImplementation
     {
         $this->initializeFields();
 
-        return \array_keys($this->fields);
+        $visibleFields = array_filter(
+            $this->getFields(),
+            fn (FieldDefinition $fieldDefinition): bool => $fieldDefinition->isVisible()
+        );
+        $fieldNames = array_map(
+            fn (FieldDefinition $fieldDefinition): string => $fieldDefinition->getName(),
+            $visibleFields
+        );
+
+        return array_values($fieldNames);
     }
 }

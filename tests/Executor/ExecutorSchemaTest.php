@@ -30,7 +30,7 @@ final class ExecutorSchemaTest extends TestCase
                 'url' => ['type' => Type::string()],
                 'width' => [
                     'type' => Type::int(),
-                    'visible' => fn ($context): bool => true,
+                    'visible' => fn (): bool => true,
                 ],
                 'height' => [
                     'type' => Type::int(),
@@ -38,7 +38,7 @@ final class ExecutorSchemaTest extends TestCase
                 ],
                 'mimetype' => [
                     'type' => Type::string(),
-                    'visible' => fn ($context): bool => false,
+                    'visible' => fn (): bool => false,
                 ],
                 'size' => [
                     'type' => Type::string(),

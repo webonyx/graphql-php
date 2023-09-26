@@ -7,6 +7,7 @@ use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -19,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
+/** @phpstan-import-type VisibilityFn from FieldDefinition */
 final class IntrospectionTest extends TestCase
 {
     use ArraySubsetAsserts;
@@ -1727,7 +1729,7 @@ final class IntrospectionTest extends TestCase
     }
 
     /**
-     * @param callable|bool $visible
+     * @param VisibilityFn|bool $visible
      *
      * @dataProvider invisibleFieldDataProvider
      */
@@ -1774,10 +1776,10 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /** @return iterable<array{callable|bool}> */
+    /** @return iterable<array{VisibilityFn|bool}> */
     public static function invisibleFieldDataProvider(): iterable
     {
-        yield [fn ($context): bool => false];
+        yield [fn (): bool => false];
         yield [false];
     }
 }
