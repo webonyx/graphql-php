@@ -194,9 +194,11 @@ class FieldDefinition
 
     public function isVisible(): bool
     {
-        return is_callable($this->visible)
-            ? ($this->visible)()
-            : $this->visible;
+        if (is_bool($this->visible)) {
+            return $this->visible;
+        }
+
+        return $this->visible = ($this->visible)();
     }
 
     public function isDeprecated(): bool
