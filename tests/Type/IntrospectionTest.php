@@ -1774,16 +1774,10 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /** @return array<int, array<int, callable|bool>> */
-    public static function invisibleFieldDataProvider(): array
+    /** @return iterable<array{callable|bool}> */
+    public static function invisibleFieldDataProvider(): iterable
     {
-        return [
-            [
-                fn ($context): bool => false,
-            ],
-            [
-                false,
-            ],
-        ];
+        yield [fn ($context): bool => false];
+        yield [false];
     }
 }

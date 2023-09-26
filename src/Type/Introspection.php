@@ -356,22 +356,19 @@ GRAPHQL;
                         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                             $fields = $type->getFields();
 
-                            $fields = \array_filter(
+                            return \array_filter(
                                 $fields,
                                 static function (FieldDefinition $field) use ($args, $context): bool {
                                     if (! $field->isVisible($context)) {
                                         return false;
                                     }
 
-                                    if ($field->isDeprecated() && ! ($args['includeDeprecated'] ?? false)) {
-                                        return false;
-                                    }
-
-                                    return true;
+                                    return ! (
+                                        $field->isDeprecated()
+                                        && ! ($args['includeDeprecated'] ?? false)
+                                    );
                                 }
                             );
-
-                            return $fields;
                         }
 
                         return null;
