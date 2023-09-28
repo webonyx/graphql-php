@@ -945,6 +945,47 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
+    public function testPrintsOneLineDescriptionWithUnicode(): void
+    {
+        $schema = $this->buildSingleFieldSchema([
+            'type' => Type::string(),
+            'description' => 'Съешь же ещё этих мягких французских булок, да выпей чаю',
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            type Query {
+              "Съешь же ещё этих мягких французских булок, да выпей чаю"
+              singleField: String
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
+    public function testPrintsMultiLineDescriptionWithUnicode(): void
+    {
+        $schema = $this->buildSingleFieldSchema([
+            'type' => Type::string(),
+            'description' => "Съешь же ещё этих мягких французских булок,\nда выпей чаю",
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            type Query {
+              """
+              Съешь же ещё этих мягких французских булок,
+              да выпей чаю
+              """
+              singleField: String
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
     /** @see it('Print Introspection Schema') */
     public function testPrintIntrospectionSchema(): void
     {

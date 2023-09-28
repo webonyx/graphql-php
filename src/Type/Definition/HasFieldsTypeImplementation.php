@@ -78,11 +78,24 @@ trait HasFieldsTypeImplementation
         return $this->fields;
     }
 
+    public function getVisibleFields(): array
+    {
+        return array_filter(
+            $this->getFields(),
+            fn (FieldDefinition $fieldDefinition): bool => $fieldDefinition->isVisible()
+        );
+    }
+
     /** @throws InvariantViolation */
     public function getFieldNames(): array
     {
         $this->initializeFields();
 
-        return \array_keys($this->fields);
+        $visibleFieldNames = array_map(
+            fn (FieldDefinition $fieldDefinition): string => $fieldDefinition->getName(),
+            $this->getVisibleFields()
+        );
+
+        return array_values($visibleFieldNames);
     }
 }

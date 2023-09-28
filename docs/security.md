@@ -1,6 +1,19 @@
+## Protection Against Malicious Queries
+
+GraphQL allows a large degree of dynamism and flexibility for clients to control what happens on the server during query execution.
+Malicious clients may abuse this by sending very deep and complex queries whose execution exhausts server resources.
+
+At a basic level, it is recommended to limit the resources a single HTTP request can use through PHP settings such as:
+
+- [`max_execution_time`](https://www.php.net/manual/en/info.configuration.php#ini.max-execution-time)
+- [`memory_limit`](https://www.php.net/manual/en/ini.core.php#ini.memory-limit)
+- [`post_max_size`](https://www.php.net/manual/en/ini.core.php#ini.post-max-size)
+
+In addition, graphql-php offers security mechanisms that are specific to GraphQL.
+
 ## Query Complexity Analysis
 
-This is a PHP port of [Query Complexity Analysis](https://sangria-graphql.github.io/learn/#query-complexity-analysis) in Sangria implementation.
+This is a port of [Query Complexity Analysis in Sangria](https://sangria-graphql.github.io/learn#query-complexity-analysis).
 
 Complexity analysis is a separate validation rule which calculates query complexity score before execution.
 Every field in the query gets a default score 1 (including ObjectType nodes). Total complexity of the
@@ -48,10 +61,12 @@ $type = new ObjectType([
 
 ## Limiting Query Depth
 
-This is a PHP port of [Limiting Query Depth](https://sangria-graphql.github.io/learn/#limiting-query-depth) in Sangria implementation.
-For example, max depth of the introspection query is **7**.
+This is a port of [Limiting Query Depth in Sangria](https://sangria-graphql.github.io/learn#limiting-query-depth).
 
-It is disabled by default. You may enable it by setting a maximum query depth:
+This is a simpler approach that limits the nesting depth a query can have.
+For example, the depth of the default introspection query is **7**.
+
+This rule is disabled by default. You may enable it by setting a maximum query depth:
 
 ```php
 use GraphQL\GraphQL;

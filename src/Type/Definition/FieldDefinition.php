@@ -16,7 +16,7 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
  * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int
- * @phpstan-type VisibilityFn callable(mixed): bool
+ * @phpstan-type VisibilityFn callable(): bool
  * @phpstan-type FieldDefinitionConfig array{
  *     name: string,
  *     type: FieldType,
@@ -192,11 +192,13 @@ class FieldDefinition
         return $this->type ??= Schema::resolveType($this->config['type']);
     }
 
-    public function isVisible(mixed $context): bool
+    public function isVisible(): bool
     {
-        return is_callable($this->visible)
-            ? ($this->visible)($context)
-            : $this->visible;
+        if (is_bool($this->visible)) {
+            return $this->visible;
+        }
+
+        return $this->visible = ($this->visible)();
     }
 
     public function isDeprecated(): bool

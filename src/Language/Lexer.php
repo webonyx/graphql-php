@@ -6,11 +6,9 @@ use GraphQL\Error\SyntaxError;
 use GraphQL\Utils\Utils;
 
 /**
- * A Lexer is a stateful stream generator in that every time
- * it is advanced, it returns the next token in the Source. Assuming the
- * source lexes, the final Token emitted by the lexer will be of kind
- * EOF, after which the lexer will repeatedly return the same EOF token
- * whenever called.
+ * A lexer is a stateful stream generator, it returns the next token in the Source when advanced.
+ * Assuming the source is valid, the final returned token will be EOF,
+ * after which the lexer will repeatedly return the same EOF token whenever called.
  *
  * Algorithm is O(N) both on memory and time.
  *
@@ -20,8 +18,8 @@ use GraphQL\Utils\Utils;
  */
 class Lexer
 {
+    // https://spec.graphql.org/October2021/#sec-Punctuators
     private const TOKEN_BANG = 33;
-    private const TOKEN_HASH = 35;
     private const TOKEN_DOLLAR = 36;
     private const TOKEN_AMP = 38;
     private const TOKEN_PAREN_L = 40;
@@ -119,19 +117,19 @@ class Lexer
         [, $code, $bytes] = $this->readChar(true);
 
         switch ($code) {
-            case self::TOKEN_BANG:
+            case self::TOKEN_BANG: // !
                 return new Token(Token::BANG, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_HASH: // #
+            case 35: // #
                 $this->moveStringCursor(-1, -1 * $bytes);
 
                 return $this->readComment($line, $col, $prev);
-            case self::TOKEN_DOLLAR:
+            case self::TOKEN_DOLLAR: // $
                 return new Token(Token::DOLLAR, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_AMP:
+            case self::TOKEN_AMP: // &
                 return new Token(Token::AMP, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_PAREN_L:
+            case self::TOKEN_PAREN_L: // (
                 return new Token(Token::PAREN_L, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_PAREN_R:
+            case self::TOKEN_PAREN_R: // )
                 return new Token(Token::PAREN_R, $position, $position + 1, $line, $col, $prev);
             case self::TOKEN_DOT: // .
                 [, $charCode1] = $this->readChar(true);
@@ -142,21 +140,21 @@ class Lexer
                 }
 
                 break;
-            case self::TOKEN_COLON:
+            case self::TOKEN_COLON: // :
                 return new Token(Token::COLON, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_EQUALS:
+            case self::TOKEN_EQUALS: // =
                 return new Token(Token::EQUALS, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_AT:
+            case self::TOKEN_AT: // @
                 return new Token(Token::AT, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_BRACKET_L:
+            case self::TOKEN_BRACKET_L: // [
                 return new Token(Token::BRACKET_L, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_BRACKET_R:
+            case self::TOKEN_BRACKET_R: // ]
                 return new Token(Token::BRACKET_R, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_BRACE_L:
+            case self::TOKEN_BRACE_L: // {
                 return new Token(Token::BRACE_L, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_PIPE:
+            case self::TOKEN_PIPE: // |
                 return new Token(Token::PIPE, $position, $position + 1, $line, $col, $prev);
-            case self::TOKEN_BRACE_R:
+            case self::TOKEN_BRACE_R: // }
                 return new Token(Token::BRACE_R, $position, $position + 1, $line, $col, $prev);
                 // A-Z
             case 65:
@@ -416,18 +414,17 @@ class Lexer
         $start = $this->position;
 
         // Skip leading quote and read first string char:
-        [$char, $code, $bytes] = $this->moveStringCursor(1, 1)->readChar();
+        [$char, $code, $bytes] = $this->moveStringCursor(1, 1)
+            ->readChar();
 
         $chunk = '';
         $value = '';
 
         while (
             $code !== null
-            // not LineTerminator
-            && $code !== 10 && $code !== 13
+            && $code !== 10 && $code !== 13 // not LineTerminator
         ) {
-            // Closing Quote (")
-            if ($code === 34) {
+            if ($code === 34) { // Closing Quote (")
                 $value .= $chunk;
 
                 // Skip quote
@@ -462,8 +459,8 @@ class Lexer
                         $value .= '\\';
                         break;
                     case 98:
-                        $value .= \chr(8);
-                        break; // \b (backspace)
+                        $value .= \chr(8); // \b (backspace)
+                        break;
                     case 102:
                         $value .= "\f";
                         break;
@@ -478,7 +475,7 @@ class Lexer
                         break;
                     case 117:
                         $position = $this->position;
-                        [$hex] = $this->readChars(4, true);
+                        [$hex] = $this->readChars(4);
                         if (\preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
                             throw new SyntaxError(
                                 $this->source,
@@ -493,7 +490,7 @@ class Lexer
                         // UTF-16 surrogate pair detection and handling.
                         $highOrderByte = $code >> 8;
                         if ($highOrderByte >= 0xD8 && $highOrderByte <= 0xDF) {
-                            [$utf16Continuation] = $this->readChars(6, true);
+                            [$utf16Continuation] = $this->readChars(6);
                             if (\preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation) !== 1) {
                                 throw new SyntaxError(
                                     $this->source,
@@ -623,11 +620,8 @@ class Lexer
     {
         // SourceCharacter
         if ($code < 0x0020 && $code !== 0x0009) {
-            throw new SyntaxError(
-                $this->source,
-                $position,
-                'Invalid character within String: ' . Utils::printCharCode($code)
-            );
+            $char = Utils::printCharCode($code);
+            throw new SyntaxError($this->source, $position, "Invalid character within String: {$char}");
         }
     }
 
@@ -639,11 +633,8 @@ class Lexer
     {
         // SourceCharacter
         if ($code < 0x0020 && $code !== 0x0009 && $code !== 0x000A && $code !== 0x000D) {
-            throw new SyntaxError(
-                $this->source,
-                $position,
-                'Invalid character within String: ' . Utils::printCharCode($code)
-            );
+            $char = Utils::printCharCode($code);
+            throw new SyntaxError($this->source, $position, "Invalid character within String: {$char}");
         }
     }
 
@@ -739,7 +730,6 @@ class Lexer
                 $bytes = 4;
             }
 
-            $utf8char = '';
             for ($pos = $byteStreamPosition; $pos < $byteStreamPosition + $bytes; ++$pos) {
                 $utf8char .= $this->source->body[$pos];
             }
@@ -762,7 +752,7 @@ class Lexer
      *
      * @return array{string, int}
      */
-    private function readChars(int $charCount, bool $advance): array
+    private function readChars(int $charCount): array
     {
         $result = '';
         $totalBytes = 0;
@@ -775,9 +765,7 @@ class Lexer
             $result .= $char;
         }
 
-        if ($advance) {
-            $this->moveStringCursor($charCount, $totalBytes);
-        }
+        $this->moveStringCursor($charCount, $totalBytes);
 
         return [$result, $totalBytes];
     }

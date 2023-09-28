@@ -23,6 +23,15 @@ interface HasFieldsType
     /**
      * @throws InvariantViolation
      *
+     * @return array<string, FieldDefinition>
+     */
+    public function getVisibleFields(): array;
+
+    /**
+     * Get all field names, including only visible fields.
+     *
+     * @throws InvariantViolation
+     *
      * @return array<int, string>
      */
     public function getFieldNames(): array;

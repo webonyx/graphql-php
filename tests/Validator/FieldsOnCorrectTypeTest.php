@@ -367,4 +367,18 @@ final class FieldsOnCorrectTypeTest extends ValidatorTestCase
             )
         );
     }
+
+    public function testFailsValidationOnInvisibleField(): void
+    {
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            <<<'GRAPHQL'
+      fragment DogWithInvisibleField on Dog {
+        __typename
+        secretName
+      }
+      GRAPHQL,
+            [$this->undefinedField('secretName', 'Dog', [], ['nickname'], 3, 3)]
+        );
+    }
 }
