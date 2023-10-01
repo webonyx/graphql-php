@@ -3,14 +3,15 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\SerializationError;
-use GraphQL\Utils\PhpDoc;
-use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
 
 /**
  * @see EnumValueDefinitionNode
+ *
  * @phpstan-import-type PartialEnumValueConfig from EnumType
  *
  * @phpstan-type PhpEnumTypeConfig array{
@@ -26,9 +27,7 @@ class PhpEnumType extends EnumType
     public const MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
     public const MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
 
-    /**
-     * @phpstan-param PhpEnumTypeConfig $config
-     */
+    /** @phpstan-param PhpEnumTypeConfig $config */
     public function __construct(array $config)
     {
         $enumClass = $config['enumClass'];
@@ -47,7 +46,7 @@ class PhpEnumType extends EnumType
             'name' => $config['name'] ?? $this->baseName($enumClass),
             'values' => $enumDefinitions,
             'description' => $config['description'] ?? $this->extractDescription($reflection),
-            'enumClass' => $enumClass
+            'enumClass' => $enumClass,
         ]);
     }
 
@@ -57,6 +56,7 @@ class PhpEnumType extends EnumType
             $notEnum = Utils::printSafe($value);
             throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$this->config['enumClass']}.");
         }
+
         return $value->name;
     }
 

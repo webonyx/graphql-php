@@ -43,7 +43,9 @@ enum MyCustomPhpEnum {
   B @deprecated
   C @deprecated(reason: "baz")
 }
-GRAPHQL, SchemaPrinter::printType($enumType));
+GRAPHQL,
+            SchemaPrinter::printType($enumType)
+        );
     }
 
     public function testConstructEnumTypeFromIntPhpEnum(): void
@@ -71,7 +73,9 @@ enum CustomNamedPhpEnum {
   B @deprecated
   C @deprecated(reason: "baz")
 }
-GRAPHQL, SchemaPrinter::printType($enumType));
+GRAPHQL,
+            SchemaPrinter::printType($enumType)
+        );
     }
 
     public function testConstructEnumTypeFromPhpEnumWithDocBlockDescriptions(): void
@@ -90,7 +94,9 @@ enum DocBlockPhpEnum {
   """
   B
 }
-GRAPHQL, SchemaPrinter::printType($enumType));
+GRAPHQL,
+            SchemaPrinter::printType($enumType)
+        );
     }
 
     public function testMultipleDescriptionsDisallowed(): void
