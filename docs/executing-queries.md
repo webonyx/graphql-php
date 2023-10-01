@@ -207,6 +207,6 @@ Or with a standard server:
 use GraphQL\Server\StandardServer;
 
 $server = new StandardServer([
-    'validationRules' => $myValiationRules
+    'validationRules' => $myValidationRules
 ]);
 ```

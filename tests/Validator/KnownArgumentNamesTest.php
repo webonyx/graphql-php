@@ -313,7 +313,7 @@ final class KnownArgumentNamesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('unknown arg on overrided standard directive') */
+    /** @see it('unknown arg on overridden standard directive') */
     public function testUnknownArgOnOverriddenStandardDirective(): void
     {
         $this->expectFailsRule(

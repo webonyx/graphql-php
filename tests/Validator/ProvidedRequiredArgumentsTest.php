@@ -361,8 +361,8 @@ final class ProvidedRequiredArgumentsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('Missing arg on overrided standard directive') */
-    public function testMissingArgOnOverridedStandardDirective(): void
+    /** @see it('Missing arg on overridden standard directive') */
+    public function testMissingArgOnOverriddenStandardDirective(): void
     {
         $this->expectFailsRule(
             new ProvidedRequiredArgumentsOnDirectives(),

@@ -1149,7 +1149,7 @@ final class ValidationTest extends TestCaseBase
     }
 
     /** @see it('rejects with relevant locations for a non-output type as an Object field type') */
-    public function testRejectsWithReleventLocationsForANonOutputTypeAsAnObjectFieldType(): void
+    public function testRejectsWithRelevantLocationsForANonOutputTypeAsAnObjectFieldType(): void
     {
         $schema = BuildSchema::build('
       type Query {
