@@ -9,6 +9,8 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Registry\BuiltInDirectiveRegistry;
+use GraphQL\Type\Registry\StandardTypeRegistry;
 
 /**
  * Configuration options for schema construction.
@@ -39,6 +41,7 @@ use GraphQL\Type\Definition\Type;
  *   assumeValid?: bool|null,
  *   astNode?: SchemaDefinitionNode|null,
  *   extensionASTNodes?: array<SchemaExtensionNode>|null,
+ *   typeRegistry?: null|(StandardTypeRegistry&BuiltInDirectiveRegistry),
  * }
  */
 class SchemaConfig
@@ -75,6 +78,11 @@ class SchemaConfig
 
     /** @var array<SchemaExtensionNode> */
     public array $extensionASTNodes = [];
+
+    /** @var (StandardTypeRegistry&BuiltInDirectiveRegistry)|null */
+    public $typeRegistry;
+
+    public ?Introspection $introspection = null;
 
     /**
      * Converts an array of options to instance of SchemaConfig
@@ -125,6 +133,10 @@ class SchemaConfig
 
             if (isset($options['extensionASTNodes'])) {
                 $config->setExtensionASTNodes($options['extensionASTNodes']);
+            }
+
+            if (isset($options['typeRegistry'])) {
+                $config->setTypeRegistry($options['typeRegistry']);
             }
         }
 
@@ -312,6 +324,37 @@ class SchemaConfig
     public function setExtensionASTNodes(array $extensionASTNodes): self
     {
         $this->extensionASTNodes = $extensionASTNodes;
+
+        return $this;
+    }
+
+    /** @return (StandardTypeRegistry&BuiltInDirectiveRegistry)|null */
+    public function getTypeRegistry()
+    {
+        return $this->typeRegistry;
+    }
+
+    /**
+     * @param (StandardTypeRegistry&BuiltInDirectiveRegistry)|null $typeRegistry
+     *
+     * @return $this
+     */
+    public function setTypeRegistry($typeRegistry): self
+    {
+        $this->typeRegistry = $typeRegistry;
+
+        return $this;
+    }
+
+    public function getIntrospection(): ?Introspection
+    {
+        return $this->introspection;
+    }
+
+    /** @return $this */
+    public function setIntrospection(?Introspection $introspection): self
+    {
+        $this->introspection = $introspection;
 
         return $this;
     }

@@ -5,31 +5,24 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class StandardTypesTest extends TestCase
 {
-    /** @var array<string, ScalarType> */
-    private static array $originalStandardTypes;
-
-    public static function setUpBeforeClass(): void
-    {
-        self::$originalStandardTypes = Type::getStandardTypes();
-    }
-
     public function tearDown(): void
     {
         parent::tearDown();
-        Type::overrideStandardTypes(self::$originalStandardTypes);
+
+        // Create a new instance of DefaultStandardTypeRegistry to reset the standard types
+        DefaultStandardTypeRegistry::register(new DefaultStandardTypeRegistry());
     }
 
     public function testAllowsOverridingStandardTypes(): void
     {
         $originalTypes = Type::getStandardTypes();
         self::assertCount(5, $originalTypes);
-        self::assertSame(self::$originalStandardTypes, $originalTypes);
 
         $newBooleanType = self::createCustomScalarType(Type::BOOLEAN);
         $newFloatType = self::createCustomScalarType(Type::FLOAT);
@@ -65,7 +58,6 @@ final class StandardTypesTest extends TestCase
     {
         $originalTypes = Type::getStandardTypes();
         self::assertCount(5, $originalTypes);
-        self::assertSame(self::$originalStandardTypes, $originalTypes);
 
         $newIDType = self::createCustomScalarType(Type::ID);
         $newStringType = self::createCustomScalarType(Type::STRING);

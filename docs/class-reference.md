@@ -172,6 +172,8 @@ Registry of standard GraphQL types and base class for all other types.
 
 ```php
 /**
+ * @deprecated use the `typeRegistry` on the `Schema` instead
+ *
  * @api
  *
  * @throws InvariantViolation
@@ -181,6 +183,8 @@ static function int(): GraphQL\Type\Definition\ScalarType
 
 ```php
 /**
+ * @deprecated use the `typeRegistry` on the `Schema` instead
+ *
  * @api
  *
  * @throws InvariantViolation
@@ -190,6 +194,8 @@ static function float(): GraphQL\Type\Definition\ScalarType
 
 ```php
 /**
+ * @deprecated use the `typeRegistry` on the `Schema` instead
+ *
  * @api
  *
  * @throws InvariantViolation
@@ -199,6 +205,8 @@ static function string(): GraphQL\Type\Definition\ScalarType
 
 ```php
 /**
+ * @deprecated use the `typeRegistry` on the `Schema` instead
+ *
  * @api
  *
  * @throws InvariantViolation
@@ -208,6 +216,8 @@ static function boolean(): GraphQL\Type\Definition\ScalarType
 
 ```php
 /**
+ * @deprecated use the `typeRegistry` on the `Schema` instead
+ *
  * @api
  *
  * @throws InvariantViolation
@@ -548,6 +558,7 @@ typeLoader?: TypeLoader|null,
 assumeValid?: bool|null,
 astNode?: SchemaDefinitionNode|null,
 extensionASTNodes?: array<SchemaExtensionNode>|null,
+typeRegistry?: null|(StandardTypeRegistry&BuiltInDirectiveRegistry),
 }
 
 ### GraphQL\Type\SchemaConfig Methods
@@ -2418,6 +2429,7 @@ assumeValidSDL?: bool
  * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
  *
  * @param array<string, bool> $options
+ * @param (StandardTypeRegistry&BuiltInDirectiveRegistry)|null $typeRegistry
  *
  * @phpstan-param BuildSchemaOptions $options
  *
@@ -2429,7 +2441,13 @@ assumeValidSDL?: bool
  * @throws InvariantViolation
  * @throws SyntaxError
  */
-static function build($source, ?callable $typeConfigDecorator = null, array $options = []): GraphQL\Type\Schema
+static function build(
+    $source,
+    ?callable $typeConfigDecorator = null,
+    array $options = [],
+    $typeRegistry = null,
+    ?GraphQL\Type\Introspection $introspection = null
+): GraphQL\Type\Schema
 ```
 
 ```php
@@ -2444,6 +2462,7 @@ static function build($source, ?callable $typeConfigDecorator = null, array $opt
  * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
  *
  * @param array<string, bool> $options
+ * @param (StandardTypeRegistry&BuiltInDirectiveRegistry)|null $typeRegistry
  *
  * @phpstan-param BuildSchemaOptions $options
  *
@@ -2457,7 +2476,9 @@ static function build($source, ?callable $typeConfigDecorator = null, array $opt
 static function buildAST(
     GraphQL\Language\AST\DocumentNode $ast,
     ?callable $typeConfigDecorator = null,
-    array $options = []
+    array $options = [],
+    $typeRegistry = null,
+    ?GraphQL\Type\Introspection $introspection = null
 ): GraphQL\Type\Schema
 ```
 

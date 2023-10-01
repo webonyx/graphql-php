@@ -10,7 +10,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Argument;
-use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
@@ -62,7 +62,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         $schema = $context->getSchema();
         $definedDirectives = $schema !== null
             ? $schema->getDirectives()
-            : Directive::getInternalDirectives();
+            : DefaultStandardTypeRegistry::instance()->internalDirectives();
 
         foreach ($definedDirectives as $directive) {
             $directiveArgs[$directive->name] = \array_map(

@@ -9,6 +9,7 @@ use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildClientSchema;
 use GraphQL\Utils\BuildSchema;
@@ -28,10 +29,13 @@ final class BuildClientSchemaTest extends TestCase
     {
         $options = ['directiveIsRepeatable' => true];
 
-        $serverSchema = BuildSchema::build($sdl);
+        $typeRegistry = new DefaultStandardTypeRegistry();
+        $introspection = new Introspection($typeRegistry);
+
+        $serverSchema = BuildSchema::build($sdl, null, [], $typeRegistry, $introspection);
         $initialIntrospection = Introspection::fromSchema($serverSchema, $options);
 
-        $clientSchema = BuildClientSchema::build($initialIntrospection);
+        $clientSchema = BuildClientSchema::build($initialIntrospection, ['typeRegistry' => $typeRegistry, 'introspection' => $introspection]);
         $secondIntrospection = Introspection::fromSchema($clientSchema, $options);
 
         self::assertSame($initialIntrospection, $secondIntrospection);

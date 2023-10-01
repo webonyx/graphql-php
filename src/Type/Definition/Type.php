@@ -4,6 +4,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Introspection;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Utils\Utils;
 
 /**
@@ -30,57 +31,64 @@ abstract class Type implements \JsonSerializable
         ...Introspection::TYPE_NAMES,
     ];
 
-    /** @var array<string, ScalarType> */
-    protected static array $standardTypes;
-
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @api
      *
      * @throws InvariantViolation
      */
     public static function int(): ScalarType
     {
-        return static::$standardTypes[self::INT] ??= new IntType();
+        return DefaultStandardTypeRegistry::instance()->int();
     }
 
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @api
      *
      * @throws InvariantViolation
      */
     public static function float(): ScalarType
     {
-        return static::$standardTypes[self::FLOAT] ??= new FloatType();
+        return DefaultStandardTypeRegistry::instance()->float();
     }
 
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @api
      *
      * @throws InvariantViolation
      */
     public static function string(): ScalarType
     {
-        return static::$standardTypes[self::STRING] ??= new StringType();
+        return DefaultStandardTypeRegistry::instance()->string();
     }
 
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @api
      *
      * @throws InvariantViolation
      */
     public static function boolean(): ScalarType
     {
-        return static::$standardTypes[self::BOOLEAN] ??= new BooleanType();
+        return DefaultStandardTypeRegistry::instance()->boolean();
     }
 
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @api
      *
      * @throws InvariantViolation
      */
     public static function id(): ScalarType
     {
-        return static::$standardTypes[self::ID] ??= new IDType();
+        return DefaultStandardTypeRegistry::instance()->id();
     }
 
     /**
@@ -108,24 +116,9 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * Returns all builtin in types including base scalar and introspection types.
-     *
-     * @throws InvariantViolation
-     *
-     * @return array<string, Type&NamedType>
-     */
-    public static function builtInTypes(): array
-    {
-        static $builtInTypes;
-
-        return $builtInTypes ??= \array_merge(
-            Introspection::getTypes(),
-            self::getStandardTypes()
-        );
-    }
-
-    /**
      * Returns all builtin scalar types.
+     *
+     * @deprecated use the `typeRegistry` on the `Schema` instead
      *
      * @throws InvariantViolation
      *
@@ -133,22 +126,20 @@ abstract class Type implements \JsonSerializable
      */
     public static function getStandardTypes(): array
     {
-        return [
-            self::INT => static::int(),
-            self::FLOAT => static::float(),
-            self::STRING => static::string(),
-            self::BOOLEAN => static::boolean(),
-            self::ID => static::id(),
-        ];
+        return DefaultStandardTypeRegistry::instance()->standardTypes();
     }
 
     /**
+     * @deprecated use the `typeRegistry` on the `Schema` instead
+     *
      * @param array<ScalarType> $types
      *
      * @throws InvariantViolation
      */
     public static function overrideStandardTypes(array $types): void
     {
+        $standardTypes = DefaultStandardTypeRegistry::instance()->standardTypes();
+
         foreach ($types as $type) {
             // @phpstan-ignore-next-line generic type is not enforced by PHP
             if (! $type instanceof ScalarType) {
@@ -163,8 +154,16 @@ abstract class Type implements \JsonSerializable
                 throw new InvariantViolation("Expecting one of the following names for a standard type: {$standardTypeNames}; got {$notStandardTypeName}");
             }
 
-            static::$standardTypes[$type->name] = $type;
+            $standardTypes[$type->name] = $type;
         }
+
+        DefaultStandardTypeRegistry::register(new DefaultStandardTypeRegistry(
+            $standardTypes[Type::INT],
+            $standardTypes[Type::FLOAT],
+            $standardTypes[Type::STRING],
+            $standardTypes[Type::BOOLEAN],
+            $standardTypes[Type::ID],
+        ));
     }
 
     /**

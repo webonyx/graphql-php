@@ -11,7 +11,7 @@ use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\Argument;
-use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
@@ -57,7 +57,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         $requiredArgsMap = [];
         $schema = $context->getSchema();
         $definedDirectives = $schema === null
-            ? Directive::getInternalDirectives()
+            ? DefaultStandardTypeRegistry::instance()->internalDirectives()
             : $schema->getDirectives();
 
         foreach ($definedDirectives as $directive) {

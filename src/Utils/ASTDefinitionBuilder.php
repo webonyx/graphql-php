@@ -42,6 +42,10 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Introspection;
+use GraphQL\Type\Registry\BuiltInDirectiveRegistry;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
+use GraphQL\Type\Registry\StandardTypeRegistry;
 
 /**
  * @see FieldDefinition, InputObjectField
@@ -78,27 +82,33 @@ class ASTDefinitionBuilder
     /** @var array<string, array<int, Node&TypeExtensionNode>> */
     private array $typeExtensionsMap;
 
+    /** @var StandardTypeRegistry&BuiltInDirectiveRegistry */
+    private $typeRegistry;
+
+    private Introspection $introspection;
+
     /**
      * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
      * @param array<string, array<int, Node&TypeExtensionNode>> $typeExtensionsMap
+     * @param (StandardTypeRegistry&BuiltInDirectiveRegistry)|null $typeRegistry
      *
      * @phpstan-param ResolveType $resolveType
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
-     *
-     * @throws InvariantViolation
      */
     public function __construct(
         array $typeDefinitionsMap,
         array $typeExtensionsMap,
         callable $resolveType,
-        callable $typeConfigDecorator = null
+        callable $typeConfigDecorator = null,
+        $typeRegistry = null,
+        Introspection $introspection = null,
     ) {
         $this->typeDefinitionsMap = $typeDefinitionsMap;
         $this->typeExtensionsMap = $typeExtensionsMap;
         $this->resolveType = $resolveType;
         $this->typeConfigDecorator = $typeConfigDecorator;
-
-        $this->cache = Type::builtInTypes();
+        $this->typeRegistry = $typeRegistry ?? DefaultStandardTypeRegistry::instance();
+        $this->introspection = $introspection ?? new Introspection($this->typeRegistry);
     }
 
     /** @throws \Exception */
@@ -249,6 +259,11 @@ class ASTDefinitionBuilder
      */
     private function internalBuildType(string $typeName, Node $typeNode = null): Type
     {
+        $this->cache ??= \array_merge(
+            $this->introspection->getTypes(),
+            $this->typeRegistry->standardTypes()
+        );
+
         if (isset($this->cache[$typeName])) {
             return $this->cache[$typeName];
         }
@@ -398,7 +413,7 @@ class ASTDefinitionBuilder
     private function getDeprecationReason(Node $node): ?string
     {
         $deprecated = Values::getDirectiveValues(
-            Directive::deprecatedDirective(),
+            $this->typeRegistry->deprecatedDirective(),
             $node
         );
 

@@ -146,7 +146,9 @@ class SchemaExtender
 
                 return $this->extendNamedType($existingType);
             },
-            $typeConfigDecorator
+            $typeConfigDecorator,
+            $schema->typeRegistry,
+            $schema->introspection
         );
 
         $this->extendTypeCache = [];
@@ -196,6 +198,8 @@ class SchemaExtender
             ->setDirectives($this->getMergedDirectives($schema, $directiveDefinitions))
             ->setAstNode($schema->astNode ?? $schemaDef)
             ->setExtensionASTNodes($schemaExtensionASTNodes)
+            ->setTypeRegistry($schema->typeRegistry)
+            ->setIntrospection($schema->introspection)
         );
     }
 
@@ -558,13 +562,7 @@ class SchemaExtender
     protected function isSpecifiedScalarType(Type $type): bool
     {
         return $type instanceof NamedType
-            && (
-                $type->name === Type::STRING
-                || $type->name === Type::INT
-                || $type->name === Type::FLOAT
-                || $type->name === Type::BOOLEAN
-                || $type->name === Type::ID
-            );
+            && in_array($type->name, Type::STANDARD_TYPE_NAMES, true);
     }
 
     /**

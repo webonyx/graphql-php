@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Registry\DefaultStandardTypeRegistry;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BreakingChangesFinder;
 use PHPUnit\Framework\TestCase;
@@ -1161,7 +1162,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $directiveThatIsRemoved = Directive::skipDirective();
+        $directiveThatIsRemoved = DefaultStandardTypeRegistry::instance()->skipDirective();
         $directiveThatRemovesArgOld = new Directive([
             'name' => 'DirectiveThatRemovesArg',
             'locations' => [DirectiveLocation::FIELD_DEFINITION],
@@ -1303,14 +1304,14 @@ final class BreakingChangesFinderTest extends TestCase
     public function testShouldDetectIfADirectiveWasExplicitlyRemoved(): void
     {
         $oldSchema = new Schema([
-            'directives' => [Directive::skipDirective(), Directive::includeDirective()],
+            'directives' => [DefaultStandardTypeRegistry::instance()->skipDirective(), DefaultStandardTypeRegistry::instance()->includeDirective()],
         ]);
 
         $newSchema = new Schema([
-            'directives' => [Directive::skipDirective()],
+            'directives' => [DefaultStandardTypeRegistry::instance()->skipDirective()],
         ]);
 
-        $includeDirective = Directive::includeDirective();
+        $includeDirective = DefaultStandardTypeRegistry::instance()->includeDirective();
 
         self::assertEquals(
             [
@@ -1329,10 +1330,10 @@ final class BreakingChangesFinderTest extends TestCase
         $oldSchema = new Schema([]);
 
         $newSchema = new Schema([
-            'directives' => [Directive::skipDirective(), Directive::includeDirective()],
+            'directives' => [DefaultStandardTypeRegistry::instance()->skipDirective(), DefaultStandardTypeRegistry::instance()->includeDirective()],
         ]);
 
-        $deprecatedDirective = Directive::deprecatedDirective();
+        $deprecatedDirective = DefaultStandardTypeRegistry::instance()->deprecatedDirective();
 
         self::assertEquals(
             [
