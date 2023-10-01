@@ -102,8 +102,8 @@ final class MutationsTest extends TestCase
         ]);
     }
 
-    /** @see it('evaluates mutations correctly in the presense of a failed mutation') */
-    public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation(): void
+    /** @see it('evaluates mutations correctly in the presence of a failed mutation') */
+    public function testEvaluatesMutationsCorrectlyInThePresenceOfAFailedMutation(): void
     {
         $doc = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {

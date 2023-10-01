@@ -516,7 +516,7 @@ final class BreakingChangesFinderTest extends TestCase
                 'field1' => Type::string(),
             ],
         ]);
-        // logially equivalent to type1; findTypesRemovedFromUnions should not
+        // logically equivalent to type1; findTypesRemovedFromUnions should not
         // treat this as different than type1
         $type1a = new ObjectType([
             'name' => 'Type1',
@@ -1673,7 +1673,7 @@ final class BreakingChangesFinderTest extends TestCase
                 'field1' => Type::string(),
             ],
         ]);
-        // logially equivalent to type1; findTypesRemovedFromUnions should not
+        // logically equivalent to type1; findTypesRemovedFromUnions should not
         // treat this as different than type1
         $type1a = new ObjectType([
             'name' => 'Type1',

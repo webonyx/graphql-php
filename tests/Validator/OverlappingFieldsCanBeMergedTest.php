@@ -1067,8 +1067,8 @@ final class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('allows non-conflicting overlaping types') */
-    public function testAllowsNonConflictingOverlapingTypes(): void
+    /** @see it('allows non-conflicting overlapping types') */
+    public function testAllowsNonConflictingOverlappingTypes(): void
     {
         $this->expectPassesRuleWithSchema(
             $this->getSchema(),
