@@ -13,6 +13,4 @@ export type GraphQLNullableType =
   | GraphQLList<any>;
  */
 
-interface NullableType
-{
-}
+interface NullableType {}

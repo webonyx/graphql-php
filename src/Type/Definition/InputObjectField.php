@@ -14,6 +14,7 @@ use GraphQL\Utils\Utils;
  *   type: ArgumentType,
  *   defaultValue?: mixed,
  *   description?: string|null,
+ *   deprecationReason?: string|null,
  *   astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type UnnamedInputObjectFieldConfig array{
@@ -21,6 +22,7 @@ use GraphQL\Utils\Utils;
  *   type: ArgumentType,
  *   defaultValue?: mixed,
  *   description?: string|null,
+ *   deprecationReason?: string|null,
  *   astNode?: InputValueDefinitionNode|null
  * }
  */
@@ -32,6 +34,8 @@ class InputObjectField
     public $defaultValue;
 
     public ?string $description;
+
+    public ?string $deprecationReason;
 
     /** @var Type&InputType */
     private Type $type;
@@ -47,6 +51,7 @@ class InputObjectField
         $this->name = $config['name'];
         $this->defaultValue = $config['defaultValue'] ?? null;
         $this->description = $config['description'] ?? null;
+        $this->deprecationReason = $config['deprecationReason'] ?? null;
         // Do nothing for type, it is lazy loaded in getType()
         $this->astNode = $config['astNode'] ?? null;
 
@@ -74,6 +79,11 @@ class InputObjectField
             && ! $this->defaultValueExists();
     }
 
+    public function isDeprecated(): bool
+    {
+        return (bool) $this->deprecationReason;
+    }
+
     /**
      * @param Type&NamedType $parentType
      *
@@ -96,6 +106,10 @@ class InputObjectField
         // @phpstan-ignore-next-line should not happen if used properly
         if (\array_key_exists('resolve', $this->config)) {
             throw new InvariantViolation("{$parentType->name}.{$this->name} field has a resolve property, but Input Types cannot define resolvers.");
+        }
+
+        if ($this->isRequired() && $this->isDeprecated()) {
+            throw new InvariantViolation("Required input field {$parentType->name}.{$this->name} cannot be deprecated.");
         }
     }
 }

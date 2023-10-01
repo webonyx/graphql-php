@@ -61,12 +61,9 @@ final class ValidationTest extends TestCaseBase
 
         $this->SomeScalarType = new CustomScalarType([
             'name' => 'SomeScalar',
-            'serialize' => static function (): void {
-            },
-            'parseValue' => static function (): void {
-            },
-            'parseLiteral' => static function (): void {
-            },
+            'serialize' => static function (): void {},
+            'parseValue' => static function (): void {},
+            'parseLiteral' => static function (): void {},
         ]);
 
         $this->SomeInterfaceType = new InterfaceType([
@@ -378,29 +375,30 @@ final class ValidationTest extends TestCaseBase
     /** @dataProvider rootTypes */
     public function testRejectsASchemaWhoseRootTypeIsAnInputType(string $rootType): void
     {
-        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
+        $ucfirstRootType = \ucfirst($rootType);
 
-        BuildSchema::build('
-      input ' . \ucfirst($rootType) . ' {
+        $this->expectRootTypeMustBeObjectTypeNotInputType();
+        BuildSchema::build("
+      input {$ucfirstRootType} {
         test: String
       }
-        ');
+        ");
     }
 
     /** @dataProvider rootTypes */
     public function testRejectsASchemaWhoseNonStandardRootTypeIsAnInputType(string $rootType): void
     {
-        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
+        $this->expectRootTypeMustBeObjectTypeNotInputType();
 
-        BuildSchema::build('
+        BuildSchema::build("
       schema {
-        ' . $rootType . ': SomeInputObject
+        {$rootType}: SomeInputObject
       }
 
       input SomeInputObject {
         test: String
       }
-        ');
+        ");
     }
 
     /**
@@ -416,16 +414,14 @@ final class ValidationTest extends TestCaseBase
             }
         ');
 
-        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
+        $documentNode = Parser::parse("
+            extend schema {
+              {$rootType}: SomeInputObject
+            }
+        ");
 
-        SchemaExtender::extend(
-            $schema,
-            Parser::parse('
-                extend schema {
-                  ' . $rootType . ': SomeInputObject
-                }
-            ')
-        );
+        $this->expectRootTypeMustBeObjectTypeNotInputType();
+        SchemaExtender::extend($schema, $documentNode);
     }
 
     /** @return iterable<array{string}> */
@@ -436,10 +432,10 @@ final class ValidationTest extends TestCaseBase
         yield ['subscription'];
     }
 
-    private function expectRootTypeMustBeObjectTypeNotInputType(string $rootType): void
+    private function expectRootTypeMustBeObjectTypeNotInputType(): void
     {
-        $this->expectException(\TypeError::class);
-        $this->expectExceptionMessageMatches('/.*GraphQL\\\\Type\\\\SchemaConfig::set' . \ucfirst($rootType) . '.*GraphQL\\\\Type\\\\Definition\\\\ObjectType.*GraphQL\\\\Type\\\\Definition\\\\InputObjectType given.*/');
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage("Expected instanceof GraphQL\Type\Definition\ObjectType, a callable that returns such an instance, or null, got: GraphQL\Type\Definition\InputObjectType.");
     }
 
     /** @see it('rejects a Schema whose directives are incorrectly typed') */
@@ -1005,6 +1001,26 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
+    /** @see it('rejects an Input Object type with required argument that is deprecated' */
+    public function testRejectsAnInputObjectTypeWithRequiredArgumentThatIsDeprecated(): void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        field(arg: SomeInputObject): String
+      }
+
+      input SomeInputObject {
+        optionalField: String @deprecated
+        anotherOptionalField: String! = "" @deprecated
+        badField: String! @deprecated
+      }
+        ');
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Required input field SomeInputObject.badField cannot be deprecated.');
+        $schema->assertValid();
+    }
+
     /** @see it('rejects an Enum type without values') */
     public function testRejectsAnEnumTypeWithoutValues(): void
     {
@@ -1133,7 +1149,7 @@ final class ValidationTest extends TestCaseBase
     }
 
     /** @see it('rejects with relevant locations for a non-output type as an Object field type') */
-    public function testRejectsWithReleventLocationsForANonOutputTypeAsAnObjectFieldType(): void
+    public function testRejectsWithRelevantLocationsForANonOutputTypeAsAnObjectFieldType(): void
     {
         $schema = BuildSchema::build('
       type Query {
@@ -1542,6 +1558,29 @@ final class ValidationTest extends TestCaseBase
                 ]
             );
         }
+    }
+
+    /** @see it('rejects an required argument that is deprecated' */
+    public function testRejectsARequiredArgumentThatIsDeprecated(): void
+    {
+        $schema = BuildSchema::build('
+      directive @BadDirective(
+        badArg: String! @deprecated
+        optionalArg: String @deprecated
+        anotherOptionalArg: String! = "" @deprecated
+      ) on FIELD
+      type Query {
+        test(
+          badArg: String! @deprecated
+          optionalArg: String @deprecated
+          anotherOptionalArg: String! = "" @deprecated
+        ): String
+      }
+        ');
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Required argument String.test(badArg:) cannot be deprecated.');
+        $schema->assertValid();
     }
 
     /** @see it('rejects a non-input type as a field arg with locations') */

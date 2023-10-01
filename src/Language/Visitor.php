@@ -91,6 +91,8 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
  * @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
+ *
+ * @see \GraphQL\Tests\Language\VisitorTest
  */
 class Visitor
 {
@@ -166,7 +168,7 @@ class Visitor
      *
      * @api
      */
-    public static function visit(object $root, array $visitor, ?array $keyMap = null)
+    public static function visit(object $root, array $visitor, array $keyMap = null)
     {
         $visitorKeys = $keyMap ?? self::VISITOR_KEYS;
 

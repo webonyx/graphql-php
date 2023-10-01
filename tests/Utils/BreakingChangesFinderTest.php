@@ -133,8 +133,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $localObjectType = new class(['name' => 'ObjectType', 'fields' => ['field1' => ['type' => Type::string()]]]) extends ObjectType {
-        };
+        $localObjectType = new class(['name' => 'ObjectType', 'fields' => ['field1' => ['type' => Type::string()]]]) extends ObjectType {};
 
         $schemaA = new Schema([
             'query' => $this->queryType,
@@ -517,7 +516,7 @@ final class BreakingChangesFinderTest extends TestCase
                 'field1' => Type::string(),
             ],
         ]);
-        // logially equivalent to type1; findTypesRemovedFromUnions should not
+        // logically equivalent to type1; findTypesRemovedFromUnions should not
         // treat this as different than type1
         $type1a = new ObjectType([
             'name' => 'Type1',
@@ -1674,7 +1673,7 @@ final class BreakingChangesFinderTest extends TestCase
                 'field1' => Type::string(),
             ],
         ]);
-        // logially equivalent to type1; findTypesRemovedFromUnions should not
+        // logically equivalent to type1; findTypesRemovedFromUnions should not
         // treat this as different than type1
         $type1a = new ObjectType([
             'name' => 'Type1',

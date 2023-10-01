@@ -53,5 +53,5 @@ interface LeafType
      *
      * @return mixed
      */
-    public function parseLiteral(Node $valueNode, ?array $variables = null);
+    public function parseLiteral(Node $valueNode, array $variables = null);
 }

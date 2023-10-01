@@ -41,10 +41,9 @@ trait NamedTypeImplementation
         throw new InvariantViolation('Must provide name for Type.');
     }
 
-    /** @throws InvariantViolation */
     public function isBuiltInType(): bool
     {
-        return \array_key_exists($this->name, Type::builtInTypes());
+        return \in_array($this->name, Type::BUILT_IN_TYPE_NAMES, true);
     }
 
     public function name(): string

@@ -12,6 +12,4 @@ GraphQLEnumType |
 GraphQLInputObjectType;
 */
 
-interface UnmodifiedType
-{
-}
+interface UnmodifiedType {}

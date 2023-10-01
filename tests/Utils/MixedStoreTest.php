@@ -39,8 +39,7 @@ final class MixedStoreTest extends TestCase
             'a',
             [],
             new \stdClass(),
-            static function (): void {
-            },
+            static function (): void {},
             $mixedStore,
         ];
     }
@@ -143,8 +142,7 @@ final class MixedStoreTest extends TestCase
             $this->assertAcceptsKeyValue(new \stdClass(), $value);
             $this->assertAcceptsKeyValue(new MixedStore(), $value);
             $this->assertAcceptsKeyValue(
-                static function (): void {
-                },
+                static function (): void {},
                 $value
             );
         }

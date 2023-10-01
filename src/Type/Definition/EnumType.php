@@ -185,7 +185,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
      * @throws Error
      * @throws InvariantViolation
      */
-    public function parseLiteral(Node $valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, array $variables = null)
     {
         if (! $valueNode instanceof EnumValueNode) {
             $valueStr = Printer::doPrint($valueNode);

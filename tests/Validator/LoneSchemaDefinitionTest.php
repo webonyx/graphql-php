@@ -18,7 +18,7 @@ final class LoneSchemaDefinitionTest extends ValidatorTestCase
      *
      * @throws \Exception
      */
-    private function expectSDLErrors(string $sdlString, ?Schema $schema = null, array $errors = []): void
+    private function expectSDLErrors(string $sdlString, Schema $schema = null, array $errors = []): void
     {
         $this->expectSDLErrorsFromRule(new LoneSchemaDefinition(), $sdlString, $schema, $errors);
     }

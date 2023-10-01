@@ -7,6 +7,7 @@ use GraphQL\Error\SerializationError;
 use GraphQL\GraphQL;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Tests\Type\PhpEnumType\DocBlockPhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\IntPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\MultipleDeprecationsPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\MultipleDescriptionsCasePhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\MultipleDescriptionsPhpEnum;
@@ -42,9 +43,17 @@ enum MyCustomPhpEnum {
   B @deprecated
   C @deprecated(reason: "baz")
 }
-GRAPHQL,
-            SchemaPrinter::printType($enumType)
-        );
+GRAPHQL, SchemaPrinter::printType($enumType));
+    }
+
+    public function testConstructEnumTypeFromIntPhpEnum(): void
+    {
+        $enumType = new PhpEnumType(IntPhpEnum::class);
+        self::assertSame(<<<'GRAPHQL'
+enum IntPhpEnum {
+  A
+}
+GRAPHQL, SchemaPrinter::printType($enumType));
     }
 
     public function testConstructEnumTypeFromPhpEnumWithCustomName(): void
@@ -62,9 +71,7 @@ enum CustomNamedPhpEnum {
   B @deprecated
   C @deprecated(reason: "baz")
 }
-GRAPHQL,
-            SchemaPrinter::printType($enumType)
-        );
+GRAPHQL, SchemaPrinter::printType($enumType));
     }
 
     public function testConstructEnumTypeFromPhpEnumWithDocBlockDescriptions(): void
@@ -83,9 +90,7 @@ enum DocBlockPhpEnum {
   """
   B
 }
-GRAPHQL,
-            SchemaPrinter::printType($enumType)
-        );
+GRAPHQL, SchemaPrinter::printType($enumType));
     }
 
     public function testMultipleDescriptionsDisallowed(): void
@@ -137,14 +142,11 @@ GRAPHQL,
             ]),
         ]);
 
-        self::assertSame(
-            [
-                'data' => [
-                    'foo' => 'A',
-                ],
+        self::assertSame([
+            'data' => [
+                'foo' => 'A',
             ],
-            GraphQL::executeQuery($schema, '{ foo(bar: A) }')->toArray()
-        );
+        ], GraphQL::executeQuery($schema, '{ foo(bar: A) }')->toArray());
     }
 
     public function testFailsToSerializeNonEnum(): void

@@ -5,6 +5,8 @@ namespace GraphQL\Language;
 /**
  * Represents a range of characters represented by a lexical token
  * within a Source.
+ *
+ * @see \GraphQL\Tests\Language\TokenTest
  */
 class Token
 {
@@ -58,7 +60,7 @@ class Token
 
     public ?Token $next = null;
 
-    public function __construct(string $kind, int $start, int $end, int $line, int $column, ?Token $previous = null, ?string $value = null)
+    public function __construct(string $kind, int $start, int $end, int $line, int $column, Token $previous = null, string $value = null)
     {
         $this->kind = $kind;
         $this->start = $start;

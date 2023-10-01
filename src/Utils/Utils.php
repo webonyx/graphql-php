@@ -170,7 +170,7 @@ class Utils
     }
 
     /** Returns an Error if a name is invalid. */
-    public static function isValidNameError(string $name, ?Node $node = null): ?Error
+    public static function isValidNameError(string $name, Node $node = null): ?Error
     {
         if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
             return new Error(

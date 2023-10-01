@@ -47,7 +47,7 @@ final class QueryExecutionTest extends ServerTestCase
      *
      * @throws \Exception
      */
-    private function assertQueryResultEquals(array $expected, string $query, ?array $variables = null, ?string $queryId = null): ExecutionResult
+    private function assertQueryResultEquals(array $expected, string $query, array $variables = null, string $queryId = null): ExecutionResult
     {
         $result = $this->executeQuery($query, $variables, false, $queryId);
         self::assertArraySubset($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
@@ -60,7 +60,7 @@ final class QueryExecutionTest extends ServerTestCase
      *
      * @throws \Exception
      */
-    private function executeQuery(string $query, ?array $variables = null, bool $readonly = false, ?string $queryId = null): ExecutionResult
+    private function executeQuery(string $query, array $variables = null, bool $readonly = false, string $queryId = null): ExecutionResult
     {
         $op = OperationParams::create(
             [
@@ -291,7 +291,7 @@ final class QueryExecutionTest extends ServerTestCase
      *
      * @throws \Exception
      */
-    private function executePersistedQuery(string $queryId, ?array $variables = null): ExecutionResult
+    private function executePersistedQuery(string $queryId, array $variables = null): ExecutionResult
     {
         $op = OperationParams::create([
             'queryId' => $queryId,

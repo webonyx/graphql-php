@@ -16,6 +16,8 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
  * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
+ *
+ * @see \GraphQL\Tests\Executor\ExecutorTest
  */
 class Executor
 {
@@ -57,7 +59,7 @@ class Executor
     }
 
     /** Set a custom default promise adapter. */
-    public static function setPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null): void
+    public static function setPromiseAdapter(PromiseAdapter $defaultPromiseAdapter = null): void
     {
         self::$defaultPromiseAdapter = $defaultPromiseAdapter;
     }
@@ -99,9 +101,9 @@ class Executor
         DocumentNode $documentNode,
         $rootValue = null,
         $contextValue = null,
-        ?array $variableValues = null,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null
+        array $variableValues = null,
+        string $operationName = null,
+        callable $fieldResolver = null
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -139,9 +141,9 @@ class Executor
         DocumentNode $documentNode,
         $rootValue = null,
         $contextValue = null,
-        ?array $variableValues = null,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null
+        array $variableValues = null,
+        string $operationName = null,
+        callable $fieldResolver = null
     ): Promise {
         $executor = (self::$implementationFactory)(
             $promiseAdapter,

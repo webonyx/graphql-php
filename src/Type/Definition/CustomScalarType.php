@@ -67,7 +67,7 @@ class CustomScalarType extends ScalarType
     }
 
     /** @throws \Exception */
-    public function parseLiteral(Node $valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, array $variables = null)
     {
         if (isset($this->config['parseLiteral'])) {
             return $this->config['parseLiteral']($valueNode, $variables);

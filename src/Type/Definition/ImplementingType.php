@@ -3,9 +3,9 @@
 namespace GraphQL\Type\Definition;
 
 /**
-export type GraphQLImplementingType =
-GraphQLObjectType |
-GraphQLInterfaceType;
+ * export type GraphQLImplementingType =
+ * GraphQLObjectType |
+ * GraphQLInterfaceType;.
  */
 interface ImplementingType
 {

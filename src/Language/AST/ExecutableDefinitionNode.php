@@ -7,6 +7,4 @@ namespace GraphQL\Language\AST;
  *   | OperationDefinitionNode
  *   | FragmentDefinitionNode;.
  */
-interface ExecutableDefinitionNode extends DefinitionNode
-{
-}
+interface ExecutableDefinitionNode extends DefinitionNode {}

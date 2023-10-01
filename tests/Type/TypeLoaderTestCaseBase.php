@@ -18,7 +18,7 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
 
     protected ObjectType $mutation;
 
-    /** @var callable(string): ?(Type&NamedType) */
+    /** @var callable(string): ((Type&NamedType)|null) */
     protected $typeLoader;
 
     /** @var array<int, string> */

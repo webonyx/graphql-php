@@ -313,7 +313,7 @@ class TypeInfo
         return $this->typeStack[\count($this->typeStack) - 1] ?? null;
     }
 
-    /** @return (CompositeType & Type) | null */
+    /** @return (CompositeType&Type)|null */
     public function getParentType(): ?CompositeType
     {
         return $this->parentTypeStack[\count($this->parentTypeStack) - 1] ?? null;

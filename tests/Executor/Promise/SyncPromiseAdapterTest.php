@@ -45,8 +45,7 @@ final class SyncPromiseAdapterTest extends TestCase
 
     public function testThen(): void
     {
-        $dfd = new Deferred(static function (): void {
-        });
+        $dfd = new Deferred(static function (): void {});
         $promise = $this->promises->convertThenable($dfd);
 
         $result = $this->promises->then($promise);
@@ -56,8 +55,7 @@ final class SyncPromiseAdapterTest extends TestCase
 
     public function testCreatePromise(): void
     {
-        $promise = $this->promises->create(static function ($resolve, $reject): void {
-        });
+        $promise = $this->promises->create(static function ($resolve, $reject): void {});
 
         self::assertInstanceOf(SyncPromise::class, $promise->adoptedPromise);
 

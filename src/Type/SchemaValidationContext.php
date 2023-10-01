@@ -179,11 +179,7 @@ class SchemaValidationContext
         }
     }
 
-    /**
-     * @param (Type&NamedType)|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|Argument $object
-     *
-     * @throws InvariantViolation
-     */
+    /** @param (Type&NamedType)|Directive|FieldDefinition|EnumValueDefinition|InputObjectField|Argument $object */
     private function validateName(object $object): void
     {
         // Ensure names are valid, however introspection types opt out.

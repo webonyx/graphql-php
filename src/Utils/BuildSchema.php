@@ -42,6 +42,8 @@ use GraphQL\Validator\DocumentValidator;
  *     Set to true to assume the SDL is valid.
  *
  *     Default: false
+ *
+ * @see \GraphQL\Tests\Utils\BuildSchemaTest
  */
 class BuildSchema
 {
@@ -69,7 +71,7 @@ class BuildSchema
      */
     public function __construct(
         DocumentNode $ast,
-        ?callable $typeConfigDecorator = null,
+        callable $typeConfigDecorator = null,
         array $options = []
     ) {
         $this->ast = $ast;
@@ -99,7 +101,7 @@ class BuildSchema
      */
     public static function build(
         $source,
-        ?callable $typeConfigDecorator = null,
+        callable $typeConfigDecorator = null,
         array $options = []
     ): Schema {
         $doc = $source instanceof DocumentNode
@@ -132,7 +134,7 @@ class BuildSchema
      */
     public static function buildAST(
         DocumentNode $ast,
-        ?callable $typeConfigDecorator = null,
+        callable $typeConfigDecorator = null,
         array $options = []
     ): Schema {
         return (new self($ast, $typeConfigDecorator, $options))->buildSchema();

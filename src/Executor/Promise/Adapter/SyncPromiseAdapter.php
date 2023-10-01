@@ -33,7 +33,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /** @throws InvariantViolation */
-    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
+    public function then(Promise $promise, callable $onFulfilled = null, callable $onRejected = null): Promise
     {
         $adoptedPromise = $promise->adoptedPromise;
         \assert($adoptedPromise instanceof SyncPromise);
@@ -157,12 +157,8 @@ class SyncPromiseAdapter implements PromiseAdapter
     }
 
     /** Execute just before starting to run promise completion. */
-    protected function beforeWait(Promise $promise): void
-    {
-    }
+    protected function beforeWait(Promise $promise): void {}
 
     /** Execute while running promise completion. */
-    protected function onWait(Promise $promise): void
-    {
-    }
+    protected function onWait(Promise $promise): void {}
 }

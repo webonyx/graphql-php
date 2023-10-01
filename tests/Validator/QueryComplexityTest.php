@@ -164,7 +164,7 @@ final class QueryComplexityTest extends QuerySecurityTestCase
 
     public function testComplexityIntrospectionQuery(): void
     {
-        $this->assertIntrospectionQuery(181);
+        $this->assertIntrospectionQuery(187);
     }
 
     public function testIntrospectionTypeMetaFieldQuery(): void

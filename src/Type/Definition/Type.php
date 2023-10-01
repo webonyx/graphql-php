@@ -25,6 +25,11 @@ abstract class Type implements \JsonSerializable
         self::ID,
     ];
 
+    public const BUILT_IN_TYPE_NAMES = [
+        ...self::STANDARD_TYPE_NAMES,
+        ...Introspection::TYPE_NAMES,
+    ];
+
     /** @var array<string, ScalarType> */
     protected static array $standardTypes;
 

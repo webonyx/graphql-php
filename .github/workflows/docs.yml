@@ -7,14 +7,11 @@ on:
 
 jobs:
   deploy-docs:
-    name: Deploy docs
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Deploy docs
-        uses: mhausenblas/mkdocs-deploy-gh-pages@1.26
+      - uses: mhausenblas/mkdocs-deploy-gh-pages@1.26 # https://github.com/mhausenblas/mkdocs-deploy-gh-pages/releases
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

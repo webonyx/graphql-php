@@ -45,7 +45,7 @@ parameters:
           path: tests
 
         # Cannot satisfy input covariance
-        - '~(expects|should return) array<string, array<string, callable\(GraphQL\\Language\\AST\\Node\): GraphQL\\Language\\VisitorOperation\|void\|false\|null>\|\(callable\(GraphQL\\Language\\AST\\Node\): GraphQL\\Language\\VisitorOperation\|void\|false\|null\)>(,| but returns)?~'
+        - '~(expects|should return) array<string, array<string, callable\(GraphQL\\Language\\AST\\Node\): \(GraphQL\\Language\\VisitorOperation\|void\|false\|null\)>\|\(callable\(GraphQL\\Language\\AST\\Node\): \(GraphQL\\Language\\VisitorOperation\|void\|false\|null\)\)>(,| but returns)?~'
 
         # No need to have @throws in methods that are never called
         ## PHPUnit

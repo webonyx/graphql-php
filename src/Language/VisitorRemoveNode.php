@@ -2,6 +2,4 @@
 
 namespace GraphQL\Language;
 
-final class VisitorRemoveNode extends VisitorOperation
-{
-}
+final class VisitorRemoveNode extends VisitorOperation {}

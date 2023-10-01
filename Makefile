@@ -1,5 +1,5 @@
 .PHONY: it
-it: fix stan test ## Run the commonly used targets
+it: fix stan test docs ## Run the commonly used targets
 
 .PHONY: help
 help: ## Displays this list of targets with descriptions
@@ -28,7 +28,8 @@ test: ## Runs tests with phpunit
 bench: ## Runs benchmarks with phpbench
 	composer bench
 
-docs/class-reference.md: ## Generate the class-reference docs
+.PHONY: docs
+docs: ## Generate the class-reference docs
 	php generate-class-reference.php
 
 vendor: composer.json composer.lock

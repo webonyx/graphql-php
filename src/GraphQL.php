@@ -25,6 +25,8 @@ use GraphQL\Validator\Rules\ValidationRule;
  * See [related documentation](executing-queries.md).
  *
  * @phpstan-import-type FieldResolver from Executor
+ *
+ * @see \GraphQL\Tests\GraphQLTest
  */
 class GraphQL
 {
@@ -49,6 +51,9 @@ class GraphQL
      *    field arguments. It is used to pass shared information useful at any point
      *    during executing this query, for example the currently logged in user and
      *    connections to databases or other services.
+     *    If the passed object implements the `ScopedContext` interface,
+     *    its `clone()` method will be called before passing the context down to a field.
+     *    This allows passing information to child fields in the query tree without affecting sibling or parent fields.
      * variableValues:
      *    A mapping of variable name to runtime value to use for all variables
      *    defined in the requestString.
@@ -81,10 +86,10 @@ class GraphQL
         $source,
         $rootValue = null,
         $contextValue = null,
-        ?array $variableValues = null,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        array $variableValues = null,
+        string $operationName = null,
+        callable $fieldResolver = null,
+        array $validationRules = null
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -107,11 +112,11 @@ class GraphQL
      * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
      * Useful for Async PHP platforms.
      *
-     * @param string|DocumentNode        $source
-     * @param mixed                      $rootValue
-     * @param mixed                      $context
-     * @param array<string, mixed>|null  $variableValues
-     * @param array<ValidationRule>|null $validationRules
+     * @param string|DocumentNode $source
+     * @param mixed $rootValue
+     * @param mixed $context
+     * @param array<string, mixed>|null $variableValues
+     * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
      *
      * @api
      *
@@ -123,17 +128,17 @@ class GraphQL
         $source,
         $rootValue = null,
         $context = null,
-        ?array $variableValues = null,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        array $variableValues = null,
+        string $operationName = null,
+        callable $fieldResolver = null,
+        array $validationRules = null
     ): Promise {
         try {
             $documentNode = $source instanceof DocumentNode
                 ? $source
                 : Parser::parse(new Source($source, 'GraphQL'));
 
-            if ($validationRules === null || $validationRules === []) {
+            if ($validationRules === null) {
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
                 assert($queryComplexity instanceof QueryComplexity, 'should not register a different rule for QueryComplexity');
 

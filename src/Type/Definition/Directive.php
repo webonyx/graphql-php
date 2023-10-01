@@ -127,6 +127,8 @@ class Directive
                 'locations' => [
                     DirectiveLocation::FIELD_DEFINITION,
                     DirectiveLocation::ENUM_VALUE,
+                    DirectiveLocation::ARGUMENT_DEFINITION,
+                    DirectiveLocation::INPUT_FIELD_DEFINITION,
                 ],
                 'args' => [
                     self::REASON_ARGUMENT_NAME => [

@@ -86,7 +86,7 @@ class DocumentValidator
     /**
      * Validate a GraphQL query against a schema.
      *
-     * @param array<ValidationRule>|null $rules
+     * @param array<ValidationRule>|null $rules Defaults to using all available rules
      *
      * @throws \Exception
      *
@@ -97,8 +97,8 @@ class DocumentValidator
     public static function validate(
         Schema $schema,
         DocumentNode $ast,
-        ?array $rules = null,
-        ?TypeInfo $typeInfo = null
+        array $rules = null,
+        TypeInfo $typeInfo = null
     ): array {
         $rules ??= static::allRules();
 
@@ -267,8 +267,8 @@ class DocumentValidator
      */
     public static function validateSDL(
         DocumentNode $documentAST,
-        ?Schema $schemaToExtend = null,
-        ?array $rules = null
+        Schema $schemaToExtend = null,
+        array $rules = null
     ): array {
         $rules ??= self::sdlRules();
 

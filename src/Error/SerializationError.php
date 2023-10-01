@@ -8,6 +8,4 @@ namespace GraphQL\Error;
  * Not generally safe for clients, as the wrong given value could
  * be something not intended to ever be seen by clients.
  */
-class SerializationError extends \Exception
-{
-}
+class SerializationError extends \Exception {}

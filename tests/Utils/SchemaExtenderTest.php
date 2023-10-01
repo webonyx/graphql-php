@@ -19,6 +19,7 @@ use GraphQL\Tests\Utils\SchemaExtenderTest\SomeInterfaceClassType;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeObjectClassType;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeScalarClassType;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeUnionClassType;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -662,11 +663,15 @@ GRAPHQL,
         $schema = new Schema([]);
         $extendAST = Parser::parse('
           type SomeObject {
-            deprecatedField: String @deprecated(reason: "not used anymore")
+            deprecatedField(deprecatedArg: String @deprecated(reason: "unusable")): String @deprecated(reason: "not used anymore")
           }
 
           enum SomeEnum {
             DEPRECATED_VALUE @deprecated(reason: "do not use")
+          }
+
+          input SomeInputObject {
+            deprecatedField: String @deprecated(reason: "redundant")
           }
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
@@ -679,6 +684,12 @@ GRAPHQL,
         self::assertTrue($deprecatedFieldDef->isDeprecated());
         self::assertSame('not used anymore', $deprecatedFieldDef->deprecationReason);
 
+        $deprecatedArgument = $deprecatedFieldDef->getArg('deprecatedArg');
+
+        self::assertInstanceOf(Argument::class, $deprecatedArgument);
+        self::assertTrue($deprecatedArgument->isDeprecated());
+        self::assertSame('unusable', $deprecatedArgument->deprecationReason);
+
         $someEnum = $extendedSchema->getType('SomeEnum');
         assert($someEnum instanceof EnumType);
 
@@ -687,6 +698,14 @@ GRAPHQL,
 
         self::assertTrue($deprecatedEnumDef->isDeprecated());
         self::assertSame('do not use', $deprecatedEnumDef->deprecationReason);
+
+        $someInput = $extendedSchema->getType('SomeInputObject');
+        assert($someInput instanceof InputObjectType);
+
+        $deprecatedInputField = $someInput->getField('deprecatedField');
+
+        self::assertTrue($deprecatedInputField->isDeprecated());
+        self::assertSame('redundant', $deprecatedInputField->deprecationReason);
     }
 
     /** @see it('extends objects with deprecated fields') */

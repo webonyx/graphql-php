@@ -69,10 +69,10 @@ final class RequestParsingTest extends TestCase
     private static function assertValidOperationParams(
         OperationParams $params,
         ?string $query,
-        ?string $queryId = null,
+        string $queryId = null,
         $variables = null,
-        ?string $operation = null,
-        ?array $extensions = null,
+        string $operation = null,
+        array $extensions = null,
         string $message = ''
     ): void {
         self::assertSame($query, $params->query, $message);
@@ -370,6 +370,31 @@ final class RequestParsingTest extends TestCase
         foreach ($parsed as $method => $parsedBody) {
             self::assertInstanceOf(OperationParams::class, $parsedBody);
             self::assertValidOperationParams($parsedBody, null, $queryId, $variables, $operation, $extensions, $method);
+            self::assertFalse($parsedBody->readOnly, $method);
+        }
+    }
+
+    public function testParsesApolloPersistedQueryJSONRequestIncludingQuery(): void
+    {
+        $query = '{my query}';
+        $queryId = 'my-query-id';
+        $extensions = ['persistedQuery' => ['sha256Hash' => $queryId]];
+        $variables = ['test' => 1, 'test2' => 2];
+        $operation = 'op';
+
+        $body = [
+            'query' => '{my query}',
+            'extensions' => $extensions,
+            'variables' => $variables,
+            'operationName' => $operation,
+        ];
+        $parsed = [
+            'raw' => $this->parseRawRequest('application/json', json_encode($body, JSON_THROW_ON_ERROR)),
+            'psr' => $this->parsePsrRequest('application/json', json_encode($body, JSON_THROW_ON_ERROR)),
+        ];
+        foreach ($parsed as $method => $parsedBody) {
+            self::assertInstanceOf(OperationParams::class, $parsedBody);
+            self::assertValidOperationParams($parsedBody, $query, $queryId, $variables, $operation, $extensions, $method);
             self::assertFalse($parsedBody->readOnly, $method);
         }
     }

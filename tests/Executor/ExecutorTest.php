@@ -1189,15 +1189,11 @@ final class ExecutorTest extends TestCase
                              * @param mixed $value
                              */
                             #[\ReturnTypeWillChange]
-                            public function offsetSet($offset, $value): void
-                            {
-                            }
+                            public function offsetSet($offset, $value): void {}
 
                             /** @param mixed $offset */
                             #[\ReturnTypeWillChange]
-                            public function offsetUnset($offset): void
-                            {
-                            }
+                            public function offsetUnset($offset): void {}
                         },
                     ],
                     'objectField' => [

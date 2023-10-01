@@ -32,6 +32,8 @@ use GraphQL\Validator\Rules\ValidationRule;
  *
  * @phpstan-import-type ErrorsHandler from ExecutionResult
  * @phpstan-import-type ErrorFormatter from ExecutionResult
+ *
+ * @see \GraphQL\Tests\Server\ServerConfigTest
  */
 class ServerConfig
 {

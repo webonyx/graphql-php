@@ -148,7 +148,7 @@ final class ErrorTest extends TestCase
         );
     }
 
-    public function testErrorReadsOverridenMethods(): void
+    public function testErrorReadsOverriddenMethods(): void
     {
         $error = new class('msg', null, null, [], null, null, ['foo' => 'bar']) extends Error {
             public function getExtensions(): ?array

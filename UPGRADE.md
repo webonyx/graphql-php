@@ -273,7 +273,7 @@ One example: added quotes around `parentType.fieldName` in error message:
 + Cannot return null for non-nullable field "parentType.fieldName".
 ```
 
-But expect other simiar changes like this.
+But expect other similar changes like this.
 
 ## Upgrade v0.12.x > v0.13.x
 

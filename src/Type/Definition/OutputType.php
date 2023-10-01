@@ -12,6 +12,4 @@ GraphQLList |
 GraphQLNonNull;
 */
 
-interface OutputType
-{
-}
+interface OutputType {}
