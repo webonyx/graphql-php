@@ -51,7 +51,7 @@ GRAPHQL,
     public function testConstructEnumTypeFromIntPhpEnum(): void
     {
         $enumType = new PhpEnumType([
-            'enumClass' => IntPhpEnum::class
+            'enumClass' => IntPhpEnum::class,
         ]);
         self::assertSame(<<<'GRAPHQL'
 enum IntPhpEnum {
