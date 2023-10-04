@@ -354,13 +354,12 @@ GRAPHQL;
                     ],
                     'resolve' => static function (Type $type, $args): ?array {
                         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
-                            $fields = $type->getFields();
+                            $fields = $type->getVisibleFields();
 
                             if (! ($args['includeDeprecated'] ?? false)) {
-                                $fields = \array_filter(
+                                return \array_filter(
                                     $fields,
-                                    static fn (FieldDefinition $field): bool => $field->deprecationReason === null
-                                        || $field->deprecationReason === ''
+                                    static fn (FieldDefinition $field): bool => ! $field->isDeprecated()
                                 );
                             }
 
@@ -397,10 +396,7 @@ GRAPHQL;
                             if (! ($args['includeDeprecated'] ?? false)) {
                                 return \array_filter(
                                     $values,
-                                    static function (EnumValueDefinition $value): bool {
-                                        return $value->deprecationReason === null
-                                            || $value->deprecationReason === '';
-                                    }
+                                    static fn (EnumValueDefinition $value): bool => ! $value->isDeprecated()
                                 );
                             }
 
@@ -425,8 +421,7 @@ GRAPHQL;
                             if (! ($args['includeDeprecated'] ?? false)) {
                                 return \array_filter(
                                     $fields,
-                                    static fn (InputObjectField $field): bool => $field->deprecationReason === null
-                                        || $field->deprecationReason === '',
+                                    static fn (InputObjectField $field): bool => ! $field->isDeprecated(),
                                 );
                             }
 
@@ -521,8 +516,7 @@ GRAPHQL;
                         if (! ($args['includeDeprecated'] ?? false)) {
                             return \array_filter(
                                 $values,
-                                static fn (Argument $value): bool => $value->deprecationReason === null
-                                    || $value->deprecationReason === '',
+                                static fn (Argument $value): bool => ! $value->isDeprecated(),
                             );
                         }
 
@@ -535,8 +529,7 @@ GRAPHQL;
                 ],
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
-                    'resolve' => static fn (FieldDefinition $field): bool => $field->deprecationReason !== null
-                        && $field->deprecationReason !== '',
+                    'resolve' => static fn (FieldDefinition $field): bool => $field->isDeprecated(),
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),
@@ -593,8 +586,7 @@ GRAPHQL;
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
                     /** @param Argument|InputObjectField $inputValue */
-                    'resolve' => static fn ($inputValue): bool => $inputValue->deprecationReason !== null
-                        && $inputValue->deprecationReason !== '',
+                    'resolve' => static fn ($inputValue): bool => $inputValue->isDeprecated(),
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),
@@ -625,8 +617,7 @@ GRAPHQL;
                 ],
                 'isDeprecated' => [
                     'type' => Type::nonNull(Type::boolean()),
-                    'resolve' => static fn (EnumValueDefinition $enumValue): bool => $enumValue->deprecationReason !== null
-                        && $enumValue->deprecationReason !== '',
+                    'resolve' => static fn (EnumValueDefinition $enumValue): bool => $enumValue->isDeprecated(),
                 ],
                 'deprecationReason' => [
                     'type' => Type::string(),

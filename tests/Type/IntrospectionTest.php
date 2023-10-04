@@ -7,6 +7,7 @@ use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -19,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
+/** @phpstan-import-type VisibilityFn from FieldDefinition */
 final class IntrospectionTest extends TestCase
 {
     use ArraySubsetAsserts;
@@ -1724,5 +1726,60 @@ final class IntrospectionTest extends TestCase
 
         GraphQL::executeQuery($schema, $source, null, null, null, null, $fieldResolver);
         self::assertEmpty($calledForFields);
+    }
+
+    /**
+     * @param VisibilityFn|bool $visible
+     *
+     * @dataProvider invisibleFieldDataProvider
+     */
+    public function testDoesNotExposeInvisibleFields($visible): void
+    {
+        $TestType = new ObjectType([
+            'name' => 'TestType',
+            'fields' => [
+                'nonVisible' => [
+                    'type' => Type::string(),
+                    'visible' => $visible,
+                ],
+                'visible' => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $TestType]);
+        $request = '
+          {
+            __type(name: "TestType") {
+              name
+              fields {
+                name
+              }
+            }
+          }
+        ';
+
+        $expected = [
+            'data' => [
+                '__type' => [
+                    'name' => 'TestType',
+                    'fields' => [
+                        [
+                            'name' => 'visible',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
+    }
+
+    /** @return iterable<array{VisibilityFn|bool}> */
+    public static function invisibleFieldDataProvider(): iterable
+    {
+        yield [fn (): bool => false];
+        yield [false];
     }
 }

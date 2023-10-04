@@ -69,6 +69,19 @@ final class StarWarsValidationTest extends TestCase
         self::assertCount(1, $errors);
     }
 
+    public function testThatInvisibleFieldsAreInvalid(): void
+    {
+        $query = '
+        query HeroSpaceshipQuery {
+          hero {
+            secretName
+          }
+        }
+        ';
+        $errors = $this->validationErrors($query);
+        self::assertCount(1, $errors);
+    }
+
     /** @see it('Requires fields on objects') */
     public function testRequiresFieldsOnObjects(): void
     {

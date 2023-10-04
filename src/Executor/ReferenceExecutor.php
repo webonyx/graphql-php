@@ -597,7 +597,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
         $fieldName = $fieldNode->name->value;
         $fieldDef = $this->getFieldDef($exeContext->schema, $parentType, $fieldName);
-        if ($fieldDef === null) {
+        if ($fieldDef === null || ! $fieldDef->isVisible()) {
             return static::$UNDEFINED;
         }
 

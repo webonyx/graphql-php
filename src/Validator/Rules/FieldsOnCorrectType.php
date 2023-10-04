@@ -20,7 +20,7 @@ class FieldsOnCorrectType extends ValidationRule
         return [
             NodeKind::FIELD => function (FieldNode $node) use ($context): void {
                 $fieldDef = $context->getFieldDef();
-                if ($fieldDef !== null) {
+                if ($fieldDef !== null && $fieldDef->isVisible()) {
                     return;
                 }
 

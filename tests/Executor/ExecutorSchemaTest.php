@@ -28,8 +28,22 @@ final class ExecutorSchemaTest extends TestCase
             'name' => 'Image',
             'fields' => [
                 'url' => ['type' => Type::string()],
-                'width' => ['type' => Type::int()],
-                'height' => ['type' => Type::int()],
+                'width' => [
+                    'type' => Type::int(),
+                    'visible' => fn (): bool => true,
+                ],
+                'height' => [
+                    'type' => Type::int(),
+                    'visible' => true,
+                ],
+                'mimetype' => [
+                    'type' => Type::string(),
+                    'visible' => fn (): bool => false,
+                ],
+                'size' => [
+                    'type' => Type::string(),
+                    'visible' => false,
+                ],
             ],
         ]);
 
@@ -107,7 +121,8 @@ final class ExecutorSchemaTest extends TestCase
             pic(width: 640, height: 480) {
               url,
               width,
-              height
+              height,
+              mimetype
             },
             recentArticle {
               ...articleFields,
@@ -222,6 +237,7 @@ final class ExecutorSchemaTest extends TestCase
             'url' => "cdn://{$uid}",
             'width' => $width,
             'height' => $height,
+            'mimetype' => 'image/gif',
         ];
 
         $johnSmith = [
