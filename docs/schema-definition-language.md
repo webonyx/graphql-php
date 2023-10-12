@@ -26,7 +26,7 @@ input HelloInput {
 In order to create schema instance out of this file, use
 [`GraphQL\Utils\BuildSchema`](class-reference.md#graphqlutilsbuildschema):
 
-```php-inline
+```php
 use GraphQL\Utils\BuildSchema;
 
 $contents = file_get_contents('schema.graphql');
@@ -49,7 +49,7 @@ It accepts default type config produced by the builder and is expected to add mi
 [**resolveType**](type-definitions/interfaces.md#configuration-options) for interface types or
 [**resolveField**](type-definitions/object-types.md#configuration-options) for object types.
 
-```php-inline
+```php
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Language\AST\TypeDefinitionNode;
 
@@ -73,7 +73,7 @@ automatically, so it works efficiently even with very large schemas.
 But parsing type definition file on each request is suboptimal, so it is recommended to cache
 intermediate parsed representation of the schema for the production environment:
 
-```php-inline
+```php
 use GraphQL\Language\Parser;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\AST;

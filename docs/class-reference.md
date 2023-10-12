@@ -9,7 +9,7 @@ See [related documentation](executing-queries.md).
 
 ### GraphQL\GraphQL Methods
 
-```php-inline
+```php
 /**
  * Executes graphql query.
  *
@@ -73,7 +73,7 @@ static function executeQuery(
 ): GraphQL\Executor\ExecutionResult
 ```
 
-```php-inline
+```php
 /**
  * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
  * Useful for Async PHP platforms.
@@ -101,7 +101,7 @@ static function promiseToExecute(
 ): GraphQL\Executor\Promise\Promise
 ```
 
-```php-inline
+```php
 /**
  * Returns directives defined in GraphQL spec.
  *
@@ -114,7 +114,7 @@ static function promiseToExecute(
 static function getStandardDirectives(): array
 ```
 
-```php-inline
+```php
 /**
  * Returns types defined in GraphQL spec.
  *
@@ -127,7 +127,7 @@ static function getStandardDirectives(): array
 static function getStandardTypes(): array
 ```
 
-```php-inline
+```php
 /**
  * Replaces standard types with types from this list (matching by name).
  *
@@ -142,7 +142,7 @@ static function getStandardTypes(): array
 static function overrideStandardTypes(array $types): void
 ```
 
-```php-inline
+```php
 /**
  * Returns standard validation rules implementing GraphQL spec.
  *
@@ -153,7 +153,7 @@ static function overrideStandardTypes(array $types): void
 static function getStandardValidationRules(): array
 ```
 
-```php-inline
+```php
 /**
  * Set default resolver implementation.
  *
@@ -170,7 +170,7 @@ Registry of standard GraphQL types and base class for all other types.
 
 ### GraphQL\Type\Definition\Type Methods
 
-```php-inline
+```php
 /**
  * @api
  *
@@ -179,7 +179,7 @@ Registry of standard GraphQL types and base class for all other types.
 static function int(): GraphQL\Type\Definition\ScalarType
 ```
 
-```php-inline
+```php
 /**
  * @api
  *
@@ -188,7 +188,7 @@ static function int(): GraphQL\Type\Definition\ScalarType
 static function float(): GraphQL\Type\Definition\ScalarType
 ```
 
-```php-inline
+```php
 /**
  * @api
  *
@@ -197,7 +197,7 @@ static function float(): GraphQL\Type\Definition\ScalarType
 static function string(): GraphQL\Type\Definition\ScalarType
 ```
 
-```php-inline
+```php
 /**
  * @api
  *
@@ -206,7 +206,7 @@ static function string(): GraphQL\Type\Definition\ScalarType
 static function boolean(): GraphQL\Type\Definition\ScalarType
 ```
 
-```php-inline
+```php
 /**
  * @api
  *
@@ -215,7 +215,7 @@ static function boolean(): GraphQL\Type\Definition\ScalarType
 static function id(): GraphQL\Type\Definition\ScalarType
 ```
 
-```php-inline
+```php
 /**
  * @template T of Type
  *
@@ -228,7 +228,7 @@ static function id(): GraphQL\Type\Definition\ScalarType
 static function listOf($type): GraphQL\Type\Definition\ListOfType
 ```
 
-```php-inline
+```php
 /**
  * @param (NullableType&Type)|callable():(NullableType&Type) $type
  *
@@ -237,7 +237,7 @@ static function listOf($type): GraphQL\Type\Definition\ListOfType
 static function nonNull($type): GraphQL\Type\Definition\NonNull
 ```
 
-```php-inline
+```php
 /**
  * @param mixed $type
  *
@@ -246,7 +246,7 @@ static function nonNull($type): GraphQL\Type\Definition\NonNull
 static function isInputType($type): bool
 ```
 
-```php-inline
+```php
 /**
  * @return (Type&NamedType)|null
  *
@@ -255,7 +255,7 @@ static function isInputType($type): bool
 static function getNamedType(?GraphQL\Type\Definition\Type $type): ?GraphQL\Type\Definition\Type
 ```
 
-```php-inline
+```php
 /**
  * @param mixed $type
  *
@@ -264,7 +264,7 @@ static function getNamedType(?GraphQL\Type\Definition\Type $type): ?GraphQL\Type
 static function isOutputType($type): bool
 ```
 
-```php-inline
+```php
 /**
  * @param mixed $type
  *
@@ -273,7 +273,7 @@ static function isOutputType($type): bool
 static function isLeafType($type): bool
 ```
 
-```php-inline
+```php
 /**
  * @param mixed $type
  *
@@ -282,7 +282,7 @@ static function isLeafType($type): bool
 static function isCompositeType($type): bool
 ```
 
-```php-inline
+```php
 /**
  * @param mixed $type
  *
@@ -291,7 +291,7 @@ static function isCompositeType($type): bool
 static function isAbstractType($type): bool
 ```
 
-```php-inline
+```php
 /**
  * @return Type&NullableType
  *
@@ -312,7 +312,7 @@ Passed as 4th argument to every field resolver. See [docs on field resolving (da
 
 ### GraphQL\Type\Definition\ResolveInfo Props
 
-```php-inline
+```php
 /**
  * The definition of the field being resolved.
  *
@@ -405,7 +405,7 @@ public $variableValues;
 
 ### GraphQL\Type\Definition\ResolveInfo Methods
 
-```php-inline
+```php
 /**
  * Helper method that returns names of all fields selected in query for
  * $this->fieldName up to $depth levels.
@@ -452,7 +452,7 @@ Enumeration of available directive locations.
 
 ### GraphQL\Language\DirectiveLocation Constants
 
-```php-inline
+```php
 const QUERY = 'QUERY';
 const MUTATION = 'MUTATION';
 const SUBSCRIPTION = 'SUBSCRIPTION';
@@ -552,7 +552,7 @@ extensionASTNodes?: array<SchemaExtensionNode>|null,
 
 ### GraphQL\Type\SchemaConfig Methods
 
-```php-inline
+```php
 /**
  * Converts an array of options to instance of SchemaConfig
  * (or just returns empty config when array is not passed).
@@ -566,7 +566,7 @@ extensionASTNodes?: array<SchemaExtensionNode>|null,
 static function create(array $options = []): self
 ```
 
-```php-inline
+```php
 /**
  * @return MaybeLazyObjectType
  *
@@ -575,7 +575,7 @@ static function create(array $options = []): self
 function getQuery()
 ```
 
-```php-inline
+```php
 /**
  * @param MaybeLazyObjectType $query
  *
@@ -586,7 +586,7 @@ function getQuery()
 function setQuery($query): self
 ```
 
-```php-inline
+```php
 /**
  * @return MaybeLazyObjectType
  *
@@ -595,7 +595,7 @@ function setQuery($query): self
 function getMutation()
 ```
 
-```php-inline
+```php
 /**
  * @param MaybeLazyObjectType $mutation
  *
@@ -606,7 +606,7 @@ function getMutation()
 function setMutation($mutation): self
 ```
 
-```php-inline
+```php
 /**
  * @return MaybeLazyObjectType
  *
@@ -615,7 +615,7 @@ function setMutation($mutation): self
 function getSubscription()
 ```
 
-```php-inline
+```php
 /**
  * @param MaybeLazyObjectType $subscription
  *
@@ -626,7 +626,7 @@ function getSubscription()
 function setSubscription($subscription): self
 ```
 
-```php-inline
+```php
 /**
  * @return array|callable
  *
@@ -637,7 +637,7 @@ function setSubscription($subscription): self
 function getTypes()
 ```
 
-```php-inline
+```php
 /**
  * @param array|callable $types
  *
@@ -648,7 +648,7 @@ function getTypes()
 function setTypes($types): self
 ```
 
-```php-inline
+```php
 /**
  * @return array<Directive>|null
  *
@@ -657,7 +657,7 @@ function setTypes($types): self
 function getDirectives(): ?array
 ```
 
-```php-inline
+```php
 /**
  * @param array<Directive>|null $directives
  *
@@ -666,7 +666,7 @@ function getDirectives(): ?array
 function setDirectives(?array $directives): self
 ```
 
-```php-inline
+```php
 /**
  * @return callable|null $typeLoader
  *
@@ -677,7 +677,7 @@ function setDirectives(?array $directives): self
 function getTypeLoader(): ?callable
 ```
 
-```php-inline
+```php
 /**
  * @phpstan-param TypeLoader|null $typeLoader
  *
@@ -714,7 +714,7 @@ Or using Schema Config instance:
 
 ### GraphQL\Type\Schema Methods
 
-```php-inline
+```php
 /**
  * @param SchemaConfig|array<string, mixed> $config
  *
@@ -727,7 +727,7 @@ Or using Schema Config instance:
 function __construct($config)
 ```
 
-```php-inline
+```php
 /**
  * Returns all types in this schema.
  *
@@ -742,7 +742,7 @@ function __construct($config)
 function getTypeMap(): array
 ```
 
-```php-inline
+```php
 /**
  * Returns a list of directives supported by this schema.
  *
@@ -755,7 +755,7 @@ function getTypeMap(): array
 function getDirectives(): array
 ```
 
-```php-inline
+```php
 /**
  * Returns root query type.
  *
@@ -764,7 +764,7 @@ function getDirectives(): array
 function getQueryType(): ?GraphQL\Type\Definition\ObjectType
 ```
 
-```php-inline
+```php
 /**
  * Returns root mutation type.
  *
@@ -773,7 +773,7 @@ function getQueryType(): ?GraphQL\Type\Definition\ObjectType
 function getMutationType(): ?GraphQL\Type\Definition\ObjectType
 ```
 
-```php-inline
+```php
 /**
  * Returns schema subscription.
  *
@@ -782,7 +782,7 @@ function getMutationType(): ?GraphQL\Type\Definition\ObjectType
 function getSubscriptionType(): ?GraphQL\Type\Definition\ObjectType
 ```
 
-```php-inline
+```php
 /**
  * Returns a type by name.
  *
@@ -795,7 +795,7 @@ function getSubscriptionType(): ?GraphQL\Type\Definition\ObjectType
 function getType(string $name): ?GraphQL\Type\Definition\Type
 ```
 
-```php-inline
+```php
 /**
  * Returns all possible concrete types for given abstract type
  * (implementations for interfaces and members of union type for unions).
@@ -813,7 +813,7 @@ function getType(string $name): ?GraphQL\Type\Definition\Type
 function getPossibleTypes(GraphQL\Type\Definition\AbstractType $abstractType): array
 ```
 
-```php-inline
+```php
 /**
  * Returns all types that implement a given interface type.
  *
@@ -826,7 +826,7 @@ function getPossibleTypes(GraphQL\Type\Definition\AbstractType $abstractType): a
 function getImplementations(GraphQL\Type\Definition\InterfaceType $abstractType): GraphQL\Utils\InterfaceImplementations
 ```
 
-```php-inline
+```php
 /**
  * Returns true if the given type is a sub type of the given abstract type.
  *
@@ -843,7 +843,7 @@ function isSubType(
 ): bool
 ```
 
-```php-inline
+```php
 /**
  * Returns instance of directive by name.
  *
@@ -854,7 +854,7 @@ function isSubType(
 function getDirective(string $name): ?GraphQL\Type\Definition\Directive
 ```
 
-```php-inline
+```php
 /**
  * Throws if the schema is not valid.
  *
@@ -868,7 +868,7 @@ function getDirective(string $name): ?GraphQL\Type\Definition\Directive
 function assertValid(): void
 ```
 
-```php-inline
+```php
 /**
  * Validate the schema and return any errors.
  *
@@ -1000,7 +1000,7 @@ Those magic functions allow partial parsing:
 
 ### GraphQL\Language\Parser Methods
 
-```php-inline
+```php
 /**
  * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
  *
@@ -1018,7 +1018,7 @@ Those magic functions allow partial parsing:
 static function parse($source, array $options = []): GraphQL\Language\AST\DocumentNode
 ```
 
-```php-inline
+```php
 /**
  * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for that value.
  *
@@ -1043,7 +1043,7 @@ static function parse($source, array $options = []): GraphQL\Language\AST\Docume
 static function parseValue($source, array $options = [])
 ```
 
-```php-inline
+```php
 /**
  * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for that type.
  *
@@ -1075,7 +1075,7 @@ Useful for pretty-printing queries or printing back AST for logging, documentati
 
 Usage example:
 
-```php-inline
+```php
 $query = 'query myQuery {someField}';
 $ast = GraphQL\Language\Parser::parse($query);
 $printed = GraphQL\Language\Printer::doPrint($ast);
@@ -1085,7 +1085,7 @@ $printed = GraphQL\Language\Printer::doPrint($ast);
 
 ### GraphQL\Language\Printer Methods
 
-```php-inline
+```php
 /**
  * Converts the AST of a GraphQL node to a string.
  *
@@ -1186,7 +1186,7 @@ visitor API:
 
 ### GraphQL\Language\Visitor Methods
 
-```php-inline
+```php
 /**
  * Visit the AST (see class description for details).
  *
@@ -1203,7 +1203,7 @@ visitor API:
 static function visit(object $root, array $visitor, ?array $keyMap = null)
 ```
 
-```php-inline
+```php
 /**
  * Returns marker for stopping.
  *
@@ -1212,7 +1212,7 @@ static function visit(object $root, array $visitor, ?array $keyMap = null)
 static function stop(): GraphQL\Language\VisitorStop
 ```
 
-```php-inline
+```php
 /**
  * Returns marker for skipping the subtree at the current node.
  *
@@ -1221,7 +1221,7 @@ static function stop(): GraphQL\Language\VisitorStop
 static function skipNode(): GraphQL\Language\VisitorSkipNode
 ```
 
-```php-inline
+```php
 /**
  * Returns marker for removing the current node.
  *
@@ -1236,7 +1236,7 @@ Holds constants of possible AST nodes.
 
 ### GraphQL\Language\AST\NodeKind Constants
 
-```php-inline
+```php
 const NAME = 'Name';
 const DOCUMENT = 'Document';
 const OPERATION_DEFINITION = 'OperationDefinition';
@@ -1337,7 +1337,7 @@ Implements the "Evaluating requests" section of the GraphQL specification.
 
 ### GraphQL\Executor\Executor Methods
 
-```php-inline
+```php
 /**
  * Executes DocumentNode against given $schema.
  *
@@ -1365,7 +1365,7 @@ static function execute(
 ): GraphQL\Executor\ExecutionResult
 ```
 
-```php-inline
+```php
 /**
  * Same as execute(), but requires promise adapter and returns a promise which is always
  * fulfilled with an instance of ExecutionResult and never rejected.
@@ -1426,7 +1426,7 @@ extensions?: array<string, mixed>
 
 ### GraphQL\Executor\ExecutionResult Props
 
-```php-inline
+```php
 /**
  * Data collected from resolvers during query execution.
  *
@@ -1460,7 +1460,7 @@ public $extensions;
 
 ### GraphQL\Executor\ExecutionResult Methods
 
-```php-inline
+```php
 /**
  * Define custom error formatting (must conform to http://facebook.github.io/graphql/#sec-Errors).
  *
@@ -1481,7 +1481,7 @@ public $extensions;
 function setErrorFormatter(?callable $errorFormatter): self
 ```
 
-```php-inline
+```php
 /**
  * Define custom logic for error handling (filtering, logging, etc).
  *
@@ -1498,7 +1498,7 @@ function setErrorFormatter(?callable $errorFormatter): self
 function setErrorsHandler(?callable $errorsHandler): self
 ```
 
-```php-inline
+```php
 /**
  * Converts GraphQL query result to spec-compliant serializable array using provided
  * errors handler and formatter.
@@ -1521,7 +1521,7 @@ Provides a means for integration of async PHP platforms ([related docs](data-fet
 
 ### GraphQL\Executor\Promise\PromiseAdapter Methods
 
-```php-inline
+```php
 /**
  * Is the value a promise or a deferred of the underlying platform?
  *
@@ -1532,7 +1532,7 @@ Provides a means for integration of async PHP platforms ([related docs](data-fet
 function isThenable($value): bool
 ```
 
-```php-inline
+```php
 /**
  * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance.
  *
@@ -1543,7 +1543,7 @@ function isThenable($value): bool
 function convertThenable($thenable): GraphQL\Executor\Promise\Promise
 ```
 
-```php-inline
+```php
 /**
  * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described
  * in Promises/A+ specs. Then returns new wrapped instance of GraphQL\Executor\Promise\Promise.
@@ -1557,7 +1557,7 @@ function then(
 ): GraphQL\Executor\Promise\Promise
 ```
 
-```php-inline
+```php
 /**
  * Creates a Promise from the given resolver callable.
  *
@@ -1568,7 +1568,7 @@ function then(
 function create(callable $resolver): GraphQL\Executor\Promise\Promise
 ```
 
-```php-inline
+```php
 /**
  * Creates a fulfilled Promise for a value if the value is not a promise.
  *
@@ -1579,7 +1579,7 @@ function create(callable $resolver): GraphQL\Executor\Promise\Promise
 function createFulfilled($value = null): GraphQL\Executor\Promise\Promise
 ```
 
-```php-inline
+```php
 /**
  * Creates a rejected promise for a reason if the reason is not a promise.
  *
@@ -1590,7 +1590,7 @@ function createFulfilled($value = null): GraphQL\Executor\Promise\Promise
 function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
 ```
 
-```php-inline
+```php
 /**
  * Given an iterable of promises (or values), returns a promise that is fulfilled when all the
  * items in the iterable are fulfilled.
@@ -1623,7 +1623,7 @@ will be created from the provided schema.
 
 ### GraphQL\Validator\DocumentValidator Methods
 
-```php-inline
+```php
 /**
  * Validate a GraphQL query against a schema.
  *
@@ -1643,7 +1643,7 @@ static function validate(
 ): array
 ```
 
-```php-inline
+```php
 /**
  * Returns all global validation rules.
  *
@@ -1656,7 +1656,7 @@ static function validate(
 static function allRules(): array
 ```
 
-```php-inline
+```php
 /**
  * Returns global validation rule by name.
  *
@@ -1671,7 +1671,7 @@ static function allRules(): array
 static function getRule(string $name): ?GraphQL\Validator\Rules\ValidationRule
 ```
 
-```php-inline
+```php
 /**
  * Add rule to list of global validation rules.
  *
@@ -1680,7 +1680,7 @@ static function getRule(string $name): ?GraphQL\Validator\Rules\ValidationRule
 static function addRule(GraphQL\Validator\Rules\ValidationRule $rule): void
 ```
 
-```php-inline
+```php
 /**
  * Remove rule from list of global validation rules.
  *
@@ -1708,7 +1708,7 @@ are available in addition to those listed below.
 
 ### GraphQL\Error\Error Methods
 
-```php-inline
+```php
 /**
  * An array of locations within the source GraphQL document which correspond to this error.
  *
@@ -1727,7 +1727,7 @@ are available in addition to those listed below.
 function getLocations(): array
 ```
 
-```php-inline
+```php
 /**
  * Returns an array describing the path from the root value to the field which produced this error.
  * Only included for execution errors.
@@ -1750,7 +1750,7 @@ Also, it is possible to override warning handler (which is **trigger_error()** b
 
 ### GraphQL\Error\Warning Constants
 
-```php-inline
+```php
 const NONE = 0;
 const WARNING_ASSIGN = 2;
 const WARNING_CONFIG = 4;
@@ -1762,7 +1762,7 @@ const ALL = 63;
 
 ### GraphQL\Error\Warning Methods
 
-```php-inline
+```php
 /**
  * Sets warning handler which can intercept all system warnings.
  * When not set, trigger_error() is used to notify about warnings.
@@ -1774,7 +1774,7 @@ const ALL = 63;
 static function setWarningHandler(?callable $warningHandler = null): void
 ```
 
-```php-inline
+```php
 /**
  * Suppress warning by id (has no effect when custom warning handler is set).
  *
@@ -1789,7 +1789,7 @@ static function setWarningHandler(?callable $warningHandler = null): void
 static function suppress($suppress = true): void
 ```
 
-```php-inline
+```php
 /**
  * Re-enable previously suppressed warning by id (has no effect when custom warning handler is set).
  *
@@ -1815,7 +1815,7 @@ All other errors will have their message replaced with "Internal server error".
 
 ### GraphQL\Error\ClientAware Methods
 
-```php-inline
+```php
 /**
  * Is it safe to show the error message to clients?
  *
@@ -1830,7 +1830,7 @@ Collection of flags for [error debugging](error-handling.md#debugging-tools).
 
 ### GraphQL\Error\DebugFlag Constants
 
-```php-inline
+```php
 const NONE = 0;
 const INCLUDE_DEBUG_MESSAGE = 1;
 const INCLUDE_TRACE = 2;
@@ -1853,7 +1853,7 @@ and provides tools for error debugging.
 
 ### GraphQL\Error\FormattedError Methods
 
-```php-inline
+```php
 /**
  * Set default error message for internal errors formatted using createFormattedError().
  * This value can be overridden by passing 3rd argument to `createFormattedError()`.
@@ -1863,7 +1863,7 @@ and provides tools for error debugging.
 static function setInternalErrorMessage(string $msg): void
 ```
 
-```php-inline
+```php
 /**
  * Convert any exception to a GraphQL spec compliant array.
  *
@@ -1883,7 +1883,7 @@ static function createFromException(
 ): array
 ```
 
-```php-inline
+```php
 /**
  * Returns error trace as serializable array.
  *
@@ -1925,7 +1925,7 @@ See [dedicated section in docs](executing-queries.md#using-server) for details.
 
 ### GraphQL\Server\StandardServer Methods
 
-```php-inline
+```php
 /**
  * @param ServerConfig|array<string, mixed> $config
  *
@@ -1936,7 +1936,7 @@ See [dedicated section in docs](executing-queries.md#using-server) for details.
 function __construct($config)
 ```
 
-```php-inline
+```php
 /**
  * Parses HTTP request, executes and emits response (using standard PHP `header` function and `echo`).
  *
@@ -1958,7 +1958,7 @@ function __construct($config)
 function handleRequest($parsedBody = null): void
 ```
 
-```php-inline
+```php
 /**
  * Executes a GraphQL operation and returns an execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter).
@@ -1982,7 +1982,7 @@ function handleRequest($parsedBody = null): void
 function executeRequest($parsedBody = null)
 ```
 
-```php-inline
+```php
 /**
  * Executes PSR-7 request and fulfills PSR-7 response.
  *
@@ -2007,7 +2007,7 @@ function processPsrRequest(
 )
 ```
 
-```php-inline
+```php
 /**
  * Executes GraphQL operation and returns execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter).
@@ -2051,7 +2051,7 @@ Usage example:
 
 ### GraphQL\Server\ServerConfig Methods
 
-```php-inline
+```php
 /**
  * Converts an array of options to instance of ServerConfig
  * (or just returns empty config when array is not passed).
@@ -2065,7 +2065,7 @@ Usage example:
 static function create(array $config = []): self
 ```
 
-```php-inline
+```php
 /**
  * @param mixed|callable $context
  *
@@ -2074,7 +2074,7 @@ static function create(array $config = []): self
 function setContext($context): self
 ```
 
-```php-inline
+```php
 /**
  * @param mixed|callable $rootValue
  *
@@ -2085,7 +2085,7 @@ function setContext($context): self
 function setRootValue($rootValue): self
 ```
 
-```php-inline
+```php
 /**
  * @phpstan-param ErrorFormatter $errorFormatter
  *
@@ -2094,7 +2094,7 @@ function setRootValue($rootValue): self
 function setErrorFormatter(callable $errorFormatter): self
 ```
 
-```php-inline
+```php
 /**
  * @phpstan-param ErrorsHandler $handler
  *
@@ -2103,7 +2103,7 @@ function setErrorFormatter(callable $errorFormatter): self
 function setErrorsHandler(callable $handler): self
 ```
 
-```php-inline
+```php
 /**
  * Set validation rules for this server.
  *
@@ -2116,7 +2116,7 @@ function setErrorsHandler(callable $handler): self
 function setValidationRules($validationRules): self
 ```
 
-```php-inline
+```php
 /**
  * @phpstan-param PersistedQueryLoader|null $persistedQueryLoader
  *
@@ -2125,7 +2125,7 @@ function setValidationRules($validationRules): self
 function setPersistedQueryLoader(?callable $persistedQueryLoader): self
 ```
 
-```php-inline
+```php
 /**
  * Set response debug flags.
  *
@@ -2136,7 +2136,7 @@ function setPersistedQueryLoader(?callable $persistedQueryLoader): self
 function setDebugFlag(int $debugFlag = 'GraphQL\\Error\\DebugFlag::INCLUDE_DEBUG_MESSAGE'): self
 ```
 
-```php-inline
+```php
 /**
  * Allow batching queries (disabled by default).
  *
@@ -2153,7 +2153,7 @@ Contains functionality that could be re-used by various server implementations.
 
 ### GraphQL\Server\Helper Methods
 
-```php-inline
+```php
 /**
  * Parses HTTP request using PHP globals and returns GraphQL OperationParams
  * contained in this request. For batched requests it returns an array of OperationParams.
@@ -2178,7 +2178,7 @@ Contains functionality that could be re-used by various server implementations.
 function parseHttpRequest(?callable $readRawBodyFn = null)
 ```
 
-```php-inline
+```php
 /**
  * Parses normalized request params and returns instance of OperationParams
  * or array of OperationParams in case of batch operation.
@@ -2197,7 +2197,7 @@ function parseHttpRequest(?callable $readRawBodyFn = null)
 function parseRequestParams(string $method, array $bodyParams, array $queryParams)
 ```
 
-```php-inline
+```php
 /**
  * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
  * if params are invalid (or empty array when params are valid).
@@ -2209,7 +2209,7 @@ function parseRequestParams(string $method, array $bodyParams, array $queryParam
 function validateOperationParams(GraphQL\Server\OperationParams $params): array
 ```
 
-```php-inline
+```php
 /**
  * Executes GraphQL operation with given server configuration and returns execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter).
@@ -2224,7 +2224,7 @@ function validateOperationParams(GraphQL\Server\OperationParams $params): array
 function executeOperation(GraphQL\Server\ServerConfig $config, GraphQL\Server\OperationParams $op)
 ```
 
-```php-inline
+```php
 /**
  * Executes batched GraphQL operations with shared promise queue
  * (thus, effectively batching deferreds|promises of all queries at once).
@@ -2241,7 +2241,7 @@ function executeOperation(GraphQL\Server\ServerConfig $config, GraphQL\Server\Op
 function executeBatch(GraphQL\Server\ServerConfig $config, array $operations)
 ```
 
-```php-inline
+```php
 /**
  * Send response using standard PHP `header()` and `echo`.
  *
@@ -2254,7 +2254,7 @@ function executeBatch(GraphQL\Server\ServerConfig $config, array $operations)
 function sendResponse($result): void
 ```
 
-```php-inline
+```php
 /**
  * Converts PSR-7 request to OperationParams or an array thereof.
  *
@@ -2267,7 +2267,7 @@ function sendResponse($result): void
 function parsePsrRequest(Psr\Http\Message\RequestInterface $request)
 ```
 
-```php-inline
+```php
 /**
  * Converts query execution result to PSR-7 response.
  *
@@ -2298,7 +2298,7 @@ not yet validated.
 
 ### GraphQL\Server\OperationParams Props
 
-```php-inline
+```php
 /**
  * Id of the query (when using persisted queries).
  *
@@ -2368,7 +2368,7 @@ public $originalInput;
 
 ### GraphQL\Server\OperationParams Methods
 
-```php-inline
+```php
 /**
  * Creates an instance from given array.
  *
@@ -2408,7 +2408,7 @@ assumeValidSDL?: bool
 
 ### GraphQL\Utils\BuildSchema Methods
 
-```php-inline
+```php
 /**
  * A helper function to build a GraphQLSchema directly from a source
  * document.
@@ -2432,7 +2432,7 @@ assumeValidSDL?: bool
 static function build($source, ?callable $typeConfigDecorator = null, array $options = []): GraphQL\Type\Schema
 ```
 
-```php-inline
+```php
 /**
  * This takes the AST of a schema from @see \GraphQL\Language\Parser::parse().
  *
@@ -2467,13 +2467,13 @@ Various utilities dealing with AST.
 
 ### GraphQL\Utils\AST Methods
 
-````php-inline
+````php
 /**
  * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
  *
  * For example:
  *
- * ```php-inline
+ * ```php
  * AST::fromArray([
  *     'kind' => 'ListValue',
  *     'values' => [
@@ -2499,7 +2499,7 @@ Various utilities dealing with AST.
 static function fromArray(array $node): GraphQL\Language\AST\Node
 ````
 
-```php-inline
+```php
 /**
  * Convert AST node to serializable array.
  *
@@ -2510,7 +2510,7 @@ static function fromArray(array $node): GraphQL\Language\AST\Node
 static function toArray(GraphQL\Language\AST\Node $node): array
 ```
 
-```php-inline
+```php
 /**
  * Produces a GraphQL Value AST given a PHP value.
  *
@@ -2543,7 +2543,7 @@ static function toArray(GraphQL\Language\AST\Node $node): array
 static function astFromValue($value, GraphQL\Type\Definition\InputType $type): ?GraphQL\Language\AST\ValueNode
 ```
 
-```php-inline
+```php
 /**
  * Produces a PHP value given a GraphQL Value AST.
  *
@@ -2579,7 +2579,7 @@ static function valueFromAST(
 )
 ```
 
-```php-inline
+```php
 /**
  * Produces a PHP value given a GraphQL Value AST.
  *
@@ -2607,7 +2607,7 @@ static function valueFromAST(
 static function valueFromASTUntyped(GraphQL\Language\AST\Node $valueNode, ?array $variables = null)
 ```
 
-```php-inline
+```php
 /**
  * Returns type definition for given AST Type node.
  *
@@ -2621,7 +2621,7 @@ static function valueFromASTUntyped(GraphQL\Language\AST\Node $valueNode, ?array
 static function typeFromAST(callable $typeLoader, GraphQL\Language\AST\Node $inputTypeNode): ?GraphQL\Type\Definition\Type
 ```
 
-```php-inline
+```php
 /**
  * Returns the operation within a document by name.
  *
@@ -2632,7 +2632,7 @@ static function typeFromAST(callable $typeLoader, GraphQL\Language\AST\Node $inp
 static function getOperationAST(GraphQL\Language\AST\DocumentNode $document, ?string $operationName = null): ?GraphQL\Language\AST\OperationDefinitionNode
 ```
 
-```php-inline
+```php
 /**
  * Provided a collection of ASTs, presumably each from different files,
  * concatenate the ASTs together into batched AST, useful for validating many
@@ -2663,7 +2663,7 @@ sortTypes?: bool,
 
 ### GraphQL\Utils\SchemaPrinter Methods
 
-```php-inline
+```php
 /**
  * @param array<string, bool> $options
  *
@@ -2679,7 +2679,7 @@ sortTypes?: bool,
 static function doPrint(GraphQL\Type\Schema $schema, array $options = []): string
 ```
 
-```php-inline
+```php
 /**
  * @param array<string, bool> $options
  *

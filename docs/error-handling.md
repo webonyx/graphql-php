@@ -31,7 +31,7 @@ for your specific requirements.
 
 By default, each error entry is converted to an associative array with following structure:
 
-```php-inline
+```php
 [
     'message' => 'Error message',
     'extensions' => [
@@ -66,7 +66,7 @@ be reported with a full error message.
 
 For example:
 
-```php-inline
+```php
 use GraphQL\Error\ClientAware;
 
 class MySafeException extends \Exception implements ClientAware
@@ -80,7 +80,7 @@ class MySafeException extends \Exception implements ClientAware
 
 When such exception is thrown it will be reported with a full error message:
 
-```php-inline
+```php
 [
     'message' => 'My reported error',
     'locations' => [
@@ -96,7 +96,7 @@ When such exception is thrown it will be reported with a full error message:
 
 To change default **"Internal server error"** message to something else, use:
 
-```php-inline
+```php
 GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 ```
 
@@ -105,7 +105,7 @@ GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 During development or debugging, use `DebugFlag::INCLUDE_DEBUG_MESSAGE` to
 add hidden error messages each formatted error entry under the key `extensions.debugMessage`.
 
-```php-inline
+```php
 use GraphQL\GraphQL;
 use GraphQL\Error\DebugFlag;
 
@@ -116,7 +116,7 @@ $result = GraphQL::executeQuery(/*args*/)
 If you also want to add the exception trace, pass `DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE` instead.
 This will make each error entry look like this:
 
-```php-inline
+```php
 [
     'message' => 'Internal server error',
     'locations' => [
@@ -138,7 +138,7 @@ This will make each error entry look like this:
 
 If you prefer the first resolver exception to be re-thrown, use the following flags:
 
-```php-inline
+```php
 use GraphQL\GraphQL;
 use GraphQL\Error\DebugFlag;
 
@@ -159,7 +159,7 @@ to an array. **Handler** is useful for error filtering and logging.
 
 For example, these are default formatter and handler:
 
-```php-inline
+```php
 use GraphQL\GraphQL;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
@@ -181,7 +181,7 @@ also throw `GraphQL\Error\InvariantViolation` if there is an error in one of typ
 Usually such errors mean that there is some logical error in your schema.
 In this case it makes sense to return a status code `500 (Internal Server Error)` for GraphQL endpoint:
 
-```php-inline
+```php
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
 use GraphQL\Error\FormattedError;

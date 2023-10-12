@@ -8,7 +8,7 @@ except that it's fields have no **args** or **resolve** options and their **type
 In graphql-php **Input Object Type** is an instance of `GraphQL\Type\Definition\InputObjectType`
 (or one of its subclasses) which accepts configuration array in its constructor:
 
-```php-inline
+```php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\InputObjectType;
 
@@ -57,7 +57,7 @@ Every field is an array with following entries:
 
 In the example above we defined our InputObjectType. Now let's use it in one of field arguments:
 
-```php-inline
+```php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -98,7 +98,7 @@ query ($filters: StoryFiltersInput!) {
 }
 ```
 
-```php-inline
+```php
 $variables = [
     'filters' => [
         "author" => "1",
@@ -114,7 +114,7 @@ resolver as `$args['filters']`
 
 If you want more type safety you can choose to parse the input array into a value object.
 
-```php-inline
+```php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\InputObjectType;
 

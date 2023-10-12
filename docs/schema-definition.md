@@ -5,7 +5,7 @@ methods for receiving information about your types to internal GraphQL tools.
 
 In **graphql-php**, the schema is an instance of [`GraphQL\Type\Schema`](class-reference.md#graphqltypeschema):
 
-```php-inline
+```php
 use GraphQL\Type\Schema;
 
 $schema = new Schema([
@@ -26,7 +26,7 @@ The schema consists of two root types:
 Query and Mutation types are regular [object types](type-definitions/object-types.md) containing root-level fields
 of your API:
 
-```php-inline
+```php
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -92,7 +92,7 @@ or an array with the following options:
 If you prefer a fluid interface for the config with auto-completion in IDE and static time validation,
 use [`GraphQL\Type\SchemaConfig`](class-reference.md#graphqltypeschemaconfig) instead of an array:
 
-```php-inline
+```php
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\Schema;
 
@@ -120,7 +120,7 @@ There are a few best practices that can lessen their impact:
 It is recommended to centralize this kind of functionality in a type registry.
 A typical example might look like the following:
 
-```php-inline
+```php
 // StoryType.php
 use GraphQL\Type\Definition\ObjectType;
 
@@ -238,7 +238,7 @@ Don't call it in web requests in production.
 
 Usage example:
 
-```php-inline
+```php
 try {
     $schema = new GraphQL\Type\Schema([
         'query' => $myQueryType

@@ -3,7 +3,7 @@
 **graphql-php** provides built-in support for lists. In order to create list type - wrap
 existing type with `GraphQL\Type\Definition\Type::listOf()` modifier:
 
-```php-inline
+```php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -32,7 +32,7 @@ and set the field value to **null** (only if the field is nullable, see below fo
 By default, every field or argument can have a **null** value.
 To indicate the value must be **non-null** use the `GraphQL\Type\Definition\Type::nonNull()` modifier:
 
-```php-inline
+```php
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
