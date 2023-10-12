@@ -25,7 +25,7 @@ Let's walk through an example. Consider the following GraphQL query:
 
 We need a `Schema` that can fulfill it. On the very top level, the `Schema` contains the `Query` type:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\ObjectType;
 
 $queryType = new ObjectType([
@@ -50,7 +50,7 @@ your data source and return the result from there.
 
 Since **lastStory** is of composite type **BlogStory**, this result is passed down to fields of this type:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -92,7 +92,7 @@ When you define no custom resolver, [the default field resolver](#default-field-
 
 **graphql-php** provides the following default field resolver:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\ResolveInfo;
 
 function defaultFieldResolver($objectValue, array $args, $context, ResolveInfo $info)
@@ -126,7 +126,7 @@ To override the default resolver, pass it as an argument to [executeQuery](execu
 Sometimes it might be convenient to set default field resolver per type. You can do so by providing
 [resolveField option in type config](type-definitions/object-types.md#configuration-options). For example:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -160,7 +160,7 @@ the performance of a resolver. For example, an SQL query may only need to select
 
 The following example limits which columns are selected from the database:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
@@ -210,7 +210,7 @@ when one batched query could be executed instead of 10 distinct queries.
 
 Here is an example of **BlogStory** resolver for field **author** that uses deferring:
 
-```php
+```php-inline
 use GraphQL\Deferred;
 
 'resolve' => function (array $blogStory): Deferred {
@@ -266,7 +266,7 @@ The only requirement: your platform must support the concept of Promises compati
 To start using this feature, switch facade method for query execution from
 **executeQuery** to **promiseToExecute**:
 
-```php
+```php-inline
 use GraphQL\GraphQL;
 use GraphQL\Executor\ExecutionResult;
 

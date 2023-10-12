@@ -8,7 +8,7 @@ type must include to implement the interface.
 In **graphql-php** interface type is an instance of `GraphQL\Type\Definition\InterfaceType`
 (or one of its subclasses) which accepts configuration array in a constructor:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -54,7 +54,7 @@ The constructor of InterfaceType accepts an array. Below is a full list of allow
 
 To implement the Interface simply add it to **interfaces** array of Object Type definition:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -102,7 +102,7 @@ type B implements A {
 Since every Object Type implementing an Interface must have the same set of fields - it often makes
 sense to reuse field definitions of Interface in Object Types:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -179,7 +179,7 @@ There are two possible solutions:
 
 2. Pass the invisible types during schema construction, e.g.:
 
-```php
+```php-inline
 new GraphQLSchema([
     'query' => ...,
     'types' => [$cat, $dog]

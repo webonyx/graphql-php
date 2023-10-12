@@ -6,7 +6,7 @@ Query execution is a complex process involving multiple steps, including query *
 **graphql-php** provides a convenient facade for this process in class
 [`GraphQL\GraphQL`](class-reference.md#graphqlgraphql):
 
-```php
+```php-inline
 use GraphQL\GraphQL;
 
 $result = GraphQL::executeQuery(
@@ -24,7 +24,7 @@ $result = GraphQL::executeQuery(
 It returns an instance of [`GraphQL\Executor\ExecutionResult`](class-reference.md#graphqlexecutorexecutionresult)
 which can be easily converted to array:
 
-```php
+```php-inline
 $serializableResult = $result->toArray();
 ```
 
@@ -56,7 +56,7 @@ It supports more features out of the box, including parsing HTTP requests, produ
 
 Usage example (with plain PHP):
 
-```php
+```php-inline
 use GraphQL\Server\StandardServer;
 
 $server = new StandardServer([/* server options, see below */]);
@@ -65,7 +65,7 @@ $server->handleRequest(); // parses PHP globals and emits response
 
 Server also supports [PSR-7 request/response interfaces](https://www.php-fig.org/psr/psr-7/):
 
-```php
+```php-inline
 use GraphQL\Server\StandardServer;
 use GraphQL\Executor\ExecutionResult;
 use Psr\Http\Message\RequestInterface;
@@ -115,7 +115,7 @@ PSR-7 is useful when you want to integrate the server into existing framework:
 If you prefer fluid interface for config with autocomplete in IDE and static time validation,
 use [`GraphQL\Server\ServerConfig`](class-reference.md#graphqlserverserverconfig) instead of an array:
 
-```php
+```php-inline
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 
@@ -152,7 +152,7 @@ So for example following batch will require single DB request (if user field is 
 
 To enable query batching, pass **queryBatching** option in server config:
 
-```php
+```php-inline
 use GraphQL\Server\StandardServer;
 
 $server = new StandardServer([
@@ -167,7 +167,7 @@ It is possible to override standard set of rules globally or per execution.
 
 Add rules globally:
 
-```php
+```php-inline
 use GraphQL\Validator\Rules;
 use GraphQL\Validator\DocumentValidator;
 
@@ -177,7 +177,7 @@ DocumentValidator::addRule(new Rules\DisableIntrospection());
 
 Custom rules per execution:
 
-```php
+```php-inline
 use GraphQL\GraphQL;
 use GraphQL\Validator\Rules;
 
@@ -203,7 +203,7 @@ $result = GraphQL::executeQuery(
 
 Or with a standard server:
 
-```php
+```php-inline
 use GraphQL\Server\StandardServer;
 
 $server = new StandardServer([

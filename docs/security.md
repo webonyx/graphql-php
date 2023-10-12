@@ -23,7 +23,7 @@ If this score exceeds a threshold, a query is not executed and an error is retur
 
 Complexity analysis is disabled by default. You may enable it by setting a maximum query complexity:
 
-```php
+```php-inline
 use GraphQL\GraphQL;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\DocumentValidator;
@@ -38,7 +38,7 @@ This will set the rule globally. Alternatively, you can provide validation rules
 
 To customize field score add **complexity** function to field definition:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -68,7 +68,7 @@ For example, the depth of the default introspection query is **7**.
 
 This rule is disabled by default. You may enable it by setting a maximum query depth:
 
-```php
+```php-inline
 use GraphQL\GraphQL;
 use GraphQL\Validator\Rules\QueryDepth;
 use GraphQL\Validator\DocumentValidator;
@@ -94,7 +94,7 @@ If you are not planning to expose your API to the general public, it makes sense
 GraphQL PHP provides you separate validation rule which prohibits queries that contain
 **\_\_type** or **\_\_schema** fields. To disable introspection, add following rule:
 
-```php
+```php-inline
 use GraphQL\GraphQL;
 use GraphQL\Validator\Rules\DisableIntrospection;
 use GraphQL\Validator\DocumentValidator;

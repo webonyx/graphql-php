@@ -8,7 +8,7 @@ of allowed values.
 In **graphql-php** enum type is an instance of `GraphQL\Type\Definition\EnumType`
 which accepts configuration array in constructor:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\EnumType;
 
 $episodeEnum = new EnumType([
@@ -58,7 +58,7 @@ Each entry of **values** array in turn accepts following options:
 You can reuse your existing PHP enums in GraphQL.
 Leverage PHP attributes to add descriptions and deprecate values:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\Deprecated;
 use GraphQL\Type\Definition\Description;
 
@@ -77,7 +77,7 @@ PhpDocs will be used as descriptions if present, but are overridden by the `Desc
 
 Wrap them with `GraphQL\Type\Definition\PhpEnumType` to use them in a GraphQL schema:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\PhpEnumType;
 
 $fruitEnumType = new PhpEnumType(Fruit::class);
@@ -109,7 +109,7 @@ Conversion rules:
 If internal representation of enumerated item is the same as item name, then you can use
 following shorthand for definition:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\EnumType;
 
 $episodeEnum = new EnumType([
@@ -121,7 +121,7 @@ $episodeEnum = new EnumType([
 
 which is equivalent of:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\EnumType;
 
 $episodeEnum = new EnumType([
@@ -137,7 +137,7 @@ $episodeEnum = new EnumType([
 
 which is in turn equivalent of the full form:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\EnumType;
 
 $episodeEnum = new EnumType([
@@ -157,7 +157,7 @@ When object field is of Enum Type, field resolver is expected to return an inter
 representation of corresponding Enum item (**value** in config). **graphql-php** will
 then serialize this **value** to **name** to include in response:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -197,7 +197,7 @@ GraphQL will treat enum input as **name** and convert it into **value** before p
 
 For example, given object type definition:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -226,7 +226,7 @@ fragment on Hero {
 
 will return:
 
-```php
+```php-inline
 [
     'appearsInNewHope' => false,
     'appearsInEmpire' => true

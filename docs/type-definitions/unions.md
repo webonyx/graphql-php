@@ -8,7 +8,7 @@ The value of Union Type is actually a value of one of included Object Types.
 In **graphql-php** union type is an instance of `GraphQL\Type\Definition\UnionType`
 (or one of its subclasses) which accepts configuration array in a constructor:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\UnionType;
 

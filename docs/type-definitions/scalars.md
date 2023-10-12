@@ -8,7 +8,7 @@ When object fields have to resolve to some concrete data, that's where the scala
 The GraphQL specification describes several built-in scalar types. In **graphql-php** they are
 exposed as static methods of the class [`GraphQL\Type\Definition\Type`](../class-reference.md#graphqltypedefinitiontype):
 
-```php
+```php-inline
 use GraphQL\Type\Definition\Type;
 
 // Built-in Scalar types:
@@ -44,7 +44,7 @@ abstract class `ScalarType` respectively.
 
 Here is an example of a simple **Email** type:
 
-```php
+```php-inline
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
@@ -93,7 +93,7 @@ class EmailType extends ScalarType
 
 Or with inline style:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\CustomScalarType;
 
 $emailType = new CustomScalarType([

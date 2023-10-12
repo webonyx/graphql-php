@@ -45,7 +45,7 @@ query {
 
 We need an object type with the field `echo`:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -73,7 +73,7 @@ a value of our field. Values of **scalar** fields will be directly included in t
 
 Now when our type is ready, let's create a GraphQL endpoint file for it **graphql.php**:
 
-```php
+```php-inline
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
 

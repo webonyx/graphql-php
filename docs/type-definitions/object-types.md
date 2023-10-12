@@ -10,7 +10,7 @@ has its own type which allows building complex hierarchies.
 In **graphql-php** object type is an instance of `GraphQL\Type\Definition\ObjectType`
 (or one of its subclasses) which accepts a configuration array in its constructor:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Examples\Blog\Data\DataSource;
@@ -93,7 +93,7 @@ This example uses **inline** style for Object Type definitions, but you can also
 
 Fields can be also defined in **shorthand** notation (with only **name** and **type** options):
 
-```php
+```php-inline
 'fields' => [
     'id' => Type::id(),
     'fieldName' => $fieldType
@@ -102,7 +102,7 @@ Fields can be also defined in **shorthand** notation (with only **name** and **t
 
 which is equivalent of:
 
-```php
+```php-inline
 'fields' => [
     'id' => ['type' => Type::id()],
     'fieldName' => ['type' => $fieldName]
@@ -111,7 +111,7 @@ which is equivalent of:
 
 which is in turn equivalent of the full form:
 
-```php
+```php-inline
 'fields' => [
     ['name' => 'id', 'type' => Type::id()],
     ['name' => 'fieldName', 'type' => $fieldName]
@@ -130,7 +130,7 @@ option **fields** (and/or **interfaces**).
 
 For example:
 
-```php
+```php-inline
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -152,7 +152,7 @@ $userType = new ObjectType([
 Same example for [inheritance style of type definitions](index.md#definition-styles)
 using a type registry (see [lazy loading of types](../schema-definition.md#lazy-loading-of-types)):
 
-```php
+```php-inline
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;

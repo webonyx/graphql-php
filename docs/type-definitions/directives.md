@@ -37,7 +37,7 @@ Other use case is your own query validation rules relying on custom directives.
 In **graphql-php** custom directive is an instance of `GraphQL\Type\Definition\Directive`
 (or one of its subclasses) which accepts an array of following options:
 
-```php
+```php-inline
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\Directive;
