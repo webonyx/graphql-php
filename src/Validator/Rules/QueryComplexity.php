@@ -27,6 +27,8 @@ class QueryComplexity extends QuerySecurityRule
 {
     protected int $maxQueryComplexity;
 
+    protected int $queryComplexity;
+
     /** @var array<string, mixed> */
     protected array $rawVariableValues = [];
 
@@ -46,6 +48,7 @@ class QueryComplexity extends QuerySecurityRule
 
     public function getVisitor(QueryValidationContext $context): array
     {
+        $this->queryComplexity = 0;
         $this->context = $context;
         $this->variableDefs = new NodeList([]);
         $this->fieldNodeAndDefs = new \ArrayObject();
@@ -79,16 +82,16 @@ class QueryComplexity extends QuerySecurityRule
                             return;
                         }
 
-                        $complexity = $this->fieldComplexity($operationDefinition->selectionSet);
+                        $this->queryComplexity = $this->fieldComplexity($operationDefinition->selectionSet);
 
-                        if ($complexity <= $this->maxQueryComplexity) {
+                        if ($this->queryComplexity <= $this->maxQueryComplexity) {
                             return;
                         }
 
                         $context->reportError(
                             new Error(static::maxQueryComplexityErrorMessage(
                                 $this->maxQueryComplexity,
-                                $complexity
+                                $this->queryComplexity
                             ))
                         );
                     },
@@ -261,6 +264,11 @@ class QueryComplexity extends QuerySecurityRule
     public function getMaxQueryComplexity(): int
     {
         return $this->maxQueryComplexity;
+    }
+
+    public function getQueryComplexity(): int
+    {
+        return $this->queryComplexity;
     }
 
     /**
