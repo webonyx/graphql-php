@@ -75,6 +75,10 @@ class QueryComplexity extends QuerySecurityRule
                             return;
                         }
 
+                        if ($this->maxQueryComplexity === self::DISABLED) {
+                            return;
+                        }
+
                         $complexity = $this->fieldComplexity($operationDefinition->selectionSet);
 
                         if ($complexity <= $this->maxQueryComplexity) {
