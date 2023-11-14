@@ -537,7 +537,7 @@ Usage example:
 
 @phpstan-type MaybeLazyObjectType ObjectType|(callable(): (ObjectType|null))|null
 @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
-@phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
+@phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)|iterable<(callable(): Type&NamedType)>|(callable(): iterable<(callable(): Type&NamedType)>)
 @phpstan-type SchemaConfigOptions array{
 query?: MaybeLazyObjectType,
 mutation?: MaybeLazyObjectType,
