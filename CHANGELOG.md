@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Fixed
+
+- Fix PhpEnumType parse value if it's already enum value https://github.com/webonyx/graphql-php/pull/1481
+
 ## v15.8.0
 
 ### Added
