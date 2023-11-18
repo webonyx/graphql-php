@@ -12,11 +12,13 @@ use GraphQL\Tests\Type\PhpEnumType\MultipleDeprecationsPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\MultipleDescriptionsCasePhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\MultipleDescriptionsPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\PhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\StringPhpEnum;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
+use GraphQL\Utils\Value;
 
 final class PhpEnumTypeTest extends TestCaseBase
 {
@@ -49,6 +51,17 @@ GRAPHQL, SchemaPrinter::printType($enumType));
         self::assertSame(<<<'GRAPHQL'
 enum IntPhpEnum {
   A
+}
+GRAPHQL, SchemaPrinter::printType($enumType));
+    }
+
+    public function testConstructEnumTypeFromStringPhpEnum(): void
+    {
+        $enumType = new PhpEnumType(StringPhpEnum::class);
+        self::assertSame(<<<'GRAPHQL'
+enum StringPhpEnum {
+  A
+  B
 }
 GRAPHQL, SchemaPrinter::printType($enumType));
     }
@@ -101,6 +114,109 @@ GRAPHQL, SchemaPrinter::printType($enumType));
     {
         self::expectExceptionObject(new \Exception(PhpEnumType::MULTIPLE_DEPRECATIONS_DISALLOWED));
         new PhpEnumType(MultipleDeprecationsPhpEnum::class);
+    }
+
+    public function testParseValueOfEnumSimpleEnum(): void
+    {
+        $intEnum = new PhpEnumType(PhpEnum::class);
+
+        $result = Value::coerceInputValue(PhpEnum::C, $intEnum);
+
+        self::assertIsArray($result);
+        self::assertNull($result['errors']);
+        self::assertSame(PhpEnum::C, $result['value']);
+    }
+
+    public function testParseValueOfStringSimpleEnum(): void
+    {
+        $intEnum = new PhpEnumType(PhpEnum::class);
+
+        $result = Value::coerceInputValue('C', $intEnum);
+
+        self::assertIsArray($result);
+        self::assertNull($result['errors']);
+        self::assertSame(PhpEnum::C, $result['value']);
+    }
+
+    public function testParseValueOfEnumTypeIntEnum(): void
+    {
+        $intEnum = new PhpEnumType(IntPhpEnum::class);
+
+        $result = Value::coerceInputValue(IntPhpEnum::A, $intEnum);
+
+        self::assertIsArray($result);
+        self::assertNull($result['errors']);
+        self::assertSame(IntPhpEnum::A, $result['value']);
+    }
+
+    public function testParseValueOfStringTypeIntEnum(): void
+    {
+        $intEnum = new PhpEnumType(IntPhpEnum::class);
+
+        $result = Value::coerceInputValue('A', $intEnum);
+
+        self::assertIsArray($result);
+        self::assertNull($result['errors']);
+        self::assertSame(IntPhpEnum::A, $result['value']);
+    }
+
+    public function testParseValueOfEnumTypeStringEnum(): void
+    {
+        $stringEnum = new PhpEnumType(StringPhpEnum::class);
+
+        $result = Value::coerceInputValue(StringPhpEnum::B, $stringEnum);
+
+        self::assertIsArray($result);
+        self::assertNull($result['errors']);
+        self::assertSame(StringPhpEnum::B, $result['value']);
+    }
+
+    public function testParseValueOfStringTypeStringEnum(): void
+    {
+        $stringEnum = new PhpEnumType(StringPhpEnum::class);
+
+        $result = Value::coerceInputValue('A', $stringEnum);
+
+        self::assertIsArray($result);
+        self::assertNull($result['errors']);
+        self::assertSame(StringPhpEnum::A, $result['value']);
+    }
+
+    public function testExecutesSubscriptionWithEnumTypeFromPhpEnum(): void
+    {
+        $enumType = new PhpEnumType(StringPhpEnum::class);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => []
+            ]),
+            'subscription' => new ObjectType([
+                'name' => 'Subscription',
+                'fields' => [
+                    'foo' => [
+                        'type' => Type::nonNull($enumType),
+                        'args' => [
+                            'bar' => [
+                                'type' => Type::nonNull($enumType),
+                            ],
+                        ],
+                        'resolve' => static function ($_, array $args): StringPhpEnum {
+                            $bar = $args['bar'];
+
+                            assert($bar === StringPhpEnum::B);
+
+                            return $bar;
+                        },
+                    ],
+                ],
+            ]),
+        ]);
+
+        self::assertSame([
+            'data' => [
+                'foo' => 'B',
+            ],
+        ], GraphQL::executeQuery($schema, 'subscription { foo(bar: B) }')->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE));
     }
 
     public function testExecutesWithEnumTypeFromPhpEnum(): void

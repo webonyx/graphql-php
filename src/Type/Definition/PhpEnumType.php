@@ -45,6 +45,15 @@ class PhpEnumType extends EnumType
         ]);
     }
 
+    public function parseValue($value)
+    {
+        if ($value instanceof \UnitEnum) {
+            return $value;
+        }
+
+        return parent::parseValue($value);
+    }
+
     public function serialize($value): string
     {
         if (! is_a($value, $this->enumClass)) {
