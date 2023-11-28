@@ -29,6 +29,90 @@ final class Types
     /** @var array<string, Type&NamedType> */
     private static array $types = [];
 
+    /**
+     * @throws \Exception
+     *
+     * @return Type&NamedType
+     */
+    public static function byTypeName(string $typeName): Type
+    {
+        if (isset(self::$types[$typeName])) {
+            return self::$types[$typeName];
+        }
+
+        switch ($typeName) {
+            case 'ID':
+                $methodName = 'id';
+                break;
+            default:
+                $methodName = \lcfirst($typeName);
+        }
+        if (! method_exists(self::class, $methodName)) {
+            throw new \Exception("Unknown GraphQL type: {$typeName}.");
+        }
+
+        $type = self::{$methodName}(); // @phpstan-ignore-line variable static method call
+        if (is_callable($type)) {
+            $type = $type();
+        }
+
+        return self::$types[$typeName] = $type;
+    }
+
+    /**
+     * @param class-string<Type&NamedType> $classname
+     *
+     * @return \Closure(): Type
+     */
+    private static function get(string $classname): \Closure
+    {
+        return static fn () => self::byClassName($classname);
+    }
+
+    /** @param class-string<Type&NamedType> $className */
+    private static function byClassName(string $className): Type
+    {
+        $parts = \explode('\\', $className);
+
+        $typeName = \preg_replace('~Type$~', '', $parts[\count($parts) - 1]);
+        assert(is_string($typeName), 'regex is statically known to be correct');
+
+        // Type loading is very similar to PHP class loading, but keep in mind
+        // that the **typeLoader** must always return the same instance of a type.
+        // We can enforce that in our type registry by caching known types.
+        return self::$types[$typeName] ??= new $className();
+    }
+
+    /** @throws InvariantViolation */
+    public static function boolean(): ScalarType
+    {
+        return Type::boolean();
+    }
+
+    /** @throws InvariantViolation */
+    public static function float(): ScalarType
+    {
+        return Type::float();
+    }
+
+    /** @throws InvariantViolation */
+    public static function id(): ScalarType
+    {
+        return Type::id();
+    }
+
+    /** @throws InvariantViolation */
+    public static function int(): ScalarType
+    {
+        return Type::int();
+    }
+
+    /** @throws InvariantViolation */
+    public static function string(): ScalarType
+    {
+        return Type::string();
+    }
+
     public static function user(): callable
     {
         return self::get(UserType::class);
@@ -82,90 +166,5 @@ final class Types
     public static function url(): callable
     {
         return self::get(UrlType::class);
-    }
-
-    /**
-     * @param class-string<Type&NamedType> $classname
-     *
-     * @return \Closure(): Type
-     */
-    private static function get(string $classname): \Closure
-    {
-        return static fn () => self::byClassName($classname);
-    }
-
-    /** @param class-string<Type&NamedType> $classname */
-    private static function byClassName(string $classname): Type
-    {
-        $parts = \explode('\\', $classname);
-
-        $withoutTypePrefix = \preg_replace('~Type$~', '', $parts[\count($parts) - 1]);
-        assert(is_string($withoutTypePrefix), 'regex is statically known to be correct');
-
-        $cacheName = \strtolower($withoutTypePrefix);
-
-        if (! isset(self::$types[$cacheName])) {
-            return self::$types[$cacheName] = new $classname();
-        }
-
-        return self::$types[$cacheName];
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return Type&NamedType
-     */
-    public static function byTypeName(string $shortName): Type
-    {
-        $cacheName = \strtolower($shortName);
-
-        if (isset(self::$types[$cacheName])) {
-            return self::$types[$cacheName];
-        }
-
-        $method = \lcfirst($shortName);
-        switch ($method) {
-            case 'boolean':
-                return self::boolean();
-            case 'float':
-                return self::float();
-            case 'id':
-                return self::id();
-            case 'int':
-                return self::int();
-        }
-
-        throw new \Exception("Unknown graphql type: {$shortName}");
-    }
-
-    /** @throws InvariantViolation */
-    public static function boolean(): ScalarType
-    {
-        return Type::boolean();
-    }
-
-    /** @throws InvariantViolation */
-    public static function float(): ScalarType
-    {
-        return Type::float();
-    }
-
-    /** @throws InvariantViolation */
-    public static function id(): ScalarType
-    {
-        return Type::id();
-    }
-
-    /** @throws InvariantViolation */
-    public static function int(): ScalarType
-    {
-        return Type::int();
-    }
-
-    /** @throws InvariantViolation */
-    public static function string(): ScalarType
-    {
-        return Type::string();
     }
 }
