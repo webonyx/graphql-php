@@ -120,6 +120,7 @@ final class Types
     {
         $callback = [__CLASS__, lcfirst($shortName)];
         assert(is_callable($callback), new \Exception("Unknown graphql type: {$shortName}"));
+
         return $callback()();
     }
 
