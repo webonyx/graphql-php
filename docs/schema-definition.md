@@ -169,15 +169,13 @@ final class Types
         return static fn () => self::byClassName($classname);
     }
 
-    public static function byTypeName(string $typeName): Type&NamedType
+    public static function byTypeName(string $shortName): Type&NamedType
     {
-        return match ($typeName) {
-            'Boolean' => self::boolean(),
-            'Float' => self::float(),
-            'ID' => self::id(),
-            'Int' => self::int(),
-            default => self::$types[$typeName] ?? throw new \Exception("Unknown GraphQL type: {$typeName}."),
-        }
+        $method = lcfirst($shortName);
+        if(method_exists(__CLASS__, $shortName))
+            return self::{$method}()();
+
+        throw new \Exception("Unknown graphql type: {$shortName}");
     }
 
     private static function byClassName(string $classname): Type

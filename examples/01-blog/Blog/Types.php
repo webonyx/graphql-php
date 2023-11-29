@@ -118,23 +118,9 @@ final class Types
      */
     public static function byTypeName(string $shortName): Type
     {
-        $cacheName = \strtolower($shortName);
-
-        if (isset(self::$types[$cacheName])) {
-            return self::$types[$cacheName];
-        }
-
-        $method = \lcfirst($shortName);
-        switch ($method) {
-            case 'boolean':
-                return self::boolean();
-            case 'float':
-                return self::float();
-            case 'id':
-                return self::id();
-            case 'int':
-                return self::int();
-        }
+        $method = lcfirst($shortName);
+        if(method_exists(__CLASS__, $method))
+            return self::{$method}()();
 
         throw new \Exception("Unknown graphql type: {$shortName}");
     }
