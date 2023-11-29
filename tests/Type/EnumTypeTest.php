@@ -198,7 +198,10 @@ final class EnumTypeTest extends TestCase
                         }
 
                         if ($args['provideTwo'] ?? false) {
-                            return ['two', 'TWO'];
+                            return [
+                                'two',
+                                'TWO',
+                            ];
                         }
 
                         return $args['fromEnum'];

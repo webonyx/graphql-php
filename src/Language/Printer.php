@@ -92,7 +92,7 @@ class Printer
     }
 
     /** @throws \JsonException */
-    protected function p(?Node $node, bool $isDescription = false): string
+    protected function p(?Node $node): string
     {
         if ($node === null) {
             return '';
@@ -100,6 +100,7 @@ class Printer
 
         switch (true) {
             case $node instanceof ArgumentNode:
+            case $node instanceof ObjectFieldNode:
                 return $this->p($node->name) . ': ' . $this->p($node->value);
 
             case $node instanceof BooleanValueNode:
@@ -166,6 +167,9 @@ class Printer
                 );
 
             case $node instanceof EnumValueNode:
+            case $node instanceof FloatValueNode:
+            case $node instanceof IntValueNode:
+            case $node instanceof NameNode:
                 return $node->value;
 
             case $node instanceof FieldDefinitionNode:
@@ -218,9 +222,6 @@ class Printer
                     ],
                     ' '
                 );
-
-            case $node instanceof FloatValueNode:
-                return $node->value;
 
             case $node instanceof FragmentDefinitionNode:
                 // Note: fragment variable definitions are experimental and may be changed or removed in the future.
@@ -310,17 +311,11 @@ class Printer
                     ' '
                 );
 
-            case $node instanceof IntValueNode:
-                return $node->value;
-
             case $node instanceof ListTypeNode:
                 return '[' . $this->p($node->type) . ']';
 
             case $node instanceof ListValueNode:
                 return '[' . $this->printList($node->values, ', ') . ']';
-
-            case $node instanceof NameNode:
-                return $node->value;
 
             case $node instanceof NamedTypeNode:
                 return $this->p($node->name);
@@ -330,9 +325,6 @@ class Printer
 
             case $node instanceof NullValueNode:
                 return 'null';
-
-            case $node instanceof ObjectFieldNode:
-                return $this->p($node->name) . ': ' . $this->p($node->value);
 
             case $node instanceof ObjectTypeDefinitionNode:
                 return $this->addDescription($node->description, $this->join(
@@ -511,7 +503,7 @@ class Printer
     /** @throws \JsonException */
     protected function addDescription(?StringValueNode $description, string $body): string
     {
-        return $this->join([$this->p($description, true), $body], "\n");
+        return $this->join([$this->p($description), $body], "\n");
     }
 
     /**
