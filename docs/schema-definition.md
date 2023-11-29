@@ -199,7 +199,7 @@ final class Types
         return self::$types[$typeName] ??= new $className;
     }
 
-    /** @return \Closure(): Type&NamedType */
+    /** @return \Closure(): (Type&NamedType) */
     private static function lazyByClassName(string $className): \Closure
     {
         return static fn () => self::byClassName($className);

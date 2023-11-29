@@ -59,7 +59,11 @@ final class Types
         return self::$types[$typeName] = $type;
     }
 
-    /** @param class-string<Type&NamedType> $className */
+    /**
+     * @param class-string<Type&NamedType> $className
+     *
+     * @return Type&NamedType
+     */
     private static function byClassName(string $className): Type
     {
         $parts = \explode('\\', $className);
@@ -76,7 +80,7 @@ final class Types
     /**
      * @param class-string<Type&NamedType> $classname
      *
-     * @return \Closure(): Type&NamedType
+     * @return \Closure(): (Type&NamedType)
      */
     private static function lazyByClassName(string $classname): \Closure
     {
