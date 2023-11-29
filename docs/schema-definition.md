@@ -164,7 +164,8 @@ final class Types
     /** @var array<string, Type&NamedType> */
     private static array $types = [];
 
-    public static function byTypeName(string $typeName): \Closure
+    /** @return Type&NamedType */
+    public static function load(string $typeName): Type
     {
         if (isset(self::$types[$typeName])) {
             return self::$types[$typeName];
@@ -199,7 +200,7 @@ final class Types
     }
 
     /** @return \Closure(): Type&NamedType */
-    private static function get(string $className): \Closure
+    private static function lazyByClassName(string $className): \Closure
     {
         return static fn () => self::byClassName($className);
     }
@@ -209,8 +210,8 @@ final class Types
     public static function id(): ScalarType { return Type::id(); }
     public static function int(): ScalarType { return Type::int(); }
     public static function string(): ScalarType { return Type::string(); }
-    public static function author(): callable { return self::get(AuthorType::class); }
-    public static function story(): callable { return self::get(StoryType::class); }
+    public static function author(): callable { return self::lazyByClassName(AuthorType::class); }
+    public static function story(): callable { return self::lazyByClassName(StoryType::class); }
     ...
 }
 
@@ -231,7 +232,7 @@ $schema = new Schema([
             ],
         ],
     ]),
-    'typeLoader' => Types::byTypeName(...),
+    'typeLoader' => Types::load(...),
 ]);
 ```
 

@@ -34,7 +34,7 @@ final class Types
      *
      * @return Type&NamedType
      */
-    public static function byTypeName(string $typeName): Type
+    public static function load(string $typeName): Type
     {
         if (isset(self::$types[$typeName])) {
             return self::$types[$typeName];
@@ -59,16 +59,6 @@ final class Types
         return self::$types[$typeName] = $type;
     }
 
-    /**
-     * @param class-string<Type&NamedType> $classname
-     *
-     * @return \Closure(): Type
-     */
-    private static function get(string $classname): \Closure
-    {
-        return static fn () => self::byClassName($classname);
-    }
-
     /** @param class-string<Type&NamedType> $className */
     private static function byClassName(string $className): Type
     {
@@ -81,6 +71,16 @@ final class Types
         // that the **typeLoader** must always return the same instance of a type.
         // We can enforce that in our type registry by caching known types.
         return self::$types[$typeName] ??= new $className();
+    }
+
+    /**
+     * @param class-string<Type&NamedType> $classname
+     *
+     * @return \Closure(): Type&NamedType
+     */
+    private static function lazyByClassName(string $classname): \Closure
+    {
+        return static fn () => self::byClassName($classname);
     }
 
     /** @throws InvariantViolation */
@@ -115,56 +115,56 @@ final class Types
 
     public static function user(): callable
     {
-        return self::get(UserType::class);
+        return self::lazyByClassName(UserType::class);
     }
 
     public static function story(): callable
     {
-        return self::get(StoryType::class);
+        return self::lazyByClassName(StoryType::class);
     }
 
     public static function comment(): callable
     {
-        return self::get(CommentType::class);
+        return self::lazyByClassName(CommentType::class);
     }
 
     public static function image(): callable
     {
-        return self::get(ImageType::class);
+        return self::lazyByClassName(ImageType::class);
     }
 
     public static function node(): callable
     {
-        return self::get(NodeType::class);
+        return self::lazyByClassName(NodeType::class);
     }
 
     public static function mention(): callable
     {
-        return self::get(SearchResultType::class);
+        return self::lazyByClassName(SearchResultType::class);
     }
 
     public static function imageSize(): callable
     {
-        return self::get(ImageSizeType::class);
+        return self::lazyByClassName(ImageSizeType::class);
     }
 
     public static function contentFormat(): callable
     {
-        return self::get(ContentFormatType::class);
+        return self::lazyByClassName(ContentFormatType::class);
     }
 
     public static function storyAffordances(): callable
     {
-        return self::get(StoryAffordancesType::class);
+        return self::lazyByClassName(StoryAffordancesType::class);
     }
 
     public static function email(): callable
     {
-        return self::get(EmailType::class);
+        return self::lazyByClassName(EmailType::class);
     }
 
     public static function url(): callable
     {
-        return self::get(UrlType::class);
+        return self::lazyByClassName(UrlType::class);
     }
 }
