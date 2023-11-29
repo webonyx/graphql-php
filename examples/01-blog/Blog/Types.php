@@ -119,7 +119,7 @@ final class Types
     public static function byTypeName(string $shortName): Type
     {
         $callback = [__CLASS__, lcfirst($shortName)];
-        if(is_callable($callback)) {
+        if (is_callable($callback)) {
             return call_user_func($callback)();
         }
 
