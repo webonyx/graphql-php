@@ -118,9 +118,10 @@ final class Types
      */
     public static function byTypeName(string $shortName): Type
     {
-        $method = lcfirst($shortName);
-        if(method_exists(__CLASS__, $method))
-            return self::{$method}()();
+        $callback = [__CLASS__, lcfirst($shortName)];
+        if(is_callable($callback)) {
+            return call_user_func($callback)();
+        }
 
         throw new \Exception("Unknown graphql type: {$shortName}");
     }
