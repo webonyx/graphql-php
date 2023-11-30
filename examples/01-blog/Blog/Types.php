@@ -29,114 +29,66 @@ final class Types
     /** @var array<string, Type&NamedType> */
     private static array $types = [];
 
-    public static function user(): callable
-    {
-        return self::get(UserType::class);
-    }
-
-    public static function story(): callable
-    {
-        return self::get(StoryType::class);
-    }
-
-    public static function comment(): callable
-    {
-        return self::get(CommentType::class);
-    }
-
-    public static function image(): callable
-    {
-        return self::get(ImageType::class);
-    }
-
-    public static function node(): callable
-    {
-        return self::get(NodeType::class);
-    }
-
-    public static function mention(): callable
-    {
-        return self::get(SearchResultType::class);
-    }
-
-    public static function imageSize(): callable
-    {
-        return self::get(ImageSizeType::class);
-    }
-
-    public static function contentFormat(): callable
-    {
-        return self::get(ContentFormatType::class);
-    }
-
-    public static function storyAffordances(): callable
-    {
-        return self::get(StoryAffordancesType::class);
-    }
-
-    public static function email(): callable
-    {
-        return self::get(EmailType::class);
-    }
-
-    public static function url(): callable
-    {
-        return self::get(UrlType::class);
-    }
-
-    /**
-     * @param class-string<Type&NamedType> $classname
-     *
-     * @return \Closure(): Type
-     */
-    private static function get(string $classname): \Closure
-    {
-        return static fn () => self::byClassName($classname);
-    }
-
-    /** @param class-string<Type&NamedType> $classname */
-    private static function byClassName(string $classname): Type
-    {
-        $parts = \explode('\\', $classname);
-
-        $withoutTypePrefix = \preg_replace('~Type$~', '', $parts[\count($parts) - 1]);
-        assert(is_string($withoutTypePrefix), 'regex is statically known to be correct');
-
-        $cacheName = \strtolower($withoutTypePrefix);
-
-        if (! isset(self::$types[$cacheName])) {
-            return self::$types[$cacheName] = new $classname();
-        }
-
-        return self::$types[$cacheName];
-    }
-
     /**
      * @throws \Exception
      *
      * @return Type&NamedType
      */
-    public static function byTypeName(string $shortName): Type
+    public static function load(string $typeName): Type
     {
-        $cacheName = \strtolower($shortName);
-
-        if (isset(self::$types[$cacheName])) {
-            return self::$types[$cacheName];
+        if (isset(self::$types[$typeName])) {
+            return self::$types[$typeName];
         }
 
-        $method = \lcfirst($shortName);
-        switch ($method) {
-            case 'boolean':
-                return self::boolean();
-            case 'float':
-                return self::float();
-            case 'id':
-                return self::id();
-            case 'int':
-                return self::int();
+        // For every type, this class must define a method with the same name
+        // but the first letter is in lower case.
+        switch ($typeName) {
+            case 'ID':
+                $methodName = 'id';
+                break;
+            default:
+                $methodName = \lcfirst($typeName);
+        }
+        if (! method_exists(self::class, $methodName)) {
+            throw new \Exception("Unknown GraphQL type: {$typeName}.");
         }
 
-        throw new \Exception("Unknown graphql type: {$shortName}");
+        $type = self::{$methodName}(); // @phpstan-ignore-line variable static method call
+        if (is_callable($type)) {
+            $type = $type();
+        }
+
+        return self::$types[$typeName] = $type;
+    }
+
+    /**
+     * @param class-string<Type&NamedType> $className
+     *
+     * @return Type&NamedType
+     */
+    private static function byClassName(string $className): Type
+    {
+        $classNameParts = \explode('\\', $className);
+        $baseClassName = end($classNameParts);
+        // All type classes must use the suffix Type.
+        // This prevents name collisions between types and PHP keywords.
+        $typeName = \preg_replace('~Type$~', '', $baseClassName);
+        assert(is_string($typeName), 'regex is statically known to be correct');
+
+        // Type loading is very similar to PHP class loading, but keep in mind
+        // that the **typeLoader** must always return the same instance of a type.
+        // We can enforce that in our type registry by caching known types.
+        return self::$types[$typeName] ??= new $className();
+    }
+
+    /**
+     * @param class-string<Type&NamedType> $classname
+     *
+     * @return \Closure(): (Type&NamedType)
+     */
+    private static function lazyByClassName(string $classname): \Closure
+    {
+        return static fn () => self::byClassName($classname);
     }
 
     /** @throws InvariantViolation */
@@ -167,5 +119,60 @@ final class Types
     public static function string(): ScalarType
     {
         return Type::string();
+    }
+
+    public static function user(): callable
+    {
+        return self::lazyByClassName(UserType::class);
+    }
+
+    public static function story(): callable
+    {
+        return self::lazyByClassName(StoryType::class);
+    }
+
+    public static function comment(): callable
+    {
+        return self::lazyByClassName(CommentType::class);
+    }
+
+    public static function image(): callable
+    {
+        return self::lazyByClassName(ImageType::class);
+    }
+
+    public static function node(): callable
+    {
+        return self::lazyByClassName(NodeType::class);
+    }
+
+    public static function mention(): callable
+    {
+        return self::lazyByClassName(SearchResultType::class);
+    }
+
+    public static function imageSize(): callable
+    {
+        return self::lazyByClassName(ImageSizeType::class);
+    }
+
+    public static function contentFormat(): callable
+    {
+        return self::lazyByClassName(ContentFormatType::class);
+    }
+
+    public static function storyAffordances(): callable
+    {
+        return self::lazyByClassName(StoryAffordancesType::class);
+    }
+
+    public static function email(): callable
+    {
+        return self::lazyByClassName(EmailType::class);
+    }
+
+    public static function url(): callable
+    {
+        return self::lazyByClassName(UrlType::class);
     }
 }

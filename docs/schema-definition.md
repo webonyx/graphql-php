@@ -157,43 +157,66 @@ final class AuthorType extends ObjectType
 
 // Types.php
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\NamedType;
 
 final class Types
 {
     /** @var array<string, Type&NamedType> */
     private static array $types = [];
 
-    /** @return \Closure(): Type&NamedType */
-    public static function get(string $classname): \Closure
+    /** @return Type&NamedType */
+    public static function load(string $typeName): Type
     {
-        return static fn () => self::byClassName($classname);
-    }
-
-    public static function byTypeName(string $typeName): Type&NamedType
-    {
-        return match ($typeName) {
-            'Boolean' => self::boolean(),
-            'Float' => self::float(),
-            'ID' => self::id(),
-            'Int' => self::int(),
-            default => self::$types[$typeName] ?? throw new \Exception("Unknown GraphQL type: {$typeName}."),
+        if (isset(self::$types[$typeName])) {
+            return self::$types[$typeName];
         }
+
+        // For every type, this class must define a method with the same name
+        // but the first letter is in lower case.
+        $methodName = match ($typeName) {
+            'ID' => 'id',
+            default => lcfirst($typeName),
+        };
+        if (! method_exists(self::class, $methodName)) {
+            throw new \Exception("Unknown GraphQL type: {$typeName}.");
+        }
+
+        $type = self::{$methodName}(); // @phpstan-ignore-line variable static method call
+        if (is_callable($type)) {
+            $type = $type();
+        }
+
+        return self::$types[$typeName] = $type;
     }
 
-    private static function byClassName(string $classname): Type
+    /** @return Type&NamedType */
+    private static function byClassName(string $className): Type
     {
-        $parts = \explode('\\', $classname);
-        $typeName = \preg_replace('~Type$~', '', $parts[\count($parts) - 1]);
+        $classNameParts = explode('\\', $className);
+        $baseClassName = end($classNameParts);
+        // All type classes must use the suffix Type.
+        // This prevents name collisions between types and PHP keywords.
+        $typeName = preg_replace('~Type$~', '', $baseClassName);
 
         // Type loading is very similar to PHP class loading, but keep in mind
         // that the **typeLoader** must always return the same instance of a type.
         // We can enforce that in our type registry by caching known types.
-        return self::$types[$typeName] ??= new $classname;
+        return self::$types[$typeName] ??= new $className;
     }
 
-    public static function author(): callable { return self::get(AuthorType::class); }
-    public static function story(): callable { return self::get(StoryType::class); }
+    /** @return \Closure(): (Type&NamedType) */
+    private static function lazyByClassName(string $className): \Closure
+    {
+        return static fn () => self::byClassName($className);
+    }
 
+    public static function boolean(): ScalarType { return Type::boolean(); }
+    public static function float(): ScalarType { return Type::float(); }
+    public static function id(): ScalarType { return Type::id(); }
+    public static function int(): ScalarType { return Type::int(); }
+    public static function string(): ScalarType { return Type::string(); }
+    public static function author(): callable { return self::lazyByClassName(AuthorType::class); }
+    public static function story(): callable { return self::lazyByClassName(StoryType::class); }
     ...
 }
 
@@ -214,7 +237,7 @@ $schema = new Schema([
             ],
         ],
     ]),
-    'typeLoader' => Types::byTypeName(...),
+    'typeLoader' => Types::load(...),
 ]);
 ```
 
