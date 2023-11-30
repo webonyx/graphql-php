@@ -171,6 +171,8 @@ final class Types
             return self::$types[$typeName];
         }
 
+        // For every type, this class must define a method with the same name
+        // but the first letter is in lower case.
         $methodName = match ($typeName) {
             'ID' => 'id',
             default => lcfirst($typeName),
@@ -190,8 +192,11 @@ final class Types
     /** @return Type&NamedType */
     private static function byClassName(string $className): Type
     {
-        $parts = \explode('\\', $className);
-        $typeName = \preg_replace('~Type$~', '', $parts[\count($parts) - 1]);
+        $classNameParts = explode('\\', $className);
+        $baseClassName = end($classNameParts);
+        // All type classes must use the suffix Type.
+        // This prevents name collisions between types and PHP keywords.
+        $typeName = preg_replace('~Type$~', '', $baseClassName);
 
         // Type loading is very similar to PHP class loading, but keep in mind
         // that the **typeLoader** must always return the same instance of a type.
