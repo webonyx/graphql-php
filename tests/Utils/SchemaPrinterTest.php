@@ -1369,4 +1369,27 @@ final class SchemaPrinterTest extends TestCase
             ['sortArguments' => true]
         );
     }
+
+    public function testPrintDeprecatedFieldArg(): void
+    {
+        $schema = $this->buildSingleFieldSchema([
+            'type' => Type::int(),
+            'args' => [
+                'id' => [
+                    'type' => Type::id(),
+                    'defaultValue' => '123',
+                    'deprecationReason' => 'this is deprecated',
+                ],
+            ],
+        ]);
+        self::assertPrintedSchemaEquals(
+            <<<GRAPHQL
+            type Query {
+              singleField(id: ID = 123 @deprecated(reason: "this is deprecated")): Int
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
 }
