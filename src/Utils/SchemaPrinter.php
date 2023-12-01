@@ -338,7 +338,7 @@ class SchemaPrinter
      */
     protected static function printInputValue($arg): string
     {
-        $argDecl = "{$arg->name}: {$arg->getType()->toString()}" . static::printDeprecated($arg);
+        $argDecl = "{$arg->name}: {$arg->getType()->toString()}";
 
         if ($arg->defaultValueExists()) {
             $defaultValueAST = AST::astFromValue($arg->defaultValue, $arg->getType());
@@ -350,6 +350,8 @@ class SchemaPrinter
 
             $argDecl .= ' = ' . Printer::doPrint($defaultValueAST);
         }
+
+        $argDecl .= static::printDeprecated($arg);
 
         return $argDecl;
     }
