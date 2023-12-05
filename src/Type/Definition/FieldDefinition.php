@@ -21,7 +21,7 @@ use GraphQL\Utils\Utils;
  *     name: string,
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
- *     args?: ArgumentListConfig|null,
+ *     args?: ArgumentListConfig|callable(): ArgumentListConfig|null,
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
@@ -31,7 +31,7 @@ use GraphQL\Utils\Utils;
  * @phpstan-type UnnamedFieldDefinitionConfig array{
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
- *     args?: ArgumentListConfig|null,
+ *     args?: ArgumentListConfig|callable(): ArgumentListConfig|null,
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,

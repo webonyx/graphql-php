@@ -60,13 +60,17 @@ class Argument
     }
 
     /**
-     * @phpstan-param ArgumentListConfig $config
+     * @phpstan-param ArgumentListConfig|callable(): ArgumentListConfig $config
      *
      * @return array<int, self>
      */
-    public static function listFromConfig(iterable $config): array
+    public static function listFromConfig($config): array
     {
         $list = [];
+
+        if (\is_callable($config)) {
+            $config = $config();
+        }
 
         foreach ($config as $name => $argConfig) {
             if (! \is_array($argConfig)) {

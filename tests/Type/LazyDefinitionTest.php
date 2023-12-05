@@ -221,4 +221,24 @@ final class LazyDefinitionTest extends TestCaseBase
         self::assertNull($schema->getMutationType());
         self::assertNull($schema->getSubscriptionType());
     }
+
+    public function testLazyArgs(): void
+    {
+        $objType = new ObjectType([
+            'name' => 'SomeObject',
+            'fields' => [
+                'f' => [
+                    'type' => Type::string(),
+                    'args' => static fn (): array => [
+                        'id' => ['type' => Type::int()],
+                    ],
+                ],
+            ],
+        ]);
+
+        $objType->assertValid();
+
+        self::assertNotNull($objType->getField('f')->getArg('id'));
+        self::assertSame(Type::int(), $objType->getField('f')->getArg('id')->getType());
+    }
 }
