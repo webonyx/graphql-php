@@ -245,7 +245,7 @@ class ServerConfig
     /**
      * Set response debug flags.
      *
-     * @see \GraphQL\Error\DebugFlag class for a list of all available flags
+     * @see DebugFlag class for a list of all available flags
      *
      * @api
      */

@@ -26,7 +26,7 @@ use GraphQL\Validator\Rules\ValidationRule;
  *
  * @phpstan-import-type FieldResolver from Executor
  *
- * @see \GraphQL\Tests\GraphQLTest
+ * @see Tests\GraphQLTest
  */
 class GraphQL
 {

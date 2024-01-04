@@ -99,10 +99,10 @@ final class SchemaExtenderTest extends TestCaseBase
     }
 
     /**
-     * @throws \GraphQL\Error\SerializationError
      * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
+     * @throws SerializationError
      */
     private static function assertSchemaEquals(Schema $expectedSchema, Schema $actualSchema): void
     {

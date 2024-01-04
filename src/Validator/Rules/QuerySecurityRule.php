@@ -87,7 +87,7 @@ abstract class QuerySecurityRule extends ValidationRule
      * time we do not know what object type will be used, so we unconditionally
      * spread in all fragments.
      *
-     * @see \GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
+     * @see OverlappingFieldsCanBeMerged
      *
      * @param \ArrayObject<string, true>|null $visitedFragmentNames
      *
