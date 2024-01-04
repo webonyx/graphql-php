@@ -1,6 +1,9 @@
 name: Autoformat
 
 on:
+  pull_request:
+    branches:
+      - 'simple/branchname'
   push:
     branches:
       - '*'
