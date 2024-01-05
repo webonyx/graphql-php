@@ -2,8 +2,6 @@ name: Autoformat
 
 on:
   push:
-    branches:
-      - '*'
 
 jobs:
   composer-normalize:
@@ -33,6 +31,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+          token: ${{ secrets.GA_PAT }}
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -51,10 +50,16 @@ jobs:
 
   php-cs-fixer:
     runs-on: ubuntu-latest
+
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+          token: ${{ secrets.GA_PAT }}
 
       - uses: shivammathur/setup-php@v2
         with:
