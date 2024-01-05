@@ -15,6 +15,11 @@
     {
       "matchPackageNames": ["phpstan/extension-installer"],
       "rangeStrategy": "replace"
+    },
+    {
+      "matchPackageNames": ["friendsofphp/php-cs-fixer"],
+      "automerge": "true",
+      "automergeStrategy": "squash"
     }
   ],
   "assignees": [
