@@ -8,6 +8,8 @@
   "packageRules": [
     {
       "matchPackagePatterns": ["phpstan"],
+      "automerge": true,
+      "automergeStrategy": "squash",
       "groupName": "phpstan packages",
       "groupSlug": "phpstan",
       "rangeStrategy": "pin"
@@ -18,7 +20,7 @@
     },
     {
       "matchPackageNames": ["friendsofphp/php-cs-fixer"],
-      "automerge": "true",
+      "automerge": true,
       "automergeStrategy": "squash"
     }
   ],
