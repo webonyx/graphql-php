@@ -348,12 +348,11 @@ class SchemaPrinter
                 throw new InvariantViolation("Unable to convert defaultValue of argument {$arg->name} into AST: {$inconvertibleDefaultValue}.");
             }
 
-            $argDecl .= ' = ' . Printer::doPrint($defaultValueAST);
+            $printedDefaultValue = Printer::doPrint($defaultValueAST);
+            $argDecl .= " = {$printedDefaultValue}";
         }
 
-        $argDecl .= static::printDeprecated($arg);
-
-        return $argDecl;
+        return $argDecl . static::printDeprecated($arg);
     }
 
     /**
