@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Changed
+
+- Respect settings in `GraphQL\Error\Warning` before calling custom `$warningHandler`
+
 ## v15.8.1
 
 ### Fixed

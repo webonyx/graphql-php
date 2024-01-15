@@ -1771,7 +1771,7 @@ const ALL = 63;
  *
  * @api
  */
-static function setWarningHandler(?callable $warningHandler = null): void
+static function setWarningHandler(?callable $warningHandler): void
 ```
 
 ```php
