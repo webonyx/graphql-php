@@ -131,7 +131,7 @@ final class ExecutorLazySchemaTest extends TestCase
 
         $warnings = [];
         Warning::setWarningHandler(function ($warning) use (&$warnings): void {
-            $warnings[]= $warning;
+            $warnings[] = $warning;
         });
         Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = Executor::execute($schema, Parser::parse($query));
