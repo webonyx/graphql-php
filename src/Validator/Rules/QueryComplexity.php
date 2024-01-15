@@ -160,6 +160,8 @@ class QueryComplexity extends QuerySecurityRule
     }
 
     /**
+     * Will the given field be executed at all, given the directives placed upon it?
+     *
      * @throws \Exception
      * @throws \ReflectionException
      * @throws InvariantViolation
