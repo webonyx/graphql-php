@@ -3,7 +3,6 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\TypeDefinitionNode;
@@ -25,23 +24,17 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownTypeNames extends ValidationRule
 {
-    /** @throws InvariantViolation */
     public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
-    /** @throws InvariantViolation */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
-    /**
-     * @phpstan-return VisitorArray
-     *
-     * @throws InvariantViolation
-     */
+    /** @phpstan-return VisitorArray */
     public function getASTVisitor(ValidationContext $context): array
     {
         /** @var array<int, string> $definedTypes */
@@ -52,10 +45,8 @@ class KnownTypeNames extends ValidationRule
             }
         }
 
-        $standardTypeNames = \array_keys(Type::builtInTypes());
-
         return [
-            NodeKind::NAMED_TYPE => static function (NamedTypeNode $node, $_1, $parent, $_2, $ancestors) use ($context, $definedTypes, $standardTypeNames): void {
+            NodeKind::NAMED_TYPE => static function (NamedTypeNode $node, $_1, $parent, $_2, $ancestors) use ($context, $definedTypes): void {
                 $typeName = $node->name->value;
                 $schema = $context->getSchema();
 
@@ -69,7 +60,7 @@ class KnownTypeNames extends ValidationRule
 
                 $definitionNode = $ancestors[2] ?? $parent;
                 $isSDL = $definitionNode instanceof TypeSystemDefinitionNode || $definitionNode instanceof TypeSystemExtensionNode;
-                if ($isSDL && \in_array($typeName, $standardTypeNames, true)) {
+                if ($isSDL && \in_array($typeName, Type::BUILT_IN_TYPE_NAMES, true)) {
                     return;
                 }
 
@@ -86,7 +77,7 @@ class KnownTypeNames extends ValidationRule
                         Utils::suggestionList(
                             $typeName,
                             $isSDL
-                                ? [...$standardTypeNames, ...$typeNames]
+                                ? [...Type::BUILT_IN_TYPE_NAMES, ...$typeNames]
                                 : $typeNames
                         )
                     ),

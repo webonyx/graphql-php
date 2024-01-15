@@ -292,6 +292,9 @@ Where **$promiseAdapter** is an instance of:
 - For [AMPHP](https://github.com/amphp/amp): <br>
   `GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter`
 
+- For [Swoole](https://swoole.com/) or [OpenSwoole](https://openswoole.com/): <br>
+  You can use an external library: [Resonance](https://resonance.distantmagic.com/docs/features/graphql/standalone-promise-adapter.html)
+
 - Other platforms: write your own class implementing interface: <br>
   [`GraphQL\Executor\Promise\PromiseAdapter`](class-reference.md#graphqlexecutorpromisepromiseadapter).
 

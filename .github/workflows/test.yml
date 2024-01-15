@@ -11,7 +11,7 @@ on:
 jobs:
   phpunit:
     name: PHPUnit
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
@@ -51,25 +51,25 @@ jobs:
           vendor/bin/phpunit --coverage-clover=coverage.xml
 
       - name: Upload coverage file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: phpunit-${{ matrix.deps }}-${{ matrix.php-version }}.coverage
+          name: phpunit-${{ matrix.dependencies }}-${{ matrix.php-version }}.coverage
           path: coverage.xml
 
   upload_coverage:
     name: Upload coverage to Codecov
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs:
       - phpunit
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
       - name: Download coverage files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: reports
 
@@ -80,11 +80,11 @@ jobs:
 
   benchmarks:
     name: Benchmarks
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2

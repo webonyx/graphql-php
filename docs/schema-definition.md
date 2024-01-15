@@ -78,14 +78,14 @@ with complex input values (see [Mutations and Input Types](type-definitions/inpu
 The schema constructor expects an instance of [`GraphQL\Type\SchemaConfig`](class-reference.md#graphqltypeschemaconfig)
 or an array with the following options:
 
-| Option       | Type                           | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ------------ | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| query        | `ObjectType`                   | **Required.** Object type (usually named "Query") containing root-level fields of your read API                                                                                                                                                                                                                                                                                                                                                               |
-| mutation     | `ObjectType`                   | Object type (usually named "Mutation") containing root-level fields of your write API                                                                                                                                                                                                                                                                                                                                                                         |
-| subscription | `ObjectType`                   | Reserved for future subscriptions implementation. Currently presented for compatibility with introspection query of **graphql-js**, used by various clients (like Relay or GraphiQL)                                                                                                                                                                                                                                                                          |
-| directives   | `array<Directive>`             | A full list of [directives](type-definitions/directives.md) supported by your schema. By default, contains built-in **@skip** and **@include** directives.<br><br> If you pass your own directives and still want to use built-in directives - add them explicitly. For example:<br><br> _array_merge(GraphQL::getStandardDirectives(), [$myCustomDirective]);_                                                                                               |
-| types        | `array<ObjectType>`            | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often this happens when the object type is never referenced in fields directly but is still a part of a schema because it implements an interface which resolves to this object type in its **resolveType** callable. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for a concrete use-case. |
-| typeLoader   | `callable(string $name): Type` | Expected to return a type instance given the name. Must always return the same instance if called multiple times, see [lazy loading](#lazy-loading-of-types). See section below on lazy type loading.                                                                                                                                                                                                                                                         |
+| Option       | Type                                                | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| query        | `ObjectType` or `callable(): ?ObjectType` or `null` | **Required.** Object type (usually named `Query`) containing root-level fields of your read API                                                                                                                                                                                                                                                                                                                                                               |
+| mutation     | `ObjectType` or `callable(): ?ObjectType` or `null` | Object type (usually named `Mutation`) containing root-level fields of your write API                                                                                                                                                                                                                                                                                                                                                                         |
+| subscription | `ObjectType` or `callable(): ?ObjectType` or `null` | Reserved for future subscriptions implementation. Currently presented for compatibility with introspection query of **graphql-js**, used by various clients (like Relay or GraphiQL)                                                                                                                                                                                                                                                                          |
+| directives   | `array<Directive>`                                  | A full list of [directives](type-definitions/directives.md) supported by your schema. By default, contains built-in **@skip** and **@include** directives.<br><br> If you pass your own directives and still want to use built-in directives - add them explicitly. For example:<br><br> _array_merge(GraphQL::getStandardDirectives(), [$myCustomDirective]);_                                                                                               |
+| types        | `array<ObjectType>`                                 | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often this happens when the object type is never referenced in fields directly but is still a part of a schema because it implements an interface which resolves to this object type in its **resolveType** callable. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for a concrete use-case. |
+| typeLoader   | `callable(string $name): Type`                      | Expected to return a type instance given the name. Must always return the same instance if called multiple times, see [lazy loading](#lazy-loading-of-types). See section below on lazy type loading.                                                                                                                                                                                                                                                         |
 
 ### Using config class
 
@@ -105,63 +105,143 @@ $schema = new Schema($config);
 
 ## Lazy loading of types
 
-By default, the schema will scan all of your type, field and argument definitions to serve GraphQL queries.
-It may cause performance overhead when there are many types in the schema.
+If your schema makes use of a large number of complex or dynamically-generated types, they can become a performance concern.
+There are a few best practices that can lessen their impact:
 
-In this case, it is recommended to pass the **typeLoader** option to the schema constructor and define all
-of your object **fields** as callbacks.
+1. Use a type registry.
+   This will put you in a position to implement your own caching and lookup strategies, and GraphQL won't need to preload a map of all known types to do its work.
 
-Type loading is very similar to PHP class loading, but keep in mind that the **typeLoader** must
-always return the same instance of a type. A good way to ensure this is to use a type registry:
+2. Define each custom type as a callable that returns a type, rather than an object instance.
+   Then, the work of instantiating them will only happen as they are needed by each query.
+
+3. Define all of your object **fields** as callbacks.
+   If you're already doing #2 then this isn't needed, but it's a quick and easy precaution.
+
+It is recommended to centralize this kind of functionality in a type registry.
+A typical example might look like the following:
 
 ```php
-use GraphQL\Type\Definition\Type;
+// StoryType.php
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Schema;
 
-class TypeRegistry
+final class StoryType extends ObjectType
 {
-    /**
-     * @var array<string, Type>
-     */
-    private array $types = [];
-
-    public function get(string $name): Type
+    public function __construct()
     {
-        return $this->types[$name] ??= $this->{$name}();
-    }
-
-    private function MyTypeA(): ObjectType
-    {
-        return new ObjectType([
-            'name' => 'MyTypeA',
-            'fields' => fn() => [
-                'b' => [
-                    'type' => $this->get('MyTypeB')
+        parent::__construct([
+            'fields' => static fn (): array => [
+                'author' => [
+                    'type' => Types::author(),
+                    'resolve' => static fn (Story $story): ?Author => DataSource::findUser($story->authorId),
                 ],
-            ]
+            ],
         ]);
-    }
-
-    private function MyTypeB(): ObjectType
-    {
-        // ...
     }
 }
 
-$typeRegistry = new TypeRegistry();
+// AuthorType.php
+use GraphQL\Type\Definition\ObjectType;
+
+final class AuthorType extends ObjectType
+{
+    public function __construct()
+    {
+        parent::__construct([
+            'description' => 'Writer of books',
+            'fields' => static fn (): array => [
+                'firstName' => Types::string(),
+            ],
+        ]);
+    }
+}
+
+// Types.php
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\NamedType;
+
+final class Types
+{
+    /** @var array<string, Type&NamedType> */
+    private static array $types = [];
+
+    /** @return Type&NamedType */
+    public static function load(string $typeName): Type
+    {
+        if (isset(self::$types[$typeName])) {
+            return self::$types[$typeName];
+        }
+
+        // For every type, this class must define a method with the same name
+        // but the first letter is in lower case.
+        $methodName = match ($typeName) {
+            'ID' => 'id',
+            default => lcfirst($typeName),
+        };
+        if (! method_exists(self::class, $methodName)) {
+            throw new \Exception("Unknown GraphQL type: {$typeName}.");
+        }
+
+        $type = self::{$methodName}(); // @phpstan-ignore-line variable static method call
+        if (is_callable($type)) {
+            $type = $type();
+        }
+
+        return self::$types[$typeName] = $type;
+    }
+
+    /** @return Type&NamedType */
+    private static function byClassName(string $className): Type
+    {
+        $classNameParts = explode('\\', $className);
+        $baseClassName = end($classNameParts);
+        // All type classes must use the suffix Type.
+        // This prevents name collisions between types and PHP keywords.
+        $typeName = preg_replace('~Type$~', '', $baseClassName);
+
+        // Type loading is very similar to PHP class loading, but keep in mind
+        // that the **typeLoader** must always return the same instance of a type.
+        // We can enforce that in our type registry by caching known types.
+        return self::$types[$typeName] ??= new $className;
+    }
+
+    /** @return \Closure(): (Type&NamedType) */
+    private static function lazyByClassName(string $className): \Closure
+    {
+        return static fn () => self::byClassName($className);
+    }
+
+    public static function boolean(): ScalarType { return Type::boolean(); }
+    public static function float(): ScalarType { return Type::float(); }
+    public static function id(): ScalarType { return Type::id(); }
+    public static function int(): ScalarType { return Type::int(); }
+    public static function string(): ScalarType { return Type::string(); }
+    public static function author(): callable { return self::lazyByClassName(AuthorType::class); }
+    public static function story(): callable { return self::lazyByClassName(StoryType::class); }
+    ...
+}
+
+// api/index.php
+use GraphQL\Type\Definition\ObjectType;
 
 $schema = new Schema([
-    'query' => $typeRegistry->get('Query'),
-    'typeLoader' => static fn (string $name): Type => $typeRegistry->get($name),
+    'query' => new ObjectType([
+        'name' => 'Query',
+        'fields' => static fn() => [
+            'story' => [
+                'args'=>[
+                  'id' => Types::int(),
+                ],
+                'type' => Types::story(),
+                'description' => 'Returns my A',
+                'resolve' => static fn ($rootValue, array $args): ?Story => DataSource::findStory($args['id']),
+            ],
+        ],
+    ]),
+    'typeLoader' => Types::load(...),
 ]);
 ```
 
-You can automate this registry if you wish to reduce boilerplate or even
-introduce a Dependency Injection Container if your types have other dependencies.
-
-Alternatively, all methods of the registry could be static - then there is no need
-to pass it in the constructor - instead use **TypeRegistry::myAType()** in your type definitions.
+A working demonstration of this kind of architecture can be found in the [01-blog](https://github.com/webonyx/graphql-php/blob/master/examples/01-blog) sample.
 
 ## Schema Validation
 

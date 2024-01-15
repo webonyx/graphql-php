@@ -191,8 +191,8 @@ final class KnownDirectivesTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('with overrided standard directive') */
-    public function testWithOverridedStandardDirective(): void
+    /** @see it('with overridden standard directive') */
+    public function testWithOverriddenStandardDirective(): void
     {
         $this->expectSDLErrors(
             '

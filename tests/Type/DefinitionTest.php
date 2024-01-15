@@ -70,12 +70,9 @@ final class DefinitionTest extends TestCaseBase
 
         $this->scalarType = new CustomScalarType([
             'name' => 'Scalar',
-            'serialize' => static function (): void {
-            },
-            'parseValue' => static function (): void {
-            },
-            'parseLiteral' => static function (): void {
-            },
+            'serialize' => static function (): void {},
+            'parseValue' => static function (): void {},
+            'parseLiteral' => static function (): void {},
         ]);
 
         $this->blogImage = new ObjectType([
@@ -1286,12 +1283,9 @@ final class DefinitionTest extends TestCaseBase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name' => 'SomeScalar',
-                'serialize' => static function (): void {
-                },
-                'parseValue' => static function (): void {
-                },
-                'parseLiteral' => static function (): void {
-                },
+                'serialize' => static function (): void {},
+                'parseValue' => static function (): void {},
+                'parseLiteral' => static function (): void {},
             ])
         );
         self::assertDidNotCrash();
@@ -1305,10 +1299,8 @@ final class DefinitionTest extends TestCaseBase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name' => 'SomeScalar',
-                'serialize' => static function (): void {
-                },
-                'parseValue' => static function (): void {
-                },
+                'serialize' => static function (): void {},
+                'parseValue' => static function (): void {},
             ])
         );
     }
@@ -1321,10 +1313,8 @@ final class DefinitionTest extends TestCaseBase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name' => 'SomeScalar',
-                'serialize' => static function (): void {
-                },
-                'parseLiteral' => static function (): void {
-                },
+                'serialize' => static function (): void {},
+                'parseLiteral' => static function (): void {},
             ])
         );
     }
@@ -1338,8 +1328,7 @@ final class DefinitionTest extends TestCaseBase
             // @phpstan-ignore-next-line intentionally wrong
             new CustomScalarType([
                 'name' => 'SomeScalar',
-                'serialize' => static function (): void {
-                },
+                'serialize' => static function (): void {},
                 'parseValue' => new \stdClass(),
                 'parseLiteral' => new \stdClass(),
             ])
@@ -1641,8 +1630,7 @@ final class DefinitionTest extends TestCaseBase
     {
         $FakeString = new CustomScalarType([
             'name' => 'String',
-            'serialize' => static function (): void {
-            },
+            'serialize' => static function (): void {},
         ]);
 
         $QueryType = new ObjectType([

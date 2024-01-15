@@ -105,7 +105,6 @@ use GraphQL\Language\AST\VariableNode;
  * Those magic functions allow partial parsing:
  *
  * @method static NameNode name(Source|string $source, bool[] $options = [])
- * @method static DocumentNode document(Source|string $source, bool[] $options = [])
  * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
  * @method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
  * @method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
@@ -170,6 +169,8 @@ use GraphQL\Language\AST\VariableNode;
  * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
  * @method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
  * @method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
+ *
+ * @see \GraphQL\Tests\Language\ParserTest
  */
 class Parser
 {
@@ -180,7 +181,7 @@ class Parser
      *
      * @param Source|string $source
      *
-     * @phpstan-param ParserOptions       $options
+     * @phpstan-param ParserOptions $options
      *
      * @api
      *
@@ -235,7 +236,7 @@ class Parser
      *
      * @param Source|string $source
      *
-     * @phpstan-param ParserOptions       $options
+     * @phpstan-param ParserOptions $options
      *
      * @throws \JsonException
      * @throws SyntaxError

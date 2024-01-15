@@ -17,6 +17,8 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-import-type SerializableError from ExecutionResult
  * @phpstan-import-type ErrorFormatter from ExecutionResult
+ *
+ * @see \GraphQL\Tests\Error\FormattedErrorTest
  */
 class FormattedError
 {

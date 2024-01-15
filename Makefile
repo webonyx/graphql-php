@@ -31,6 +31,7 @@ bench: ## Runs benchmarks with phpbench
 .PHONY: docs
 docs: ## Generate the class-reference docs
 	php generate-class-reference.php
+	prettier --write docs/class-reference.md
 
 vendor: composer.json composer.lock
 	composer install

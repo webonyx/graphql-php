@@ -25,6 +25,8 @@ use GraphQL\Validator\Rules\ValidationRule;
  * See [related documentation](executing-queries.md).
  *
  * @phpstan-import-type FieldResolver from Executor
+ *
+ * @see \GraphQL\Tests\GraphQLTest
  */
 class GraphQL
 {
@@ -110,11 +112,11 @@ class GraphQL
      * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
      * Useful for Async PHP platforms.
      *
-     * @param string|DocumentNode        $source
-     * @param mixed                      $rootValue
-     * @param mixed                      $context
-     * @param array<string, mixed>|null  $variableValues
-     * @param array<ValidationRule>|null $validationRules
+     * @param string|DocumentNode $source
+     * @param mixed $rootValue
+     * @param mixed $context
+     * @param array<string, mixed>|null $variableValues
+     * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
      *
      * @api
      *
@@ -136,7 +138,7 @@ class GraphQL
                 ? $source
                 : Parser::parse(new Source($source, 'GraphQL'));
 
-            if ($validationRules === null || $validationRules === []) {
+            if ($validationRules === null) {
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
                 assert($queryComplexity instanceof QueryComplexity, 'should not register a different rule for QueryComplexity');
 

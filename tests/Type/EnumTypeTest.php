@@ -52,8 +52,7 @@ final class EnumTypeTest extends TestCase
         $otherEnum = new OtherEnumType();
 
         $Complex1 = [
-            'someRandomFunction' => static function (): void {
-            },
+            'someRandomFunction' => static function (): void {},
         ];
         $Complex2 = new \ArrayObject(['someRandomValue' => 123]);
 
@@ -199,7 +198,10 @@ final class EnumTypeTest extends TestCase
                         }
 
                         if ($args['provideTwo'] ?? false) {
-                            return ['two', 'TWO'];
+                            return [
+                                'two',
+                                'TWO',
+                            ];
                         }
 
                         return $args['fromEnum'];

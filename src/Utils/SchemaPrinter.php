@@ -37,6 +37,8 @@ use GraphQL\Type\Schema;
  *   sortInputFields?: bool,
  *   sortTypes?: bool,
  * }
+ *
+ * @see \GraphQL\Tests\Utils\SchemaPrinterTest
  */
 class SchemaPrinter
 {
@@ -251,7 +253,7 @@ class SchemaPrinter
             : $indentation;
 
         if (count(Utils::splitLines($description)) === 1) {
-            $description = \json_encode($description, JSON_THROW_ON_ERROR);
+            $description = \json_encode($description, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
         } else {
             $description = BlockString::print($description);
             $description = $indentation !== ''
@@ -336,7 +338,7 @@ class SchemaPrinter
      */
     protected static function printInputValue($arg): string
     {
-        $argDecl = "{$arg->name}: {$arg->getType()->toString()}" . static::printDeprecated($arg);
+        $argDecl = "{$arg->name}: {$arg->getType()->toString()}";
 
         if ($arg->defaultValueExists()) {
             $defaultValueAST = AST::astFromValue($arg->defaultValue, $arg->getType());
@@ -346,10 +348,11 @@ class SchemaPrinter
                 throw new InvariantViolation("Unable to convert defaultValue of argument {$arg->name} into AST: {$inconvertibleDefaultValue}.");
             }
 
-            $argDecl .= ' = ' . Printer::doPrint($defaultValueAST);
+            $printedDefaultValue = Printer::doPrint($defaultValueAST);
+            $argDecl .= " = {$printedDefaultValue}";
         }
 
-        return $argDecl;
+        return $argDecl . static::printDeprecated($arg);
     }
 
     /**

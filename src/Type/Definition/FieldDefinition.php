@@ -16,12 +16,14 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
  * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int
+ * @phpstan-type VisibilityFn callable(): bool
  * @phpstan-type FieldDefinitionConfig array{
  *     name: string,
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
  *     description?: string|null,
+ *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
@@ -31,6 +33,7 @@ use GraphQL\Utils\Utils;
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
  *     description?: string|null,
+ *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
@@ -64,6 +67,13 @@ class FieldDefinition
 
     public ?string $description;
 
+    /**
+     * @var callable|bool
+     *
+     * @phpstan-var VisibilityFn|bool
+     */
+    public $visible;
+
     public ?string $deprecationReason;
 
     public ?FieldDefinitionNode $astNode;
@@ -94,6 +104,7 @@ class FieldDefinition
             ? Argument::listFromConfig($config['args'])
             : [];
         $this->description = $config['description'] ?? null;
+        $this->visible = $config['visible'] ?? true;
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->complexityFn = $config['complexity'] ?? null;
@@ -179,6 +190,15 @@ class FieldDefinition
     public function getType(): Type
     {
         return $this->type ??= Schema::resolveType($this->config['type']);
+    }
+
+    public function isVisible(): bool
+    {
+        if (is_bool($this->visible)) {
+            return $this->visible;
+        }
+
+        return $this->visible = ($this->visible)();
     }
 
     public function isDeprecated(): bool

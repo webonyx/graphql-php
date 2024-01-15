@@ -118,6 +118,10 @@ abstract class ValidatorTestCase extends TestCase
                     'type' => Type::boolean(),
                     'args' => ['x' => ['type' => Type::int()], 'y' => ['type' => Type::int()]],
                 ],
+                'secretName' => [
+                    'type' => Type::string(),
+                    'visible' => false,
+                ],
             ],
             'interfaces' => [$Being, $Pet, $Canine],
         ]);

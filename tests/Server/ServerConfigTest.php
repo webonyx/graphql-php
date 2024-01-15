@@ -145,8 +145,7 @@ final class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $resolver = static function (): void {
-        };
+        $resolver = static function (): void {};
         $config->setFieldResolver($resolver);
         self::assertSame($resolver, $config->getFieldResolver());
 
@@ -193,15 +192,11 @@ final class ServerConfigTest extends TestCase
             ]),
             'context' => new \stdClass(),
             'rootValue' => new \stdClass(),
-            'errorFormatter' => static function (): void {
-            },
+            'errorFormatter' => static function (): void {},
             'promiseAdapter' => new SyncPromiseAdapter(),
-            'validationRules' => static function (): void {
-            },
-            'fieldResolver' => static function (): void {
-            },
-            'persistedQueryLoader' => static function (): void {
-            },
+            'validationRules' => static function (): void {},
+            'fieldResolver' => static function (): void {},
+            'persistedQueryLoader' => static function (): void {},
             'debugFlag' => DebugFlag::INCLUDE_DEBUG_MESSAGE,
             'queryBatching' => true,
         ];

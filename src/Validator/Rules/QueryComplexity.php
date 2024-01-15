@@ -27,6 +27,8 @@ class QueryComplexity extends QuerySecurityRule
 {
     protected int $maxQueryComplexity;
 
+    protected int $queryComplexity;
+
     /** @var array<string, mixed> */
     protected array $rawVariableValues = [];
 
@@ -46,6 +48,7 @@ class QueryComplexity extends QuerySecurityRule
 
     public function getVisitor(QueryValidationContext $context): array
     {
+        $this->queryComplexity = 0;
         $this->context = $context;
         $this->variableDefs = new NodeList([]);
         $this->fieldNodeAndDefs = new \ArrayObject();
@@ -75,16 +78,20 @@ class QueryComplexity extends QuerySecurityRule
                             return;
                         }
 
-                        $complexity = $this->fieldComplexity($operationDefinition->selectionSet);
+                        if ($this->maxQueryComplexity === self::DISABLED) {
+                            return;
+                        }
 
-                        if ($complexity <= $this->maxQueryComplexity) {
+                        $this->queryComplexity = $this->fieldComplexity($operationDefinition->selectionSet);
+
+                        if ($this->queryComplexity <= $this->maxQueryComplexity) {
                             return;
                         }
 
                         $context->reportError(
                             new Error(static::maxQueryComplexityErrorMessage(
                                 $this->maxQueryComplexity,
-                                $complexity
+                                $this->queryComplexity
                             ))
                         );
                     },
@@ -153,6 +160,8 @@ class QueryComplexity extends QuerySecurityRule
     }
 
     /**
+     * Will the given field be executed at all, given the directives placed upon it?
+     *
      * @throws \Exception
      * @throws \ReflectionException
      * @throws InvariantViolation
@@ -257,6 +266,11 @@ class QueryComplexity extends QuerySecurityRule
     public function getMaxQueryComplexity(): int
     {
         return $this->maxQueryComplexity;
+    }
+
+    public function getQueryComplexity(): int
+    {
+        return $this->queryComplexity;
     }
 
     /**

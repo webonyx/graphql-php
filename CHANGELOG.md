@@ -13,6 +13,71 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 - Respect settings in `GraphQL\Error\Warning` before calling custom `$warningHandler`
 
+## v15.8.1
+
+### Fixed
+
+- Correctly print deprecated argument with default value https://github.com/webonyx/graphql-php/pull/1491
+
+## v15.8.0
+
+### Added
+
+- Early return when complexity is disabled https://github.com/webonyx/graphql-php/pull/1475
+- Allow access to calculated query complexity https://github.com/webonyx/graphql-php/pull/1475
+
+### Fixed
+
+- Fix PHPStan definition for `SchemaConfig` option `types` https://github.com/webonyx/graphql-php/pull/1479
+
+## v15.7.0
+
+### Added
+
+- Control field visibility through option `visible` https://github.com/webonyx/graphql-php/pull/1434
+
+## v15.6.3
+
+### Fixed
+
+- Fix printing of single line descriptions with Unicode https://github.com/webonyx/graphql-php/pull/1436
+
+## v15.6.2
+
+### Fixed
+
+- Avoid instantiations when checking if types are built-in https://github.com/webonyx/graphql-php/pull/1423
+
+## v15.6.1
+
+### Fixed
+
+- Allow lazy root type callables to return `null` https://github.com/webonyx/graphql-php/pull/1422
+
+## v15.6.0
+
+### Added
+
+- Allow lazy root types `query`, `mutation`, `subscription` https://github.com/webonyx/graphql-php/pull/1418
+
+## v15.5.3
+
+### Fixed
+
+- Also set `queryId` from Apollo-source `sha256Hash` if `query` is provided https://github.com/webonyx/graphql-php/pull/1412
+
+## v15.5.2
+
+### Fixed
+
+- Do not set raw vars on query complexity rule if no validation rules are used https://github.com/webonyx/graphql-php/pull/1413
+
+## v15.5.1
+
+### Fixed
+
+- Remove useless and broken `Parser::document()`, use `parse()`
+
 ## v15.5.0
 
 ### Added
@@ -251,6 +316,13 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Remove alias `GraphQL\Validator\Rules\AbstractQuerySecurity`, use `GraphQL\Validator\Rules\QuerySecurityRule`
 - Remove alias `GraphQL\Validator\Rules\AbstractValidationRule`, use `GraphQL\Validator\Rules\ValidationRule`
 - Remove alias `GraphQL\Utils\FindBreakingChanges`, use `GraphQL\Utils\BreakingChangesFinder`
+
+## v14.11.10
+
+### Fixed
+
+- Fix PHP 8.2 deprecated string interpolation syntax
+- Fix PHP 8.2 deprecated dynamic properties
 
 ## v14.11.9
 

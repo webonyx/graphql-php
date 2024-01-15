@@ -9,7 +9,7 @@ jobs:
   composer-normalize:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
 
@@ -17,20 +17,20 @@ jobs:
         with:
           coverage: none
           extensions: mbstring
-          php-version: 7.4
+          php-version: 8.2
 
       - uses: ramsey/composer-install@v2
 
       - run: composer normalize
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Normalize composer.json
 
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
 
@@ -38,7 +38,7 @@ jobs:
         with:
           coverage: none
           extensions: mbstring
-          php-version: 8.1
+          php-version: 8.2
 
       - uses: ramsey/composer-install@v2
 
@@ -55,7 +55,7 @@ jobs:
   php-cs-fixer:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
 
@@ -63,12 +63,12 @@ jobs:
         with:
           coverage: none
           extensions: mbstring
-          php-version: 7.4
+          php-version: 8.2
 
       - uses: ramsey/composer-install@v2
 
       - run: vendor/bin/php-cs-fixer fix
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Apply php-cs-fixer changes

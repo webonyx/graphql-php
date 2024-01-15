@@ -25,7 +25,7 @@ DataSource::init();
 $schema = new Schema(
     (new SchemaConfig())
     ->setQuery(new QueryType())
-    ->setTypeLoader([Types::class, 'byTypename'])
+    ->setTypeLoader([Types::class, 'load'])
 );
 
 // Prepare context that will be available in all field resolvers (as 3rd argument):

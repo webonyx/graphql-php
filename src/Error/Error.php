@@ -19,6 +19,8 @@ use GraphQL\Language\SourceLocation;
  *
  * Class extends standard PHP `\Exception`, so all standard methods of base `\Exception` class
  * are available in addition to those listed below.
+ *
+ * @see \GraphQL\Tests\Error\ErrorTest
  */
 class Error extends \Exception implements \JsonSerializable, ClientAware, ProvidesExtensions
 {

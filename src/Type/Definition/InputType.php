@@ -15,6 +15,4 @@ namespace GraphQL\Type\Definition;
  * | ListOfType<InputType>,
  * >;.
  */
-interface InputType
-{
-}
+interface InputType {}

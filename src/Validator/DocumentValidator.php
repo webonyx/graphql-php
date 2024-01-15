@@ -86,7 +86,7 @@ class DocumentValidator
     /**
      * Validate a GraphQL query against a schema.
      *
-     * @param array<ValidationRule>|null $rules
+     * @param array<ValidationRule>|null $rules Defaults to using all available rules
      *
      * @throws \Exception
      *

@@ -8,6 +8,13 @@ docs_dir: docs/
 markdown_extensions:
   - toc:
       permalink: true
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      extend_pygments_lang:
+        - name: php
+          lang: php
+          options:
+            startinline: true
 nav:
 - About: index.md
 - Getting Started: getting-started.md

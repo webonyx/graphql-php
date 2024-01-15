@@ -129,6 +129,11 @@ final class StarWarsSchema
                         'type' => Type::string(),
                         'description' => 'All secrets about their past.',
                     ],
+                    'secretName' => [
+                        'type' => Type::string(),
+                        'description' => 'The secret name of the character.',
+                        'visible' => false,
+                    ],
                 ];
             },
             'resolveType' => static function (array $obj) use (&$humanType, &$droidType): ObjectType {

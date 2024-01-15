@@ -5,6 +5,8 @@ See [related documentation](executing-queries.md).
 
 @phpstan-import-type FieldResolver from Executor
 
+@see \GraphQL\Tests\GraphQLTest
+
 ### GraphQL\GraphQL Methods
 
 ```php
@@ -76,11 +78,11 @@ static function executeQuery(
  * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
  * Useful for Async PHP platforms.
  *
- * @param string|DocumentNode        $source
- * @param mixed                      $rootValue
- * @param mixed                      $context
- * @param array<string, mixed>|null  $variableValues
- * @param array<ValidationRule>|null $validationRules
+ * @param string|DocumentNode $source
+ * @param mixed $rootValue
+ * @param mixed $context
+ * @param array<string, mixed>|null $variableValues
+ * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
  *
  * @api
  *
@@ -533,12 +535,13 @@ Usage example:
 
 @see Type, NamedType
 
+@phpstan-type MaybeLazyObjectType ObjectType|(callable(): (ObjectType|null))|null
 @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
-@phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)
+@phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)|iterable<(callable(): Type&NamedType)>|(callable(): iterable<(callable(): Type&NamedType)>)
 @phpstan-type SchemaConfigOptions array{
-query?: ObjectType|null,
-mutation?: ObjectType|null,
-subscription?: ObjectType|null,
+query?: MaybeLazyObjectType,
+mutation?: MaybeLazyObjectType,
+subscription?: MaybeLazyObjectType,
 types?: Types|null,
 directives?: array<Directive>|null,
 typeLoader?: TypeLoader|null,
@@ -556,9 +559,71 @@ extensionASTNodes?: array<SchemaExtensionNode>|null,
  *
  * @phpstan-param SchemaConfigOptions $options
  *
+ * @throws InvariantViolation
+ *
  * @api
  */
 static function create(array $options = []): self
+```
+
+```php
+/**
+ * @return MaybeLazyObjectType
+ *
+ * @api
+ */
+function getQuery()
+```
+
+```php
+/**
+ * @param MaybeLazyObjectType $query
+ *
+ * @throws InvariantViolation
+ *
+ * @api
+ */
+function setQuery($query): self
+```
+
+```php
+/**
+ * @return MaybeLazyObjectType
+ *
+ * @api
+ */
+function getMutation()
+```
+
+```php
+/**
+ * @param MaybeLazyObjectType $mutation
+ *
+ * @throws InvariantViolation
+ *
+ * @api
+ */
+function setMutation($mutation): self
+```
+
+```php
+/**
+ * @return MaybeLazyObjectType
+ *
+ * @api
+ */
+function getSubscription()
+```
+
+```php
+/**
+ * @param MaybeLazyObjectType $subscription
+ *
+ * @throws InvariantViolation
+ *
+ * @api
+ */
+function setSubscription($subscription): self
 ```
 
 ```php
@@ -645,6 +710,8 @@ Or using Schema Config instance:
 @phpstan-import-type SchemaConfigOptions from SchemaConfig
 @phpstan-import-type OperationType from OperationDefinitionNode
 
+@see \GraphQL\Tests\Type\SchemaTest
+
 ### GraphQL\Type\Schema Methods
 
 ```php
@@ -652,6 +719,8 @@ Or using Schema Config instance:
  * @param SchemaConfig|array<string, mixed> $config
  *
  * @phpstan-param SchemaConfig|SchemaConfigOptions $config
+ *
+ * @throws InvariantViolation
  *
  * @api
  */
@@ -862,7 +931,6 @@ future.)
 Those magic functions allow partial parsing:
 
 @method static NameNode name(Source|string $source, bool[] $options = [])
-@method static DocumentNode document(Source|string $source, bool[] $options = [])
 @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
 @method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
 @method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
@@ -928,6 +996,8 @@ Those magic functions allow partial parsing:
 @method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
 @method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
 
+@see \GraphQL\Tests\Language\ParserTest
+
 ### GraphQL\Language\Parser Methods
 
 ```php
@@ -938,7 +1008,7 @@ Those magic functions allow partial parsing:
  *
  * @param Source|string $source
  *
- * @phpstan-param ParserOptions       $options
+ * @phpstan-param ParserOptions $options
  *
  * @api
  *
@@ -986,7 +1056,7 @@ static function parseValue($source, array $options = [])
  *
  * @param Source|string $source
  *
- * @phpstan-param ParserOptions       $options
+ * @phpstan-param ParserOptions $options
  *
  * @throws \JsonException
  * @throws SyntaxError
@@ -1010,6 +1080,8 @@ $query = 'query myQuery {someField}';
 $ast = GraphQL\Language\Parser::parse($query);
 $printed = GraphQL\Language\Printer::doPrint($ast);
 ```
+
+@see \GraphQL\Tests\Language\PrinterTest
 
 ### GraphQL\Language\Printer Methods
 
@@ -1109,6 +1181,8 @@ visitor API:
 
 @phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
 @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
+
+@see \GraphQL\Tests\Language\VisitorTest
 
 ### GraphQL\Language\Visitor Methods
 
@@ -1259,6 +1333,8 @@ Implements the "Evaluating requests" section of the GraphQL specification.
 @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
 @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
 
+@see \GraphQL\Tests\Executor\ExecutorTest
+
 ### GraphQL\Executor\Executor Methods
 
 ```php
@@ -1345,6 +1421,8 @@ extensions?: array<string, mixed>
 }
 @phpstan-type ErrorFormatter callable(\Throwable): SerializableError
 @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
+
+@see \GraphQL\Tests\Executor\ExecutionResultTest
 
 ### GraphQL\Executor\ExecutionResult Props
 
@@ -1549,7 +1627,7 @@ will be created from the provided schema.
 /**
  * Validate a GraphQL query against a schema.
  *
- * @param array<ValidationRule>|null $rules
+ * @param array<ValidationRule>|null $rules Defaults to using all available rules
  *
  * @throws \Exception
  *
@@ -1625,6 +1703,8 @@ Also read related docs on [error handling](error-handling.md)
 
 Class extends standard PHP `\Exception`, so all standard methods of base `\Exception` class
 are available in addition to those listed below.
+
+@see \GraphQL\Tests\Error\ErrorTest
 
 ### GraphQL\Error\Error Methods
 
@@ -1769,6 +1849,8 @@ and provides tools for error debugging.
 @phpstan-import-type SerializableError from ExecutionResult
 @phpstan-import-type ErrorFormatter from ExecutionResult
 
+@see \GraphQL\Tests\Error\FormattedErrorTest
+
 ### GraphQL\Error\FormattedError Methods
 
 ```php
@@ -1838,6 +1920,8 @@ Or using [ServerConfig](class-reference.md#graphqlserverserverconfig) instance:
     $server->handleRequest();
 
 See [dedicated section in docs](executing-queries.md#using-server) for details.
+
+@see \GraphQL\Tests\Server\StandardServerTest
 
 ### GraphQL\Server\StandardServer Methods
 
@@ -1963,6 +2047,8 @@ Usage example:
 @phpstan-import-type ErrorsHandler from ExecutionResult
 @phpstan-import-type ErrorFormatter from ExecutionResult
 
+@see \GraphQL\Tests\Server\ServerConfigTest
+
 ### GraphQL\Server\ServerConfig Methods
 
 ```php
@@ -2062,6 +2148,8 @@ function setQueryBatching(bool $enableBatching): self
 ## GraphQL\Server\Helper
 
 Contains functionality that could be re-used by various server implementations.
+
+@see \GraphQL\Tests\Server\HelperTest
 
 ### GraphQL\Server\Helper Methods
 
@@ -2316,6 +2404,8 @@ assumeValidSDL?: bool
 
   Default: false
 
+@see \GraphQL\Tests\Utils\BuildSchemaTest
+
 ### GraphQL\Utils\BuildSchema Methods
 
 ```php
@@ -2568,6 +2658,8 @@ sortFields?: bool,
 sortInputFields?: bool,
 sortTypes?: bool,
 }
+
+@see \GraphQL\Tests\Utils\SchemaPrinterTest
 
 ### GraphQL\Utils\SchemaPrinter Methods
 
