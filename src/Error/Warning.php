@@ -62,7 +62,7 @@ final class Warning
             self::$enableWarnings = 0;
         } elseif ($suppress === false) {
             self::$enableWarnings = self::ALL;
-            // @phpstan-ignore-next-line necessary until we can use proper unions
+        // @phpstan-ignore-next-line necessary until we can use proper unions
         } elseif (\is_int($suppress)) {
             self::$enableWarnings &= ~$suppress;
         } else {
@@ -88,7 +88,7 @@ final class Warning
             self::$enableWarnings = self::ALL;
         } elseif ($enable === false) {
             self::$enableWarnings = 0;
-            // @phpstan-ignore-next-line necessary until we can use proper unions
+        // @phpstan-ignore-next-line necessary until we can use proper unions
         } elseif (\is_int($enable)) {
             self::$enableWarnings |= $enable;
         } else {
