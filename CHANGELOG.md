@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Added
+
+- Support `react/promise` v3 https://github.com/webonyx/graphql-php/pull/1517
+
 ## v15.8.1
 
 ### Fixed

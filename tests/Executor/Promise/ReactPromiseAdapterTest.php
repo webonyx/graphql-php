@@ -39,10 +39,10 @@ final class ReactPromiseAdapterTest extends TestCase
 
     public function testIsThenableReturnsTrueWhenAReactPromiseIsGiven(): void
     {
+        /** @var callable $reactPromiseSetRejectionHandler */
         $reactPromiseSetRejectionHandler = \function_exists('\React\Promise\set_rejection_handler')
             ? '\React\Promise\set_rejection_handler'
             : fn ($error) => null;
-        assert(is_callable($reactPromiseSetRejectionHandler));
 
         $reactAdapter = new ReactPromiseAdapter();
 
