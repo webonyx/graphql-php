@@ -6,7 +6,7 @@ use GraphQL\Type\Definition\Deprecated;
 use GraphQL\Type\Definition\Description;
 
 #[Description(description: 'foo')]
-enum PhpEnum
+enum MyCustomPhpEnum
 {
     #[Description(description: 'bar')]
     case A;
