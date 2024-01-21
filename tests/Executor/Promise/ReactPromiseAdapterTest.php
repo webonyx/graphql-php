@@ -16,21 +16,24 @@ use function React\Promise\resolve;
  */
 final class ReactPromiseAdapterTest extends TestCase
 {
-    /** @phpstan-var class-string<object> */
+    /** @var class-string<object> */
     private string $classFulfilledPromise;
 
-    /** @phpstan-var class-string<object> */
+    /** @var class-string<object> */
     private string $classRejectedPromise;
 
     public function setUp(): void
     {
-        /** @phpstan-var class-string<object> $classFulfilledPromise */
+        /** @var class-string<object> $classFulfilledPromise */
         $classFulfilledPromise = \class_exists('\React\Promise\FulfilledPromise')
-            ? '\React\Promise\FulfilledPromise' : '\React\Promise\Internal\FulfilledPromise';
+            ? '\React\Promise\FulfilledPromise'
+            : '\React\Promise\Internal\FulfilledPromise';
         $this->classFulfilledPromise = $classFulfilledPromise;
-        /** @phpstan-var class-string<object>  $classRejectedPromise */
+
+        /** @var class-string<object> $classRejectedPromise */
         $classRejectedPromise = \class_exists('\React\Promise\RejectedPromise')
-            ? '\React\Promise\RejectedPromise' : '\React\Promise\Internal\RejectedPromise';
+            ? '\React\Promise\RejectedPromise'
+            : '\React\Promise\Internal\RejectedPromise';
         $this->classRejectedPromise = $classRejectedPromise;
     }
 
@@ -38,7 +41,8 @@ final class ReactPromiseAdapterTest extends TestCase
     {
         $reactPromiseSetRejectionHandler = \function_exists('\React\Promise\set_rejection_handler')
             ? '\React\Promise\set_rejection_handler'
-            : fn () => null;
+            : fn ($error) => null;
+        assert(is_callable($reactPromiseSetRejectionHandler));
 
         $reactAdapter = new ReactPromiseAdapter();
 
@@ -58,7 +62,7 @@ final class ReactPromiseAdapterTest extends TestCase
         self::assertFalse($reactAdapter->isThenable(new \stdClass()));
     }
 
-    public function testConvertsReactPromisesToGraphQlOnes(): void
+    public function testConvertsReactPromisesToGraphQLOnes(): void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $reactPromise = resolve(1);
