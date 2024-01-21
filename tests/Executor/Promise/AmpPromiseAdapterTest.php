@@ -43,7 +43,7 @@ final class AmpPromiseAdapterTest extends TestCase
         self::assertFalse($ampAdapter->isThenable(new \stdClass()));
     }
 
-    public function testConvertsReactPromisesToGraphQlOnes(): void
+    public function testConvertsReactPromisesToGraphQLOnes(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
         $ampPromise = new Success(1);

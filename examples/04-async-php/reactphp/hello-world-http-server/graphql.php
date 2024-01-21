@@ -34,7 +34,7 @@ $queryType = new ObjectType([
                 $deferred = new \React\Promise\Deferred();
                 $promise = $deferred->promise();
                 $promise = $promise = $promise->then(static fn (): string => $rootValue['prefix'] . $args['message']);
-                $deferred->resolve();
+                $deferred->resolve(null);
 
                 return $promise;
             },
