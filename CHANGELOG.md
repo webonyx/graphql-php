@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.9.1
+
+### Fixed
+
+- Allow enum instances in `PhpEnumType::parseValue()`
+
 ## v15.9.0
 
 ### Added

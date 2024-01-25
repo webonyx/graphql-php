@@ -14,6 +14,7 @@ use GraphQL\Tests\Type\PhpEnumType\MultipleDescriptionsPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\PhpEnum;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\PhpEnumType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
@@ -133,6 +134,62 @@ GRAPHQL, SchemaPrinter::printType($enumType));
                 'foo' => 'A',
             ],
         ], GraphQL::executeQuery($schema, '{ foo(bar: A) }')->toArray());
+    }
+
+    public function testAcceptsEnumFromVariableValues(): void
+    {
+        $enumType = new PhpEnumType(PhpEnum::class);
+
+        $schema = null;
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'foo' => [
+                        'type' => Type::nonNull($enumType),
+                        'args' => [
+                            'bar' => [
+                                'type' => Type::nonNull($enumType),
+                            ],
+                        ],
+                        'resolve' => static function (bool $executeAgain, array $args, $context, ResolveInfo $resolveInfo) use (&$schema): PhpEnum {
+                            $bar = $args['bar'];
+                            assert($bar === PhpEnum::A);
+
+                            if ($executeAgain) {
+                                $executionResult = GraphQL::executeQuery(
+                                    $schema,
+                                    'query ($bar: PhpEnum!) { foo(bar: $bar) }',
+                                    false,
+                                    null,
+                                    $resolveInfo->variableValues
+                                );
+                                self::assertSame([
+                                    'data' => [
+                                        'foo' => 'A',
+                                    ],
+                                ], $executionResult->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS));
+                            }
+
+                            return $bar;
+                        },
+                    ],
+                ],
+            ]),
+        ]);
+
+        $executionResult = GraphQL::executeQuery(
+            $schema,
+            'query ($bar: PhpEnum!) { foo(bar: $bar) }',
+            true,
+            null,
+            ['bar' => PhpEnum::A->name]
+        );
+        self::assertSame([
+            'data' => [
+                'foo' => 'A',
+            ],
+        ], $executionResult->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS));
     }
 
     public function testFailsToSerializeNonEnum(): void
