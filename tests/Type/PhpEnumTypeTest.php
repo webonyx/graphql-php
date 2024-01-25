@@ -183,7 +183,7 @@ GRAPHQL, SchemaPrinter::printType($enumType));
             'query ($bar: PhpEnum!) { foo(bar: $bar) }',
             true,
             null,
-            ['bar' => PhpEnum::A->name]
+            ['bar' => 'A']
         );
         self::assertSame([
             'data' => [

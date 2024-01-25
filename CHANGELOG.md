@@ -13,7 +13,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Fixed
 
-- Allow enum instances in `PhpEnumType::parseValue()`
+- Allow enum instances in `PhpEnumType::parseValue()` https://github.com/webonyx/graphql-php/pull/1519
 
 ## v15.9.0
 
