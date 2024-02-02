@@ -21,7 +21,7 @@ class Source
      * be "Foo.graphql" and location to be `{ line: 40, column: 0 }`.
      * line and column in locationOffset are 1-indexed
      */
-    public function __construct(string $body, string $name = null, SourceLocation $location = null)
+    public function __construct(string $body, ?string $name = null, ?SourceLocation $location = null)
     {
         $this->body = $body;
         $this->length = \mb_strlen($body, 'UTF-8');

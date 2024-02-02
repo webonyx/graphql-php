@@ -25,7 +25,7 @@ class CoercionError extends Error
         string $message,
         ?array $inputPath,
         $invalidValue,
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ): self {
         $instance = new static($message, null, null, [], null, $previous);
         $instance->inputPath = $inputPath;

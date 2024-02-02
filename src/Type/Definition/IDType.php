@@ -47,7 +47,7 @@ When expected as an input type, any string (such as `"4"`) or integer
         throw new Error("ID cannot represent a non-string and non-integer value: {$notID}");
     }
 
-    public function parseLiteral(Node $valueNode, array $variables = null): string
+    public function parseLiteral(Node $valueNode, ?array $variables = null): string
     {
         if ($valueNode instanceof StringValueNode || $valueNode instanceof IntValueNode) {
             return $valueNode->value;

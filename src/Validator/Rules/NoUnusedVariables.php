@@ -52,7 +52,7 @@ class NoUnusedVariables extends ValidationRule
         ];
     }
 
-    public static function unusedVariableMessage(string $varName, string $opName = null): string
+    public static function unusedVariableMessage(string $varName, ?string $opName = null): string
     {
         return $opName !== null
             ? "Variable \"\${$varName}\" is never used in operation \"{$opName}\"."

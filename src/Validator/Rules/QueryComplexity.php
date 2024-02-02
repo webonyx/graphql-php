@@ -221,7 +221,7 @@ class QueryComplexity extends QuerySecurityRule
     }
 
     /** @param array<string, mixed>|null $rawVariableValues */
-    public function setRawVariableValues(array $rawVariableValues = null): void
+    public function setRawVariableValues(?array $rawVariableValues = null): void
     {
         $this->rawVariableValues = $rawVariableValues ?? [];
     }

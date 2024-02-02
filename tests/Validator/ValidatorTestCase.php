@@ -526,7 +526,7 @@ abstract class ValidatorTestCase extends TestCase
     protected function expectSDLErrorsFromRule(
         ValidationRule $rule,
         string $sdlString,
-        Schema $schema = null,
+        ?Schema $schema = null,
         array $errors = []
     ): void {
         $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
@@ -537,7 +537,7 @@ abstract class ValidatorTestCase extends TestCase
     }
 
     /** @throws \Exception */
-    protected function expectValidSDL(ValidationRule $rule, string $sdlString, Schema $schema = null): void
+    protected function expectValidSDL(ValidationRule $rule, string $sdlString, ?Schema $schema = null): void
     {
         $this->expectSDLErrorsFromRule($rule, $sdlString, $schema, []);
     }

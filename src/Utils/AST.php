@@ -307,7 +307,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromAST(?ValueNode $valueNode, Type $type, array $variables = null)
+    public static function valueFromAST(?ValueNode $valueNode, Type $type, ?array $variables = null)
     {
         $undefined = Utils::undefined();
 
@@ -487,7 +487,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromASTUntyped(Node $valueNode, array $variables = null)
+    public static function valueFromASTUntyped(Node $valueNode, ?array $variables = null)
     {
         switch (true) {
             case $valueNode instanceof NullValueNode:
@@ -572,7 +572,7 @@ class AST
      *
      * @api
      */
-    public static function getOperationAST(DocumentNode $document, string $operationName = null): ?OperationDefinitionNode
+    public static function getOperationAST(DocumentNode $document, ?string $operationName = null): ?OperationDefinitionNode
     {
         $operation = null;
         foreach ($document->definitions->getIterator() as $node) {

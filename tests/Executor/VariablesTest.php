@@ -122,7 +122,7 @@ final class VariablesTest extends TestCase
      * @throws InvariantViolation
      * @throws SyntaxError
      */
-    private function executeQuery(string $query, array $variableValues = null): ExecutionResult
+    private function executeQuery(string $query, ?array $variableValues = null): ExecutionResult
     {
         return Executor::execute(
             $this->schema(),

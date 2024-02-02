@@ -37,7 +37,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
      *
      * @throws \Exception
      */
-    private function expectSDLErrors(string $sdlString, Schema $schema = null, array $errors = []): void
+    private function expectSDLErrors(string $sdlString, ?Schema $schema = null, array $errors = []): void
     {
         $this->expectSDLErrorsFromRule(new KnownDirectives(), $sdlString, $schema, $errors);
     }

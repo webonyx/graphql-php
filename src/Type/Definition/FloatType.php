@@ -49,7 +49,7 @@ values as specified by
         return $float;
     }
 
-    public function parseLiteral(Node $valueNode, array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof FloatValueNode || $valueNode instanceof IntValueNode) {
             return (float) $valueNode->value;

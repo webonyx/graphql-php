@@ -30,7 +30,7 @@ final class AstFromValueUntypedTest extends TestCase
      * @throws \JsonException
      * @throws SyntaxError
      */
-    private static function assertTestCase(string $valueText, $expected, array $variables = null): void
+    private static function assertTestCase(string $valueText, $expected, ?array $variables = null): void
     {
         self::assertEquals(
             $expected,

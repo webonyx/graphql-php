@@ -86,10 +86,10 @@ class GraphQL
         $source,
         $rootValue = null,
         $contextValue = null,
-        array $variableValues = null,
-        string $operationName = null,
-        callable $fieldResolver = null,
-        array $validationRules = null
+        ?array $variableValues = null,
+        ?string $operationName = null,
+        ?callable $fieldResolver = null,
+        ?array $validationRules = null
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -128,10 +128,10 @@ class GraphQL
         $source,
         $rootValue = null,
         $context = null,
-        array $variableValues = null,
-        string $operationName = null,
-        callable $fieldResolver = null,
-        array $validationRules = null
+        ?array $variableValues = null,
+        ?string $operationName = null,
+        ?callable $fieldResolver = null,
+        ?array $validationRules = null
     ): Promise {
         try {
             $documentNode = $source instanceof DocumentNode

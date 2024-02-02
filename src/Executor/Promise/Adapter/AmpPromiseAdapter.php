@@ -26,7 +26,7 @@ class AmpPromiseAdapter implements PromiseAdapter
     }
 
     /** @throws InvariantViolation */
-    public function then(Promise $promise, callable $onFulfilled = null, callable $onRejected = null): Promise
+    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $deferred = new Deferred();
         $onResolve = static function (?\Throwable $reason, $value) use ($onFulfilled, $onRejected, $deferred): void {

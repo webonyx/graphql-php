@@ -24,7 +24,7 @@ final class SomeScalarClassType extends ScalarType
         return self::PARSE_VALUE_RETURN;
     }
 
-    public function parseLiteral(Node $valueNode, array $variables = null): string
+    public function parseLiteral(Node $valueNode, ?array $variables = null): string
     {
         return self::PARSE_LITERAL_RETURN;
     }
