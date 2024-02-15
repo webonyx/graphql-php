@@ -12,6 +12,7 @@
 
 - [GraphQLite](https://graphqlite.thecodingmachine.io) – Use PHP Annotations to define your schema
 - [GraphQL Doctrine](https://github.com/Ecodev/graphql-doctrine) – Define types with Doctrine ORM annotations
+- [GraphQL Type Driver for Doctrine ORM](https://github.com/api-skeletons/doctrine-orm-graphql) – Includes events, pagination with the [Complete Connection Model](https://graphql.org/learn/pagination/#complete-connection-model), and support for all default [Doctrine Types](https://doctrine-orm-graphql.apiskeletons.dev/en/latest/types.html#data-type-mappings)  
 - [DataLoaderPHP](https://github.com/overblog/dataloader-php) – Implements [deferred resolvers](data-fetching.md#solving-n1-problem)
 - [GraphQL Upload](https://github.com/Ecodev/graphql-upload) – PSR-15 middleware to support file uploads in GraphQL
 - [GraphQL Batch Processor](https://github.com/vasily-kartashov/graphql-batch-processing) – Provides a builder interface for defining collection, querying, filtering, and post-processing logic of batched data fetches
