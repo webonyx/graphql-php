@@ -10,7 +10,7 @@ For smaller contributions just use this workflow:
 
 - Fork the project.
 - Add your features and or bug fixes.
-- Add tests. Tests are important for us.
+- Add tests to ensure your changes work and will continue working.
 - Check your changes using `composer check`.
 - Add an entry to the [Changelog's Unreleased section](CHANGELOG.md#unreleased).
 - Send a pull request.
@@ -133,6 +133,9 @@ composer bench
 ## Documentation
 
 We document this library by rendering the Markdown files in [docs](docs) with [MkDocs](https://www.mkdocs.org).
+
+> You may propose changes to the docs via merge requests against the `master` branch.
+> Do not edit the generated HTML files in the `gh-pages` branch directly, they are automatically generated.
 
 Generate the class reference docs:
 
