@@ -33,7 +33,7 @@ class EmailType extends ScalarType
         return $value;
     }
 
-    public function parseLiteral(Node $valueNode, array $variables = null): string
+    public function parseLiteral(Node $valueNode, ?array $variables = null): string
     {
         // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
         // error location in query:

@@ -40,7 +40,7 @@ final class Warning
      *
      * @api
      */
-    public static function setWarningHandler(callable $warningHandler = null): void
+    public static function setWarningHandler(?callable $warningHandler = null): void
     {
         self::$warningHandler = $warningHandler;
     }
@@ -97,7 +97,7 @@ final class Warning
         }
     }
 
-    public static function warnOnce(string $errorMessage, int $warningId, int $messageLevel = null): void
+    public static function warnOnce(string $errorMessage, int $warningId, ?int $messageLevel = null): void
     {
         $messageLevel ??= \E_USER_WARNING;
 
@@ -109,7 +109,7 @@ final class Warning
         }
     }
 
-    public static function warn(string $errorMessage, int $warningId, int $messageLevel = null): void
+    public static function warn(string $errorMessage, int $warningId, ?int $messageLevel = null): void
     {
         $messageLevel ??= \E_USER_WARNING;
 

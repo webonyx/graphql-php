@@ -48,7 +48,7 @@ class Helper
      *
      * @api
      */
-    public function parseHttpRequest(callable $readRawBodyFn = null)
+    public function parseHttpRequest(?callable $readRawBodyFn = null)
     {
         $method = $_SERVER['REQUEST_METHOD'] ?? null;
         $bodyParams = [];

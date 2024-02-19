@@ -69,10 +69,10 @@ final class RequestParsingTest extends TestCase
     private static function assertValidOperationParams(
         OperationParams $params,
         ?string $query,
-        string $queryId = null,
+        ?string $queryId = null,
         $variables = null,
-        string $operation = null,
-        array $extensions = null,
+        ?string $operation = null,
+        ?array $extensions = null,
         string $message = ''
     ): void {
         self::assertSame($query, $params->query, $message);
