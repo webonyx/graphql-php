@@ -9,9 +9,9 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
+use GraphQL\Server\Exception\MissingQueryOrQueryIdParameter;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
-use GraphQL\Server\RequestError;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
@@ -602,7 +602,7 @@ final class QueryExecutionTest extends ServerTestCase
         );
 
         self::assertInstanceOf(
-            RequestError::class,
+            MissingQueryOrQueryIdParameter::class,
             $result->errors[0]->getPrevious()
         );
     }
