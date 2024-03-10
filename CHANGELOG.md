@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.11.0
+
+### Changed
+
+- Allow scalars from `BuildClientSchema` to have any type https://github.com/webonyx/graphql-php/pull/1536
+
 ## v15.10.0
 
 ### Changed
