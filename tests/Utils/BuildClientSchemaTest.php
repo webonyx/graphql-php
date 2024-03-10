@@ -1013,4 +1013,28 @@ SDL;
         $this->expectExceptionMessage('Expected Foo to be a GraphQL Object type.');
         $clientSchema->assertValid();
     }
+
+    public function testCustomScalarValueMixedExecution(): void
+    {
+        $schema = BuildSchema::build('
+        scalar CustomScalar
+    
+        type Query {
+          foo(bar: CustomScalar): CustomScalar
+        }
+        ');
+
+        $introspection = Introspection::fromSchema($schema);
+        $clientSchema = BuildClientSchema::build($introspection);
+
+        $result = GraphQL::executeQuery(
+            $clientSchema,
+            'query CustomScalarObject($v: CustomScalar) { foo(bar: $v) }',
+            ['foo' => ['baz' => 'value']],
+            null,
+            ['v' => 100]
+        );
+
+        self::assertSame(['foo' => ['baz' => 'value']], $result->data);
+    }
 }

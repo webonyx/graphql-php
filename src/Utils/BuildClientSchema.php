@@ -314,7 +314,7 @@ class BuildClientSchema
         return new CustomScalarType([
             'name' => $scalar['name'],
             'description' => $scalar['description'],
-            'serialize' => static fn ($value): string => (string) $value,
+            'serialize' => static fn ($value) => $value,
         ]);
     }
 
