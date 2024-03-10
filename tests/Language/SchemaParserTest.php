@@ -202,12 +202,12 @@ type Hello {
 
         // ensure the lexer does not treat multi line comments as one line
         $tokenAfterMultiLineComment = $doc->loc?->startToken?->next?->next;
-        self::assertEquals('Even with comments between them', trim($tokenAfterMultiLineComment?->value ?? ''));
-        self::assertEquals(5, $tokenAfterMultiLineComment?->line);
+        self::assertSame('Even with comments between them', trim($tokenAfterMultiLineComment?->value ?? ''));
+        self::assertSame(5, $tokenAfterMultiLineComment?->line);
 
         $typeToken = $tokenAfterMultiLineComment?->next;
-        self::assertEquals('type', $typeToken?->value);
-        self::assertEquals(6, $typeToken?->line);
+        self::assertSame('type', $typeToken?->value);
+        self::assertSame(6, $typeToken?->line);
     }
 
     /** @see it('Simple extension') */
