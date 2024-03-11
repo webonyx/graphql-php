@@ -199,6 +199,17 @@ type Hello {
             'loc' => $loc(0, 85),
         ];
         self::assertEquals($expected, $doc->toArray());
+
+        // ensure the lexer does not treat multi line comments as one line
+        $tokenAfterMultiLineComment = $doc->loc->startToken->next->next ?? null;
+        self::assertNotNull($tokenAfterMultiLineComment);
+        self::assertSame('Even with comments between them', trim($tokenAfterMultiLineComment->value ?? ''));
+        self::assertSame(5, $tokenAfterMultiLineComment->line);
+
+        $typeToken = $tokenAfterMultiLineComment->next;
+        self::assertNotNull($typeToken);
+        self::assertSame('type', $typeToken->value);
+        self::assertSame(6, $typeToken->line);
     }
 
     /** @see it('Simple extension') */
