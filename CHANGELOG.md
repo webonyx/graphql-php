@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.11.1
+
+### Fixed
+
+- Count new lines when parsing multi-line comments https://github.com/webonyx/graphql-php/pull/1538
+
 ## v15.11.0
 
 ### Changed
