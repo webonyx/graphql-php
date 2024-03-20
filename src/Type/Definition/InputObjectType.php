@@ -131,10 +131,12 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         if (\is_callable($field)) {
             $field = $field();
         }
+        assert($field instanceof Type || is_array($field) || $field instanceof InputObjectField);
 
         if ($field instanceof Type) {
             $field = ['type' => $field];
         }
+        assert(is_array($field) || $field instanceof InputObjectField); // @phpstan-ignore-line TODO remove when using actual union types
 
         if (\is_array($field)) {
             $field['name'] ??= $nameOrIndex;
@@ -143,8 +145,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
                 throw new InvariantViolation("{$this->name} fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those.");
             }
 
-            $field = new InputObjectField($field);
+            $field = new InputObjectField($field); // @phpstan-ignore-line array type is wrongly inferred
         }
+        assert($field instanceof InputObjectField); // @phpstan-ignore-line TODO remove when using actual union types
 
         $this->fields[$field->name] = $field;
     }
