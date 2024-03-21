@@ -75,6 +75,8 @@ jobs:
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           directory: reports
 
