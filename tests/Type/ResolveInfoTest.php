@@ -445,4 +445,77 @@ final class ResolveInfoTest extends TestCase
         self::assertEquals(['data' => ['level1' => null]], $result);
         self::assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
+
+    public function testPathAndUnaliasedPath(): void
+    {
+        $level2 = new ObjectType([
+            'name' => 'level2',
+            'fields' => [
+                'scalar1' => [
+                    'type' => Type::string(),
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) {
+                        return 'path: ' . implode('.', $info->path) . ', unaliasedPath: ' . implode('.', $info->unaliasedPath);
+                    },
+                ],
+                'scalar2' => [
+                    'type' => Type::string(),
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) {
+                        return 'path: ' . implode('.', $info->path) . ', unaliasedPath: ' . implode('.', $info->unaliasedPath);
+                    },
+                ],
+            ],
+        ]);
+        $level1 = new ObjectType([
+            'name' => 'level1',
+            'fields' => [
+                'level2' => [
+                    'type' => $level2,
+                    'resolve' => function () {
+                        return true;
+                    },
+                ],
+            ],
+        ]);
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'level1' => [
+                    'type' => $level1,
+                    'resolve' => function () {
+                        return true;
+                    },
+                ],
+            ],
+        ]);
+
+        $result = GraphQL::executeQuery(
+            new Schema(['query' => $query]),
+            <<<GRAPHQL
+            query {
+              level1 {
+                level2 {
+                  scalar1
+                }
+                level1000: level2 {
+                  scalar2
+                }
+              }
+            }
+            GRAPHQL
+        )->toArray();
+
+        self::assertEquals([
+            'data' => [
+                'level1' => [
+                    'level2' => [
+                        'scalar1' => 'path: level1.level2.scalar1, unaliasedPath: level1.level2.scalar1',
+                    ],
+                    'level1000' => [
+                        'scalar2' => 'path: level1.level1000.scalar2, unaliasedPath: level1.level2.scalar2',
+                    ],
+                ],
+            ],
+        ], $result);
+    }
 }
