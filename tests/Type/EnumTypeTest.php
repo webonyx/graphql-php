@@ -587,7 +587,7 @@ final class EnumTypeTest extends TestCase
                         'extensions' => [
                             'debugMessage' => 'Expected a value of type SimpleEnum but received: "WRONG". Cannot serialize value as enum: "WRONG"',
                             'trace' => [
-                                ['call' => 'GraphQL\Type\Definition\EnumType::serialize()'],
+                                ['call' => 'GraphQL\Type\Definition\EnumType::serialize(\'WRONG\')'],
                             ],
                         ],
                     ],
