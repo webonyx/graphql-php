@@ -538,7 +538,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
                 $fieldPath = $path;
                 $fieldPath[] = $responseName;
-                $result = $this->resolveField($parentType, $rootValue, $fieldNodes, $fieldPath, $contextValue);
+                $result = $this->resolveField($parentType, $rootValue, $fieldNodes, $fieldPath, $this->maybeScopeContext($contextValue));
                 if ($result === static::$UNDEFINED) {
                     return $results;
                 }
