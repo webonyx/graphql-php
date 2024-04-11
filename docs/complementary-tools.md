@@ -7,6 +7,7 @@
 - [WP-GraphQL](https://github.com/wp-graphql/wp-graphql) - WordPress plugin
 - [Siler](https://github.com/leocavalcante/siler) - Flat files and plain-old PHP functions, supports Swoole
 - [API Platform](https://api-platform.com/docs/core/graphql) - Creates a GraphQL API from PHP models
+- [LDOG Stack](https://ldog.apiskeletons.dev) - Laravel, Doctrine ORM, and GraphQL application template
 
 ## Server Utilities
 
