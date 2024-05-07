@@ -22,7 +22,7 @@
 - [Resonance/GraphQL](https://resonance.distantmagic.com/docs/features/graphql/) – Integrates with Swoole for parallelism. Define your schema code-first with annotations.
 - [GraphQL PHP Validation Toolkit](https://github.com/shmax/graphql-php-validation-toolkit) - Small library for validation of user input
 - [MLL Scalars](https://github.com/mll-lab/graphql-php-scalars) - Collection of custom scalar types
-- [X GraphQL](https://github.com/x-graphql/) - Provides set of libraries for building http schema, schema gateway, transforming schema, generating PHP code from execution definition, and more. 
+- [X GraphQL](https://github.com/x-graphql) - Provides set of libraries for building http schema, schema gateway, transforming schema, generating PHP code from execution definition, and more. 
 
 ## GraphQL Clients
 
