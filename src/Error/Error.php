@@ -34,10 +34,20 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
     /**
      * An array describing the JSON-path into the execution response which
      * corresponds to this error. Only included for errors during execution.
+     * When fields are aliased, the path includes aliases.
      *
-     * @var array<int, int|string>|null
+     * @var list<int|string>|null
      */
     public ?array $path;
+
+    /**
+     * An array describing the JSON-path into the execution response which
+     * corresponds to this error. Only included for errors during execution.
+     * This will never include aliases.
+     *
+     * @var list<int|string>|null
+     */
+    public ?array $unaliasedPath;
 
     /**
      * An array of GraphQL AST Nodes corresponding to this error.
@@ -65,8 +75,9 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
     /**
      * @param iterable<array-key, Node|null>|Node|null $nodes
      * @param array<int, int>|null                $positions
-     * @param array<int, int|string>|null         $path
+     * @param list<int|string>|null               $path
      * @param array<string, mixed>|null           $extensions
+     * @param list<int|string>|null               $unaliasedPath
      */
     public function __construct(
         string $message = '',
@@ -75,7 +86,8 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         ?array $positions = null,
         ?array $path = null,
         ?\Throwable $previous = null,
-        ?array $extensions = null
+        ?array $extensions = null,
+        ?array $unaliasedPath = null
     ) {
         parent::__construct($message, 0, $previous);
 
@@ -93,6 +105,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         $this->source = $source;
         $this->positions = $positions;
         $this->path = $path;
+        $this->unaliasedPath = $unaliasedPath;
 
         if (\is_array($extensions) && $extensions !== []) {
             $this->extensions = $extensions;
@@ -114,9 +127,10 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
      *
      * @param mixed                       $error
      * @param iterable<Node>|Node|null    $nodes
-     * @param array<int, int|string>|null $path
+     * @param list<int|string>|null       $path
+     * @param list<int|string>|null       $unaliasedPath
      */
-    public static function createLocatedError($error, $nodes = null, ?array $path = null): Error
+    public static function createLocatedError($error, $nodes = null, ?array $path = null, ?array $unaliasedPath = null): Error
     {
         if ($error instanceof self) {
             if ($error->isLocated()) {
@@ -125,6 +139,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
 
             $nodes ??= $error->getNodes();
             $path ??= $error->getPath();
+            $unaliasedPath ??= $error->getUnaliasedPath();
         }
 
         $source = null;
@@ -159,7 +174,8 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
             $positions,
             $path,
             $originalError,
-            $extensions
+            $extensions,
+            $unaliasedPath
         );
     }
 
@@ -251,15 +267,28 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
 
     /**
      * Returns an array describing the path from the root value to the field which produced this error.
-     * Only included for execution errors.
+     * Only included for execution errors. When fields are aliased, the path includes aliases.
      *
-     * @return array<int, int|string>|null
+     * @return list<int|string>|null
      *
      * @api
      */
     public function getPath(): ?array
     {
         return $this->path;
+    }
+
+    /**
+     * Returns an array describing the path from the root value to the field which produced this error.
+     * Only included for execution errors. This will never include aliases.
+     *
+     * @return list<int|string>|null
+     *
+     * @api
+     */
+    public function getUnaliasedPath(): ?array
+    {
+        return $this->unaliasedPath;
     }
 
     /** @return array<string, mixed>|null */
