@@ -36,7 +36,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
      * corresponds to this error. Only included for errors during execution.
      * When fields are aliased, the path includes aliases.
      *
-     * @var array<int, int|string>|null
+     * @var list<int|string>|null
      */
     public ?array $path;
 
@@ -75,9 +75,9 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
     /**
      * @param iterable<array-key, Node|null>|Node|null $nodes
      * @param array<int, int>|null                $positions
-     * @param array<int, int|string>|null         $path
+     * @param list<int|string>|null               $path
      * @param array<string, mixed>|null           $extensions
-     * @param list<int|string>|null          $unaliasedPath
+     * @param list<int|string>|null               $unaliasedPath
      */
     public function __construct(
         string $message = '',
@@ -127,8 +127,8 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
      *
      * @param mixed                       $error
      * @param iterable<Node>|Node|null    $nodes
-     * @param array<int, int|string>|null $path
-     * @param list<int|string>|null  $unaliasedPath
+     * @param list<int|string>|null       $path
+     * @param list<int|string>|null       $unaliasedPath
      */
     public static function createLocatedError($error, $nodes = null, ?array $path = null, ?array $unaliasedPath = null): Error
     {
@@ -269,7 +269,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
      * Returns an array describing the path from the root value to the field which produced this error.
      * Only included for execution errors. When fields are aliased, the path includes aliases.
      *
-     * @return array<int, int|string>|null
+     * @return list<int|string>|null
      *
      * @api
      */

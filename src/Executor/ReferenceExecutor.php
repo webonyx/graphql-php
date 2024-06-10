@@ -37,7 +37,6 @@ use GraphQL\Utils\Utils;
 /**
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type Path from ResolveInfo
- * @phpstan-import-type UnaliasedPath from ResolveInfo
  *
  * @phpstan-type Fields \ArrayObject<string, \ArrayObject<int, FieldNode>>
  */
@@ -523,7 +522,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * Implements the "Evaluating selection sets" section of the spec for "write" mode.
      *
      * @param mixed             $rootValue
-     * @param array<string|int> $path
+     * @param list<string|int>  $path
      * @param list<string|int>  $unaliasedPath
      * @param mixed             $contextValue
      *
@@ -587,12 +586,12 @@ class ReferenceExecutor implements ExecutorImplementation
      * serialize scalars, or execute the sub-selection-set for objects.
      *
      * @param mixed                       $rootValue
-     * @param array<int, string|int>      $path
+     * @param list<string|int>            $path
      * @param list<string|int>            $unaliasedPath
      * @param mixed                       $contextValue
      *
      * @phpstan-param Path                $path
-     * @phpstan-param UnaliasedPath       $unaliasedPath
+     * @phpstan-param Path                $unaliasedPath
      *
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      *
@@ -736,12 +735,12 @@ class ReferenceExecutor implements ExecutorImplementation
      * in the execution context.
      *
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<string|int>           $path
+     * @param list<string|int>            $path
      * @param list<string|int>            $unaliasedPath
      * @param mixed                       $contextValue
      *
      * @phpstan-param Path                $path
-     * @phpstan-param UnaliasedPath       $unaliasedPath
+     * @phpstan-param Path                $unaliasedPath
      *
      * @param mixed                       $result
      *
@@ -788,7 +787,7 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * @param mixed                       $rawError
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<int, string|int>      $path
+     * @param list<string|int>            $path
      * @param list<string|int>            $unaliasedPath
      *
      * @throws Error
@@ -835,7 +834,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * value by evaluating all sub-selections.
      *
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<string|int>           $path
+     * @param list<string|int>            $path
      * @param list<string|int>            $unaliasedPath
      * @param mixed                       $result
      * @param mixed                       $contextValue
@@ -1053,7 +1052,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param AbstractType&Type $returnType
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<string|int> $path
+     * @param list<string|int> $path
      * @param list<string|int> $unaliasedPath
      * @param array<mixed> $result
      * @param mixed $contextValue
@@ -1187,7 +1186,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * Complete an Object value by executing all sub-selections.
      *
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<string|int>           $path
+     * @param list<string|int>            $path
      * @param list<string|int>            $unaliasedPath
      * @param mixed                       $result
      * @param mixed                       $contextValue
@@ -1271,7 +1270,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<string|int>           $path
+     * @param list<string|int>            $path
      * @param list<string|int>            $unaliasedPath
      * @param mixed                       $result
      * @param mixed                       $contextValue
@@ -1335,7 +1334,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * Implements the "Evaluating selection sets" section of the spec for "read" mode.
      *
      * @param mixed             $rootValue
-     * @param array<string|int> $path
+     * @param list<string|int> $path
      * @param list<string|int>  $unaliasedPath
      * @param mixed             $contextValue
      *

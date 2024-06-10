@@ -309,7 +309,6 @@ Passed as 4th argument to every field resolver. See [docs on field resolving (da
 @phpstan-import-type QueryPlanOptions from QueryPlan
 
 @phpstan-type Path array<int, string|int>
-@phpstan-type UnaliasedPath list<string|int>
 
 ### GraphQL\Type\Definition\ResolveInfo Props
 
@@ -369,7 +368,7 @@ public $path;
  *
  * @var list<string|int>
  *
- * @phpstan-var UnaliasedPath
+ * @phpstan-var Path
  */
 public $unaliasedPath;
 

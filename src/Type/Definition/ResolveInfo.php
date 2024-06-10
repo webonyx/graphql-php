@@ -19,8 +19,7 @@ use GraphQL\Type\Schema;
  *
  * @phpstan-import-type QueryPlanOptions from QueryPlan
  *
- * @phpstan-type Path array<int, string|int>
- * @phpstan-type UnaliasedPath list<string|int>
+ * @phpstan-type Path list<string|int>
  */
 class ResolveInfo
 {
@@ -66,7 +65,7 @@ class ResolveInfo
      *
      * @api
      *
-     * @var array<int, string|int>
+     * @var list<string|int>
      *
      * @phpstan-var Path
      */
@@ -79,7 +78,7 @@ class ResolveInfo
      *
      * @var list<string|int>
      *
-     * @phpstan-var UnaliasedPath
+     * @phpstan-var Path
      */
     public array $unaliasedPath;
 
@@ -126,11 +125,11 @@ class ResolveInfo
 
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<int, string|int> $path
-     * @param array<int, string|int> $unaliasedPath
+     * @param list<string|int> $path
+     * @param list<string|int> $unaliasedPath
      *
      * @phpstan-param Path $path
-     * @phpstan-param UnaliasedPath $unaliasedPath
+     * @phpstan-param Path $unaliasedPath
      *
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param mixed|null $rootValue
