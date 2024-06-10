@@ -11,6 +11,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## v15.11.2
 
+### Fixed
+
 - Fix `ScopedContext` for mutations https://github.com/webonyx/graphql-php/pull/1549
 
 ## v15.11.1
