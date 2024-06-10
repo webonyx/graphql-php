@@ -70,10 +70,10 @@ class GraphQL
      *    Empty array would allow to skip query validation (may be convenient for persisted
      *    queries which are validated before persisting and assumed valid during execution)
      *
-     * @param string|DocumentNode        $source
-     * @param mixed                      $rootValue
-     * @param mixed                      $contextValue
-     * @param array<string, mixed>|null  $variableValues
+     * @param string|DocumentNode $source
+     * @param mixed $rootValue
+     * @param mixed $contextValue
+     * @param array<string, mixed>|null $variableValues
      * @param array<ValidationRule>|null $validationRules
      *
      * @api

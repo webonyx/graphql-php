@@ -147,7 +147,7 @@ class MixedStore implements \ArrayAccess
     }
 
     /**
-     * @param mixed  $offset
+     * @param mixed $offset
      * @param TValue $value
      *
      * @throws \InvalidArgumentException

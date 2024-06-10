@@ -39,7 +39,7 @@ const ENTRIES = [
 ];
 
 /**
- * @param ReflectionClass<object>                               $class
+ * @param ReflectionClass<object> $class
  * @param array{constants?: bool, props?: bool, methods?: bool} $options
  *
  * @throws ExceptionInterface

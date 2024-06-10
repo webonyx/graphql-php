@@ -505,7 +505,7 @@ final class ResolveInfoTest extends TestCase
             GRAPHQL
         )->toArray();
 
-        self::assertEquals([
+        self::assertSame([
             'data' => [
                 'level1' => [
                     'level2' => [

@@ -86,8 +86,8 @@ class Executor
      * Always returns ExecutionResult and never throws.
      * All errors which occur during operation execution are collected in `$result->errors`.
      *
-     * @param mixed                     $rootValue
-     * @param mixed                     $contextValue
+     * @param mixed $rootValue
+     * @param mixed $contextValue
      * @param array<string, mixed>|null $variableValues
      *
      * @phpstan-param FieldResolver|null $fieldResolver
@@ -127,8 +127,8 @@ class Executor
      *
      * Useful for async PHP platforms.
      *
-     * @param mixed                     $rootValue
-     * @param mixed                     $contextValue
+     * @param mixed $rootValue
+     * @param mixed $contextValue
      * @param array<string, mixed>|null $variableValues
      *
      * @phpstan-param FieldResolver|null $fieldResolver

@@ -193,7 +193,7 @@ class Value
     }
 
     /**
-     * @param array<int, CoercionError>       $errors
+     * @param array<int, CoercionError> $errors
      * @param CoercionError|array<int, CoercionError> $errorOrErrors
      *
      * @return array<int, CoercionError>

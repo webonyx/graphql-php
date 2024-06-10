@@ -60,7 +60,7 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $introspectionQuery
-     * @param array<string, bool>  $options
+     * @param array<string, bool> $options
      *
      * @phpstan-param Options    $options
      */

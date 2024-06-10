@@ -74,10 +74,10 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
 
     /**
      * @param iterable<array-key, Node|null>|Node|null $nodes
-     * @param array<int, int>|null                $positions
-     * @param list<int|string>|null               $path
-     * @param array<string, mixed>|null           $extensions
-     * @param list<int|string>|null               $unaliasedPath
+     * @param array<int, int>|null $positions
+     * @param list<int|string>|null $path
+     * @param array<string, mixed>|null $extensions
+     * @param list<int|string>|null $unaliasedPath
      */
     public function __construct(
         string $message = '',
@@ -125,10 +125,10 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
      * GraphQL operation, produce a new GraphQLError aware of the location in the
      * document responsible for the original Error.
      *
-     * @param mixed                       $error
-     * @param iterable<Node>|Node|null    $nodes
-     * @param list<int|string>|null       $path
-     * @param list<int|string>|null       $unaliasedPath
+     * @param mixed $error
+     * @param iterable<Node>|Node|null $nodes
+     * @param list<int|string>|null $path
+     * @param list<int|string>|null $unaliasedPath
      */
     public static function createLocatedError($error, $nodes = null, ?array $path = null, ?array $unaliasedPath = null): Error
     {
@@ -303,7 +303,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
      * @see http://php.net/manual/en/jsonserializable.jsonserialize.php
      *
      * @return array<string, mixed> data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource
+     *                              which is a value of any type other than a resource
      */
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): array

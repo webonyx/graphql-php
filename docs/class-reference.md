@@ -50,10 +50,10 @@ See [related documentation](executing-queries.md).
  *    Empty array would allow to skip query validation (may be convenient for persisted
  *    queries which are validated before persisting and assumed valid during execution)
  *
- * @param string|DocumentNode        $source
- * @param mixed                      $rootValue
- * @param mixed                      $contextValue
- * @param array<string, mixed>|null  $variableValues
+ * @param string|DocumentNode $source
+ * @param mixed $rootValue
+ * @param mixed $contextValue
+ * @param array<string, mixed>|null $variableValues
  * @param array<ValidationRule>|null $validationRules
  *
  * @api
@@ -1355,8 +1355,8 @@ Implements the "Evaluating requests" section of the GraphQL specification.
  * Always returns ExecutionResult and never throws.
  * All errors which occur during operation execution are collected in `$result->errors`.
  *
- * @param mixed                     $rootValue
- * @param mixed                     $contextValue
+ * @param mixed $rootValue
+ * @param mixed $contextValue
  * @param array<string, mixed>|null $variableValues
  *
  * @phpstan-param FieldResolver|null $fieldResolver
@@ -1383,8 +1383,8 @@ static function execute(
  *
  * Useful for async PHP platforms.
  *
- * @param mixed                     $rootValue
- * @param mixed                     $contextValue
+ * @param mixed $rootValue
+ * @param mixed $contextValue
  * @param array<string, mixed>|null $variableValues
  *
  * @phpstan-param FieldResolver|null $fieldResolver

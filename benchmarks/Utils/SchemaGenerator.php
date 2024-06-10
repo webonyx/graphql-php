@@ -157,9 +157,9 @@ class SchemaGenerator
     }
 
     /**
-     * @param mixed                $root
+     * @param mixed $root
      * @param array<string, mixed> $args
-     * @param mixed                $context
+     * @param mixed $context
      */
     public function resolveField($root, array $args, $context, ResolveInfo $resolveInfo): string
     {

@@ -42,7 +42,7 @@ final class QueryExecutionTest extends ServerTestCase
     }
 
     /**
-     * @param array<string, mixed>      $expected
+     * @param array<string, mixed> $expected
      * @param array<string, mixed>|null $variables
      *
      * @throws \Exception

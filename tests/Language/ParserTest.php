@@ -64,9 +64,9 @@ fragment MissingOn Type
     }
 
     /**
-     * @see          it('parse provides useful errors')
+     * @see it('parse provides useful errors')
      *
-     * @param list<int>            $expectedPositions
+     * @param list<int> $expectedPositions
      * @param list<SourceLocation> $expectedLocations
      *
      * @dataProvider parseProvidesUsefulErrors
