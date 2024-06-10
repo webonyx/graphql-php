@@ -39,7 +39,7 @@ abstract class ValidatorTestCase extends TestCase
 
     /**
      * @param array<ValidationRule> $rules
-     * @param array<string, mixed>  $options
+     * @param array<string, mixed> $options
      *
      * @throws \Exception
      * @throws \JsonException
@@ -426,7 +426,7 @@ abstract class ValidatorTestCase extends TestCase
 
     /**
      * @param array<int, array<string, mixed>> $errors
-     * @param array<string, mixed>             $options
+     * @param array<string, mixed> $options
      *
      * @throws \Exception
      * @throws \ReflectionException
@@ -444,9 +444,9 @@ abstract class ValidatorTestCase extends TestCase
     }
 
     /**
-     * @param array<ValidationRule>|null       $rules
+     * @param array<ValidationRule>|null $rules
      * @param array<int, array<string, mixed>> $expectedErrors
-     * @param array<string, mixed>             $options
+     * @param array<string, mixed> $options
      *
      * @throws \Exception
      * @throws \JsonException

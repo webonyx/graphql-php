@@ -45,7 +45,7 @@ final class MixedStoreTest extends TestCase
     }
 
     /**
-     * @param mixed $key   anything goes
+     * @param mixed $key anything goes
      * @param mixed $value anything goes
      *
      * @throws \InvalidArgumentException
@@ -69,7 +69,7 @@ final class MixedStoreTest extends TestCase
     }
 
     /**
-     * @param mixed $key   anything goes
+     * @param mixed $key anything goes
      * @param mixed $value anything goes
      *
      * @throws \InvalidArgumentException

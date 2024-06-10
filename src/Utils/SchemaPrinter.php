@@ -236,7 +236,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool>                                                          $options
+     * @param array<string, bool> $options
      * @param (Type&NamedType)|Directive|EnumValueDefinition|Argument|FieldDefinition|InputObjectField $def
      *
      * @throws \JsonException
@@ -265,7 +265,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool>  $options
+     * @param array<string, bool> $options
      * @param array<int, Argument> $args
      *
      * @phpstan-param Options $options
@@ -386,7 +386,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param array<string, bool>      $options
+     * @param array<string, bool> $options
      * @param ObjectType|InterfaceType $type
      *
      * @phpstan-param Options $options

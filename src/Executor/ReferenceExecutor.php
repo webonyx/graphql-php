@@ -123,8 +123,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * Constructs an ExecutionContext object from the arguments passed to
      * execute, which we will pass throughout the other execution methods.
      *
-     * @param mixed                $rootValue
-     * @param mixed                $contextValue
+     * @param mixed $rootValue
+     * @param mixed $contextValue
      * @param array<string, mixed> $rawVariableValues
      *
      * @phpstan-param FieldResolver $fieldResolver
@@ -521,10 +521,10 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Implements the "Evaluating selection sets" section of the spec for "write" mode.
      *
-     * @param mixed             $rootValue
-     * @param list<string|int>  $path
-     * @param list<string|int>  $unaliasedPath
-     * @param mixed             $contextValue
+     * @param mixed $rootValue
+     * @param list<string|int> $path
+     * @param list<string|int> $unaliasedPath
+     * @param mixed $contextValue
      *
      * @phpstan-param Fields $fields
      *
@@ -585,10 +585,10 @@ class ReferenceExecutor implements ExecutorImplementation
      * by calling its resolve function, then calls completeValue to complete promises,
      * serialize scalars, or execute the sub-selection-set for objects.
      *
-     * @param mixed                       $rootValue
-     * @param list<string|int>            $path
-     * @param list<string|int>            $unaliasedPath
-     * @param mixed                       $contextValue
+     * @param mixed $rootValue
+     * @param list<string|int> $path
+     * @param list<string|int> $unaliasedPath
+     * @param mixed $contextValue
      *
      * @phpstan-param Path                $path
      * @phpstan-param Path                $unaliasedPath
@@ -735,14 +735,14 @@ class ReferenceExecutor implements ExecutorImplementation
      * in the execution context.
      *
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param list<string|int>            $path
-     * @param list<string|int>            $unaliasedPath
-     * @param mixed                       $contextValue
+     * @param list<string|int> $path
+     * @param list<string|int> $unaliasedPath
+     * @param mixed $contextValue
      *
      * @phpstan-param Path                $path
      * @phpstan-param Path                $unaliasedPath
      *
-     * @param mixed                       $result
+     * @param mixed $result
      *
      * @throws Error
      *
@@ -785,10 +785,10 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param mixed                       $rawError
+     * @param mixed $rawError
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param list<string|int>            $path
-     * @param list<string|int>            $unaliasedPath
+     * @param list<string|int> $path
+     * @param list<string|int> $unaliasedPath
      *
      * @throws Error
      */
@@ -834,10 +834,10 @@ class ReferenceExecutor implements ExecutorImplementation
      * value by evaluating all sub-selections.
      *
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param list<string|int>            $path
-     * @param list<string|int>            $unaliasedPath
-     * @param mixed                       $result
-     * @param mixed                       $contextValue
+     * @param list<string|int> $path
+     * @param list<string|int> $unaliasedPath
+     * @param mixed $result
+     * @param mixed $contextValue
      *
      * @throws \Throwable
      * @throws Error
@@ -952,7 +952,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * If the callback does not return a Promise, then this function will also not
      * return a Promise.
      *
-     * @param array<mixed>       $values
+     * @param array<mixed> $values
      * @param Promise|mixed|null $initialValue
      *
      * @return Promise|mixed|null
@@ -981,7 +981,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param list<string|int> $path
      * @param list<string|int> $unaliasedPath
      * @param iterable<mixed> $results
-     * @param mixed           $contextValue
+     * @param mixed $contextValue
      *
      * @throws Error
      *
@@ -1186,10 +1186,10 @@ class ReferenceExecutor implements ExecutorImplementation
      * Complete an Object value by executing all sub-selections.
      *
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param list<string|int>            $path
-     * @param list<string|int>            $unaliasedPath
-     * @param mixed                       $result
-     * @param mixed                       $contextValue
+     * @param list<string|int> $path
+     * @param list<string|int> $unaliasedPath
+     * @param mixed $result
+     * @param mixed $contextValue
      *
      * @throws \Exception
      * @throws Error
@@ -1253,7 +1253,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<mixed>                $result
+     * @param array<mixed> $result
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
@@ -1270,10 +1270,10 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param list<string|int>            $path
-     * @param list<string|int>            $unaliasedPath
-     * @param mixed                       $result
-     * @param mixed                       $contextValue
+     * @param list<string|int> $path
+     * @param list<string|int> $unaliasedPath
+     * @param mixed $result
+     * @param mixed $contextValue
      *
      * @throws \Exception
      * @throws Error
@@ -1333,10 +1333,10 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Implements the "Evaluating selection sets" section of the spec for "read" mode.
      *
-     * @param mixed             $rootValue
+     * @param mixed $rootValue
      * @param list<string|int> $path
-     * @param list<string|int>  $unaliasedPath
-     * @param mixed             $contextValue
+     * @param list<string|int> $unaliasedPath
+     * @param mixed $contextValue
      *
      * @phpstan-param Fields $fields
      *

@@ -190,7 +190,7 @@ final class ValueFromAstTest extends TestCase
 
     /**
      * @param array<string, mixed> $variables
-     * @param mixed                $expected  any value
+     * @param mixed $expected any value
      *
      * @throws \Exception
      * @throws \JsonException

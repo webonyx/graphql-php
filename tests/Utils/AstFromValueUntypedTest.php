@@ -23,7 +23,7 @@ final class AstFromValueUntypedTest extends TestCase
     }
 
     /**
-     * @param mixed                     $expected
+     * @param mixed $expected
      * @param array<string, mixed>|null $variables
      *
      * @throws \Exception

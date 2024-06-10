@@ -117,7 +117,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
     /**
      * @param mixed $objectValue The resolved value for the object type
-     * @param mixed $context     The context that was passed to GraphQL::execute()
+     * @param mixed $context The context that was passed to GraphQL::execute()
      *
      * @return bool|Deferred|null
      */

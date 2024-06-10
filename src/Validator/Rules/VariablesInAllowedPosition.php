@@ -87,7 +87,7 @@ class VariablesInAllowedPosition extends ValidationRule
      * or the location at which it is located.
      *
      * @param ValueNode|null $varDefaultValue
-     * @param mixed          $locationDefaultValue
+     * @param mixed $locationDefaultValue
      *
      * @throws InvariantViolation
      */

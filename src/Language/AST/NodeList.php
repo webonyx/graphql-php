@@ -56,7 +56,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param int|string|null           $offset
+     * @param int|string|null $offset
      * @param Node|array<string, mixed> $value
      *
      * @phpstan-param T|array<string, mixed> $value
