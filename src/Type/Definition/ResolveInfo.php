@@ -20,6 +20,7 @@ use GraphQL\Type\Schema;
  * @phpstan-import-type QueryPlanOptions from QueryPlan
  *
  * @phpstan-type Path array<int, string|int>
+ * @phpstan-type UnaliasedPath list<string|int>
  */
 class ResolveInfo
 {
@@ -61,7 +62,7 @@ class ResolveInfo
     public ObjectType $parentType;
 
     /**
-     * Path to this field from the very root value.
+     * Path to this field from the very root value. When fields are aliased, the path includes aliases.
      *
      * @api
      *
@@ -70,6 +71,17 @@ class ResolveInfo
      * @phpstan-var Path
      */
     public array $path;
+
+    /**
+     * Path to this field from the very root value. This will never include aliases.
+     *
+     * @api
+     *
+     * @var list<string|int>
+     *
+     * @phpstan-var UnaliasedPath
+     */
+    public array $unaliasedPath;
 
     /**
      * Instance of a schema used for execution.
@@ -115,8 +127,10 @@ class ResolveInfo
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param array<int, string|int> $path
+     * @param array<int, string|int> $unaliasedPath
      *
      * @phpstan-param Path $path
+     * @phpstan-param UnaliasedPath $unaliasedPath
      *
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param mixed|null $rootValue
@@ -131,7 +145,8 @@ class ResolveInfo
         array $fragments,
         $rootValue,
         OperationDefinitionNode $operation,
-        array $variableValues
+        array $variableValues,
+        array $unaliasedPath = []
     ) {
         $this->fieldDefinition = $fieldDefinition;
         $this->fieldName = $fieldDefinition->name;
@@ -139,6 +154,7 @@ class ResolveInfo
         $this->fieldNodes = $fieldNodes;
         $this->parentType = $parentType;
         $this->path = $path;
+        $this->unaliasedPath = $unaliasedPath;
         $this->schema = $schema;
         $this->fragments = $fragments;
         $this->rootValue = $rootValue;
