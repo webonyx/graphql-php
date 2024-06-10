@@ -89,6 +89,7 @@ class BuildClientSchema
      *
      * @api
      *
+     * @throws \Exception
      * @throws InvariantViolation
      */
     public static function build(array $introspectionQuery, array $options = []): Schema
@@ -96,7 +97,10 @@ class BuildClientSchema
         return (new self($introspectionQuery, $options))->buildSchema();
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
     public function buildSchema(): Schema
     {
         if (! \array_key_exists('__schema', $this->introspection)) {

@@ -83,7 +83,10 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($promise->reject($reason), $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
     public function all(iterable $promisesOrValues): Promise
     {
         $all = new SyncPromise();
