@@ -308,7 +308,7 @@ Passed as 4th argument to every field resolver. See [docs on field resolving (da
 
 @phpstan-import-type QueryPlanOptions from QueryPlan
 
-@phpstan-type Path array<int, string|int>
+@phpstan-type Path list<string|int>
 
 ### GraphQL\Type\Definition\ResolveInfo Props
 
@@ -355,7 +355,7 @@ public $parentType;
  *
  * @api
  *
- * @var array<int, string|int>
+ * @var list<string|int>
  *
  * @phpstan-var Path
  */
@@ -1743,7 +1743,7 @@ function getLocations(): array
  * Returns an array describing the path from the root value to the field which produced this error.
  * Only included for execution errors. When fields are aliased, the path includes aliases.
  *
- * @return array<int, int|string>|null
+ * @return list<int|string>|null
  *
  * @api
  */
