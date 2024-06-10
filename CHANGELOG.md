@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.12.0
+
+### Added
+
+- Add property `unaliasedPath` to `ResolveInfo` https://github.com/webonyx/graphql-php/pull/1548
+
 ## v15.11.2
 
 ### Fixed
