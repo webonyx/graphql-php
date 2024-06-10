@@ -43,6 +43,7 @@ const ENTRIES = [
  * @param array{constants?: bool, props?: bool, methods?: bool} $options
  *
  * @throws ExceptionInterface
+ * @throws ReflectionException
  */
 function renderClass(ReflectionClass $class, array $options): string
 {
@@ -99,6 +100,10 @@ function renderClass(ReflectionClass $class, array $options): string
     TEMPLATE;
 }
 
+/**
+ * @throws ExceptionInterface
+ * @throws ReflectionException
+ */
 function renderMethod(ReflectionMethod $method): string
 {
     $args = array_map(
