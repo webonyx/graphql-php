@@ -1350,9 +1350,6 @@ class ReferenceExecutor implements ExecutorImplementation
         $containsPromise = false;
         $results = [];
         foreach ($fields as $responseName => $fieldNodes) {
-            $fieldNodes = $fields[$responseName];
-            assert($fieldNodes instanceof \ArrayObject, 'The keys of $fields populate $responseName');
-
             $fieldPath = $path;
             $fieldPath[] = $responseName;
 
