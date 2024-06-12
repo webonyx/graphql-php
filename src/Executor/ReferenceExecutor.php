@@ -205,8 +205,8 @@ class ReferenceExecutor implements ExecutorImplementation
             return $errors;
         }
 
-        assert($operation instanceof OperationDefinitionNode, 'Has operation if no errors.');
-        assert(\is_array($variableValues), 'Has variables if no errors.');
+        \assert($operation instanceof OperationDefinitionNode, 'Has operation if no errors.');
+        \assert(\is_array($variableValues), 'Has variables if no errors.');
 
         return new ExecutionContext(
             $schema,
@@ -536,18 +536,17 @@ class ReferenceExecutor implements ExecutorImplementation
             \array_keys($fields->getArrayCopy()),
             function ($results, $responseName) use ($contextValue, $path, $unaliasedPath, $parentType, $rootValue, $fields) {
                 $fieldNodes = $fields[$responseName];
-                assert($fieldNodes instanceof \ArrayObject, 'The keys of $fields populate $responseName');
+                \assert($fieldNodes instanceof \ArrayObject, 'The keys of $fields populate $responseName');
 
-                $fieldPath = $path;
-                $fieldPath[] = $responseName;
-
-                $fieldNode = $fieldNodes[0];
-                assert($fieldNode instanceof FieldNode, '$fieldNodes is non-empty');
-
-                $fieldUnaliasedPath = $unaliasedPath;
-                $fieldUnaliasedPath[] = $fieldNode->name->value;
-
-                $result = $this->resolveField($parentType, $rootValue, $fieldNodes, $fieldPath, $fieldUnaliasedPath, $this->maybeScopeContext($contextValue));
+                $result = $this->resolveField(
+                    $parentType,
+                    $rootValue,
+                    $fieldNodes,
+                    $responseName,
+                    $path,
+                    $unaliasedPath,
+                    $this->maybeScopeContext($contextValue)
+                );
                 if ($result === static::$UNDEFINED) {
                     return $results;
                 }
@@ -600,17 +599,28 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @return array<mixed>|\Throwable|mixed|null
      */
-    protected function resolveField(ObjectType $parentType, $rootValue, \ArrayObject $fieldNodes, array $path, array $unaliasedPath, $contextValue)
-    {
+    protected function resolveField(
+        ObjectType $parentType,
+        $rootValue,
+        \ArrayObject $fieldNodes,
+        string $responseName,
+        array $path,
+        array $unaliasedPath,
+        $contextValue
+    ) {
         $exeContext = $this->exeContext;
+
         $fieldNode = $fieldNodes[0];
-        assert($fieldNode instanceof FieldNode, '$fieldNodes is non-empty');
+        \assert($fieldNode instanceof FieldNode, '$fieldNodes is non-empty');
 
         $fieldName = $fieldNode->name->value;
         $fieldDef = $this->getFieldDef($exeContext->schema, $parentType, $fieldName);
         if ($fieldDef === null || ! $fieldDef->isVisible()) {
             return static::$UNDEFINED;
         }
+
+        $path[] = $responseName;
+        $unaliasedPath[] = $fieldName;
 
         $returnType = $fieldDef->getType();
         // The resolve function's optional 3rd argument is a context value that
@@ -892,11 +902,11 @@ class ReferenceExecutor implements ExecutorImplementation
             return $this->completeListValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $result, $contextValue);
         }
 
-        assert($returnType instanceof NamedType, 'Wrapping types should return early');
+        \assert($returnType instanceof NamedType, 'Wrapping types should return early');
 
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
-        assert(
+        \assert(
             $returnType === $this->exeContext->schema->getType($returnType->name),
             SchemaValidationContext::duplicateType($this->exeContext->schema, "{$info->parentType}.{$info->fieldName}", $returnType->name)
         );
@@ -1235,7 +1245,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 });
             }
 
-            assert(is_bool($isTypeOf), 'Promise would return early');
+            \assert(is_bool($isTypeOf), 'Promise would return early');
             if (! $isTypeOf) {
                 throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
             }
@@ -1350,16 +1360,15 @@ class ReferenceExecutor implements ExecutorImplementation
         $containsPromise = false;
         $results = [];
         foreach ($fields as $responseName => $fieldNodes) {
-            $fieldPath = $path;
-            $fieldPath[] = $responseName;
-
-            $fieldNode = $fieldNodes[0];
-            assert($fieldNode instanceof FieldNode, '$fieldNodes is non-empty');
-
-            $fieldUnaliasedPath = $unaliasedPath;
-            $fieldUnaliasedPath[] = $fieldNode->name->value;
-
-            $result = $this->resolveField($parentType, $rootValue, $fieldNodes, $fieldPath, $fieldUnaliasedPath, $this->maybeScopeContext($contextValue));
+            $result = $this->resolveField(
+                $parentType,
+                $rootValue,
+                $fieldNodes,
+                $responseName,
+                $path,
+                $unaliasedPath,
+                $this->maybeScopeContext($contextValue)
+            );
             if ($result === static::$UNDEFINED) {
                 continue;
             }
@@ -1449,12 +1458,12 @@ class ReferenceExecutor implements ExecutorImplementation
             throw new InvariantViolation("Runtime Object type \"{$runtimeType}\" is not a possible type for \"{$returnType}\".");
         }
 
-        assert(
+        \assert(
             $this->exeContext->schema->getType($runtimeType->name) !== null,
             "Schema does not contain type \"{$runtimeType}\". This can happen when an object type is only referenced indirectly through abstract types and never directly through fields.List the type in the option \"types\" during schema construction, see https://webonyx.github.io/graphql-php/schema-definition/#configuration-options."
         );
 
-        assert(
+        \assert(
             $runtimeType === $this->exeContext->schema->getType($runtimeType->name),
             "Schema must contain unique named types but contains multiple types named \"{$runtimeType}\". Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry)."
         );
