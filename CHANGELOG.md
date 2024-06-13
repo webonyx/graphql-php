@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.12.2
+
+### Changed
+
+- Optimize and deduplicate ReferenceExecutor https://github.com/webonyx/graphql-php/pull/1572
+
 ## v15.12.1
 
 ### Fixed
