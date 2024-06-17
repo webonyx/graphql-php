@@ -7,6 +7,7 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
+use PHPUnit\Framework\Test;
 
 /**
  * This class is used for [default error formatting](error-handling.md).
@@ -299,7 +300,12 @@ class FormattedError
         }
 
         if (\is_object($var)) {
-            return 'instance of ' . \get_class($var) . ($var instanceof \Countable ? '(' . \count($var) . ')' : '');
+            // Calling `count` on instances of `PHPUnit\Framework\Test` triggers an unintended side effect - see https://github.com/sebastianbergmann/phpunit/issues/5866#issuecomment-2172429263
+            $count = ! $var instanceof Test && $var instanceof \Countable
+                ? '(' . \count($var) . ')'
+                : '';
+
+            return 'instance of ' . \get_class($var) . $count;
         }
 
         if (\is_array($var)) {
