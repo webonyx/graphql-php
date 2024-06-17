@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.12.3
+
+### Fixed
+
+- Avoid crash by triggering side effect via `count` on `PHPUnit\Framework\Test` https://github.com/webonyx/graphql-php/pull/1577
+
 ## v15.12.2
 
 ### Changed
