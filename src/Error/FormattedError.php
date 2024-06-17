@@ -300,6 +300,7 @@ class FormattedError
         }
 
         if (\is_object($var)) {
+            // Calling `count` on instances of `PHPUnit\Framework\Test` triggers an unintended side effect - see https://github.com/sebastianbergmann/phpunit/issues/5866#issuecomment-2172429263
             $count = ! $var instanceof Test && $var instanceof \Countable
                 ? '(' . \count($var) . ')'
                 : '';
