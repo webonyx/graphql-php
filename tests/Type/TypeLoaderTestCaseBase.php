@@ -38,7 +38,7 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
             ]),
             'typeLoader' => static fn () => null,
         ]);
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     public function testSchemaRejectsNonCallableTypeLoader(): void

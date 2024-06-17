@@ -133,7 +133,7 @@ final class BuildSchemaTest extends TestCaseBase
         ';
         // Should not throw
         BuildSchema::build($sdl);
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('Match order of default types and directives') */

@@ -567,7 +567,7 @@ final class ValidationTest extends TestCaseBase
             ])
         );
         $schema->assertValid();
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('accepts field args with valid names') */

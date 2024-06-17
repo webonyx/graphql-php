@@ -994,7 +994,7 @@ final class DefinitionTest extends TestCaseBase
     public function testAcceptsALambdaAsAnObjectFieldResolver(): void
     {
         $this->schemaWithObjectWithFieldResolver(static fn () => null);
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /**
@@ -1065,7 +1065,7 @@ final class DefinitionTest extends TestCaseBase
                 'fields' => ['f' => ['type' => Type::string()]],
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('accepts an Interface type with an array of interfaces') */
@@ -1159,7 +1159,7 @@ final class DefinitionTest extends TestCaseBase
                 'fields' => ['f' => ['type' => Type::string()]],
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('accepts an Interface type defining resolveType with implementing type defining isTypeOf') */
@@ -1177,7 +1177,7 @@ final class DefinitionTest extends TestCaseBase
                 'fields' => ['f' => ['type' => Type::string()]],
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('rejects an Interface type with an incorrect type for resolveType') */
@@ -1206,7 +1206,7 @@ final class DefinitionTest extends TestCaseBase
                 'types' => [$this->objectType],
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('accepts a Union of Object types defining isTypeOf') */
@@ -1218,7 +1218,7 @@ final class DefinitionTest extends TestCaseBase
                 'types' => [$this->objectWithIsTypeOf],
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('accepts a Union type defining resolveType of Object types defining isTypeOf') */
@@ -1230,7 +1230,7 @@ final class DefinitionTest extends TestCaseBase
                 'types' => [$this->objectWithIsTypeOf],
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('rejects an Union type with an incorrect type for resolveType') */
@@ -1258,7 +1258,7 @@ final class DefinitionTest extends TestCaseBase
                 'serialize' => static fn () => null,
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     // Type System: Scalar types must be serializable
@@ -1288,7 +1288,7 @@ final class DefinitionTest extends TestCaseBase
                 'parseLiteral' => static function (): void {},
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('rejects a Scalar type defining parseValue but not parseLiteral') */
@@ -1344,7 +1344,7 @@ final class DefinitionTest extends TestCaseBase
                 'fields' => ['f' => ['type' => Type::string()]],
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     // Type System: Object types must be assertable
@@ -1374,7 +1374,7 @@ final class DefinitionTest extends TestCaseBase
                 'types' => [$this->objectType],
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     // Type System: Union types must be array
@@ -1388,7 +1388,7 @@ final class DefinitionTest extends TestCaseBase
                 'types' => fn (): array => [$this->objectType],
             ])
         );
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('rejects a Union type without types') */
