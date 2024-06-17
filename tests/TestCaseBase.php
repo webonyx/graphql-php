@@ -17,7 +17,7 @@ abstract class TestCaseBase extends TestCase
      */
     public function assertDidNotCrash(): void
     {
-        self::addToAssertionCount(1);
+        $this->addToAssertionCount(1);
     }
 
     protected static function assertASTMatches(string $expected, ?Node $node): void
