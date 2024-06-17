@@ -415,6 +415,6 @@ final class SyncPromiseTest extends TestCaseBase
     public function testRunEmptyQueue(): void
     {
         SyncPromise::runQueue();
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 }

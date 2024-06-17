@@ -113,7 +113,7 @@ fragment MissingOn Type
     public function testParsesVariableInlineValues(): void
     {
         Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('parses constant default values') */
@@ -130,7 +130,7 @@ fragment MissingOn Type
     public function testParsesVariableDefinitionDirectives(): void
     {
         Parser::parse('query Foo($x: Boolean = false @bar) { field }');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /**
@@ -264,7 +264,7 @@ GRAPHQL
             mutationField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('parses anonymous subscription operations') */
@@ -275,7 +275,7 @@ GRAPHQL
             subscriptionField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('parses named mutation operations') */
@@ -286,7 +286,7 @@ GRAPHQL
             mutationField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('parses named subscription operations') */
@@ -297,7 +297,7 @@ GRAPHQL
             subscriptionField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('creates ast') */

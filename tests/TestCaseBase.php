@@ -15,10 +15,9 @@ abstract class TestCaseBase extends TestCase
      *
      * @see TestCase::expectNotToPerformAssertions()
      */
-    public static function assertDidNotCrash(): void
+    public function assertDidNotCrash(): void
     {
-        // @phpstan-ignore-next-line this truism is required to prevent a PHPUnit warning
-        self::assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     protected static function assertASTMatches(string $expected, ?Node $node): void
