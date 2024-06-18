@@ -4,7 +4,7 @@ namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
-use GraphQL\Examples\Blog\Types;
+use GraphQL\Examples\Blog\TypeRegistry;
 use GraphQL\Type\Definition\UnionType;
 
 class SearchResultType extends UnionType
@@ -14,16 +14,16 @@ class SearchResultType extends UnionType
         parent::__construct([
             'name' => 'SearchResult',
             'types' => static fn (): array => [
-                Types::story(),
-                Types::user(),
+                TypeRegistry::type(StoryType::class),
+                TypeRegistry::type(UserType::class),
             ],
             'resolveType' => static function (object $value): callable {
                 if ($value instanceof Story) {
-                    return Types::story();
+                    return TypeRegistry::type(StoryType::class);
                 }
 
                 if ($value instanceof User) {
-                    return Types::user();
+                    return TypeRegistry::type(UserType::class);
                 }
 
                 $unknownType = \get_class($value);

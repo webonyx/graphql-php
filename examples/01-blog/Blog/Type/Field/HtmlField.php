@@ -4,7 +4,8 @@ namespace GraphQL\Examples\Blog\Type\Field;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
-use GraphQL\Examples\Blog\Types;
+use GraphQL\Examples\Blog\TypeRegistry;
+use GraphQL\Type\Definition\Type;
 
 class HtmlField
 {
@@ -25,13 +26,13 @@ class HtmlField
         // Usual example: when the same field with same args shows up in different types
         // (for example when it is a part of some interface)
         return [
-            'type' => Types::string(),
+            'type' => Type::string(),
             'args' => [
                 'format' => [
-                    'type' => Types::contentFormat(),
+                    'type' => TypeRegistry::type(ContentFormatType::class),
                     'defaultValue' => ContentFormatType::FORMAT_HTML,
                 ],
-                'maxLength' => Types::int(),
+                'maxLength' => Type::int(),
             ],
             'resolve' => static function ($rootValue, array $args) use ($resolver): ?string {
                 $html = $resolver($rootValue, $args);
