@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 // php -S localhost:8080 graphql.php
-// curl -d '{"query": "query { product article }" }' -H "Content-Type: application/json" localhost:8080
+// curl --data '{"query": "query { product article }" }' --header "Content-Type: application/json" localhost:8080
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 

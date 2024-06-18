@@ -4,7 +4,7 @@
 // php -S localhost:8080 graphql.php
 
 // Try query
-// curl -d '{"query": "query { hello }" }' -H "Content-Type: application/json" http://localhost:8080
+// curl --data '{"query": "query { hello }" }' --header "Content-Type: application/json" http://localhost:8080
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
